@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Variables CSS MAYA LEX ── */
+:root {
+  --jade: #2D9B8A;
+  --jade-light: #3DB8A5;
+  --gold: #C9A84C;
+  --gold-light: #E0BF6E;
+  --navy: #0D1B3E;
+  --navy-light: #1A2F5A;
+  --navy-medium: #243E73;
+}
+
+/* ── Fuentes del sistema ── */
+@layer base {
+  html {
+    font-family: Inter, system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-navy text-white antialiased;
+  }
+
+  /* Scrollbar personalizado */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0D1B3E;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2D9B8A;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #C9A84C;
+  }
+}
+
+/* ── Utilidades MAYA LEX ── */
+@layer utilities {
+  .text-gradient-maya {
+    background: linear-gradient(135deg, #2D9B8A 0%, #C9A84C 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-maya {
+    background: linear-gradient(135deg, #2D9B8A 0%, #C9A84C 100%);
+  }
+
+  .border-gradient-maya {
+    border: 1px solid;
+    border-image: linear-gradient(135deg, #2D9B8A, #C9A84C) 1;
+  }
+
+  .glass-card {
+    @apply bg-navy-light/40 backdrop-blur-sm border border-white/10 rounded-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card hover:border-jade/40 hover:bg-navy-light/60 transition-all duration-300;
+  }
+}
+
+/* ── Animación de cursor parpadeante para typing ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '▌';
+  color: #2D9B8A;
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Prosa legal (markdown renderizado) ── */
+@layer components {
+  .prose-legal {
+    @apply prose prose-invert max-w-none;
+    @apply prose-headings:text-gold prose-headings:font-serif;
+    @apply prose-strong:text-jade-light;
+    @apply prose-code:text-gold prose-code:bg-navy/60 prose-code:px-1 prose-code:rounded;
+    @apply prose-blockquote:border-jade prose-blockquote:text-white/70;
+    @apply prose-a:text-jade-light prose-a:no-underline hover:prose-a:underline;
+    @apply prose-hr:border-white/10;
+    @apply prose-table:text-sm;
+    @apply prose-th:text-gold prose-th:border-white/20;
+    @apply prose-td:border-white/10;
+  }
+
+  /* Botón primario jade */
+  .btn-jade {
+    @apply bg-jade hover:bg-jade-light text-white font-semibold
+           px-6 py-3 rounded-xl transition-all duration-200
+           shadow-lg shadow-jade/20 hover:shadow-jade/40
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Botón secundario gold */
+  .btn-gold {
+    @apply bg-gold hover:bg-gold-light text-navy font-semibold
+           px-6 py-3 rounded-xl transition-all duration-200
+           shadow-lg shadow-gold/20 hover:shadow-gold/40
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Botón ghost */
+  .btn-ghost {
+    @apply border border-white/20 hover:border-jade/60 text-white/70 hover:text-white
+           px-6 py-3 rounded-xl transition-all duration-200 hover:bg-jade/10
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Badge de modo */
+  .mode-badge {
+    @apply text-xs font-medium px-2.5 py-1 rounded-full border;
+  }
+
+  .mode-badge-sala {
+    @apply mode-badge border-gold/40 text-gold bg-gold/10;
+  }
+
+  .mode-badge-analisis {
+    @apply mode-badge border-jade/40 text-jade-light bg-jade/10;
+  }
+
+  .mode-badge-documento {
+    @apply mode-badge border-navy-medium text-white/70 bg-navy-medium/30;
+  }
+}
