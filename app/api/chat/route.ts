@@ -198,9 +198,8 @@ export async function POST(req: NextRequest) {
               break;
 
             case 'content_block_start':
-              // Ignorar bloques de thinking (no enviar al cliente)
-              if (event.content_block.type === 'thinking') {
-                // Solo enviamos indicador de "pensando"
+              // 'thinking' es un tipo válido en claude-opus-4-7 aunque el SDK aún no lo tipifica
+              if ((event.content_block as { type: string }).type === 'thinking') {
                 controller.enqueue(
                   sseEvent({ type: 'thinking', thinking: true })
                 );

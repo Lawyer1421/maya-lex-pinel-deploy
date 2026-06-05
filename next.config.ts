@@ -32,11 +32,10 @@ function loadEnvLocal() {
 // Cargar antes de que Next.js procese el config
 loadEnvLocal();
 
-const nextConfig: NextConfig = {
-  // Exponer variables de servidor al runtime de API routes
-  serverRuntimeConfig: {
-    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-  },
-};
+// serverRuntimeConfig fue eliminado en Next.js 15+.
+// Las env vars de servidor se leen directamente desde process.env en las API routes.
+// La ANTHROPIC_API_KEY se carga vía Windows env var (registrada permanentemente)
+// o via loadEnvLocal() arriba para desarrollo local.
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
