@@ -1,15 +1,19 @@
 /**
  * POST /api/chat
- * MAYA LEX IA PINEL HN — Streaming Chat con Claude API
+ * MAYA PENAL / MAYA LEX IA — Streaming Chat con Claude API
  *
  * Request body:
  *   messages : { role: 'user'|'assistant', content: string }[]
- *   mode     : 'sala_ia' | 'analisis' | 'documento'
+ *   mode     : ChatMode (MAYA LEX) | ChatModePenal (MAYA PENAL)
  *
- * Response: SSE stream
- *   data: { type: 'text', text: string }
- *   data: { type: 'done', usage: { input_tokens, output_tokens } }
- *   data: { type: 'error', message: string }
+ * Modos MAYA LEX:   'sala_ia' | 'analisis' | 'documento'
+ * Modos MAYA PENAL: 'sala_penal' | 'analisis_penal' | 'escritos_penales'
+ *
+ * Response SSE stream:
+ *   data: { type: 'text',     text: string }
+ *   data: { type: 'thinking', thinking: true }
+ *   data: { type: 'done',     usage: { inputTokens, outputTokens }, remaining, tier }
+ *   data: { type: 'error',    message: string }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,22 +22,27 @@ import {
   checkAndIncrementRateLimit,
   getUserIdentifier,
 } from '@/lib/rate-limit';
-import { CLAUDE_CONFIG, ChatMode } from '@/lib/system-prompt';
+import {
+  CLAUDE_CONFIG,
+  CLAUDE_CONFIG_PENAL,
+  ChatMode,
+  ChatModePenal,
+} from '@/lib/system-prompt';
 
-// Cliente Anthropic — se crea lazily dentro del handler para garantizar
-// que process.env.ANTHROPIC_API_KEY esté disponible en runtime
+// Cliente Anthropic — lazy init para garantizar env var en runtime
 let _anthropic: Anthropic | null = null;
 
 function getAnthropicClient(): Anthropic {
   if (!_anthropic) {
-    _anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY!,
-    });
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
   }
   return _anthropic;
 }
 
-// Tipos
+// ── Tipos ──────────────────────────────────────────────────────────────────
+
+type AnyMode = ChatMode | ChatModePenal;
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -41,7 +50,23 @@ interface ChatMessage {
 
 interface ChatRequest {
   messages: ChatMessage[];
-  mode?: ChatMode;
+  mode?: AnyMode;
+}
+
+// Todos los modos válidos (MAYA LEX + MAYA PENAL)
+const VALID_MODES: AnyMode[] = [
+  // MAYA LEX
+  'sala_ia', 'analisis', 'documento',
+  // MAYA PENAL
+  'sala_penal', 'analisis_penal', 'escritos_penales',
+];
+
+/** Devuelve la config de Claude según el modo solicitado */
+function getConfig(mode: AnyMode) {
+  if (mode in CLAUDE_CONFIG_PENAL) {
+    return CLAUDE_CONFIG_PENAL[mode as ChatModePenal];
+  }
+  return CLAUDE_CONFIG[mode as ChatMode];
 }
 
 // Encoder para SSE
@@ -72,11 +97,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validar modo
-  const validModes: ChatMode[] = ['sala_ia', 'analisis', 'documento'];
-  if (!validModes.includes(mode)) {
+  // Validar modo (MAYA LEX + MAYA PENAL)
+  if (!VALID_MODES.includes(mode)) {
     return NextResponse.json(
-      { error: `mode debe ser: ${validModes.join(', ')}` },
+      { error: `mode debe ser uno de: ${VALID_MODES.join(', ')}` },
       { status: 400 }
     );
   }
@@ -121,8 +145,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ─── 3. Configurar Claude según modo ─────────────────────────────
-  const config = CLAUDE_CONFIG[mode];
+  // ─── 3. Configurar Claude según modo (MAYA LEX o MAYA PENAL) ─────
+  const config = getConfig(mode);
 
   // Limpiar y validar mensajes para la API
   const claudeMessages: Anthropic.MessageParam[] = messages
@@ -256,12 +280,17 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
-    service: 'MAYA LEX IA PINEL HN',
-    version: '1.1.0',
-    models: {
-      sala_ia: CLAUDE_CONFIG.sala_ia.model,
-      analisis: CLAUDE_CONFIG.analisis.model,
+    service: 'MAYA PENAL / MAYA LEX IA PINEL HN',
+    version: '2.0.0',
+    modos_maya_lex: {
+      sala_ia:   CLAUDE_CONFIG.sala_ia.model,
+      analisis:  CLAUDE_CONFIG.analisis.model,
       documento: CLAUDE_CONFIG.documento.model,
+    },
+    modos_maya_penal: {
+      sala_penal:       CLAUDE_CONFIG_PENAL.sala_penal.model,
+      analisis_penal:   CLAUDE_CONFIG_PENAL.analisis_penal.model,
+      escritos_penales: CLAUDE_CONFIG_PENAL.escritos_penales.model,
     },
   });
 }
