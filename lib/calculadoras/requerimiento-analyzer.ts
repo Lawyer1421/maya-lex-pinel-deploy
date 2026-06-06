@@ -7,9 +7,20 @@
  * requerimiento. No predice resultados judiciales. La estrategia final la
  * determina el abogado responsable del caso.
  *
- * PLACEHOLDER PENDIENTE: El Abogado Pinel debe insertar los textos literales
- * de los artículos del CPP en las secciones marcadas con [INSERTAR...].
+ * Los textos literales de los artículos se gestionan centralmente en:
+ *   lib/normas-cpp.ts  ← insertar ahí, no aquí.
  */
+
+import {
+  ART_294_CPP,
+  ART_276_CPP,
+  ART_166_CPP,
+  ART_200_CPP,
+  ART_316_CPP,
+  ART_297_CPP,
+  ART_88_CONST,
+  ART_89_CONST,
+} from '@/lib/normas-cpp';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
@@ -45,20 +56,20 @@ export interface ResultadoAnalisis {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TEXTOS NORMATIVOS — INSERTAR TEXTOS LITERALES
+// TEXTOS NORMATIVOS — importados desde lib/normas-cpp.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// El Abogado Pinel debe reemplazar cada placeholder con el texto literal
-// del artículo correspondiente del CPP (Decreto 9-99-E).
+// Para insertar los textos literales de los artículos, edite lib/normas-cpp.ts.
+// Este objeto sólo agrega los aliases que usa el motor de análisis.
 
 const NORMAS = {
-  art_294_cpp: '[INSERTAR TEXTO LITERAL ART. 294 CPP — Contenido del Requerimiento Fiscal]',
-  art_276_cpp: '[INSERTAR TEXTO LITERAL ART. 276 CPP — Inicio de la investigación]',
-  art_166_cpp: '[INSERTAR TEXTO LITERAL ART. 166 CPP — Nulidades absolutas]',
-  art_200_cpp: '[INSERTAR TEXTO LITERAL ART. 200 CPP — Prueba prohibida / ilícita]',
-  art_88_cst: 'Art. 88 Constitución HN: "Nadie puede ser obligado a declarar contra sí mismo... No tendrá valor ninguna declaración obtenida por medio de incomunicación, amenaza o torturas."',
-  art_89_cst: 'Art. 89 Constitución HN: "Toda persona es inocente mientras no se le haya declarado su responsabilidad por autoridad competente."',
-  art_316_cpp: '[INSERTAR TEXTO LITERAL ART. 316 CPP — Excepciones procesales]',
-  art_297_cpp: '[INSERTAR TEXTO LITERAL ART. 297 CPP — Sobreseimiento]',
+  art_294_cpp: ART_294_CPP,
+  art_276_cpp: ART_276_CPP,
+  art_166_cpp: ART_166_CPP,
+  art_200_cpp: ART_200_CPP,
+  art_88_cst:  ART_88_CONST,
+  art_89_cst:  ART_89_CONST,
+  art_316_cpp: ART_316_CPP,
+  art_297_cpp: ART_297_CPP,
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
