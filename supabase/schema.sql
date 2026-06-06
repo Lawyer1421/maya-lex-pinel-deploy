@@ -115,6 +115,103 @@ GROUP BY query_date
 ORDER BY query_date DESC;
 
 -- =====================================================
+-- BIBLIOTECA PENAL PINEL — RAG con pgvector
+-- Equivalente producción de ChromaDB (python-rag/)
+-- Ejecutar DESPUÉS de habilitar la extensión vector en Supabase:
+--   Extensions → vector → Enable
+-- =====================================================
+
+-- Habilitar extensión pgvector
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Tabla principal de fragmentos jurídicos
+CREATE TABLE IF NOT EXISTS public.biblioteca_penal (
+  id             UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  coleccion      TEXT        NOT NULL DEFAULT 'cpp_honduras',  -- 'cpp_honduras' | 'cp_honduras' | 'csj_jurisprudencia'
+  contenido      TEXT        NOT NULL,                         -- Texto del fragmento
+  num_articulo   TEXT,                                         -- '294', '178', null si no aplica
+  fuente         TEXT        NOT NULL DEFAULT 'CPP Honduras (D.9-99-E)',
+  pagina         INTEGER,
+  chunk_id       INTEGER,
+  embedding      vector(384),                                  -- paraphrase-multilingual-MiniLM-L12-v2 = 384 dims
+  metadatos      JSONB       DEFAULT '{}'::jsonb,
+  created_at     TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+-- Índice HNSW para búsqueda por similitud coseno (más rápido que ivfflat)
+CREATE INDEX IF NOT EXISTS idx_biblioteca_penal_embedding
+  ON public.biblioteca_penal
+  USING hnsw (embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64);
+
+-- Índice FTS para búsqueda por número de artículo
+CREATE INDEX IF NOT EXISTS idx_biblioteca_penal_articulo
+  ON public.biblioteca_penal (num_articulo)
+  WHERE num_articulo IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_biblioteca_penal_coleccion
+  ON public.biblioteca_penal (coleccion);
+
+-- RLS
+ALTER TABLE public.biblioteca_penal ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "service_role_full_access_biblioteca" ON public.biblioteca_penal
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Lectura pública para búsquedas anónimas (el embedding no contiene datos personales)
+CREATE POLICY "public_read_biblioteca" ON public.biblioteca_penal
+  FOR SELECT USING (true);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- FUNCIÓN: Búsqueda híbrida (semántica + filtro por artículo)
+-- Llamar desde TypeScript: supabase.rpc('buscar_biblioteca_penal', {...})
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.buscar_biblioteca_penal(
+  consulta_texto    TEXT,
+  consulta_embedding vector(384),
+  limite            INT     DEFAULT 5,
+  coleccion_filtro  TEXT    DEFAULT 'cpp_honduras',
+  umbral_similitud  FLOAT   DEFAULT 0.3
+)
+RETURNS TABLE (
+  id            UUID,
+  contenido     TEXT,
+  num_articulo  TEXT,
+  fuente        TEXT,
+  coleccion     TEXT,
+  similarity    FLOAT
+)
+LANGUAGE sql STABLE
+AS $$
+  SELECT
+    bp.id,
+    bp.contenido,
+    bp.num_articulo,
+    bp.fuente,
+    bp.coleccion,
+    1 - (bp.embedding <=> consulta_embedding) AS similarity
+  FROM public.biblioteca_penal bp
+  WHERE
+    bp.coleccion = coleccion_filtro
+    AND bp.embedding IS NOT NULL
+    AND (1 - (bp.embedding <=> consulta_embedding)) >= umbral_similitud
+  ORDER BY bp.embedding <=> consulta_embedding
+  LIMIT limite;
+$$;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- NOTAS DE MIGRACIÓN DESDE CHROMADB
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Una vez que el índice ChromaDB local esté listo (python-rag/), migrar a Supabase:
+--
+--   python python-rag/migrate_to_supabase.py \
+--     --coleccion cpp_honduras \
+--     --supabase-url $SUPABASE_URL \
+--     --supabase-key $SUPABASE_SERVICE_KEY
+--
+-- El script migrate_to_supabase.py (pendiente de crear) exporta los embeddings
+-- de ChromaDB e inserta en public.biblioteca_penal con upsert.
+
+-- =====================================================
 -- DATOS INICIALES: Admin
 -- =====================================================
 -- Para agregar al Abogado Pinel como admin:
