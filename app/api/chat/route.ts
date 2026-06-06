@@ -28,6 +28,7 @@ import {
   ChatMode,
   ChatModePenal,
 } from '@/lib/system-prompt';
+import { buscarRAG, formatearContextoRAG } from '@/lib/rag/search';
 
 // Cliente Anthropic — lazy init para garantizar env var en runtime
 let _anthropic: Anthropic | null = null;
@@ -156,6 +157,31 @@ export async function POST(req: NextRequest) {
       content: m.content.trim(),
     }));
 
+  // ─── 3b. RAG — Buscar contexto del CPP/CP si está habilitado ──────
+  // Solo activo cuando RAG_BACKEND = 'python' o 'supabase' en .env.local.
+  // El modo 'disabled' retorna vacío sin llamadas externas.
+  let systemConRAG = config.systemPrompt;
+  const modosConRAG: AnyMode[] = ['analisis_penal', 'escritos_penales', 'analisis', 'documento'];
+
+  if (modosConRAG.includes(mode)) {
+    const ultimaPregunta = claudeMessages
+      .filter(m => m.role === 'user')
+      .at(-1)?.content ?? '';
+
+    if (typeof ultimaPregunta === 'string' && ultimaPregunta.length > 10) {
+      const coleccion = mode.includes('penal') ? 'cpp_honduras' : 'cpp_honduras';
+      const ragResultado = await buscarRAG(ultimaPregunta, 5, coleccion);
+      const contextoRAG = formatearContextoRAG(ragResultado);
+
+      if (contextoRAG) {
+        systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
+        if (process.env.DEBUG_CLAUDE === 'true') {
+          console.log(`[RAG] Backend: ${ragResultado.backend} | Artículos: ${ragResultado.articulos_encontrados.join(',')}`);
+        }
+      }
+    }
+  }
+
   // ─── 4. Streaming Response ─────────────────────────────────────────
   const stream = new ReadableStream({
     async start(controller) {
@@ -164,7 +190,7 @@ export async function POST(req: NextRequest) {
         const params: Anthropic.MessageCreateParamsStreaming = {
           model: config.model,
           max_tokens: config.max_tokens,
-          system: config.systemPrompt,
+          system: systemConRAG,    // ← Incluye contexto RAG cuando está disponible
           messages: claudeMessages,
           stream: true,
         };

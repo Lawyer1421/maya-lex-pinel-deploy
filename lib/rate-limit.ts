@@ -8,12 +8,15 @@
 
 import { createServerSupabaseClient } from './supabase';
 
-const FREE_LIMIT = parseInt(process.env.FREE_TIER_DAILY_LIMIT ?? '3', 10);
-const PRO_LIMIT = parseInt(process.env.PRO_TIER_DAILY_LIMIT ?? '100', 10);
+const FREE_LIMIT      = parseInt(process.env.FREE_TIER_DAILY_LIMIT      ?? '3',   10);
+const PRO_LIMIT       = parseInt(process.env.PRO_TIER_DAILY_LIMIT       ?? '1000', 10);
+const ACADEMICO_LIMIT = parseInt(process.env.ACADEMICO_TIER_DAILY_LIMIT ?? '20',  10);
+
+export type UserTier = 'free' | 'pro' | 'academico' | 'admin';
 
 export type RateLimitResult =
-  | { allowed: true; remaining: number; tier: 'free' | 'pro' | 'admin' }
-  | { allowed: false; remaining: 0; tier: 'free' | 'pro'; resetAt: string };
+  | { allowed: true;  remaining: number; tier: UserTier }
+  | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string };
 
 /**
  * Extrae el identificador de usuario de la Request.
@@ -60,7 +63,7 @@ export async function checkAndIncrementRateLimit(
     .eq('query_date', today)
     .single();
 
-  const tier = (existing?.tier ?? 'free') as 'free' | 'pro' | 'admin';
+  const tier = (existing?.tier ?? 'free') as UserTier;
   const currentCount = existing?.query_count ?? 0;
 
   // Admins nunca tienen límite
@@ -69,7 +72,10 @@ export async function checkAndIncrementRateLimit(
     return { allowed: true, remaining: 9999, tier: 'admin' };
   }
 
-  const limit = tier === 'pro' ? PRO_LIMIT : FREE_LIMIT;
+  const limit =
+    tier === 'pro'       ? PRO_LIMIT :
+    tier === 'academico' ? ACADEMICO_LIMIT :
+    FREE_LIMIT;
 
   if (currentCount >= limit) {
     const tomorrow = new Date();
@@ -125,7 +131,7 @@ async function incrementCount(
 export async function getRateLimitStatus(userIdentifier: string): Promise<{
   used: number;
   limit: number;
-  tier: 'free' | 'pro' | 'admin';
+  tier: UserTier;
   resetAt: string;
 }> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -142,9 +148,13 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
     .eq('query_date', today)
     .single();
 
-  const tier = (data?.tier ?? 'free') as 'free' | 'pro' | 'admin';
+  const tier = (data?.tier ?? 'free') as UserTier;
   const used = data?.query_count ?? 0;
-  const limit = tier === 'pro' ? PRO_LIMIT : tier === 'admin' ? 9999 : FREE_LIMIT;
+  const limit =
+    tier === 'admin'     ? 9999 :
+    tier === 'pro'       ? PRO_LIMIT :
+    tier === 'academico' ? ACADEMICO_LIMIT :
+    FREE_LIMIT;
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
