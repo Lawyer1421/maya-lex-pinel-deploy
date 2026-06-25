@@ -621,13 +621,13 @@ export const CLAUDE_CONFIG = {
     systemPrompt: SALA_IA_SYSTEM_PROMPT,
   },
   analisis: {
-    model: 'claude-opus-4-7' as const,
+    model: 'claude-opus-4-8' as const,
     max_tokens: 4000,
     thinking: { type: 'adaptive' as const },
     systemPrompt: MAYA_LEX_SYSTEM_PROMPT,
   },
   documento: {
-    model: 'claude-opus-4-7' as const,
+    model: 'claude-opus-4-8' as const,
     max_tokens: 8000,
     thinking: { type: 'adaptive' as const },
     systemPrompt: MAYA_LEX_SYSTEM_PROMPT,
@@ -664,19 +664,19 @@ export const CLAUDE_CONFIG_PENAL = {
    * Garantías → Prueba → Jurisprudencia → Motor de Riesgo
    */
   analisis_penal: {
-    model: 'claude-opus-4-7' as const,
+    model: 'claude-opus-4-8' as const,
     max_tokens: 6000,
     thinking: { type: 'adaptive' as const },
     systemPrompt: FULL_MAYA_PENAL_PROMPT,
   },
 
   /**
-   * ESCRITOS PENALES — Opus 4.7 | 10 000 tokens | Generación de documentos
+   * ESCRITOS PENALES — Opus 4.8 | 10 000 tokens | Generación de documentos
    * Requerimientos, excepciones, recursos, hábeas corpus, apelaciones.
    * Usa plantillas de lib/templates/ como base estructural.
    */
   escritos_penales: {
-    model: 'claude-opus-4-7' as const,
+    model: 'claude-opus-4-8' as const,
     max_tokens: 10000,
     thinking: { type: 'adaptive' as const },
     systemPrompt: FULL_MAYA_PENAL_PROMPT,

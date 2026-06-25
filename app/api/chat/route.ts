@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
 
         // Agregar thinking para modos que lo soportan (opus-4-7)
         if (config.thinking) {
-          // @ts-expect-error — thinking es soportado en claude-opus-4-7
+          // @ts-expect-error — thinking es soportado en claude-opus-4-8
           params.thinking = config.thinking;
         }
 
@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
               break;
 
             case 'content_block_start':
-              // 'thinking' es un tipo válido en claude-opus-4-7 aunque el SDK aún no lo tipifica
+              // 'thinking' es un tipo válido en claude-opus-4-8 aunque el SDK aún no lo tipifica
               if ((event.content_block as { type: string }).type === 'thinking') {
                 controller.enqueue(
                   sseEvent({ type: 'thinking', thinking: true })
