@@ -30,7 +30,7 @@ export default async function CuentaPage({
 
   const { data: suscripcion } = await supabase
     .from('subscriptions')
-    .select('tier, status, current_period_end, stripe_sub_id')
+    .select('tier, status, current_period_end, paypal_sub_id')
     .eq('user_identifier', userIdentifier)
     .single();
 
@@ -140,14 +140,14 @@ export default async function CuentaPage({
 
         {/* Gestionar suscripción / Cerrar sesión */}
         <div className="glass-card p-5 space-y-3">
-          {(esPro || esAcademico) && suscripcion?.stripe_sub_id && (
+          {(esPro || esAcademico) && suscripcion?.paypal_sub_id && (
             <a
-              href="https://billing.stripe.com/p/login/test_placeholder"
+              href="https://www.paypal.com/myaccount/autopay/"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full btn-ghost text-sm text-center block"
             >
-              Gestionar suscripción (Stripe Portal)
+              Gestionar suscripción (PayPal)
             </a>
           )}
           <form action="/auth/signout" method="POST">

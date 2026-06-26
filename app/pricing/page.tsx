@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PayPalSubscribeButton from '@/app/components/PayPalSubscribeButton';
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA PINEL HN',
@@ -241,18 +242,24 @@ export default function PricingPage() {
                 </ul>
 
                 {/* CTA */}
-                <Link
-                  href={plan.cta.href}
-                  className={`w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 ${
-                    plan.destacado
-                      ? 'bg-gradient-maya text-white shadow-lg shadow-jade/30 hover:shadow-jade/50'
-                      : plan.id === 'academico'
-                      ? 'bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 hover:border-gold/60'
-                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/15 hover:border-white/30'
-                  }`}
-                >
-                  {plan.cta.texto}
-                </Link>
+                {plan.id === 'free' ? (
+                  <Link
+                    href={plan.cta.href}
+                    className="w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/15 hover:border-white/30"
+                  >
+                    {plan.cta.texto}
+                  </Link>
+                ) : (
+                  <PayPalSubscribeButton
+                    plan={plan.id}
+                    label={plan.cta.texto}
+                    className={
+                      plan.destacado
+                        ? 'bg-gradient-maya text-white shadow-lg shadow-jade/30 hover:shadow-jade/50'
+                        : 'bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 hover:border-gold/60'
+                    }
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -260,9 +267,9 @@ export default function PricingPage() {
 
         {/* ── Nota de pago ── */}
         <p className="text-center text-white/30 text-xs mt-6">
-          Pagos seguros vía Stripe · Lempiras hondureños (HNL) · Tipos de cambio aproximados ·
+          Pagos seguros vía PayPal · Lempiras hondureños (HNL) · Tipos de cambio aproximados ·
           <a
-            href="mailto:contacto@abogadofredypinelfirmalegal.com"
+            href="mailto:abogadofredypinel.firmalegal@gmail.com"
             className="text-jade/60 hover:text-jade ml-1 transition-colors"
           >
             Contactar para pago local

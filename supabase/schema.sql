@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.queries_log (
   updated_at       TIMESTAMPTZ DEFAULT now()   NOT NULL,
 
   CONSTRAINT queries_log_user_date_unique UNIQUE (user_identifier, query_date),
-  CONSTRAINT queries_log_tier_check CHECK (tier IN ('free', 'pro', 'admin')),
+  CONSTRAINT queries_log_tier_check CHECK (tier IN ('free', 'pro', 'academico', 'admin')),
   CONSTRAINT queries_log_count_positive CHECK (query_count >= 0)
 );
 
@@ -41,19 +41,19 @@ CREATE TABLE IF NOT EXISTS public.conversations (
 CREATE INDEX IF NOT EXISTS idx_conversations_user
   ON public.conversations (user_identifier, created_at DESC);
 
--- Tabla de suscripciones (para integración con Stripe)
+-- Tabla de suscripciones (PayPal Subscriptions API)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
   id                  UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
   user_identifier     TEXT    NOT NULL UNIQUE,
-  stripe_customer_id  TEXT,
-  stripe_sub_id       TEXT,
-  tier                TEXT    DEFAULT 'free' NOT NULL,       -- 'free' | 'pro'
-  status              TEXT    DEFAULT 'active' NOT NULL,     -- 'active' | 'cancelled' | 'past_due'
+  paypal_sub_id       TEXT    UNIQUE,                         -- P-XXXX ID de suscripción PayPal
+  paypal_payer_id     TEXT,                                   -- Payer ID de PayPal
+  tier                TEXT    DEFAULT 'free' NOT NULL,        -- 'free' | 'pro' | 'academico' | 'admin'
+  status              TEXT    DEFAULT 'active' NOT NULL,      -- 'active' | 'cancelled' | 'past_due'
   current_period_end  TIMESTAMPTZ,
   created_at          TIMESTAMPTZ DEFAULT now() NOT NULL,
   updated_at          TIMESTAMPTZ DEFAULT now() NOT NULL,
 
-  CONSTRAINT subscriptions_tier_check CHECK (tier IN ('free', 'pro', 'admin')),
+  CONSTRAINT subscriptions_tier_check   CHECK (tier   IN ('free', 'pro', 'academico', 'admin')),
   CONSTRAINT subscriptions_status_check CHECK (status IN ('active', 'cancelled', 'past_due', 'trialing'))
 );
 
