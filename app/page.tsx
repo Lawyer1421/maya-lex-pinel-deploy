@@ -41,12 +41,9 @@ export default function HomePage() {
           <Link href="/chat" className="btn-jade inline-block">
             Iniciar Consulta Jurídica
           </Link>
-          <a
-            href="../index.html"
-            className="btn-ghost inline-block"
-          >
-            Ver Landing Page
-          </a>
+          <Link href="/pricing" className="btn-ghost inline-block">
+            Ver Planes y Precios
+          </Link>
         </div>
 
         {/* Módulos rápidos */}
