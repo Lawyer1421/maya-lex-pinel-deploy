@@ -39,7 +39,7 @@ const PLANES = [
   {
     id: 'pro',
     nombre: 'Pro — Abogado',
-    precio: 'L. 790',
+    precio: 'L. 370',
     periodo: 'por mes',
     descripcion: 'Para defensores penales y abogados litigantes activos.',
     destacado: true,
@@ -61,7 +61,7 @@ const PLANES = [
   {
     id: 'academico',
     nombre: 'Académico',
-    precio: 'L. 290',
+    precio: 'L. 222',
     periodo: 'por mes',
     descripcion: 'Para estudiantes de Derecho y docentes universitarios.',
     destacado: false,
@@ -196,12 +196,12 @@ export default function PricingPage() {
                   </div>
                   {plan.id === 'pro' && (
                     <p className="text-jade text-xs mt-1">
-                      ≈ USD $32 · Facturación mensual
+                      USD $15 · Facturación mensual vía PayPal
                     </p>
                   )}
                   {plan.id === 'academico' && (
                     <p className="text-gold text-xs mt-1">
-                      ≈ USD $12 · Requiere verificación académica
+                      USD $9 · Requiere verificación académica
                     </p>
                   )}
                 </div>
