@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import PayPalSubscribeButton from '@/app/components/PayPalSubscribeButton';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA PINEL HN',
   description:
