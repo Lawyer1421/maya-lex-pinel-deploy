@@ -57,6 +57,18 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   CONSTRAINT subscriptions_status_check CHECK (status IN ('active', 'cancelled', 'past_due', 'trialing'))
 );
 
+-- Tabla de idempotencia de webhooks PayPal
+-- Previene doble-procesamiento cuando PayPal reintenta un evento.
+-- TTL recomendado: purgar filas con processed_at > 7 días (PayPal reintentos duran 3 días).
+CREATE TABLE IF NOT EXISTS public.paypal_events (
+  transmission_id  TEXT        PRIMARY KEY,                    -- Identificador único del evento PayPal
+  event_type       TEXT        NOT NULL,
+  processed_at     TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_paypal_events_processed_at
+  ON public.paypal_events (processed_at DESC);
+
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================
@@ -64,6 +76,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 ALTER TABLE public.queries_log    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conversations   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscriptions   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.paypal_events   ENABLE ROW LEVEL SECURITY;
 
 -- Solo el service_role key (backend) puede leer/escribir
 CREATE POLICY "service_role_full_access_queries" ON public.queries_log
@@ -73,6 +86,9 @@ CREATE POLICY "service_role_full_access_conversations" ON public.conversations
   FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "service_role_full_access_subscriptions" ON public.subscriptions
+  FOR ALL USING (auth.role() = 'service_role');
+
+CREATE POLICY "service_role_full_access_paypal_events" ON public.paypal_events
   FOR ALL USING (auth.role() = 'service_role');
 
 -- =====================================================

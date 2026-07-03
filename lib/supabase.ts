@@ -43,7 +43,7 @@ export type Database = {
           user_identifier: string;
           query_date: string;
           query_count: number;
-          tier: 'free' | 'pro' | 'admin';
+          tier: 'free' | 'pro' | 'academico' | 'admin';
           created_at: string;
           updated_at: string;
         };
@@ -51,11 +51,12 @@ export type Database = {
           user_identifier: string;
           query_date?: string;
           query_count?: number;
-          tier?: 'free' | 'pro' | 'admin';
+          tier?: 'free' | 'pro' | 'academico' | 'admin';
         };
         Update: {
           query_count?: number;
-          tier?: 'free' | 'pro' | 'admin';
+          tier?: 'free' | 'pro' | 'academico' | 'admin';
+          updated_at?: string;
         };
       };
       conversations: {
@@ -75,6 +76,47 @@ export type Database = {
         Update: {
           messages?: unknown[];
         };
+      };
+      subscriptions: {
+        Row: {
+          id:                 string;
+          user_identifier:    string;
+          paypal_sub_id:      string | null;
+          paypal_payer_id:    string | null;
+          tier:               'free' | 'pro' | 'academico' | 'admin';
+          status:             'active' | 'cancelled' | 'past_due' | 'trialing';
+          current_period_end: string | null;
+          created_at:         string;
+          updated_at:         string;
+        };
+        Insert: {
+          user_identifier:    string;
+          paypal_sub_id?:     string | null;
+          paypal_payer_id?:   string | null;
+          tier?:              'free' | 'pro' | 'academico' | 'admin';
+          status?:            'active' | 'cancelled' | 'past_due' | 'trialing';
+          current_period_end?: string | null;
+        };
+        Update: {
+          paypal_sub_id?:     string | null;
+          paypal_payer_id?:   string | null;
+          tier?:              'free' | 'pro' | 'academico' | 'admin';
+          status?:            'active' | 'cancelled' | 'past_due' | 'trialing';
+          current_period_end?: string | null;
+          updated_at?:        string;
+        };
+      };
+      paypal_events: {
+        Row: {
+          transmission_id: string;
+          event_type:      string;
+          processed_at:    string;
+        };
+        Insert: {
+          transmission_id: string;
+          event_type:      string;
+        };
+        Update: Record<string, never>;
       };
     };
   };
