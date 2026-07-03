@@ -1,19 +1,30 @@
 /**
  * POST /api/chat
- * MAYA PENAL / MAYA LEX IA — Streaming Chat con Claude API
+ * MAYA PENAL / MAYA LEX IA — Streaming Chat
  *
- * Request body:
- *   messages : { role: 'user'|'assistant', content: string }[]
- *   mode     : ChatMode (MAYA LEX) | ChatModePenal (MAYA PENAL)
+ * Proveedores soportados (LLM_PROVIDER en .env.local):
+ *   'anthropic'  → Claude API (default, producción actual)
+ *   'openrouter' → OpenRouter multimodel (experimental-openrouter)
+ *
+ * Enrutador inteligente RAG (solo modos de análisis):
+ *   RUTA_A → solo colección procedimental  (plazos, recursos procesales)
+ *   RUTA_B → solo colección normativa      (texto de artículos)
+ *   RUTA_C → ambas colecciones             (análisis jurídico completo)
+ *   RUTA_D → sin RAG                       (consulta ambigua → aclaración inmediata)
  *
  * Modos MAYA LEX:   'sala_ia' | 'analisis' | 'documento'
  * Modos MAYA PENAL: 'sala_penal' | 'analisis_penal' | 'escritos_penales'
  *
- * Response SSE stream:
+ * SSE events:
  *   data: { type: 'text',     text: string }
- *   data: { type: 'thinking', thinking: true }
- *   data: { type: 'done',     usage: { inputTokens, outputTokens }, remaining, tier }
+ *   data: { type: 'thinking', thinking: true }      ← solo Anthropic Claude
+ *   data: { type: 'done',     usage, remaining, tier, model?, ruta? }
  *   data: { type: 'error',    message: string }
+ *
+ * Seguridad (OWASP RAG):
+ *   - Contexto RAG inyectado como DATO, nunca como instrucción ejecutable.
+ *   - System prompt maestro siempre precede y enmarca el contexto recuperado.
+ *   - ANTI-CONTAMINACIÓN: materia 02_CIVIL y 01_PENAL nunca se mezclan.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -29,16 +40,22 @@ import {
   ChatModePenal,
 } from '@/lib/system-prompt';
 import { buscarRAG, formatearContextoRAG } from '@/lib/rag/search';
+import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
+import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
+import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
 
-// Cliente Anthropic — lazy init para garantizar env var en runtime
+// ── Cliente Anthropic — lazy init ──────────────────────────────────────────
+
 let _anthropic: Anthropic | null = null;
-
 function getAnthropicClient(): Anthropic {
   if (!_anthropic) {
     _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
   }
   return _anthropic;
 }
+
+// Proveedor LLM activo (controlado por LLM_PROVIDER en .env.local / Vercel)
+const PROVEEDOR_LLM = (process.env.LLM_PROVIDER ?? 'anthropic') as 'anthropic' | 'openrouter';
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
@@ -54,15 +71,11 @@ interface ChatRequest {
   mode?: AnyMode;
 }
 
-// Todos los modos válidos (MAYA LEX + MAYA PENAL)
 const VALID_MODES: AnyMode[] = [
-  // MAYA LEX
   'sala_ia', 'analisis', 'documento',
-  // MAYA PENAL
   'sala_penal', 'analisis_penal', 'escritos_penales',
 ];
 
-/** Devuelve la config de Claude según el modo solicitado */
 function getConfig(mode: AnyMode) {
   if (mode in CLAUDE_CONFIG_PENAL) {
     return CLAUDE_CONFIG_PENAL[mode as ChatModePenal];
@@ -70,23 +83,48 @@ function getConfig(mode: AnyMode) {
   return CLAUDE_CONFIG[mode as ChatMode];
 }
 
-// Encoder para SSE
-const encoder = new TextEncoder();
+function esModoPenal(mode: AnyMode): boolean {
+  return mode in CLAUDE_CONFIG_PENAL;
+}
 
+// ── Colecciones ChromaDB por RUTA y materia ────────────────────────────────
+// ANTI-CONTAMINACIÓN: materia civil y penal NUNCA comparten colección.
+
+const COLECCIONES_CIVIL: Record<string, string | null> = {
+  A: 'mayalex_procedimental',  // plazos, recursos procesales civiles
+  B: 'mayalex_normativos',     // artículos CPC / Código Civil
+  C: 'mayalex_normativos',     // principal (+ segunda pasada con procedimental)
+  D: null,
+};
+
+const COLECCIONES_PENAL: Record<string, string | null> = {
+  A: 'cpp_honduras',           // procedimiento penal
+  B: 'cpp_honduras',           // artículos CPP / CP
+  C: 'cpp_honduras',           // combinado penal (una sola colección indexada)
+  D: null,
+};
+
+// Modos de análisis que activan el router RAG
+const MODOS_CON_ROUTER: AnyMode[] = [
+  'analisis', 'analisis_penal', 'escritos_penales', 'documento',
+];
+
+// ── Encoder SSE ────────────────────────────────────────────────────────────
+
+const encoder = new TextEncoder();
 function sseEvent(data: object): Uint8Array {
   return encoder.encode(`data: ${JSON.stringify(data)}\n\n`);
 }
 
+// ── Handler principal ──────────────────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
-  // ─── 1. Parsear body ───────────────────────────────────────────────
+  // 1. Parsear body
   let body: ChatRequest;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(
-      { error: 'Request body inválido' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Request body inválido' }, { status: 400 });
   }
 
   const { messages, mode = 'analisis' } = body;
@@ -98,7 +136,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validar modo (MAYA LEX + MAYA PENAL)
   if (!VALID_MODES.includes(mode)) {
     return NextResponse.json(
       { error: `mode debe ser uno de: ${VALID_MODES.join(', ')}` },
@@ -106,17 +143,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validar que la API key esté configurada
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey || apiKey.trim() === '') {
-    console.error('[Maya Lex] ANTHROPIC_API_KEY no encontrada en process.env');
-    return NextResponse.json(
-      { error: 'ANTHROPIC_API_KEY no configurada en el servidor' },
-      { status: 500 }
-    );
+  if (PROVEEDOR_LLM === 'anthropic') {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey || apiKey.trim() === '') {
+      console.error('[Maya Lex] ANTHROPIC_API_KEY no encontrada en process.env');
+      return NextResponse.json(
+        { error: 'ANTHROPIC_API_KEY no configurada en el servidor' },
+        { status: 500 }
+      );
+    }
   }
 
-  // ─── 2. Rate Limiting ──────────────────────────────────────────────
+  // 2. Rate Limiting
   const userIdentifier = getUserIdentifier(req);
   const rateLimitResult = await checkAndIncrementRateLimit(userIdentifier);
 
@@ -124,10 +162,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'Límite diario alcanzado',
-        message:
-          rateLimitResult.tier === 'free'
-            ? `Has alcanzado el límite de ${3} consultas gratuitas por día. Actualiza al Plan Pro para consultas ilimitadas.`
-            : 'Has alcanzado el límite diario.',
+        message: rateLimitResult.tier === 'free'
+          ? `Has alcanzado el límite de ${3} consultas gratuitas por día. Actualiza al Plan Pro para consultas ilimitadas.`
+          : 'Has alcanzado el límite diario.',
         resetAt: rateLimitResult.resetAt,
         upgradeUrl: '/pricing',
       },
@@ -137,152 +174,195 @@ export async function POST(req: NextRequest) {
           'X-RateLimit-Remaining': '0',
           'X-RateLimit-Reset': rateLimitResult.resetAt,
           'Retry-After': String(
-            Math.ceil(
-              (new Date(rateLimitResult.resetAt).getTime() - Date.now()) / 1000
-            )
+            Math.ceil((new Date(rateLimitResult.resetAt).getTime() - Date.now()) / 1000)
           ),
         },
       }
     );
   }
 
-  // ─── 3. Configurar Claude según modo (MAYA LEX o MAYA PENAL) ─────
+  // 3. Configurar según modo
   const config = getConfig(mode);
 
-  // Limpiar y validar mensajes para la API
   const claudeMessages: Anthropic.MessageParam[] = messages
     .filter((m) => m.content && m.content.trim())
-    .map((m) => ({
-      role: m.role,
-      content: m.content.trim(),
-    }));
+    .map((m) => ({ role: m.role, content: m.content.trim() }));
 
-  // ─── 3b. RAG — Buscar contexto del CPP/CP si está habilitado ──────
-  // Solo activo cuando RAG_BACKEND = 'python' o 'supabase' en .env.local.
-  // El modo 'disabled' retorna vacío sin llamadas externas.
+  // 3b. Clasificar consulta con el enrutador inteligente
+  const ultimaPregunta = claudeMessages
+    .filter(m => m.role === 'user')
+    .at(-1)?.content ?? '';
+
+  const usarRouter = (
+    MODOS_CON_ROUTER.includes(mode) &&
+    typeof ultimaPregunta === 'string' &&
+    ultimaPregunta.length > 10
+  );
+
+  const ruta = usarRouter
+    ? clasificarConsulta(ultimaPregunta as string, mode)
+    : 'D';
+
+  // 3c. Recuperar contexto RAG según RUTA (A=proc / B=norm / C=ambos / D=sin_rag)
   let systemConRAG = config.systemPrompt;
-  const modosConRAG: AnyMode[] = ['analisis_penal', 'escritos_penales', 'analisis', 'documento'];
 
-  if (modosConRAG.includes(mode)) {
-    const ultimaPregunta = claudeMessages
-      .filter(m => m.role === 'user')
-      .at(-1)?.content ?? '';
+  if (ruta !== 'D' && usarRouter) {
+    const colecciones = esModoPenal(mode) ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
+    const coleccionPrincipal = colecciones[ruta];
 
-    if (typeof ultimaPregunta === 'string' && ultimaPregunta.length > 10) {
-      const coleccion = mode.includes('penal') ? 'cpp_honduras' : 'cpp_honduras';
-      const ragResultado = await buscarRAG(ultimaPregunta, 5, coleccion);
-      const contextoRAG = formatearContextoRAG(ragResultado);
+    if (coleccionPrincipal) {
+      const ragResultado = await buscarRAG(ultimaPregunta as string, 5, coleccionPrincipal);
+      let contextoRAG = formatearContextoRAG(ragResultado);
+
+      // RUTA_C civil → segunda pasada con procedimental para completar el análisis
+      if (ruta === 'C' && !esModoPenal(mode)) {
+        const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
+        const contextoProc = formatearContextoRAG(ragProc);
+        if (contextoProc) {
+          contextoRAG = contextoRAG
+            ? `${contextoRAG}\n\n${contextoProc}`
+            : contextoProc;
+        }
+      }
 
       if (contextoRAG) {
+        // OWASP RAG: contexto como DATO, enmarcado explícitamente
         systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
-        if (process.env.DEBUG_CLAUDE === 'true') {
-          console.log(`[RAG] Backend: ${ragResultado.backend} | Artículos: ${ragResultado.articulos_encontrados.join(',')}`);
-        }
+      }
+
+      if (process.env.DEBUG_CLAUDE === 'true') {
+        console.log(
+          `[RAG·${ruta}] colección=${coleccionPrincipal} | backend=${ragResultado.backend}` +
+          ` | artículos=${ragResultado.articulos_encontrados.join(',')}`
+        );
       }
     }
   }
 
-  // ─── 4. Streaming Response ─────────────────────────────────────────
+  if (process.env.DEBUG_CLAUDE === 'true') {
+    console.log(`[Router] mode=${mode} ruta=${ruta} proveedor=${PROVEEDOR_LLM}`);
+  }
+
+  // 4. Streaming Response
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Construir parámetros para Claude
-        const params: Anthropic.MessageCreateParamsStreaming = {
-          model: config.model,
-          max_tokens: config.max_tokens,
-          system: systemConRAG,    // ← Incluye contexto RAG cuando está disponible
-          messages: claudeMessages,
-          stream: true,
-        };
-
-        // Agregar thinking para modos que lo soportan (opus-4-7)
-        if (config.thinking) {
-          // @ts-expect-error — thinking es soportado en claude-opus-4-8
-          params.thinking = config.thinking;
+        // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
+        // (los modos sala con ruta=D pasan directamente al LLM sin RAG)
+        if (ruta === 'D' && usarRouter) {
+          controller.enqueue(sseEvent({ type: 'text', text: MENSAJE_ACLARACION }));
+          controller.enqueue(sseEvent({
+            type: 'done',
+            usage: { inputTokens: 0, outputTokens: 0 },
+            remaining: rateLimitResult.remaining,
+            tier: rateLimitResult.tier,
+          }));
+          return;
         }
 
-        if (process.env.DEBUG_CLAUDE === 'true') {
-          console.log('[Maya Lex] Enviando a Claude:', {
-            model: config.model,
-            mode,
-            messages: claudeMessages.length,
-            userIdentifier,
+        // ── OpenRouter path ──────────────────────────────────────────────
+        if (PROVEEDOR_LLM === 'openrouter') {
+          const modelOR = seleccionarModeloOpenRouter(ruta, mode);
+
+          const messagesOR: OpenRouterMessage[] = [
+            { role: 'system', content: systemConRAG },
+            ...claudeMessages.map(m => ({
+              role: m.role as 'user' | 'assistant',
+              content: m.content as string,
+            })),
+          ];
+
+          await streamOpenRouter(modelOR, messagesOR, {
+            onToken: (token) => {
+              controller.enqueue(sseEvent({ type: 'text', text: token }));
+            },
+            onDone: ({ inputTokens, outputTokens }) => {
+              controller.enqueue(sseEvent({
+                type: 'done',
+                usage: { inputTokens, outputTokens },
+                remaining: rateLimitResult.remaining,
+                tier: rateLimitResult.tier,
+                model: modelOR,
+                ruta,
+              }));
+            },
+            onError: (message) => {
+              controller.enqueue(sseEvent({ type: 'error', message }));
+            },
           });
-        }
 
-        // Crear stream de Claude
-        const claudeStream = await getAnthropicClient().messages.create(params);
+        } else {
+          // ── Anthropic Claude path (default) ─────────────────────────
+          const params: Anthropic.MessageCreateParamsStreaming = {
+            model: config.model,
+            max_tokens: config.max_tokens,
+            system: systemConRAG,
+            messages: claudeMessages,
+            stream: true,
+          };
 
-        let inputTokens = 0;
-        let outputTokens = 0;
+          if (config.thinking) {
+            // @ts-expect-error — thinking es soportado en claude-opus-4-8
+            params.thinking = config.thinking;
+          }
 
-        // Procesar eventos del stream
-        for await (const event of claudeStream) {
-          switch (event.type) {
-            case 'message_start':
-              inputTokens = event.message.usage.input_tokens;
-              break;
+          if (process.env.DEBUG_CLAUDE === 'true') {
+            console.log('[Maya Lex] Enviando a Claude:', {
+              model: config.model, mode, messages: claudeMessages.length, userIdentifier,
+            });
+          }
 
-            case 'content_block_start':
-              // 'thinking' es un tipo válido en claude-opus-4-8 aunque el SDK aún no lo tipifica
-              if ((event.content_block as { type: string }).type === 'thinking') {
-                controller.enqueue(
-                  sseEvent({ type: 'thinking', thinking: true })
-                );
-              }
-              break;
+          const claudeStream = await getAnthropicClient().messages.create(params);
+          let inputTokens  = 0;
+          let outputTokens = 0;
 
-            case 'content_block_delta':
-              // Solo enviar texto al cliente (no thinking)
-              if (event.delta.type === 'text_delta') {
-                controller.enqueue(
-                  sseEvent({ type: 'text', text: event.delta.text })
-                );
-              }
-              break;
+          for await (const event of claudeStream) {
+            switch (event.type) {
+              case 'message_start':
+                inputTokens = event.message.usage.input_tokens;
+                break;
 
-            case 'content_block_stop':
-              break;
+              case 'content_block_start':
+                if ((event.content_block as { type: string }).type === 'thinking') {
+                  controller.enqueue(sseEvent({ type: 'thinking', thinking: true }));
+                }
+                break;
 
-            case 'message_delta':
-              outputTokens = event.usage.output_tokens;
-              break;
+              case 'content_block_delta':
+                if (event.delta.type === 'text_delta') {
+                  controller.enqueue(sseEvent({ type: 'text', text: event.delta.text }));
+                }
+                break;
 
-            case 'message_stop':
-              // Enviar evento final con métricas
-              controller.enqueue(
-                sseEvent({
+              case 'content_block_stop':
+                break;
+
+              case 'message_delta':
+                outputTokens = event.usage.output_tokens;
+                break;
+
+              case 'message_stop':
+                controller.enqueue(sseEvent({
                   type: 'done',
                   usage: { inputTokens, outputTokens },
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
-                })
-              );
-              break;
+                }));
+                break;
+            }
           }
         }
       } catch (error) {
-        console.error('[Maya Lex] Error Claude API:', error);
+        console.error('[Maya Lex] Error streaming:', error);
 
         let errorMessage = 'Error interno del servidor';
-
         if (error instanceof Anthropic.APIError) {
-          if (error.status === 401) {
-            errorMessage = 'API Key inválida. Contacta al administrador.';
-          } else if (error.status === 429) {
-            errorMessage =
-              'Servicio temporalmente saturado. Intenta en unos segundos.';
-          } else if (error.status === 529) {
-            errorMessage =
-              'Servicio de IA en mantenimiento. Intenta en unos minutos.';
-          } else {
-            errorMessage = `Error del servicio: ${error.message}`;
-          }
+          if (error.status === 401)      errorMessage = 'API Key inválida. Contacta al administrador.';
+          else if (error.status === 429) errorMessage = 'Servicio temporalmente saturado. Intenta en unos segundos.';
+          else if (error.status === 529) errorMessage = 'Servicio de IA en mantenimiento. Intenta en unos minutos.';
+          else                           errorMessage = `Error del servicio: ${error.message}`;
         }
-
-        controller.enqueue(
-          sseEvent({ type: 'error', message: errorMessage })
-        );
+        controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
       } finally {
         controller.close();
       }
@@ -291,12 +371,12 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
-      'X-Accel-Buffering': 'no', // Desactiva buffering en Nginx
-      'X-RateLimit-Remaining': String(rateLimitResult.remaining),
-      'X-RateLimit-Tier': rateLimitResult.tier,
+      'Content-Type':           'text/event-stream',
+      'Cache-Control':          'no-cache, no-transform',
+      'Connection':             'keep-alive',
+      'X-Accel-Buffering':      'no',
+      'X-RateLimit-Remaining':  String(rateLimitResult.remaining),
+      'X-RateLimit-Tier':       rateLimitResult.tier,
     },
   });
 }
@@ -306,7 +386,8 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     service: 'MAYA PENAL / MAYA LEX IA PINEL HN',
-    version: '2.0.0',
+    version: '2.1.0',
+    proveedor: PROVEEDOR_LLM,
     modos_maya_lex: {
       sala_ia:   CLAUDE_CONFIG.sala_ia.model,
       analisis:  CLAUDE_CONFIG.analisis.model,
@@ -316,6 +397,12 @@ export async function GET() {
       sala_penal:       CLAUDE_CONFIG_PENAL.sala_penal.model,
       analisis_penal:   CLAUDE_CONFIG_PENAL.analisis_penal.model,
       escritos_penales: CLAUDE_CONFIG_PENAL.escritos_penales.model,
+    },
+    rutas_rag: {
+      A: 'procedimental (plazos, recursos)',
+      B: 'normativo (artículos, decreto)',
+      C: 'combinado (A + B)',
+      D: 'sin_rag (sala / consulta ambigua)',
     },
   });
 }
