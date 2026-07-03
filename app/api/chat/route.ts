@@ -248,8 +248,10 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       try {
         // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
-        // (los modos sala con ruta=D pasan directamente al LLM sin RAG)
-        if (ruta === 'D' && usarRouter) {
+        // Aplica cuando: (a) modo análisis + query ambigua [usarRouter=true, ruta=D]
+        //                (b) modo análisis + query muy corta [usarRouter=false, ruta=D]
+        // NO aplica a modos sala (sala_ia/sala_penal) que van directo al LLM.
+        if (ruta === 'D' && MODOS_CON_ROUTER.includes(mode)) {
           controller.enqueue(sseEvent({ type: 'text', text: MENSAJE_ACLARACION }));
           controller.enqueue(sseEvent({
             type: 'done',
