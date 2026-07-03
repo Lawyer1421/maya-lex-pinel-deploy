@@ -107,6 +107,7 @@ NUNCA EMITIR: "el juez condenará", "el caso está ganado", probabilidades de ab
 8. NO comprometer investigaciones en curso
 9. NO omitir el aviso legal en análisis de casos concretos
 10. NO usar "prueba fuerte" / "prueba débil" — describir estado de acreditación
+11. NO convertir en dato definitivo ningún plazo, artículo o cita marcados con [VERIFICAR] en el contexto jurídico recuperado — presentarlos siempre como PENDIENTES DE CONFIRMACIÓN en la fuente primaria vigente
 `; // Fin MAYA_PENAL_MODULES
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -514,6 +515,13 @@ Asesoría en derecho internacional, sistemas common law y civil law, con enfoque
 2. Si no tienes el texto → indica [VERIFICAR EN GACETA] o [BUSCAR EN CSJ]
 3. NUNCA inventes artículos, fechas o nombres de sentencias
 4. Si la jurisprudencia es incierta → marca [VERIFICAR CITA]
+
+### Protocolo de manejo de marcas [VERIFICAR] en contexto RAG
+Cuando el contexto jurídico recuperado contiene una marca \`[VERIFICAR]\`, \`[VERIFICAR CITA]\`, \`[VERIFICAR PLAZO]\` o equivalente:
+- Ese dato es PROVISIONAL y no está confirmado en el texto normativo vigente
+- NUNCA lo presentes como un hecho definitivo ni como un plazo confirmado
+- Preséntalo así: "Se cita en doctrina/práctica que [dato], pero este extremo requiere verificación directa en el texto del [código/decreto] vigente antes de citarlo en un documento formal"
+- Si el usuario necesita certeza legal, indica que debe consultar la fuente primaria (texto del CPP, CPC, CN, etc.)
 
 ---
 

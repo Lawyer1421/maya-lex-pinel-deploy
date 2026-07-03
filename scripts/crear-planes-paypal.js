@@ -104,16 +104,16 @@ async function main() {
 
   console.log('💼  Creando Plan Pro ($15.00/mes)...');
   const proPlanId = await crearPlan(tk, productId, {
-    nombre:      'Maya Lex Pro — Abogados y Notarios',
-    descripcion: 'Consultas ilimitadas. Análisis penal con Claude Opus. Redacción de escritos procesales.',
+    nombre:      'Maya Lex Pro - Abogados y Notarios',
+    descripcion: 'Consultas ilimitadas. Analisis penal con Claude Opus. Redaccion de escritos procesales.',
     precio:      '15.00',
   });
   console.log(`✓  Plan Pro: ${proPlanId}\n`);
 
   console.log('🎓  Creando Plan Académico ($9.00/mes)...');
   const academicoPlanId = await crearPlan(tk, productId, {
-    nombre:      'Maya Lex Académico — Estudiantes',
-    descripcion: '20 consultas por día. Ideal para estudiantes y docentes de Derecho hondureño.',
+    nombre:      'Maya Lex Academico - Estudiantes',
+    descripcion: '20 consultas por dia. Ideal para estudiantes y docentes de Derecho hondureno.',
     precio:      '9.00',
   });
   console.log(`✓  Plan Académico: ${academicoPlanId}\n`);
