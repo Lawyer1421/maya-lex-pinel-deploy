@@ -12,7 +12,9 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.45.0",
+    "mammoth": "^1.12.0",
     "next": "^16.2.6",
+    "pdf-parse": "^2.4.5",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",

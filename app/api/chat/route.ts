@@ -43,6 +43,11 @@ import { buscarRAG, formatearContextoRAG } from '@/lib/rag/search';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
+import {
+  buscarWeb,
+  formatearContextoWeb,
+  AVISO_BUSQUEDA_FALLIDA,
+} from '@/lib/websearch/tavily';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -69,7 +74,16 @@ interface ChatMessage {
 interface ChatRequest {
   messages: ChatMessage[];
   mode?: AnyMode;
+  webSearch?: boolean;
+  modelOverride?: string | null;
 }
+
+// Modelos permitidos como override (lista blanca — previene inyección)
+const VALID_MODEL_OVERRIDES = new Set([
+  'claude-opus-4-8',
+  'claude-sonnet-4-6',
+  'claude-haiku-4-5',
+]);
 
 const VALID_MODES: AnyMode[] = [
   'sala_ia', 'analisis', 'documento',
@@ -85,6 +99,20 @@ function getConfig(mode: AnyMode) {
 
 function esModoPenal(mode: AnyMode): boolean {
   return mode in CLAUDE_CONFIG_PENAL;
+}
+
+/**
+ * Extrae la consulta limpia del usuario para usarla como query de búsqueda web.
+ * Si el mensaje incluye adjuntos (formato buildApiContent de ChatInterface),
+ * toma solo el texto tras el marcador "**Consulta del usuario:**".
+ * Trunca a 350 chars para no saturar la API de búsqueda.
+ */
+function extraerQueryParaBusqueda(contenido: string | unknown): string {
+  const texto = typeof contenido === 'string' ? contenido : '';
+  const MARCADOR = '**Consulta del usuario:**\n';
+  const idx = texto.indexOf(MARCADOR);
+  const query = idx >= 0 ? texto.slice(idx + MARCADOR.length) : texto;
+  return query.trim().slice(0, 350);
 }
 
 // ── Colecciones ChromaDB por RUTA y materia ────────────────────────────────
@@ -127,7 +155,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Request body inválido' }, { status: 400 });
   }
 
-  const { messages, mode = 'analisis' } = body;
+  const { messages, mode = 'analisis', webSearch = false, modelOverride } = body;
+  const safeModelOverride =
+    modelOverride && VALID_MODEL_OVERRIDES.has(modelOverride) ? modelOverride : null;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json(
@@ -229,12 +259,49 @@ export async function POST(req: NextRequest) {
         // OWASP RAG: contexto como DATO, enmarcado explícitamente
         systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
       }
+    }
+  }
 
-      if (process.env.DEBUG_CLAUDE === 'true') {
+  // ── Búsqueda web real (Tavily) ────────────────────────────────────────────
+  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
+  if (webSearch) {
+    const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
+    try {
+      const resultadosWeb = await buscarWeb(queryBusqueda, {
+        maxResultados: 5,
+        timeoutMs:     3500,
+        umbralScore:   0.3,
+      });
+
+      if (resultadosWeb.length > 0) {
+        // Inyectar contexto web DESPUÉS del contexto RAG para mantener jerarquía
+        systemConRAG += '\n\n' + formatearContextoWeb(resultadosWeb);
         console.log(
-          `[RAG·${ruta}] colección=${coleccionPrincipal} | backend=${ragResultado.backend}` +
-          ` | artículos=${ragResultado.articulos_encontrados.join(',')}`
+          `[WebSearch] Tavily OK | resultados=${resultadosWeb.length}` +
+          ` | query="${queryBusqueda.slice(0, 55)}..."` +
+          ` | mode=${mode} | ruta=${ruta}`
         );
+      } else {
+        // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
+        console.log(
+          `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
+          ` | query="${queryBusqueda.slice(0, 55)}..."`
+        );
+      }
+    } catch (err) {
+      const msg       = err instanceof Error ? err.message : String(err);
+      const isTimeout = err instanceof Error && err.name === 'AbortError';
+      const isNoKey   = msg.includes('TAVILY_API_KEY');
+
+      console.warn(
+        `[WebSearch] Fallback a RAG | motivo=${isTimeout ? 'TIMEOUT' : isNoKey ? 'SIN_APIKEY' : 'ERROR'}` +
+        ` | ${isNoKey ? '' : msg.slice(0, 90)}`
+      );
+
+      // Notificar al modelo para que informe al usuario de forma discreta
+      if (!isNoKey) {
+        // Solo mostrar el aviso si había intención de búsqueda (la clave existe pero falló)
+        systemConRAG += AVISO_BUSQUEDA_FALLIDA;
       }
     }
   }
@@ -296,7 +363,7 @@ export async function POST(req: NextRequest) {
         } else {
           // ── Anthropic Claude path (default) ─────────────────────────
           const params: Anthropic.MessageCreateParamsStreaming = {
-            model: config.model,
+            model: safeModelOverride ?? config.model,
             max_tokens: config.max_tokens,
             system: systemConRAG,
             messages: claudeMessages,

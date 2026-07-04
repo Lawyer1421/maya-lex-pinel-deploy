@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatMode } from '@/lib/system-prompt';
 import MessageBubble from './MessageBubble';
+import PromptInput, { type Attachment, type SendPayload } from './PromptInput';
 
 // ── Tipos ────────────────────────────────────────────────────────────
 interface Message {
@@ -49,10 +50,20 @@ const SUGGESTIONS = [
   'Plazo para presentar recurso de casación penal',
 ];
 
+// ── Helper: ensamblar contenido con adjuntos para la API ─────────────
+function buildApiContent(text: string, attachments: Attachment[]): string {
+  if (!attachments.length) return text;
+  const attBlocks = attachments
+    .map((a) => `📎 **Documento adjunto: ${a.filename}**\n\`\`\`\n${a.text}\n\`\`\``)
+    .join('\n\n');
+  return text.trim()
+    ? `${attBlocks}\n\n---\n\n**Consulta del usuario:**\n${text}`
+    : attBlocks;
+}
+
 // ── Componente principal ──────────────────────────────────────────────
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
   const [mode, setMode] = useState<ChatMode>('analisis');
   const [isLoading, setIsLoading] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -61,7 +72,6 @@ export default function ChatInterface() {
   const [showSuggestions, setShowSuggestions] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Auto-scroll al último mensaje
@@ -69,29 +79,34 @@ export default function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
-    }
-  }, [input]);
-
   // ── Enviar mensaje ──────────────────────────────────────────────────
   const sendMessage = useCallback(
-    async (text?: string) => {
-      const userText = (text ?? input).trim();
-      if (!userText || isLoading) return;
+    async (payloadOrText: SendPayload | string) => {
+      // Normalizar: acepta string (sugerencias) o payload completo (PromptInput)
+      const payload: SendPayload =
+        typeof payloadOrText === 'string'
+          ? { text: payloadOrText, attachments: [], webSearch: false, modelOverride: null }
+          : payloadOrText;
 
-      setInput('');
+      const { text, attachments, webSearch, modelOverride } = payload;
+
+      if ((!text.trim() && attachments.length === 0) || isLoading) return;
+
       setError(null);
       setShowSuggestions(false);
 
-      // Agregar mensaje del usuario
+      // Contenido visible en la burbuja de usuario
+      const displayContent =
+        text.trim() ||
+        attachments.map((a) => `📎 ${a.filename}`).join(' · ');
+
+      // Contenido enviado a la API (incluye texto extraído de adjuntos)
+      const apiContent = buildApiContent(text, attachments);
+
       const userMsg: Message = {
         id: `user-${Date.now()}`,
         role: 'user',
-        content: userText,
+        content: displayContent,
         mode,
         timestamp: new Date(),
       };
@@ -110,38 +125,32 @@ export default function ChatInterface() {
       setIsLoading(true);
       setIsThinking(false);
 
-      // Preparar historial para la API (sin el último assistant vacío)
+      // Historial para la API — last user message usa apiContent
       const history = [
         ...messages.map((m) => ({ role: m.role, content: m.content })),
-        { role: 'user' as const, content: userText },
+        { role: 'user' as const, content: apiContent },
       ];
 
-      // Crear AbortController para cancelar si es necesario
       abortRef.current = new AbortController();
 
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: history, mode }),
+          body: JSON.stringify({ messages: history, mode, webSearch, modelOverride }),
           signal: abortRef.current.signal,
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-
           if (response.status === 429) {
             const resetTime = errorData.resetAt
               ? new Date(errorData.resetAt).toLocaleTimeString('es-HN')
               : 'mañana';
-            setError(
-              `${errorData.message} El límite se reinicia a las ${resetTime}.`
-            );
+            setError(`${errorData.message} El límite se reinicia a las ${resetTime}.`);
           } else {
             setError(errorData.error || 'Error del servidor');
           }
-
-          // Eliminar el mensaje de assistant vacío
           setMessages((prev) => prev.filter((m) => m.id !== assistantId));
           setIsLoading(false);
           return;
@@ -166,7 +175,6 @@ export default function ChatInterface() {
 
             try {
               const event = JSON.parse(data);
-
               switch (event.type) {
                 case 'thinking':
                   setIsThinking(true);
@@ -177,9 +185,7 @@ export default function ChatInterface() {
                   accumulated += event.text;
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantId
-                        ? { ...m, content: accumulated }
-                        : m
+                      m.id === assistantId ? { ...m, content: accumulated } : m
                     )
                   );
                   break;
@@ -193,28 +199,23 @@ export default function ChatInterface() {
                   });
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantId
-                        ? { ...m, isStreaming: false }
-                        : m
+                      m.id === assistantId ? { ...m, isStreaming: false } : m
                     )
                   );
                   break;
 
                 case 'error':
                   setError(event.message);
-                  setMessages((prev) =>
-                    prev.filter((m) => m.id !== assistantId)
-                  );
+                  setMessages((prev) => prev.filter((m) => m.id !== assistantId));
                   break;
               }
             } catch {
-              // Ignorar líneas mal formadas
+              // Ignorar líneas SSE mal formadas
             }
           }
         }
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') {
-          // El usuario canceló
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
@@ -232,13 +233,11 @@ export default function ChatInterface() {
         abortRef.current = null;
       }
     },
-    [input, isLoading, messages, mode]
+    [isLoading, messages, mode]
   );
 
   // ── Cancelar generación ─────────────────────────────────────────────
-  const cancelGeneration = () => {
-    abortRef.current?.abort();
-  };
+  const cancelGeneration = () => abortRef.current?.abort();
 
   // ── Limpiar chat ────────────────────────────────────────────────────
   const clearChat = () => {
@@ -247,6 +246,14 @@ export default function ChatInterface() {
     setUsage({});
     setShowSuggestions(true);
   };
+
+  // ── Placeholder según modo ──────────────────────────────────────────
+  const placeholder =
+    mode === 'sala_ia'
+      ? 'Art. 706 CPC · consulta rápida para audiencia...'
+      : mode === 'documento'
+      ? 'Redacta un contrato de... / Elabora una escritura de...'
+      : 'Consulta jurídica en español o inglés...';
 
   // ── Render ──────────────────────────────────────────────────────────
   return (
@@ -304,7 +311,6 @@ export default function ChatInterface() {
         {/* Pantalla inicial con sugerencias */}
         {showSuggestions && messages.length === 0 && (
           <div className="max-w-2xl mx-auto">
-            {/* Bienvenida */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-full bg-gradient-maya mx-auto mb-4 flex items-center justify-center shadow-xl shadow-jade/20">
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -319,7 +325,6 @@ export default function ChatInterface() {
               </p>
             </div>
 
-            {/* Modo activo */}
             <div className="glass-card p-4 mb-6 text-center">
               <p className="text-white/60 text-xs uppercase tracking-widest mb-1">Modo activo</p>
               <p className="text-jade font-semibold">
@@ -327,7 +332,6 @@ export default function ChatInterface() {
               </p>
             </div>
 
-            {/* Sugerencias */}
             <p className="text-white/40 text-xs text-center mb-3 uppercase tracking-widest">
               Consultas de ejemplo
             </p>
@@ -344,11 +348,12 @@ export default function ChatInterface() {
               ))}
             </div>
 
-            {/* Info tier gratuito */}
             <div className="mt-6 text-center">
               <p className="text-white/30 text-xs">
-                Plan Gratuito: 3 consultas diarias · {' '}
-                <a href="/pricing" className="text-gold hover:underline">Actualizar al Plan Pro →</a>
+                Plan Gratuito: 3 consultas diarias ·{' '}
+                <a href="/pricing" className="text-gold hover:underline">
+                  Actualizar al Plan Pro →
+                </a>
               </p>
             </div>
           </div>
@@ -418,61 +423,12 @@ export default function ChatInterface() {
       {/* ── Input ────────────────────────────────────────────────── */}
       <div className="border-t border-white/10 bg-navy-light/30 px-4 py-3 flex-shrink-0">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-end gap-2">
-            {/* Textarea */}
-            <div className="flex-1 relative">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder={
-                  mode === 'sala_ia'
-                    ? 'Art. 706 CPC · consulta rápida para audiencia...'
-                    : mode === 'documento'
-                    ? 'Redacta un contrato de... / Elabora una escritura de...'
-                    : 'Consulta jurídica en español o inglés...'
-                }
-                disabled={isLoading}
-                rows={1}
-                className="w-full bg-navy/60 border border-white/10 focus:border-jade/60 rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/30 resize-none outline-none transition-all duration-200 focus:ring-1 focus:ring-jade/30 disabled:opacity-50"
-              />
-            </div>
-
-            {/* Botón enviar / cancelar */}
-            {isLoading ? (
-              <button
-                onClick={cancelGeneration}
-                className="flex-shrink-0 w-11 h-11 rounded-xl bg-red-600/80 hover:bg-red-600 flex items-center justify-center transition-colors"
-                title="Cancelar"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
-                </svg>
-              </button>
-            ) : (
-              <button
-                onClick={() => sendMessage()}
-                disabled={!input.trim()}
-                className="flex-shrink-0 w-11 h-11 rounded-xl bg-jade hover:bg-jade-light disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg shadow-jade/20 hover:shadow-jade/40 active:scale-95"
-                title="Enviar (Enter)"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-                </svg>
-              </button>
-            )}
-          </div>
-
-          {/* Hint */}
-          <p className="text-white/20 text-xs mt-2 text-center">
-            Enter para enviar · Shift+Enter para nueva línea · Las respuestas son borradores profesionales
-          </p>
+          <PromptInput
+            onSend={sendMessage}
+            isLoading={isLoading}
+            onCancel={cancelGeneration}
+            placeholder={placeholder}
+          />
         </div>
       </div>
     </div>
