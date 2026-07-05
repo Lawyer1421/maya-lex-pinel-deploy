@@ -1,6 +1,6 @@
 -- ============================================================
--- Maya Lex IA — Analytics Schema
--- Ejecutar en: Supabase SQL Editor
+-- Maya Lex IA — Analytics Schema  (idempotente)
+-- Ejecutar en: Supabase SQL Editor  O  npm run migrate:analytics
 -- ============================================================
 
 -- ── Tabla: consultas ─────────────────────────────────────────
@@ -46,13 +46,32 @@ create table if not exists feedback (
 alter table consultas enable row level security;
 alter table feedback   enable row level security;
 
-create policy "service_only_consultas" on consultas
-  using  ((select auth.role()) = 'service_role')
-  with check ((select auth.role()) = 'service_role');
+-- Políticas idempotentes (DO block evita error si ya existen)
+do $$ begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'consultas' and policyname = 'service_only_consultas'
+  ) then
+    execute $pol$
+      create policy "service_only_consultas" on consultas
+        using  ((select auth.role()) = 'service_role')
+        with check ((select auth.role()) = 'service_role')
+    $pol$;
+  end if;
+end $$;
 
-create policy "service_only_feedback" on feedback
-  using  ((select auth.role()) = 'service_role')
-  with check ((select auth.role()) = 'service_role');
+do $$ begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'feedback' and policyname = 'service_only_feedback'
+  ) then
+    execute $pol$
+      create policy "service_only_feedback" on feedback
+        using  ((select auth.role()) = 'service_role')
+        with check ((select auth.role()) = 'service_role')
+    $pol$;
+  end if;
+end $$;
 
 -- ── Índices ──────────────────────────────────────────────────
 create index if not exists idx_consultas_created   on consultas(created_at desc);
