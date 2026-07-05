@@ -79,7 +79,14 @@ export async function getAccessToken(): Promise<string> {
   });
 
   if (!res.ok) {
-    throw new Error(`[PayPal] Error de autenticación OAuth: HTTP ${res.status}`);
+    const errBody = await res.text().catch(() => '(sin cuerpo)');
+    const mode      = process.env.PAYPAL_MODE ?? 'undefined';
+    const cidPrefix = clientId.slice(0, 10);
+    console.error(
+      `[PayPal] OAuth FAILED | HTTP=${res.status} | mode=${mode}` +
+      ` | client_id_prefix=${cidPrefix}... | body=${errBody.slice(0, 300)}`
+    );
+    throw new Error(`[PayPal] Error de autenticación OAuth: HTTP ${res.status} — ${errBody.slice(0, 120)}`);
   }
 
   const data = await res.json() as { access_token: string; expires_in: number };
