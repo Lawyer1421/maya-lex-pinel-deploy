@@ -13,6 +13,7 @@ interface Message {
   mode?: ChatMode;
   isStreaming?: boolean;
   timestamp: Date;
+  consultaId?: string;
 }
 
 interface UsageInfo {
@@ -70,6 +71,7 @@ export default function ChatInterface() {
   const [usage, setUsage] = useState<UsageInfo>({});
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [feedbackMap, setFeedbackMap] = useState<Record<string, boolean>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -199,7 +201,9 @@ export default function ChatInterface() {
                   });
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantId ? { ...m, isStreaming: false } : m
+                      m.id === assistantId
+                        ? { ...m, isStreaming: false, consultaId: event.consulta_id }
+                        : m
                     )
                   );
                   break;
@@ -239,11 +243,26 @@ export default function ChatInterface() {
   // ── Cancelar generación ─────────────────────────────────────────────
   const cancelGeneration = () => abortRef.current?.abort();
 
+  // ── Feedback (👍 / 👎) ───────────────────────────────────────────────
+  const submitFeedback = useCallback(async (consultaId: string, util: boolean) => {
+    setFeedbackMap((prev) => ({ ...prev, [consultaId]: util }));
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consulta_id: consultaId, util }),
+      });
+    } catch {
+      // Non-critical — feedback loss is acceptable
+    }
+  }, []);
+
   // ── Limpiar chat ────────────────────────────────────────────────────
   const clearChat = () => {
     setMessages([]);
     setError(null);
     setUsage({});
+    setFeedbackMap({});
     setShowSuggestions(true);
   };
 
@@ -361,11 +380,41 @@ export default function ChatInterface() {
 
         {/* Mensajes del chat */}
         {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            isThinking={isThinking && message.isStreaming === true}
-          />
+          <div key={message.id}>
+            <MessageBubble
+              message={message}
+              isThinking={isThinking && message.isStreaming === true}
+            />
+            {/* Feedback — solo en respuestas completas del asistente */}
+            {message.role === 'assistant' && !message.isStreaming && message.consultaId && (
+              <div className="flex items-center gap-2 ml-3 mt-1">
+                {feedbackMap[message.consultaId] === undefined ? (
+                  <>
+                    <button
+                      onClick={() => submitFeedback(message.consultaId!, true)}
+                      className="text-white/20 hover:text-green-400 transition-colors text-sm p-1 rounded"
+                      title="Respuesta útil"
+                      aria-label="Marcar como útil"
+                    >
+                      👍
+                    </button>
+                    <button
+                      onClick={() => submitFeedback(message.consultaId!, false)}
+                      className="text-white/20 hover:text-red-400 transition-colors text-sm p-1 rounded"
+                      title="Respuesta no útil"
+                      aria-label="Marcar como no útil"
+                    >
+                      👎
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-xs text-white/30">
+                    {feedbackMap[message.consultaId] ? '👍 Gracias' : '👎 Anotado'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         ))}
 
         {/* Indicador "pensando" antes de la primera palabra */}

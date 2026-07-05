@@ -48,6 +48,7 @@ import {
   formatearContextoWeb,
   AVISO_BUSQUEDA_FALLIDA,
 } from '@/lib/websearch/tavily';
+import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -212,7 +213,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. Configurar según modo
-  const config = getConfig(mode);
+  const config    = getConfig(mode);
+  const consultaId = crypto.randomUUID();
+  const inicioMs   = Date.now();
 
   const claudeMessages: Anthropic.MessageParam[] = messages
     .filter((m) => m.content && m.content.trim())
@@ -322,10 +325,18 @@ export async function POST(req: NextRequest) {
           controller.enqueue(sseEvent({ type: 'text', text: MENSAJE_ACLARACION }));
           controller.enqueue(sseEvent({
             type: 'done',
+            consulta_id: consultaId,
             usage: { inputTokens: 0, outputTokens: 0 },
             remaining: rateLimitResult.remaining,
             tier: rateLimitResult.tier,
           }));
+          logConsulta({
+            consulta_id: consultaId, pregunta: ultimaPregunta as string,
+            modo: mode, ruta_rag: ruta, modelo: 'aclaracion', proveedor: 'sistema',
+            tokens_input: 0, tokens_output: 0, tiempo_ms: Date.now() - inicioMs,
+            web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+            tier_usuario: rateLimitResult.tier, exito: true,
+          });
           return;
         }
 
@@ -348,12 +359,21 @@ export async function POST(req: NextRequest) {
             onDone: ({ inputTokens, outputTokens }) => {
               controller.enqueue(sseEvent({
                 type: 'done',
+                consulta_id: consultaId,
                 usage: { inputTokens, outputTokens },
                 remaining: rateLimitResult.remaining,
                 tier: rateLimitResult.tier,
                 model: modelOR,
                 ruta,
               }));
+              logConsulta({
+                consulta_id: consultaId, pregunta: ultimaPregunta as string,
+                modo: mode, ruta_rag: ruta, modelo: modelOR, proveedor: 'openrouter',
+                tokens_input: inputTokens, tokens_output: outputTokens,
+                tiempo_ms: Date.now() - inicioMs,
+                web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+                tier_usuario: rateLimitResult.tier, exito: true,
+              });
             },
             onError: (message) => {
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -413,10 +433,20 @@ export async function POST(req: NextRequest) {
               case 'message_stop':
                 controller.enqueue(sseEvent({
                   type: 'done',
+                  consulta_id: consultaId,
                   usage: { inputTokens, outputTokens },
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
                 }));
+                logConsulta({
+                  consulta_id: consultaId, pregunta: ultimaPregunta as string,
+                  modo: mode, ruta_rag: ruta,
+                  modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
+                  tokens_input: inputTokens, tokens_output: outputTokens,
+                  tiempo_ms: Date.now() - inicioMs,
+                  web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+                  tier_usuario: rateLimitResult.tier, exito: true,
+                });
                 break;
             }
           }
