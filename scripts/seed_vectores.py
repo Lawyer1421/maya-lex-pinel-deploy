@@ -59,11 +59,28 @@ def vec_a_texto(vec) -> str:
     return "[" + ",".join(f"{x:.6f}" for x in vec) + "]"
 
 
+def limpiar(texto: str | None) -> str | None:
+    """PostgreSQL no acepta NUL (0x00) en texto — algunos PDF los arrastran."""
+    if texto is None:
+        return None
+    return texto.replace("\x00", "")
+
+
+def meta_a_json(meta: dict) -> str:
+    """Serializa metadata a JSON válido, truncando por CAMPO (nunca a mitad
+    del JSON — un corte crudo rompería el cast ::jsonb)."""
+    reducido = {
+        k: (v[:500] if isinstance(v, str) else v)
+        for k, v in meta.items()
+    }
+    return json.dumps(reducido, ensure_ascii=False)
+
+
 def extraer_campo(meta: dict, claves: tuple) -> str | None:
     for k in claves:
         v = meta.get(k)
         if v not in (None, "", "None"):
-            return str(v)[:200]
+            return limpiar(str(v)[:200])
     return None
 
 
@@ -150,13 +167,13 @@ def main():
             ):
                 meta = meta or {}
                 filas.append((
-                    f"{nombre}:{cid}",                        # id global sin colisiones
+                    limpiar(f"{nombre}:{cid}"),                # id global sin colisiones
                     nombre,                                    # coleccion
-                    meta.get("materia"),                       # filtro anti-contaminación
-                    (doc or "")[:8000],                        # contenido
+                    limpiar(meta.get("materia")),              # filtro anti-contaminación
+                    limpiar((doc or "")[:8000]),               # contenido
                     extraer_campo(meta, ART_KEYS),             # num_articulo
                     extraer_campo(meta, FUENTE_KEYS),          # fuente
-                    json.dumps(meta, ensure_ascii=False)[:4000],  # metadata jsonb
+                    limpiar(meta_a_json(meta)),                # metadata jsonb (JSON siempre válido)
                     vec_a_texto(emb),                          # embedding
                 ))
 
