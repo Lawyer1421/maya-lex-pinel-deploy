@@ -91,17 +91,22 @@ async function buscarEnSupabase(
   consulta: string,
   k: number,
   coleccion: string,
+  materia?: string,
 ): Promise<ResultadoRAG> {
-  // Requiere que la tabla biblioteca_penal exista en Supabase
-  // y que la función buscar_biblioteca_penal() esté definida.
-  // Ver: supabase/schema.sql (sección biblioteca_penal)
+  // Requiere la tabla biblioteca_vectores + RPC buscar_biblioteca en Supabase
+  // (supabase/vectores.sql — poblada por scripts/seed_vectores.py) y
+  // HF_API_TOKEN para el embedding de la consulta (lib/rag/embed.ts).
   const { createServerSupabaseClient } = await import('@/lib/supabase');
+  const { embedQuery } = await import('@/lib/rag/embed');
   const supabase = createServerSupabaseClient();
 
-  const { data, error } = await supabase.rpc('buscar_biblioteca_penal', {
-    consulta_texto: consulta,
-    limite: k,
+  const queryEmbedding = await embedQuery(consulta);
+
+  const { data, error } = await supabase.rpc('buscar_biblioteca', {
+    query_embedding: queryEmbedding,
     coleccion_filtro: coleccion,
+    materia_filtro: materia ?? null,
+    limite: k,
   });
 
   if (error) {
@@ -175,7 +180,7 @@ export async function buscarRAG(
       return await buscarEnPython(consulta, k, coleccion, materia);
     }
     if (backend === 'supabase') {
-      return await buscarEnSupabase(consulta, k, coleccion);
+      return await buscarEnSupabase(consulta, k, coleccion, materia);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
