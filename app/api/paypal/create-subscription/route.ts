@@ -11,6 +11,18 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAccessToken, getPayPalBaseUrl } from '@/lib/paypal/client';
+import { getUserIdentifier } from '@/lib/rate-limit';
+import { createServerSupabaseClient } from '@/lib/supabase';
+
+/**
+ * Empaqueta plan + identificador de usuario en el custom_id de PayPal.
+ * PayPal limita custom_id a 127 caracteres — el uid se trunca con margen.
+ * El webhook desempaqueta esto para activar al usuario CORRECTO
+ * (el mismo identificador que usa el rate-limiter), no al email de PayPal.
+ */
+function buildCustomId(plan: string, uid: string): string {
+  return JSON.stringify({ p: plan, u: uid.slice(0, 100) });
+}
 
 const PLAN_IDS: Record<string, string | undefined> = {
   pro:       process.env.PAYPAL_PRO_PLAN_ID,
@@ -34,6 +46,10 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+
+  // Identificador del usuario — el MISMO que usa el rate-limiter en /api/chat.
+  // Viaja dentro de custom_id para que el webhook active a este usuario exacto.
+  const userIdentifier = getUserIdentifier(req);
 
   try {
     const accessToken = await getAccessToken();
@@ -63,7 +79,7 @@ export async function POST(req: NextRequest) {
           return_url: `${appUrl}/cuenta?pago=exitoso`,
           cancel_url: `${appUrl}/pricing?pago=cancelado`,
         },
-        custom_id: plan,
+        custom_id: buildCustomId(plan, userIdentifier),
       }),
     });
 
@@ -77,6 +93,29 @@ export async function POST(req: NextRequest) {
       links?: { rel: string; href: string }[];
     };
     const approvalUrl = subscription.links?.find((l) => l.rel === 'approve')?.href;
+
+    // Segunda capa de vínculo: fila 'pending' en subscriptions con el uid real
+    // y el paypal_sub_id recién creado. Si custom_id se perdiera en algún evento,
+    // el webhook puede resolver el usuario buscando por paypal_sub_id.
+    // Fire-and-forget: un fallo aquí NUNCA bloquea el checkout.
+    try {
+      const supabase = createServerSupabaseClient();
+      await supabase.from('subscriptions').upsert(
+        {
+          user_identifier: userIdentifier,
+          paypal_sub_id:   subscription.id,
+          tier:            plan,
+          status:          'pending',
+          updated_at:      new Date().toISOString(),
+        },
+        { onConflict: 'user_identifier' }
+      );
+    } catch (e) {
+      console.warn(
+        '[PayPal Create Subscription] No se registró fila pending (no crítico):',
+        e instanceof Error ? e.message : e
+      );
+    }
 
     return NextResponse.json({ subscriptionId: subscription.id, approvalUrl });
   } catch (error) {

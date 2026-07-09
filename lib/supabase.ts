@@ -83,8 +83,9 @@ export type Database = {
           user_identifier:    string;
           paypal_sub_id:      string | null;
           paypal_payer_id:    string | null;
+          email:              string | null;
           tier:               'free' | 'pro' | 'academico' | 'admin';
-          status:             'active' | 'cancelled' | 'past_due' | 'trialing';
+          status:             'pending' | 'active' | 'cancelled' | 'past_due' | 'trialing';
           current_period_end: string | null;
           created_at:         string;
           updated_at:         string;
@@ -93,15 +94,17 @@ export type Database = {
           user_identifier:    string;
           paypal_sub_id?:     string | null;
           paypal_payer_id?:   string | null;
+          email?:             string | null;
           tier?:              'free' | 'pro' | 'academico' | 'admin';
-          status?:            'active' | 'cancelled' | 'past_due' | 'trialing';
+          status?:            'pending' | 'active' | 'cancelled' | 'past_due' | 'trialing';
           current_period_end?: string | null;
         };
         Update: {
           paypal_sub_id?:     string | null;
           paypal_payer_id?:   string | null;
+          email?:             string | null;
           tier?:              'free' | 'pro' | 'academico' | 'admin';
-          status?:            'active' | 'cancelled' | 'past_due' | 'trialing';
+          status?:            'pending' | 'active' | 'cancelled' | 'past_due' | 'trialing';
           current_period_end?: string | null;
           updated_at?:        string;
         };

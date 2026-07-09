@@ -24,26 +24,14 @@
  *     PAYMENT.SALE.DENIED
  *
  * SQL requerido en Supabase (ejecutar una vez antes de activar live):
- * ─────────────────────────────────────────────────────────────────
- *   CREATE TABLE IF NOT EXISTS subscriptions (
- *     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
- *     user_identifier  TEXT UNIQUE NOT NULL,
- *     paypal_sub_id    TEXT,
- *     paypal_payer_id  TEXT,
- *     tier             TEXT NOT NULL DEFAULT 'free',
- *     status           TEXT NOT NULL DEFAULT 'pending',
- *     created_at       TIMESTAMPTZ DEFAULT now(),
- *     updated_at       TIMESTAMPTZ DEFAULT now()
- *   );
+ *   → supabase/subscriptions.sql (subscriptions + paypal_events + queries_log,
+ *     RLS service_role, índices). Automatizado: npm run migrate:analytics
  *
- *   CREATE TABLE IF NOT EXISTS paypal_events (
- *     transmission_id  TEXT PRIMARY KEY,
- *     event_type       TEXT NOT NULL,
- *     processed_at     TIMESTAMPTZ DEFAULT now()
- *   );
- *   -- TTL: limpiar eventos con >30 días (PayPal reintentos son por 3 días)
- *   -- CREATE INDEX idx_paypal_events_processed_at ON paypal_events(processed_at);
- * ─────────────────────────────────────────────────────────────────
+ * Vínculo usuario ↔ pago:
+ *   create-subscription empaqueta {p: plan, u: user_identifier} en custom_id.
+ *   Este webhook lo desempaqueta (parseCustomId) y activa al usuario con el
+ *   MISMO identificador que usa lib/rate-limit.ts — nunca el email de PayPal.
+ *   Fallback: fila 'pending' por paypal_sub_id → identidad legada email/payer.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -202,41 +190,43 @@ async function handlePayPalEvent(
 
     // Suscripción iniciada (usuario hizo checkout pero aún no pagó la primera cuota)
     case 'BILLING.SUBSCRIPTION.CREATED': {
-      const tier     = resolverTier(resource.custom_id);
-      const subId    = resource.id ?? '';
+      const { tier, uid } = parseCustomId(resource.custom_id);
+      const subId      = resource.id ?? '';
       const subscriber = resource.subscriber as PayPalSubscriber | undefined;
-      const email    = subscriber?.email_address ?? null;
-      const payerId  = subscriber?.payer_id ?? '';
+      const email      = subscriber?.email_address ?? null;
+      const payerId    = subscriber?.payer_id ?? '';
+      const userIdentifier = await resolverUserIdentifier(supabase, uid, subId, email, payerId);
 
       await upsertSubscription(supabase, {
-        userIdentifier: buildUserIdentifier(email, payerId, subId),
+        userIdentifier,
         paypalSubId:    subId,
         paypalPayerId:  payerId,
         email,
         tier,
         status: 'trialing',
       });
-      console.log(`[PayPal Webhook] ⏳ SUBSCRIPTION.CREATED ${tier} → trialing | ${email ?? subId}`);
+      console.log(`[PayPal Webhook] ⏳ SUBSCRIPTION.CREATED ${tier} → trialing | ${userIdentifier}`);
       break;
     }
 
     // Suscripción activa — primer pago confirmado → ACTIVAR acceso premium
     case 'BILLING.SUBSCRIPTION.ACTIVATED': {
-      const tier       = resolverTier(resource.custom_id);
+      const { tier, uid } = parseCustomId(resource.custom_id);
       const subId      = resource.id ?? '';
       const subscriber = resource.subscriber as PayPalSubscriber | undefined;
       const email      = subscriber?.email_address ?? null;
       const payerId    = subscriber?.payer_id ?? '';
+      const userIdentifier = await resolverUserIdentifier(supabase, uid, subId, email, payerId);
 
       await upsertSubscription(supabase, {
-        userIdentifier: buildUserIdentifier(email, payerId, subId),
+        userIdentifier,
         paypalSubId:    subId,
         paypalPayerId:  payerId,
         email,
         tier,
         status: 'active',
       });
-      console.log(`[PayPal Webhook] ✅ SUBSCRIPTION.ACTIVATED ${tier} → active | ${email ?? subId}`);
+      console.log(`[PayPal Webhook] ✅ SUBSCRIPTION.ACTIVATED ${tier} → active | ${userIdentifier}`);
       break;
     }
 
@@ -301,8 +291,32 @@ async function handlePayPalEvent(
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function resolverTier(customId: string | undefined): SubscriptionTier {
-  return customId === 'academico' ? 'academico' : 'pro';
+/**
+ * Desempaqueta el custom_id enviado por create-subscription.
+ *
+ * Formato nuevo (JSON): {"p":"pro","u":"ip:190.4.2.1"} — p=plan, u=user_identifier
+ *   → activa al usuario con el MISMO identificador que usa el rate-limiter.
+ * Formato legado (string plano): "pro" | "academico"
+ *   → sin uid; el caller usa el fallback por email/payerId.
+ */
+function parseCustomId(customId: string | undefined): {
+  tier: SubscriptionTier;
+  uid:  string | null;
+} {
+  if (!customId) return { tier: 'pro', uid: null };
+
+  try {
+    const parsed = JSON.parse(customId) as { p?: string; u?: string };
+    if (parsed && typeof parsed === 'object') {
+      return {
+        tier: parsed.p === 'academico' ? 'academico' : 'pro',
+        uid:  typeof parsed.u === 'string' && parsed.u.trim() ? parsed.u.trim() : null,
+      };
+    }
+  } catch {
+    // No es JSON → formato legado de suscripciones creadas antes del fix
+  }
+  return { tier: customId === 'academico' ? 'academico' : 'pro', uid: null };
 }
 
 function buildUserIdentifier(
@@ -313,6 +327,38 @@ function buildUserIdentifier(
   if (email) return `email:${email}`;
   if (payerId) return `paypal:${payerId}`;
   return `sub:${subId}`;
+}
+
+/**
+ * Resuelve el user_identifier definitivo para un evento de suscripción.
+ * Prioridad:
+ *   1. uid del custom_id (vínculo directo con el rate-limiter) — caso normal
+ *   2. Fila 'pending' en subscriptions por paypal_sub_id (creada en checkout)
+ *   3. Identificador derivado de PayPal (email/payerId/subId) — último recurso,
+ *      solo para suscripciones legadas anteriores a este fix
+ */
+async function resolverUserIdentifier(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  uid:      string | null,
+  subId:    string,
+  email:    string | null,
+  payerId:  string
+): Promise<string> {
+  if (uid) return uid;
+
+  if (subId) {
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('user_identifier')
+      .eq('paypal_sub_id', subId)
+      .maybeSingle();
+    if (data?.user_identifier) return data.user_identifier;
+  }
+
+  console.warn(
+    `[PayPal Webhook] custom_id sin uid y sin fila pending — usando fallback legado | sub=${subId}`
+  );
+  return buildUserIdentifier(email, payerId, subId);
 }
 
 async function upsertSubscription(
@@ -334,6 +380,7 @@ async function upsertSubscription(
         user_identifier: data.userIdentifier,
         paypal_sub_id:   data.paypalSubId,
         paypal_payer_id: data.paypalPayerId,
+        email:           data.email,
         tier:            data.tier,
         status:          data.status,
         updated_at:      new Date().toISOString(),

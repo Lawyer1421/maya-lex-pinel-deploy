@@ -25,7 +25,10 @@ const fail = (m: string) => console.error(`\x1b[31m❌ ${m}\x1b[0m`);
 const warn = (m: string) => console.log(`\x1b[33m⚠️  ${m}\x1b[0m`);
 const dim  = (m: string) => `\x1b[2m${m}\x1b[0m`;
 
-const TABLES = ['consultas', 'feedback'] as const;
+const TABLES = [
+  'consultas', 'feedback',                         // analytics
+  'subscriptions', 'paypal_events', 'queries_log', // PayPal + rate limiting
+] as const;
 
 async function main(): Promise<void> {
   console.log('\x1b[1m\n🔍 Verificando analytics en Supabase...\x1b[0m\n');

@@ -32,7 +32,14 @@ const warn = (m: string) => console.log(`\x1b[33m⚠️  ${m}\x1b[0m`);
 const step = (m: string) => console.log(`\x1b[36m\n${m}\x1b[0m`);
 const dim  = (m: string) => `\x1b[2m${m}\x1b[0m`;
 
-const TABLES = ['consultas', 'feedback'] as const;
+// Archivos SQL a ejecutar, en orden
+const SQL_FILES = ['analytics.sql', 'subscriptions.sql'] as const;
+
+// Tablas esperadas tras la migración
+const TABLES = [
+  'consultas', 'feedback',                        // analytics.sql
+  'subscriptions', 'paypal_events', 'queries_log', // subscriptions.sql
+] as const;
 
 async function main(): Promise<void> {
   console.log('\x1b[1m\n🚀 Migrando analítica a Supabase...\x1b[0m\n');
@@ -76,17 +83,20 @@ async function main(): Promise<void> {
 
   try {
     // ── 3. Leer SQL ──────────────────────────────────────────────────────
-    step('📄 Leyendo SQL...');
-    const sqlPath = resolve(process.cwd(), 'supabase', 'analytics.sql');
-    let sql: string;
-    try {
-      sql = readFileSync(sqlPath, 'utf-8');
-    } catch {
-      fail('No se encontró supabase/analytics.sql');
-      process.exit(1);
+    step('📄 Leyendo archivos SQL...');
+    const sqlScripts: { nombre: string; sql: string }[] = [];
+    for (const nombre of SQL_FILES) {
+      const sqlPath = resolve(process.cwd(), 'supabase', nombre);
+      try {
+        const sql = readFileSync(sqlPath, 'utf-8');
+        const lineas = sql.split('\n').filter(l => l.trim() && !l.trim().startsWith('--')).length;
+        ok(`   ${nombre} (${lineas} líneas de código)`);
+        sqlScripts.push({ nombre, sql });
+      } catch {
+        fail(`No se encontró supabase/${nombre}`);
+        process.exit(1);
+      }
     }
-    const lineas = sql.split('\n').filter(l => l.trim() && !l.trim().startsWith('--')).length;
-    ok(`SQL cargado (${lineas} líneas de código)`);
 
     // ── 4. Estado previo ─────────────────────────────────────────────────
     step('🔍 Verificando tablas existentes...');
@@ -101,8 +111,10 @@ async function main(): Promise<void> {
 
     // ── 5. Ejecutar migración ─────────────────────────────────────────────
     step('▶️  Ejecutando migración...');
-    await pg.query(sql);
-    ok('SQL ejecutado correctamente');
+    for (const { nombre, sql } of sqlScripts) {
+      await pg.query(sql);
+      ok(`   ${nombre} ejecutado`);
+    }
 
     // ── 6. Verificar con supabase-js (service_role bypasa RLS) ───────────
     step('📊 Verificando resultado...');
