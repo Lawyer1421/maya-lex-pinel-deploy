@@ -117,7 +117,10 @@ function extraerQueryParaBusqueda(contenido: string | unknown): string {
 }
 
 // ── Colecciones ChromaDB por RUTA y materia ────────────────────────────────
-// ANTI-CONTAMINACIÓN: materia civil y penal NUNCA comparten colección.
+// ANTI-CONTAMINACIÓN: la materia penal se aísla con el filtro de metadato
+// materia='01_PENAL' dentro de mayalex_normativos (la colección cpp_honduras
+// nunca fue poblada — auditoría QA 2026-07-08). Los 3,358 chunks penales
+// viven en mayalex_normativos etiquetados con materia: 01_PENAL.
 
 const COLECCIONES_CIVIL: Record<string, string | null> = {
   A: 'mayalex_procedimental',  // plazos, recursos procesales civiles
@@ -127,11 +130,14 @@ const COLECCIONES_CIVIL: Record<string, string | null> = {
 };
 
 const COLECCIONES_PENAL: Record<string, string | null> = {
-  A: 'cpp_honduras',           // procedimiento penal
-  B: 'cpp_honduras',           // artículos CPP / CP
-  C: 'cpp_honduras',           // combinado penal (una sola colección indexada)
+  A: 'mayalex_normativos',     // procedimiento penal (filtro materia=01_PENAL)
+  B: 'mayalex_normativos',     // artículos CPP / CP  (filtro materia=01_PENAL)
+  C: 'mayalex_normativos',     // combinado penal     (filtro materia=01_PENAL)
   D: null,
 };
+
+// Filtro de metadato que garantiza el aislamiento penal dentro de la colección
+const MATERIA_PENAL = '01_PENAL';
 
 // Modos de análisis que activan el router RAG
 const MODOS_CON_ROUTER: AnyMode[] = [
@@ -240,15 +246,20 @@ export async function POST(req: NextRequest) {
   let systemConRAG = config.systemPrompt;
 
   if (ruta !== 'D' && usarRouter) {
-    const colecciones = esModoPenal(mode) ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
+    const esPenal = esModoPenal(mode);
+    const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
+    // Modo penal: filtrar por materia dentro de la colección compartida
+    const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
 
     if (coleccionPrincipal) {
-      const ragResultado = await buscarRAG(ultimaPregunta as string, 5, coleccionPrincipal);
+      const ragResultado = await buscarRAG(
+        ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
+      );
       let contextoRAG = formatearContextoRAG(ragResultado);
 
       // RUTA_C civil → segunda pasada con procedimental para completar el análisis
-      if (ruta === 'C' && !esModoPenal(mode)) {
+      if (ruta === 'C' && !esPenal) {
         const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
         const contextoProc = formatearContextoRAG(ragProc);
         if (contextoProc) {

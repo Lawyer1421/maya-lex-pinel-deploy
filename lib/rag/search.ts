@@ -56,11 +56,12 @@ async function buscarEnPython(
   consulta: string,
   k: number,
   coleccion: string,
+  materia?: string,
 ): Promise<ResultadoRAG> {
   const response = await fetch(`${PYTHON_RAG_URL}/buscar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ consulta, k, coleccion }),
+    body: JSON.stringify({ consulta, k, coleccion, materia: materia ?? null }),
     // Timeout razonable — la búsqueda vectorial es rápida
     signal: AbortSignal.timeout(8000),
   });
@@ -133,17 +134,20 @@ async function buscarEnSupabase(
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Busca fragmentos del CPP/CP relevantes para una consulta.
+ * Busca fragmentos normativos relevantes para una consulta.
  * Elige automáticamente el backend según RAG_BACKEND en .env.local.
  *
  * @param consulta - Texto de la pregunta jurídica
  * @param k - Número de fragmentos a recuperar (default 5)
- * @param coleccion - 'cpp_honduras' | 'cp_honduras' (default: cpp_honduras)
+ * @param coleccion - Colección ChromaDB (ej. 'mayalex_normativos')
+ * @param materia - Filtro por metadato materia (ej. '01_PENAL') — garantiza
+ *                  aislamiento anti-contaminación dentro de colecciones mixtas
  */
 export async function buscarRAG(
   consulta: string,
   k = 5,
   coleccion = 'cpp_honduras',
+  materia?: string,
 ): Promise<ResultadoRAG> {
   const backend = getBackend();
 
@@ -151,9 +155,24 @@ export async function buscarRAG(
     return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
   }
 
+  // Guardia de producción: en Vercel no existe localhost — si RAG_BACKEND=python
+  // apunta a localhost, degradar a disabled en vez de esperar el timeout de 8s
+  // en CADA consulta.
+  if (
+    backend === 'python' &&
+    process.env.VERCEL === '1' &&
+    /localhost|127\.0\.0\.1/.test(PYTHON_RAG_URL)
+  ) {
+    console.warn(
+      '[RAG] RAG_BACKEND=python con PYTHON_RAG_URL=localhost en Vercel — RAG deshabilitado. ' +
+      'Configura RAG_BACKEND=disabled (o supabase) en las env vars de Vercel.'
+    );
+    return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
+  }
+
   try {
     if (backend === 'python') {
-      return await buscarEnPython(consulta, k, coleccion);
+      return await buscarEnPython(consulta, k, coleccion, materia);
     }
     if (backend === 'supabase') {
       return await buscarEnSupabase(consulta, k, coleccion);
