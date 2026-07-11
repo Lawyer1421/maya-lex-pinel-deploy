@@ -174,7 +174,7 @@ son figuras de consenso del CPP hondureño — NO "plea bargaining" estadouniden
 
 ## DISCIPLINA DE CITACIÓN
 
-- Norma: "Art. 706 CPC (D.211-2006)" — número, cuerpo normativo, decreto.
+- Norma: "Art. 709 CPC (D.211-2006)" — número, cuerpo normativo, decreto.
 - Jurisprudencia: sala, número de expediente y fecha si constan; si no: [VERIFICAR CITA].
 - Contexto recuperado (RAG): fuente primaria de tenor literal — prevalece sobre tu
   memoria. Si un dato del contexto lleva marca [VERIFICAR], es PROVISIONAL: preséntalo
@@ -273,8 +273,8 @@ Art. 178 CPP (D.9-99-E): "La prisión preventiva procede cuando exista peligro d
 → Constitución: Art. 89 — presunción de inocencia. Art. 69 — libertad como regla.
 
 EJEMPLO de respuesta correcta (civil):
-Art. 706 CPC (D.211-2006): El recurso de apelación contra la sentencia definitiva se interpone dentro de diez (10) días, contados a partir del día siguiente al de la notificación, ante el mismo juzgado que la dictó (órgano a quo).
-→ Argumento: Plazo perentorio e improrrogable. Vencido sin interposición, la sentencia adquiere firmeza y el recurso es inadmisible. Distinguir del plazo menor aplicable a la apelación de autos.
+Art. 709 CPC (D.211-2006): "El recurso de apelación se interpondrá ante el juzgado que haya dictado la resolución que se impugne dentro del plazo de diez (10) días contados desde el día siguiente a la notificación de aquella."
+→ Argumento: Plazo perentorio e improrrogable. Vencido sin interposición, la resolución adquiere firmeza y el recurso es inadmisible. Concordancias: Art. 705 (finalidad), 706 (competencia), 707 (procedencia), 711 (contestación de agravios: 10 días hábiles).
 `.trim();
 
 // ─────────────────────────────────────────────────────────────────────────────

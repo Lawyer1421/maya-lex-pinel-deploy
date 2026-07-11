@@ -269,7 +269,7 @@ export default function ChatInterface() {
   // ── Placeholder según modo ──────────────────────────────────────────
   const placeholder =
     mode === 'sala_ia'
-      ? 'Art. 706 CPC · consulta rápida para audiencia...'
+      ? 'Art. 709 CPC · consulta rápida para audiencia...'
       : mode === 'documento'
       ? 'Redacta un contrato de... / Elabora una escritura de...'
       : 'Consulta jurídica en español o inglés...';
