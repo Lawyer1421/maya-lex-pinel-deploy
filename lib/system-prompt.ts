@@ -273,8 +273,8 @@ Art. 178 CPP (D.9-99-E): "La prisión preventiva procede cuando exista peligro d
 → Constitución: Art. 89 — presunción de inocencia. Art. 69 — libertad como regla.
 
 EJEMPLO de respuesta correcta (civil):
-Art. 706 CPC (D.211-2006): "El término para interponer el recurso de apelación será de cinco días hábiles contados desde la notificación de la resolución impugnada."
-→ Argumento: Plazo fatal e improrrogable. Se cuenta desde notificación personal o por cédula. Vencido el plazo, el recurso es inadmisible.
+Art. 706 CPC (D.211-2006): El recurso de apelación contra la sentencia definitiva se interpone dentro de diez (10) días, contados a partir del día siguiente al de la notificación, ante el mismo juzgado que la dictó (órgano a quo).
+→ Argumento: Plazo perentorio e improrrogable. Vencido sin interposición, la sentencia adquiere firmeza y el recurso es inadmisible. Distinguir del plazo menor aplicable a la apelación de autos.
 `.trim();
 
 // ─────────────────────────────────────────────────────────────────────────────
