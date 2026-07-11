@@ -11,8 +11,10 @@
  * Seguridad: URL fija (anti-SSRF), token solo server-side, timeout 4s.
  */
 
+// Endpoint del ROUTER de HF (el dominio legado api-inference.huggingface.co
+// fue desmantelado en 2025 — devolvía "fetch failed" en producción).
 const HF_MODEL_URL =
-  'https://api-inference.huggingface.co/models/intfloat/multilingual-e5-small';
+  'https://router.huggingface.co/hf-inference/models/intfloat/multilingual-e5-small/pipeline/feature-extraction';
 
 const EMBED_DIMS = 384;
 
