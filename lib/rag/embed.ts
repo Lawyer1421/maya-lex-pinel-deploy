@@ -29,8 +29,11 @@ export async function embedQuery(consulta: string): Promise<number[]> {
     throw new Error('HF_API_TOKEN no configurada — embedding de consulta no disponible');
   }
 
+  // 12s: el arranque frío del modelo serverless de HF (wait_for_model) puede
+  // tardar >10s la primera vez; en caliente responde en <500ms. Si expira,
+  // buscarRAG degrada a sin-corpus — preferible un análisis lento a uno mudo.
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 4000);
+  const timeoutId  = setTimeout(() => controller.abort(), 12000);
 
   try {
     const res = await fetch(HF_MODEL_URL, {
