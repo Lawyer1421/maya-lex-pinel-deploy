@@ -119,7 +119,7 @@ export default function LoginPage() {
         <div className="mt-5 flex justify-center gap-6 text-xs text-white/30">
           <Link href="/" className="hover:text-white/50 transition-colors">Inicio</Link>
           <Link href="/pricing" className="hover:text-white/50 transition-colors">Planes</Link>
-          <Link href="/chat" className="hover:text-white/50 transition-colors">Chat sin cuenta</Link>
+          <Link href="/" className="hover:text-white/50 transition-colors">Volver al inicio</Link>
         </div>
       </div>
     </main>
