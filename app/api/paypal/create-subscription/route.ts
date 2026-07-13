@@ -11,7 +11,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAccessToken, getPayPalBaseUrl } from '@/lib/paypal/client';
-import { getUserIdentifier } from '@/lib/rate-limit';
+import { getUserIdentifierVerificado } from '@/lib/rate-limit';
 import { createServerSupabaseClient } from '@/lib/supabase';
 
 /**
@@ -47,9 +47,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Identificador del usuario — el MISMO que usa el rate-limiter en /api/chat.
+  // Identidad VERIFICADA — email:{correo} si hay sesión (estable entre IPs y
+  // dispositivos; coincide con /cuenta), ip: como último recurso.
   // Viaja dentro de custom_id para que el webhook active a este usuario exacto.
-  const userIdentifier = getUserIdentifier(req);
+  const userIdentifier = await getUserIdentifierVerificado(req);
+
+  // Suscribirse SIN correo deja el pago huérfano de identidad estable:
+  // exigir sesión activa (el frontend redirige a /login antes de llegar aquí).
+  if (userIdentifier.startsWith('ip:')) {
+    return NextResponse.json(
+      {
+        error: 'Debe iniciar sesión con su correo antes de suscribirse.',
+        loginUrl: '/login?next=/pricing',
+      },
+      { status: 401 }
+    );
+  }
 
   try {
     const accessToken = await getAccessToken();

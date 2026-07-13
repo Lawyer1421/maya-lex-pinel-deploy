@@ -5,10 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserIdentifier, getRateLimitStatus } from '@/lib/rate-limit';
+import { getUserIdentifierVerificado, getRateLimitStatus } from '@/lib/rate-limit';
 
 export async function GET(req: NextRequest) {
-  const userIdentifier = getUserIdentifier(req);
+  const userIdentifier = await getUserIdentifierVerificado(req);
 
   try {
     const status = await getRateLimitStatus(userIdentifier);

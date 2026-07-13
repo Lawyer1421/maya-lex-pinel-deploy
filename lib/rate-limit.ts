@@ -19,15 +19,11 @@ export type RateLimitResult =
   | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string };
 
 /**
- * Extrae el identificador de usuario de la Request.
- * Prioridad: header X-User-ID (Supabase Auth) → IP real → fallback.
+ * Extrae el identificador de usuario de la Request (SIN verificación).
+ * Solo IP — el header X-User-ID fue eliminado por suplantable (auditoría #8).
+ * Para identidad autenticada usar getUserIdentifierVerificado().
  */
 export function getUserIdentifier(req: Request): string {
-  // Si hay autenticación, el cliente envía X-User-ID
-  const userId = req.headers.get('x-user-id');
-  if (userId) return `user:${userId}`;
-
-  // IP real (Vercel/Cloudflare/Nginx)
   const forwarded =
     req.headers.get('x-forwarded-for') ??
     req.headers.get('x-real-ip') ??
@@ -35,6 +31,36 @@ export function getUserIdentifier(req: Request): string {
   if (forwarded) return `ip:${forwarded.split(',')[0].trim()}`;
 
   return 'ip:unknown';
+}
+
+/**
+ * Identificador VERIFICADO del usuario.
+ *
+ * Si la request trae `Authorization: Bearer <access_token>` de Supabase Auth,
+ * valida el JWT contra Supabase y devuelve `email:{correo}` — el mismo esquema
+ * que usan /cuenta y el webhook PayPal, y estable entre dispositivos/IPs.
+ * Un token inválido o ausente degrada a identidad por IP (plan gratuito).
+ *
+ * Seguridad: el token se VALIDA server-side (auth.getUser) — a diferencia del
+ * viejo X-User-ID, no se puede suplantar con un simple header.
+ */
+export async function getUserIdentifierVerificado(req: Request): Promise<string> {
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+
+  if (token && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const supabase = createServerSupabaseClient();
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data.user?.email) {
+        return `email:${data.user.email.toLowerCase()}`;
+      }
+    } catch {
+      // Token corrupto o Supabase caído → degradar a IP sin romper el chat
+    }
+  }
+
+  return getUserIdentifier(req);
 }
 
 /**

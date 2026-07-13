@@ -31,7 +31,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   checkAndIncrementRateLimit,
-  getUserIdentifier,
+  getUserIdentifierVerificado,
 } from '@/lib/rate-limit';
 import {
   CLAUDE_CONFIG,
@@ -191,8 +191,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. Rate Limiting
-  const userIdentifier = getUserIdentifier(req);
+  // 2. Rate Limiting — identidad verificada: email:{correo} si hay sesión, ip: si no
+  const userIdentifier = await getUserIdentifierVerificado(req);
   const rateLimitResult = await checkAndIncrementRateLimit(userIdentifier);
 
   if (!rateLimitResult.allowed) {

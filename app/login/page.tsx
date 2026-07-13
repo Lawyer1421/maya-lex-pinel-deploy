@@ -18,11 +18,15 @@ export default function LoginPage() {
     setEstado('enviando');
     setError('');
 
+    // Preservar destino de retorno (?next=/pricing) a través del enlace mágico
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/chat';
+
     const supabase = createSupabaseBrowserClient();
     const { error: authError } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo:
+          `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
 

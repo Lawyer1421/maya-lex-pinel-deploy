@@ -4,6 +4,22 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChatMode } from '@/lib/system-prompt';
 import MessageBubble from './MessageBubble';
 import PromptInput, { type Attachment, type SendPayload } from './PromptInput';
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+
+/**
+ * Token de sesión Supabase (si el usuario inició sesión).
+ * El backend lo VERIFICA y liga consultas/tier al correo del usuario
+ * en vez de a su IP — así el Plan Pro lo sigue a cualquier dispositivo.
+ */
+async function getAuthHeader(): Promise<Record<string, string>> {
+  try {
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session ? { Authorization: `Bearer ${session.access_token}` } : {};
+  } catch {
+    return {}; // Supabase no configurado → chat anónimo por IP
+  }
+}
 
 // ── Tipos ────────────────────────────────────────────────────────────
 interface Message {
@@ -136,9 +152,10 @@ export default function ChatInterface() {
       abortRef.current = new AbortController();
 
       try {
+        const authHeader = await getAuthHeader();
         const response = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeader },
           body: JSON.stringify({ messages: history, mode, webSearch, modelOverride }),
           signal: abortRef.current.signal,
         });

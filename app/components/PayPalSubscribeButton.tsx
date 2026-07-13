@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface Props {
   plan: 'pro' | 'academico';
@@ -16,12 +17,32 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
     setLoading(true);
     setError(null);
     try {
+      // 1. Exigir sesión: la suscripción DEBE quedar ligada al correo del
+      //    cliente (identidad estable), nunca a su IP del momento.
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = '/login?next=/pricing';
+        return;
+      }
+
+      // 2. Crear la suscripción con el token de sesión — el servidor lo
+      //    verifica y empaqueta email:{correo} en el custom_id de PayPal.
       const res = await fetch('/api/paypal/create-subscription', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ plan }),
+        headers: {
+          'Content-Type':  'application/json',
+          Authorization:   `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ plan, email: session.user.email }),
       });
-      const data = await res.json() as { approvalUrl?: string; error?: string };
+      const data = await res.json() as { approvalUrl?: string; error?: string; loginUrl?: string };
+
+      if (res.status === 401 && data.loginUrl) {
+        window.location.href = data.loginUrl;
+        return;
+      }
       if (!res.ok || !data.approvalUrl) {
         throw new Error(data.error ?? 'Error al crear suscripción PayPal');
       }
