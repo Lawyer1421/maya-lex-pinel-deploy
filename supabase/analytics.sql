@@ -79,3 +79,11 @@ create index if not exists idx_consultas_modo       on consultas(modo);
 create index if not exists idx_consultas_usuario    on consultas(usuario_hash);
 create index if not exists idx_consultas_proveedor  on consultas(proveedor);
 create index if not exists idx_feedback_consulta    on feedback(consulta_id);
+
+-- ── Privilegios de tabla (NO confundir con RLS) ───────────────
+-- Al crear tablas via conexión SQL directa (psql/pooler) en vez del
+-- SQL Editor del dashboard, Supabase no otorga los GRANTs estándar de
+-- PostgREST automáticamente. service_role tiene BYPASSRLS=true, pero
+-- eso solo omite las POLICIES — el GRANT de tabla sigue siendo exigido.
+grant select, insert, update, delete on consultas to service_role;
+grant select, insert, update, delete on feedback  to service_role;

@@ -60,15 +60,21 @@ function getClient() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-// ── Log principal — fire-and-forget ──────────────────────────────────────
+// ── Log principal ──────────────────────────────────────────────────────────
+//
+// Devuelve la Promise (no la ejecuta como fire-and-forget interno) para que
+// el caller la entregue a Next.js `after()`. En serverless, un fetch lanzado
+// sin await ni after() puede ser abortado por el runtime en cuanto el
+// response HTTP termina de enviarse — el INSERT nunca llega a completar
+// aunque el código no arroje ningún error visible.
 
-export function logConsulta(data: ConsultaLog): void {
+export function logConsulta(data: ConsultaLog): Promise<void> {
   const client = getClient();
   if (!client) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('[Analytics] Supabase no configurado — logging desactivado');
     }
-    return;
+    return Promise.resolve();
   }
 
   const row = {
@@ -87,8 +93,7 @@ export function logConsulta(data: ConsultaLog): void {
     exito:                data.exito,
   };
 
-  // Fire-and-forget — IIFE async para capturar errores sin bloquear al caller
-  void (async () => {
+  return (async () => {
     try {
       const { error } = await client.from('consultas').insert(row);
       if (error) {

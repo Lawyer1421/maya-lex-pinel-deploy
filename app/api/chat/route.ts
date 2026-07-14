@@ -27,7 +27,7 @@
  *   - ANTI-CONTAMINACIÓN: materia 02_CIVIL y 01_PENAL nunca se mezclan.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   checkAndIncrementRateLimit,
@@ -341,13 +341,13 @@ export async function POST(req: NextRequest) {
             remaining: rateLimitResult.remaining,
             tier: rateLimitResult.tier,
           }));
-          logConsulta({
+          after(() => logConsulta({
             consulta_id: consultaId, pregunta: ultimaPregunta as string,
             modo: mode, ruta_rag: ruta, modelo: 'aclaracion', proveedor: 'sistema',
             tokens_input: 0, tokens_output: 0, tiempo_ms: Date.now() - inicioMs,
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
-          });
+          }));
           return;
         }
 
@@ -377,14 +377,14 @@ export async function POST(req: NextRequest) {
                 model: modelOR,
                 ruta,
               }));
-              logConsulta({
+              after(() => logConsulta({
                 consulta_id: consultaId, pregunta: ultimaPregunta as string,
                 modo: mode, ruta_rag: ruta, modelo: modelOR, proveedor: 'openrouter',
                 tokens_input: inputTokens, tokens_output: outputTokens,
                 tiempo_ms: Date.now() - inicioMs,
                 web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                 tier_usuario: rateLimitResult.tier, exito: true,
-              });
+              }));
             },
             onError: (message) => {
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -449,7 +449,7 @@ export async function POST(req: NextRequest) {
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
                 }));
-                logConsulta({
+                after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,
                   modo: mode, ruta_rag: ruta,
                   modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
@@ -457,7 +457,7 @@ export async function POST(req: NextRequest) {
                   tiempo_ms: Date.now() - inicioMs,
                   web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                   tier_usuario: rateLimitResult.tier, exito: true,
-                });
+                }));
                 break;
             }
           }

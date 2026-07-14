@@ -108,3 +108,12 @@ do $$ begin
     alter table subscriptions add column email text;
   end if;
 end $$;
+
+-- ── Privilegios de tabla (NO confundir con RLS) ───────────────
+-- Al crear tablas via conexión SQL directa (psql/pooler) en vez del
+-- SQL Editor del dashboard, Supabase no otorga los GRANTs estándar de
+-- PostgREST automáticamente. service_role tiene BYPASSRLS=true, pero
+-- eso solo omite las POLICIES — el GRANT de tabla sigue siendo exigido.
+grant select, insert, update, delete on subscriptions  to service_role;
+grant select, insert, update, delete on paypal_events  to service_role;
+grant select, insert, update, delete on queries_log    to service_role;

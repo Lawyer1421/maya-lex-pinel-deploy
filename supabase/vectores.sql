@@ -45,6 +45,16 @@ do $$ begin
   end if;
 end $$;
 
+-- ── Privilegios de tabla (NO confundir con RLS) ───────────────
+-- Al crear la tabla via conexión SQL directa (psql/pooler, no el SQL
+-- Editor del dashboard), Supabase NO otorga automáticamente los GRANTs
+-- estándar de PostgREST. service_role tiene BYPASSRLS=true, pero eso
+-- solo omite las POLICIES — sigue exigiendo el GRANT de tabla estándar.
+-- Sin esto: "permission denied for table X" en cada consulta runtime,
+-- aunque el service_role key sea válido y la carga masiva por psql
+-- directo (que usa el rol postgres, no service_role) funcione bien.
+grant select, insert, update, delete on biblioteca_vectores to service_role;
+
 -- ── RPC de búsqueda semántica ────────────────────────────────
 -- Filtro anti-contaminación: materia_filtro aísla penal/civil dentro
 -- de la colección compartida, igual que el backend Python local.
@@ -75,3 +85,5 @@ as $$
   order by b.embedding <=> query_embedding
   limit least(limite, 20);
 $$;
+
+grant execute on function buscar_biblioteca to service_role;
