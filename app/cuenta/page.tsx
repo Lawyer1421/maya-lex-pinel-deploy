@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 
 export const metadata: Metadata = {
   title: 'Mi Cuenta — MAYA LEX IA PINEL HN',
@@ -69,18 +70,8 @@ export default async function CuentaPage({
           <p className="text-white/50 text-sm mt-1">{user.email}</p>
         </div>
 
-        {/* Aviso de pago exitoso */}
-        {pagoExitoso && (
-          <div className="glass-card border-jade/40 p-4 mb-6 flex items-center gap-3">
-            <svg className="w-5 h-5 text-jade flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <div>
-              <p className="text-jade font-semibold text-sm">¡Pago exitoso!</p>
-              <p className="text-white/60 text-xs">Su plan ha sido activado. Disfrute las consultas ilimitadas.</p>
-            </div>
-          </div>
-        )}
+        {/* Aviso de pago — verifica el estado real, nunca asume por la URL */}
+        {pagoExitoso && <EstadoPagoBanner tierActual={tier} />}
 
         {/* Estado de suscripción */}
         <div className="glass-card p-6 mb-5">
