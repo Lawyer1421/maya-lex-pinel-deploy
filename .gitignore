@@ -39,3 +39,6 @@ yarn-error.log*
 
 .vercel
 .env*
+
+# Backups locales de datos reales (contienen PII de clientes) — nunca a git
+backups/

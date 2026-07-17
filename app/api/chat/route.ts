@@ -49,6 +49,7 @@ import {
   AVISO_BUSQUEDA_FALLIDA,
 } from '@/lib/websearch/tavily';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
+import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -317,6 +318,24 @@ export async function POST(req: NextRequest) {
         // Solo mostrar el aviso si había intención de búsqueda (la clave existe pero falló)
         systemConRAG += AVISO_BUSQUEDA_FALLIDA;
       }
+    }
+  }
+
+  // ── Plantillas notariales del archivo profesional (solo modo 'documento') ──
+  // Piloto validado 2026-07-15/16 — 12 poderes genéricos, sin PII.
+  if (mode === 'documento') {
+    try {
+      const resultadosPlantilla = await buscarPlantilla(ultimaPregunta as string, { limite: 2 });
+      const contextoPlantilla = formatearContextoPlantilla(resultadosPlantilla);
+      if (contextoPlantilla) {
+        systemConRAG += '\n\n' + contextoPlantilla;
+        console.log(
+          `[Plantillas] Inyectada(s) ${resultadosPlantilla.filter(r => r.similarity >= 0.75).length} plantilla(s)` +
+          ` | mejor similitud=${resultadosPlantilla[0]?.similarity.toFixed(2) ?? 'n/a'}`
+        );
+      }
+    } catch (err) {
+      console.warn('[Plantillas] Error no crítico:', err instanceof Error ? err.message : String(err));
     }
   }
 

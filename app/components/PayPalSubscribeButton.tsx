@@ -37,15 +37,44 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
         },
         body: JSON.stringify({ plan, email: session.user.email }),
       });
-      const data = await res.json() as { approvalUrl?: string; error?: string; loginUrl?: string };
+      const data = await res.json() as {
+        approvalUrl?: string;
+        subscriptionId?: string;
+        error?: string;
+        loginUrl?: string;
+        code?: string;
+        accountUrl?: string;
+      };
 
       if (res.status === 401 && data.loginUrl) {
         window.location.href = data.loginUrl;
         return;
       }
+      if (res.status === 409) {
+        // Ya activo o intento reciente pendiente — nunca reintentar el pago,
+        // mandar a Mi Cuenta a verificar/gestionar en vez de cobrar de nuevo.
+        setError(data.error ?? 'Ya existe una suscripción para su cuenta.');
+        setLoading(false);
+        if (data.accountUrl) {
+          window.location.href = data.accountUrl;
+        }
+        return;
+      }
       if (!res.ok || !data.approvalUrl) {
         throw new Error(data.error ?? 'Error al crear suscripción PayPal');
       }
+
+      // Guarda el checkout exacto que se va a intentar — /cuenta lo usa para
+      // verificar ESA suscripción puntual al volver, no "la última que haya"
+      // en la base de datos (que pudo cambiar si hubo otro intento).
+      if (data.subscriptionId) {
+        try {
+          window.localStorage.setItem(`mlx_pending_sub_${session.user.email}`, data.subscriptionId);
+        } catch {
+          // localStorage no disponible (modo privado, etc.) — no bloquea el pago
+        }
+      }
+
       window.location.href = data.approvalUrl;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado');

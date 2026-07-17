@@ -3,6 +3,10 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+import EstadoPagoBanner from '@/components/EstadoPagoBanner';
+import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
+import { resolveCurrentAccess } from '@/lib/paypal/access';
+import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
 export const metadata: Metadata = {
   title: 'Mi Cuenta — MAYA LEX IA PINEL HN',
@@ -26,7 +30,7 @@ export default async function CuentaPage({
 
   // ── Obtener datos de suscripción ──────────────────────────────────────────
   const supabase = createServerSupabaseClient();
-  const userIdentifier = `email:${user.email}`;
+  const userIdentifier = buildUserIdentifierFromEmail(user.email ?? '');
 
   const { data: suscripcion } = await supabase
     .from('subscriptions')
@@ -41,7 +45,12 @@ export default async function CuentaPage({
     .eq('query_date', new Date().toISOString().split('T')[0])
     .single();
 
-  const tier = suscripcion?.tier ?? usage?.tier ?? 'free';
+  // Fuente única de "qué puede hacer este usuario ahora mismo" — el mismo
+  // criterio que usa /api/chat (lib/rate-limit.ts). subscripcion/usage de
+  // arriba solo aportan detalle de facturación para la UI (fecha de
+  // renovación, contador del día), nunca deciden el acceso por sí solos.
+  const access = await resolveCurrentAccess(userIdentifier);
+  const tier = access.tier;
   const esPro = tier === 'pro';
   const esAcademico = tier === 'academico';
   const periodoFin = suscripcion?.current_period_end
@@ -52,6 +61,13 @@ export default async function CuentaPage({
 
   const consultasHoy = usage?.query_count ?? 0;
   const limiteHoy = tier === 'pro' ? '∞' : tier === 'academico' ? '20' : '3';
+
+  const estadoLabel = access.verificationPending
+    ? `Verificando${access.pendingTier ? ` (${access.pendingTier})` : ''}…`
+    : suscripcion?.status === 'active'   ? 'Activo'
+    : suscripcion?.status === 'past_due' ? 'Pago pendiente'
+    : suscripcion?.status === 'cancelled' ? 'Cancelado'
+    : 'Gratuito';
 
   return (
     <main className="min-h-screen bg-navy pt-12 pb-20 px-4">
@@ -69,18 +85,8 @@ export default async function CuentaPage({
           <p className="text-white/50 text-sm mt-1">{user.email}</p>
         </div>
 
-        {/* Aviso de pago exitoso */}
-        {pagoExitoso && (
-          <div className="glass-card border-jade/40 p-4 mb-6 flex items-center gap-3">
-            <svg className="w-5 h-5 text-jade flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <div>
-              <p className="text-jade font-semibold text-sm">¡Pago exitoso!</p>
-              <p className="text-white/60 text-xs">Su plan ha sido activado. Disfrute las consultas ilimitadas.</p>
-            </div>
-          </div>
-        )}
+        {/* Aviso de pago — verifica el estado real, nunca asume por la URL */}
+        {pagoExitoso && <EstadoPagoBanner tierActual={tier} userEmail={user.email ?? ''} />}
 
         {/* Estado de suscripción */}
         <div className="glass-card p-6 mb-5">
@@ -111,10 +117,11 @@ export default async function CuentaPage({
             </div>
             <div>
               <p className="text-white/40 text-xs mb-1">Estado</p>
-              <p className={`font-semibold text-sm ${suscripcion?.status === 'past_due' ? 'text-red-400' : 'text-jade'}`}>
-                {suscripcion?.status === 'active' ? 'Activo' :
-                 suscripcion?.status === 'past_due' ? 'Pago pendiente' :
-                 suscripcion?.status === 'cancelled' ? 'Cancelado' : 'Gratuito'}
+              <p className={`font-semibold text-sm ${
+                suscripcion?.status === 'past_due' ? 'text-red-400' :
+                access.verificationPending ? 'text-gold' : 'text-jade'
+              }`}>
+                {estadoLabel}
               </p>
             </div>
             {periodoFin && (
@@ -149,6 +156,9 @@ export default async function CuentaPage({
             >
               Gestionar suscripción (PayPal)
             </a>
+          )}
+          {!esPro && !esAcademico && (
+            <VerificarSuscripcionButton userEmail={user.email ?? ''} />
           )}
           <form action="/auth/signout" method="POST">
             <button
