@@ -1,67 +1,48 @@
 /**
  * GET /auth/callback
- * Supabase Auth — intercambia el código (magic link, Google OAuth, o
- * recuperación de contraseña) por una sesión real. Redirige según el
- * destino solicitado.
+ * Supabase Auth — intercambia el código (magic link o Google OAuth) por
+ * una sesión real y redirige al destino solicitado.
  *
- * Registra en identity_link_events (auditoría, solo lectura desde la
- * app) qué tipo de resultado produjo el intercambio — nunca decide por
- * su cuenta fusionar cuentas; eso ya lo resolvió Supabase Auth (según su
- * configuración de "manual linking" en el dashboard) antes de llegar
- * aquí. Ver docs/runbooks/google-oauth-setup.md para el límite exacto
- * de lo que este código puede controlar.
- *
- * NOTA (hotfix/google-login-visible): la tabla identity_link_events
- * viene de una migración que NO está aplicada en este hotfix a
- * propósito (ver objetivo del hotfix — sin migraciones). El insert de
- * auditoría de abajo está en un try/catch que NUNCA bloquea el login si
- * la tabla no existe — solo deja de auditar hasta que esa migración se
- * aplique en una fase posterior.
+ * Alcance mínimo a propósito (hotfix/google-login-visible): no escribe
+ * en ninguna tabla, no depende de entitlements ni de profiles, no
+ * requiere ninguna migración aplicada. Solo intercambia el código y
+ * redirige — nada más.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
-import { createServerSupabaseClient } from '@/lib/supabase';
-import { classifyIdentityLinkOutcome } from '@/lib/identity-linking';
+
+/**
+ * Restringe `next` a una ruta interna relativa — nunca a una URL
+ * absoluta ni protocolo-relativa. Sin esto, un `next` como
+ * `//evil.com` o `https://evil.com` en la query string del callback
+ * podría usarse para un open redirect después de un login legítimo.
+ */
+export function sanitizeNextPath(next: string | null): string {
+  if (!next) return '/chat';
+  if (!next.startsWith('/')) return '/chat';       // debe ser relativa
+  if (next.startsWith('//')) return '/chat';        // protocolo-relativa — rechazada
+  if (next.includes('://')) return '/chat';         // esquema embebido — rechazada
+  return next;
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/chat';
+  const next = sanitizeNextPath(searchParams.get('next'));
 
   if (code) {
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error && data.user) {
-      const provider = data.user.app_metadata?.provider ?? 'email';
-
-      if (provider === 'google') {
-        try {
-          const outcome = classifyIdentityLinkOutcome({
-            userCreatedAt: data.user.created_at,
-            emailVerified: !!data.user.email_confirmed_at,
-          });
-          const admin = createServerSupabaseClient();
-          await admin.from('identity_link_events').insert({
-            existing_user_id: data.user.id,
-            attempted_provider: 'google',
-            attempted_email: data.user.email ?? '(sin correo)',
-            email_verified: !!data.user.email_confirmed_at,
-            outcome,
-          });
-        } catch (auditErr) {
-          // La auditoría nunca debe bloquear un login exitoso. Incluye el
-          // caso esperado en este hotfix: la tabla todavía no existe.
-          console.error('[Auth Callback] No se pudo registrar identity_link_events:', auditErr);
-        }
-      }
-
+    if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
 
-    console.error('[Auth Callback] Error exchanging code:', error?.message);
+    // No se expone el detalle del error al cliente — solo se registra
+    // server-side para diagnóstico.
+    console.error('[Auth Callback] Error exchanging code:', error.message);
   }
 
-  // Error → redirigir al login con mensaje
+  // Código ausente o inválido → redirigir al login con mensaje genérico
   return NextResponse.redirect(`${origin}/login?error=link_invalido`);
 }

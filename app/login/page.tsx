@@ -7,28 +7,14 @@ import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 /**
- * Hotfix aislado (hotfix/google-login-visible): agrega el botón "Continuar
- * con Google", visible SIEMPRE (fuera del condicional de modo), y una
- * opción de login por contraseña junto al enlace mágico existente.
- *
- * Decisión documentada — modo inicial: 'magico', NO 'password'. Todos
- * los usuarios existentes se registraron únicamente vía enlace mágico
- * (Supabase Auth con signInWithOtp) — ninguno tiene una contraseña
- * establecida todavía (el flujo de registro por contraseña vive en
- * feat/auth-uuid-google-pro, fuera de alcance de este hotfix). Abrir la
- * pestaña de contraseña por defecto le mostraría a cada usuario actual
- * un formulario que no puede usar. 'magico' es el único modo que
- * funciona para el 100% de las cuentas existentes hoy.
- *
- * Deliberadamente NO incluye enlaces a /signup ni /reset-password —
- * esas rutas viven en feat/auth-uuid-google-pro y no se portaron a este
- * hotfix (objetivo explícito: mínimo diff, sin migraciones, sin
- * dependencias nuevas). Se agregan cuando esa rama se fusione completa.
+ * Hotfix mínimo (hotfix/google-login-visible): agrega "Continuar con
+ * Google" al login existente. Alcance reducido a propósito — sin
+ * pestaña de contraseña, sin dependencias de entitlements/profiles/
+ * migraciones. El único flujo que ya funcionaba (enlace mágico) se
+ * mantiene sin cambios de comportamiento.
  */
 export default function LoginPage() {
-  const [modo, setModo] = useState<'magico' | 'password'>('magico');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'enviado' | 'error'>('idle');
   const [error, setError] = useState('');
 
@@ -50,24 +36,6 @@ export default function LoginPage() {
 
     if (authError) { setError(authError.message); setEstado('error'); }
     else setEstado('enviado');
-  }
-
-  async function handlePasswordLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim() || !password) return;
-    setEstado('enviando');
-    setError('');
-
-    const supabase = createSupabaseBrowserClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-
-    if (authError) {
-      // Mensaje genérico — no distingue "correo no existe" de "contraseña incorrecta".
-      setError('Correo o contraseña incorrectos.');
-      setEstado('error');
-      return;
-    }
-    window.location.href = nextDestino();
   }
 
   async function handleGoogle() {
@@ -114,7 +82,7 @@ export default function LoginPage() {
             </div>
           ) : (
             <>
-              {/* Google — visible SIEMPRE, fuera del condicional de modo */}
+              {/* Google — visible siempre */}
               <button
                 type="button"
                 onClick={handleGoogle}
@@ -137,28 +105,7 @@ export default function LoginPage() {
                 <div className="flex-1 h-px bg-white/10" />
               </div>
 
-              <div className="flex gap-2 mb-5 text-xs" role="tablist" aria-label="Método de acceso">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={modo === 'password'}
-                  onClick={() => setModo('password')}
-                  className={`flex-1 py-2 rounded-lg transition-colors ${modo === 'password' ? 'bg-jade/20 text-jade' : 'text-white/40'}`}
-                >
-                  Contraseña
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={modo === 'magico'}
-                  onClick={() => setModo('magico')}
-                  className={`flex-1 py-2 rounded-lg transition-colors ${modo === 'magico' ? 'bg-jade/20 text-jade' : 'text-white/40'}`}
-                >
-                  Enlace mágico
-                </button>
-              </div>
-
-              <form onSubmit={modo === 'magico' ? handleMagicLink : handlePasswordLogin} className="space-y-5">
+              <form onSubmit={handleMagicLink} className="space-y-5">
                 <div>
                   <label htmlFor="email" className="block text-white/60 text-sm mb-1.5">Correo electrónico</label>
                   <input
@@ -168,28 +115,21 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {modo === 'password' && (
-                  <div>
-                    <label htmlFor="password" className="block text-white/60 text-sm mb-1.5">Contraseña</label>
-                    <input
-                      id="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-                      required
-                      className="w-full bg-navy-light/60 border border-white/15 focus:border-jade/60 rounded-xl px-4 py-3 text-white placeholder-white/25 outline-none transition-colors text-sm"
-                    />
-                  </div>
-                )}
-
                 {error && (
                   <p role="alert" className="text-red-400 text-xs bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
                 )}
 
                 <button
                   type="submit"
-                  disabled={estado === 'enviando' || !email.trim() || (modo === 'password' && !password)}
+                  disabled={estado === 'enviando' || !email.trim()}
                   className="w-full btn-jade text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {estado === 'enviando' ? 'Procesando...' : modo === 'magico' ? 'Enviar enlace de acceso' : 'Iniciar sesión'}
+                  {estado === 'enviando' ? 'Enviando...' : 'Enviarme un enlace de acceso'}
                 </button>
+
+                <p className="text-white/30 text-xs text-center">
+                  Sin contraseñas. Solo su correo electrónico.
+                </p>
               </form>
             </>
           )}
