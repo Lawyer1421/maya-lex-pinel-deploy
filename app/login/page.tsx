@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { buildAuthCallbackUrl } from '@/lib/auth/redirect';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 /**
@@ -29,9 +30,10 @@ export default function LoginPage() {
     setError('');
 
     const supabase = createSupabaseBrowserClient();
+    const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
     const { error: authError } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextDestino())}` },
+      options: { emailRedirectTo: callbackUrl },
     });
 
     if (authError) { setError(authError.message); setEstado('error'); }
@@ -43,9 +45,10 @@ export default function LoginPage() {
     setError('');
     setEstado('enviando');
     const supabase = createSupabaseBrowserClient();
+    const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextDestino())}` },
+      options: { redirectTo: callbackUrl },
     });
     if (authError) {
       setError(authError.message);
