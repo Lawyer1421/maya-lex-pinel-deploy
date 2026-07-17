@@ -1,14 +1,13 @@
 /**
  * scripts/migrate-paypal-state-machine.ts
- * Ejecuta supabase/migrations/20260717010000_paypal_state_machine.sql en Supabase.
+ * Ejecuta, EN ORDEN, ambas migraciones de la máquina de estados PayPal:
+ *   1. 20260717010000_paypal_state_machine.sql
+ *   2. 20260717020000_paypal_event_id_and_atomic_access.sql
  *
  * Requiere en .env.local: DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  * Prerequisito: supabase/subscriptions.sql ya aplicado (npm run migrate:analytics).
  *
  * Uso: npm run migrate:paypal-state-machine
- *
- * NO se ejecuta como parte de este sprint — queda lista para cuando se
- * autorice el paso a staging/producción.
  */
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -25,8 +24,11 @@ const warn = (m: string) => console.log(`\x1b[33m⚠️  ${m}\x1b[0m`);
 const step = (m: string) => console.log(`\x1b[36m\n${m}\x1b[0m`);
 const dim  = (m: string) => `\x1b[2m${m}\x1b[0m`;
 
-const MIGRATION_FILE = '20260717010000_paypal_state_machine.sql';
-const NEW_TABLES = ['billing_duplicate_attempts', 'billing_verification_attempts'] as const;
+const MIGRATION_FILES = [
+  '20260717010000_paypal_state_machine.sql',
+  '20260717020000_paypal_event_id_and_atomic_access.sql',
+] as const;
+const NEW_TABLES = ['billing_duplicate_attempts', 'billing_verification_attempts', 'billing_state_transitions'] as const;
 
 async function main(): Promise<void> {
   console.log('\x1b[1m\n🚀 Migrando máquina de estados PayPal a Supabase...\x1b[0m\n');
@@ -59,14 +61,16 @@ async function main(): Promise<void> {
     }
     ok('  subscriptions: existe');
 
-    step('📄 Leyendo migración...');
-    const sqlPath = resolve(process.cwd(), 'supabase', 'migrations', MIGRATION_FILE);
-    const sql = readFileSync(sqlPath, 'utf-8');
-    ok(`   ${MIGRATION_FILE} (${sql.split('\n').length} líneas)`);
+    for (const migrationFile of MIGRATION_FILES) {
+      step(`📄 Leyendo ${migrationFile}...`);
+      const sqlPath = resolve(process.cwd(), 'supabase', 'migrations', migrationFile);
+      const sql = readFileSync(sqlPath, 'utf-8');
+      ok(`   ${migrationFile} (${sql.split('\n').length} líneas)`);
 
-    step('▶️  Ejecutando migración (100% aditiva)...');
-    await pg.query(sql);
-    ok('   Migración ejecutada');
+      step(`▶️  Ejecutando ${migrationFile} (100% aditiva)...`);
+      await pg.query(sql);
+      ok(`   ${migrationFile} ejecutada`);
+    }
 
     step('📊 Verificando resultado...');
     const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
@@ -77,14 +81,28 @@ async function main(): Promise<void> {
       else ok(`   Tabla '${table}' disponible (${count ?? 0} registros)`);
     }
 
-    const { rows: perms } = await pg.query(`
-      select grantee from information_schema.routine_privileges where routine_name = 'paypal_apply_event'
+    for (const fn of ['paypal_apply_event', 'paypal_apply_downgrade']) {
+      const { rows: perms } = await pg.query(
+        `select grantee from information_schema.routine_privileges where routine_name = $1`, [fn]
+      );
+      const grantees = perms.map((r) => r.grantee);
+      if (grantees.includes('service_role') && !grantees.includes('PUBLIC') && !grantees.includes('anon') && !grantees.includes('authenticated')) {
+        ok(`   Permisos de ${fn}: solo service_role ✓`);
+      } else {
+        warn(`   Permisos de ${fn} inesperados: ${dim(JSON.stringify(grantees))}`);
+        allOk = false;
+      }
+    }
+
+    const { rows: pkRows } = await pg.query(`
+      select a.attname from pg_constraint c
+      join pg_attribute a on a.attnum = any(c.conkey) and a.attrelid = c.conrelid
+      where c.conrelid = 'paypal_events'::regclass and c.contype = 'p'
     `);
-    const grantees = perms.map((r) => r.grantee);
-    if (grantees.includes('service_role') && !grantees.includes('PUBLIC') && !grantees.includes('anon')) {
-      ok('   Permisos de paypal_apply_event: solo service_role ✓');
+    if (pkRows.length === 1 && pkRows[0].attname === 'event_id') {
+      ok('   paypal_events.event_id es PRIMARY KEY ✓');
     } else {
-      warn(`   Permisos de paypal_apply_event inesperados: ${dim(JSON.stringify(grantees))}`);
+      warn(`   PK inesperada en paypal_events: ${dim(JSON.stringify(pkRows))}`);
       allOk = false;
     }
 
