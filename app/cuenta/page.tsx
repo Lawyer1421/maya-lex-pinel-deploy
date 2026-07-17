@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
+import AccessBadge from '@/components/AccessBadge';
 import { resolveCurrentAccess } from '@/lib/paypal/access';
 import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
@@ -81,7 +82,10 @@ export default async function CuentaPage({
             </svg>
             Volver al chat
           </Link>
-          <h1 className="font-serif text-3xl font-bold text-gradient-maya">Mi Cuenta</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-serif text-3xl font-bold text-gradient-maya">Mi Cuenta</h1>
+            <AccessBadge />
+          </div>
           <p className="text-white/50 text-sm mt-1">{user.email}</p>
         </div>
 

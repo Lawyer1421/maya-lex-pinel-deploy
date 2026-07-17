@@ -11,7 +11,10 @@
     "check:analytics": "tsx scripts/check-analytics.ts",
     "test": "vitest run",
     "migrate:paypal-state-machine": "tsx scripts/migrate-paypal-state-machine.ts",
-    "reconcile:paypal:dry-run": "tsx scripts/reconcile-paypal-subscriptions.ts --dry-run"
+    "migrate:identity": "tsx scripts/migrate-identity.ts",
+    "reconcile:paypal:dry-run": "tsx scripts/reconcile-paypal-subscriptions.ts --dry-run",
+    "identity-backfill": "tsx scripts/identity-backfill.ts",
+    "profiles-backfill": "tsx scripts/profiles-backfill.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
