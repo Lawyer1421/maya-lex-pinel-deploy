@@ -52,6 +52,9 @@ const APPLY = args.includes('--apply');
 const CONFIRM = args.includes('--confirm');
 const DRY_RUN = !APPLY || !CONFIRM;
 const LIMIT = Number(args.find((a) => a.startsWith('--limit='))?.split('=')[1] ?? '50');
+// Filtra a un único user_identifier exacto (p.ej. para un canary de un
+// solo cliente) — si se omite, se reconcilian hasta LIMIT filas.
+const ONLY_USER = args.find((a) => a.startsWith('--user='))?.split('=').slice(1).join('=');
 
 function redactEmail(email: string | null): string {
   if (!email) return '(sin correo)';
@@ -66,14 +69,26 @@ function redactSubId(subId: string | null): string {
 }
 
 async function main() {
-  console.log(dim(`Modo: ${DRY_RUN ? 'DRY-RUN (solo lectura)' : 'APPLY'} | límite: ${LIMIT}\n`));
+  console.log(dim(
+    `Modo: ${DRY_RUN ? 'DRY-RUN (solo lectura)' : 'APPLY'} | límite: ${LIMIT}` +
+    (ONLY_USER ? ` | filtrado a un único user_identifier` : '') + '\n'
+  ));
+
+  // Gate de entorno: este canary es contra PayPal Live real — si por
+  // alguna razón el entorno no está en 'live', detenerse (verificar
+  // contra Sandbox aquí daría un resultado sin sentido para un cliente
+  // real, y viceversa).
+  if (process.env.PAYPAL_MODE !== 'live') {
+    fail(`Gate de entorno fallido: PAYPAL_MODE no es 'live' (es '${process.env.PAYPAL_MODE ?? 'undefined'}'). Abortando — este canary requiere verificar contra PayPal Live real.`);
+    process.exit(1);
+  }
 
   if (!DRY_RUN && process.env.ALLOW_PAYPAL_RECONCILE_APPLY !== 'true') {
     fail('APPLY bloqueado: falta ALLOW_PAYPAL_RECONCILE_APPLY=true en el entorno. Abortando.');
     process.exit(1);
   }
   if (!DRY_RUN) {
-    warn('⚠️  Modo APPLY solicitado — este sprint NO debe ejecutarlo todavía sin autorización explícita adicional.');
+    warn('⚠️  Modo APPLY solicitado.');
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -84,19 +99,30 @@ async function main() {
   }
   const supabase = createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
-  const { data: rows, error } = await supabase
+  let query = supabase
     .from('subscriptions')
     .select('user_identifier, paypal_sub_id, tier, status, email, paypal_payer_id')
-    .not('paypal_sub_id', 'is', null)
-    .limit(LIMIT);
+    .not('paypal_sub_id', 'is', null);
+
+  query = ONLY_USER ? query.eq('user_identifier', ONLY_USER) : query.limit(LIMIT);
+
+  const { data: rows, error } = await query;
 
   if (error) {
     fail(`Error leyendo subscriptions: ${error.message}`);
     process.exit(1);
   }
   if (!rows || rows.length === 0) {
+    if (ONLY_USER) {
+      fail(`Gate de ambigüedad fallido: 0 filas encontradas para el user_identifier indicado. Abortando.`);
+      process.exit(1);
+    }
     ok('No hay filas con paypal_sub_id para reconciliar.');
     return;
+  }
+  if (ONLY_USER && rows.length > 1) {
+    fail(`Gate de ambigüedad fallido: ${rows.length} filas coinciden con ese user_identifier (debería ser exactamente 1). Abortando sin tocar nada.`);
+    process.exit(1);
   }
 
   let discrepancias = 0;
@@ -128,6 +154,14 @@ async function main() {
 
     const localIsActive = row.status === 'active';
     console.log(`  PayPal: verificado=${check.ok} razón=${check.reason} status=${check.status ?? 'n/a'}`);
+
+    if (ONLY_USER) {
+      if (check.ok) {
+        ok(`  GATE: PayPal confirma ACTIVE + plan permitido + custom_id coincidente. → APTO para reconcile --apply.`);
+      } else {
+        fail(`  GATE: PayPal NO confirma (razón: ${check.reason}). → DETENER, no ejecutar --apply para este cliente.`);
+      }
+    }
 
     if (check.ok === localIsActive) {
       ok('  ✓ Coincide — sin acción necesaria.');
