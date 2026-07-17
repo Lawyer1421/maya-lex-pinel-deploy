@@ -6,11 +6,18 @@
  * Seguridad implementada (OWASP):
  *   1. Verificación de firma via postback oficial (api-m.paypal.com)
  *   2. Validación SSRF del cert_url (allowlist de orígenes PayPal)
- *   3. Idempotencia via tabla paypal_events (dedup por transmission_id)
+ *   3. Idempotencia via tabla paypal_events, clave = webhookEvent.id
+ *      (event.id del body) — NUNCA transmission_id. PayPal reenvía la
+ *      MISMA notificación lógica con un PAYPAL-TRANSMISSION-ID nuevo en
+ *      cada intento de entrega; solo event.id se mantiene constante
+ *      entre reintentos. transmission_id se conserva como columna de
+ *      auditoría/firma, no como clave de deduplicación.
  *   4. Sin bypass silencioso: PAYPAL_WEBHOOK_ID ausente → error 500 explícito
  *   5. Dev bypass SOLO disponible si PAYPAL_MODE !== 'live'
- *   6. Transición de subscriptions vía RPC atómica (paypal_apply_event) —
- *      nunca SELECT+UPSERT separados desde esta API (ver lib/paypal/state-machine.ts)
+ *   6. Transición de subscriptions vía RPC atómica (paypal_apply_event/
+ *      paypal_apply_downgrade) — nunca SELECT+UPSERT separados desde esta
+ *      API (ver lib/paypal/state-machine.ts). La RPC también escribe
+ *      queries_log y la auditoría dentro de la MISMA transacción.
  *   7. ACTIVATED y PAYMENT.SALE.COMPLETED se verifican contra el recurso
  *      canónico de PayPal antes de conceder acceso — nunca se confía
  *      únicamente en el payload del webhook para eso.
@@ -31,7 +38,9 @@
  * SQL requerido en Supabase (ejecutar una vez antes de activar live):
  *   → supabase/subscriptions.sql (subscriptions + paypal_events + queries_log)
  *   → supabase/migrations/20260717010000_paypal_state_machine.sql (RPC paypal_apply_event + billing_duplicate_attempts)
- *   Automatizado: npm run migrate:analytics
+ *   → supabase/migrations/20260717020000_paypal_event_id_and_atomic_access.sql
+ *     (event_id como PK de idempotencia, escritura atómica, paypal_apply_downgrade)
+ *   Automatizado: npm run migrate:analytics && npm run migrate:paypal-state-machine
  *
  * Vínculo usuario ↔ pago:
  *   create-subscription empaqueta {p: plan, u: user_identifier} en custom_id.
@@ -52,8 +61,8 @@ import {
   parseCustomId,
   resolverUserIdentifier,
   applySubscriptionEvent,
+  applySubscriptionDowngrade,
   verifyCanonicalSubscription,
-  syncLegacyPaidAccess,
 } from '@/lib/paypal/state-machine';
 
 export const dynamic = 'force-dynamic';
@@ -74,8 +83,19 @@ interface PayPalResource {
 }
 
 interface PayPalEvent {
-  event_type: string;
-  resource:   PayPalResource;
+  /** webhookEvent.id — clave real de idempotencia, distinta del header PAYPAL-TRANSMISSION-ID */
+  id?:          string;
+  event_type:   string;
+  create_time?: string;
+  resource:     PayPalResource;
+}
+
+/** Nunca deja pasar datos personales/secretos a un log o a error_message_sanitized. */
+function sanitizeErrorMessage(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  return raw
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[correo-redactado]')
+    .slice(0, 200);
 }
 
 // ── Handler principal ──────────────────────────────────────────────────────
@@ -95,7 +115,9 @@ export async function POST(req: NextRequest) {
 
   const transmissionId = sigHeaders['paypal-transmission-id'];
 
-  // 3. Verificación de firma — falla dura (nunca silenciosa)
+  // 3. Verificación de firma — falla dura (nunca silenciosa), SIEMPRE antes
+  //    de tocar paypal_events. Un evento con firma inválida jamás se
+  //    registra ni se deduplica — simplemente se rechaza.
   let isValid: boolean;
   try {
     isValid = await verifyWebhookSignature(rawBody, sigHeaders);
@@ -120,13 +142,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Payload JSON malformado' }, { status: 400 });
   }
 
+  // webhookEvent.id es la clave real de idempotencia. En la práctica PayPal
+  // siempre lo incluye; si por alguna razón faltara, se deriva uno sintético
+  // de transmission_id (prefijado para nunca colisionar con un id real) en
+  // vez de romper el procesamiento del evento.
+  const eventId = event.id && event.id.trim()
+    ? event.id.trim()
+    : `no-event-id:${transmissionId || 'unknown'}`;
+  if (!event.id) {
+    console.warn(`[PayPal Webhook] Evento sin id — usando fallback sintético: ${eventId}`);
+  }
+
   // ── Dev mode stub DB (solo cuando bypass activo + Supabase no configurado) ──
   const isDevBypass = process.env.PAYPAL_DEV_BYPASS_VERIFY === 'true' && !isLiveMode();
   const supabaseConfigured = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   if (isDevBypass && !supabaseConfigured) {
     console.warn('[PayPal Webhook] 🧪 TEST-MODE: Supabase no configurado — stub DB activo');
-    console.log(`[PayPal Webhook] 🧪 EVENTO: ${event.event_type} | tx=${transmissionId}`);
+    console.log(`[PayPal Webhook] 🧪 EVENTO: ${event.event_type} | event_id=${eventId} | tx=${transmissionId}`);
     console.log(`[PayPal Webhook] 🧪 PAYLOAD: ${JSON.stringify(event.resource, null, 2)}`);
     const tierSimulado = (event.resource.custom_id === 'academico') ? 'academico' : 'pro';
     const statusSimulado =
@@ -136,7 +169,7 @@ export async function POST(req: NextRequest) {
       event.event_type.includes('FAILED') || event.event_type.includes('DENIED')     ? 'past_due'  : 'active';
     const tierFinal = statusSimulado === 'cancelled' ? 'free' : tierSimulado;
     console.log(`[PayPal Webhook] 🧪 DB-STUB → subscriptions: status=${statusSimulado}, tier=${tierFinal}`);
-    console.log(`[PayPal Webhook] 🧪 DB-STUB → paypal_events: INSERT tx=${transmissionId} ✓`);
+    console.log(`[PayPal Webhook] 🧪 DB-STUB → paypal_events: INSERT event_id=${eventId} ✓`);
     if (statusSimulado === 'active') {
       console.log(`[PayPal Webhook] 🧪 DB-STUB → queries_log: tier=${tierFinal} sincronizado ✓`);
     }
@@ -150,18 +183,25 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServerSupabaseClient();
 
-  // 5. Idempotencia — dedup por transmission_id
-  //    Si el evento ya fue procesado, retornar 200 sin re-procesar.
-  //    Si paypal_events no existe aún, se omite el check con una advertencia.
+  // 5. Idempotencia — dedup por event_id (webhookEvent.id), NO transmission_id.
+  //    Si el evento ya fue procesado (mismo event_id, transmission_id igual o
+  //    distinto — un reintento real de PayPal trae un transmission_id nuevo),
+  //    retornar 200 sin re-procesar.
   try {
     const { error: insertError } = await supabase
       .from('paypal_events')
-      .insert({ transmission_id: transmissionId, event_type: event.event_type });
+      .insert({
+        event_id:      eventId,
+        transmission_id: transmissionId,
+        event_type:    event.event_type,
+        provider_created_at: event.create_time ?? null,
+        processing_status: 'processing',
+      });
 
     if (insertError) {
       if (insertError.code === '23505') {
-        // Unique constraint violation → evento duplicado (reintento de PayPal)
-        console.log(`[PayPal Webhook] Evento duplicado ignorado: ${transmissionId}`);
+        // Unique constraint violation → evento duplicado (mismo event_id ya visto)
+        console.log(`[PayPal Webhook] Evento duplicado ignorado: event_id=${eventId} (tx actual=${transmissionId})`);
         return NextResponse.json({ received: true, duplicate: true });
       }
       if (insertError.code === '42P01') {
@@ -179,14 +219,36 @@ export async function POST(req: NextRequest) {
 
   // 6. Despachar evento
   try {
-    await handlePayPalEvent(supabase, event, transmissionId);
+    await handlePayPalEvent(supabase, event, eventId, transmissionId);
+    await markEventProcessed(supabase, eventId, 'processed', null);
   } catch (err) {
     console.error('[PayPal Webhook] Error procesando evento:', event.event_type, err);
+    await markEventProcessed(supabase, eventId, 'failed', sanitizeErrorMessage(err));
     // 500 → PayPal reintentará el evento (correcto para errores de DB transitorios)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
+}
+
+async function markEventProcessed(
+  supabase: ReturnType<typeof createServerSupabaseClient>,
+  eventId: string,
+  status: 'processed' | 'failed',
+  errorMessageSanitized: string | null
+) {
+  try {
+    await supabase
+      .from('paypal_events')
+      .update({
+        processing_status: status,
+        processed_at: new Date().toISOString(),
+        error_message_sanitized: errorMessageSanitized,
+      })
+      .eq('event_id', eventId);
+  } catch (err) {
+    console.error('[PayPal Webhook] No se pudo actualizar processing_status:', err);
+  }
 }
 
 // ── Dispatcher de eventos ──────────────────────────────────────────────────
@@ -196,6 +258,7 @@ export async function POST(req: NextRequest) {
 export async function handlePayPalEvent(
   supabase: ReturnType<typeof createServerSupabaseClient>,
   event: PayPalEvent,
+  eventId: string,
   transmissionId: string
 ) {
   const { event_type, resource } = event;
@@ -205,7 +268,7 @@ export async function handlePayPalEvent(
     // Suscripción iniciada (usuario hizo checkout pero aún no pagó la primera
     // cuota). NO otorga acceso. NO toca queries_log. Si el usuario ya tiene
     // una suscripción 'active' (misma u otra), applySubscriptionEvent la
-    // protege — ver supabase/paypal_state_machine.sql casos B/C.
+    // protege — ver la migración de la máquina de estados, casos B/C.
     case 'BILLING.SUBSCRIPTION.CREATED': {
       const { tier, uid } = parseCustomId(resource.custom_id);
       const subId      = resource.id ?? '';
@@ -228,7 +291,9 @@ export async function handlePayPalEvent(
 
     // Suscripción activa — primer pago confirmado. Se verifica contra el
     // recurso canónico de PayPal antes de conceder acceso: nunca basta con
-    // que el webhook DIGA "ACTIVATED".
+    // que el webhook DIGA "ACTIVATED". applySubscriptionEvent ya escribe
+    // subscriptions + queries_log + auditoría atómicamente — no hace falta
+    // ninguna llamada adicional después.
     case 'BILLING.SUBSCRIPTION.ACTIVATED': {
       const { tier, uid } = parseCustomId(resource.custom_id);
       const subId      = resource.id ?? '';
@@ -238,7 +303,7 @@ export async function handlePayPalEvent(
 
       if (!uid) {
         await flagRequiresReconciliation(
-          supabase, transmissionId,
+          supabase, eventId,
           `ACTIVATED sin uid en custom_id — no se puede verificar propiedad de forma segura | sub=${subId}`
         );
         break;
@@ -259,12 +324,6 @@ export async function handlePayPalEvent(
         newStatus: 'active', grantsAccess: true, eventType: event_type,
       });
 
-      if (result.applied && result.resultingStatus === 'active') {
-        await syncLegacyPaidAccess(supabase, {
-          userIdentifier, tier: result.resultingTier as SubscriptionTier, verifiedStatus: 'active',
-        });
-      }
-
       console.log(
         `[PayPal Webhook] ✅ SUBSCRIPTION.ACTIVATED ${tier} → ${result.reason} ` +
         `(status local resultante: ${result.resultingStatus}) | ${userIdentifier}`
@@ -281,7 +340,7 @@ export async function handlePayPalEvent(
     case 'INVOICE.PAYMENT_SUCCEEDED': {
       const agreementId = resource.billing_agreement_id ?? resource.id ?? '';
       if (!agreementId) {
-        await flagRequiresReconciliation(supabase, transmissionId, `${event_type} sin billing_agreement_id/id`);
+        await flagRequiresReconciliation(supabase, eventId, `${event_type} sin billing_agreement_id/id`);
         break;
       }
 
@@ -293,7 +352,7 @@ export async function handlePayPalEvent(
 
       if (!localSub?.user_identifier) {
         await flagRequiresReconciliation(
-          supabase, transmissionId, `${event_type} sin fila local para sub=${agreementId}`
+          supabase, eventId, `${event_type} sin fila local para sub=${agreementId}`
         );
         break;
       }
@@ -321,50 +380,32 @@ export async function handlePayPalEvent(
         eventType:       event_type,
       });
 
-      if (result.applied && result.resultingStatus === 'active') {
-        await syncLegacyPaidAccess(supabase, {
-          userIdentifier: localSub.user_identifier,
-          tier: result.resultingTier as SubscriptionTier,
-          verifiedStatus: 'active',
-        });
-      }
-
       console.log(`[PayPal Webhook] 💳 ${event_type} → ${result.reason} | sub ${agreementId}`);
       break;
     }
 
-    // Cancelación / expiración / suspensión → degradar a free.
-    // Ya es atómico hoy: filtra por paypal_sub_id en un único UPDATE, así
-    // que si la suscripción local ya rotó a otro sub_id, este UPDATE
-    // simplemente no matchea ninguna fila (no hay carrera que resolver).
-    // Sin período de gracia: no existe una política explícita de gracia en
-    // el sistema actual y esta auditoría no inventa una nueva.
+    // Cancelación / expiración / suspensión → degradar a free. Vía RPC
+    // atómica (paypal_apply_downgrade): subscriptions + queries_log +
+    // auditoría en una sola transacción. Si la suscripción local ya rotó a
+    // otro sub_id, la RPC simplemente no encuentra fila que degradar — no
+    // hay carrera que resolver ahí. Sin período de gracia: no existe una
+    // política explícita de gracia en el sistema actual y esta auditoría no
+    // inventa una nueva.
     case 'BILLING.SUBSCRIPTION.CANCELLED':
     case 'BILLING.SUBSCRIPTION.EXPIRED':
     case 'BILLING.SUBSCRIPTION.SUSPENDED': {
       const subId = resource.id ?? '';
-      const { data: sub, error } = await supabase
-        .from('subscriptions')
-        .update({ tier: 'free', status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('paypal_sub_id', subId)
-        .select('user_identifier')
-        .single();
-      if (error) throw error;
-
-      // Reflejar downgrade en queries_log (queries_log filtra por user_identifier, no por paypal_sub_id)
-      if (sub?.user_identifier) {
-        await supabase
-          .from('queries_log')
-          .update({ tier: 'free', updated_at: new Date().toISOString() })
-          .eq('user_identifier', sub.user_identifier);
-      }
-
-      console.log(`[PayPal Webhook] ❌ ${event_type} → tier free | sub ${subId}`);
+      const result = await applySubscriptionDowngrade(supabase, {
+        paypalSubId: subId, newStatus: 'cancelled', eventType: event_type,
+      });
+      console.log(`[PayPal Webhook] ❌ ${event_type} → ${result.reason} | sub ${subId}`);
       break;
     }
 
     // Fallo de pago → marcar past_due (no quitar acceso inmediatamente).
     // No se trata past_due como active en ningún punto de este sprint.
+    // Sigue siendo un único UPDATE atómico (ya lo era) — no pasa por RPC
+    // porque no toca queries_log ni requiere auditoría de doble tabla.
     case 'PAYMENT.SALE.DENIED':
     case 'BILLING.SUBSCRIPTION.PAYMENT.FAILED': {
       const subId = resource.billing_agreement_id ?? resource.id ?? '';
@@ -381,6 +422,10 @@ export async function handlePayPalEvent(
       // PayPal puede enviar eventos no listados; aceptar con 200 sin procesar
       console.log(`[PayPal Webhook] Evento no manejado (ignorado): ${event_type}`);
   }
+
+  // transmissionId se recibe para trazabilidad/logs futuros aunque ya no
+  // sea la clave de idempotencia — evita perder esa correlación.
+  void transmissionId;
 }
 
 /**
@@ -390,15 +435,15 @@ export async function handlePayPalEvent(
  */
 async function flagRequiresReconciliation(
   supabase: ReturnType<typeof createServerSupabaseClient>,
-  transmissionId: string,
+  eventId: string,
   reason: string
 ) {
-  console.error(`[PayPal Webhook] 🚨 REQUIERE RECONCILIACIÓN MANUAL: ${reason} | tx=${transmissionId}`);
-  if (!transmissionId) return;
+  console.error(`[PayPal Webhook] 🚨 REQUIERE RECONCILIACIÓN MANUAL: ${reason} | event_id=${eventId}`);
+  if (!eventId) return;
   const { error } = await supabase
     .from('paypal_events')
     .update({ requires_reconciliation: true })
-    .eq('transmission_id', transmissionId);
+    .eq('event_id', eventId);
   if (error) {
     console.error('[PayPal Webhook] No se pudo marcar requires_reconciliation:', error);
   }

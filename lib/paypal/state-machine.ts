@@ -14,9 +14,17 @@
  *   - verifyCanonicalSubscription(): confirma contra PayPal (no solo
  *     contra el payload del webhook) que una suscripción está ACTIVE,
  *     pertenece al usuario esperado (custom_id) y usa un plan permitido.
- *   - syncLegacyPaidAccess(): único punto que escribe queries_log (lo
- *     que lee lib/rate-limit.ts). Rechaza cualquier status que no sea
- *     'active' — CREATED/trialing/pending JAMÁS deben llegar aquí.
+ *   - applySubscriptionDowngrade(): la contraparte atómica para
+ *     CANCELLED/EXPIRED/SUSPENDED (paypal_apply_downgrade).
+ *
+ * Desde 20260717020000_paypal_event_id_and_atomic_access.sql, la propia
+ * RPC paypal_apply_event/paypal_apply_downgrade escribe subscriptions +
+ * queries_log + auditoría (billing_state_transitions) en LA MISMA
+ * transacción — ya no existe una función TypeScript separada
+ * (syncLegacyPaidAccess) para queries_log, porque esa segunda llamada
+ * era exactamente la ventana no-atómica que permitía el estado
+ * "subscriptions=active, queries_log=free" ante una caída a mitad de
+ * camino.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -53,6 +61,16 @@ export function parseCustomId(customId: string | undefined | null): {
   return { tier: customId === 'academico' ? 'academico' : 'pro', uid: null };
 }
 
+/**
+ * Fallback LEGADO — deliberadamente NO normaliza (trim/lowercase) el
+ * correo, a diferencia de buildUserIdentifierFromEmail() en
+ * lib/rate-limit.ts (que sí lo hace y es la que deben usar todos los
+ * puntos de entrada NUEVOS). Esta función solo existe para reconstruir
+ * el identificador exactamente como lo habría producido el sistema
+ * ANTES del fix de custom_id — cambiarla ahora podría dejar de
+ * coincidir con filas ya existentes en subscriptions/queries_log que se
+ * crearon sin normalizar.
+ */
 export function buildUserIdentifier(
   email:   string | null,
   payerId: string | null,
@@ -248,49 +266,56 @@ export async function applySubscriptionEvent(
   };
 }
 
-// ── Sincronización del gate de acceso legado (queries_log) ──────────────
+// ── Transición atómica de degradación (CANCELLED/EXPIRED/SUSPENDED) ─────
 
-/** Únicos status que autorizan escribir queries_log.tier. */
-const ACCESS_GRANTING_STATUSES: ReadonlySet<string> = new Set(['active']);
+export interface ApplyDowngradeParams {
+  paypalSubId: string;
+  newStatus:   'cancelled';
+  eventType:   string;
+}
+
+export interface ApplyDowngradeResult {
+  applied:          boolean;
+  reason:           string;
+  resultingStatus?: string;
+  resultingTier?:   string;
+  resultingSubId?:  string;
+  userIdentifier?:  string;
+}
 
 /**
- * Sincroniza queries_log — la ÚNICA tabla que lee lib/rate-limit.ts para
- * decidir si un usuario puede consultar el chat.
- *
- * Rechaza (lanza) cualquier verifiedStatus que no otorgue acceso. Esto es
- * intencional: CREATED/APPROVAL_PENDING/trialing/pending NUNCA deben
- * llegar a esta función. Es la defensa en profundidad que evita que un
- * futuro cambio en un handler del webhook vuelva a conceder acceso sin
- * verificación real, incluso si alguien olvida el check en el caller.
+ * Degrada subscriptions.status/tier Y queries_log.tier a 'free' en una
+ * sola transacción (paypal_apply_downgrade), con auditoría. Reemplaza el
+ * patrón anterior de dos UPDATE separados desde la API.
  */
-export async function syncLegacyPaidAccess(
+export async function applySubscriptionDowngrade(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,
-  params: {
-    userIdentifier:  string;
-    tier:            SubscriptionTier;
-    verifiedStatus:  string;
-  }
-): Promise<void> {
-  if (!ACCESS_GRANTING_STATUSES.has(params.verifiedStatus)) {
-    throw new Error(
-      `[PayPal State Machine] syncLegacyPaidAccess rechazado: status '${params.verifiedStatus}' ` +
-      `no otorga acceso (solo 'active' está permitido) | user=${params.userIdentifier}`
-    );
-  }
+  params: ApplyDowngradeParams
+): Promise<ApplyDowngradeResult> {
+  const { data, error } = await supabase.rpc('paypal_apply_downgrade', {
+    p_paypal_sub_id: params.paypalSubId,
+    p_new_status:    params.newStatus,
+    p_event_type:    params.eventType,
+  });
 
-  const today = new Date().toISOString().split('T')[0];
-  const { error } = await supabase
-    .from('queries_log')
-    .upsert(
-      {
-        user_identifier: params.userIdentifier,
-        query_date:      today,
-        query_count:     0,
-        tier:            params.tier,
-        updated_at:      new Date().toISOString(),
-      },
-      { onConflict: 'user_identifier,query_date', ignoreDuplicates: false }
-    );
   if (error) throw error;
+
+  const result = data as {
+    applied:           boolean;
+    reason:            string;
+    resulting_status?: string;
+    resulting_tier?:   string;
+    resulting_sub_id?: string;
+    user_identifier?:  string;
+  };
+
+  return {
+    applied:         result.applied,
+    reason:          result.reason,
+    resultingStatus: result.resulting_status,
+    resultingTier:   result.resulting_tier,
+    resultingSubId:  result.resulting_sub_id,
+    userIdentifier:  result.user_identifier,
+  };
 }

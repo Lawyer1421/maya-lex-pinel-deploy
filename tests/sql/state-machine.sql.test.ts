@@ -3,27 +3,20 @@
  * (Postgres compilado a WASM, corre embebido en Node, sin Docker y sin
  * tocar ninguna base de datos de Supabase real).
  *
- * Aplica el archivo de migración TAL CUAL se desplegaría
- * (supabase/migrations/20260717010000_paypal_state_machine.sql), sin
- * modificarlo para el test — lo único que el harness agrega ANTES son
+ * Aplica AMBAS migraciones TAL CUAL se desplegarían
+ * (20260717010000_paypal_state_machine.sql y
+ *  20260717020000_paypal_event_id_and_atomic_access.sql), sin
+ * modificarlas para el test — lo único que el harness agrega ANTES son
  * los roles anon/authenticated/service_role y un stub de auth.role(),
  * porque esos son primitivos de Supabase que no existen en un Postgres
- * vanilla; la migración en sí se ejecuta sin cambios.
+ * vanilla.
  *
- * LIMITACIÓN CONOCIDA: PGlite expone una única sesión activa — todas las
- * queries de una instancia se serializan en el mismo hilo/conexión. Esto
- * significa que este archivo puede probar la CORRECCIÓN LÓGICA de cada
- * rama de la matriz contra Postgres real (sintaxis, tipos, constraints,
- * triggers, RLS, permisos), pero NO puede demostrar empíricamente el
- * bloqueo mutuo entre dos transacciones genuinamente concurrentes (dos
- * conexiones reales compitiendo por el mismo advisory lock). Esa prueba
- * requiere un Postgres multi-conexión real (Supabase branch/proyecto
- * temporal o Docker) — ninguno disponible en esta máquina. El caso "dos
- * CREATED concurrentes" se prueba aquí como dos llamadas SECUENCIALES
- * back-to-back para el mismo usuario nuevo, lo cual valida que la
- * segunda llamada NO revienta con un error de unique_violation sin
- * manejar (que es el bug real que el advisory lock + la rama Caso B
- * previenen), pero no valida el bloqueo per se.
+ * Este archivo cubre la CORRECCIÓN LÓGICA de cada rama contra Postgres
+ * real (sintaxis, tipos, constraints, RLS, permisos) y la ESCRITURA
+ * ATÓMICA subscriptions+queries_log+auditoría. La prueba de bloqueo
+ * mutuo entre dos conexiones GENUINAMENTE concurrentes vive en
+ * tests/sql/concurrency.sql.test.ts (usa @electric-sql/pglite-socket +
+ * dos clientes `pg` reales, no esta instancia de PGlite en proceso).
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { PGlite } from '@electric-sql/pglite';
@@ -61,12 +54,18 @@ async function callApplyEvent(params: {
   };
 }
 
+async function queriesLogTier(userIdentifier: string): Promise<string | null> {
+  const r = await db.query(
+    `select tier from queries_log where user_identifier = $1 and query_date = current_date`,
+    [userIdentifier]
+  );
+  return r.rows.length ? (r.rows[0] as any).tier : null;
+}
+
 beforeAll(async () => {
   db = new PGlite();
 
   // ── Shim de compatibilidad Supabase (roles + auth.role()) ──────────────
-  // NO forma parte de la migración real — solo emula el entorno mínimo
-  // que Supabase ya provee, para poder aplicar la migración sin cambios.
   await db.exec(`
     create role anon;
     create role authenticated;
@@ -78,72 +77,74 @@ beforeAll(async () => {
   `);
   await db.exec(`select set_config('myapp.mock_role', 'service_role', false)`);
 
-  // ── Prerrequisito: schema base (subscriptions, paypal_events, queries_log) ──
-  const baseSchema = readFileSync(
-    resolve(process.cwd(), 'supabase', 'subscriptions.sql'), 'utf-8'
-  );
+  const baseSchema = readFileSync(resolve(process.cwd(), 'supabase', 'subscriptions.sql'), 'utf-8');
   await db.exec(baseSchema);
 
-  // ── La migración bajo prueba, SIN modificar ──────────────────────────
-  const migration = readFileSync(
+  const migration1 = readFileSync(
     resolve(process.cwd(), 'supabase', 'migrations', '20260717010000_paypal_state_machine.sql'), 'utf-8'
   );
-  await db.exec(migration);
+  await db.exec(migration1);
+
+  const migration2 = readFileSync(
+    resolve(process.cwd(), 'supabase', 'migrations', '20260717020000_paypal_event_id_and_atomic_access.sql'), 'utf-8'
+  );
+  await db.exec(migration2);
 });
 
 afterAll(async () => {
   await db.close();
 });
 
-describe('Validación posterior de la migración (real Postgres)', () => {
-  it('crea billing_duplicate_attempts y billing_verification_attempts', async () => {
+describe('Validación posterior de las migraciones (real Postgres)', () => {
+  it('crea billing_duplicate_attempts, billing_verification_attempts y billing_state_transitions', async () => {
     const r = await db.query(`
       select to_regclass('public.billing_duplicate_attempts') as a,
-             to_regclass('public.billing_verification_attempts') as b
+             to_regclass('public.billing_verification_attempts') as b,
+             to_regclass('public.billing_state_transitions') as c
     `);
     expect((r.rows[0] as any).a).toBe('billing_duplicate_attempts');
     expect((r.rows[0] as any).b).toBe('billing_verification_attempts');
+    expect((r.rows[0] as any).c).toBe('billing_state_transitions');
   });
 
-  it('agrega requires_reconciliation a paypal_events', async () => {
+  it('paypal_events tiene event_id como PK (no transmission_id)', async () => {
     const r = await db.query(`
-      select column_name from information_schema.columns
-      where table_name = 'paypal_events' and column_name = 'requires_reconciliation'
+      select a.attname from pg_constraint c
+      join pg_attribute a on a.attnum = any(c.conkey) and a.attrelid = c.conrelid
+      where c.conrelid = 'paypal_events'::regclass and c.contype = 'p'
     `);
-    expect(r.rows.length).toBe(1);
+    expect(r.rows.map((row: any) => row.attname)).toEqual(['event_id']);
   });
 
-  it('paypal_apply_event es SECURITY INVOKER (no DEFINER)', async () => {
-    const r = await db.query(`select prosecdef from pg_proc where proname = 'paypal_apply_event'`);
-    expect((r.rows[0] as any).prosecdef).toBe(false);
+  it('paypal_apply_event y paypal_apply_downgrade son SECURITY INVOKER', async () => {
+    const r = await db.query(`select proname, prosecdef from pg_proc where proname in ('paypal_apply_event', 'paypal_apply_downgrade')`);
+    expect(r.rows.length).toBe(2);
+    for (const row of r.rows as any[]) expect(row.prosecdef).toBe(false);
   });
 
-  it('EXECUTE está revocado de PUBLIC/anon/authenticated y otorgado solo a service_role', async () => {
-    const r = await db.query(`
-      select grantee, privilege_type from information_schema.routine_privileges
-      where routine_name = 'paypal_apply_event'
-    `);
-    const grantees = r.rows.map((row: any) => row.grantee);
-    expect(grantees).toContain('service_role');
-    expect(grantees).not.toContain('PUBLIC');
-    expect(grantees).not.toContain('anon');
-    expect(grantees).not.toContain('authenticated');
+  it('EXECUTE de ambas RPC está revocado de PUBLIC/anon/authenticated y otorgado solo a service_role', async () => {
+    for (const fn of ['paypal_apply_event', 'paypal_apply_downgrade']) {
+      const r = await db.query(`select grantee from information_schema.routine_privileges where routine_name = $1`, [fn]);
+      const grantees = r.rows.map((row: any) => row.grantee);
+      expect(grantees).toContain('service_role');
+      expect(grantees).not.toContain('PUBLIC');
+      expect(grantees).not.toContain('anon');
+      expect(grantees).not.toContain('authenticated');
+    }
   });
 });
 
 describe('Máquina de estados contra Postgres real', () => {
-  // Escenario #1 de la lista: CREATED sin fila (Caso A)
-  it('CREATED sin fila local: crea la fila en trialing, no otorga acceso', async () => {
+  it('CREATED sin fila local: crea la fila en trialing, no otorga acceso, no toca queries_log', async () => {
+    const uid = 'email:sql-test-1@x.com';
     const r = await callApplyEvent({
-      userIdentifier: 'email:sql-test-1@x.com', paypalSubId: 'SUB-1', tier: 'pro',
+      userIdentifier: uid, paypalSubId: 'SUB-1', tier: 'pro',
       newStatus: 'trialing', grantsAccess: false, eventType: 'BILLING.SUBSCRIPTION.CREATED',
     });
     expect(r).toMatchObject({ applied: true, reason: 'created', resulting_status: 'trialing' });
+    expect(await queriesLogTier(uid)).toBeNull();
   });
 
-  // Escenario #2: dos CREATED "concurrentes" (secuenciales back-to-back,
-  // ver limitación de PGlite en el header) para el mismo usuario nuevo —
-  // el segundo NO debe reventar con unique_violation sin manejar.
   it('dos CREATED consecutivos para el mismo usuario NUEVO no truenan (Caso A → Caso B)', async () => {
     const uid = 'email:sql-test-2@x.com';
     const first = await callApplyEvent({
@@ -156,27 +157,31 @@ describe('Máquina de estados contra Postgres real', () => {
       userIdentifier: uid, paypalSubId: 'SUB-2', tier: 'pro',
       newStatus: 'trialing', grantsAccess: false, eventType: 'BILLING.SUBSCRIPTION.CREATED',
     });
-    // Caso B (misma sub_id): se re-aplica sin error, no Caso A duplicado.
     expect(second).toMatchObject({ applied: true, reason: 'updated', resulting_status: 'trialing' });
   });
 
-  // Escenario #3: CREATED → ACTIVATED
-  it('CREATED seguido de ACTIVATED verificado: pasa a active', async () => {
+  // Escenario de acceso atómico: CREATED → ACTIVATED debe dejar
+  // subscriptions Y queries_log en 'active'/tier correcto en la MISMA
+  // llamada — sin una segunda función aparte.
+  it('CREATED seguido de ACTIVATED verificado: pasa a active EN subscriptions Y EN queries_log atómicamente', async () => {
     const uid = 'email:sql-test-3@x.com';
     await callApplyEvent({
       userIdentifier: uid, paypalSubId: 'SUB-3', tier: 'pro',
       newStatus: 'trialing', grantsAccess: false, eventType: 'BILLING.SUBSCRIPTION.CREATED',
     });
+    expect(await queriesLogTier(uid)).toBeNull();
+
     const activated = await callApplyEvent({
       userIdentifier: uid, paypalSubId: 'SUB-3', tier: 'pro',
       newStatus: 'active', grantsAccess: true, eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
     });
     expect(activated).toMatchObject({ applied: true, reason: 'updated', resulting_status: 'active' });
+    expect(await queriesLogTier(uid)).toBe('pro');
   });
 
-  // Escenario #4 — EL BUG ORIGINAL: ACTIVATED → CREATED tardío de la MISMA
-  // suscripción NO debe degradar a trialing.
-  it('ACTIVATED → CREATED tardío (misma sub): NO degrada active a trialing', async () => {
+  // EL BUG ORIGINAL: ACTIVATED → CREATED tardío de la MISMA suscripción
+  // no debe degradar ni subscriptions ni queries_log.
+  it('ACTIVATED → CREATED tardío (misma sub): NO degrada ni subscriptions ni queries_log', async () => {
     const uid = 'email:sql-test-4@x.com';
     await callApplyEvent({
       userIdentifier: uid, paypalSubId: 'SUB-4', tier: 'pro',
@@ -186,6 +191,7 @@ describe('Máquina de estados contra Postgres real', () => {
       userIdentifier: uid, paypalSubId: 'SUB-4', tier: 'pro',
       newStatus: 'active', grantsAccess: true, eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
     });
+    expect(await queriesLogTier(uid)).toBe('pro');
 
     const lateCreated = await callApplyEvent({
       userIdentifier: uid, paypalSubId: 'SUB-4', tier: 'pro',
@@ -195,11 +201,10 @@ describe('Máquina de estados contra Postgres real', () => {
 
     const row = await db.query(`select status from subscriptions where user_identifier = $1`, [uid]);
     expect((row.rows[0] as any).status).toBe('active');
+    expect(await queriesLogTier(uid)).toBe('pro');
   });
 
-  // Escenario #5: dos ACTIVATED con subscription IDs diferentes para el
-  // mismo usuario — la activa NUNCA se toca, se registra el duplicado.
-  it('dos ACTIVATED con sub_id diferentes: protege la activa, registra el duplicado', async () => {
+  it('dos ACTIVATED con sub_id diferentes: protege la activa, registra el duplicado, no toca queries_log dos veces', async () => {
     const uid = 'email:sql-test-5@x.com';
     await callApplyEvent({
       userIdentifier: uid, paypalSubId: 'SUB-5A', tier: 'pro',
@@ -207,8 +212,8 @@ describe('Máquina de estados contra Postgres real', () => {
     });
 
     const second = await callApplyEvent({
-      userIdentifier: uid, paypalSubId: 'SUB-5B', tier: 'pro',
-      newStatus: 'active', grantsAccess: true, eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
+      userIdentifier: uid, paypalSubId: 'SUB-5B', tier: 'academico', grantsAccess: true,
+      newStatus: 'active', eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
     });
     expect(second).toMatchObject({
       applied: false, reason: 'duplicate_active_subscription',
@@ -220,21 +225,56 @@ describe('Máquina de estados contra Postgres real', () => {
     );
     expect(dup.rows).toEqual([{ active_sub_id: 'SUB-5A', attempted_sub_id: 'SUB-5B' }]);
 
-    const row = await db.query(`select paypal_sub_id, status from subscriptions where user_identifier = $1`, [uid]);
-    expect(row.rows[0]).toMatchObject({ paypal_sub_id: 'SUB-5A', status: 'active' });
+    // queries_log debe reflejar el plan de la suscripción PROTEGIDA (pro), no
+    // el intento duplicado que se rechazó (academico) — nunca se tocó.
+    expect(await queriesLogTier(uid)).toBe('pro');
   });
 
-  // Escenario #6: evento duplicado — UNIQUE(transmission_id) en paypal_events
-  it('evento duplicado: UNIQUE(transmission_id) rechaza el segundo insert', async () => {
-    await db.query(`insert into paypal_events (transmission_id, event_type) values ($1, $2)`, ['tx-dup-1', 'BILLING.SUBSCRIPTION.CREATED']);
+  // Idempotencia real: mismo event_id, transmission_id distinto (reintento
+  // real de PayPal) → rechazado. Mismo event_id + mismo transmission_id
+  // (reenvío idéntico) → también rechazado. event_id distinto → aceptado.
+  it('evento duplicado: UNIQUE(event_id) rechaza reintentos de PayPal aunque transmission_id cambie', async () => {
+    await db.query(
+      `insert into paypal_events (event_id, transmission_id, event_type) values ($1, $2, $3)`,
+      ['WH-EVT-100', 'tx-attempt-1', 'BILLING.SUBSCRIPTION.CREATED']
+    );
+
+    // Mismo event_id, transmission_id NUEVO — este es exactamente el caso
+    // real de un reintento de entrega de PayPal. Debe rechazarse.
     await expect(
-      db.query(`insert into paypal_events (transmission_id, event_type) values ($1, $2)`, ['tx-dup-1', 'BILLING.SUBSCRIPTION.CREATED'])
+      db.query(
+        `insert into paypal_events (event_id, transmission_id, event_type) values ($1, $2, $3)`,
+        ['WH-EVT-100', 'tx-attempt-2-un-reintento-real', 'BILLING.SUBSCRIPTION.CREATED']
+      )
+    ).rejects.toThrow();
+
+    // event_id distinto: se acepta sin problema.
+    const ok = await db.query(
+      `insert into paypal_events (event_id, transmission_id, event_type) values ($1, $2, $3) returning event_id`,
+      ['WH-EVT-101', 'tx-attempt-3', 'BILLING.SUBSCRIPTION.CREATED']
+    );
+    expect((ok.rows[0] as any).event_id).toBe('WH-EVT-101');
+  });
+
+  it('reenvío después de procesamiento exitoso y después de fallido: ambos siguen deduplicando por event_id', async () => {
+    await db.query(
+      `insert into paypal_events (event_id, transmission_id, event_type, processing_status, processed_at) values ($1, $2, $3, 'processed', now())`,
+      ['WH-EVT-200', 'tx-1', 'BILLING.SUBSCRIPTION.ACTIVATED']
+    );
+    await expect(
+      db.query(`insert into paypal_events (event_id, transmission_id, event_type) values ($1, $2, $3)`, ['WH-EVT-200', 'tx-2', 'BILLING.SUBSCRIPTION.ACTIVATED'])
+    ).rejects.toThrow();
+
+    await db.query(
+      `insert into paypal_events (event_id, transmission_id, event_type, processing_status, error_message_sanitized) values ($1, $2, $3, 'failed', 'timeout')`,
+      ['WH-EVT-201', 'tx-3', 'BILLING.SUBSCRIPTION.ACTIVATED']
+    );
+    await expect(
+      db.query(`insert into paypal_events (event_id, transmission_id, event_type) values ($1, $2, $3)`, ['WH-EVT-201', 'tx-4', 'BILLING.SUBSCRIPTION.ACTIVATED'])
     ).rejects.toThrow();
   });
 
-  // Escenario #9: rollback ante error — un tier inválido no debe dejar
-  // escritura parcial.
-  it('rollback ante error: tier inválido no escribe nada', async () => {
+  it('rollback ante error: tier inválido no escribe nada (ni subscriptions ni auditoría)', async () => {
     const uid = 'email:sql-test-rollback@x.com';
     await expect(
       callApplyEvent({
@@ -245,16 +285,60 @@ describe('Máquina de estados contra Postgres real', () => {
 
     const row = await db.query(`select 1 from subscriptions where user_identifier = $1`, [uid]);
     expect(row.rows.length).toBe(0);
+    const audit = await db.query(`select 1 from billing_state_transitions where user_identifier = $1`, [uid]);
+    expect(audit.rows.length).toBe(0);
+  });
+
+  it('auditoría: cada llamada aplicada o no queda registrada en billing_state_transitions', async () => {
+    const uid = 'email:sql-test-audit@x.com';
+    await callApplyEvent({
+      userIdentifier: uid, paypalSubId: 'SUB-AUDIT', tier: 'pro',
+      newStatus: 'trialing', grantsAccess: false, eventType: 'BILLING.SUBSCRIPTION.CREATED',
+    });
+    await callApplyEvent({
+      userIdentifier: uid, paypalSubId: 'SUB-AUDIT', tier: 'pro',
+      newStatus: 'active', grantsAccess: true, eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
+    });
+    const rows = await db.query(
+      `select event_type, before_status, after_status, applied from billing_state_transitions where user_identifier = $1 order by created_at`,
+      [uid]
+    );
+    expect(rows.rows).toEqual([
+      { event_type: 'BILLING.SUBSCRIPTION.CREATED', before_status: null, after_status: 'trialing', applied: true },
+      { event_type: 'BILLING.SUBSCRIPTION.ACTIVATED', before_status: 'trialing', after_status: 'active', applied: true },
+    ]);
+  });
+
+  it('paypal_apply_downgrade degrada subscriptions Y queries_log atómicamente', async () => {
+    const uid = 'email:sql-test-downgrade@x.com';
+    await callApplyEvent({
+      userIdentifier: uid, paypalSubId: 'SUB-DOWNGRADE', tier: 'academico',
+      newStatus: 'active', grantsAccess: true, eventType: 'BILLING.SUBSCRIPTION.ACTIVATED',
+    });
+    expect(await queriesLogTier(uid)).toBe('academico');
+
+    const r = await db.query(
+      `select paypal_apply_downgrade($1, $2, $3) as result`,
+      ['SUB-DOWNGRADE', 'cancelled', 'BILLING.SUBSCRIPTION.CANCELLED']
+    );
+    expect((r.rows[0] as any).result).toMatchObject({ applied: true, reason: 'downgraded', resulting_status: 'cancelled', resulting_tier: 'free' });
+
+    const sub = await db.query(`select tier, status from subscriptions where user_identifier = $1`, [uid]);
+    expect(sub.rows[0]).toMatchObject({ tier: 'free', status: 'cancelled' });
+    expect(await queriesLogTier(uid)).toBe('free');
   });
 });
 
-describe('Permisos — solo el backend (service_role) puede ejecutar la RPC', () => {
-  it('anon: EXECUTE denegado', async () => {
+describe('Permisos — solo el backend (service_role) puede ejecutar las RPC', () => {
+  it('anon: EXECUTE denegado en paypal_apply_event y paypal_apply_downgrade', async () => {
     await db.exec(`set role anon`);
     await expect(
       db.query(`select paypal_apply_event($1,$2,$3,$4,$5,$6,$7,$8)`, [
         'email:perm-anon@x.com', 'SUB-PERM-1', null, null, 'pro', 'trialing', false, 'TEST',
       ])
+    ).rejects.toThrow(/permission denied/i);
+    await expect(
+      db.query(`select paypal_apply_downgrade($1,$2,$3)`, ['SUB-X', 'cancelled', 'TEST'])
     ).rejects.toThrow(/permission denied/i);
     await db.exec(`reset role`);
   });
@@ -278,9 +362,10 @@ describe('Permisos — solo el backend (service_role) puede ejecutar la RPC', ()
     await db.exec(`reset role`);
   });
 
-  it('anon no puede leer subscriptions directamente (sin GRANT de tabla)', async () => {
+  it('anon no puede leer subscriptions ni billing_state_transitions directamente', async () => {
     await db.exec(`set role anon`);
     await expect(db.query(`select * from subscriptions limit 1`)).rejects.toThrow(/permission denied/i);
+    await expect(db.query(`select * from billing_state_transitions limit 1`)).rejects.toThrow(/permission denied/i);
     await db.exec(`reset role`);
   });
 });

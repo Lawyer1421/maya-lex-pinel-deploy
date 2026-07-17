@@ -144,42 +144,39 @@ describe('verifyCanonicalSubscription', () => {
   });
 });
 
-describe('syncLegacyPaidAccess', () => {
-  function fakeSupabase(upsertResult: { error: unknown } = { error: null }) {
-    const upsert = vi.fn().mockResolvedValue(upsertResult);
-    const from = vi.fn().mockReturnValue({ upsert });
-    return { client: { from } as any, upsert };
+describe('applySubscriptionDowngrade', () => {
+  function fakeSupabaseRpc(data: unknown, error: unknown = null) {
+    const rpc = vi.fn().mockResolvedValue({ data, error });
+    return { client: { rpc } as any, rpc };
   }
 
-  // Escenario #19: queries_log NO cambia con CREATED/estados no otorgantes
-  it.each(['CREATED', 'APPROVAL_PENDING', 'trialing', 'pending', 'past_due', 'cancelled'])(
-    'rechaza verifiedStatus=%s (no otorga acceso)',
-    async (status) => {
-      const { syncLegacyPaidAccess } = await freshStateMachine();
-      const { client, upsert } = fakeSupabase();
-      await expect(
-        syncLegacyPaidAccess(client, { userIdentifier: 'email:x@y.com', tier: 'pro', verifiedStatus: status })
-      ).rejects.toThrow();
-      expect(upsert).not.toHaveBeenCalled();
-    }
-  );
+  it('mapea la respuesta jsonb a camelCase y llama a paypal_apply_downgrade', async () => {
+    const { applySubscriptionDowngrade } = await freshStateMachine();
+    const { client, rpc } = fakeSupabaseRpc({
+      applied: true, reason: 'downgraded',
+      resulting_status: 'cancelled', resulting_tier: 'free', resulting_sub_id: 'SUB1',
+      user_identifier: 'email:x@y.com',
+    });
 
-  // Escenario #20: queries_log SÍ cambia con ACTIVATED verificado (status='active')
-  it("permite y escribe queries_log cuando verifiedStatus='active'", async () => {
-    const { syncLegacyPaidAccess } = await freshStateMachine();
-    const { client, upsert } = fakeSupabase();
-    await syncLegacyPaidAccess(client, { userIdentifier: 'email:x@y.com', tier: 'pro', verifiedStatus: 'active' });
-    expect(upsert).toHaveBeenCalledTimes(1);
-    const [payload, opts] = upsert.mock.calls[0];
-    expect(payload).toMatchObject({ user_identifier: 'email:x@y.com', tier: 'pro' });
-    expect(opts).toMatchObject({ onConflict: 'user_identifier,query_date' });
+    const result = await applySubscriptionDowngrade(client, {
+      paypalSubId: 'SUB1', newStatus: 'cancelled', eventType: 'BILLING.SUBSCRIPTION.CANCELLED',
+    });
+
+    expect(result).toEqual({
+      applied: true, reason: 'downgraded',
+      resultingStatus: 'cancelled', resultingTier: 'free', resultingSubId: 'SUB1',
+      userIdentifier: 'email:x@y.com',
+    });
+    expect(rpc).toHaveBeenCalledWith('paypal_apply_downgrade', {
+      p_paypal_sub_id: 'SUB1', p_new_status: 'cancelled', p_event_type: 'BILLING.SUBSCRIPTION.CANCELLED',
+    });
   });
 
-  it('propaga el error si el upsert de Supabase falla', async () => {
-    const { syncLegacyPaidAccess } = await freshStateMachine();
-    const { client } = fakeSupabase({ error: new Error('db down') });
+  it('lanza si la RPC devuelve error', async () => {
+    const { applySubscriptionDowngrade } = await freshStateMachine();
+    const { client } = fakeSupabaseRpc(null, new Error('db error'));
     await expect(
-      syncLegacyPaidAccess(client, { userIdentifier: 'email:x@y.com', tier: 'pro', verifiedStatus: 'active' })
+      applySubscriptionDowngrade(client, { paypalSubId: 'SUB1', newStatus: 'cancelled', eventType: 'X' })
     ).rejects.toThrow();
   });
 });

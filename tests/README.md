@@ -11,14 +11,18 @@ Esta máquina no tiene Docker/Postgres local ni un proyecto Supabase de
 staging (solo existe un juego de credenciales, el de producción — ver
 auditoría, sección "Información externa necesaria"). Bajo las reglas de
 esta fase (no escrituras en producción), **la lógica interna de la
-función plpgsql `paypal_apply_event`
-(supabase/migrations/20260717010000_paypal_state_machine.sql) **no se
-ejecutaba en la suite original de mocks** — desde la puerta de
-preproducción, `tests/sql/state-machine.sql.test.ts` sí la ejecuta
-contra Postgres real (PGlite, sin Docker) — ver ese archivo para el
-detalle de qué cubre y su limitación conocida (sin multi-sesión real,
-no se puede demostrar el bloqueo mutuo entre dos conexiones genuinamente
-concurrentes).
+función plpgsql `paypal_apply_event`/`paypal_apply_downgrade`
+(supabase/migrations/2026071701_*/2026071702_*) **no se ejecutaba en la
+suite original de mocks** — `tests/sql/state-machine.sql.test.ts` la
+ejecuta contra Postgres real (PGlite, sin Docker), y
+`tests/sql/concurrency.sql.test.ts` va un paso más allá: usa
+`@electric-sql/pglite-socket` para exponer esa misma base como servidor
+TCP real y conectar DOS clientes `pg` (node-postgres) independientes,
+demostrando con timestamps reales que el advisory lock bloquea una
+segunda conexión genuina hasta que la primera hace commit/rollback
+(escenarios A-E). El único escenario no confirmable en este entorno es
+`lock_timeout` (F) — documentado como `it.skip` con la razón exacta en
+ese archivo.
 
 Lo que SÍ cubre esta suite:
 - Parseo de `custom_id` (formatos nuevo/legado) — `state-machine.test.ts`

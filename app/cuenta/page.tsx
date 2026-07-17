@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
 import { resolveCurrentAccess } from '@/lib/paypal/access';
+import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
 export const metadata: Metadata = {
   title: 'Mi Cuenta — MAYA LEX IA PINEL HN',
@@ -29,7 +30,7 @@ export default async function CuentaPage({
 
   // ── Obtener datos de suscripción ──────────────────────────────────────────
   const supabase = createServerSupabaseClient();
-  const userIdentifier = `email:${user.email}`;
+  const userIdentifier = buildUserIdentifierFromEmail(user.email ?? '');
 
   const { data: suscripcion } = await supabase
     .from('subscriptions')

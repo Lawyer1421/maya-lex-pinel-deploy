@@ -14,6 +14,28 @@ const ACADEMICO_LIMIT = parseInt(process.env.ACADEMICO_TIER_DAILY_LIMIT ?? '20',
 
 export type UserTier = 'free' | 'pro' | 'academico' | 'admin';
 
+/**
+ * Única función que construye el user_identifier a partir de un correo.
+ * SIEMPRE trim + lowercase — sin esto, "Ana@X.com" y "ana@x.com " (con
+ * espacio) generarían dos filas DISTINTAS en subscriptions/queries_log
+ * para la misma persona, dependiendo de qué punto de entrada (login,
+ * webhook, Mi Cuenta) haya capturado el correo. Todo el código que arma
+ * `email:${...}` a mano debe usar esta función en su lugar.
+ *
+ * Riesgo conocido (no resuelto en este sprint — ver backlog P1
+ * migrate-user-identifier-to-uuid): si el usuario cambia su correo en
+ * Supabase Auth, este identificador cambia con él y la suscripción
+ * existente queda huérfana (no vinculada al nuevo user_identifier). La
+ * migración a un UUID interno inmutable (auth.users.id) elimina este
+ * riesgo de raíz; mientras tanto, no existe una mitigación automática de
+ * cambio de correo en el código — es responsabilidad operativa detectar
+ * este caso manualmente si un cliente reporta pérdida de acceso tras
+ * cambiar su correo.
+ */
+export function buildUserIdentifierFromEmail(email: string): string {
+  return `email:${email.trim().toLowerCase()}`;
+}
+
 export type RateLimitResult =
   | { allowed: true;  remaining: number; tier: UserTier }
   | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string };
@@ -53,7 +75,7 @@ export async function getUserIdentifierVerificado(req: Request): Promise<string>
       const supabase = createServerSupabaseClient();
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data.user?.email) {
-        return `email:${data.user.email.toLowerCase()}`;
+        return buildUserIdentifierFromEmail(data.user.email);
       }
     } catch {
       // Token corrupto o Supabase caído → degradar a IP sin romper el chat

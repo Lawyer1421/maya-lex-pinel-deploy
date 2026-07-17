@@ -32,9 +32,9 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 import {
   verifyCanonicalSubscription,
   applySubscriptionEvent,
-  syncLegacyPaidAccess,
 } from '@/lib/paypal/state-machine';
 import type { SubscriptionTier } from '@/lib/paypal/plans';
+import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
 const RATE_LIMIT_WINDOW_MS = 10 * 1000;
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Sesión requerida' }, { status: 401 });
   }
 
-  const userIdentifier = `email:${user.email}`;
+  const userIdentifier = buildUserIdentifierFromEmail(user.email);
   const supabase = createServerSupabaseClient();
 
   // ── Rate limiting ────────────────────────────────────────────────────
@@ -152,11 +152,8 @@ export async function POST(req: NextRequest) {
   });
 
   if (result.applied && result.resultingStatus === 'active') {
-    await syncLegacyPaidAccess(supabase, {
-      userIdentifier,
-      tier: result.resultingTier as SubscriptionTier,
-      verifiedStatus: 'active',
-    });
+    // applySubscriptionEvent ya escribió subscriptions + queries_log +
+    // auditoría atómicamente — no hace falta una segunda llamada.
     console.log(`[Verificar Estado] Reconciliado manualmente: ${userIdentifier} → active (${result.reason})`);
     return NextResponse.json({
       estadoPaypal: 'ACTIVE',

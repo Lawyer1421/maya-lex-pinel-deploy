@@ -36,7 +36,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { verifyCanonicalSubscription, applySubscriptionEvent, syncLegacyPaidAccess } from '@/lib/paypal/state-machine';
+import { verifyCanonicalSubscription, applySubscriptionEvent } from '@/lib/paypal/state-machine';
 import type { SubscriptionTier } from '@/lib/paypal/plans';
 
 config({ path: resolve(process.cwd(), '.env.local') });
@@ -152,12 +152,7 @@ async function main() {
         });
         console.log(`  Local (después): tier=${result.resultingTier} status=${result.resultingStatus} (razón RPC: ${result.reason})`);
         if (result.applied && result.resultingStatus === 'active') {
-          await syncLegacyPaidAccess(supabase, {
-            userIdentifier: row.user_identifier as string,
-            tier: result.resultingTier as SubscriptionTier,
-            verifiedStatus: 'active',
-          });
-          ok('  ✓ Reconciliado (subscriptions + queries_log sincronizados vía RPC).');
+          ok('  ✓ Reconciliado (subscriptions + queries_log + auditoría escritos atómicamente por la RPC).');
         } else {
           warn(`  No se aplicó cambio (razón: ${result.reason}) — puede requerir revisión manual (p.ej. suscripción duplicada activa).`);
         }

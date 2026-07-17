@@ -1,15 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Aísla el DISPATCH del webhook (qué handler llama a qué, y cuándo se
-// sincroniza queries_log) de la implementación real de la máquina de
-// estados — esa parte tiene su propia suite en state-machine.test.ts.
-// Ver tests/README.md para la limitación conocida de cobertura del SQL.
+// Aísla el DISPATCH del webhook (qué handler llama a qué) de la
+// implementación real de la máquina de estados — esa parte tiene su
+// propia suite en state-machine.test.ts y tests/sql/*. Desde que
+// paypal_apply_event/paypal_apply_downgrade escriben queries_log +
+// auditoría atómicamente, este archivo ya no verifica un "sync"
+// separado — verifica que el dispatcher llama a la RPC correcta con los
+// parámetros correctos, que es lo único que le corresponde a esta capa.
 vi.mock('@/lib/paypal/state-machine', () => ({
   parseCustomId: vi.fn(),
   resolverUserIdentifier: vi.fn(),
   applySubscriptionEvent: vi.fn(),
+  applySubscriptionDowngrade: vi.fn(),
   verifyCanonicalSubscription: vi.fn(),
-  syncLegacyPaidAccess: vi.fn(),
 }));
 
 function buildFakeSupabase() {
@@ -37,12 +40,16 @@ async function loadHandler() {
   return { handlePayPalEvent: mod.handlePayPalEvent, stateMachine };
 }
 
+// handlePayPalEvent(supabase, event, eventId, transmissionId)
+const EVENT_ID = 'WH-EVENT-ID-1';
+const TX_ID = 'tx-1';
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 describe('handlePayPalEvent — BILLING.SUBSCRIPTION.CREATED', () => {
-  it('nunca otorga acceso ni sincroniza queries_log', async () => {
+  it('nunca otorga acceso (grantsAccess=false, newStatus=trialing)', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
     (stateMachine.parseCustomId as any).mockReturnValue({ tier: 'pro', uid: 'email:x@y.com' });
     (stateMachine.resolverUserIdentifier as any).mockResolvedValue('email:x@y.com');
@@ -54,17 +61,16 @@ describe('handlePayPalEvent — BILLING.SUBSCRIPTION.CREATED', () => {
     await handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.CREATED',
       resource: { id: 'SUB1', custom_id: '{"p":"pro","u":"email:x@y.com"}', subscriber: {} },
-    } as any, 'tx-1');
+    } as any, EVENT_ID, TX_ID);
 
     expect(stateMachine.applySubscriptionEvent).toHaveBeenCalledWith(client, expect.objectContaining({
       newStatus: 'trialing', grantsAccess: false,
     }));
-    expect(stateMachine.syncLegacyPaidAccess).not.toHaveBeenCalled();
   });
 });
 
 describe('handlePayPalEvent — BILLING.SUBSCRIPTION.ACTIVATED', () => {
-  it('sin uid en custom_id: marca requires_reconciliation y NO llama a PayPal ni concede acceso', async () => {
+  it('sin uid en custom_id: marca requires_reconciliation POR event_id, NO llama a PayPal ni concede acceso', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
     (stateMachine.parseCustomId as any).mockReturnValue({ tier: 'pro', uid: null });
 
@@ -72,10 +78,11 @@ describe('handlePayPalEvent — BILLING.SUBSCRIPTION.ACTIVATED', () => {
     await handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
       resource: { id: 'SUB1', custom_id: 'pro', subscriber: {} },
-    } as any, 'tx-2');
+    } as any, EVENT_ID, TX_ID);
 
     expect(stateMachine.verifyCanonicalSubscription).not.toHaveBeenCalled();
     expect(stateMachine.applySubscriptionEvent).not.toHaveBeenCalled();
+    expect(tables.get('paypal_events').eq).toHaveBeenCalledWith('event_id', EVENT_ID);
     expect(tables.get('paypal_events').update).toHaveBeenCalledWith(
       expect.objectContaining({ requires_reconciliation: true })
     );
@@ -92,13 +99,12 @@ describe('handlePayPalEvent — BILLING.SUBSCRIPTION.ACTIVATED', () => {
     await handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
       resource: { id: 'SUB1', custom_id: '{"p":"pro","u":"email:x@y.com"}', subscriber: {} },
-    } as any, 'tx-3');
+    } as any, EVENT_ID, TX_ID);
 
     expect(stateMachine.applySubscriptionEvent).not.toHaveBeenCalled();
-    expect(stateMachine.syncLegacyPaidAccess).not.toHaveBeenCalled();
   });
 
-  it('verificado y aplicado a active: sincroniza queries_log', async () => {
+  it('verificado: llama a applySubscriptionEvent con grantsAccess=true, newStatus=active', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
     (stateMachine.parseCustomId as any).mockReturnValue({ tier: 'pro', uid: 'email:x@y.com' });
     (stateMachine.resolverUserIdentifier as any).mockResolvedValue('email:x@y.com');
@@ -111,16 +117,17 @@ describe('handlePayPalEvent — BILLING.SUBSCRIPTION.ACTIVATED', () => {
     await handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
       resource: { id: 'SUB1', custom_id: '{"p":"pro","u":"email:x@y.com"}', subscriber: {} },
-    } as any, 'tx-4');
+    } as any, EVENT_ID, TX_ID);
 
-    expect(stateMachine.syncLegacyPaidAccess).toHaveBeenCalledWith(client, expect.objectContaining({
-      userIdentifier: 'email:x@y.com', tier: 'pro', verifiedStatus: 'active',
+    expect(stateMachine.applySubscriptionEvent).toHaveBeenCalledWith(client, expect.objectContaining({
+      userIdentifier: 'email:x@y.com', tier: 'pro', newStatus: 'active', grantsAccess: true,
     }));
   });
 
-  // Caso C de la matriz: suscripción activa distinta ya existe — nunca se
-  // concede acceso a la nueva ni se toca queries_log.
-  it('duplicate_active_subscription: NO sincroniza queries_log', async () => {
+  // Caso C de la matriz: suscripción activa distinta ya existe — el
+  // dispatcher solo debe llamar a la RPC; es la RPC (probada aparte
+  // contra Postgres real) la que decide proteger la activa.
+  it('duplicate_active_subscription: el dispatcher no hace nada especial, delega en el resultado de la RPC', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
     (stateMachine.parseCustomId as any).mockReturnValue({ tier: 'pro', uid: 'email:x@y.com' });
     (stateMachine.resolverUserIdentifier as any).mockResolvedValue('email:x@y.com');
@@ -130,12 +137,10 @@ describe('handlePayPalEvent — BILLING.SUBSCRIPTION.ACTIVATED', () => {
     });
 
     const { client } = buildFakeSupabase();
-    await handlePayPalEvent(client, {
+    await expect(handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
       resource: { id: 'SUB-NUEVA', custom_id: '{"p":"pro","u":"email:x@y.com"}', subscriber: {} },
-    } as any, 'tx-5');
-
-    expect(stateMachine.syncLegacyPaidAccess).not.toHaveBeenCalled();
+    } as any, EVENT_ID, TX_ID)).resolves.not.toThrow();
   });
 });
 
@@ -143,14 +148,14 @@ describe('handlePayPalEvent — PAYMENT.SALE.COMPLETED', () => {
   it('sin fila local para la subscription: marca requires_reconciliation, no llama a PayPal', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
     const { client, tables } = buildFakeSupabase();
-    tables.get('subscriptions'); // fuerza creación con config default
+    tables.get('subscriptions');
     const subsChain = client.from('subscriptions');
     subsChain._config.maybeSingle = { data: null, error: null };
 
     await handlePayPalEvent(client, {
       event_type: 'PAYMENT.SALE.COMPLETED',
       resource: { billing_agreement_id: 'SUB1' },
-    } as any, 'tx-6');
+    } as any, EVENT_ID, TX_ID);
 
     expect(stateMachine.verifyCanonicalSubscription).not.toHaveBeenCalled();
     expect(tables.get('paypal_events').update).toHaveBeenCalledWith(
@@ -158,9 +163,9 @@ describe('handlePayPalEvent — PAYMENT.SALE.COMPLETED', () => {
     );
   });
 
-  it('con fila local y verificación OK: sincroniza queries_log usando el tier LOCAL, no el payer_email del evento', async () => {
+  it('con fila local y verificación OK: usa el tier LOCAL, no el payer_email del evento', async () => {
     const { handlePayPalEvent, stateMachine } = await loadHandler();
-    const { client, tables } = buildFakeSupabase();
+    const { client } = buildFakeSupabase();
     const subsChain = client.from('subscriptions');
     subsChain._config.maybeSingle = {
       data: { user_identifier: 'email:x@y.com', tier: 'academico', paypal_payer_id: 'PAYER1', email: 'x@y.com' },
@@ -174,44 +179,46 @@ describe('handlePayPalEvent — PAYMENT.SALE.COMPLETED', () => {
     await handlePayPalEvent(client, {
       event_type: 'PAYMENT.SALE.COMPLETED',
       resource: { billing_agreement_id: 'SUB1' },
-    } as any, 'tx-7');
+    } as any, EVENT_ID, TX_ID);
 
     expect(stateMachine.verifyCanonicalSubscription).toHaveBeenCalledWith(expect.objectContaining({
       paypalSubId: 'SUB1', expectedUid: 'email:x@y.com', expectedTier: 'academico',
     }));
-    expect(stateMachine.syncLegacyPaidAccess).toHaveBeenCalledWith(client, expect.objectContaining({
-      userIdentifier: 'email:x@y.com', tier: 'academico', verifiedStatus: 'active',
+    expect(stateMachine.applySubscriptionEvent).toHaveBeenCalledWith(client, expect.objectContaining({
+      userIdentifier: 'email:x@y.com', tier: 'academico',
     }));
   });
 });
 
 describe('handlePayPalEvent — degradaciones', () => {
-  it('CANCELLED degrada subscriptions a free/cancelled y refleja en queries_log', async () => {
-    const { handlePayPalEvent } = await loadHandler();
-    const { client, tables } = buildFakeSupabase();
-    const subsChain = client.from('subscriptions');
-    subsChain._config.single = { data: { user_identifier: 'email:x@y.com' }, error: null };
+  it('CANCELLED/EXPIRED/SUSPENDED llaman a applySubscriptionDowngrade (RPC atómica)', async () => {
+    const { handlePayPalEvent, stateMachine } = await loadHandler();
+    (stateMachine.applySubscriptionDowngrade as any).mockResolvedValue({
+      applied: true, reason: 'downgraded', resultingStatus: 'cancelled', resultingTier: 'free', resultingSubId: 'SUB1',
+    });
+    const { client } = buildFakeSupabase();
 
     await handlePayPalEvent(client, {
       event_type: 'BILLING.SUBSCRIPTION.CANCELLED',
       resource: { id: 'SUB1' },
-    } as any, 'tx-8');
+    } as any, EVENT_ID, TX_ID);
 
-    expect(subsChain.update).toHaveBeenCalledWith(expect.objectContaining({ tier: 'free', status: 'cancelled' }));
-    const queriesLogChain = tables.get('queries_log');
-    expect(queriesLogChain.update).toHaveBeenCalledWith(expect.objectContaining({ tier: 'free' }));
+    expect(stateMachine.applySubscriptionDowngrade).toHaveBeenCalledWith(client, {
+      paypalSubId: 'SUB1', newStatus: 'cancelled', eventType: 'BILLING.SUBSCRIPTION.CANCELLED',
+    });
   });
 
-  it('PAYMENT.SALE.DENIED marca past_due sin tocar queries_log', async () => {
-    const { handlePayPalEvent } = await loadHandler();
+  it('PAYMENT.SALE.DENIED marca past_due directamente (no pasa por RPC, no toca queries_log)', async () => {
+    const { handlePayPalEvent, stateMachine } = await loadHandler();
     const { client, tables } = buildFakeSupabase();
 
     await handlePayPalEvent(client, {
       event_type: 'PAYMENT.SALE.DENIED',
       resource: { billing_agreement_id: 'SUB1' },
-    } as any, 'tx-9');
+    } as any, EVENT_ID, TX_ID);
 
     expect(client.from('subscriptions').update).toHaveBeenCalledWith(expect.objectContaining({ status: 'past_due' }));
     expect(tables.has('queries_log')).toBe(false);
+    expect(stateMachine.applySubscriptionDowngrade).not.toHaveBeenCalled();
   });
 });
