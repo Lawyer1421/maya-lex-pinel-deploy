@@ -9,11 +9,34 @@
  * NO fabrica un "activo" falso: si PayPal dice APPROVAL_PENDING, la
  * respuesta lo refleja tal cual — el usuario nunca ve más de lo que
  * PayPal confirma.
+ *
+ * Seguridad:
+ *   - El usuario sale ÚNICAMENTE de la sesión (cookie), nunca del body.
+ *   - Nunca acepta userId, isPremium ni tier del cliente como fuente de
+ *     verdad — esos campos, si vinieran en el body, se ignoran.
+ *   - subscriptionId (opcional) es la suscripción EXACTA que el frontend
+ *     acaba de intentar pagar (ver PayPalSubscribeButton) — si no se
+ *     envía, cae a la última suscripción registrada localmente para ese
+ *     usuario (comportamiento previo, retrocompatible).
+ *   - Rate limiting: 1 verificación cada 10s por usuario.
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { createHash } from 'crypto';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
 import { createServerSupabaseClient } from '@/lib/supabase';
-import { getAccessToken, getPayPalBaseUrl } from '@/lib/paypal/client';
+import {
+  verifyCanonicalSubscription,
+  applySubscriptionEvent,
+  syncLegacyPaidAccess,
+} from '@/lib/paypal/state-machine';
+import type { SubscriptionTier } from '@/lib/paypal/plans';
+
+const RATE_LIMIT_WINDOW_MS = 10 * 1000;
+
+function buildReferenceId(userIdentifier: string): string {
+  const hash = createHash('sha256').update(userIdentifier).digest('hex').slice(0, 8).toUpperCase();
+  return `MLX-${Date.now().toString(36).toUpperCase()}-${hash}`;
+}
 
 export async function POST(req: NextRequest) {
   const supabaseAuth = await createSupabaseServerClient();
@@ -25,55 +48,116 @@ export async function POST(req: NextRequest) {
   const userIdentifier = `email:${user.email}`;
   const supabase = createServerSupabaseClient();
 
+  // ── Rate limiting ────────────────────────────────────────────────────
+  const { data: attempt } = await supabase
+    .from('billing_verification_attempts')
+    .select('last_attempt_at')
+    .eq('user_identifier', userIdentifier)
+    .maybeSingle();
+
+  if (attempt?.last_attempt_at) {
+    const elapsedMs = Date.now() - new Date(attempt.last_attempt_at).getTime();
+    if (elapsedMs < RATE_LIMIT_WINDOW_MS) {
+      return NextResponse.json(
+        { error: 'Espere unos segundos antes de volver a verificar.', code: 'RATE_LIMITED' },
+        { status: 429 }
+      );
+    }
+  }
+  await supabase.from('billing_verification_attempts').upsert(
+    { user_identifier: userIdentifier, last_attempt_at: new Date().toISOString() },
+    { onConflict: 'user_identifier' }
+  );
+
+  // Solo se usa subscriptionId del body — cualquier otro campo (userId,
+  // isPremium, tier) se ignora deliberadamente, no se desestructura.
+  let requestedSubId: string | null = null;
+  try {
+    const body = await req.json() as { subscriptionId?: string };
+    if (typeof body.subscriptionId === 'string' && body.subscriptionId.trim()) {
+      requestedSubId = body.subscriptionId.trim();
+    }
+  } catch {
+    // Body vacío es válido — cae al comportamiento por defecto
+  }
+
   const { data: suscripcion } = await supabase
     .from('subscriptions')
     .select('paypal_sub_id, tier, status')
     .eq('user_identifier', userIdentifier)
-    .single();
+    .maybeSingle();
 
   if (!suscripcion?.paypal_sub_id) {
     return NextResponse.json({ estadoPaypal: null, tier: 'free', sincronizado: false });
   }
 
-  // Si ya está activa localmente, no hace falta consultar PayPal
-  if (suscripcion.status === 'active') {
+  // La suscripción a verificar es la que pidió el frontend (el checkout
+  // exacto que el usuario acaba de intentar), o si no se especificó, la
+  // última registrada localmente para este usuario.
+  const targetSubId = requestedSubId ?? suscripcion.paypal_sub_id;
+
+  // Ya está activa localmente Y es la misma suscripción que se pide verificar
+  if (suscripcion.status === 'active' && targetSubId === suscripcion.paypal_sub_id) {
     return NextResponse.json({ estadoPaypal: 'ACTIVE', tier: suscripcion.tier, sincronizado: false });
   }
 
-  try {
-    const accessToken = await getAccessToken();
-    const res = await fetch(
-      `${getPayPalBaseUrl()}/v1/billing/subscriptions/${suscripcion.paypal_sub_id}`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-    if (!res.ok) {
-      return NextResponse.json({ estadoPaypal: 'DESCONOCIDO', tier: suscripcion.tier, sincronizado: false });
-    }
-    const data = (await res.json()) as { status: string };
+  const tier: SubscriptionTier = suscripcion.tier === 'academico' ? 'academico' : 'pro';
 
-    if (data.status === 'ACTIVE' && suscripcion.status !== 'active') {
-      // PayPal ya la activó pero el webhook aún no llegó (o se perdió) — sincronizar ahora
-      await supabase.from('subscriptions').update({
-        status: 'active',
-        updated_at: new Date().toISOString(),
-      }).eq('user_identifier', userIdentifier);
+  const check = await verifyCanonicalSubscription({
+    paypalSubId:  targetSubId,
+    expectedUid:  userIdentifier,
+    expectedTier: tier,
+  });
 
-      const today = new Date().toISOString().split('T')[0];
-      await supabase.from('queries_log').upsert({
-        user_identifier: userIdentifier,
-        query_date: today,
-        query_count: 0,
-        tier: suscripcion.tier,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_identifier,query_date' });
-
-      console.log(`[Verificar Estado] Reconciliado manualmente: ${userIdentifier} → active (webhook no había llegado)`);
-      return NextResponse.json({ estadoPaypal: 'ACTIVE', tier: suscripcion.tier, sincronizado: true });
-    }
-
-    return NextResponse.json({ estadoPaypal: data.status, tier: suscripcion.tier, sincronizado: false });
-  } catch (err) {
-    console.error('[Verificar Estado] Error consultando PayPal:', err instanceof Error ? err.message : err);
-    return NextResponse.json({ estadoPaypal: 'DESCONOCIDO', tier: suscripcion.tier, sincronizado: false });
+  if (!check.ok) {
+    return NextResponse.json({
+      estadoPaypal: check.status ?? 'DESCONOCIDO',
+      tier: suscripcion.tier,
+      sincronizado: false,
+      verificacion: check.reason,
+    });
   }
+
+  const result = await applySubscriptionEvent(supabase, {
+    userIdentifier,
+    paypalSubId:   targetSubId,
+    paypalPayerId: null,
+    email:         user.email,
+    tier,
+    newStatus:     'active',
+    grantsAccess:  true,
+    eventType:     'MANUAL_VERIFICATION',
+  });
+
+  if (result.applied && result.resultingStatus === 'active') {
+    await syncLegacyPaidAccess(supabase, {
+      userIdentifier,
+      tier: result.resultingTier as SubscriptionTier,
+      verifiedStatus: 'active',
+    });
+    console.log(`[Verificar Estado] Reconciliado manualmente: ${userIdentifier} → active (${result.reason})`);
+    return NextResponse.json({
+      estadoPaypal: 'ACTIVE',
+      tier: result.resultingTier,
+      sincronizado: true,
+    });
+  }
+
+  if (result.reason === 'duplicate_active_subscription') {
+    return NextResponse.json({
+      estadoPaypal: 'ACTIVE',
+      tier: result.resultingTier,
+      sincronizado: false,
+      verificacion: 'duplicate_active_subscription',
+      mensaje: 'Su cuenta ya tiene una suscripción activa distinta a la que intenta verificar. Contáctenos con este código de referencia.',
+      referenceId: buildReferenceId(userIdentifier),
+    });
+  }
+
+  return NextResponse.json({
+    estadoPaypal: check.status,
+    tier: suscripcion.tier,
+    sincronizado: false,
+    referenceId: buildReferenceId(userIdentifier),
+  });
 }

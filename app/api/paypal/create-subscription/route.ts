@@ -5,6 +5,11 @@
  * Body: { plan: 'pro' | 'academico', email?: string }
  * Response: { subscriptionId: string, approvalUrl: string }
  *
+ * Antes de llamar a PayPal, verifica si el usuario ya tiene una
+ * suscripción activa o un intento reciente sin resolver — evita crear
+ * una segunda suscripción PayPal para el mismo servicio (nunca se debe
+ * cobrar dos veces al mismo cliente).
+ *
  * Prerequisitos en PayPal Developer:
  *   1. Crear planes de suscripción en https://developer.paypal.com/dashboard/
  *   2. Copiar los Plan IDs a las variables de entorno
@@ -13,6 +18,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAccessToken, getPayPalBaseUrl } from '@/lib/paypal/client';
 import { getUserIdentifierVerificado } from '@/lib/rate-limit';
 import { createServerSupabaseClient } from '@/lib/supabase';
+import { PLAN_IDS, isKnownTier } from '@/lib/paypal/plans';
+import { evaluateDuplicateSubscriptionAttempt } from '@/lib/paypal/duplicate-guard';
 
 /**
  * Empaqueta plan + identificador de usuario en el custom_id de PayPal.
@@ -24,11 +31,6 @@ function buildCustomId(plan: string, uid: string): string {
   return JSON.stringify({ p: plan, u: uid.slice(0, 100) });
 }
 
-const PLAN_IDS: Record<string, string | undefined> = {
-  pro:       process.env.PAYPAL_PRO_PLAN_ID,
-  academico: process.env.PAYPAL_ACADEMICO_PLAN_ID,
-};
-
 export async function POST(req: NextRequest) {
   let body: { plan?: string; email?: string };
   try {
@@ -38,8 +40,12 @@ export async function POST(req: NextRequest) {
   }
 
   const { plan = 'pro', email } = body;
-  const planId = PLAN_IDS[plan];
 
+  if (!isKnownTier(plan)) {
+    return NextResponse.json({ error: `Plan '${plan}' no reconocido.` }, { status: 400 });
+  }
+
+  const planId = PLAN_IDS[plan];
   if (!planId) {
     return NextResponse.json(
       { error: `Plan '${plan}' no configurado. Agregar PAYPAL_${plan.toUpperCase()}_PLAN_ID en las variables de entorno.` },
@@ -61,6 +67,25 @@ export async function POST(req: NextRequest) {
         loginUrl: '/login?next=/pricing',
       },
       { status: 401 }
+    );
+  }
+
+  const supabase = createServerSupabaseClient();
+
+  // ── Prevenir doble suscripción ──────────────────────────────────────────
+  // Nunca confiar en userId/tier/plan del body para esta comprobación: el
+  // único identificador válido es userIdentifier, derivado de la sesión.
+  const { data: existing } = await supabase
+    .from('subscriptions')
+    .select('tier, status, updated_at')
+    .eq('user_identifier', userIdentifier)
+    .maybeSingle();
+
+  const block = evaluateDuplicateSubscriptionAttempt(existing, plan);
+  if (block) {
+    return NextResponse.json(
+      { error: block.error, code: block.code, accountUrl: '/cuenta', retryAfterSeconds: block.retryAfterSeconds },
+      { status: 409 }
     );
   }
 
@@ -112,7 +137,6 @@ export async function POST(req: NextRequest) {
     // el webhook puede resolver el usuario buscando por paypal_sub_id.
     // Fire-and-forget: un fallo aquí NUNCA bloquea el checkout.
     try {
-      const supabase = createServerSupabaseClient();
       await supabase.from('subscriptions').upsert(
         {
           user_identifier: userIdentifier,

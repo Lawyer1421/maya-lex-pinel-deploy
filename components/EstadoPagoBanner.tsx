@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 interface Props {
   tierActual: string; // el tier que el servidor ya calculó al renderizar
+  userEmail:  string; // para leer el subscriptionId exacto guardado al iniciar el checkout
 }
 
 /**
@@ -15,29 +16,45 @@ interface Props {
  * aprobación terminó de procesarse. Si el tier del servidor ya es de
  * pago, lo confirma directo. Si no, consulta /api/paypal/verificar-estado
  * (que a su vez pregunta a PayPal, no adivina) antes de decir cualquier
- * cosa al usuario.
+ * cosa al usuario — enviando el subscriptionId exacto que PayPalSubscribeButton
+ * guardó al iniciar este checkout, para no verificar "la última suscripción
+ * que haya" si hubo más de un intento.
  */
-export default function EstadoPagoBanner({ tierActual }: Props) {
+export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
   const router = useRouter();
   const yaEsPago = tierActual === 'pro' || tierActual === 'academico';
 
   const [estado, setEstado] = useState<'confirmado' | 'verificando' | 'pendiente' | 'error'>(
     yaEsPago ? 'confirmado' : 'verificando'
   );
+  const [referenceId, setReferenceId] = useState<string | null>(null);
 
   useEffect(() => {
     if (yaEsPago) return;
 
     let cancelado = false;
-    fetch('/api/paypal/verificar-estado', { method: 'POST' })
+    let subscriptionId: string | undefined;
+    try {
+      subscriptionId = window.localStorage.getItem(`mlx_pending_sub_${userEmail}`) ?? undefined;
+    } catch {
+      // localStorage no disponible — se verifica sin id exacto (fallback previo)
+    }
+
+    fetch('/api/paypal/verificar-estado', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscriptionId ? { subscriptionId } : {}),
+    })
       .then((r) => r.json())
-      .then((data: { estadoPaypal: string | null; sincronizado: boolean }) => {
+      .then((data: { estadoPaypal: string | null; sincronizado: boolean; referenceId?: string }) => {
         if (cancelado) return;
         if (data.sincronizado) {
+          try { window.localStorage.removeItem(`mlx_pending_sub_${userEmail}`); } catch { /* no-op */ }
           router.refresh(); // recarga con el tier ya actualizado
         } else if (data.estadoPaypal === 'APPROVAL_PENDING') {
           setEstado('pendiente');
         } else {
+          if (data.referenceId) setReferenceId(data.referenceId);
           setEstado('error');
         }
       })
@@ -88,6 +105,9 @@ export default function EstadoPagoBanner({ tierActual }: Props) {
           {estado === 'pendiente'
             ? 'PayPal todavía no reporta la aprobación final. Si usted ya completó el proceso en PayPal, intente de nuevo en unos minutos o contáctenos si persiste.'
             : 'Recargue esta página en un momento. Si el problema continúa, contáctenos indicando su correo.'}
+          {referenceId && (
+            <> Código de referencia: <span className="font-mono text-white/80">{referenceId}</span></>
+          )}
         </p>
       </div>
     </div>
