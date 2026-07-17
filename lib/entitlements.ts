@@ -170,13 +170,22 @@ export async function resolveAccessWithEntitlements(params: {
   logEntitlementFallback(params.userIdentifier, 'no_entitlement_row');
   const legacy = await resolveCurrentAccess(params.userIdentifier);
 
-  const accessLabel = legacy.accessGranted
-    ? 'Usuario Pro'
-    : legacy.verificationPending
-      ? 'Verificando tu suscripción'
-      : legacy.reasonCode === 'cancelled' && legacy.subscriptionStatus
-        ? 'Plan gratuito'
-        : 'Plan gratuito';
+  // Nota: "Pro hasta {fecha}" (cancelado pero con período pagado
+  // vigente) requeriría current_period_end poblado de forma confiable
+  // desde PayPal — no lo está hoy (ver auditoría original). Mostrar esa
+  // etiqueta sin una fecha real sería fabricar información, así que un
+  // 'cancelled' legado cae honestamente en "Plan gratuito" hasta que
+  // esa fecha se pueble de verdad.
+  let accessLabel: string;
+  if (legacy.accessGranted) {
+    accessLabel = 'Usuario Pro';
+  } else if (legacy.verificationPending) {
+    accessLabel = 'Verificando tu suscripción';
+  } else if (legacy.reasonCode === 'payment_failed') {
+    accessLabel = 'Problema con la renovación';
+  } else {
+    accessLabel = 'Conocer plan Pro';
+  }
 
   return {
     accessGranted: legacy.accessGranted,

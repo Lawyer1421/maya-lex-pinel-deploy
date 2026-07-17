@@ -91,7 +91,7 @@ describe('resolveAccessWithEntitlements — entitlement-first, legado como fallb
     expect(result.accessLabel).toBe('Verificando tu suscripción');
   });
 
-  it('sin entitlement ni suscripción: Plan gratuito', async () => {
+  it('sin entitlement ni suscripción: Conocer plan Pro', async () => {
     vi.resetModules();
     vi.doMock('@/lib/paypal/access', () => ({
       resolveCurrentAccess: vi.fn().mockResolvedValue({
@@ -104,6 +104,21 @@ describe('resolveAccessWithEntitlements — entitlement-first, legado como fallb
 
     const result = await resolveAccessWithEntitlements({ supabase, userId: 'uuid-1', userIdentifier: 'email:x@y.com' });
     expect(result.accessGranted).toBe(false);
-    expect(result.accessLabel).toBe('Plan gratuito');
+    expect(result.accessLabel).toBe('Conocer plan Pro');
+  });
+
+  it('payment_failed legado → "Problema con la renovación"', async () => {
+    vi.resetModules();
+    vi.doMock('@/lib/paypal/access', () => ({
+      resolveCurrentAccess: vi.fn().mockResolvedValue({
+        accessGranted: false, tier: 'free', subscriptionStatus: 'past_due',
+        pendingTier: null, source: 'subscriptions', verificationPending: false, reasonCode: 'payment_failed',
+      }),
+    }));
+    const { resolveAccessWithEntitlements } = await import('@/lib/entitlements');
+    const supabase = fakeSupabaseEntitlement(null);
+
+    const result = await resolveAccessWithEntitlements({ supabase, userId: 'uuid-1', userIdentifier: 'email:x@y.com' });
+    expect(result.accessLabel).toBe('Problema con la renovación');
   });
 });

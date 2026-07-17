@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
 import ChatInterface from '@/components/ChatInterface';
+import AccessBadge from '@/components/AccessBadge';
 
 /**
  * /chat — Interfaz principal de chat con MAYA LEX IA
@@ -18,7 +19,14 @@ export default async function ChatPage() {
     redirect('/login?next=/chat');
   }
 
-  return <ChatInterface />;
+  return (
+    <>
+      <div className="fixed top-3 right-4 z-50">
+        <AccessBadge compact />
+      </div>
+      <ChatInterface />
+    </>
+  );
 }
 
 export const metadata = {
