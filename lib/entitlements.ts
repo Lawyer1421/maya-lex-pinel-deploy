@@ -107,7 +107,7 @@ export function logEntitlementFallback(userIdentifier: string, reason: string): 
   console.log(`[ENTITLEMENTS] fallback_used user=${userIdentifier} reason=${reason}`);
 }
 
-export type AccessSourceType = EntitlementSourceType | 'legacy_queries_log' | 'none';
+export type AccessSourceType = EntitlementSourceType | 'legacy' | 'none';
 
 export interface ResolvedAccess {
   accessGranted:       boolean;
@@ -167,30 +167,44 @@ export async function resolveAccessWithEntitlements(params: {
     }
   }
 
-  logEntitlementFallback(params.userIdentifier, 'no_entitlement_row');
   const legacy = await resolveCurrentAccess(params.userIdentifier);
 
   // Nota: "Pro hasta {fecha}" (cancelado pero con período pagado
   // vigente) requeriría current_period_end poblado de forma confiable
   // desde PayPal — no lo está hoy (ver auditoría original). Mostrar esa
   // etiqueta sin una fecha real sería fabricar información, así que un
-  // 'cancelled' legado cae honestamente en "Plan gratuito" hasta que
+  // 'cancelled' legado cae honestamente en "Conocer plan Pro" hasta que
   // esa fecha se pueble de verdad.
+  //
+  // CRÍTICO: si el acceso viene del gate legado (queries_log) y NO hay
+  // un entitlement que lo respalde, NUNCA se etiqueta como "Usuario
+  // Pro" — eso reservaría la palabra "Pro" para cuando el sistema
+  // NUEVO (entitlements) ya lo confirmó. accessGranted sí se mantiene
+  // en true por compatibilidad (el usuario de verdad puede seguir
+  // usando el chat), pero la UI debe comunicar que es un estado
+  // transicional, no una suscripción ya migrada.
   let accessLabel: string;
+  let sourceType: AccessSourceType;
+
   if (legacy.accessGranted) {
-    accessLabel = 'Usuario Pro';
+    accessLabel = 'Acceso en verificación';
+    sourceType = 'legacy';
+    logEntitlementFallback(params.userIdentifier, 'legacy_access_fallback_used');
   } else if (legacy.verificationPending) {
     accessLabel = 'Verificando tu suscripción';
+    sourceType = 'none';
   } else if (legacy.reasonCode === 'payment_failed') {
     accessLabel = 'Problema con la renovación';
+    sourceType = 'none';
   } else {
     accessLabel = 'Conocer plan Pro';
+    sourceType = 'none';
   }
 
   return {
     accessGranted: legacy.accessGranted,
     accessLabel,
-    sourceType: legacy.accessGranted ? 'legacy_queries_log' : 'none',
+    sourceType,
     plan: legacy.tier,
     subscriptionStatus: legacy.subscriptionStatus,
     verificationPending: legacy.verificationPending,

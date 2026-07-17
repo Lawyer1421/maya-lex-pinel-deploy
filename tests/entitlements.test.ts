@@ -55,7 +55,10 @@ describe('resolveAccessWithEntitlements — entitlement-first, legado como fallb
     expect(access.resolveCurrentAccess).not.toHaveBeenCalled();
   });
 
-  it('cae al adaptador legado cuando no hay userId', async () => {
+  // Escenario crítico (corregido tras auditoría): acceso otorgado por
+  // el gate legado SIN entitlement de respaldo NUNCA debe decir "Usuario
+  // Pro" — reservado para cuando entitlements ya lo confirma.
+  it('cae al adaptador legado cuando no hay userId — NUNCA dice "Usuario Pro" sin entitlement', async () => {
     vi.resetModules();
     vi.doMock('@/lib/paypal/access', () => ({
       resolveCurrentAccess: vi.fn().mockResolvedValue({
@@ -69,8 +72,27 @@ describe('resolveAccessWithEntitlements — entitlement-first, legado como fallb
     const result = await resolveAccessWithEntitlements({ supabase, userId: null, userIdentifier: 'email:x@y.com' });
 
     expect(result.accessGranted).toBe(true);
-    expect(result.sourceType).toBe('legacy_queries_log');
-    expect(result.accessLabel).toBe('Usuario Pro');
+    expect(result.sourceType).toBe('legacy');
+    expect(result.accessLabel).not.toBe('Usuario Pro');
+    expect(result.accessLabel).toBe('Acceso en verificación');
+  });
+
+  it('registra legacy_access_fallback_used cuando el acceso viene del gate legado', async () => {
+    vi.resetModules();
+    vi.doMock('@/lib/paypal/access', () => ({
+      resolveCurrentAccess: vi.fn().mockResolvedValue({
+        accessGranted: true, tier: 'academico', subscriptionStatus: 'active',
+        pendingTier: null, source: 'queries_log', verificationPending: false, reasonCode: 'active_subscription',
+      }),
+    }));
+    const { resolveAccessWithEntitlements } = await import('@/lib/entitlements');
+    const supabase = fakeSupabaseEntitlement(null);
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await resolveAccessWithEntitlements({ supabase, userId: 'uuid-1', userIdentifier: 'email:x@y.com' });
+
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('legacy_access_fallback_used'));
+    logSpy.mockRestore();
   });
 
   it('billing_state_inconsistent legado nunca muestra "Plan gratuito" engañosamente — usa el label de verificando', async () => {

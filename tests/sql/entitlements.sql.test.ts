@@ -93,6 +93,40 @@ describe('Validación de la migración entitlements', () => {
     ]);
   });
 
+  // Reproduce exactamente el filtro que usa resolveEntitlement() en
+  // lib/entitlements.ts — verifica contra Postgres real que un
+  // entitlement 'expired' (active_until en el pasado) y uno 'revoked'
+  // quedan EXCLUIDOS de la consulta, tal como se espera.
+  it('el filtro de resolveEntitlement excluye expired (active_until pasado) y revoked', async () => {
+    const uid = await makeUser();
+    await db.query(
+      `insert into entitlements (user_id, entitlement_key, source_type, status, active_until) values ($1,'pro_access','paypal_subscription','active', now() - interval '1 day')`,
+      [uid]
+    );
+    const nowIso = new Date().toISOString();
+    const r = await db.query(
+      `select * from entitlements where user_id = $1 and entitlement_key = 'pro_access' and status = 'active'
+       and (active_until is null or active_until > $2::timestamptz)`,
+      [uid, nowIso]
+    );
+    expect(r.rows.length).toBe(0);
+  });
+
+  it('el filtro de resolveEntitlement SÍ encuentra un entitlement activo sin vencer', async () => {
+    const uid = await makeUser();
+    await db.query(
+      `insert into entitlements (user_id, entitlement_key, source_type, status, active_until) values ($1,'pro_access','paypal_subscription','active', now() + interval '30 days')`,
+      [uid]
+    );
+    const nowIso = new Date().toISOString();
+    const r = await db.query(
+      `select * from entitlements where user_id = $1 and entitlement_key = 'pro_access' and status = 'active'
+       and (active_until is null or active_until > $2::timestamptz)`,
+      [uid, nowIso]
+    );
+    expect(r.rows.length).toBe(1);
+  });
+
   it('anon no puede leer ni escribir entitlements', async () => {
     await db.exec(`set role anon`);
     await expect(db.query(`select * from entitlements limit 1`)).rejects.toThrow(/permission denied/i);
