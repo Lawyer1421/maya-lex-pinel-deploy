@@ -27,6 +27,7 @@ export type AccessTier = 'free' | 'pro' | 'academico' | 'admin';
 export type AccessSource = 'queries_log' | 'subscriptions' | 'none';
 export type AccessReasonCode =
   | 'active_subscription'
+  | 'billing_state_inconsistent'
   | 'verification_pending'
   | 'payment_failed'
   | 'cancelled'
@@ -71,16 +72,36 @@ export async function resolveCurrentAccess(userIdentifier: string): Promise<Curr
   const billingStatus = sub?.status ?? null;
   const billingTier   = sub?.tier === 'academico' ? 'academico' : sub?.tier === 'pro' ? 'pro' : null;
 
+  // ── Precedencia exacta de fuentes ────────────────────────────────────
+  // 1. accessGranted/tier: SIEMPRE queries_log — es la única fuente que
+  //    decide si el usuario puede consultar el chat ahora mismo. Nunca se
+  //    deriva de subscriptions.status, ni siquiera cuando subscriptions
+  //    dice 'active' (ver caso billing_state_inconsistent abajo).
+  // 2. subscriptionStatus/billingTier: SIEMPRE subscriptions — es la
+  //    única fuente para explicar AL USUARIO por qué, nunca para decidir
+  //    acceso. queries_log es un espejo legado del gate, no la fuente de
+  //    facturación — nunca se usa para mostrar estado de facturación.
+  // 3. Caso especial — billing_state_inconsistent: si subscriptions dice
+  //    'active' (PayPal confirmó pago) pero queries_log todavía no
+  //    refleja acceso (el webhook aún no sincronizó, o falló a mitad de
+  //    camino), NUNCA se debe mostrar "Suscríbete" — sería pedirle a un
+  //    cliente que ya pagó que pague de nuevo. Se fuerza
+  //    verificationPending=true y reasonCode='billing_state_inconsistent'
+  //    para que la UI muestre "verificando", nunca un paywall.
+  const billingSaysPaid = billingStatus === 'active';
+  const inconsistent = billingSaysPaid && !accessGranted;
+
   const verificationPending =
-    !accessGranted && (billingStatus === 'trialing' || billingStatus === 'pending');
+    inconsistent || (!accessGranted && (billingStatus === 'trialing' || billingStatus === 'pending'));
 
   let reasonCode: AccessReasonCode;
-  if (accessGranted)              reasonCode = 'active_subscription';
-  else if (verificationPending)   reasonCode = 'verification_pending';
+  if (accessGranted)                       reasonCode = 'active_subscription';
+  else if (inconsistent)                   reasonCode = 'billing_state_inconsistent';
+  else if (verificationPending)            reasonCode = 'verification_pending';
   else if (billingStatus === 'past_due')   reasonCode = 'payment_failed';
   else if (billingStatus === 'cancelled')  reasonCode = 'cancelled';
-  else if (!sub)                  reasonCode = 'no_subscription';
-  else                             reasonCode = 'free_tier';
+  else if (!sub)                           reasonCode = 'no_subscription';
+  else                                      reasonCode = 'free_tier';
 
   return {
     accessGranted,

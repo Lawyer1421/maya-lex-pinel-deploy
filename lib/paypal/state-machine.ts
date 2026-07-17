@@ -5,7 +5,7 @@
  *
  * Reemplaza el patrón previo (SELECT status → comparar en TypeScript →
  * UPSERT separado) por una única llamada atómica a la función SQL
- * paypal_apply_event (supabase/paypal_state_machine.sql), que hace el
+ * paypal_apply_event (supabase/migrations/20260717010000_paypal_state_machine.sql), que hace el
  * SELECT ... FOR UPDATE, la decisión y la escritura dentro de la misma
  * transacción — sin ventana de carrera entre dos webhooks concurrentes
  * para el mismo usuario.

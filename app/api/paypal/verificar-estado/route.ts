@@ -14,10 +14,15 @@
  *   - El usuario sale ÚNICAMENTE de la sesión (cookie), nunca del body.
  *   - Nunca acepta userId, isPremium ni tier del cliente como fuente de
  *     verdad — esos campos, si vinieran en el body, se ignoran.
- *   - subscriptionId (opcional) es la suscripción EXACTA que el frontend
- *     acaba de intentar pagar (ver PayPalSubscribeButton) — si no se
- *     envía, cae a la última suscripción registrada localmente para ese
- *     usuario (comportamiento previo, retrocompatible).
+ *   - subscriptionId (opcional) es solo una PISTA de correlación del
+ *     cliente (ver PayPalSubscribeButton/localStorage) — el servidor
+ *     JAMÁS la usa a ciegas. Si se envía y coincide con la única
+ *     suscripción local vinculada a este user_identifier, se verifica
+ *     esa. Si se envía y NO coincide, es evidencia de un intento
+ *     distinto al registrado — se responde RECONCILIATION_REQUIRED en
+ *     vez de verificar un id que el servidor no puede confirmar que
+ *     pertenece a este checkout. Nunca se "adivina" ni se elige por
+ *     payer_email.
  *   - Rate limiting: 1 verificación cada 10s por usuario.
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -88,16 +93,33 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (!suscripcion?.paypal_sub_id) {
+    // Sin ninguna suscripción local vinculada a este usuario, no hay nada
+    // que el servidor pueda verificar de forma segura — incluso si el
+    // cliente mandó un subscriptionId, no se confía en él a ciegas.
     return NextResponse.json({ estadoPaypal: null, tier: 'free', sincronizado: false });
   }
 
-  // La suscripción a verificar es la que pidió el frontend (el checkout
-  // exacto que el usuario acaba de intentar), o si no se especificó, la
-  // última registrada localmente para este usuario.
-  const targetSubId = requestedSubId ?? suscripcion.paypal_sub_id;
+  // El único subscriptionId que este endpoint puede verificar es el que
+  // ya está vinculado localmente a este user_identifier (esquema de una
+  // fila por usuario — no hay "elegir entre varias" posible). Si el
+  // cliente pidió verificar un id DISTINTO al vinculado, es señal de un
+  // intento de checkout distinto al que el servidor tiene registrado —
+  // nunca se verifica ese id ajeno a ciegas, se pide reconciliación.
+  if (requestedSubId && requestedSubId !== suscripcion.paypal_sub_id) {
+    return NextResponse.json({
+      estadoPaypal: null,
+      tier: suscripcion.tier,
+      sincronizado: false,
+      verificacion: 'RECONCILIATION_REQUIRED',
+      mensaje: 'El intento de pago que indica no coincide con el que tenemos registrado para su cuenta. Contáctenos con este código de referencia.',
+      referenceId: buildReferenceId(userIdentifier),
+    });
+  }
 
-  // Ya está activa localmente Y es la misma suscripción que se pide verificar
-  if (suscripcion.status === 'active' && targetSubId === suscripcion.paypal_sub_id) {
+  const targetSubId = suscripcion.paypal_sub_id;
+
+  // Ya está activa localmente para la suscripción vinculada
+  if (suscripcion.status === 'active') {
     return NextResponse.json({ estadoPaypal: 'ACTIVE', tier: suscripcion.tier, sincronizado: false });
   }
 

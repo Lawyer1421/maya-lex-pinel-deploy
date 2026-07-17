@@ -1,19 +1,56 @@
 -- ============================================================
+-- Migración: 20260717010000_paypal_state_machine
 -- Maya Lex IA — Máquina de estados PayPal (sprint de emergencia)
--- Ejecutar en: Supabase SQL Editor  O  npm run migrate:analytics
--- Requiere: supabase/subscriptions.sql ya aplicado (tabla subscriptions)
+--
+-- Ejecutar en: Supabase SQL Editor  O  scripts/migrate-paypal-state-machine.ts
+-- Requiere: supabase/subscriptions.sql ya aplicado (tabla subscriptions,
+--           paypal_events, queries_log — no se toca aquí, solo se extiende).
 --
 -- Corrige el bug confirmado: BILLING.SUBSCRIPTION.CREATED sobrescribía
 -- subscriptions.status a 'trialing' incluso cuando el cliente ya estaba
 -- 'active', vía un upsert ciego con onConflict:'user_identifier'.
 --
 -- La regla de oro: check-y-escritura del estado de la suscripción
--- ocurre en UNA sola llamada atómica (esta función, con SELECT ... FOR
--- UPDATE dentro de la misma transacción implícita del RPC) — nunca como
--- un SELECT desde la API seguido de un UPSERT separado, que es racy
--- entre dos webhooks concurrentes.
+-- ocurre en UNA sola llamada atómica (esta función, con un advisory lock
+-- + SELECT ... FOR UPDATE dentro de la misma transacción implícita del
+-- RPC) — nunca como un SELECT desde la API seguido de un UPSERT
+-- separado, que es racy entre dos webhooks concurrentes.
 --
 -- Consumidor: lib/paypal/state-machine.ts → applySubscriptionEvent()
+--
+-- ── Naturaleza de esta migración ──────────────────────────────
+-- 100% ADITIVA: crea 2 tablas nuevas, agrega 1 columna nullable-con-
+-- default a paypal_events, y crea/reemplaza 1 función. No modifica ni
+-- borra ninguna columna, tabla, fila ni política existente. Segura de
+-- aplicar sobre producción sin downtime y sin migrar datos.
+--
+-- ── Validación posterior (ejecutar tras aplicar) ──────────────
+--   select to_regclass('public.billing_duplicate_attempts');       -- no debe ser null
+--   select to_regclass('public.billing_verification_attempts');    -- no debe ser null
+--   select column_name from information_schema.columns
+--     where table_name = 'paypal_events' and column_name = 'requires_reconciliation'; -- 1 fila
+--   select proname, prosecdef from pg_proc where proname = 'paypal_apply_event';       -- prosecdef = false (INVOKER)
+--   select grantee, privilege_type from information_schema.routine_privileges
+--     where routine_name = 'paypal_apply_event';                   -- solo service_role, EXECUTE
+--
+-- ── Rollback ───────────────────────────────────────────────────
+-- Reversible sin pérdida de datos de negocio (las tablas nuevas solo
+-- contienen registros de auditoría/rate-limit generados por esta misma
+-- migración, no hay backfill de datos preexistentes que perder):
+--   drop function if exists paypal_apply_event(text, text, text, text, text, text, boolean, text);
+--   drop table if exists billing_duplicate_attempts;
+--   drop table if exists billing_verification_attempts;
+--   alter table paypal_events drop column if exists requires_reconciliation;
+-- Nota: si para cuando se ejecute el rollback ya hay filas reales en
+-- billing_duplicate_attempts (intentos de doble suscripción detectados),
+-- expórtalas antes de este DROP si se quieren conservar para soporte.
+--
+-- ── Compatibilidad ────────────────────────────────────────────
+-- No cambia la forma de las tablas que ya leen otros consumidores
+-- (subscriptions, queries_log) — app/api/chat/route.ts y
+-- lib/rate-limit.ts siguen funcionando sin cambios durante y después
+-- de aplicar esta migración, incluso antes de desplegar el código de
+-- app/api/paypal/webhook/route.ts que la empieza a usar.
 -- ============================================================
 
 -- ── Tabla: intentos de doble suscripción detectados ──────────
@@ -78,6 +115,22 @@ alter table paypal_events add column if not exists requires_reconciliation boole
 -- Devuelve jsonb: {applied, reason, resulting_status, resulting_tier,
 -- resulting_sub_id}. "reason" documenta qué rama de la matriz se tomó,
 -- para que el caller decida si debe sincronizar queries_log.
+--
+-- ── Concurrencia: por qué hay un advisory lock ANTES del SELECT ──
+-- `SELECT ... FOR UPDATE` únicamente bloquea filas que YA EXISTEN. Si
+-- dos webhooks CREATED concurrentes llegan para un usuario que TODAVÍA
+-- no tiene fila en subscriptions, ambos ejecutan el SELECT, ambos
+-- obtienen "not found" (no hay fila que bloquear), y ambos intentarían
+-- el INSERT del Caso A — el segundo fallaría por la restricción
+-- UNIQUE(user_identifier), pero como una excepción de Postgres sin
+-- manejar (no como una rama controlada de la matriz).
+-- pg_advisory_xact_lock() cierra este hueco: es un lock lógico sobre un
+-- entero derivado del user_identifier, tomado ANTES de mirar si la fila
+-- existe, y se libera automáticamente al terminar la transacción (commit
+-- o rollback) del RPC. Un segundo call para el MISMO user_identifier
+-- (exista o no la fila todavía) espera aquí — no en el SELECT — antes
+-- de decidir nada. Ver tests/sql/concurrency.test.ts para la prueba
+-- contra PostgreSQL real (PGlite) del Caso A concurrente.
 -- ============================================================
 create or replace function paypal_apply_event(
   p_user_identifier text,
@@ -90,6 +143,8 @@ create or replace function paypal_apply_event(
   p_event_type       text
 ) returns jsonb
 language plpgsql
+security invoker
+set search_path = public, pg_temp
 as $$
 declare
   v_row subscriptions%rowtype;
@@ -101,9 +156,16 @@ begin
     raise exception 'paypal_apply_event: status inválido: %', p_new_status;
   end if;
 
-  -- Bloquea la fila del usuario (si existe) por el resto de esta transacción.
-  -- Un segundo webhook concurrente para el MISMO usuario espera aquí hasta
-  -- que esta transacción termine — elimina la ventana de carrera de F1/H13.
+  -- Serializa TODAS las llamadas concurrentes para este user_identifier,
+  -- exista o no la fila todavía (ver nota de concurrencia arriba).
+  -- hashtext() es determinista: el mismo user_identifier siempre produce
+  -- la misma clave de lock, sin importar el proceso/conexión que llame.
+  perform pg_advisory_xact_lock(hashtext(p_user_identifier));
+
+  -- Con el advisory lock ya tomado, esto además bloquea la fila (si
+  -- existe) por el resto de esta transacción — defensa en profundidad,
+  -- redundante con el advisory lock para el caso "fila existe" pero
+  -- necesaria para que el snapshot de v_row sea el más reciente.
   select * into v_row from subscriptions where user_identifier = p_user_identifier for update;
 
   -- Caso A: no existe suscripción local todavía.
@@ -209,7 +271,29 @@ begin
 end;
 $$;
 
-grant execute on function paypal_apply_event(text, text, text, text, text, text, boolean, text) to service_role;
+-- ── Permisos de la RPC — solo el backend puede ejecutarla ─────
+-- IMPORTANTE: Postgres otorga EXECUTE a PUBLIC automáticamente al crear
+-- una función (a diferencia de las tablas, que no otorgan nada a PUBLIC
+-- por defecto). Sin el REVOKE explícito de abajo, cualquier cliente con
+-- la anon key o un usuario autenticado normal podría invocar esta RPC
+-- de facturación directamente via PostgREST. RLS en las tablas ofrece
+-- una segunda capa (la función es SECURITY INVOKER, así que corre con
+-- los privilegios del rol que llama — un INSERT/UPDATE de 'anon' sería
+-- rechazado por las políticas "service_only_*"), pero no hay que
+-- depender solo de esa segunda capa: se revoca el EXECUTE mismo.
+revoke all on function paypal_apply_event(text, text, text, text, text, text, boolean, text) from public;
+
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on function paypal_apply_event(text, text, text, text, text, text, boolean, text) from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on function paypal_apply_event(text, text, text, text, text, text, boolean, text) from authenticated';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'grant execute on function paypal_apply_event(text, text, text, text, text, text, boolean, text) to service_role';
+  end if;
+end $$;
 
 -- ── Rate limiting de /api/paypal/verificar-estado ─────────────
 -- Endpoint de usuario (no admin) — un cliente impaciente reintentando

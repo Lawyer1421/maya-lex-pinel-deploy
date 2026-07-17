@@ -30,7 +30,7 @@
  *
  * SQL requerido en Supabase (ejecutar una vez antes de activar live):
  *   → supabase/subscriptions.sql (subscriptions + paypal_events + queries_log)
- *   → supabase/paypal_state_machine.sql (RPC paypal_apply_event + billing_duplicate_attempts)
+ *   → supabase/migrations/20260717010000_paypal_state_machine.sql (RPC paypal_apply_event + billing_duplicate_attempts)
  *   Automatizado: npm run migrate:analytics
  *
  * Vínculo usuario ↔ pago:
