@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'MAYA LEX IA PINEL HN — Asistente Jurídico Hondureño',
@@ -45,7 +46,18 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap"
           rel="stylesheet"
-        />
+        /><Script 
+        src="https://www.googletagmanager.com/gtag/js?id=G-50RFB5FLXB" 
+        strategy="afterInteractive" 
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-50RFB5FLXB');
+        `}
+      </Script>
       </head>
       <body className="min-h-screen bg-navy">{children}</body>
     </html>
