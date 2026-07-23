@@ -243,43 +243,41 @@ export async function POST(req: NextRequest) {
     ? clasificarConsulta(ultimaPregunta as string, mode)
     : 'D';
 
-  // 3c. Recuperar contexto RAG según RUTA (A=proc / B=norm / C=ambos / D=sin_rag)
+  // 3c. Recuperar contexto RAG (A/B/C/D) y búsqueda web (Tavily) EN PARALELO.
+  // Antes eran dos awaits secuenciales (RAG completo, luego Tavily) que sumaban
+  // su latencia total antes de emitir el primer token del streaming. Son
+  // independientes entre sí — solo el ORDEN DE INYECCIÓN en el prompt importa
+  // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  if (ruta !== 'D' && usarRouter) {
+  const ragPromise: Promise<string> = (async () => {
+    if (!(ruta !== 'D' && usarRouter)) return '';
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
+    if (!coleccionPrincipal) return '';
 
-    if (coleccionPrincipal) {
-      const ragResultado = await buscarRAG(
-        ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
-      );
-      let contextoRAG = formatearContextoRAG(ragResultado);
+    const ragResultado = await buscarRAG(
+      ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
+    );
+    let contextoRAG = formatearContextoRAG(ragResultado);
 
-      // RUTA_C civil → segunda pasada con procedimental para completar el análisis
-      if (ruta === 'C' && !esPenal) {
-        const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
-        const contextoProc = formatearContextoRAG(ragProc);
-        if (contextoProc) {
-          contextoRAG = contextoRAG
-            ? `${contextoRAG}\n\n${contextoProc}`
-            : contextoProc;
-        }
-      }
-
-      if (contextoRAG) {
-        // OWASP RAG: contexto como DATO, enmarcado explícitamente
-        systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
+    // RUTA_C civil → segunda pasada con procedimental para completar el análisis
+    if (ruta === 'C' && !esPenal) {
+      const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
+      const contextoProc = formatearContextoRAG(ragProc);
+      if (contextoProc) {
+        contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
       }
     }
-  }
+    return contextoRAG;
+  })();
 
-  // ── Búsqueda web real (Tavily) ────────────────────────────────────────────
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
-  if (webSearch) {
+  const webPromise: Promise<string> = (async () => {
+    if (!webSearch) return '';
     const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
     try {
       const resultadosWeb = await buscarWeb(queryBusqueda, {
@@ -289,20 +287,20 @@ export async function POST(req: NextRequest) {
       });
 
       if (resultadosWeb.length > 0) {
-        // Inyectar contexto web DESPUÉS del contexto RAG para mantener jerarquía
-        systemConRAG += '\n\n' + formatearContextoWeb(resultadosWeb);
         console.log(
           `[WebSearch] Tavily OK | resultados=${resultadosWeb.length}` +
           ` | query="${queryBusqueda.slice(0, 55)}..."` +
           ` | mode=${mode} | ruta=${ruta}`
         );
-      } else {
-        // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
-        console.log(
-          `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
-          ` | query="${queryBusqueda.slice(0, 55)}..."`
-        );
+        // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
+        return '\n\n' + formatearContextoWeb(resultadosWeb);
       }
+      // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
+      console.log(
+        `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
+        ` | query="${queryBusqueda.slice(0, 55)}..."`
+      );
+      return '';
     } catch (err) {
       const msg       = err instanceof Error ? err.message : String(err);
       const isTimeout = err instanceof Error && err.name === 'AbortError';
@@ -313,13 +311,19 @@ export async function POST(req: NextRequest) {
         ` | ${isNoKey ? '' : msg.slice(0, 90)}`
       );
 
-      // Notificar al modelo para que informe al usuario de forma discreta
-      if (!isNoKey) {
-        // Solo mostrar el aviso si había intención de búsqueda (la clave existe pero falló)
-        systemConRAG += AVISO_BUSQUEDA_FALLIDA;
-      }
+      // Notificar al modelo para que informe al usuario de forma discreta —
+      // solo si había intención de búsqueda (la clave existe pero falló)
+      return isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
     }
+  })();
+
+  const [contextoRAG, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+
+  if (contextoRAG) {
+    // OWASP RAG: contexto como DATO, enmarcado explícitamente
+    systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
   }
+  systemConRAG += contextoWeb;
 
   // ── Plantillas notariales del archivo profesional (solo modo 'documento') ──
   // Piloto validado 2026-07-15/16 — 12 poderes genéricos, sin PII.

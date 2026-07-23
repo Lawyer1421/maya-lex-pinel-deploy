@@ -297,13 +297,13 @@ export const CLAUDE_CONFIG = {
   analisis: {
     model: 'claude-opus-4-8' as const,
     max_tokens: 4000,
-    thinking: { type: 'adaptive' as const },
+    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: MAYA_LEX_SYSTEM_PROMPT,
   },
   documento: {
     model: 'claude-opus-4-8' as const,
     max_tokens: 8000,
-    thinking: { type: 'adaptive' as const },
+    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: MAYA_LEX_DOCUMENTO_PROMPT,
   },
 } as const;
@@ -340,7 +340,7 @@ export const CLAUDE_CONFIG_PENAL = {
   analisis_penal: {
     model: 'claude-opus-4-8' as const,
     max_tokens: 6000,
-    thinking: { type: 'adaptive' as const },
+    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: FULL_MAYA_PENAL_PROMPT,
   },
 
@@ -352,7 +352,7 @@ export const CLAUDE_CONFIG_PENAL = {
   escritos_penales: {
     model: 'claude-opus-4-8' as const,
     max_tokens: 10000,
-    thinking: { type: 'adaptive' as const },
+    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: FULL_MAYA_PENAL_PROMPT,
   },
 } as const;
