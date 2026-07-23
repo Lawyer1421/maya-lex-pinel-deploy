@@ -105,12 +105,9 @@ async function buscarEnSupabase(
 
   const queryEmbedding = await embedQuery(consulta);
 
-  // v2 (Preview, en validación): agrega fuente_tipo/jurisdiccion/es_norma_vigente
-  // para que el modelo distinga norma vigente hondureña de doctrina/jurisprudencia
-  // comparada. Requiere que buscar_biblioteca_v2 exista en la base — hasta que
-  // se autorice aplicarla a Production, esta llamada fallará ahí y buscarRAG()
-  // degradará con gracia a "sin contexto" (mismo comportamiento que un error
-  // de RAG hoy), no rompe el flujo de chat.
+  // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
+  // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
+  // Validado en Preview 2026-07-23 contra datos reales de 01_PENAL.
   const { data, error } = await supabase.rpc('buscar_biblioteca_v2', {
     query_embedding: queryEmbedding,
     coleccion_filtro: coleccion,
@@ -145,15 +142,6 @@ async function buscarEnSupabase(
       .map(f => f.num_articulo)
       .filter((a): a is string => a !== null)
   )];
-
-  // TEMPORAL — validación post-activación de RAG_BACKEND=supabase (2026-07-22).
-  // Quitar una vez confirmado en tráfico real que el system prompt recibe
-  // contexto (no solo en esta prueba manual).
-  console.log(
-    `[RAG][hit=${fragmentos.length > 0}] coleccion=${coleccion}` +
-    ` materia=${materia ?? 'n/a'} fragmentos=${fragmentos.length}` +
-    ` mejor_similitud=${fragmentos[0]?.relevancia?.toFixed(4) ?? 'n/a'}`
-  );
 
   return { fragmentos, articulos_encontrados: articulos, backend: 'supabase' };
 }
