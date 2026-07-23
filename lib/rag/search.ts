@@ -131,6 +131,15 @@ async function buscarEnSupabase(
       .filter((a): a is string => a !== null)
   )];
 
+  // TEMPORAL — validación post-activación de RAG_BACKEND=supabase (2026-07-22).
+  // Quitar una vez confirmado en tráfico real que el system prompt recibe
+  // contexto (no solo en esta prueba manual).
+  console.log(
+    `[RAG][hit=${fragmentos.length > 0}] coleccion=${coleccion}` +
+    ` materia=${materia ?? 'n/a'} fragmentos=${fragmentos.length}` +
+    ` mejor_similitud=${fragmentos[0]?.relevancia?.toFixed(4) ?? 'n/a'}`
+  );
+
   return { fragmentos, articulos_encontrados: articulos, backend: 'supabase' };
 }
 
