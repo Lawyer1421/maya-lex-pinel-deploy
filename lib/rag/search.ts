@@ -25,6 +25,9 @@ export interface FragmentoRAG {
   num_articulo: string | null;
   fuente: string;
   relevancia: number;
+  fuente_tipo?: string | null;
+  jurisdiccion?: string | null;
+  es_norma_vigente?: boolean | null;
 }
 
 export interface ResultadoRAG {
@@ -102,7 +105,10 @@ async function buscarEnSupabase(
 
   const queryEmbedding = await embedQuery(consulta);
 
-  const { data, error } = await supabase.rpc('buscar_biblioteca', {
+  // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
+  // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
+  // Validado en Preview 2026-07-23 contra datos reales de 01_PENAL.
+  const { data, error } = await supabase.rpc('buscar_biblioteca_v2', {
     query_embedding: queryEmbedding,
     coleccion_filtro: coleccion,
     materia_filtro: materia ?? null,
@@ -117,12 +123,18 @@ async function buscarEnSupabase(
     contenido: string;
     num_articulo: string | null;
     fuente: string;
+    fuente_tipo: string | null;
+    jurisdiccion: string | null;
+    es_norma_vigente: boolean | null;
     similarity: number;
   }) => ({
     contenido: row.contenido,
     num_articulo: row.num_articulo,
     fuente: row.fuente,
     relevancia: row.similarity,
+    fuente_tipo: row.fuente_tipo,
+    jurisdiccion: row.jurisdiccion,
+    es_norma_vigente: row.es_norma_vigente,
   }));
 
   const articulos = [...new Set(
@@ -130,15 +142,6 @@ async function buscarEnSupabase(
       .map(f => f.num_articulo)
       .filter((a): a is string => a !== null)
   )];
-
-  // TEMPORAL — validación post-activación de RAG_BACKEND=supabase (2026-07-22).
-  // Quitar una vez confirmado en tráfico real que el system prompt recibe
-  // contexto (no solo en esta prueba manual).
-  console.log(
-    `[RAG][hit=${fragmentos.length > 0}] coleccion=${coleccion}` +
-    ` materia=${materia ?? 'n/a'} fragmentos=${fragmentos.length}` +
-    ` mejor_similitud=${fragmentos[0]?.relevancia?.toFixed(4) ?? 'n/a'}`
-  );
 
   return { fragmentos, articulos_encontrados: articulos, backend: 'supabase' };
 }
@@ -227,13 +230,22 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   ];
 
   for (const [i, f] of resultado.fragmentos.entries()) {
-    lineas.push(`[FRAGMENTO ${i + 1}${f.num_articulo ? ` — Art. ${f.num_articulo}` : ''} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);
+    const etiqueta = f.es_norma_vigente === true
+      ? 'NORMA VIGENTE HONDURAS'
+      : f.jurisdiccion && f.jurisdiccion !== 'HN'
+        ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
+        : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
+          ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
+          : null;
+    const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
+    const tag = etiqueta ? ` [${etiqueta}]` : '';
+    lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);
     lineas.push(f.contenido.trim());
     lineas.push('');
   }
 
   lineas.push('── FIN DEL CONTEXTO RAG ──');
-  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Si el artículo citado no aparece en el contexto, indicarlo explícitamente.');
+  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente.');
 
   return lineas.join('\n');
 }
