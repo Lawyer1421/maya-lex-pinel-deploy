@@ -21,6 +21,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface FragmentoRAG {
+  id?: string;
   contenido: string;
   num_articulo: string | null;
   fuente: string;
@@ -105,21 +106,8 @@ async function buscarEnSupabase(
 
   const queryEmbedding = await embedQuery(consulta);
 
-  // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
-  // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
-  // Validado en Preview 2026-07-23 contra datos reales de 01_PENAL.
-  const { data, error } = await supabase.rpc('buscar_biblioteca_v2', {
-    query_embedding: queryEmbedding,
-    coleccion_filtro: coleccion,
-    materia_filtro: materia ?? null,
-    limite: k,
-  });
-
-  if (error) {
-    throw new Error(`Supabase RAG error: ${error.message}`);
-  }
-
-  const fragmentos: FragmentoRAG[] = (data ?? []).map((row: {
+  type FilaRPC = {
+    id: string;
     contenido: string;
     num_articulo: string | null;
     fuente: string;
@@ -127,7 +115,10 @@ async function buscarEnSupabase(
     jurisdiccion: string | null;
     es_norma_vigente: boolean | null;
     similarity: number;
-  }) => ({
+  };
+
+  const mapearFila = (row: FilaRPC): FragmentoRAG => ({
+    id: row.id,
     contenido: row.contenido,
     num_articulo: row.num_articulo,
     fuente: row.fuente,
@@ -135,7 +126,50 @@ async function buscarEnSupabase(
     fuente_tipo: row.fuente_tipo,
     jurisdiccion: row.jurisdiccion,
     es_norma_vigente: row.es_norma_vigente,
-  }));
+  });
+
+  // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
+  // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
+  //
+  // Retrieval en dos etapas: el top-k por similitud pura puede quedar dominado
+  // por jurisprudencia/doctrina extranjera (puntúa más alto que el texto
+  // codificado plano) y dejar fuera la norma vigente real — confirmado en
+  // producción 2026-07-23 con "prisión preventiva" (Art. 173 CPP quedaba en
+  // la posición #8, fuera del top-5). Se fusiona el top-k normal con un
+  // top-3 adicional filtrado a solo_norma_vigente=true, para garantizar que
+  // el modelo siempre reciba algo de norma vigente hondureña cuando exista,
+  // sin importar cómo puntúe frente a la jurisprudencia comparada.
+  const [normal, vigente] = await Promise.all([
+    supabase.rpc('buscar_biblioteca_v2', {
+      query_embedding: queryEmbedding,
+      coleccion_filtro: coleccion,
+      materia_filtro: materia ?? null,
+      limite: k,
+    }),
+    supabase.rpc('buscar_biblioteca_v2', {
+      query_embedding: queryEmbedding,
+      coleccion_filtro: coleccion,
+      materia_filtro: materia ?? null,
+      limite: 3,
+      solo_norma_vigente: true,
+    }),
+  ]);
+
+  if (normal.error) {
+    throw new Error(`Supabase RAG error: ${normal.error.message}`);
+  }
+
+  const fragmentosNormal: FragmentoRAG[] = (normal.data ?? []).map(mapearFila);
+
+  // vigente.error se ignora (degradación elegante) — el top-k normal ya es
+  // un resultado válido por sí solo; la fusión es una garantía adicional.
+  const fragmentosVigente: FragmentoRAG[] = (vigente.error ? [] : vigente.data ?? []).map(mapearFila);
+
+  const idsExistentes = new Set(fragmentosNormal.map(f => f.id));
+  const fragmentos = [
+    ...fragmentosNormal,
+    ...fragmentosVigente.filter(f => !idsExistentes.has(f.id)),
+  ];
 
   const articulos = [...new Set(
     fragmentos
