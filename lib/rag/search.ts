@@ -166,10 +166,17 @@ async function buscarEnSupabase(
   const fragmentosVigente: FragmentoRAG[] = (vigente.error ? [] : vigente.data ?? []).map(mapearFila);
 
   const idsExistentes = new Set(fragmentosNormal.map(f => f.id));
-  const fragmentos = [
+  const fragmentosSinFiltrar = [
     ...fragmentosNormal,
     ...fragmentosVigente.filter(f => !idsExistentes.has(f.id)),
   ];
+
+  // Contención de calidad: nunca presentar como respuesta un fragmento con
+  // artefactos de anonimización sin limpiar (ej. [Cliente_Anónimo],
+  // [Teléfono_Oculto]) — mismo criterio que la contención SEO de /leyes y
+  // /consultas (lib/seo/estado-editorial.ts). Auditoría de corpus 2026-07-27
+  // encontró este patrón en 76.6% del corpus legacy.
+  const fragmentos = fragmentosSinFiltrar.filter((f) => !contieneArtefactoAnonimizacion(f.contenido));
 
   const articulos = [...new Set(
     fragmentos
@@ -178,6 +185,12 @@ async function buscarEnSupabase(
   )];
 
   return { fragmentos, articulos_encontrados: articulos, backend: 'supabase' };
+}
+
+const PATRON_ANONIMIZACION_SIN_LIMPIAR = /\[(Cliente|Empresa)_An[oó]nimo|Tel[eé]fono_Oculto|Expediente_Anonimizado\]/;
+
+export function contieneArtefactoAnonimizacion(contenido: string): boolean {
+  return PATRON_ANONIMIZACION_SIN_LIMPIAR.test(contenido);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

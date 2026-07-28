@@ -1,0 +1,800 @@
+{
+  "version": 1,
+  "generado": "2026-07-28",
+  "fuente_evidencia": "MAYALEX_CORPUS_RUTAS_PUBLICAS.csv / MAYALEX_PUBLIC_ROUTES_REMEDIATION.csv (auditoria read-only)",
+  "criterio": "contenido ~ patrones de anonimizacion residual sin limpiar ([Cliente_Anonimo], [Telefono_Oculto], [Expediente_Anonimizado])",
+  "articulos": {
+    "1": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "2": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "3": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "5": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "6": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "8": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "10": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "11": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "12": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "14": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "16": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "18": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "23": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "24": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "25": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "26": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "27": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "28": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "29": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "33": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "36": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "37": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "38": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "42": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "44": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "46": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "47": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "50": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "53": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "55": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "56": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "57": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "59": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "60": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "61": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "66": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "68": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "71": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "75": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "79": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "81": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "83": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "84": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "87": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "88": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "89": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "90": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "92": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "99": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "100": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "101": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "102": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "103": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "107": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "108": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "115": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "117": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "118": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "125": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "126": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "127": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "129": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "133": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "135": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "138": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "139": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "140": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "141": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "142": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "144": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "148": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "149": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "154": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "155": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "158": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "159": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "161": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "166": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "170": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "173": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "175": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "176": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "178": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "179": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "181": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "185": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "186": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "189": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "193": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "199": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "200": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "203": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "205": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "206": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "207": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "208": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "212": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "217": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "218": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "219": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "220": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "221": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "225": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "227": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "228": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "229": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "230": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "234": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "237": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "239": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "242": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "243": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "248": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "250": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "254": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "255": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "256": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "264": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "267": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "272": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "273": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "274": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "275": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "277": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "280": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "282": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "284": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "285": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "287": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "288": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "289": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "292": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "303": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "306": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "311": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "314": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "319": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "320": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "327": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "330": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "332": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "333": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "334": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "335": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "336": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "337": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "338": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "339": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "341": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "342": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "344": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "346": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "347": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "349": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "356": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "361": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "362": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "365": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "366": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "369": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "373": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "374": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "375": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "377": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "378": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "380": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "382": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "384": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "398": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "402": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "404": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "405": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "406": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "409": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "410": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "412": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "415": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "417": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "419": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "420": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "424": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "427": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "429": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "431": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "432": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "433": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "436": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "437": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "438": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "440": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "445": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "449": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "455": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "498": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "504": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "730": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    },
+    "884": {
+      "estado": "limpio",
+      "motivo": "sin artefactos detectados; columna fuente aun vacia (no alcanza V4/V5)"
+    },
+    "1362": {
+      "estado": "contaminado",
+      "motivo": "artefactos de anonimizacion sin limpiar en el texto fuente"
+    }
+  }
+}
