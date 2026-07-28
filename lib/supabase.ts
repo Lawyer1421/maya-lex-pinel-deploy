@@ -1,36 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseBrowserClient as createBrowserClientCompat } from '@/src/lib/supabase/browser';
+export { createSupabaseAdminClient, verifyServerApiKey, parseApiKey } from '@/src/lib/supabase/admin';
 
-// Cliente para uso en el servidor (API routes) — usa service role key
 export function createServerSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error(
-      'Supabase no configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en .env.local'
-    );
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase no configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY');
   }
 
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: {
-      autoRefreshToken: false,
       persistSession: false,
+      autoRefreshToken: false,
     },
   });
 }
 
-// Cliente para uso en el navegador (componentes cliente)
 export function createBrowserSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Supabase no configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en .env.local'
-    );
-  }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClientCompat();
 }
 
 // Tipos de base de datos
@@ -120,6 +109,48 @@ export type Database = {
           event_type:      string;
         };
         Update: Record<string, never>;
+      };
+      organizations: {
+        Row: {
+          id: string;
+          billing_tier: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          billing_tier?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          billing_tier?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      pending_orders: {
+        Row: {
+          id: string;
+          order_id: string;
+          organization_id: string;
+          tier: string;
+          amount: number;
+          currency: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          order_id: string;
+          organization_id: string;
+          tier: string;
+          amount: number;
+          currency?: string;
+          status?: string;
+        };
+        Update: {
+          status?: string;
+          amount?: number;
+          currency?: string;
+          tier?: string;
+        };
       };
     };
   };
