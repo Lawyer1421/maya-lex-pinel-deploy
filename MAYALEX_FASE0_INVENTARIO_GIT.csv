@@ -1,0 +1,28 @@
+archivo,estado_git,tipo,riesgo,accion_recomendada
+app/api/extract-text/route.ts,Modificado sin commit,Codigo fuente,Bajo — cambio funcional visible via git diff,Revisar diff y commitear deliberadamente o descartar
+app/pricing/page.tsx,Modificado sin commit,Codigo fuente,Bajo,Revisar diff y commitear deliberadamente o descartar
+components/ChatInterface.tsx,Modificado sin commit,Codigo fuente,Bajo,Revisar diff y commitear deliberadamente o descartar
+lib/supabase-browser.ts,Modificado sin commit,Codigo fuente,Medio — toca cliente de Supabase del navegador,Revisar diff con cuidado antes de commitear — verificar que no introduce uso de service_role en el cliente
+lib/supabase-ssr.ts,Modificado sin commit,Codigo fuente,Medio — toca manejo de sesion SSR,Revisar diff con cuidado — verificar cookies httpOnly/secure no se debiliten
+lib/supabase.ts,Modificado sin commit,Codigo fuente,Alto — es el archivo que expone createServerSupabaseClient (service_role) usado por subscriptions,Revisar diff linea por linea antes de commitear dado su relacion directa con el hallazgo P0
+package.json,Modificado sin commit,Manifiesto de dependencias,Bajo,Revisar que dependencia se agrego/cambio antes de commitear
+package-lock.json,Modificado sin commit,Lockfile generado,Bajo — generalmente sigue a package.json,Commitear junto con package.json si el cambio es legitimo
+MAYALEX_AUDITORIA_INTEGRAL_READ_ONLY_2026.md,No rastreado,Documentacion de auditoria (generada en esta sesion),Ninguno,Puede rastrearse como documentacion del proyecto o mantenerse fuera de git segun preferencia del propietario
+MAYALEX_BENCHMARK_JURIDICO_2026.md,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_INVENTARIO_CORPUS_HONDURAS_2026.csv,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_INVENTARIO_PROMPTS_2026.csv,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_MATRIZ_HALLAZGOS_2026.csv,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_PROPUESTA_UX_UI_V2_2026.md,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_ROADMAP_V2_SIN_DOWNTIME_2026.md,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+MAYALEX_SEGUNDA_AUDITORIA_RESPUESTAS_2026.md,No rastreado,Documentacion de auditoria,Ninguno,Igual que el anterior
+app/pricing/PricingCheckoutPanel.tsx,No rastreado,Codigo fuente nuevo (origen no confirmado en esta auditoria),Medio — codigo de checkout no revisado en profundidad,Requiere revision humana antes de decidir si se incorpora
+migrations/,No rastreado (directorio completo),Migraciones SQL locales,Medio — contiene migrations/002_pending_orders.sql sin aplicar ni rastrear,Requiere revision humana — decidir si se consolida con supabase/migrations/
+src/,No rastreado (13 archivos, 0% rastreado),Arbol de codigo paralelo completo (integracion PixelPay + modulos ai-agents),Alto — riesgo de perdida permanente de trabajo sustancial no respaldado en ningun lugar mas que este disco,"Requiere decision humana explicita: commitear a una rama dedicada, o descartar deliberadamente. NO se agrega automaticamente en esta Fase 0 por instruccion expresa de la tarea"
+src/lib/supabase/admin.ts,No rastreado,Codigo fuente — cliente Supabase admin,Alto — nombre sugiere uso de service_role; requiere revision de que no exponga credenciales,Revision humana obligatoria antes de commitear
+src/app/api/v1/billing/pixelpay/webhook/route.ts,No rastreado,Codigo fuente — webhook de pagos alterno,Alto — webhook de pagos no auditado, posible superficie de riesgo si se activa sin revision,Revision humana obligatoria antes de commitear o desplegar
+supabase/migrations/20260720000000_auditor_extensions.sql,No rastreado,Migracion SQL local sin aplicar,Medio — nombre sugiere extensiones de auditoria no verificadas en esta sesion,Requiere revision humana del contenido antes de aplicar o commitear
+tests/alerts-socket.test.ts,No rastreado,Prueba automatizada,Bajo,Puede commitearse una vez verificado que corresponde a codigo tambien rastreado (useAlertsSocket.ts esta en src/, no rastreado)
+backups/paypal-pre-migration-2026-07-17T12-35-55-071Z.json,Correctamente ignorado por .gitignore (linea 44: backups/),Backup de datos reales,Alto — contiene PII real de clientes (ver MAYALEX_FASE0_INVENTARIO_SECRETOS.csv),"Ya excluido de git correctamente — NO mover a git bajo ninguna circunstancia. Pendiente: cifrado o almacenamiento seguro fuera del disco local, y definicion de politica de retencion"
+.env.local,Correctamente ignorado por .gitignore,Variables de entorno reales,Alto si se expusiera — hoy correctamente protegido,Ninguna accion necesaria — verificado que nunca fue commiteado (git log --all no muestra ningun commit que haya agregado .env o .env.local)
+.env.example,Rastreado,Plantilla de variables de entorno,Ninguno — valores vacios confirmados,Ninguna accion necesaria
+.env.local.example,Rastreado,Plantilla de variables de entorno,Ninguno — valor de PAYPAL_CLIENT_SECRET verificado como placeholder (patron de marcador detectado, no secreto real),Ninguna accion necesaria
