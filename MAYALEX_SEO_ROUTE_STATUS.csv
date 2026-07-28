@@ -1,0 +1,397 @@
+ruta,num_articulo,estado_editorial,robots_meta_implementado,en_sitemap,canonical_implementado,url_conservada,presentada_como_fuente_verificada
+/leyes/1,1,contaminado,"index:false, follow:true",excluida,/leyes/1 (self),si,no
+/consultas/articulo-1-legislacion-penal-honduras,1,contaminado,"index:false, follow:true",excluida,/leyes/1,si,no
+/leyes/2,2,contaminado,"index:false, follow:true",excluida,/leyes/2 (self),si,no
+/consultas/articulo-2-legislacion-penal-honduras,2,contaminado,"index:false, follow:true",excluida,/leyes/2,si,no
+/leyes/3,3,contaminado,"index:false, follow:true",excluida,/leyes/3 (self),si,no
+/consultas/articulo-3-legislacion-penal-honduras,3,contaminado,"index:false, follow:true",excluida,/leyes/3,si,no
+/leyes/5,5,contaminado,"index:false, follow:true",excluida,/leyes/5 (self),si,no
+/consultas/articulo-5-legislacion-penal-honduras,5,contaminado,"index:false, follow:true",excluida,/leyes/5,si,no
+/leyes/6,6,contaminado,"index:false, follow:true",excluida,/leyes/6 (self),si,no
+/consultas/articulo-6-legislacion-penal-honduras,6,contaminado,"index:false, follow:true",excluida,/leyes/6,si,no
+/leyes/8,8,contaminado,"index:false, follow:true",excluida,/leyes/8 (self),si,no
+/consultas/articulo-8-legislacion-penal-honduras,8,contaminado,"index:false, follow:true",excluida,/leyes/8,si,no
+/leyes/10,10,contaminado,"index:false, follow:true",excluida,/leyes/10 (self),si,no
+/consultas/articulo-10-legislacion-penal-honduras,10,contaminado,"index:false, follow:true",excluida,/leyes/10,si,no
+/leyes/11,11,limpio,"index:true, follow:true",incluida,/leyes/11 (self),si,si
+/consultas/articulo-11-legislacion-penal-honduras,11,limpio,"index:true, follow:true",incluida,/leyes/11,si,si (via canonical hacia /leyes)
+/leyes/12,12,limpio,"index:true, follow:true",incluida,/leyes/12 (self),si,si
+/consultas/articulo-12-legislacion-penal-honduras,12,limpio,"index:true, follow:true",incluida,/leyes/12,si,si (via canonical hacia /leyes)
+/leyes/14,14,limpio,"index:true, follow:true",incluida,/leyes/14 (self),si,si
+/consultas/articulo-14-legislacion-penal-honduras,14,limpio,"index:true, follow:true",incluida,/leyes/14,si,si (via canonical hacia /leyes)
+/leyes/16,16,contaminado,"index:false, follow:true",excluida,/leyes/16 (self),si,no
+/consultas/articulo-16-legislacion-penal-honduras,16,contaminado,"index:false, follow:true",excluida,/leyes/16,si,no
+/leyes/18,18,contaminado,"index:false, follow:true",excluida,/leyes/18 (self),si,no
+/consultas/articulo-18-legislacion-penal-honduras,18,contaminado,"index:false, follow:true",excluida,/leyes/18,si,no
+/leyes/23,23,contaminado,"index:false, follow:true",excluida,/leyes/23 (self),si,no
+/consultas/articulo-23-legislacion-penal-honduras,23,contaminado,"index:false, follow:true",excluida,/leyes/23,si,no
+/leyes/24,24,contaminado,"index:false, follow:true",excluida,/leyes/24 (self),si,no
+/consultas/articulo-24-legislacion-penal-honduras,24,contaminado,"index:false, follow:true",excluida,/leyes/24,si,no
+/leyes/25,25,limpio,"index:true, follow:true",incluida,/leyes/25 (self),si,si
+/consultas/articulo-25-legislacion-penal-honduras,25,limpio,"index:true, follow:true",incluida,/leyes/25,si,si (via canonical hacia /leyes)
+/leyes/26,26,contaminado,"index:false, follow:true",excluida,/leyes/26 (self),si,no
+/consultas/articulo-26-legislacion-penal-honduras,26,contaminado,"index:false, follow:true",excluida,/leyes/26,si,no
+/leyes/27,27,contaminado,"index:false, follow:true",excluida,/leyes/27 (self),si,no
+/consultas/articulo-27-legislacion-penal-honduras,27,contaminado,"index:false, follow:true",excluida,/leyes/27,si,no
+/leyes/28,28,limpio,"index:true, follow:true",incluida,/leyes/28 (self),si,si
+/consultas/articulo-28-legislacion-penal-honduras,28,limpio,"index:true, follow:true",incluida,/leyes/28,si,si (via canonical hacia /leyes)
+/leyes/29,29,contaminado,"index:false, follow:true",excluida,/leyes/29 (self),si,no
+/consultas/articulo-29-legislacion-penal-honduras,29,contaminado,"index:false, follow:true",excluida,/leyes/29,si,no
+/leyes/33,33,contaminado,"index:false, follow:true",excluida,/leyes/33 (self),si,no
+/consultas/articulo-33-legislacion-penal-honduras,33,contaminado,"index:false, follow:true",excluida,/leyes/33,si,no
+/leyes/36,36,contaminado,"index:false, follow:true",excluida,/leyes/36 (self),si,no
+/consultas/articulo-36-legislacion-penal-honduras,36,contaminado,"index:false, follow:true",excluida,/leyes/36,si,no
+/leyes/37,37,contaminado,"index:false, follow:true",excluida,/leyes/37 (self),si,no
+/consultas/articulo-37-legislacion-penal-honduras,37,contaminado,"index:false, follow:true",excluida,/leyes/37,si,no
+/leyes/38,38,limpio,"index:true, follow:true",incluida,/leyes/38 (self),si,si
+/consultas/articulo-38-legislacion-penal-honduras,38,limpio,"index:true, follow:true",incluida,/leyes/38,si,si (via canonical hacia /leyes)
+/leyes/42,42,contaminado,"index:false, follow:true",excluida,/leyes/42 (self),si,no
+/consultas/articulo-42-legislacion-penal-honduras,42,contaminado,"index:false, follow:true",excluida,/leyes/42,si,no
+/leyes/44,44,limpio,"index:true, follow:true",incluida,/leyes/44 (self),si,si
+/consultas/articulo-44-legislacion-penal-honduras,44,limpio,"index:true, follow:true",incluida,/leyes/44,si,si (via canonical hacia /leyes)
+/leyes/46,46,contaminado,"index:false, follow:true",excluida,/leyes/46 (self),si,no
+/consultas/articulo-46-legislacion-penal-honduras,46,contaminado,"index:false, follow:true",excluida,/leyes/46,si,no
+/leyes/47,47,contaminado,"index:false, follow:true",excluida,/leyes/47 (self),si,no
+/consultas/articulo-47-legislacion-penal-honduras,47,contaminado,"index:false, follow:true",excluida,/leyes/47,si,no
+/leyes/50,50,limpio,"index:true, follow:true",incluida,/leyes/50 (self),si,si
+/consultas/articulo-50-legislacion-penal-honduras,50,limpio,"index:true, follow:true",incluida,/leyes/50,si,si (via canonical hacia /leyes)
+/leyes/53,53,contaminado,"index:false, follow:true",excluida,/leyes/53 (self),si,no
+/consultas/articulo-53-legislacion-penal-honduras,53,contaminado,"index:false, follow:true",excluida,/leyes/53,si,no
+/leyes/55,55,contaminado,"index:false, follow:true",excluida,/leyes/55 (self),si,no
+/consultas/articulo-55-legislacion-penal-honduras,55,contaminado,"index:false, follow:true",excluida,/leyes/55,si,no
+/leyes/56,56,contaminado,"index:false, follow:true",excluida,/leyes/56 (self),si,no
+/consultas/articulo-56-legislacion-penal-honduras,56,contaminado,"index:false, follow:true",excluida,/leyes/56,si,no
+/leyes/57,57,contaminado,"index:false, follow:true",excluida,/leyes/57 (self),si,no
+/consultas/articulo-57-legislacion-penal-honduras,57,contaminado,"index:false, follow:true",excluida,/leyes/57,si,no
+/leyes/59,59,limpio,"index:true, follow:true",incluida,/leyes/59 (self),si,si
+/consultas/articulo-59-legislacion-penal-honduras,59,limpio,"index:true, follow:true",incluida,/leyes/59,si,si (via canonical hacia /leyes)
+/leyes/60,60,limpio,"index:true, follow:true",incluida,/leyes/60 (self),si,si
+/consultas/articulo-60-legislacion-penal-honduras,60,limpio,"index:true, follow:true",incluida,/leyes/60,si,si (via canonical hacia /leyes)
+/leyes/61,61,limpio,"index:true, follow:true",incluida,/leyes/61 (self),si,si
+/consultas/articulo-61-legislacion-penal-honduras,61,limpio,"index:true, follow:true",incluida,/leyes/61,si,si (via canonical hacia /leyes)
+/leyes/66,66,contaminado,"index:false, follow:true",excluida,/leyes/66 (self),si,no
+/consultas/articulo-66-legislacion-penal-honduras,66,contaminado,"index:false, follow:true",excluida,/leyes/66,si,no
+/leyes/68,68,contaminado,"index:false, follow:true",excluida,/leyes/68 (self),si,no
+/consultas/articulo-68-legislacion-penal-honduras,68,contaminado,"index:false, follow:true",excluida,/leyes/68,si,no
+/leyes/71,71,contaminado,"index:false, follow:true",excluida,/leyes/71 (self),si,no
+/consultas/articulo-71-legislacion-penal-honduras,71,contaminado,"index:false, follow:true",excluida,/leyes/71,si,no
+/leyes/75,75,contaminado,"index:false, follow:true",excluida,/leyes/75 (self),si,no
+/consultas/articulo-75-legislacion-penal-honduras,75,contaminado,"index:false, follow:true",excluida,/leyes/75,si,no
+/leyes/79,79,limpio,"index:true, follow:true",incluida,/leyes/79 (self),si,si
+/consultas/articulo-79-legislacion-penal-honduras,79,limpio,"index:true, follow:true",incluida,/leyes/79,si,si (via canonical hacia /leyes)
+/leyes/81,81,contaminado,"index:false, follow:true",excluida,/leyes/81 (self),si,no
+/consultas/articulo-81-legislacion-penal-honduras,81,contaminado,"index:false, follow:true",excluida,/leyes/81,si,no
+/leyes/83,83,contaminado,"index:false, follow:true",excluida,/leyes/83 (self),si,no
+/consultas/articulo-83-legislacion-penal-honduras,83,contaminado,"index:false, follow:true",excluida,/leyes/83,si,no
+/leyes/84,84,contaminado,"index:false, follow:true",excluida,/leyes/84 (self),si,no
+/consultas/articulo-84-legislacion-penal-honduras,84,contaminado,"index:false, follow:true",excluida,/leyes/84,si,no
+/leyes/87,87,contaminado,"index:false, follow:true",excluida,/leyes/87 (self),si,no
+/consultas/articulo-87-legislacion-penal-honduras,87,contaminado,"index:false, follow:true",excluida,/leyes/87,si,no
+/leyes/88,88,contaminado,"index:false, follow:true",excluida,/leyes/88 (self),si,no
+/consultas/articulo-88-legislacion-penal-honduras,88,contaminado,"index:false, follow:true",excluida,/leyes/88,si,no
+/leyes/89,89,contaminado,"index:false, follow:true",excluida,/leyes/89 (self),si,no
+/consultas/articulo-89-legislacion-penal-honduras,89,contaminado,"index:false, follow:true",excluida,/leyes/89,si,no
+/leyes/90,90,limpio,"index:true, follow:true",incluida,/leyes/90 (self),si,si
+/consultas/articulo-90-legislacion-penal-honduras,90,limpio,"index:true, follow:true",incluida,/leyes/90,si,si (via canonical hacia /leyes)
+/leyes/92,92,contaminado,"index:false, follow:true",excluida,/leyes/92 (self),si,no
+/consultas/articulo-92-legislacion-penal-honduras,92,contaminado,"index:false, follow:true",excluida,/leyes/92,si,no
+/leyes/99,99,contaminado,"index:false, follow:true",excluida,/leyes/99 (self),si,no
+/consultas/articulo-99-legislacion-penal-honduras,99,contaminado,"index:false, follow:true",excluida,/leyes/99,si,no
+/leyes/100,100,limpio,"index:true, follow:true",incluida,/leyes/100 (self),si,si
+/consultas/articulo-100-legislacion-penal-honduras,100,limpio,"index:true, follow:true",incluida,/leyes/100,si,si (via canonical hacia /leyes)
+/leyes/101,101,contaminado,"index:false, follow:true",excluida,/leyes/101 (self),si,no
+/consultas/articulo-101-legislacion-penal-honduras,101,contaminado,"index:false, follow:true",excluida,/leyes/101,si,no
+/leyes/102,102,contaminado,"index:false, follow:true",excluida,/leyes/102 (self),si,no
+/consultas/articulo-102-legislacion-penal-honduras,102,contaminado,"index:false, follow:true",excluida,/leyes/102,si,no
+/leyes/103,103,contaminado,"index:false, follow:true",excluida,/leyes/103 (self),si,no
+/consultas/articulo-103-legislacion-penal-honduras,103,contaminado,"index:false, follow:true",excluida,/leyes/103,si,no
+/leyes/107,107,limpio,"index:true, follow:true",incluida,/leyes/107 (self),si,si
+/consultas/articulo-107-legislacion-penal-honduras,107,limpio,"index:true, follow:true",incluida,/leyes/107,si,si (via canonical hacia /leyes)
+/leyes/108,108,limpio,"index:true, follow:true",incluida,/leyes/108 (self),si,si
+/consultas/articulo-108-legislacion-penal-honduras,108,limpio,"index:true, follow:true",incluida,/leyes/108,si,si (via canonical hacia /leyes)
+/leyes/115,115,contaminado,"index:false, follow:true",excluida,/leyes/115 (self),si,no
+/consultas/articulo-115-legislacion-penal-honduras,115,contaminado,"index:false, follow:true",excluida,/leyes/115,si,no
+/leyes/117,117,limpio,"index:true, follow:true",incluida,/leyes/117 (self),si,si
+/consultas/articulo-117-legislacion-penal-honduras,117,limpio,"index:true, follow:true",incluida,/leyes/117,si,si (via canonical hacia /leyes)
+/leyes/118,118,limpio,"index:true, follow:true",incluida,/leyes/118 (self),si,si
+/consultas/articulo-118-legislacion-penal-honduras,118,limpio,"index:true, follow:true",incluida,/leyes/118,si,si (via canonical hacia /leyes)
+/leyes/125,125,limpio,"index:true, follow:true",incluida,/leyes/125 (self),si,si
+/consultas/articulo-125-legislacion-penal-honduras,125,limpio,"index:true, follow:true",incluida,/leyes/125,si,si (via canonical hacia /leyes)
+/leyes/126,126,contaminado,"index:false, follow:true",excluida,/leyes/126 (self),si,no
+/consultas/articulo-126-legislacion-penal-honduras,126,contaminado,"index:false, follow:true",excluida,/leyes/126,si,no
+/leyes/127,127,limpio,"index:true, follow:true",incluida,/leyes/127 (self),si,si
+/consultas/articulo-127-legislacion-penal-honduras,127,limpio,"index:true, follow:true",incluida,/leyes/127,si,si (via canonical hacia /leyes)
+/leyes/129,129,contaminado,"index:false, follow:true",excluida,/leyes/129 (self),si,no
+/consultas/articulo-129-legislacion-penal-honduras,129,contaminado,"index:false, follow:true",excluida,/leyes/129,si,no
+/leyes/133,133,contaminado,"index:false, follow:true",excluida,/leyes/133 (self),si,no
+/consultas/articulo-133-legislacion-penal-honduras,133,contaminado,"index:false, follow:true",excluida,/leyes/133,si,no
+/leyes/135,135,limpio,"index:true, follow:true",incluida,/leyes/135 (self),si,si
+/consultas/articulo-135-legislacion-penal-honduras,135,limpio,"index:true, follow:true",incluida,/leyes/135,si,si (via canonical hacia /leyes)
+/leyes/138,138,contaminado,"index:false, follow:true",excluida,/leyes/138 (self),si,no
+/consultas/articulo-138-legislacion-penal-honduras,138,contaminado,"index:false, follow:true",excluida,/leyes/138,si,no
+/leyes/139,139,contaminado,"index:false, follow:true",excluida,/leyes/139 (self),si,no
+/consultas/articulo-139-legislacion-penal-honduras,139,contaminado,"index:false, follow:true",excluida,/leyes/139,si,no
+/leyes/140,140,contaminado,"index:false, follow:true",excluida,/leyes/140 (self),si,no
+/consultas/articulo-140-legislacion-penal-honduras,140,contaminado,"index:false, follow:true",excluida,/leyes/140,si,no
+/leyes/141,141,contaminado,"index:false, follow:true",excluida,/leyes/141 (self),si,no
+/consultas/articulo-141-legislacion-penal-honduras,141,contaminado,"index:false, follow:true",excluida,/leyes/141,si,no
+/leyes/142,142,limpio,"index:true, follow:true",incluida,/leyes/142 (self),si,si
+/consultas/articulo-142-legislacion-penal-honduras,142,limpio,"index:true, follow:true",incluida,/leyes/142,si,si (via canonical hacia /leyes)
+/leyes/144,144,limpio,"index:true, follow:true",incluida,/leyes/144 (self),si,si
+/consultas/articulo-144-legislacion-penal-honduras,144,limpio,"index:true, follow:true",incluida,/leyes/144,si,si (via canonical hacia /leyes)
+/leyes/148,148,contaminado,"index:false, follow:true",excluida,/leyes/148 (self),si,no
+/consultas/articulo-148-legislacion-penal-honduras,148,contaminado,"index:false, follow:true",excluida,/leyes/148,si,no
+/leyes/149,149,limpio,"index:true, follow:true",incluida,/leyes/149 (self),si,si
+/consultas/articulo-149-legislacion-penal-honduras,149,limpio,"index:true, follow:true",incluida,/leyes/149,si,si (via canonical hacia /leyes)
+/leyes/154,154,contaminado,"index:false, follow:true",excluida,/leyes/154 (self),si,no
+/consultas/articulo-154-legislacion-penal-honduras,154,contaminado,"index:false, follow:true",excluida,/leyes/154,si,no
+/leyes/155,155,contaminado,"index:false, follow:true",excluida,/leyes/155 (self),si,no
+/consultas/articulo-155-legislacion-penal-honduras,155,contaminado,"index:false, follow:true",excluida,/leyes/155,si,no
+/leyes/158,158,limpio,"index:true, follow:true",incluida,/leyes/158 (self),si,si
+/consultas/articulo-158-legislacion-penal-honduras,158,limpio,"index:true, follow:true",incluida,/leyes/158,si,si (via canonical hacia /leyes)
+/leyes/159,159,contaminado,"index:false, follow:true",excluida,/leyes/159 (self),si,no
+/consultas/articulo-159-legislacion-penal-honduras,159,contaminado,"index:false, follow:true",excluida,/leyes/159,si,no
+/leyes/161,161,contaminado,"index:false, follow:true",excluida,/leyes/161 (self),si,no
+/consultas/articulo-161-legislacion-penal-honduras,161,contaminado,"index:false, follow:true",excluida,/leyes/161,si,no
+/leyes/166,166,contaminado,"index:false, follow:true",excluida,/leyes/166 (self),si,no
+/consultas/articulo-166-legislacion-penal-honduras,166,contaminado,"index:false, follow:true",excluida,/leyes/166,si,no
+/leyes/170,170,contaminado,"index:false, follow:true",excluida,/leyes/170 (self),si,no
+/consultas/articulo-170-legislacion-penal-honduras,170,contaminado,"index:false, follow:true",excluida,/leyes/170,si,no
+/leyes/173,173,contaminado,"index:false, follow:true",excluida,/leyes/173 (self),si,no
+/consultas/articulo-173-legislacion-penal-honduras,173,contaminado,"index:false, follow:true",excluida,/leyes/173,si,no
+/leyes/175,175,limpio,"index:true, follow:true",incluida,/leyes/175 (self),si,si
+/consultas/articulo-175-legislacion-penal-honduras,175,limpio,"index:true, follow:true",incluida,/leyes/175,si,si (via canonical hacia /leyes)
+/leyes/176,176,limpio,"index:true, follow:true",incluida,/leyes/176 (self),si,si
+/consultas/articulo-176-legislacion-penal-honduras,176,limpio,"index:true, follow:true",incluida,/leyes/176,si,si (via canonical hacia /leyes)
+/leyes/178,178,contaminado,"index:false, follow:true",excluida,/leyes/178 (self),si,no
+/consultas/articulo-178-legislacion-penal-honduras,178,contaminado,"index:false, follow:true",excluida,/leyes/178,si,no
+/leyes/179,179,contaminado,"index:false, follow:true",excluida,/leyes/179 (self),si,no
+/consultas/articulo-179-legislacion-penal-honduras,179,contaminado,"index:false, follow:true",excluida,/leyes/179,si,no
+/leyes/181,181,contaminado,"index:false, follow:true",excluida,/leyes/181 (self),si,no
+/consultas/articulo-181-legislacion-penal-honduras,181,contaminado,"index:false, follow:true",excluida,/leyes/181,si,no
+/leyes/185,185,limpio,"index:true, follow:true",incluida,/leyes/185 (self),si,si
+/consultas/articulo-185-legislacion-penal-honduras,185,limpio,"index:true, follow:true",incluida,/leyes/185,si,si (via canonical hacia /leyes)
+/leyes/186,186,contaminado,"index:false, follow:true",excluida,/leyes/186 (self),si,no
+/consultas/articulo-186-legislacion-penal-honduras,186,contaminado,"index:false, follow:true",excluida,/leyes/186,si,no
+/leyes/189,189,contaminado,"index:false, follow:true",excluida,/leyes/189 (self),si,no
+/consultas/articulo-189-legislacion-penal-honduras,189,contaminado,"index:false, follow:true",excluida,/leyes/189,si,no
+/leyes/193,193,limpio,"index:true, follow:true",incluida,/leyes/193 (self),si,si
+/consultas/articulo-193-legislacion-penal-honduras,193,limpio,"index:true, follow:true",incluida,/leyes/193,si,si (via canonical hacia /leyes)
+/leyes/199,199,contaminado,"index:false, follow:true",excluida,/leyes/199 (self),si,no
+/consultas/articulo-199-legislacion-penal-honduras,199,contaminado,"index:false, follow:true",excluida,/leyes/199,si,no
+/leyes/200,200,contaminado,"index:false, follow:true",excluida,/leyes/200 (self),si,no
+/consultas/articulo-200-legislacion-penal-honduras,200,contaminado,"index:false, follow:true",excluida,/leyes/200,si,no
+/leyes/203,203,contaminado,"index:false, follow:true",excluida,/leyes/203 (self),si,no
+/consultas/articulo-203-legislacion-penal-honduras,203,contaminado,"index:false, follow:true",excluida,/leyes/203,si,no
+/leyes/205,205,contaminado,"index:false, follow:true",excluida,/leyes/205 (self),si,no
+/consultas/articulo-205-legislacion-penal-honduras,205,contaminado,"index:false, follow:true",excluida,/leyes/205,si,no
+/leyes/206,206,limpio,"index:true, follow:true",incluida,/leyes/206 (self),si,si
+/consultas/articulo-206-legislacion-penal-honduras,206,limpio,"index:true, follow:true",incluida,/leyes/206,si,si (via canonical hacia /leyes)
+/leyes/207,207,limpio,"index:true, follow:true",incluida,/leyes/207 (self),si,si
+/consultas/articulo-207-legislacion-penal-honduras,207,limpio,"index:true, follow:true",incluida,/leyes/207,si,si (via canonical hacia /leyes)
+/leyes/208,208,limpio,"index:true, follow:true",incluida,/leyes/208 (self),si,si
+/consultas/articulo-208-legislacion-penal-honduras,208,limpio,"index:true, follow:true",incluida,/leyes/208,si,si (via canonical hacia /leyes)
+/leyes/212,212,contaminado,"index:false, follow:true",excluida,/leyes/212 (self),si,no
+/consultas/articulo-212-legislacion-penal-honduras,212,contaminado,"index:false, follow:true",excluida,/leyes/212,si,no
+/leyes/217,217,limpio,"index:true, follow:true",incluida,/leyes/217 (self),si,si
+/consultas/articulo-217-legislacion-penal-honduras,217,limpio,"index:true, follow:true",incluida,/leyes/217,si,si (via canonical hacia /leyes)
+/leyes/218,218,contaminado,"index:false, follow:true",excluida,/leyes/218 (self),si,no
+/consultas/articulo-218-legislacion-penal-honduras,218,contaminado,"index:false, follow:true",excluida,/leyes/218,si,no
+/leyes/219,219,contaminado,"index:false, follow:true",excluida,/leyes/219 (self),si,no
+/consultas/articulo-219-legislacion-penal-honduras,219,contaminado,"index:false, follow:true",excluida,/leyes/219,si,no
+/leyes/220,220,limpio,"index:true, follow:true",incluida,/leyes/220 (self),si,si
+/consultas/articulo-220-legislacion-penal-honduras,220,limpio,"index:true, follow:true",incluida,/leyes/220,si,si (via canonical hacia /leyes)
+/leyes/221,221,contaminado,"index:false, follow:true",excluida,/leyes/221 (self),si,no
+/consultas/articulo-221-legislacion-penal-honduras,221,contaminado,"index:false, follow:true",excluida,/leyes/221,si,no
+/leyes/225,225,limpio,"index:true, follow:true",incluida,/leyes/225 (self),si,si
+/consultas/articulo-225-legislacion-penal-honduras,225,limpio,"index:true, follow:true",incluida,/leyes/225,si,si (via canonical hacia /leyes)
+/leyes/227,227,contaminado,"index:false, follow:true",excluida,/leyes/227 (self),si,no
+/consultas/articulo-227-legislacion-penal-honduras,227,contaminado,"index:false, follow:true",excluida,/leyes/227,si,no
+/leyes/228,228,contaminado,"index:false, follow:true",excluida,/leyes/228 (self),si,no
+/consultas/articulo-228-legislacion-penal-honduras,228,contaminado,"index:false, follow:true",excluida,/leyes/228,si,no
+/leyes/229,229,contaminado,"index:false, follow:true",excluida,/leyes/229 (self),si,no
+/consultas/articulo-229-legislacion-penal-honduras,229,contaminado,"index:false, follow:true",excluida,/leyes/229,si,no
+/leyes/230,230,contaminado,"index:false, follow:true",excluida,/leyes/230 (self),si,no
+/consultas/articulo-230-legislacion-penal-honduras,230,contaminado,"index:false, follow:true",excluida,/leyes/230,si,no
+/leyes/234,234,limpio,"index:true, follow:true",incluida,/leyes/234 (self),si,si
+/consultas/articulo-234-legislacion-penal-honduras,234,limpio,"index:true, follow:true",incluida,/leyes/234,si,si (via canonical hacia /leyes)
+/leyes/237,237,contaminado,"index:false, follow:true",excluida,/leyes/237 (self),si,no
+/consultas/articulo-237-legislacion-penal-honduras,237,contaminado,"index:false, follow:true",excluida,/leyes/237,si,no
+/leyes/239,239,limpio,"index:true, follow:true",incluida,/leyes/239 (self),si,si
+/consultas/articulo-239-legislacion-penal-honduras,239,limpio,"index:true, follow:true",incluida,/leyes/239,si,si (via canonical hacia /leyes)
+/leyes/242,242,limpio,"index:true, follow:true",incluida,/leyes/242 (self),si,si
+/consultas/articulo-242-legislacion-penal-honduras,242,limpio,"index:true, follow:true",incluida,/leyes/242,si,si (via canonical hacia /leyes)
+/leyes/243,243,contaminado,"index:false, follow:true",excluida,/leyes/243 (self),si,no
+/consultas/articulo-243-legislacion-penal-honduras,243,contaminado,"index:false, follow:true",excluida,/leyes/243,si,no
+/leyes/248,248,limpio,"index:true, follow:true",incluida,/leyes/248 (self),si,si
+/consultas/articulo-248-legislacion-penal-honduras,248,limpio,"index:true, follow:true",incluida,/leyes/248,si,si (via canonical hacia /leyes)
+/leyes/250,250,limpio,"index:true, follow:true",incluida,/leyes/250 (self),si,si
+/consultas/articulo-250-legislacion-penal-honduras,250,limpio,"index:true, follow:true",incluida,/leyes/250,si,si (via canonical hacia /leyes)
+/leyes/254,254,contaminado,"index:false, follow:true",excluida,/leyes/254 (self),si,no
+/consultas/articulo-254-legislacion-penal-honduras,254,contaminado,"index:false, follow:true",excluida,/leyes/254,si,no
+/leyes/255,255,limpio,"index:true, follow:true",incluida,/leyes/255 (self),si,si
+/consultas/articulo-255-legislacion-penal-honduras,255,limpio,"index:true, follow:true",incluida,/leyes/255,si,si (via canonical hacia /leyes)
+/leyes/256,256,contaminado,"index:false, follow:true",excluida,/leyes/256 (self),si,no
+/consultas/articulo-256-legislacion-penal-honduras,256,contaminado,"index:false, follow:true",excluida,/leyes/256,si,no
+/leyes/264,264,limpio,"index:true, follow:true",incluida,/leyes/264 (self),si,si
+/consultas/articulo-264-legislacion-penal-honduras,264,limpio,"index:true, follow:true",incluida,/leyes/264,si,si (via canonical hacia /leyes)
+/leyes/267,267,limpio,"index:true, follow:true",incluida,/leyes/267 (self),si,si
+/consultas/articulo-267-legislacion-penal-honduras,267,limpio,"index:true, follow:true",incluida,/leyes/267,si,si (via canonical hacia /leyes)
+/leyes/272,272,limpio,"index:true, follow:true",incluida,/leyes/272 (self),si,si
+/consultas/articulo-272-legislacion-penal-honduras,272,limpio,"index:true, follow:true",incluida,/leyes/272,si,si (via canonical hacia /leyes)
+/leyes/273,273,limpio,"index:true, follow:true",incluida,/leyes/273 (self),si,si
+/consultas/articulo-273-legislacion-penal-honduras,273,limpio,"index:true, follow:true",incluida,/leyes/273,si,si (via canonical hacia /leyes)
+/leyes/274,274,contaminado,"index:false, follow:true",excluida,/leyes/274 (self),si,no
+/consultas/articulo-274-legislacion-penal-honduras,274,contaminado,"index:false, follow:true",excluida,/leyes/274,si,no
+/leyes/275,275,contaminado,"index:false, follow:true",excluida,/leyes/275 (self),si,no
+/consultas/articulo-275-legislacion-penal-honduras,275,contaminado,"index:false, follow:true",excluida,/leyes/275,si,no
+/leyes/277,277,contaminado,"index:false, follow:true",excluida,/leyes/277 (self),si,no
+/consultas/articulo-277-legislacion-penal-honduras,277,contaminado,"index:false, follow:true",excluida,/leyes/277,si,no
+/leyes/280,280,contaminado,"index:false, follow:true",excluida,/leyes/280 (self),si,no
+/consultas/articulo-280-legislacion-penal-honduras,280,contaminado,"index:false, follow:true",excluida,/leyes/280,si,no
+/leyes/282,282,contaminado,"index:false, follow:true",excluida,/leyes/282 (self),si,no
+/consultas/articulo-282-legislacion-penal-honduras,282,contaminado,"index:false, follow:true",excluida,/leyes/282,si,no
+/leyes/284,284,contaminado,"index:false, follow:true",excluida,/leyes/284 (self),si,no
+/consultas/articulo-284-legislacion-penal-honduras,284,contaminado,"index:false, follow:true",excluida,/leyes/284,si,no
+/leyes/285,285,contaminado,"index:false, follow:true",excluida,/leyes/285 (self),si,no
+/consultas/articulo-285-legislacion-penal-honduras,285,contaminado,"index:false, follow:true",excluida,/leyes/285,si,no
+/leyes/287,287,limpio,"index:true, follow:true",incluida,/leyes/287 (self),si,si
+/consultas/articulo-287-legislacion-penal-honduras,287,limpio,"index:true, follow:true",incluida,/leyes/287,si,si (via canonical hacia /leyes)
+/leyes/288,288,contaminado,"index:false, follow:true",excluida,/leyes/288 (self),si,no
+/consultas/articulo-288-legislacion-penal-honduras,288,contaminado,"index:false, follow:true",excluida,/leyes/288,si,no
+/leyes/289,289,contaminado,"index:false, follow:true",excluida,/leyes/289 (self),si,no
+/consultas/articulo-289-legislacion-penal-honduras,289,contaminado,"index:false, follow:true",excluida,/leyes/289,si,no
+/leyes/292,292,contaminado,"index:false, follow:true",excluida,/leyes/292 (self),si,no
+/consultas/articulo-292-legislacion-penal-honduras,292,contaminado,"index:false, follow:true",excluida,/leyes/292,si,no
+/leyes/303,303,contaminado,"index:false, follow:true",excluida,/leyes/303 (self),si,no
+/consultas/articulo-303-legislacion-penal-honduras,303,contaminado,"index:false, follow:true",excluida,/leyes/303,si,no
+/leyes/306,306,contaminado,"index:false, follow:true",excluida,/leyes/306 (self),si,no
+/consultas/articulo-306-legislacion-penal-honduras,306,contaminado,"index:false, follow:true",excluida,/leyes/306,si,no
+/leyes/311,311,contaminado,"index:false, follow:true",excluida,/leyes/311 (self),si,no
+/consultas/articulo-311-legislacion-penal-honduras,311,contaminado,"index:false, follow:true",excluida,/leyes/311,si,no
+/leyes/314,314,contaminado,"index:false, follow:true",excluida,/leyes/314 (self),si,no
+/consultas/articulo-314-legislacion-penal-honduras,314,contaminado,"index:false, follow:true",excluida,/leyes/314,si,no
+/leyes/319,319,contaminado,"index:false, follow:true",excluida,/leyes/319 (self),si,no
+/consultas/articulo-319-legislacion-penal-honduras,319,contaminado,"index:false, follow:true",excluida,/leyes/319,si,no
+/leyes/320,320,contaminado,"index:false, follow:true",excluida,/leyes/320 (self),si,no
+/consultas/articulo-320-legislacion-penal-honduras,320,contaminado,"index:false, follow:true",excluida,/leyes/320,si,no
+/leyes/327,327,contaminado,"index:false, follow:true",excluida,/leyes/327 (self),si,no
+/consultas/articulo-327-legislacion-penal-honduras,327,contaminado,"index:false, follow:true",excluida,/leyes/327,si,no
+/leyes/330,330,contaminado,"index:false, follow:true",excluida,/leyes/330 (self),si,no
+/consultas/articulo-330-legislacion-penal-honduras,330,contaminado,"index:false, follow:true",excluida,/leyes/330,si,no
+/leyes/332,332,limpio,"index:true, follow:true",incluida,/leyes/332 (self),si,si
+/consultas/articulo-332-legislacion-penal-honduras,332,limpio,"index:true, follow:true",incluida,/leyes/332,si,si (via canonical hacia /leyes)
+/leyes/333,333,contaminado,"index:false, follow:true",excluida,/leyes/333 (self),si,no
+/consultas/articulo-333-legislacion-penal-honduras,333,contaminado,"index:false, follow:true",excluida,/leyes/333,si,no
+/leyes/334,334,contaminado,"index:false, follow:true",excluida,/leyes/334 (self),si,no
+/consultas/articulo-334-legislacion-penal-honduras,334,contaminado,"index:false, follow:true",excluida,/leyes/334,si,no
+/leyes/335,335,contaminado,"index:false, follow:true",excluida,/leyes/335 (self),si,no
+/consultas/articulo-335-legislacion-penal-honduras,335,contaminado,"index:false, follow:true",excluida,/leyes/335,si,no
+/leyes/336,336,limpio,"index:true, follow:true",incluida,/leyes/336 (self),si,si
+/consultas/articulo-336-legislacion-penal-honduras,336,limpio,"index:true, follow:true",incluida,/leyes/336,si,si (via canonical hacia /leyes)
+/leyes/337,337,limpio,"index:true, follow:true",incluida,/leyes/337 (self),si,si
+/consultas/articulo-337-legislacion-penal-honduras,337,limpio,"index:true, follow:true",incluida,/leyes/337,si,si (via canonical hacia /leyes)
+/leyes/338,338,contaminado,"index:false, follow:true",excluida,/leyes/338 (self),si,no
+/consultas/articulo-338-legislacion-penal-honduras,338,contaminado,"index:false, follow:true",excluida,/leyes/338,si,no
+/leyes/339,339,contaminado,"index:false, follow:true",excluida,/leyes/339 (self),si,no
+/consultas/articulo-339-legislacion-penal-honduras,339,contaminado,"index:false, follow:true",excluida,/leyes/339,si,no
+/leyes/341,341,limpio,"index:true, follow:true",incluida,/leyes/341 (self),si,si
+/consultas/articulo-341-legislacion-penal-honduras,341,limpio,"index:true, follow:true",incluida,/leyes/341,si,si (via canonical hacia /leyes)
+/leyes/342,342,contaminado,"index:false, follow:true",excluida,/leyes/342 (self),si,no
+/consultas/articulo-342-legislacion-penal-honduras,342,contaminado,"index:false, follow:true",excluida,/leyes/342,si,no
+/leyes/344,344,limpio,"index:true, follow:true",incluida,/leyes/344 (self),si,si
+/consultas/articulo-344-legislacion-penal-honduras,344,limpio,"index:true, follow:true",incluida,/leyes/344,si,si (via canonical hacia /leyes)
+/leyes/346,346,limpio,"index:true, follow:true",incluida,/leyes/346 (self),si,si
+/consultas/articulo-346-legislacion-penal-honduras,346,limpio,"index:true, follow:true",incluida,/leyes/346,si,si (via canonical hacia /leyes)
+/leyes/347,347,contaminado,"index:false, follow:true",excluida,/leyes/347 (self),si,no
+/consultas/articulo-347-legislacion-penal-honduras,347,contaminado,"index:false, follow:true",excluida,/leyes/347,si,no
+/leyes/349,349,contaminado,"index:false, follow:true",excluida,/leyes/349 (self),si,no
+/consultas/articulo-349-legislacion-penal-honduras,349,contaminado,"index:false, follow:true",excluida,/leyes/349,si,no
+/leyes/356,356,contaminado,"index:false, follow:true",excluida,/leyes/356 (self),si,no
+/consultas/articulo-356-legislacion-penal-honduras,356,contaminado,"index:false, follow:true",excluida,/leyes/356,si,no
+/leyes/361,361,contaminado,"index:false, follow:true",excluida,/leyes/361 (self),si,no
+/consultas/articulo-361-legislacion-penal-honduras,361,contaminado,"index:false, follow:true",excluida,/leyes/361,si,no
+/leyes/362,362,contaminado,"index:false, follow:true",excluida,/leyes/362 (self),si,no
+/consultas/articulo-362-legislacion-penal-honduras,362,contaminado,"index:false, follow:true",excluida,/leyes/362,si,no
+/leyes/365,365,limpio,"index:true, follow:true",incluida,/leyes/365 (self),si,si
+/consultas/articulo-365-legislacion-penal-honduras,365,limpio,"index:true, follow:true",incluida,/leyes/365,si,si (via canonical hacia /leyes)
+/leyes/366,366,limpio,"index:true, follow:true",incluida,/leyes/366 (self),si,si
+/consultas/articulo-366-legislacion-penal-honduras,366,limpio,"index:true, follow:true",incluida,/leyes/366,si,si (via canonical hacia /leyes)
+/leyes/369,369,contaminado,"index:false, follow:true",excluida,/leyes/369 (self),si,no
+/consultas/articulo-369-legislacion-penal-honduras,369,contaminado,"index:false, follow:true",excluida,/leyes/369,si,no
+/leyes/373,373,contaminado,"index:false, follow:true",excluida,/leyes/373 (self),si,no
+/consultas/articulo-373-legislacion-penal-honduras,373,contaminado,"index:false, follow:true",excluida,/leyes/373,si,no
+/leyes/374,374,contaminado,"index:false, follow:true",excluida,/leyes/374 (self),si,no
+/consultas/articulo-374-legislacion-penal-honduras,374,contaminado,"index:false, follow:true",excluida,/leyes/374,si,no
+/leyes/375,375,contaminado,"index:false, follow:true",excluida,/leyes/375 (self),si,no
+/consultas/articulo-375-legislacion-penal-honduras,375,contaminado,"index:false, follow:true",excluida,/leyes/375,si,no
+/leyes/377,377,limpio,"index:true, follow:true",incluida,/leyes/377 (self),si,si
+/consultas/articulo-377-legislacion-penal-honduras,377,limpio,"index:true, follow:true",incluida,/leyes/377,si,si (via canonical hacia /leyes)
+/leyes/378,378,contaminado,"index:false, follow:true",excluida,/leyes/378 (self),si,no
+/consultas/articulo-378-legislacion-penal-honduras,378,contaminado,"index:false, follow:true",excluida,/leyes/378,si,no
+/leyes/380,380,contaminado,"index:false, follow:true",excluida,/leyes/380 (self),si,no
+/consultas/articulo-380-legislacion-penal-honduras,380,contaminado,"index:false, follow:true",excluida,/leyes/380,si,no
+/leyes/382,382,contaminado,"index:false, follow:true",excluida,/leyes/382 (self),si,no
+/consultas/articulo-382-legislacion-penal-honduras,382,contaminado,"index:false, follow:true",excluida,/leyes/382,si,no
+/leyes/384,384,contaminado,"index:false, follow:true",excluida,/leyes/384 (self),si,no
+/consultas/articulo-384-legislacion-penal-honduras,384,contaminado,"index:false, follow:true",excluida,/leyes/384,si,no
+/leyes/398,398,limpio,"index:true, follow:true",incluida,/leyes/398 (self),si,si
+/consultas/articulo-398-legislacion-penal-honduras,398,limpio,"index:true, follow:true",incluida,/leyes/398,si,si (via canonical hacia /leyes)
+/leyes/402,402,contaminado,"index:false, follow:true",excluida,/leyes/402 (self),si,no
+/consultas/articulo-402-legislacion-penal-honduras,402,contaminado,"index:false, follow:true",excluida,/leyes/402,si,no
+/leyes/404,404,contaminado,"index:false, follow:true",excluida,/leyes/404 (self),si,no
+/consultas/articulo-404-legislacion-penal-honduras,404,contaminado,"index:false, follow:true",excluida,/leyes/404,si,no
+/leyes/405,405,contaminado,"index:false, follow:true",excluida,/leyes/405 (self),si,no
+/consultas/articulo-405-legislacion-penal-honduras,405,contaminado,"index:false, follow:true",excluida,/leyes/405,si,no
+/leyes/406,406,contaminado,"index:false, follow:true",excluida,/leyes/406 (self),si,no
+/consultas/articulo-406-legislacion-penal-honduras,406,contaminado,"index:false, follow:true",excluida,/leyes/406,si,no
+/leyes/409,409,contaminado,"index:false, follow:true",excluida,/leyes/409 (self),si,no
+/consultas/articulo-409-legislacion-penal-honduras,409,contaminado,"index:false, follow:true",excluida,/leyes/409,si,no
+/leyes/410,410,contaminado,"index:false, follow:true",excluida,/leyes/410 (self),si,no
+/consultas/articulo-410-legislacion-penal-honduras,410,contaminado,"index:false, follow:true",excluida,/leyes/410,si,no
+/leyes/412,412,contaminado,"index:false, follow:true",excluida,/leyes/412 (self),si,no
+/consultas/articulo-412-legislacion-penal-honduras,412,contaminado,"index:false, follow:true",excluida,/leyes/412,si,no
+/leyes/415,415,contaminado,"index:false, follow:true",excluida,/leyes/415 (self),si,no
+/consultas/articulo-415-legislacion-penal-honduras,415,contaminado,"index:false, follow:true",excluida,/leyes/415,si,no
+/leyes/417,417,contaminado,"index:false, follow:true",excluida,/leyes/417 (self),si,no
+/consultas/articulo-417-legislacion-penal-honduras,417,contaminado,"index:false, follow:true",excluida,/leyes/417,si,no
+/leyes/419,419,contaminado,"index:false, follow:true",excluida,/leyes/419 (self),si,no
+/consultas/articulo-419-legislacion-penal-honduras,419,contaminado,"index:false, follow:true",excluida,/leyes/419,si,no
+/leyes/420,420,contaminado,"index:false, follow:true",excluida,/leyes/420 (self),si,no
+/consultas/articulo-420-legislacion-penal-honduras,420,contaminado,"index:false, follow:true",excluida,/leyes/420,si,no
+/leyes/424,424,limpio,"index:true, follow:true",incluida,/leyes/424 (self),si,si
+/consultas/articulo-424-legislacion-penal-honduras,424,limpio,"index:true, follow:true",incluida,/leyes/424,si,si (via canonical hacia /leyes)
+/leyes/427,427,contaminado,"index:false, follow:true",excluida,/leyes/427 (self),si,no
+/consultas/articulo-427-legislacion-penal-honduras,427,contaminado,"index:false, follow:true",excluida,/leyes/427,si,no
+/leyes/429,429,contaminado,"index:false, follow:true",excluida,/leyes/429 (self),si,no
+/consultas/articulo-429-legislacion-penal-honduras,429,contaminado,"index:false, follow:true",excluida,/leyes/429,si,no
+/leyes/431,431,contaminado,"index:false, follow:true",excluida,/leyes/431 (self),si,no
+/consultas/articulo-431-legislacion-penal-honduras,431,contaminado,"index:false, follow:true",excluida,/leyes/431,si,no
+/leyes/432,432,contaminado,"index:false, follow:true",excluida,/leyes/432 (self),si,no
+/consultas/articulo-432-legislacion-penal-honduras,432,contaminado,"index:false, follow:true",excluida,/leyes/432,si,no
+/leyes/433,433,contaminado,"index:false, follow:true",excluida,/leyes/433 (self),si,no
+/consultas/articulo-433-legislacion-penal-honduras,433,contaminado,"index:false, follow:true",excluida,/leyes/433,si,no
+/leyes/436,436,contaminado,"index:false, follow:true",excluida,/leyes/436 (self),si,no
+/consultas/articulo-436-legislacion-penal-honduras,436,contaminado,"index:false, follow:true",excluida,/leyes/436,si,no
+/leyes/437,437,limpio,"index:true, follow:true",incluida,/leyes/437 (self),si,si
+/consultas/articulo-437-legislacion-penal-honduras,437,limpio,"index:true, follow:true",incluida,/leyes/437,si,si (via canonical hacia /leyes)
+/leyes/438,438,contaminado,"index:false, follow:true",excluida,/leyes/438 (self),si,no
+/consultas/articulo-438-legislacion-penal-honduras,438,contaminado,"index:false, follow:true",excluida,/leyes/438,si,no
+/leyes/440,440,contaminado,"index:false, follow:true",excluida,/leyes/440 (self),si,no
+/consultas/articulo-440-legislacion-penal-honduras,440,contaminado,"index:false, follow:true",excluida,/leyes/440,si,no
+/leyes/445,445,contaminado,"index:false, follow:true",excluida,/leyes/445 (self),si,no
+/consultas/articulo-445-legislacion-penal-honduras,445,contaminado,"index:false, follow:true",excluida,/leyes/445,si,no
+/leyes/449,449,contaminado,"index:false, follow:true",excluida,/leyes/449 (self),si,no
+/consultas/articulo-449-legislacion-penal-honduras,449,contaminado,"index:false, follow:true",excluida,/leyes/449,si,no
+/leyes/455,455,contaminado,"index:false, follow:true",excluida,/leyes/455 (self),si,no
+/consultas/articulo-455-legislacion-penal-honduras,455,contaminado,"index:false, follow:true",excluida,/leyes/455,si,no
+/leyes/498,498,contaminado,"index:false, follow:true",excluida,/leyes/498 (self),si,no
+/consultas/articulo-498-legislacion-penal-honduras,498,contaminado,"index:false, follow:true",excluida,/leyes/498,si,no
+/leyes/504,504,contaminado,"index:false, follow:true",excluida,/leyes/504 (self),si,no
+/consultas/articulo-504-legislacion-penal-honduras,504,contaminado,"index:false, follow:true",excluida,/leyes/504,si,no
+/leyes/730,730,contaminado,"index:false, follow:true",excluida,/leyes/730 (self),si,no
+/consultas/articulo-730-legislacion-penal-honduras,730,contaminado,"index:false, follow:true",excluida,/leyes/730,si,no
+/leyes/884,884,limpio,"index:true, follow:true",incluida,/leyes/884 (self),si,si
+/consultas/articulo-884-legislacion-penal-honduras,884,limpio,"index:true, follow:true",incluida,/leyes/884,si,si (via canonical hacia /leyes)
+/leyes/1362,1362,contaminado,"index:false, follow:true",excluida,/leyes/1362 (self),si,no
+/consultas/articulo-1362-legislacion-penal-honduras,1362,contaminado,"index:false, follow:true",excluida,/leyes/1362,si,no
