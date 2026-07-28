@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { listarNumerosArticulo, slugConsultaParaArticulo } from '@/lib/seo/articulos-vigentes';
+import { listarNumerosArticulo } from '@/lib/seo/articulos-vigentes';
 import { filtrarLimpios } from '@/lib/seo/estado-editorial';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://mayalexhn.com';
@@ -18,17 +18,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/login`, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
+  // /consultas queda deliberadamente fuera del sitemap: siempre declara
+  // /leyes/{numero} como canonical (nunca a sí misma), por lo que anunciarla
+  // aquí serían señales contradictorias sin beneficio de rastreo adicional.
+  // Decisión aprobada — ver MAYALEX_BUILD_ROUTE_DELTA.md sección 6.
   const leyes: MetadataRoute.Sitemap = numeros.map((numero) => ({
     url: `${BASE_URL}/leyes/${numero}`,
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
 
-  const consultas: MetadataRoute.Sitemap = numeros.map((numero) => ({
-    url: `${BASE_URL}/consultas/${slugConsultaParaArticulo(numero)}`,
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }));
-
-  return [...estaticas, ...leyes, ...consultas];
+  return [...estaticas, ...leyes];
 }
