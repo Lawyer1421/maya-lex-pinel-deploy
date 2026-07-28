@@ -1,75 +1,79 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import NavV2 from '@/components/v2/NavV2';
+import FooterV2 from '@/components/v2/FooterV2';
+import HeroV2 from '@/components/v2/HeroV2';
+import SeccionDemoPreview from '@/components/v2/SeccionDemoPreview';
+import SeccionHerramientas from '@/components/v2/SeccionHerramientas';
+import SeccionPerfiles from '@/components/v2/SeccionPerfiles';
+import SeccionBancoJuridico from '@/components/v2/SeccionBancoJuridico';
+import SeccionModoLitigante from '@/components/v2/SeccionModoLitigante';
+import SeccionSeguridad from '@/components/v2/SeccionSeguridad';
+import SeccionFundador from '@/components/v2/SeccionFundador';
+import SeccionPreciosResumen from '@/components/v2/SeccionPreciosResumen';
+import FAQV2 from '@/components/v2/FAQV2';
 
-/**
- * Página raíz — redirige al chat o sirve como splash page mínima.
- * La landing page completa es index.html (estática).
- */
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: 'MAYA LEX IA — Inteligencia jurídica hondureña',
+  description:
+    'Consulte fuentes jurídicas, analice documentos, organice estrategias procesales y utilice herramientas especializadas para la práctica, la enseñanza y la investigación del derecho hondureño.',
+};
+
+const PREGUNTAS_FAQ = [
+  {
+    pregunta: '¿Maya Lex cubre toda la legislación hondureña?',
+    respuesta:
+      'No todavía. Hoy Penal y Procesal Civil tienen la mayor cobertura verificada; el resto del corpus está en construcción activa y su estado real se publica en la página de Cobertura Jurídica, sin afirmar cobertura total antes de tiempo.',
+  },
+  {
+    pregunta: '¿Las respuestas de Maya Lex son asesoría legal?',
+    respuesta:
+      'No. Maya Lex es una herramienta de apoyo a la investigación y el análisis jurídico — no sustituye el criterio de un abogado colegiado ni constituye asesoría legal formal.',
+  },
+  {
+    pregunta: '¿Puedo probarlo sin crear una cuenta?',
+    respuesta: 'Sí — la demostración en /demo funciona sin registro, con un caso completamente ficticio.',
+  },
+  {
+    pregunta: '¿Qué pasa con mis suscripciones y datos si cambia el diseño del sitio?',
+    respuesta:
+      'Nada — cuentas, historial y suscripciones existentes se conservan íntegramente. Los cambios de esta fase son exclusivamente de presentación pública.',
+  },
+  {
+    pregunta: '¿Ofrecen planes ilimitados?',
+    respuesta:
+      'Los planes con uso amplio están sujetos a una política de uso razonable — evitamos prometer "ilimitado" sin un control técnico y económico real detrás.',
+  },
+];
+
+export default function HomePageV2() {
   return (
-    <main className="min-h-screen bg-navy flex items-center justify-center">
-      <div className="text-center px-6">
-        {/* Logo / símbolo */}
-        <div className="w-24 h-24 rounded-full bg-gradient-maya mx-auto mb-6 flex items-center justify-center shadow-2xl shadow-jade/30">
-          <svg
-            className="w-12 h-12 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
+    <div className="min-h-screen bg-obsidian text-ivory">
+      <NavV2 />
+      <main>
+        <HeroV2 />
+        <SeccionDemoPreview />
+        <SeccionHerramientas />
+        <SeccionPerfiles />
+        <SeccionBancoJuridico />
+        <SeccionModoLitigante />
+        <SeccionSeguridad />
+        <SeccionFundador />
+        <SeccionPreciosResumen />
+        <FAQV2 preguntas={PREGUNTAS_FAQ} />
+        <section className="px-4 pb-20 pt-4 text-center sm:px-6">
+          <h2 className="font-serif text-2xl font-bold text-ivory sm:text-3xl">
+            Comience con una demostración, sin compromiso.
+          </h2>
+          <Link
+            href="/demo"
+            className="mt-6 inline-block rounded-xl bg-jade px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-light focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-            />
-          </svg>
-        </div>
-
-        {/* Título */}
-        <h1 className="font-serif text-4xl font-bold text-gradient-maya mb-2">
-          MAYA LEX
-        </h1>
-        <p className="text-gold text-sm font-medium tracking-widest uppercase mb-2">
-          IA PINEL HN
-        </p>
-        <p className="text-white/50 text-sm mb-10">
-          Asistente Jurídico Inteligente · Honduras
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/chat" className="btn-jade inline-block">
-            Iniciar Consulta Jurídica
+            Probar demostración
           </Link>
-          <Link href="/pricing" className="btn-ghost inline-block">
-            Ver Planes y Precios
-          </Link>
-        </div>
-
-        {/* Módulos rápidos */}
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-          {[
-            { emoji: '⚖️', label: 'Civil / Procesal' },
-            { emoji: '🔒', label: 'Penal' },
-            { emoji: '📜', label: 'Notarial' },
-            { emoji: '💼', label: 'Laboral' },
-          ].map(({ emoji, label }) => (
-            <Link
-              key={label}
-              href={`/chat?tema=${encodeURIComponent(label)}`}
-              className="glass-card-hover p-4 text-center cursor-pointer"
-            >
-              <div className="text-2xl mb-1">{emoji}</div>
-              <div className="text-white/70 text-xs">{label}</div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <p className="mt-12 text-white/30 text-xs">
-          © 2026 MAYA LEX IA PINEL HN · Abogado Fredy Omar Pinel Flores · Choluteca, Honduras
-        </p>
-      </div>
-    </main>
+        </section>
+      </main>
+      <FooterV2 />
+    </div>
   );
 }

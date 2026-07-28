@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // MAYA LEX brand palette
+        // MAYA LEX brand palette (V1 — se conserva sin cambios, en uso en /chat, /cuenta, etc.)
         jade: {
           DEFAULT: '#2D9B8A',
           light: '#3DB8A5',
@@ -24,6 +24,22 @@ const config: Config = {
           DEFAULT: '#0D1B3E',
           light: '#1A2F5A',
           medium: '#243E73',
+        },
+        // MAYA LEX V2 — "Biblioteca jurídica premium" (MAYALEX_V2_DESIGN_SYSTEM.md)
+        obsidian: {
+          DEFAULT: '#08070B',
+          light: '#121019',
+          medium: '#1B1826',
+        },
+        ivory: {
+          DEFAULT: '#F6F2E9',
+          dim: '#E9E2D2',
+          muted: '#C9C0AA',
+        },
+        verify: {
+          DEFAULT: '#3FAE68',
+          light: '#5FC988',
+          dark: '#2A7C48',
         },
       },
       fontFamily: {
