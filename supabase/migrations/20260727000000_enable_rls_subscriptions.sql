@@ -88,10 +88,30 @@ COMMIT;
 -- 3. Confirmar que /cuenta y el webhook de PayPal (que usan service_role)
 --    siguen funcionando normalmente — smoke test manual en Preview/staging.
 
--- ── PROCEDIMIENTO DE ROLLBACK (si algo falla tras aplicar) ──────────────────
--- BEGIN;
--- ALTER TABLE public.subscriptions NO FORCE ROW LEVEL SECURITY;
--- ALTER TABLE public.subscriptions DISABLE ROW LEVEL SECURITY;
--- COMMIT;
--- Reversible en segundos, sin pérdida de datos en ningún escenario — no
--- toca ninguna fila, solo el flag de seguridad de la tabla.
+-- ── PROCEDIMIENTO DE ROLLBACK (si /cuenta o el webhook de PayPal fallan) ────
+-- NO uses DISABLE ROW LEVEL SECURITY como primer recurso — eso reabre
+-- exactamente la exposición que esta migración cierra. El rollback
+-- preferente es diagnosticar y corregir la causa real:
+--
+-- 1. Verificar que el fallo es realmente por RLS y no por otra causa:
+--      SELECT * FROM pg_policies WHERE tablename = 'subscriptions';
+--      -- confirmar que service_only_subscriptions sigue existiendo tal cual
+-- 2. Si el código de servidor usa correctamente createServerSupabaseClient()
+--    (service_role) y aun así falla, el problema probablemente NO es RLS —
+--    revisar primero SUPABASE_SERVICE_ROLE_KEY y la configuración del cliente.
+-- 3. Si se requiere una política adicional (ej. lectura propia autenticada)
+--    que hoy no existe, AGREGAR esa política nueva en una migración separada
+--    y probada — nunca quitar la protección existente para "destrabar" algo.
+--
+-- Último recurso de emergencia (documentado, no recomendado como primer
+-- paso): si ninguna corrección de política resuelve una caída de servicio
+-- crítica, se puede desactivar RLS temporalmente:
+--   BEGIN;
+--   ALTER TABLE public.subscriptions NO FORCE ROW LEVEL SECURITY;
+--   ALTER TABLE public.subscriptions DISABLE ROW LEVEL SECURITY;
+--   COMMIT;
+-- ⚠️  ADVERTENCIA EXPRESA: esto restaura la vulnerabilidad P0-1 original
+-- (tabla con datos de facturación reales expuesta a anon/authenticated si
+-- alguna vez se le otorga GRANT). Usar solo como medida de emergencia
+-- temporal, con un plan explícito para volver a activar RLS en minutos u
+-- horas, nunca como solución permanente.
