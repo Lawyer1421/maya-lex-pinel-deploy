@@ -9,24 +9,29 @@ vi.mock('@/lib/seo/articulos-vigentes', () => ({
 }));
 
 describe('sitemap.ts — contención SEO data-driven', () => {
-  it('excluye del sitemap las rutas /leyes y /consultas de artículos contaminados', async () => {
+  it('excluye del sitemap la ruta /leyes de artículos contaminados', async () => {
     const sitemap = (await import('@/app/sitemap')).default;
     const rutas = await sitemap();
 
     const urls = rutas.map((r) => r.url);
 
-    expect(urls).not.toContain(expect.stringContaining(`/leyes/${ARTICULO_CONTAMINADO}`));
     expect(urls.some((u) => u.endsWith(`/leyes/${ARTICULO_CONTAMINADO}`))).toBe(false);
-    expect(urls.some((u) => u.includes(`articulo-${ARTICULO_CONTAMINADO}-legislacion-penal-honduras`))).toBe(false);
   });
 
-  it('conserva en el sitemap las rutas de artículos limpios', async () => {
+  it('conserva en el sitemap la ruta /leyes de artículos limpios', async () => {
     const sitemap = (await import('@/app/sitemap')).default;
     const rutas = await sitemap();
     const urls = rutas.map((r) => r.url);
 
     expect(urls.some((u) => u.endsWith(`/leyes/${ARTICULO_LIMPIO}`))).toBe(true);
-    expect(urls.some((u) => u.includes(`articulo-${ARTICULO_LIMPIO}-legislacion-penal-honduras`))).toBe(true);
+  });
+
+  it('nunca incluye rutas /consultas — decisión aprobada, /leyes es la única URL primaria en el sitemap', async () => {
+    const sitemap = (await import('@/app/sitemap')).default;
+    const rutas = await sitemap();
+    const urls = rutas.map((r) => r.url);
+
+    expect(urls.some((u) => u.includes('/consultas/'))).toBe(false);
   });
 
   it('nunca elimina las rutas contaminadas de la aplicación — solo del sitemap (la URL sigue existiendo)', async () => {
