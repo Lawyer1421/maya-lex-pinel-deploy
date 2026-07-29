@@ -32,8 +32,18 @@ export default function TarjetaPlan({
       )}
       <Titulo className="font-serif text-xl font-bold text-ivory">{plan.nombre}</Titulo>
       <p className="mt-1 text-sm text-ivory-muted">{plan.descripcion}</p>
-      <p className="mt-4 flex items-baseline gap-1">
-        <span className="font-serif text-3xl font-bold text-ivory">{plan.precio}</span>
+      {/* Valores largos no numéricos ("Personalizado") reducen un paso el
+          tamaño tipográfico en las tarjetas angostas de la grilla de 5
+          columnas (lg) — legible siempre, sin desbordar el borde de la
+          tarjeta. min-w-0 permite que el flex encoja en vez de desbordar. */}
+      <p className="mt-4 flex min-w-0 flex-wrap items-baseline gap-1">
+        <span
+          className={`font-serif font-bold text-ivory ${
+            plan.precio.length > 8 ? 'text-3xl lg:text-xl' : 'text-3xl'
+          }`}
+        >
+          {plan.precio}
+        </span>
         {plan.periodo && <span className="text-sm text-ivory-muted">{plan.periodo}</span>}
       </p>
 
