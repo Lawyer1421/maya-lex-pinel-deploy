@@ -6,3 +6,4 @@
 {"ts":"2026-07-29T11:45:00Z","fase":"F0","accion":"harness-implemented","resultado":"7 agentes, 6 skills, hook guard-git, 11 scripts, estado persistente"}
 {"ts":"2026-07-29T11:52:08.272Z","fase":"F2","accion":"primer-lote-corpus","resultado":"3 normas V1 con hash y procedencia (constitucion, codigo familia, ley transparencia) desde TSC; gate provenance OK; PDFs fuera del repo"}
 {"ts":"2026-07-29T14:29:22.945Z","fase":"F0b","accion":"gobernanza-economica","resultado":"6 archivos de gobernanza + modelos por subagente (2 haiku, 5 sonnet); Fable reservado a decisiones criticas; DETENCION ECONOMICA: cambiar modelo principal a Sonnet"}
+{"ts":"2026-07-29T15:16:54.880Z","fase":"F2","accion":"primera-prueba-v1-v2","resultado":"HN_CONSTITUCION: pipeline 14/16 pasos OK (paso 15 correctamente pendiente V4), 378 articulos segmentados 0 dup/PII, citas+abstencion OK. Staging real: 21/378 con 100% fidelidad hash-verificada tras corregir incidente de whitespace. commit 4791957"}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-07-29T14:29:22.945Z",
+  "actualizado": "2026-07-29T15:16:54.879Z",
   "cola": [
     {
       "id": "T-000",
@@ -106,7 +106,14 @@
       "titulo": "EXTRACT+ARTICLE SPLIT de las 3 normas V1 hacia V2 (JSONL estructurado + verify-citations)",
       "estado": "PLANNED",
       "agente": "corpus-acquisition-agent"
+    },
+    {
+      "id": "T-015",
+      "fase": "F2",
+      "titulo": "Fundador: crear .env.staging.local (aicak...lkqj) para que cargar-staging.ts complete los 357 articulos restantes de HN_CONSTITUCION de forma mecanica",
+      "estado": "PLANNED",
+      "agente": "corpus-acquisition-agent"
     }
   ],
-  "siguienteTarea": "T-014 (primera norma V1->V2 completa: hn-constitucion) con Sonnet; luego T-013 descubrimiento resto Grupo A con Haiku"
+  "siguienteTarea": "T-015 (credenciales staging) o T-006 (Ley sobre Justicia Constitucional) con Haiku"
 }

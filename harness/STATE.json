@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-07-29T14:29:22.937Z",
+  "actualizado": "2026-07-29T15:16:54.877Z",
   "estadoGlobal": "OBSERVING",
   "produccion": {
     "dominio": "https://mayalexhn.com",
@@ -17,7 +17,7 @@
   "fases": {
     "F0_harness": "IMPLEMENTED",
     "F1_publicar_v2": "DEPLOYED",
-    "F2_corpus_oficial": "RUNNING",
+    "F2_corpus_oficial": "RUNNING (primera prueba V1->V2 completa y verificada)",
     "F3_jurisprudencia": "PLANNED",
     "F4_frontier": "PLANNED",
     "F5_integracion": "PLANNED",
@@ -29,13 +29,15 @@
   "worktrees": {
     "C:/dev/mayalex-qa": "release/v2-to-main (merge ya publicado; reutilizable para QA)",
     "C:/dev/mayalex-harness": "chore/mayalex-delivery-harness",
-    "C:/dev/mayalex-corpus": "feature/mayalex-official-corpus-p0 (pipeline + 3 normas V1)"
+    "C:/dev/mayalex-corpus": "feature/mayalex-official-corpus-p0 (commit 4791957: pipeline 14/16 OK sobre HN_CONSTITUCION real; staging 21/378 articulos con fidelidad 100%)"
   },
   "bloqueos": [],
   "notas": [
     "Variables Vercel de tipo sensitive son de solo-escritura: la verificacion de entorno se hace en runtime via /api/diagnostico-preview (Preview-only).",
     "biblioteca_vectores en staging tiene SELECT solo para service_role; anon/authenticated bloqueados (aislamiento intencional).",
     "Los conteos de usuarios/suscripciones se consultan agregados via MCP Supabase de solo lectura; nunca se exporta PII.",
-    "Gobernanza economica activa: MODEL_ROUTING.yaml (Fable solo critico; Sonnet ejecutor; Haiku mecanico), COST_POLICY.yaml (lecturas minimas, command cache, pruebas escalonadas), AI_BUDGETS_BY_PLAN.yaml (0.10/1.50/3.00 USD/mes + % en planes superiores)."
+    "Gobernanza economica activa: MODEL_ROUTING.yaml (Fable solo critico; Sonnet ejecutor; Haiku mecanico), COST_POLICY.yaml (lecturas minimas, command cache, pruebas escalonadas), AI_BUDGETS_BY_PLAN.yaml (0.10/1.50/3.00 USD/mes + % en planes superiores).",
+    "LECCION CRITICA: nunca transportar texto legal via retranscripcion manual/LLM -- corrompe whitespace silenciosamente. Usar base64+decode en Postgres o script credenciado, siempre con verificacion hash post-insercion.",
+    ".env.local del repo principal apunta a PRODUCCION (thgrhueckkjdutjvcufp), no a staging. cargar-staging.ts esta listo pero requiere .env.staging.local separado (T-015, pendiente del fundador)."
   ]
 }
