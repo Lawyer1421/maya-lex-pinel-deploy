@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/verificar-conteo-build.mjs",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "lint": "next lint",
     "migrate:analytics": "tsx scripts/migrate-analytics.ts",
