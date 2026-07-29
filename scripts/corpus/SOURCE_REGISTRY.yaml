@@ -1,0 +1,69 @@
+# Registro de fuentes oficiales autorizadas para el corpus de Maya Lex.
+# REGLA: solo autoridades oficiales hondureñas. Blogs, repositorios anonimos y
+# copias sin procedencia NO son fuente primaria valida.
+autoridades:
+  - id: enag
+    nombre: Empresa Nacional de Artes Graficas / La Gaceta
+    portal: https://www.enag.gob.hn
+    rol: Diario oficial - texto autentico de decretos y reformas
+  - id: congreso
+    nombre: Congreso Nacional de Honduras
+    portal: https://www.congresonacional.hn
+    rol: Organo emisor de decretos legislativos
+  - id: poder-judicial
+    nombre: Poder Judicial de Honduras
+    portal: https://www.poderjudicial.gob.hn
+    rol: Jurisprudencia y biblioteca juridica
+  - id: cedij
+    nombre: Centro Electronico de Documentacion e Informacion Judicial
+    portal: https://cedij.poderjudicial.gob.hn
+    rol: Legislacion consolidada y jurisprudencia
+  - id: tsc
+    nombre: Tribunal Superior de Cuentas
+    portal: https://www.tsc.gob.hn
+    rol: Biblioteca de leyes vigentes (repositorio oficial ampliamente usado)
+  - id: sefin
+    nombre: Secretaria de Finanzas
+    portal: https://www.sefin.gob.hn
+    rol: Normativa tributaria y presupuestaria sectorial
+
+# Grupo A - prioridad inmediata
+normas_grupo_a:
+  - id: hn-constitucion
+    titulo: Constitucion de la Republica de Honduras
+    decretoBase: "Decreto 131-1982"
+    autoridadesCandidatas: [poder-judicial, tsc, cedij]
+  - id: hn-ley-justicia-constitucional
+    titulo: Ley sobre Justicia Constitucional
+    decretoBase: "Decreto 244-2003"
+    autoridadesCandidatas: [poder-judicial, tsc]
+  - id: hn-codigo-penal
+    titulo: Codigo Penal
+    decretoBase: "Decreto 130-2017"
+    autoridadesCandidatas: [poder-judicial, cedij, tsc]
+  - id: hn-codigo-procesal-penal
+    titulo: Codigo Procesal Penal
+    decretoBase: "Decreto 9-99-E"
+    autoridadesCandidatas: [poder-judicial, cedij, tsc]
+  - id: hn-codigo-procesal-civil
+    titulo: Codigo Procesal Civil
+    decretoBase: "Decreto 211-2006"
+    autoridadesCandidatas: [poder-judicial, cedij, tsc]
+  - id: hn-codigo-notariado
+    titulo: Codigo del Notariado
+    decretoBase: "Decreto 353-2005"
+    autoridadesCandidatas: [poder-judicial, tsc]
+  - id: hn-reglamento-notariado
+    titulo: Reglamento del Codigo del Notariado
+    decretoBase: "Acuerdo de la Corte Suprema"
+    autoridadesCandidatas: [poder-judicial]
+
+# Grupo B - siguiente lote
+normas_grupo_b:
+  - { id: hn-codigo-civil, titulo: Codigo Civil, autoridadesCandidatas: [poder-judicial, tsc] }
+  - { id: hn-codigo-comercio, titulo: Codigo de Comercio, autoridadesCandidatas: [poder-judicial, tsc] }
+  - { id: hn-codigo-familia, titulo: Codigo de Familia, autoridadesCandidatas: [poder-judicial, tsc] }
+  - { id: hn-codigo-trabajo, titulo: Codigo del Trabajo, autoridadesCandidatas: [poder-judicial, tsc] }
+  - { id: hn-ley-procedimiento-administrativo, titulo: Ley de Procedimiento Administrativo, autoridadesCandidatas: [tsc] }
+  - { id: hn-ley-transparencia, titulo: Ley de Transparencia y Acceso a la Informacion Publica, autoridadesCandidatas: [tsc] }
+  - { id: hn-codigo-tributario, titulo: Codigo Tributario, autoridadesCandidatas: [sefin, tsc] }
