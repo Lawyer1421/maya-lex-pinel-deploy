@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-07-29T11:45:00Z",
+  "actualizado": "2026-07-29T11:52:08.270Z",
   "estadoGlobal": "OBSERVING",
   "produccion": {
     "dominio": "https://mayalexhn.com",
@@ -17,7 +17,7 @@
   "fases": {
     "F0_harness": "IMPLEMENTED",
     "F1_publicar_v2": "DEPLOYED",
-    "F2_corpus_oficial": "PLANNED",
+    "F2_corpus_oficial": "RUNNING",
     "F3_jurisprudencia": "PLANNED",
     "F4_frontier": "PLANNED",
     "F5_integracion": "PLANNED",
@@ -28,7 +28,7 @@
   "worktrees": {
     "C:/dev/mayalex-qa": "release/v2-to-main (merge ya publicado; reutilizable para QA)",
     "C:/dev/mayalex-harness": "chore/mayalex-delivery-harness",
-    "C:/dev/mayalex-corpus": "feature/mayalex-official-corpus-p0 (por crear)"
+    "C:/dev/mayalex-corpus": "feature/mayalex-official-corpus-p0 (pipeline + 3 normas V1)"
   },
   "bloqueos": [],
   "notas": [

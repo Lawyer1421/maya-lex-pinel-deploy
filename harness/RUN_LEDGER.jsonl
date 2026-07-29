@@ -4,3 +4,4 @@
 {"ts":"2026-07-29T11:30:00Z","fase":"F1","accion":"promote","resultado":"push release/v2-to-main:main -> 72f762a; deployment READY 47s"}
 {"ts":"2026-07-29T11:40:00Z","fase":"F1","accion":"smoke-produccion","resultado":"16 paginas 200; auth 307; sitemap 62; /leyes/11 norma verificada; 0 consola (browser real); 0 llamadas PayPal; usuarios/suscripciones invariantes 69/6"}
 {"ts":"2026-07-29T11:45:00Z","fase":"F0","accion":"harness-implemented","resultado":"7 agentes, 6 skills, hook guard-git, 11 scripts, estado persistente"}
+{"ts":"2026-07-29T11:52:08.272Z","fase":"F2","accion":"primer-lote-corpus","resultado":"3 normas V1 con hash y procedencia (constitucion, codigo familia, ley transparencia) desde TSC; gate provenance OK; PDFs fuera del repo"}
