@@ -50,8 +50,24 @@ function esperar(ms: number): Promise<void> {
  * - Error persistente de red/API → throw: el build debe fallar de forma
  *   visible, nunca degradarse en silencio. El log nunca incluye claves,
  *   URLs ni contenido — solo número de artículo, intento y código de error. */
+/** Ref del proyecto Supabase destino, redactado (5+4 chars). El ref es público
+ * por diseño (viaja en NEXT_PUBLIC_*); esto permite confirmar desde el log de
+ * build de Vercel a qué proyecto apunta el entorno, sin exponer nada más. */
+function refDestinoRedactado(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const ref = url.match(/https:\/\/([a-z0-9]+)\.supabase\.co/)?.[1];
+  return ref ? `${ref.slice(0, 5)}…${ref.slice(-4)}` : 'sin_url';
+}
+
+let refLogueado = false;
+
 export async function obtenerArticuloPorNumero(numero: string): Promise<ArticuloVigente | null> {
   let ultimoError = 'desconocido';
+
+  if (!refLogueado) {
+    refLogueado = true;
+    console.warn(`[articulos-vigentes] proyecto_destino=${refDestinoRedactado()}`);
+  }
 
   for (let intento = 1; intento <= MAX_INTENTOS; intento++) {
     try {
