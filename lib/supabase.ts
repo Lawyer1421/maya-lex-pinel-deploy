@@ -3,8 +3,12 @@ import { createSupabaseBrowserClient as createBrowserClientCompat } from '@/src/
 export { createSupabaseAdminClient, verifyServerApiKey, parseApiKey } from '@/src/lib/supabase/admin';
 
 export function createServerSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Las URLs y los JWT jamás contienen espacios en blanco: cualquier espacio,
+  // tabulación o salto de línea proviene de un copy/paste al guardar la
+  // variable (imposible de releer si es de tipo "sensitive" en Vercel) y hace
+  // que Headers.set lance TypeError en cada request. Se elimina siempre.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\s+/g, '');
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/\s+/g, '');
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Supabase no configurado. Revisa NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY');
