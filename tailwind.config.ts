@@ -14,6 +14,10 @@ const config: Config = {
           DEFAULT: '#2D9B8A',
           light: '#3DB8A5',
           dark: '#1E6B5E',
+          // V2: fondo de CTA primario — jade profundo con contraste ≥4.5:1
+          // frente a texto blanco (WCAG AA texto normal). #2D9B8A queda para
+          // acentos no textuales y texto jade sobre obsidiana.
+          deep: '#17796A',
         },
         gold: {
           DEFAULT: '#C9A84C',
