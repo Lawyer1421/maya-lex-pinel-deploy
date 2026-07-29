@@ -51,7 +51,7 @@ export default function PricingPageV2() {
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {PLANES_V2.map((plan) => (
-              <TarjetaPlan key={plan.id} plan={plan} />
+              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" />
             ))}
           </div>
         </section>

@@ -6,7 +6,19 @@ const CTA_TEXTO: Record<PlanV2['ctaEstado'], string> = {
   contactar: 'Contactar',
 };
 
-export default function TarjetaPlan({ plan, compacta = false }: { plan: PlanV2; compacta?: boolean }) {
+export default function TarjetaPlan({
+  plan,
+  compacta = false,
+  // Nivel del encabezado del plan según la jerarquía de la página anfitriona:
+  // en la portada las tarjetas viven bajo un h2 de sección (→ h3); en /pricing
+  // cuelgan directamente del h1 (→ h2, evita saltos h1→h3 en el outline).
+  nivelTitulo = 'h3',
+}: {
+  plan: PlanV2;
+  compacta?: boolean;
+  nivelTitulo?: 'h2' | 'h3';
+}) {
+  const Titulo = nivelTitulo;
   return (
     <div
       className={`flex h-full flex-col rounded-2xl border bg-obsidian-light p-6 ${
@@ -18,7 +30,7 @@ export default function TarjetaPlan({ plan, compacta = false }: { plan: PlanV2; 
           Más elegido
         </span>
       )}
-      <h3 className="font-serif text-xl font-bold text-ivory">{plan.nombre}</h3>
+      <Titulo className="font-serif text-xl font-bold text-ivory">{plan.nombre}</Titulo>
       <p className="mt-1 text-sm text-ivory-muted">{plan.descripcion}</p>
       <p className="mt-4 flex items-baseline gap-1">
         <span className="font-serif text-3xl font-bold text-ivory">{plan.precio}</span>

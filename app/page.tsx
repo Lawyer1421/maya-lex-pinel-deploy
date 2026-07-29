@@ -67,7 +67,7 @@ export default function HomePageV2() {
           </h2>
           <Link
             href="/demo"
-            className="mt-6 inline-block rounded-xl bg-jade px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-light focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
+            className="mt-6 inline-block rounded-xl bg-jade-deep px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
           >
             Probar demostración
           </Link>

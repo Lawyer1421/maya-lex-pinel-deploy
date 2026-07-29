@@ -70,7 +70,7 @@ export default function DemoInteractiva() {
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href="/login" className="rounded-xl bg-jade px-6 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-light focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian">
+            <Link href="/login" className="rounded-xl bg-jade-deep px-6 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian">
               Crear cuenta gratuita
             </Link>
             <Link href="/producto" className="rounded-xl border border-obsidian-medium px-6 py-3 text-center text-sm font-semibold text-ivory-dim hover:border-jade/40 hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian">
