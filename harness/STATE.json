@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "actualizado": "2026-07-29T11:45:00Z",
+  "estadoGlobal": "OBSERVING",
+  "produccion": {
+    "dominio": "https://mayalexhn.com",
+    "mainCommit": "72f762a",
+    "deployment": "dpl_fa5yqn72f (READY 47s, postbuild 198+198+16 aprobado)",
+    "tagPreRelease": "pre-mayalex-v2-production-20260729-0525",
+    "rollbackTarget": "dpl_7CJ65VaWFEggAhkEYbT7SZfQA1Aq",
+    "snapshotUsuarios": 69,
+    "snapshotSuscripciones": 6,
+    "postDeployUsuarios": 69,
+    "postDeploySuscripciones": 6,
+    "smoke": "16 paginas 200, /chat y /cuenta 307 auth, sitemap 62, /leyes/11 norma verificada, 0 errores de consola (browser real), 0 llamadas PayPal en publicas"
+  },
+  "fases": {
+    "F0_harness": "IMPLEMENTED",
+    "F1_publicar_v2": "DEPLOYED",
+    "F2_corpus_oficial": "PLANNED",
+    "F3_jurisprudencia": "PLANNED",
+    "F4_frontier": "PLANNED",
+    "F5_integracion": "PLANNED",
+    "F6_evals": "PLANNED",
+    "F7_observabilidad": "PLANNED",
+    "F8_cd": "PLANNED"
+  },
+  "worktrees": {
+    "C:/dev/mayalex-qa": "release/v2-to-main (merge ya publicado; reutilizable para QA)",
+    "C:/dev/mayalex-harness": "chore/mayalex-delivery-harness",
+    "C:/dev/mayalex-corpus": "feature/mayalex-official-corpus-p0 (por crear)"
+  },
+  "bloqueos": [],
+  "notas": [
+    "Variables Vercel de tipo sensitive son de solo-escritura: la verificacion de entorno se hace en runtime via /api/diagnostico-preview (Preview-only).",
+    "biblioteca_vectores en staging tiene SELECT solo para service_role; anon/authenticated bloqueados (aislamiento intencional).",
+    "Los conteos de usuarios/suscripciones se consultan agregados via MCP Supabase de solo lectura; nunca se exporta PII."
+  ]
+}

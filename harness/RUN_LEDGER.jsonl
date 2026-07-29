@@ -1,0 +1,6 @@
+{"ts":"2026-07-29T11:20:00Z","fase":"F1","accion":"reconciliacion","resultado":"main=6cdc33a, rama V2=01e8fc0 (RC2 validada), sin commits posteriores"}
+{"ts":"2026-07-29T11:24:00Z","fase":"F1","accion":"snapshot","resultado":"tag pre-mayalex-v2-production-20260729-0525; 69 usuarios; 6 suscripciones (2 pro/active, 2 pro/trialing, 2 academico/trialing); rollbackTarget dpl_7CJ65VaWFEggAhkEYbT7SZfQA1Aq"}
+{"ts":"2026-07-29T11:27:00Z","fase":"F1","accion":"gates","resultado":"diff merge vs RC2 vacio; tsc 0 err; tests 166/167; build 428/428 postbuild OK"}
+{"ts":"2026-07-29T11:30:00Z","fase":"F1","accion":"promote","resultado":"push release/v2-to-main:main -> 72f762a; deployment READY 47s"}
+{"ts":"2026-07-29T11:40:00Z","fase":"F1","accion":"smoke-produccion","resultado":"16 paginas 200; auth 307; sitemap 62; /leyes/11 norma verificada; 0 consola (browser real); 0 llamadas PayPal; usuarios/suscripciones invariantes 69/6"}
+{"ts":"2026-07-29T11:45:00Z","fase":"F0","accion":"harness-implemented","resultado":"7 agentes, 6 skills, hook guard-git, 11 scripts, estado persistente"}

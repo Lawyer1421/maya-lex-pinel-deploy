@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "actualizado": "2026-07-29T11:45:00Z",
+  "cola": [
+    { "id": "T-001", "fase": "F1", "titulo": "Publicar Maya Lex V2 a produccion con snapshot y smoke", "estado": "COMPLETED", "agente": "release-manager" },
+    { "id": "T-002", "fase": "F0", "titulo": "Construir Delivery Harness (agentes, skills, hooks, scripts, estado)", "estado": "RUNNING", "agente": "release-manager" },
+    { "id": "T-003", "fase": "Adenda", "titulo": "Documentos de diferenciacion competitiva (3)", "estado": "PLANNED", "agente": "release-manager" },
+    { "id": "T-004", "fase": "F2", "titulo": "Scaffold pipeline corpus + registro de fuentes Grupo A", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-005", "fase": "F2", "titulo": "Adquirir Constitucion de la Republica (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-006", "fase": "F2", "titulo": "Adquirir Ley sobre Justicia Constitucional (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-007", "fase": "F2", "titulo": "Adquirir Codigo Penal oficial (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-008", "fase": "F2", "titulo": "Adquirir Codigo Procesal Penal (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-009", "fase": "F2", "titulo": "Adquirir Codigo Procesal Civil (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-010", "fase": "F2", "titulo": "Adquirir Codigo del Notariado + reglamento (V0->V2)", "estado": "PLANNED", "agente": "corpus-acquisition-agent" },
+    { "id": "T-011", "fase": "F4", "titulo": "AI Gateway + router multimodelo (flags off)", "estado": "PLANNED", "agente": "frontier-ai-agent" },
+    { "id": "T-012", "fase": "F6", "titulo": "Evaluation harness (recuperacion, citas, seguridad)", "estado": "PLANNED", "agente": "qa-evals-agent" }
+  ]
+}

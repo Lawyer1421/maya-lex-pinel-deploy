@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "release": "mayalex-v2-relaunch",
+  "fecha": "2026-07-29",
+  "mainCommit": "72f762a2afc8fcda8a054cb4afef83da7476caaa",
+  "ramaOrigen": "feature/mayalex-v2-accelerated-relaunch",
+  "commitValidado": "01e8fc0",
+  "previewValidado": "dpl_CA63HtqBNADkgVrtvCJLLc8G2aWr",
+  "deploymentProductivo": "dpl_fa5yqn72f",
+  "rollbackTarget": "dpl_7CJ65VaWFEggAhkEYbT7SZfQA1Aq",
+  "snapshots": [
+    {
+      "fecha": "2026-07-29T11:25:00Z",
+      "mainCommit": "6cdc33a",
+      "rollbackTarget": "dpl_7CJ65VaWFEggAhkEYbT7SZfQA1Aq",
+      "tag": "pre-mayalex-v2-production-20260729-0525",
+      "usuarios": 69,
+      "suscripciones": 6,
+      "detalleSuscripciones": { "pro/active": 2, "pro/trialing": 2, "academico/trialing": 2 }
+    }
+  ],
+  "gates": {
+    "typecheck": "0 errores",
+    "tests": "166 aprobadas / 1 omitida (167)",
+    "build": "428/428 con postbuild 198+198+16 (local y Vercel)",
+    "enlaces404": 0,
+    "axe": "0 violaciones en 16 paginas",
+    "overflow": 0,
+    "consola": "0 errores (browser real)",
+    "paypalPublicas": "0 scripts / 0 llamadas",
+    "arbolValidado": "diff vacio entre merge y RC2"
+  },
+  "condicionesRollback": [
+    "homepage != 200",
+    "login roto",
+    "variacion inexplicada de usuarios o suscripciones",
+    "P0 visual o funcional",
+    "404 en navegacion principal",
+    "error de entorno",
+    "fuga de secreto",
+    "llamadas de pago inesperadas",
+    "error persistente de consola",
+    "corpus privado accesible publicamente"
+  ]
+}

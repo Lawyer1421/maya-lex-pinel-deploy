@@ -1,0 +1,61 @@
+# Gates de calidad del Maya Lex Delivery Harness.
+# Un release NO avanza de estado si cualquier gate obligatorio esta en rojo.
+gates:
+  preflight:
+    - id: rama-correcta
+      comando: node scripts/harness/verify-branch.mjs
+      obligatorio: true
+    - id: sin-secretos
+      comando: node scripts/harness/verify-secrets.mjs
+      obligatorio: true
+  build:
+    - id: typecheck
+      comando: npx tsc --noEmit
+      obligatorio: true
+    - id: tests
+      comando: npm test
+      obligatorio: true
+    - id: build-determinista
+      comando: npm run build   # incluye postbuild verificar-conteo-build.mjs (fallo duro)
+      obligatorio: true
+  preview:
+    - id: diagnostico-runtime
+      descripcion: /api/diagnostico-preview responde esStagingEsperado=true y PayPal ausente
+      obligatorio: true
+    - id: qa-16-paginas
+      descripcion: 0 enlaces 404, 0 errores de consola, 0 axe, 0 overflow, 0 llamadas Supabase/PayPal
+      obligatorio: true
+  produccion:
+    - id: snapshot-y-tag
+      comando: node scripts/harness/create-release-snapshot.mjs
+      obligatorio: true
+    - id: arbol-validado
+      descripcion: git diff vacio entre el merge y el arbol del Preview validado
+      obligatorio: true
+    - id: smoke-produccion
+      comando: node scripts/harness/smoke-production.mjs
+      obligatorio: true
+    - id: conteos-invariantes
+      descripcion: usuarios y suscripciones identicos pre/post deploy (agregados, sin PII)
+      obligatorio: true
+  corpus:
+    - id: procedencia
+      comando: node scripts/harness/verify-corpus-provenance.mjs
+      obligatorio: true
+    - id: citas
+      comando: node scripts/harness/verify-citations.mjs <norma.jsonl>
+      obligatorio: true
+    - id: privacidad
+      descripcion: 0 PII, 0 nombres anonimizados, 0 material privado (escaneo previo a staging)
+      obligatorio: true
+  evals:
+    - id: cero-p0
+      obligatorio: true
+    - id: cero-p1-seguridad
+      obligatorio: true
+    - id: citas-con-fuente
+      descripcion: 100% de respuestas juridicas con fuente cuando la funcion lo exige
+      obligatorio: true
+    - id: cero-citas-inventadas
+      descripcion: 0 citas inexistentes en el benchmark critico
+      obligatorio: true

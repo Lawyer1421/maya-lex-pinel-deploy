@@ -1,0 +1,61 @@
+# Propiedad de archivos del monorepo Maya Lex.
+# Dos agentes no pueden editar simultaneamente rutas del mismo dueno.
+# Estructura real del repo (app router plano, sin route group (public)).
+ownership:
+  - patron: "app/page.tsx"
+    dueno: release-v2
+  - patron: "app/{demo,pricing,producto,herramientas,cobertura-juridica,seguridad,fundador,recursos,soluciones}/**"
+    dueno: release-v2
+  - patron: "components/v2/**"
+    dueno: release-v2
+  - patron: "lib/v2/**"
+    dueno: release-v2
+  - patron: "app/{leyes,consultas}/**"
+    dueno: release-v2
+  - patron: "lib/seo/**"
+    dueno: release-v2
+  - patron: "data/corpus-editorial-status.json"
+    dueno: release-v2
+  - patron: "lib/ingesta-oficial/**"
+    dueno: corpus
+  - patron: "lib/corpus/**"
+    dueno: corpus
+  - patron: "scripts/corpus/**"
+    dueno: corpus
+  - patron: "corpus-data/**"
+    dueno: corpus
+  - patron: "supabase/corpus/**"
+    dueno: corpus
+  - patron: "lib/ai-gateway/**"
+    dueno: frontier-ai
+  - patron: "lib/providers/**"
+    dueno: frontier-ai
+  - patron: "lib/document-analysis/**"
+    dueno: frontier-ai
+  - patron: "lib/governed-learning/**"
+    dueno: frontier-ai
+  - patron: "app/internal/**"
+    dueno: frontier-ai
+  - patron: "tests/e2e/**"
+    dueno: qa
+  - patron: "tests/evals/**"
+    dueno: qa
+  - patron: "tests/**"
+    dueno: qa-compartido   # tests unitarios existentes: coordinar con el dueno del codigo bajo prueba
+  - patron: "scripts/harness/**"
+    dueno: harness
+  - patron: ".claude/**"
+    dueno: harness
+  - patron: "harness/**"
+    dueno: harness
+  - patron: "docs/harness/**"
+    dueno: harness
+  # Fuera de toda edicion automatica (solo release-manager con gates):
+  - patron: "app/api/paypal/**"
+    dueno: protegido-pagos
+  - patron: "lib/paypal/**"
+    dueno: protegido-pagos
+  - patron: "app/{login,auth,chat,cuenta}/**"
+    dueno: protegido-auth
+  - patron: "supabase/migrations/**"
+    dueno: protegido-migraciones
