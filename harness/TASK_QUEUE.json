@@ -1,7 +1,14 @@
 {
   "version": 1,
-  "actualizado": "2026-07-29T11:52:08.272Z",
+  "actualizado": "2026-07-29T14:29:22.945Z",
   "cola": [
+    {
+      "id": "T-000",
+      "fase": "F0b",
+      "titulo": "Gobernanza economica (context manifest, cost policy, model routing, command cache, artifact index, budgets)",
+      "estado": "COMPLETED",
+      "agente": "release-manager"
+    },
     {
       "id": "T-001",
       "fase": "F1",
@@ -100,5 +107,6 @@
       "estado": "PLANNED",
       "agente": "corpus-acquisition-agent"
     }
-  ]
+  ],
+  "siguienteTarea": "T-014 (primera norma V1->V2 completa: hn-constitucion) con Sonnet; luego T-013 descubrimiento resto Grupo A con Haiku"
 }

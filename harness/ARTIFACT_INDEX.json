@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "actualizado": "2026-07-29T12:05:00Z",
+  "regla": "Evidencias ya generadas; no regenerar si el commit asociado no cambio.",
+  "artefactos": [
+    { "id": "qa-produccion-72f762a", "ruta": "C:/dev/qa-scripts-mayalex-v2/artifacts-produccion/ (+copia OneDrive artifacts/)", "contenido": "32 capturas + qa-16-resumen.json", "commit": "72f762a" },
+    { "id": "qa-rc2-01e8fc0", "ruta": "OneDrive maya-lex-app/artifacts/mayalex-v2-rc2/", "contenido": "34 capturas + JSON", "commit": "01e8fc0" },
+    { "id": "docs-remediacion", "ruta": "repo raiz (rama V2 fusionada)", "contenido": "BUILD_DETERMINISM, ENV_VERIFIED, ACCESSIBILITY_FINAL, LINK_AUDIT_FINAL, PREVIEW_FINAL_QA", "commit": "3d38318" },
+    { "id": "estrategia-adenda", "ruta": "rama harness raiz", "contenido": "COMPETITIVE_DIFFERENTIATION, FOUNDER_EXPERTISE_PRODUCTIZATION, LEGAL_WORKFLOW_ENGINE", "commit": "d71080f" },
+    { "id": "corpus-v1-lote1", "ruta": "C:/dev/mayalex-corpus/corpus-data/ (raw local, registro en git)", "contenido": "3 PDFs oficiales + registro-fuentes.jsonl", "commit": "rama corpus" },
+    { "id": "informes-auditoria-historicos", "ruta": "OneDrive maya-lex-app/MAYALEX_*.md|csv", "contenido": "auditorias corpus/SEO/staging cerradas", "commit": "varios", "nota": "NO releer salvo incidente que lo justifique" }
+  ]
+}

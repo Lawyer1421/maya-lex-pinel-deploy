@@ -25,6 +25,14 @@
 3. Tomar la primera tarea PLANNED de la cola respetando `FILE_OWNERSHIP.yaml`.
 4. Preflight antes de cualquier commit.
 
+## Gobernanza económica (activa desde 2026-07-29)
+
+- Fable 5 solo para: arquitectura, P0/P1, seguridad, privacidad crítica, vigencia jurídica compleja, decisiones de producción y rollback.
+- Sonnet: ejecutor principal (código, ingesta, integración, pruebas, Preview, gateway, docs).
+- Haiku: inventarios, clasificación, metadatos, logs filtrados, dedup, índices.
+- Ver `harness/MODEL_ROUTING.yaml`, `COST_POLICY.yaml`, `COMMAND_CACHE.json`, `CONTEXT_MANIFEST.json`, `ARTIFACT_INDEX.json`, `AI_BUDGETS_BY_PLAN.yaml`.
+- Suite y build completos SOLO antes de Preview/merge/producción/cierre; durante implementación: módulo modificado + typecheck incremental.
+
 ## Riesgos abiertos
 
 - La anon key del ámbito Preview reporta ausente en runtime (`anonKeyPresente:false`) — sin impacto en páginas públicas (usan service role server-side); revisar si algún flujo de Preview requiere cliente browser de Supabase.

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "actualizado": "2026-07-29T12:05:00Z",
+  "regla": "Un archivo sin cambio de hash/commit no se relee. Registrar aqui las lecturas costosas y su justificacion.",
+  "entradas": [
+    { "archivo": "harness/STATE.json", "commit": "9be1b56", "ultimaLectura": "2026-07-29T12:00:00Z", "tarea": "reanudacion directriz maestra", "releer": "solo si cambia entre sesiones" },
+    { "archivo": "harness/TASK_QUEUE.json", "commit": "9be1b56", "ultimaLectura": "2026-07-29T12:00:00Z", "tarea": "reanudacion", "releer": "solo si cambia" },
+    { "archivo": "lib/seo/articulos-vigentes.ts", "commit": "72f762a", "ultimaLectura": "2026-07-29", "tarea": "build determinista (cerrada)", "releer": "no salvo bug" },
+    { "archivo": "lib/supabase.ts", "commit": "72f762a", "ultimaLectura": "2026-07-29", "tarea": "saneo whitespace (cerrada)", "releer": "no salvo bug" },
+    { "archivo": "components/v2/**", "commit": "72f762a", "ultimaLectura": "2026-07-29", "tarea": "V2 shell + a11y (cerrada, en produccion)", "releer": "solo el archivo a modificar" },
+    { "archivo": "corpus-data/registro-fuentes.jsonl", "commit": "rama corpus", "ultimaLectura": "2026-07-29", "tarea": "3 normas V1", "releer": "append-only; leer solo nuevas lineas" }
+  ]
+}

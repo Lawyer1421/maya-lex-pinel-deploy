@@ -1,0 +1,49 @@
+# Presupuestos de costo variable de IA por plan (configuracion inicial).
+# Estos limites gobiernan el router (escalera cache -> deterministico -> busqueda
+# -> ECONOMY -> STANDARD -> DEEP) cuando multi_model_routing se active.
+moneda: USD
+periodo: mensual
+planes:
+  gratis:
+    presupuesto_por_usuario: 0.10
+    consultas_diarias: 3
+    perfil_modelo: ECONOMY
+    analisis_profundo: no
+  academico:
+    presupuesto_por_usuario: 1.50
+    perfil_modelo: ECONOMY_STANDARD
+    analisis_profundos_incluidos: limitados
+  profesional:
+    presupuesto_por_usuario: 3.00
+    perfil_modelo: STANDARD con DEEP justificado
+    politica: uso razonable visible
+  bufete:
+    presupuesto: porcentaje_configurable_del_ingreso
+    porcentaje_inicial: 30
+    compartido: true
+  universidad:
+    presupuesto: porcentaje_configurable_del_ingreso
+    porcentaje_inicial: 30
+    compartido: true
+
+umbrales:
+  al_80_por_ciento:
+    - priorizar cache
+    - reducir contexto
+    - limitar longitud de respuesta
+    - forzar modelo economico
+    - sugerir complemento (creditos)
+  al_100_por_ciento:
+    - no generar gasto no autorizado
+    - ofrecer creditos adicionales
+    - esperar renovacion
+    - permitir respuesta deterministica de bajo costo (corpus/cache)
+
+registro_sin_pii:
+  campos: [requestId, tenantSeudonimo, capability, proveedor, modelo, tokensIn, tokensOut, cacheHit, costoEstimado, latenciaMs, plan, escalamiento, margenEstimado]
+  prohibido: [consultas juridicas completas en logs generales, PII, valores de credenciales]
+
+reglas:
+  - DEEP solo con: complejidad justificada + plan lo permite + ECONOMY/STANDARD no alcanza umbral + presupuesto disponible (o creditos comprados).
+  - Nunca degradar silenciosamente una respuesta juridica critica: si el presupuesto fuerza degradacion, decirlo visiblemente.
+  - Ninguna capability costosa sin feature flag + presupuesto maximo configurado.

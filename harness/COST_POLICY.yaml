@@ -1,0 +1,36 @@
+# Politica de gobernanza economica del harness de Maya Lex.
+lectura_de_contexto:
+  - Al reanudar, leer SOLO: STATE.json, TASK_QUEUE.json, CURRENT_STATE.md,
+    ultima entrada relevante de RUN_LEDGER.jsonl, FILE_OWNERSHIP.yaml,
+    QUALITY_GATES.yaml, git diff desde el ultimo checkpoint y la skill de la tarea.
+  - No releer la conversacion historica ni todos los informes.
+  - No escanear el repositorio completo salvo incidente que lo justifique.
+  - Un archivo cuyo hash no cambio no se relee (ver CONTEXT_MANIFEST.json).
+
+comandos:
+  - No repetir un comando costoso cuya evidencia siga vigente para el mismo commit
+    (ver COMMAND_CACHE.json: comando+commit -> resultado+vigencia).
+  - No repetir descargas con sha256 ya registrado (registro-fuentes.jsonl).
+
+pruebas_escalonadas:
+  durante_implementacion:
+    - probar solo el modulo modificado (vitest <archivo> / -t patron)
+    - typecheck incremental (tsc --noEmit ya usa cache incremental del proyecto)
+    - logs filtrados (grep), nunca lectura completa
+  suite_y_build_completos_solo_antes_de:
+    - Preview
+    - merge
+    - produccion
+    - cierre formal de ciclo
+
+ingesta_economica:
+  - primero: parser, hash, reglas, regex, estructura del documento, dedup determinista
+  - modelos solo cuando lo anterior no alcanza; fragmentos en vez de documento completo
+  - procesamiento Batch para tareas no interactivas cuando este disponible
+
+contexto_persistente:
+  - CLAUDE.md breve (<200 lineas); instrucciones especializadas viven en skills
+  - subagentes se finalizan al terminar; sin equipos ociosos
+
+presupuesto_de_producto:
+  - ver AI_BUDGETS_BY_PLAN.yaml; ninguna capability costosa sin flag y presupuesto

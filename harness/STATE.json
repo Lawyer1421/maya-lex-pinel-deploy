@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-07-29T11:52:08.270Z",
+  "actualizado": "2026-07-29T14:29:22.937Z",
   "estadoGlobal": "OBSERVING",
   "produccion": {
     "dominio": "https://mayalexhn.com",
@@ -23,7 +23,8 @@
     "F5_integracion": "PLANNED",
     "F6_evals": "PLANNED",
     "F7_observabilidad": "PLANNED",
-    "F8_cd": "PLANNED"
+    "F8_cd": "PLANNED",
+    "F0b_gobernanza_economica": "IMPLEMENTED"
   },
   "worktrees": {
     "C:/dev/mayalex-qa": "release/v2-to-main (merge ya publicado; reutilizable para QA)",
@@ -34,6 +35,7 @@
   "notas": [
     "Variables Vercel de tipo sensitive son de solo-escritura: la verificacion de entorno se hace en runtime via /api/diagnostico-preview (Preview-only).",
     "biblioteca_vectores en staging tiene SELECT solo para service_role; anon/authenticated bloqueados (aislamiento intencional).",
-    "Los conteos de usuarios/suscripciones se consultan agregados via MCP Supabase de solo lectura; nunca se exporta PII."
+    "Los conteos de usuarios/suscripciones se consultan agregados via MCP Supabase de solo lectura; nunca se exporta PII.",
+    "Gobernanza economica activa: MODEL_ROUTING.yaml (Fable solo critico; Sonnet ejecutor; Haiku mecanico), COST_POLICY.yaml (lecturas minimas, command cache, pruebas escalonadas), AI_BUDGETS_BY_PLAN.yaml (0.10/1.50/3.00 USD/mes + % en planes superiores)."
   ]
 }

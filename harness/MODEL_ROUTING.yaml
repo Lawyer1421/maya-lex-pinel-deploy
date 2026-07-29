@@ -1,0 +1,60 @@
+# Politica de modelos para Claude Code en Maya Lex.
+# Regla: cada tarea usa el modelo MAS ECONOMICO capaz de cumplirla.
+politica:
+  fable:
+    usar_solo_para:
+      - arquitectura transversal
+      - incidentes P0/P1
+      - decisiones de seguridad
+      - privacidad critica
+      - consolidacion juridica compleja (vigencia/reformas/derogaciones dificiles)
+      - decisiones de produccion (merge a main, promote, rollback)
+      - revision final de integraciones importantes
+    prohibido_para:
+      - comandos rutinarios
+      - inventarios
+      - descargas
+      - lectura completa de logs
+      - extraccion de metadatos
+      - builds repetitivos
+      - clasificacion
+      - deduplicacion
+      - documentacion mecanica
+  sonnet:
+    ejecutor_principal_para:
+      - programacion cotidiana
+      - ingesta e integracion
+      - correcciones y pruebas
+      - documentacion
+      - Preview
+      - AI Gateway
+      - analisis documental
+      - browser juridico
+      - voz basica
+  haiku:
+    usar_para:
+      - inventarios
+      - clasificacion
+      - metadatos
+      - lectura filtrada de logs
+      - resumenes
+      - deduplicacion
+      - indices
+      - reportes estructurados
+      - tareas mecanicas
+
+# Modelo asignado por subagente (frontmatter model: en .claude/agents/*.md)
+subagentes:
+  release-manager: sonnet        # decisiones criticas de produccion se elevan a Fable en la sesion principal
+  corpus-acquisition-agent: haiku
+  legal-integrity-agent: sonnet  # vigencia compleja se eleva a Fable
+  frontier-ai-agent: sonnet
+  privacy-security-agent: sonnet
+  qa-evals-agent: haiku          # ejecuta y reporta; interpretacion de fallos raros se eleva
+  deployment-rollback-agent: sonnet
+
+escalamiento:
+  - un subagente eleva a la sesion principal (Fable) SOLO al toparse con:
+      incidente P0/P1, decision de seguridad/privacidad, vigencia juridica compleja,
+      decision de produccion o rollback.
+  - los subagentes se finalizan al terminar su tarea; no se mantienen equipos ociosos.

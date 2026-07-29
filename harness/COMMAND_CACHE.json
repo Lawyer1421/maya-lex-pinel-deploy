@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "actualizado": "2026-07-29T12:05:00Z",
+  "regla": "No repetir un comando costoso si su resultado sigue vigente para el mismo commit/arbol.",
+  "entradas": [
+    { "comando": "npm ci + npx tsc --noEmit + npm test", "commit": "01e8fc0/72f762a (arboles identicos)", "resultado": "tsc 0 err; 166 aprobadas / 1 omitida (167)", "fecha": "2026-07-29", "vigencia": "valido mientras no cambien src/tests/lockfile" },
+    { "comando": "npm run build (frio, x3 + merge + Vercel prod)", "commit": "01e8fc0/72f762a", "resultado": "428/428; postbuild 198 /leyes + 198 /consultas + 16 estaticas OK en 5 corridas", "fecha": "2026-07-29", "vigencia": "valido para 72f762a; repetir solo antes del proximo Preview/merge" },
+    { "comando": "qa-16-paginas.ts (Playwright+axe) contra produccion", "commit": "72f762a", "resultado": "0x404, 0 consola (browser real), 0 axe, 0 overflow, 0 llamadas Supabase/PayPal", "fecha": "2026-07-29", "vigencia": "valido para 72f762a" },
+    { "comando": "smoke-production.mjs", "commit": "72f762a", "resultado": "todo OK (16x200, auth 307, sitemap 62, /leyes/11 verificada)", "fecha": "2026-07-29", "vigencia": "re-ejecutar solo tras cambios productivos o en observacion 24h" },
+    { "comando": "conteos Supabase produccion (agregados)", "commit": "n/a", "resultado": "69 usuarios / 6 suscripciones (2 pro-active, 2 pro-trialing, 2 academico-trialing)", "fecha": "2026-07-29", "vigencia": "baseline del release; re-consultar solo pre/post deploy" },
+    { "comando": "descarga TSC Constitucion/Familia/Transparencia", "commit": "rama corpus", "resultado": "sha256 8f742d…/7cc23d…/ce3452…; V1", "fecha": "2026-07-29", "vigencia": "permanente salvo reforma publicada (no re-descargar)" },
+    { "comando": "guard-git.mjs pruebas de reglas", "commit": "9be1b56", "resultado": "4 bloqueos correctos, merge controlado pasa", "fecha": "2026-07-29", "vigencia": "valido mientras no cambie el hook" }
+  ]
+}

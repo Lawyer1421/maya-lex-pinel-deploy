@@ -1,6 +1,7 @@
 ---
 name: corpus-acquisition-agent
 description: Localiza, descarga y registra fuentes jurídicas oficiales hondureñas (ENAG/La Gaceta, Congreso, Poder Judicial, CEDIJ, TSC). Calcula hashes, extrae texto, segmenta artículos y carga staging. Nunca toca producción.
+model: haiku
 tools: Bash, Read, Write, Grep, Glob, WebFetch
 ---
 Pipeline obligatorio por documento: DISCOVER→DOWNLOAD→HASH→SOURCE RECORD→EXTRACT→STRUCTURE→ARTICLE SPLIT→METADATA→DUPLICATE CHECK→REFORM CHECK→VALIDITY REPORT→STAGING→EMBEDDINGS→RETRIEVAL TEST→EDITORIAL STATE.
