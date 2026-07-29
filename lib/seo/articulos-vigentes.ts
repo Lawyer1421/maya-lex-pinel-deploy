@@ -76,7 +76,14 @@ export async function obtenerArticuloPorNumero(numero: string): Promise<Articulo
         return { numArticulo: data.num_articulo, contenido: data.contenido, fuente: data.fuente };
       }
 
-      ultimoError = 'code' in error && error.code ? String(error.code) : 'sin_codigo';
+      const codigo = 'code' in error && error.code ? String(error.code) : 'sin_codigo';
+      // Mensaje sanitizado: sin URLs ni cadenas largas tipo token — solo la
+      // naturaleza del fallo (p. ej. "fetch failed", "Invalid API key").
+      const mensaje = String((error as { message?: string }).message ?? '')
+        .replace(/https?:\/\/\S+/g, '[url]')
+        .replace(/[A-Za-z0-9_-]{25,}/g, '[tok]')
+        .slice(0, 80);
+      ultimoError = mensaje ? `${codigo}:${mensaje}` : codigo;
       console.warn(`[articulos-vigentes] art=${numero} intento=${intento}/${MAX_INTENTOS} error=${ultimoError}`);
     } catch {
       ultimoError = 'excepcion';
