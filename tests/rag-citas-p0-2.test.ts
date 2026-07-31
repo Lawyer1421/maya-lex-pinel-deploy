@@ -54,4 +54,31 @@ describe('construirCitas — P0-2 pipeline de citas exactas', () => {
     const f2 = frag({ num_articulo: '1', contenido: 'mismo texto' });
     expect(f1.hash).toBe(f2.hash);
   });
+
+  it('fragmento sin num_articulo (metadato opcional ausente) no rompe ni inventa un número', () => {
+    const citas = construirCitas([frag({ num_articulo: null, fuente: 'TSC' })]);
+    expect(citas).toHaveLength(1);
+    expect(citas[0].articulo).toBeNull();
+    expect(citas[0].hash).toMatch(/^[0-9a-f]{8}$/);
+  });
+
+  it('fuente vacía se preserva tal cual — nunca se inventa una fuente ausente', () => {
+    const citas = construirCitas([frag({ num_articulo: '5', fuente: '' })]);
+    expect(citas).toHaveLength(1);
+    expect(citas[0].fuente).toBe('');
+  });
+
+  it('entrada vacía o sin fragmentos vigentes → array vacío, sin lanzar excepción', () => {
+    expect(construirCitas([])).toEqual([]);
+    expect(construirCitas([frag({ es_norma_vigente: false }), frag({ es_norma_vigente: null })])).toEqual([]);
+  });
+
+  it('preserva el orden de aparición de los fragmentos de entrada', () => {
+    const citas = construirCitas([
+      frag({ num_articulo: '10', fuente: 'TSC' }),
+      frag({ num_articulo: '20', fuente: 'TSC' }),
+      frag({ num_articulo: '30', fuente: 'TSC' }),
+    ]);
+    expect(citas.map((c) => c.articulo)).toEqual(['10', '20', '30']);
+  });
 });
