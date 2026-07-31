@@ -149,7 +149,7 @@ const MODOS_CON_ROUTER: AnyMode[] = [
 // Solo fragmentos marcados es_norma_vigente=true califican como "cita" —
 // doctrina/jurisprudencia comparada se usa como contexto para el modelo pero
 // nunca se presenta al usuario como fundamento normativo verificable.
-interface Cita {
+export interface Cita {
   articulo: string | null;
   texto: string;
   fuente: string;
@@ -157,7 +157,7 @@ interface Cita {
   hash: string;
 }
 
-function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
+export function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
   const vistos = new Set<string>();
   const citas: Cita[] = [];
   for (const f of fragmentos) {
