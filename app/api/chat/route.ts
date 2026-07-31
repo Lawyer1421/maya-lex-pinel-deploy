@@ -39,7 +39,7 @@ import {
   ChatMode,
   ChatModePenal,
 } from '@/lib/system-prompt';
-import { buscarRAG, formatearContextoRAG } from '@/lib/rag/search';
+import { buscarRAG, formatearContextoRAG, type FragmentoRAG } from '@/lib/rag/search';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
@@ -144,6 +144,38 @@ const MATERIA_PENAL = '01_PENAL';
 const MODOS_CON_ROUTER: AnyMode[] = [
   'analisis', 'analisis_penal', 'escritos_penales', 'documento',
 ];
+
+// ── Citas estructuradas para trazabilidad en UI (P0-4) ──────────────────────
+// Solo fragmentos marcados es_norma_vigente=true califican como "cita" —
+// doctrina/jurisprudencia comparada se usa como contexto para el modelo pero
+// nunca se presenta al usuario como fundamento normativo verificable.
+interface Cita {
+  articulo: string | null;
+  texto: string;
+  fuente: string;
+  vigente: boolean;
+  hash: string;
+}
+
+function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
+  const vistos = new Set<string>();
+  const citas: Cita[] = [];
+  for (const f of fragmentos) {
+    if (f.es_norma_vigente !== true) continue;
+    const clave = `${f.num_articulo ?? ''}|${f.fuente}`;
+    if (vistos.has(clave)) continue;
+    vistos.add(clave);
+    citas.push({
+      articulo: f.num_articulo,
+      texto: f.contenido.length > 600 ? `${f.contenido.slice(0, 600)}…` : f.contenido,
+      fuente: f.fuente,
+      vigente: true,
+      hash: f.hash ?? '',
+    });
+    if (citas.length >= 5) break;
+  }
+  return citas;
+}
 
 // ── Encoder SSE ────────────────────────────────────────────────────────────
 
@@ -250,19 +282,22 @@ export async function POST(req: NextRequest) {
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  const ragPromise: Promise<string> = (async () => {
-    if (!(ruta !== 'D' && usarRouter)) return '';
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
+
+  const ragPromise: Promise<RagOut> = (async () => {
+    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
-    if (!coleccionPrincipal) return '';
+    if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
 
     const ragResultado = await buscarRAG(
       ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
     );
     let contextoRAG = formatearContextoRAG(ragResultado);
+    const fragmentos = [...ragResultado.fragmentos];
 
     // RUTA_C civil → segunda pasada con procedimental para completar el análisis
     if (ruta === 'C' && !esPenal) {
@@ -271,8 +306,9 @@ export async function POST(req: NextRequest) {
       if (contextoProc) {
         contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
       }
+      fragmentos.push(...ragProc.fragmentos);
     }
-    return contextoRAG;
+    return { texto: contextoRAG, fragmentos };
   })();
 
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
@@ -317,7 +353,9 @@ export async function POST(req: NextRequest) {
     }
   })();
 
-  const [contextoRAG, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  const contextoRAG = ragData.texto;
+  const citas = construirCitas(ragData.fragmentos);
 
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente
@@ -363,6 +401,7 @@ export async function POST(req: NextRequest) {
             usage: { inputTokens: 0, outputTokens: 0 },
             remaining: rateLimitResult.remaining,
             tier: rateLimitResult.tier,
+            citas: [],
           }));
           after(() => logConsulta({
             consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -399,6 +438,7 @@ export async function POST(req: NextRequest) {
                 tier: rateLimitResult.tier,
                 model: modelOR,
                 ruta,
+                citas,
               }));
               after(() => logConsulta({
                 consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -471,6 +511,7 @@ export async function POST(req: NextRequest) {
                   usage: { inputTokens, outputTokens },
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
+                  citas,
                 }));
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,

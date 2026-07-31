@@ -22,6 +22,8 @@ export interface PromptInputProps {
   isLoading: boolean;
   onCancel: () => void;
   placeholder?: string;
+  /** Tier del usuario (free | academico | pro | admin). Gatea análisis documental (H3). */
+  tier?: string;
 }
 
 // ── Modelos disponibles ─────────────────────────────────────────────────────
@@ -69,10 +71,13 @@ export default function PromptInput({
   isLoading,
   onCancel,
   placeholder = 'Consulta jurídica en español o inglés...',
+  tier,
 }: PromptInputProps) {
+  const canAttach = tier === 'pro' || tier === 'admin';
   const [text, setText] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
+  const [showAttachHint, setShowAttachHint] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isExtracting, setIsExtracting] = useState(false);
   const [webSearch, setWebSearch] = useState(false);
@@ -99,6 +104,7 @@ export default function PromptInput({
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
         setShowModelPicker(false);
+        setShowAttachHint(false);
       }
     }
     document.addEventListener('mousedown', handleOutside);
@@ -271,7 +277,7 @@ export default function PromptInput({
         {/* Botón "+" con menú desplegable */}
         <div className="relative flex-shrink-0" ref={menuRef}>
           <button
-            onClick={() => { setMenuOpen((v) => !v); setShowModelPicker(false); }}
+            onClick={() => { setMenuOpen((v) => !v); setShowModelPicker(false); setShowAttachHint(false); }}
             disabled={isLoading}
             title="Acciones"
             className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-light transition-all duration-200 select-none ${
@@ -295,19 +301,33 @@ export default function PromptInput({
             >
               <div className="glass-card border border-white/10 rounded-xl overflow-hidden py-1.5">
 
-                {/* Subir documento */}
+                {/* Subir documento — exclusivo Plan Profesional/Admin (H3) */}
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={() => {
+                    if (!canAttach) { setShowAttachHint(true); return; }
+                    fileInputRef.current?.click();
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                    canAttach
+                      ? 'text-white/70 hover:text-white hover:bg-white/5'
+                      : 'text-white/30 hover:bg-white/5 cursor-not-allowed'
+                  }`}
                 >
-                  <svg className="w-4 h-4 text-jade flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className={`w-4 h-4 flex-shrink-0 ${canAttach ? 'text-jade' : 'text-white/25'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                   </svg>
                   <div className="text-left">
-                    <p className="font-medium text-white/90 text-sm">Subir documento</p>
+                    <p className="font-medium text-sm">Subir documento{!canAttach && ' 🔒'}</p>
                     <p className="text-xs text-white/35">PDF · DOCX · TXT</p>
                   </div>
                 </button>
+
+                {showAttachHint && !canAttach && (
+                  <div className="mx-3 mb-1.5 px-3 py-2 rounded-lg bg-gold/10 border border-gold/25 text-xs text-gold">
+                    Análisis documental exclusivo del plan Profesional.{' '}
+                    <a href="/pricing" className="underline hover:no-underline">Actualizar →</a>
+                  </div>
+                )}
 
                 <div className="h-px bg-white/5 mx-3 my-0.5" />
 
