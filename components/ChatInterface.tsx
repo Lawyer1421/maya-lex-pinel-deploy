@@ -22,6 +22,14 @@ async function getAuthHeader(): Promise<Record<string, string>> {
 }
 
 // ── Tipos ────────────────────────────────────────────────────────────
+export interface Cita {
+  articulo: string | null;
+  texto: string;
+  fuente: string;
+  vigente: boolean;
+  hash: string;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -30,6 +38,7 @@ interface Message {
   isStreaming?: boolean;
   timestamp: Date;
   consultaId?: string;
+  citas?: Cita[];
 }
 
 interface UsageInfo {
@@ -96,6 +105,22 @@ export default function ChatInterface() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Tier del usuario al cargar — necesario para gatear adjuntos (H3)
+  // antes de la primera respuesta del chat, que es cuando normalmente
+  // se conoce el tier vía el evento SSE 'done'.
+  useEffect(() => {
+    (async () => {
+      try {
+        const authHeader = await getAuthHeader();
+        const res = await fetch('/api/usage', { headers: authHeader });
+        const data = await res.json();
+        setUsage((prev) => ({ ...prev, tier: data.tier, remaining: data.limit - data.used }));
+      } catch {
+        // No bloquear el UI — gating de adjuntos degrada a "sin tier conocido"
+      }
+    })();
+  }, []);
 
   // ── Enviar mensaje ──────────────────────────────────────────────────
   const sendMessage = useCallback(
@@ -219,7 +244,7 @@ export default function ChatInterface() {
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
-                        ? { ...m, isStreaming: false, consultaId: event.consulta_id }
+                        ? { ...m, isStreaming: false, consultaId: event.consulta_id, citas: event.citas ?? [] }
                         : m
                     )
                   );
@@ -401,6 +426,7 @@ export default function ChatInterface() {
             <MessageBubble
               message={message}
               isThinking={isThinking && message.isStreaming === true}
+              citas={message.citas}
             />
             {/* Feedback — solo en respuestas completas del asistente */}
             {message.role === 'assistant' && !message.isStreaming && message.consultaId && (
@@ -474,9 +500,13 @@ export default function ChatInterface() {
           <span>
             {usage.tier === 'free'
               ? `${usage.remaining} consultas restantes hoy (Plan Gratuito)`
+              : usage.tier === 'academico'
+              ? `${usage.remaining} consultas restantes hoy (Plan Académico)`
               : usage.tier === 'pro'
-              ? '✓ Plan Pro — consultas ilimitadas'
-              : '✓ Acceso Admin'}
+              ? '✓ Plan Profesional — consultas ilimitadas'
+              : usage.tier === 'admin'
+              ? '✓ Acceso Admin'
+              : ''}
           </span>
           {usage.inputTokens && (
             <span>
@@ -494,6 +524,7 @@ export default function ChatInterface() {
             isLoading={isLoading}
             onCancel={cancelGeneration}
             placeholder={placeholder}
+            tier={usage.tier}
           />
         </div>
       </div>

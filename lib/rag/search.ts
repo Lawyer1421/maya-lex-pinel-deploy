@@ -16,6 +16,8 @@
  *               Modo actual mientras Supabase no está provisionado.
  */
 
+import { createHash } from 'crypto';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // TIPOS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,6 +31,16 @@ export interface FragmentoRAG {
   fuente_tipo?: string | null;
   jurisdiccion?: string | null;
   es_norma_vigente?: boolean | null;
+  /** SHA-256(contenido+num_articulo+fuente) truncado a 8 hex — integridad verificable sin columna DB nueva (P0-4). */
+  hash?: string;
+}
+
+/** Hash corto y determinista de un fragmento, para trazabilidad en UI (P0-4). */
+export function hashFragmento(f: Pick<FragmentoRAG, 'contenido' | 'num_articulo' | 'fuente'>): string {
+  return createHash('sha256')
+    .update(`${f.contenido}|${f.num_articulo ?? ''}|${f.fuente}`)
+    .digest('hex')
+    .slice(0, 8);
 }
 
 export interface ResultadoRAG {
@@ -81,7 +93,7 @@ async function buscarEnPython(
   };
 
   return {
-    fragmentos: data.fragmentos,
+    fragmentos: data.fragmentos.map((f) => ({ ...f, hash: f.hash ?? hashFragmento(f) })),
     articulos_encontrados: data.articulos_encontrados,
     backend: 'python',
   };
@@ -126,6 +138,7 @@ async function buscarEnSupabase(
     fuente_tipo: row.fuente_tipo,
     jurisdiccion: row.jurisdiccion,
     es_norma_vigente: row.es_norma_vigente,
+    hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
   });
 
   // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo

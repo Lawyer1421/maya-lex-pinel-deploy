@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Cita } from './ChatInterface';
 
 // ── Tipos ────────────────────────────────────────────────────────────
 interface Message {
@@ -16,10 +17,11 @@ interface Message {
 interface MessageBubbleProps {
   message: Message;
   isThinking?: boolean;
+  citas?: Cita[];
 }
 
 // ── Componente ───────────────────────────────────────────────────────
-export default function MessageBubble({ message, isThinking }: MessageBubbleProps) {
+export default function MessageBubble({ message, isThinking, citas }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const timeStr = message.timestamp.toLocaleTimeString('es-HN', {
     hour: '2-digit',
@@ -203,6 +205,28 @@ export default function MessageBubble({ message, isThinking }: MessageBubbleProp
               </div>
             </div>
           )
+        )}
+
+        {/* Citas verificables — P0-4: artículo, texto, fuente, estado, hash */}
+        {!message.isStreaming && citas && citas.length > 0 && (
+          <div className="mt-2 space-y-1.5">
+            {citas.map((c) => (
+              <details key={c.hash} className="glass-card px-3 py-2 text-xs group">
+                <summary className="cursor-pointer flex items-center gap-2 text-white/70 select-none">
+                  <span className="text-jade font-semibold">
+                    {c.articulo ? `Art. ${c.articulo}` : 'Fragmento'}
+                  </span>
+                  <span className="text-white/30">·</span>
+                  <span className="text-white/50">{c.fuente}</span>
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-jade/15 text-jade">
+                    Norma vigente HN
+                  </span>
+                  <span className="ml-auto text-white/25 font-mono">#{c.hash}</span>
+                </summary>
+                <p className="text-white/60 mt-2 leading-relaxed whitespace-pre-wrap">{c.texto}</p>
+              </details>
+            ))}
+          </div>
         )}
 
         {/* Footer del mensaje */}
