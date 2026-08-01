@@ -10,20 +10,11 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
+import { sanitizeNextPath } from '@/lib/auth/redirect';
 
-/**
- * Restringe `next` a una ruta interna relativa — nunca a una URL
- * absoluta ni protocolo-relativa. Sin esto, un `next` como
- * `//evil.com` o `https://evil.com` en la query string del callback
- * podría usarse para un open redirect después de un login legítimo.
- */
-export function sanitizeNextPath(next: string | null): string {
-  if (!next) return '/chat';
-  if (!next.startsWith('/')) return '/chat';       // debe ser relativa
-  if (next.startsWith('//')) return '/chat';        // protocolo-relativa — rechazada
-  if (next.includes('://')) return '/chat';         // esquema embebido — rechazada
-  return next;
-}
+// Re-exportado por compatibilidad — la fuente de verdad es lib/auth/redirect.ts
+// (compartida también con buildAuthCallbackUrl en app/login/page.tsx).
+export { sanitizeNextPath };
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
