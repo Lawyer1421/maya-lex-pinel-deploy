@@ -177,10 +177,22 @@ export interface ResultadoRAG {
 
 type BackendRAG = 'python' | 'supabase' | 'disabled';
 
-function getBackend(): BackendRAG {
-  const val = (process.env.RAG_BACKEND ?? 'disabled') as BackendRAG;
-  if (['python', 'supabase', 'disabled'].includes(val)) return val;
-  return 'disabled';
+/**
+ * P0-2B: RAG_BACKEND ausente en un entorno (a diferencia de 'disabled'
+ * explícito) apagaba el RAG por completo en silencio — el chat seguía
+ * respondiendo, sin ningún error visible, simplemente sin corpus ni citas.
+ * Un olvido de configuración no debe comportarse igual que una decisión
+ * deliberada de desactivar el RAG: si las credenciales de Supabase existen,
+ * se usa el backend real; 'disabled' sigue respetándose cuando es explícito.
+ */
+export function getBackend(): BackendRAG {
+  const val = process.env.RAG_BACKEND as BackendRAG | undefined;
+  if (val && ['python', 'supabase', 'disabled'].includes(val)) return val;
+
+  const tieneSupabase = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() && process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  );
+  return tieneSupabase ? 'supabase' : 'disabled';
 }
 
 const PYTHON_RAG_URL = process.env.PYTHON_RAG_URL ?? 'http://localhost:8100';
