@@ -43,11 +43,132 @@ export function hashFragmento(f: Pick<FragmentoRAG, 'contenido' | 'num_articulo'
     .slice(0, 8);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// RECUPERACIÓN DETERMINISTA POR ARTÍCULO EXACTO
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// P0-2B: la búsqueda semántica pura falla en dos escenarios de seguridad
+// jurídica: (a) depende de HF_API_TOKEN, que puede faltar en un entorno y
+// dejar el chat sin ningún contexto sin que el usuario lo note con claridad;
+// (b) puede no rankear el artículo exacto pedido en el top-k cuando hay
+// jurisprudencia/doctrina compitiendo por similitud. Esta capa intenta una
+// recuperación exacta y determinista ANTES de la semántica, y no requiere
+// embeddings — sigue funcionando aunque falte HF_API_TOKEN.
+//
+// Limitación de datos conocida (no resoluble en código): la columna `fuente`
+// está vacía en todo el corpus de staging hoy, así que no hay forma de
+// distinguir p. ej. Código Penal de Código Procesal Penal por metadato — solo
+// por lo que el propio texto de la consulta indique. Mientras esa columna no
+// se pueble, la desambiguación de instrumento es best-effort por texto, nunca
+// una certeza de base de datos. Este código NO inventa un instrumento cuando
+// no puede determinarlo: si hay más de un candidato tras vigencia+materia,
+// se marca ambiguo y no se ofrece como fundamento normativo.
+
+export interface DeteccionArticulo {
+  numero: string;
+  materiaDetectada: string | null;
+}
+
+const RE_ARTICULO_NUM = /\bart(?:[ií]culo|\.)?\s*(\d+)\b/i;
+const RE_MATERIA_PENAL = /\b(penal|cpp|c[oó]digo\s+procesal\s+penal)\b/i;
+const RE_MATERIA_CIVIL = /\b(civil|cpc|c[oó]digo\s+procesal\s+civil)\b/i;
+
+/** Detecta un número de artículo explícito y, si el texto lo indica, la materia. */
+export function detectarArticuloExacto(query: string): DeteccionArticulo | null {
+  const m = RE_ARTICULO_NUM.exec(query);
+  if (!m) return null;
+  const materiaDetectada = RE_MATERIA_PENAL.test(query)
+    ? '01_PENAL'
+    : RE_MATERIA_CIVIL.test(query)
+      ? '02_CIVIL'
+      : null;
+  return { numero: m[1], materiaDetectada };
+}
+
+export interface ResultadoExacto {
+  fragmentos: FragmentoRAG[];
+  /** true cuando hay más de un candidato (posibles instrumentos distintos con el mismo número) — no citar ninguno como autoritativo. */
+  ambiguo: boolean;
+}
+
+/**
+ * Busca un artículo por coincidencia exacta de número — sin embeddings.
+ * Solo considera fuente_tipo='codigo' (excluye jurisprudencia/sentencias que
+ * simplemente MENCIONAN un número de artículo) y es_norma_vigente=true.
+ */
+export interface FilaExactaDB {
+  id: string;
+  contenido: string;
+  num_articulo: string | null;
+  fuente: string;
+  fuente_tipo: string | null;
+  jurisdiccion: string | null;
+  es_norma_vigente: boolean | null;
+  materia: string;
+}
+
+/**
+ * Resuelve las filas ya obtenidas de la DB a un resultado exacto — función
+ * pura, separada de la llamada a Supabase para poder testear la lógica de
+ * ambigüedad/filtrado sin necesitar una base de datos real.
+ */
+export function resolverArticuloExacto(filas: FilaExactaDB[]): ResultadoExacto {
+  if (filas.length === 0) return { fragmentos: [], ambiguo: false };
+
+  const limpias = filas.filter((row) => !contieneArtefactoAnonimizacion(row.contenido));
+
+  // Más de un candidato en materias distintas (posibles instrumentos
+  // distintos con el mismo número) => ambiguo. No adivinar cuál es el
+  // correcto.
+  const materiasDistintas = new Set(limpias.map((r) => r.materia));
+  if (limpias.length > 1 && materiasDistintas.size > 1) {
+    return { fragmentos: [], ambiguo: true };
+  }
+
+  const fragmentos: FragmentoRAG[] = limpias.slice(0, 1).map((row) => ({
+    id: row.id,
+    contenido: row.contenido,
+    num_articulo: row.num_articulo,
+    fuente: row.fuente,
+    relevancia: 1,
+    fuente_tipo: row.fuente_tipo,
+    jurisdiccion: row.jurisdiccion,
+    es_norma_vigente: row.es_norma_vigente,
+    hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
+  }));
+
+  return { fragmentos, ambiguo: false };
+}
+
+export async function buscarArticuloExacto(
+  numero: string,
+  materiaDetectada: string | null,
+): Promise<ResultadoExacto> {
+  const { createServerSupabaseClient } = await import('@/lib/supabase');
+  const supabase = createServerSupabaseClient();
+
+  let consulta = supabase
+    .from('biblioteca_vectores')
+    .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia')
+    .eq('num_articulo', numero)
+    .eq('fuente_tipo', 'codigo')
+    .eq('es_norma_vigente', true);
+
+  if (materiaDetectada) consulta = consulta.eq('materia', materiaDetectada);
+
+  const { data, error } = await consulta;
+  if (error || !data) return { fragmentos: [], ambiguo: false };
+
+  return resolverArticuloExacto(data as FilaExactaDB[]);
+}
+
 export interface ResultadoRAG {
   fragmentos: FragmentoRAG[];
   articulos_encontrados: string[];
   backend: 'python' | 'supabase' | 'disabled';
   error?: string;
+  /** true cuando la búsqueda exacta encontró el mismo número de artículo en más de un instrumento/materia — no se citó nada para no adivinar. */
+  ambiguo?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -230,6 +351,39 @@ export async function buscarRAG(
 
   if (backend === 'disabled') {
     return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
+  }
+
+  // Recuperación exacta por artículo — prioridad sobre la semántica.
+  // No requiere HF_API_TOKEN (no genera embedding), así que sigue
+  // funcionando aunque la búsqueda semántica esté degradada. Si detecta
+  // ambigüedad entre instrumentos con el mismo número, NO cae en
+  // silencio a la semántica (que podría citar el instrumento equivocado)
+  // — deja constancia explícita vía `ambiguo` para que el caller decida
+  // abstenerse.
+  if (backend === 'supabase') {
+    const deteccion = detectarArticuloExacto(consulta);
+    if (deteccion) {
+      try {
+        const materiaEfectiva = deteccion.materiaDetectada ?? materia ?? null;
+        const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva);
+        if (exacto.ambiguo) {
+          return { fragmentos: [], articulos_encontrados: [], backend: 'supabase', ambiguo: true };
+        }
+        if (exacto.fragmentos.length > 0) {
+          return {
+            fragmentos: exacto.fragmentos,
+            articulos_encontrados: [deteccion.numero],
+            backend: 'supabase',
+          };
+        }
+        // Sin candidato exacto → continúa al flujo semántico normal abajo.
+      } catch (error) {
+        console.warn(
+          '[RAG] Búsqueda exacta falló, degradando a semántica:',
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+    }
   }
 
   // Guardia de producción: en Vercel no existe localhost — si RAG_BACKEND=python
