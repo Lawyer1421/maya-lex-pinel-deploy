@@ -7,15 +7,15 @@ import { PLANES_V2 } from '@/components/v2/planes-data';
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA',
-  description: 'Planes para abogados, estudiantes, docentes, bufetes y universidades. Sin cobros activos durante la fase de Preview.',
+  description: 'Planes para abogados, estudiantes, docentes, bufetes y universidades.',
 };
 
 const PREGUNTAS_PRECIOS = [
   {
     pregunta: '¿Puedo pagar ahora mismo?',
     respuesta:
-      'No en esta versión — los botones de plan de pago están deshabilitados o dirigidos a una lista de espera '
-      + 'mientras se completa la validación de pagos. Ninguna suscripción nueva se procesa todavía desde esta página.',
+      'Sí — los planes Académico y Profesional se activan de inmediato a través de PayPal. '
+      + 'Bufete y Universidad se coordinan directamente con nuestro equipo.',
   },
   {
     pregunta: '¿Qué pasa con mi suscripción actual?',
@@ -42,9 +42,6 @@ export default function PricingPageV2() {
           <h1 className="font-serif text-4xl font-bold text-ivory sm:text-5xl">Planes y precios</h1>
           <p className="mx-auto mt-4 max-w-2xl text-ivory-dim">
             Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
-          </p>
-          <p className="mx-auto mt-3 max-w-xl rounded-lg border border-gold/30 bg-gold/10 px-4 py-2 text-xs text-gold-light">
-            Vista previa — ningún botón de pago procesa cobros reales todavía.
           </p>
         </section>
 

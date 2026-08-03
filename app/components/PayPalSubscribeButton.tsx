@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { autoStartTierDesde } from '@/components/v2/planes-data';
 
 interface Props {
   plan: 'pro' | 'academico';
@@ -9,11 +10,27 @@ interface Props {
   className?: string;
 }
 
+/** Mensaje genérico — nunca se muestran payloads, tokens ni detalles internos del backend. */
+const MENSAJE_ERROR_GENERICO = 'No pudimos iniciar el pago. Intenta de nuevo en unos segundos o contáctanos si el problema persiste.';
+
+/** Exportada para prueba unitaria — la construcción real ocurre en el mismo lugar que la usa. */
+export function construirUrlLogin(plan: 'pro' | 'academico'): string {
+  return `/login?next=${encodeURIComponent(`/pricing?plan=${plan}`)}`;
+}
+
 export default function PayPalSubscribeButton({ plan, label, className }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
+  // Candado síncrono: setLoading(true) es asíncrono (no se refleja en
+  // `disabled` hasta el siguiente render), así que dos clics muy rápidos
+  // podrían ambos pasar la condición `disabled={loading}`. Esta ref se lee
+  // y se fija en el mismo tick, antes de cualquier await.
+  const enVueloRef = useRef(false);
+  const autoStartDisparadoRef = useRef(false);
 
   async function handleClick() {
+    if (enVueloRef.current) return; // doble clic / doble disparo — ignorado
+    enVueloRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -23,7 +40,7 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        window.location.href = '/login?next=/pricing';
+        window.location.href = construirUrlLogin(plan);
         return;
       }
 
@@ -46,8 +63,8 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
         accountUrl?: string;
       };
 
-      if (res.status === 401 && data.loginUrl) {
-        window.location.href = data.loginUrl;
+      if (res.status === 401) {
+        window.location.href = construirUrlLogin(plan);
         return;
       }
       if (res.status === 409) {
@@ -55,13 +72,14 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
         // mandar a Mi Cuenta a verificar/gestionar en vez de cobrar de nuevo.
         setError(data.error ?? 'Ya existe una suscripción para su cuenta.');
         setLoading(false);
+        enVueloRef.current = false;
         if (data.accountUrl) {
           window.location.href = data.accountUrl;
         }
         return;
       }
       if (!res.ok || !data.approvalUrl) {
-        throw new Error(data.error ?? 'Error al crear suscripción PayPal');
+        throw new Error(MENSAJE_ERROR_GENERICO);
       }
 
       // Guarda el checkout exacto que se va a intentar — /cuenta lo usa para
@@ -77,10 +95,28 @@ export default function PayPalSubscribeButton({ plan, label, className }: Props)
 
       window.location.href = data.approvalUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
+      console.error('[PayPalSubscribeButton]', err instanceof Error ? err.message : err);
+      setError(MENSAJE_ERROR_GENERICO);
       setLoading(false);
+      enVueloRef.current = false;
     }
   }
+
+  // Reanuda el checkout una sola vez si el usuario regresó del login con la
+  // intención ya expresada (?plan=X en la URL, ver construirUrlLogin). Se lee
+  // window.location.search directamente (no el hook useSearchParams de
+  // Next.js) para que /pricing pueda seguir siendo una página estática — el
+  // hook de Next.js exige un límite Suspense y degrada la página a dinámica,
+  // lo que rompe el conteo de páginas estáticas verificado en el build.
+  useEffect(() => {
+    if (autoStartDisparadoRef.current) return;
+    const planEnUrl = new URLSearchParams(window.location.search).get('plan') ?? undefined;
+    if (autoStartTierDesde(planEnUrl) === plan) {
+      autoStartDisparadoRef.current = true;
+      void handleClick();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="w-full">
