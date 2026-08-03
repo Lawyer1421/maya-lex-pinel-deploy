@@ -101,9 +101,18 @@ export async function obtenerArticuloPorNumero(numero: string): Promise<Articulo
         .slice(0, 80);
       ultimoError = mensaje ? `${codigo}:${mensaje}` : codigo;
       console.warn(`[articulos-vigentes] art=${numero} intento=${intento}/${MAX_INTENTOS} error=${ultimoError}`);
-    } catch {
-      ultimoError = 'excepcion';
-      console.warn(`[articulos-vigentes] art=${numero} intento=${intento}/${MAX_INTENTOS} error=excepcion`);
+    } catch (excepcion) {
+      // Diagnóstico temporal: antes se descartaba el mensaje real por
+      // completo, dejando "excepcion" como único dato — imposible saber si
+      // era una URL malformada, una clave inválida o un fallo de red.
+      // Mismo saneo que el mensaje de error normal arriba: sin URLs, sin
+      // tokens/claves, recortado.
+      const mensajeExcepcion = String(excepcion instanceof Error ? excepcion.message : excepcion)
+        .replace(/https?:\/\/\S+/g, '[url]')
+        .replace(/[A-Za-z0-9_-]{25,}/g, '[tok]')
+        .slice(0, 120);
+      ultimoError = `excepcion:${mensajeExcepcion}`;
+      console.warn(`[articulos-vigentes] art=${numero} intento=${intento}/${MAX_INTENTOS} error=${ultimoError}`);
     }
 
     if (intento < MAX_INTENTOS) await esperar(BACKOFF_BASE_MS * intento);
