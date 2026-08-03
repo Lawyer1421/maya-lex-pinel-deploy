@@ -8,14 +8,10 @@ export default function TarjetaPlan({
   // en la portada las tarjetas viven bajo un h2 de sección (→ h3); en /pricing
   // cuelgan directamente del h1 (→ h2, evita saltos h1→h3 en el outline).
   nivelTitulo = 'h3',
-  // Tier a auto-iniciar al montar — usado por /pricing cuando el usuario
-  // regresa del login con ?plan=... tras haber elegido un plan de pago.
-  autoStartTier = null,
 }: {
   plan: PlanV2;
   compacta?: boolean;
   nivelTitulo?: 'h2' | 'h3';
-  autoStartTier?: 'pro' | 'academico' | null;
 }) {
   const Titulo = nivelTitulo;
   return (
@@ -68,7 +64,6 @@ export default function TarjetaPlan({
           plan={plan.paypalTier!}
           label={plan.ctaLabel}
           className="mt-6 bg-jade text-white hover:bg-jade/90 focus-visible:ring-2 focus-visible:ring-jade"
-          autoStart={autoStartTier === plan.paypalTier}
         />
       ) : (
         <a

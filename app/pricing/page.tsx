@@ -3,7 +3,7 @@ import NavV2 from '@/components/v2/NavV2';
 import FooterV2 from '@/components/v2/FooterV2';
 import FAQV2 from '@/components/v2/FAQV2';
 import TarjetaPlan from '@/components/v2/TarjetaPlan';
-import { PLANES_V2, autoStartTierDesde } from '@/components/v2/planes-data';
+import { PLANES_V2 } from '@/components/v2/planes-data';
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA',
@@ -33,14 +33,7 @@ const PREGUNTAS_PRECIOS = [
   },
 ];
 
-export default async function PricingPageV2({
-  searchParams,
-}: {
-  searchParams: Promise<{ plan?: string }>;
-}) {
-  const params = await searchParams;
-  const autoStartTier = autoStartTierDesde(params.plan);
-
+export default function PricingPageV2() {
   return (
     <div className="min-h-screen bg-obsidian text-ivory">
       <NavV2 />
@@ -55,7 +48,7 @@ export default async function PricingPageV2({
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {PLANES_V2.map((plan) => (
-              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" autoStartTier={autoStartTier} />
+              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" />
             ))}
           </div>
         </section>

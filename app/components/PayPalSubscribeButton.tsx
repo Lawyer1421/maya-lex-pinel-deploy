@@ -2,15 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { autoStartTierDesde } from '@/components/v2/planes-data';
 
 interface Props {
   plan: 'pro' | 'academico';
   label: string;
   className?: string;
-  /** Inicia el checkout automáticamente al montar (una sola vez) — usado
-   *  cuando el usuario regresa del login con la intención ya expresada
-   *  (?plan=... en /pricing). No aplica a clics manuales normales. */
-  autoStart?: boolean;
 }
 
 /** Mensaje genérico — nunca se muestran payloads, tokens ni detalles internos del backend. */
@@ -21,7 +18,7 @@ export function construirUrlLogin(plan: 'pro' | 'academico'): string {
   return `/login?next=${encodeURIComponent(`/pricing?plan=${plan}`)}`;
 }
 
-export default function PayPalSubscribeButton({ plan, label, className, autoStart = false }: Props) {
+export default function PayPalSubscribeButton({ plan, label, className }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
   // Candado síncrono: setLoading(true) es asíncrono (no se refleja en
@@ -105,13 +102,21 @@ export default function PayPalSubscribeButton({ plan, label, className, autoStar
     }
   }
 
+  // Reanuda el checkout una sola vez si el usuario regresó del login con la
+  // intención ya expresada (?plan=X en la URL, ver construirUrlLogin). Se lee
+  // window.location.search directamente (no el hook useSearchParams de
+  // Next.js) para que /pricing pueda seguir siendo una página estática — el
+  // hook de Next.js exige un límite Suspense y degrada la página a dinámica,
+  // lo que rompe el conteo de páginas estáticas verificado en el build.
   useEffect(() => {
-    if (autoStart && !autoStartDisparadoRef.current) {
+    if (autoStartDisparadoRef.current) return;
+    const planEnUrl = new URLSearchParams(window.location.search).get('plan') ?? undefined;
+    if (autoStartTierDesde(planEnUrl) === plan) {
       autoStartDisparadoRef.current = true;
       void handleClick();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoStart]);
+  }, []);
 
   return (
     <div className="w-full">
