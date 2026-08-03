@@ -73,16 +73,37 @@ const RE_ARTICULO_NUM = /\bart(?:[ií]culo|\.)?\s*(\d+)\b/i;
 const RE_MATERIA_PENAL = /\b(penal|cpp|c[oó]digo\s+procesal\s+penal)\b/i;
 const RE_MATERIA_CIVIL = /\b(civil|cpc|c[oó]digo\s+procesal\s+civil)\b/i;
 
+/**
+ * Detecta la materia (penal/civil) mencionada explícitamente en el texto de
+ * una consulta — independiente de si hay un número de artículo. Se usa tanto
+ * para la búsqueda exacta como para acotar la búsqueda semántica: sin esto,
+ * una consulta claramente penal ("medidas cautelares... proceso penal") podía
+ * recuperar por similitud un artículo civil/arbitral (ej. Art. 353 sobre
+ * procesos extranjeros), porque la búsqueda semántica no filtraba materia.
+ */
+export function detectarMateriaDesdeTexto(query: string): string | null {
+  if (RE_MATERIA_PENAL.test(query)) return '01_PENAL';
+  if (RE_MATERIA_CIVIL.test(query)) return '02_CIVIL';
+  return null;
+}
+
 /** Detecta un número de artículo explícito y, si el texto lo indica, la materia. */
 export function detectarArticuloExacto(query: string): DeteccionArticulo | null {
   const m = RE_ARTICULO_NUM.exec(query);
   if (!m) return null;
-  const materiaDetectada = RE_MATERIA_PENAL.test(query)
-    ? '01_PENAL'
-    : RE_MATERIA_CIVIL.test(query)
-      ? '02_CIVIL'
-      : null;
-  return { numero: m[1], materiaDetectada };
+  return { numero: m[1], materiaDetectada: detectarMateriaDesdeTexto(query) };
+}
+
+/**
+ * Confirma que el fragmento contiene el encabezado real del artículo
+ * ("ARTICULO {n}.-" / "ARTÍCULO {n}.-"), no solo una mención de paso (p. ej.
+ * una sentencia que cita "el artículo 173 numeral 3" sin ser el texto del
+ * artículo). Sin esto, un fragmento mal segmentado que solo contiene la cola
+ * de un artículo distinto podía citarse como si fuera el artículo pedido.
+ */
+export function tieneEncabezadoArticulo(contenido: string, numero: string): boolean {
+  const re = new RegExp(`art[ií]culo\\s*${numero}\\s*\\.-`, 'i');
+  return re.test(contenido);
 }
 
 export interface ResultadoExacto {
@@ -112,10 +133,20 @@ export interface FilaExactaDB {
  * pura, separada de la llamada a Supabase para poder testear la lógica de
  * ambigüedad/filtrado sin necesitar una base de datos real.
  */
-export function resolverArticuloExacto(filas: FilaExactaDB[]): ResultadoExacto {
+export function resolverArticuloExacto(filas: FilaExactaDB[], numero: string): ResultadoExacto {
   if (filas.length === 0) return { fragmentos: [], ambiguo: false };
 
-  const limpias = filas.filter((row) => !contieneArtefactoAnonimizacion(row.contenido));
+  // Dos filtros obligatorios, ninguno se relaja por el otro:
+  // 1) sin artefactos de anonimización sin limpiar (nunca se presenta
+  //    "[Cliente_Anónimo]" como si fuera texto de ley real);
+  // 2) el fragmento debe contener el encabezado real del artículo, no solo
+  //    mencionarlo de paso o ser un trozo de un artículo distinto mal
+  //    segmentado. Si ningún candidato cumple ambos, se trata como "no
+  //    encontrado" — mejor abstenerse que citar un fragmento degradado o
+  //    mal atribuido.
+  const limpias = filas
+    .filter((row) => !contieneArtefactoAnonimizacion(row.contenido))
+    .filter((row) => tieneEncabezadoArticulo(row.contenido, numero));
 
   // Más de un candidato en materias distintas (posibles instrumentos
   // distintos con el mismo número) => ambiguo. No adivinar cuál es el
@@ -159,7 +190,7 @@ export async function buscarArticuloExacto(
   const { data, error } = await consulta;
   if (error || !data) return { fragmentos: [], ambiguo: false };
 
-  return resolverArticuloExacto(data as FilaExactaDB[]);
+  return resolverArticuloExacto(data as FilaExactaDB[], numero);
 }
 
 export interface ResultadoRAG {
@@ -388,7 +419,15 @@ export async function buscarRAG(
             backend: 'supabase',
           };
         }
-        // Sin candidato exacto → continúa al flujo semántico normal abajo.
+        // Sin candidato exacto válido. Si el usuario identificó tanto el
+        // instrumento (penal/civil) COMO el número, no se cae a semántica
+        // amplia — podría citar un artículo de un instrumento distinto con
+        // el mismo número, o un fragmento mal segmentado. Se abstiene.
+        // Si solo dio el número (instrumento ambiguo), sí se permite el
+        // fallback semántico — comportamiento previo, ya validado.
+        if (deteccion.materiaDetectada) {
+          return { fragmentos: [], articulos_encontrados: [], backend: 'supabase' };
+        }
       } catch (error) {
         console.warn(
           '[RAG] Búsqueda exacta falló, degradando a semántica:',
@@ -413,12 +452,21 @@ export async function buscarRAG(
     return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
   }
 
+  // Búsqueda semántica: si no vino un filtro de materia explícito (route.ts
+  // solo lo pasa en modos "_penal", que la UI no expone hoy), se infiere de
+  // lo que el propio texto de la consulta indique. Sin esto, una pregunta
+  // claramente penal podía recuperar por similitud un artículo civil o de
+  // arbitraje (ej. Art. 353, procesos extranjeros) solo porque puntuaba alto
+  // — el filtro de materia en la RPC lo excluye a nivel de base de datos,
+  // no por heurística posterior.
+  const materiaSemantica = materia ?? detectarMateriaDesdeTexto(consulta) ?? undefined;
+
   try {
     if (backend === 'python') {
-      return await buscarEnPython(consulta, k, coleccion, materia);
+      return await buscarEnPython(consulta, k, coleccion, materiaSemantica);
     }
     if (backend === 'supabase') {
-      return await buscarEnSupabase(consulta, k, coleccion, materia);
+      return await buscarEnSupabase(consulta, k, coleccion, materiaSemantica);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -471,7 +519,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   }
 
   lineas.push('── FIN DEL CONTEXTO RAG ──');
-  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente.');
+  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
 
   return lineas.join('\n');
 }
