@@ -8,7 +8,24 @@ export interface PlanV2 {
   caracteristicas: string[];
   notaUsoRazonable?: string;
   ctaLabel: string;
-  ctaEstado: 'lista_espera' | 'proximamente' | 'contactar';
+  /**
+   * 'checkout' → monta PayPalSubscribeButton (paypalTier obligatorio).
+   * 'enlace'   → CTA simple (link interno o mailto), nunca invoca PayPal.
+   */
+  ctaEstado: 'checkout' | 'enlace';
+  /** Tier real que create-subscription/PayPal reconocen — solo para ctaEstado='checkout'. */
+  paypalTier?: 'pro' | 'academico';
+  /** Destino del CTA — solo para ctaEstado='enlace'. */
+  ctaHref?: string;
+}
+
+/**
+ * Interpreta ?plan= de /pricing (usado al regresar del login) como un tier
+ * real de PayPal — nunca confía en el valor crudo de la URL sin validarlo
+ * contra los únicos dos tiers de pago que existen.
+ */
+export function autoStartTierDesde(valor: string | undefined): 'pro' | 'academico' | null {
+  return valor === 'pro' || valor === 'academico' ? valor : null;
 }
 
 export const PLANES_V2: PlanV2[] = [
@@ -24,8 +41,9 @@ export const PLANES_V2: PlanV2[] = [
       'Acceso básico a artículos de referencia',
       'Sin herramientas profesionales completas',
     ],
-    ctaLabel: 'Empezar gratis',
-    ctaEstado: 'lista_espera',
+    ctaLabel: 'Comenzar gratis',
+    ctaEstado: 'enlace',
+    ctaHref: '/demo',
   },
   {
     id: 'academico',
@@ -39,8 +57,9 @@ export const PLANES_V2: PlanV2[] = [
       'Explicaciones paso a paso',
       'Historial académico personal',
     ],
-    ctaLabel: 'Unirme a la lista de espera',
-    ctaEstado: 'lista_espera',
+    ctaLabel: 'Suscribirme',
+    ctaEstado: 'checkout',
+    paypalTier: 'academico',
   },
   {
     id: 'profesional',
@@ -58,8 +77,9 @@ export const PLANES_V2: PlanV2[] = [
       'Prioridad de respuesta',
     ],
     notaUsoRazonable: 'Sujeto a política de uso razonable — no es un plan de volumen ilimitado sin control técnico.',
-    ctaLabel: 'Unirme a la lista de espera',
-    ctaEstado: 'lista_espera',
+    ctaLabel: 'Suscribirme',
+    ctaEstado: 'checkout',
+    paypalTier: 'pro',
   },
   {
     id: 'bufete',
@@ -74,8 +94,9 @@ export const PLANES_V2: PlanV2[] = [
       'Colaboración entre miembros',
       'Soporte prioritario',
     ],
-    ctaLabel: 'Conversemos',
-    ctaEstado: 'contactar',
+    ctaLabel: 'Solicitar propuesta',
+    ctaEstado: 'enlace',
+    ctaHref: 'mailto:contacto@abogadofredypinelfirmalegal.com?subject=Plan%20Bufete%20%E2%80%94%20Maya%20Lex',
   },
   {
     id: 'universidad',
@@ -89,7 +110,8 @@ export const PLANES_V2: PlanV2[] = [
       'Capacitación incluida',
       'Analítica de uso académico',
     ],
-    ctaLabel: 'Conversemos',
-    ctaEstado: 'contactar',
+    ctaLabel: 'Contactar ventas',
+    ctaEstado: 'enlace',
+    ctaHref: 'mailto:contacto@abogadofredypinelfirmalegal.com?subject=Plan%20Universidad%20%E2%80%94%20Maya%20Lex',
   },
 ];

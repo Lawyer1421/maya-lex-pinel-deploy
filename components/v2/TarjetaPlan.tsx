@@ -1,10 +1,5 @@
 import type { PlanV2 } from './planes-data';
-
-const CTA_TEXTO: Record<PlanV2['ctaEstado'], string> = {
-  lista_espera: 'Lista de espera',
-  proximamente: 'Disponible próximamente',
-  contactar: 'Contactar',
-};
+import PayPalSubscribeButton from '@/app/components/PayPalSubscribeButton';
 
 export default function TarjetaPlan({
   plan,
@@ -13,10 +8,14 @@ export default function TarjetaPlan({
   // en la portada las tarjetas viven bajo un h2 de sección (→ h3); en /pricing
   // cuelgan directamente del h1 (→ h2, evita saltos h1→h3 en el outline).
   nivelTitulo = 'h3',
+  // Tier a auto-iniciar al montar — usado por /pricing cuando el usuario
+  // regresa del login con ?plan=... tras haber elegido un plan de pago.
+  autoStartTier = null,
 }: {
   plan: PlanV2;
   compacta?: boolean;
   nivelTitulo?: 'h2' | 'h3';
+  autoStartTier?: 'pro' | 'academico' | null;
 }) {
   const Titulo = nivelTitulo;
   return (
@@ -64,15 +63,21 @@ export default function TarjetaPlan({
         <p className="mt-3 text-xs text-ivory-muted">{plan.notaUsoRazonable}</p>
       )}
 
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
-        title={CTA_TEXTO[plan.ctaEstado]}
-        className="mt-6 w-full cursor-not-allowed rounded-xl border border-obsidian-medium bg-obsidian px-4 py-3 text-sm font-semibold text-ivory-muted opacity-80 focus-visible:ring-2 focus-visible:ring-jade"
-      >
-        {CTA_TEXTO[plan.ctaEstado]}
-      </button>
+      {plan.ctaEstado === 'checkout' ? (
+        <PayPalSubscribeButton
+          plan={plan.paypalTier!}
+          label={plan.ctaLabel}
+          className="mt-6 bg-jade text-white hover:bg-jade/90 focus-visible:ring-2 focus-visible:ring-jade"
+          autoStart={autoStartTier === plan.paypalTier}
+        />
+      ) : (
+        <a
+          href={plan.ctaHref}
+          className="mt-6 block w-full rounded-xl border border-obsidian-medium bg-obsidian px-4 py-3 text-center text-sm font-semibold text-ivory-muted transition hover:border-jade/40 hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade"
+        >
+          {plan.ctaLabel}
+        </a>
+      )}
     </div>
   );
 }

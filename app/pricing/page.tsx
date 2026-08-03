@@ -3,19 +3,19 @@ import NavV2 from '@/components/v2/NavV2';
 import FooterV2 from '@/components/v2/FooterV2';
 import FAQV2 from '@/components/v2/FAQV2';
 import TarjetaPlan from '@/components/v2/TarjetaPlan';
-import { PLANES_V2 } from '@/components/v2/planes-data';
+import { PLANES_V2, autoStartTierDesde } from '@/components/v2/planes-data';
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA',
-  description: 'Planes para abogados, estudiantes, docentes, bufetes y universidades. Sin cobros activos durante la fase de Preview.',
+  description: 'Planes para abogados, estudiantes, docentes, bufetes y universidades.',
 };
 
 const PREGUNTAS_PRECIOS = [
   {
     pregunta: '¿Puedo pagar ahora mismo?',
     respuesta:
-      'No en esta versión — los botones de plan de pago están deshabilitados o dirigidos a una lista de espera '
-      + 'mientras se completa la validación de pagos. Ninguna suscripción nueva se procesa todavía desde esta página.',
+      'Sí — los planes Académico y Profesional se activan de inmediato a través de PayPal. '
+      + 'Bufete y Universidad se coordinan directamente con nuestro equipo.',
   },
   {
     pregunta: '¿Qué pasa con mi suscripción actual?',
@@ -33,7 +33,14 @@ const PREGUNTAS_PRECIOS = [
   },
 ];
 
-export default function PricingPageV2() {
+export default async function PricingPageV2({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string }>;
+}) {
+  const params = await searchParams;
+  const autoStartTier = autoStartTierDesde(params.plan);
+
   return (
     <div className="min-h-screen bg-obsidian text-ivory">
       <NavV2 />
@@ -43,15 +50,12 @@ export default function PricingPageV2() {
           <p className="mx-auto mt-4 max-w-2xl text-ivory-dim">
             Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
           </p>
-          <p className="mx-auto mt-3 max-w-xl rounded-lg border border-gold/30 bg-gold/10 px-4 py-2 text-xs text-gold-light">
-            Vista previa — ningún botón de pago procesa cobros reales todavía.
-          </p>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {PLANES_V2.map((plan) => (
-              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" />
+              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" autoStartTier={autoStartTier} />
             ))}
           </div>
         </section>
