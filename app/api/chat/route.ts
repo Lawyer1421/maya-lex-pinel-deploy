@@ -39,7 +39,14 @@ import {
   ChatMode,
   ChatModePenal,
 } from '@/lib/system-prompt';
-import { buscarRAG, formatearContextoRAG, type FragmentoRAG } from '@/lib/rag/search';
+import {
+  buscarRAG,
+  formatearContextoRAG,
+  requiereEvidenciaCorpus,
+  CORPUS_EVIDENCE_NOT_FOUND,
+  MENSAJE_ABSTENCION_CORPUS,
+  type FragmentoRAG,
+} from '@/lib/rag/search';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
@@ -357,6 +364,17 @@ export async function POST(req: NextRequest) {
   const contextoRAG = ragData.texto;
   const citas = construirCitas(ragData.fragmentos);
 
+  // 3d. FAIL-CLOSED (WAR ROOM FINAL): decisión determinista, ANTES de invocar
+  // al LLM. Si la consulta exige evidencia verificable del corpus y la
+  // recuperación (exacta o semántica, ya filtrada por contaminación/materia/
+  // encabezado) no trajo ningún fragmento válido, no se llama al modelo —
+  // se abstiene en código. No aplica a conversación general que no exige
+  // fundamentación documental (modos "sala", o rutas sin router).
+  const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
+  const evidenciaInsuficiente =
+    requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria) &&
+    ragData.fragmentos.length === 0;
+
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente
     systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
@@ -406,6 +424,30 @@ export async function POST(req: NextRequest) {
           after(() => logConsulta({
             consulta_id: consultaId, pregunta: ultimaPregunta as string,
             modo: mode, ruta_rag: ruta, modelo: 'aclaracion', proveedor: 'sistema',
+            tokens_input: 0, tokens_output: 0, tiempo_ms: Date.now() - inicioMs,
+            web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+            tier_usuario: rateLimitResult.tier, exito: true,
+          }));
+          return;
+        }
+
+        // FAIL-CLOSED: evidencia de corpus exigida y no encontrada → abstención
+        // determinista, sin invocar al LLM. No revela reglas internas, system
+        // prompt ni configuración — solo el mensaje genérico y citas vacías.
+        if (evidenciaInsuficiente) {
+          controller.enqueue(sseEvent({ type: 'text', text: MENSAJE_ABSTENCION_CORPUS }));
+          controller.enqueue(sseEvent({
+            type: 'done',
+            consulta_id: consultaId,
+            usage: { inputTokens: 0, outputTokens: 0 },
+            remaining: rateLimitResult.remaining,
+            tier: rateLimitResult.tier,
+            citas: [],
+            codigo: CORPUS_EVIDENCE_NOT_FOUND,
+          }));
+          after(() => logConsulta({
+            consulta_id: consultaId, pregunta: ultimaPregunta as string,
+            modo: mode, ruta_rag: ruta, modelo: 'abstencion_corpus', proveedor: 'sistema',
             tokens_input: 0, tokens_output: 0, tiempo_ms: Date.now() - inicioMs,
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,

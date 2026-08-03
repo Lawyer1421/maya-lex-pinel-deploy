@@ -67,22 +67,157 @@ export function hashFragmento(f: Pick<FragmentoRAG, 'contenido' | 'num_articulo'
 export interface DeteccionArticulo {
   numero: string;
   materiaDetectada: string | null;
+  /** Identidad estricta del instrumento (CPP vs Código Penal, etc.) — ver IDENTIDAD ESTRICTA DEL INSTRUMENTO abajo. */
+  instrumento: InstrumentoNormalizado | null;
 }
 
 const RE_ARTICULO_NUM = /\bart(?:[ií]culo|\.)?\s*(\d+)\b/i;
 const RE_MATERIA_PENAL = /\b(penal|cpp|c[oó]digo\s+procesal\s+penal)\b/i;
 const RE_MATERIA_CIVIL = /\b(civil|cpc|c[oó]digo\s+procesal\s+civil)\b/i;
 
-/** Detecta un número de artículo explícito y, si el texto lo indica, la materia. */
+/**
+ * Detecta la materia (penal/civil) mencionada explícitamente en el texto de
+ * una consulta — independiente de si hay un número de artículo. Se usa tanto
+ * para la búsqueda exacta como para acotar la búsqueda semántica: sin esto,
+ * una consulta claramente penal ("medidas cautelares... proceso penal") podía
+ * recuperar por similitud un artículo civil/arbitral (ej. Art. 353 sobre
+ * procesos extranjeros), porque la búsqueda semántica no filtraba materia.
+ */
+export function detectarMateriaDesdeTexto(query: string): string | null {
+  if (RE_MATERIA_PENAL.test(query)) return '01_PENAL';
+  if (RE_MATERIA_CIVIL.test(query)) return '02_CIVIL';
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IDENTIDAD ESTRICTA DEL INSTRUMENTO
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// HOTFIX FINAL: `materia` (01_PENAL/02_CIVIL) es demasiado ancha — Código
+// Penal y Código Procesal Penal comparten la misma materia, así que una
+// consulta por "Artículo 173 del Código Penal" podía recibir el registro del
+// CPP simplemente porque no existía otro candidato en esa materia. La
+// identidad de instrumento es un nivel de precisión distinto: se detecta del
+// texto de la consulta, y solo se acepta un candidato de la DB si su propio
+// dato real (fuente, o metadata.documento_origen) confirma ese instrumento —
+// nunca por materia, número de artículo, fuente_tipo o vigencia solamente.
+
+export type InstrumentoNormalizado =
+  | 'CODIGO_PROCESAL_PENAL'
+  | 'CODIGO_PENAL'
+  | 'CODIGO_PROCESAL_CIVIL'
+  | 'CODIGO_CIVIL'
+  | 'CODIGO_TRABAJO'
+  | 'CODIGO_FAMILIA'
+  | 'CODIGO_NOTARIADO';
+
+// Orden importa: las variantes "procesal" se evalúan primero para que
+// "Código Procesal Penal" nunca caiga en CODIGO_PENAL por contener "penal".
+const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
+  ['CODIGO_PROCESAL_PENAL', /\bcpp\b|c[oó]digo\s+procesal\s+penal\b/i],
+  ['CODIGO_PROCESAL_CIVIL', /\bcpc\b|c[oó]digo\s+procesal\s+civil\b/i],
+  ['CODIGO_PENAL', /c[oó]digo\s+penal\b/i],
+  ['CODIGO_CIVIL', /c[oó]digo\s+civil\b/i],
+  ['CODIGO_TRABAJO', /c[oó]digo\s+(?:del?\s+)?trabajo\b/i],
+  ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
+  ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
+];
+
+/** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
+export function detectarInstrumentoDesdeTexto(query: string): InstrumentoNormalizado | null {
+  for (const [instrumento, re] of RE_INSTRUMENTO) {
+    if (re.test(query)) return instrumento;
+  }
+  return null;
+}
+
+// Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
+// una fila real de la DB para confirmar que pertenece a ese instrumento.
+// Mismo patrón que la detección de texto — es intencional: la identidad de
+// un candidato se confirma con el mismo vocabulario con que el usuario lo pidió.
+const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> = {
+  CODIGO_PROCESAL_PENAL: /c[oó]digo\s+procesal\s+penal/i,
+  CODIGO_PROCESAL_CIVIL: /c[oó]digo\s+procesal\s+civil/i,
+  CODIGO_PENAL: /c[oó]digo\s+penal\b/i,
+  CODIGO_CIVIL: /c[oó]digo\s+civil\b/i,
+  CODIGO_TRABAJO: /c[oó]digo\s+(?:del?\s+)?trabajo/i,
+  CODIGO_FAMILIA: /c[oó]digo\s+de\s+familia/i,
+  CODIGO_NOTARIADO: /c[oó]digo\s+(?:del?\s+)?notariado/i,
+};
+
+/**
+ * true solo si un dato REAL del registro (fuente, o metadata.documento_origen)
+ * confirma el instrumento solicitado. Una fila con fuente/metadata ausente
+ * (la mayoría del corpus legacy hoy) nunca coincide con ningún instrumento —
+ * no se adivina la identidad de un documento que no la declara.
+ */
+export function identidadDocumentalCoincide(row: FilaExactaDB, instrumento: InstrumentoNormalizado): boolean {
+  const patron = RE_FUENTE_POR_INSTRUMENTO[instrumento];
+  if (row.fuente && patron.test(row.fuente)) return true;
+  const metaDoc = row.metadata && typeof row.metadata === 'object'
+    ? (row.metadata as Record<string, unknown>).documento_origen
+    : undefined;
+  if (typeof metaDoc === 'string' && patron.test(metaDoc)) return true;
+  return false;
+}
+
+/** Detecta un número de artículo explícito y, si el texto lo indica, la materia y el instrumento exacto. */
 export function detectarArticuloExacto(query: string): DeteccionArticulo | null {
   const m = RE_ARTICULO_NUM.exec(query);
   if (!m) return null;
-  const materiaDetectada = RE_MATERIA_PENAL.test(query)
-    ? '01_PENAL'
-    : RE_MATERIA_CIVIL.test(query)
-      ? '02_CIVIL'
-      : null;
-  return { numero: m[1], materiaDetectada };
+  return {
+    numero: m[1],
+    materiaDetectada: detectarMateriaDesdeTexto(query),
+    instrumento: detectarInstrumentoDesdeTexto(query),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FAIL-CLOSED: ¿ESTA CONSULTA EXIGE EVIDENCIA VERIFICABLE DEL CORPUS?
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// WAR ROOM FINAL: hasta ahora, cuando la recuperación (exacta o semántica)
+// devolvía cero fragmentos válidos, el chat seguía llamando al LLM con un
+// system prompt sin contexto RAG — el modelo podía (y lo hizo, en la Prueba 3
+// del hotfix anterior) responder con un análisis jurídico detallado desde su
+// propio conocimiento paramétrico, citando artículos por número, sin ningún
+// respaldo documental verificable. Esta función identifica, ANTES de invocar
+// al LLM, cuándo una consulta exige ese respaldo — para poder abstenerse en
+// código en vez de confiar en que el modelo se abstenga por sí mismo.
+
+const RE_SEGUN_CORPUS = /seg[uú]n el corpus|de acuerdo (?:a|con) el corpus|corpus jur[ií]dico/i;
+const RE_SOLICITA_EVIDENCIA = /\b(fuente|citas?|hash|texto recuperado|fragmento(?:s)?\s+(?:recuperado|del corpus))\b/i;
+
+/**
+ * true cuando la consulta exige evidencia verificable del corpus: lo pide
+ * explícitamente ("según el corpus", "cita la fuente"), pide el contenido de
+ * un artículo específico, o la ruta jurídica ya la exige por configuración
+ * (modos de análisis con router activo en ruta A/B/C — ver route.ts).
+ */
+export function requiereEvidenciaCorpus(query: string, rutaCorpusObligatoria: boolean): boolean {
+  if (rutaCorpusObligatoria) return true;
+  if (RE_SEGUN_CORPUS.test(query)) return true;
+  if (RE_SOLICITA_EVIDENCIA.test(query)) return true;
+  if (detectarArticuloExacto(query) !== null) return true;
+  return false;
+}
+
+export const CORPUS_EVIDENCE_NOT_FOUND = 'CORPUS_EVIDENCE_NOT_FOUND';
+
+export const MENSAJE_ABSTENCION_CORPUS =
+  'No se recuperaron fragmentos verificables del corpus para esta consulta. ' +
+  'Para evitar una respuesta jurídica sin respaldo documental, Maya Lex no responderá desde conocimiento general.';
+
+/**
+ * Confirma que el fragmento contiene el encabezado real del artículo
+ * ("ARTICULO {n}.-" / "ARTÍCULO {n}.-"), no solo una mención de paso (p. ej.
+ * una sentencia que cita "el artículo 173 numeral 3" sin ser el texto del
+ * artículo). Sin esto, un fragmento mal segmentado que solo contiene la cola
+ * de un artículo distinto podía citarse como si fuera el artículo pedido.
+ */
+export function tieneEncabezadoArticulo(contenido: string, numero: string): boolean {
+  const re = new RegExp(`art[ií]culo\\s*${numero}\\s*\\.-`, 'i');
+  return re.test(contenido);
 }
 
 export interface ResultadoExacto {
@@ -105,21 +240,48 @@ export interface FilaExactaDB {
   jurisdiccion: string | null;
   es_norma_vigente: boolean | null;
   materia: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 /**
  * Resuelve las filas ya obtenidas de la DB a un resultado exacto — función
  * pura, separada de la llamada a Supabase para poder testear la lógica de
  * ambigüedad/filtrado sin necesitar una base de datos real.
+ *
+ * `instrumentoSolicitado`: si el usuario mencionó un instrumento explícito
+ * (CPP, Código Penal, etc.), solo se acepta un candidato cuya identidad
+ * documental REAL (fuente/metadata) lo confirme — nunca por materia, número
+ * de artículo, fuente_tipo o vigencia solamente. Si el usuario NO mencionó
+ * ningún instrumento ("Artículo 173" a secas), la búsqueda exacta se
+ * abstiene — no adivina cuál instrumento quiso decir.
  */
-export function resolverArticuloExacto(filas: FilaExactaDB[]): ResultadoExacto {
+export function resolverArticuloExacto(
+  filas: FilaExactaDB[],
+  numero: string,
+  instrumentoSolicitado: InstrumentoNormalizado | null,
+): ResultadoExacto {
   if (filas.length === 0) return { fragmentos: [], ambiguo: false };
+  if (!instrumentoSolicitado) return { fragmentos: [], ambiguo: false };
 
-  const limpias = filas.filter((row) => !contieneArtefactoAnonimizacion(row.contenido));
+  // Tres filtros obligatorios, ninguno se relaja por los otros:
+  // 1) sin artefactos de anonimización sin limpiar (nunca se presenta
+  //    "[Cliente_Anónimo]" como si fuera texto de ley real);
+  // 2) el fragmento debe contener el encabezado real del artículo, no solo
+  //    mencionarlo de paso o ser un trozo de un artículo distinto mal
+  //    segmentado;
+  // 3) identidad documental real que confirme el instrumento pedido — no
+  //    materia, no fuente_tipo, no vigencia. Si ningún candidato cumple los
+  //    tres, se trata como "no encontrado" — mejor abstenerse que citar un
+  //    fragmento degradado, mal atribuido o del instrumento equivocado.
+  const limpias = filas
+    .filter((row) => !contieneArtefactoAnonimizacion(row.contenido))
+    .filter((row) => tieneEncabezadoArticulo(row.contenido, numero))
+    .filter((row) => identidadDocumentalCoincide(row, instrumentoSolicitado));
 
   // Más de un candidato en materias distintas (posibles instrumentos
   // distintos con el mismo número) => ambiguo. No adivinar cuál es el
-  // correcto.
+  // correcto. En la práctica, con el filtro de identidad ya aplicado, esto
+  // solo dispara si el propio corpus tiene datos inconsistentes.
   const materiasDistintas = new Set(limpias.map((r) => r.materia));
   if (limpias.length > 1 && materiasDistintas.size > 1) {
     return { fragmentos: [], ambiguo: true };
@@ -143,23 +305,27 @@ export function resolverArticuloExacto(filas: FilaExactaDB[]): ResultadoExacto {
 export async function buscarArticuloExacto(
   numero: string,
   materiaDetectada: string | null,
+  instrumentoSolicitado: InstrumentoNormalizado | null,
 ): Promise<ResultadoExacto> {
   const { createServerSupabaseClient } = await import('@/lib/supabase');
   const supabase = createServerSupabaseClient();
 
   let consulta = supabase
     .from('biblioteca_vectores')
-    .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia')
+    .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia, metadata')
     .eq('num_articulo', numero)
     .eq('fuente_tipo', 'codigo')
     .eq('es_norma_vigente', true);
 
+  // Filtro de materia: solo optimiza la consulta a la DB (menos filas a
+  // traer) — la aceptación real la decide identidadDocumentalCoincide() en
+  // resolverArticuloExacto, nunca la materia por sí sola.
   if (materiaDetectada) consulta = consulta.eq('materia', materiaDetectada);
 
   const { data, error } = await consulta;
   if (error || !data) return { fragmentos: [], ambiguo: false };
 
-  return resolverArticuloExacto(data as FilaExactaDB[]);
+  return resolverArticuloExacto(data as FilaExactaDB[], numero, instrumentoSolicitado);
 }
 
 export interface ResultadoRAG {
@@ -377,7 +543,7 @@ export async function buscarRAG(
     if (deteccion) {
       try {
         const materiaEfectiva = deteccion.materiaDetectada ?? materia ?? null;
-        const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva);
+        const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
         if (exacto.ambiguo) {
           return { fragmentos: [], articulos_encontrados: [], backend: 'supabase', ambiguo: true };
         }
@@ -388,7 +554,18 @@ export async function buscarRAG(
             backend: 'supabase',
           };
         }
-        // Sin candidato exacto → continúa al flujo semántico normal abajo.
+        // Sin candidato exacto válido. Si el usuario identificó la materia
+        // (penal/civil) O el instrumento específico (CPP, Código Penal,
+        // Código de Trabajo, etc.), no se cae a semántica amplia — podría
+        // citar un artículo de un instrumento distinto con el mismo número,
+        // o un fragmento mal segmentado; la búsqueda semántica tampoco filtra
+        // por instrumento, así que no puede sustituir la identidad exacta que
+        // el usuario pidió. Se abstiene. Si el número vino totalmente
+        // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
+        // permite el fallback semántico — comportamiento previo, ya validado.
+        if (deteccion.materiaDetectada || deteccion.instrumento) {
+          return { fragmentos: [], articulos_encontrados: [], backend: 'supabase' };
+        }
       } catch (error) {
         console.warn(
           '[RAG] Búsqueda exacta falló, degradando a semántica:',
@@ -413,12 +590,21 @@ export async function buscarRAG(
     return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
   }
 
+  // Búsqueda semántica: si no vino un filtro de materia explícito (route.ts
+  // solo lo pasa en modos "_penal", que la UI no expone hoy), se infiere de
+  // lo que el propio texto de la consulta indique. Sin esto, una pregunta
+  // claramente penal podía recuperar por similitud un artículo civil o de
+  // arbitraje (ej. Art. 353, procesos extranjeros) solo porque puntuaba alto
+  // — el filtro de materia en la RPC lo excluye a nivel de base de datos,
+  // no por heurística posterior.
+  const materiaSemantica = materia ?? detectarMateriaDesdeTexto(consulta) ?? undefined;
+
   try {
     if (backend === 'python') {
-      return await buscarEnPython(consulta, k, coleccion, materia);
+      return await buscarEnPython(consulta, k, coleccion, materiaSemantica);
     }
     if (backend === 'supabase') {
-      return await buscarEnSupabase(consulta, k, coleccion, materia);
+      return await buscarEnSupabase(consulta, k, coleccion, materiaSemantica);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -471,7 +657,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   }
 
   lineas.push('── FIN DEL CONTEXTO RAG ──');
-  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente.');
+  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
 
   return lineas.join('\n');
 }
