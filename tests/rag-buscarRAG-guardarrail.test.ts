@@ -63,3 +63,53 @@ describe('buscarRAG — Art. 9999 CPP (Tarea 3)', () => {
     expect(embedQueryMock).toHaveBeenCalled();
   });
 });
+
+/**
+ * HOTFIX FINAL — identidad estricta de instrumento, a nivel de buscarRAG
+ * completo (no solo resolverArticuloExacto en aislamiento). Simula una DB
+ * con dos filas reales para num_articulo=173: una del CPP (fuente correcta)
+ * y una del Código Penal (fuente correcta, pero SIN encabezado real — el
+ * caso real encontrado en producción). Confirma que "CPP" recupera el CPP y
+ * "Código Penal" se abstiene en vez de reutilizar el registro del CPP.
+ */
+function fakeSupabaseConFilas(filas: unknown[]) {
+  const chain: any = {
+    select: vi.fn(() => chain),
+    eq: vi.fn(() => chain),
+    then: (resolve: (v: { data: unknown[]; error: null }) => void) => resolve({ data: filas, error: null }),
+  };
+  return { from: vi.fn(() => chain) };
+}
+
+describe('buscarRAG — identidad estricta de instrumento (HOTFIX FINAL)', () => {
+  const filaCPP = {
+    id: 'cpp', contenido: 'ARTICULO 173.- Medidas Cautelares Aplicables. Texto real del CPP.',
+    num_articulo: '173', fuente: 'Código Procesal Penal de Honduras (Decreto 9-99-E)',
+    fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '01_PENAL',
+  };
+  const filaCPSinEncabezado = {
+    id: 'cp', contenido: 'CLONACIÓN. La obtención asexual de pre-embriones humanos...',
+    num_articulo: '173', fuente: 'Codigo Penal',
+    fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '01_PENAL',
+  };
+
+  it('A. "artículo 173 CPP" con ambas filas en la DB → recupera la fila del CPP', async () => {
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => fakeSupabaseConFilas([filaCPP, filaCPSinEncabezado]) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Cita el artículo 173 del Código Procesal Penal de Honduras', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(1);
+    expect(resultado.fragmentos[0].fuente).toBe('Código Procesal Penal de Honduras (Decreto 9-99-E)');
+  });
+
+  it('B. "artículo 173 Código Penal" con ambas filas en la DB → NUNCA devuelve el registro del CPP; abstención', async () => {
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => fakeSupabaseConFilas([filaCPP, filaCPSinEncabezado]) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Cita el artículo 173 del Código Penal de Honduras', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.ambiguo).toBeFalsy();
+  });
+});
