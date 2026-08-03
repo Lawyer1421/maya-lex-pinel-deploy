@@ -94,6 +94,42 @@ export function detectarArticuloExacto(query: string): DeteccionArticulo | null 
   return { numero: m[1], materiaDetectada: detectarMateriaDesdeTexto(query) };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FAIL-CLOSED: ¿ESTA CONSULTA EXIGE EVIDENCIA VERIFICABLE DEL CORPUS?
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// WAR ROOM FINAL: hasta ahora, cuando la recuperación (exacta o semántica)
+// devolvía cero fragmentos válidos, el chat seguía llamando al LLM con un
+// system prompt sin contexto RAG — el modelo podía (y lo hizo, en la Prueba 3
+// del hotfix anterior) responder con un análisis jurídico detallado desde su
+// propio conocimiento paramétrico, citando artículos por número, sin ningún
+// respaldo documental verificable. Esta función identifica, ANTES de invocar
+// al LLM, cuándo una consulta exige ese respaldo — para poder abstenerse en
+// código en vez de confiar en que el modelo se abstenga por sí mismo.
+
+const RE_SEGUN_CORPUS = /seg[uú]n el corpus|de acuerdo (?:a|con) el corpus|corpus jur[ií]dico/i;
+const RE_SOLICITA_EVIDENCIA = /\b(fuente|citas?|hash|texto recuperado|fragmento(?:s)?\s+(?:recuperado|del corpus))\b/i;
+
+/**
+ * true cuando la consulta exige evidencia verificable del corpus: lo pide
+ * explícitamente ("según el corpus", "cita la fuente"), pide el contenido de
+ * un artículo específico, o la ruta jurídica ya la exige por configuración
+ * (modos de análisis con router activo en ruta A/B/C — ver route.ts).
+ */
+export function requiereEvidenciaCorpus(query: string, rutaCorpusObligatoria: boolean): boolean {
+  if (rutaCorpusObligatoria) return true;
+  if (RE_SEGUN_CORPUS.test(query)) return true;
+  if (RE_SOLICITA_EVIDENCIA.test(query)) return true;
+  if (detectarArticuloExacto(query) !== null) return true;
+  return false;
+}
+
+export const CORPUS_EVIDENCE_NOT_FOUND = 'CORPUS_EVIDENCE_NOT_FOUND';
+
+export const MENSAJE_ABSTENCION_CORPUS =
+  'No se recuperaron fragmentos verificables del corpus para esta consulta. ' +
+  'Para evitar una respuesta jurídica sin respaldo documental, Maya Lex no responderá desde conocimiento general.';
+
 /**
  * Confirma que el fragmento contiene el encabezado real del artículo
  * ("ARTICULO {n}.-" / "ARTÍCULO {n}.-"), no solo una mención de paso (p. ej.
