@@ -29,7 +29,7 @@ const PREGUNTAS_PRECIOS = [
   },
   {
     pregunta: '¿Puedo cambiar de plan después?',
-    respuesta: 'Sí, el cambio de plan estará disponible una vez se habilite el cobro — se documentará antes de activarse.',
+    respuesta: 'Sí — contáctanos y coordinamos el cambio de plan sobre tu suscripción activa.',
   },
 ];
 
@@ -42,6 +42,9 @@ export default function PricingPageV2() {
           <h1 className="font-serif text-4xl font-bold text-ivory sm:text-5xl">Planes y precios</h1>
           <p className="mx-auto mt-4 max-w-2xl text-ivory-dim">
             Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
+          </p>
+          <p className="mx-auto mt-3 max-w-xl text-xs text-ivory-muted">
+            Las suscripciones Académico y Profesional se procesan de forma segura mediante PayPal y tienen renovación mensual automática.
           </p>
         </section>
 
