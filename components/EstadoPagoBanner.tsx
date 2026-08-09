@@ -8,6 +8,28 @@ interface Props {
   userEmail:  string; // para leer el subscriptionId exacto guardado al iniciar el checkout
 }
 
+// El servidor limita /api/paypal/verificar-estado a 1 llamada cada 10s por
+// usuario (ver route.ts) — el intervalo de reintento debe quedar por encima
+// de eso con margen, nunca igualarlo exacto (evita 429 por variación de red).
+const INTERVALO_REINTENTO_MS = 12_000;
+// El webhook normal tarda segundos; en la práctica (incidente real de
+// producción) la aprobación humana en PayPal puede tomar varios minutos.
+// 8 intentos × 12s ≈ 96s de ventana automática antes de ceder el control al
+// botón manual "Ya pagué — verificar mi suscripción", que sigue disponible.
+const MAX_INTENTOS = 8;
+
+/**
+ * APPROVAL_PENDING es, por definición, transitorio — PayPal aún no reporta
+ * la aprobación final. Cualquier otro resultado (mismatch, reconciliación
+ * requerida, error inesperado, o null) es definitivo: no tiene sentido
+ * reintentar automáticamente algo que no va a cambiar por esperar.
+ * Exportada para prueba unitaria — es la decisión real que evita que el
+ * banner reintente sobre un error que nunca se resolverá solo.
+ */
+export function esEstadoReintentable(estadoPaypal: string | null): boolean {
+  return estadoPaypal === 'APPROVAL_PENDING';
+}
+
 /**
  * Se muestra solo cuando PayPal redirige con ?pago=exitoso.
  *
@@ -19,6 +41,17 @@ interface Props {
  * cosa al usuario — enviando el subscriptionId exacto que PayPalSubscribeButton
  * guardó al iniciar este checkout, para no verificar "la última suscripción
  * que haya" si hubo más de un intento.
+ *
+ * INCIDENTE DE PRODUCCIÓN: esta verificación era de un solo intento. Si el
+ * webhook (o la propia aprobación humana en PayPal) tardaba más que esa
+ * única llamada, el usuario veía "no confirmado" de forma estática, se
+ * confundía pensando que el pago había fallado, y volvía a /pricing a
+ * reintentar el checkout desde cero — confirmado en logs reales (7 intentos
+ * repetidos de create-subscription en los ~10 minutos que tardó una
+ * activación real). No era un problema de sesión (no hacía falta
+ * refreshSession — router.refresh() ya recarga los datos del servidor
+ * correctamente) sino de no reintentar automáticamente mientras "pendiente"
+ * es, por definición, un estado transitorio.
  */
 export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
   const router = useRouter();
@@ -28,11 +61,13 @@ export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
     yaEsPago ? 'confirmado' : 'verificando'
   );
   const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     if (yaEsPago) return;
 
     let cancelado = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let subscriptionId: string | undefined;
     try {
       subscriptionId = window.localStorage.getItem(`mlx_pending_sub_${userEmail}`) ?? undefined;
@@ -40,27 +75,50 @@ export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
       // localStorage no disponible — se verifica sin id exacto (fallback previo)
     }
 
-    fetch('/api/paypal/verificar-estado', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(subscriptionId ? { subscriptionId } : {}),
-    })
-      .then((r) => r.json())
-      .then((data: { estadoPaypal: string | null; sincronizado: boolean; referenceId?: string }) => {
-        if (cancelado) return;
-        if (data.sincronizado) {
-          try { window.localStorage.removeItem(`mlx_pending_sub_${userEmail}`); } catch { /* no-op */ }
-          router.refresh(); // recarga con el tier ya actualizado
-        } else if (data.estadoPaypal === 'APPROVAL_PENDING') {
-          setEstado('pendiente');
-        } else {
-          if (data.referenceId) setReferenceId(data.referenceId);
-          setEstado('error');
-        }
+    function verificar(numeroIntento: number) {
+      setIntento(numeroIntento);
+      fetch('/api/paypal/verificar-estado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(subscriptionId ? { subscriptionId } : {}),
       })
-      .catch(() => { if (!cancelado) setEstado('error'); });
+        .then((r) => r.json())
+        .then((data: { estadoPaypal: string | null; sincronizado: boolean; referenceId?: string }) => {
+          if (cancelado) return;
+          if (data.sincronizado) {
+            try { window.localStorage.removeItem(`mlx_pending_sub_${userEmail}`); } catch { /* no-op */ }
+            router.refresh(); // recarga con el tier ya actualizado
+            return;
+          }
+          if (esEstadoReintentable(data.estadoPaypal)) {
+            setEstado('pendiente');
+            if (numeroIntento < MAX_INTENTOS) {
+              timeoutId = setTimeout(() => verificar(numeroIntento + 1), INTERVALO_REINTENTO_MS);
+            }
+          } else {
+            if (data.referenceId) setReferenceId(data.referenceId);
+            setEstado('error');
+          }
+        })
+        .catch(() => {
+          if (cancelado) return;
+          // Fallo de red — reintentar igual que "pendiente", nunca quedarse
+          // en un estado terminal por un hipo transitorio de conexión.
+          setEstado('pendiente');
+          if (numeroIntento < MAX_INTENTOS) {
+            timeoutId = setTimeout(() => verificar(numeroIntento + 1), INTERVALO_REINTENTO_MS);
+          } else {
+            setEstado('error');
+          }
+        });
+    }
 
-    return () => { cancelado = true; };
+    verificar(1);
+
+    return () => {
+      cancelado = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -92,6 +150,23 @@ export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
     );
   }
 
+  if (estado === 'pendiente' && intento < MAX_INTENTOS) {
+    return (
+      <div className="glass-card border-gold/30 p-4 mb-6 flex items-center gap-3">
+        <svg className="w-5 h-5 text-gold flex-shrink-0 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.657-5.657l1.414-1.414M4.929 19.071l1.414-1.414m0-11.314L4.929 4.929m14.142 14.142l-1.414-1.414" />
+        </svg>
+        <div>
+          <p className="text-gold font-semibold text-sm">PayPal todavía no confirma la aprobación final…</p>
+          <p className="text-white/60 text-xs">
+            Esto es normal, puede tardar unos minutos — seguimos verificando automáticamente.
+            No navegue a otra página ni intente suscribirse de nuevo.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="glass-card border-white/20 p-4 mb-6 flex items-start gap-3">
       <svg className="w-5 h-5 text-white/50 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -103,7 +178,7 @@ export default function EstadoPagoBanner({ tierActual, userEmail }: Props) {
         </p>
         <p className="text-white/60 text-xs mt-1">
           {estado === 'pendiente'
-            ? 'PayPal todavía no reporta la aprobación final. Si usted ya completó el proceso en PayPal, intente de nuevo en unos minutos o contáctenos si persiste.'
+            ? 'Seguimos sin recibir la confirmación final de PayPal tras varios intentos. No vuelva a suscribirse — use el botón "Ya pagué — verificar mi suscripción" más abajo dentro de unos minutos, o contáctenos si persiste.'
             : 'Recargue esta página en un momento. Si el problema continúa, contáctenos indicando su correo.'}
           {referenceId && (
             <> Código de referencia: <span className="font-mono text-white/80">{referenceId}</span></>
