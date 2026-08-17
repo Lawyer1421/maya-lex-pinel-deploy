@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
+import CancelarSuscripcionButton from '@/components/CancelarSuscripcionButton';
 import { resolveCurrentAccess } from '@/lib/paypal/access';
 import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
@@ -148,14 +149,23 @@ export default async function CuentaPage({
         {/* Gestionar suscripción / Cerrar sesión */}
         <div className="glass-card p-5 space-y-3">
           {(esPro || esAcademico) && suscripcion?.paypal_sub_id && (
-            <a
-              href="https://www.paypal.com/myaccount/autopay/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full btn-ghost text-sm text-center block"
-            >
-              Gestionar suscripción (PayPal)
-            </a>
+            <>
+              <a
+                href="https://www.paypal.com/myaccount/autopay/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full btn-ghost text-sm text-center block"
+              >
+                Gestionar suscripción (PayPal)
+              </a>
+              <p className="text-center text-[11px] leading-relaxed text-white/35">
+                También puede cancelar directamente desde su cuenta de PayPal:
+                Configuración → Pagos → Pagos automáticos.
+              </p>
+            </>
+          )}
+          {(esPro || esAcademico) && suscripcion?.status === 'active' && (
+            <CancelarSuscripcionButton />
           )}
           {!esPro && !esAcademico && (
             <VerificarSuscripcionButton userEmail={user.email ?? ''} />
