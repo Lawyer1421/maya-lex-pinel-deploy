@@ -7,7 +7,6 @@ import SeccionDemoPreview from '@/components/v2/SeccionDemoPreview';
 import SeccionHerramientas from '@/components/v2/SeccionHerramientas';
 import SeccionPerfiles from '@/components/v2/SeccionPerfiles';
 import SeccionBancoJuridico from '@/components/v2/SeccionBancoJuridico';
-import SeccionModoLitigante from '@/components/v2/SeccionModoLitigante';
 import SeccionSeguridad from '@/components/v2/SeccionSeguridad';
 import SeccionFundador from '@/components/v2/SeccionFundador';
 import SeccionPreciosResumen from '@/components/v2/SeccionPreciosResumen';
@@ -21,9 +20,9 @@ export const metadata: Metadata = {
 
 const PREGUNTAS_FAQ = [
   {
-    pregunta: '¿Maya Lex cubre toda la legislación hondureña?',
+    pregunta: '¿Qué materias del derecho hondureño cubre Maya Lex?',
     respuesta:
-      'No todavía. Hoy Penal y Procesal Civil tienen la mayor cobertura verificada; el resto del corpus está en construcción activa y su estado real se publica en la página de Cobertura Jurídica, sin afirmar cobertura total antes de tiempo.',
+      'Penal y Procesal Civil cuentan con la cobertura más profunda y verificada del corpus. Consulte el estado detallado de cada materia en la página de Cobertura Jurídica.',
   },
   {
     pregunta: '¿Las respuestas de Maya Lex son asesoría legal?',
@@ -56,7 +55,6 @@ export default function HomePageV2() {
         <SeccionHerramientas />
         <SeccionPerfiles />
         <SeccionBancoJuridico />
-        <SeccionModoLitigante />
         <SeccionSeguridad />
         <SeccionFundador />
         <SeccionPreciosResumen />
