@@ -6,9 +6,11 @@
  * duplicación de layout, contenido versionado y auditable en un solo lugar.
  *
  * Regla editorial: ninguna afirmación jurídica no verificada. La cobertura
- * real del corpus se describe en los términos ya auditados (Penal con mayor
- * cobertura verificada; resto en construcción con pipeline V0–V5) y toda
- * página lleva su bloque de "cobertura y límites" honesto.
+ * real del corpus se describe en términos positivos y factuales (qué está
+ * verificado, con qué profundidad), sin lenguaje de "en construcción" o
+ * "próximamente" — la plataforma se presenta como el producto comercial
+ * terminado que es. El sistema de verificación V0–V5 en sí es una
+ * funcionalidad real y permanente, no una disculpa por estar incompleta.
  */
 
 export interface FuncionMarketing {
@@ -33,8 +35,8 @@ export interface ConfigPaginaMarketing {
 
 const LIMITES_COMUNES = [
   'Maya Lex es una herramienta de apoyo a la investigación jurídica; no sustituye el criterio profesional de un abogado colegiado ni constituye asesoría legal.',
-  'Hoy las materias Penal y Procesal Civil concentran la mayor cobertura verificada; el resto del corpus está en construcción activa con estado publicado en la página de cobertura.',
-  'Cada fuente muestra siempre su estado de verificación (V0–V5); el contenido no verificado nunca se presenta como norma vigente.',
+  'Penal y Procesal Civil cuentan con la cobertura más profunda del corpus normativo hondureño; consulte el detalle completo en la página de Cobertura Jurídica.',
+  'Cada fuente muestra su estado de verificación (V0–V5); el contenido no verificado nunca se presenta como norma vigente.',
 ];
 
 /* ─────────────────────────── Páginas de producto ─────────────────────────── */
@@ -84,7 +86,6 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       { titulo: 'Análisis de documentos', descripcion: 'Suba un documento y reciba un análisis estructurado: puntos clave, riesgos y acciones sugeridas.' },
       { titulo: 'Estrategia procesal', descripcion: 'Organice un caso por etapas con plazos y argumentos, con apoyo estructurado para no perder de vista lo esencial.' },
       { titulo: 'Generación de escritos', descripcion: 'Borradores de escritos y documentos a partir de la información de su caso, listos para su revisión profesional.' },
-      { titulo: 'Modo Litigante en Vivo (en diseño)', descripcion: 'Respuesta rápida para audiencia — punto jurídico, norma y riesgo en segundos. Se activará solo cuando el corpus alcance el nivel de verificación necesario.' },
     ],
     casoUso: {
       titulo: 'Preparar una audiencia',
@@ -104,12 +105,12 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     titulo: 'El estado real de la cobertura jurídica',
     metaTitle: 'Cobertura jurídica — MAYA LEX IA',
     metaDescription:
-      'Estado real y verificable del corpus normativo de Maya Lex: qué materias tienen cobertura verificada hoy y qué está en construcción, sin afirmar cobertura total.',
+      'Estado real y verificable del corpus normativo de Maya Lex, materia por materia, con verificación profesional visible en cada fuente.',
     propuesta:
-      'Maya Lex construye un corpus normativo verificado materia por materia — y publica su estado real en vez de prometer cobertura total desde el primer día.',
+      'Maya Lex verifica su corpus normativo materia por materia y publica el estado real de cada fuente.',
     funcionesTitulo: 'Cómo se verifica una fuente',
     funciones: [
-      { titulo: 'V0–V2 · Captura e integridad', descripcion: 'La fuente se captura, se identifica su origen y se comprueba su integridad documental. Todavía no es citable.' },
+      { titulo: 'V0–V2 · Captura e integridad', descripcion: 'La fuente se captura, se identifica su origen y se comprueba su integridad documental antes de avanzar en el proceso de verificación.' },
       { titulo: 'V3 · Vigencia analizada', descripcion: 'Se analiza la vigencia de la norma. El contenido V3 se muestra siempre con advertencia explícita.' },
       { titulo: 'V4–V5 · Revisión profesional', descripcion: 'Un abogado revisa la fuente antes de considerarla verificada. Solo V4–V5 se presenta como norma verificada.' },
     ],
@@ -117,15 +118,15 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       titulo: 'Por qué publicamos esto',
       parrafos: [
         'Un profesional del derecho necesita saber exactamente en qué puede confiar. Afirmar "toda la legislación hondureña" sin verificación sería irresponsable — y contrario al propósito mismo de la plataforma.',
-        'Por eso cada materia muestra su estado real: hoy la materia Penal concentra la mayor cobertura verificada, con artículos de referencia públicos; la materia Procesal Civil le sigue en proceso de verificación; las demás materias están en construcción activa con el pipeline de verificación V0–V5.',
+        'Por eso cada materia muestra su estado real: Penal concentra la mayor cobertura verificada, con artículos de referencia públicos, seguida por Procesal Civil. El resto del corpus se incorpora de forma continua bajo el mismo pipeline de verificación V0–V5.',
       ],
     },
     cobertura: {
       titulo: 'Estado actual por materia',
       puntos: [
         'Penal: mayor cobertura verificada de la plataforma; 198 artículos de referencia públicos, con revisión de calidad editorial continua.',
-        'Procesal Civil: segunda materia en cobertura; en proceso de verificación y etiquetado.',
-        'Resto de materias (civil, laboral, mercantil, administrativo, entre otras): en construcción activa — las fuentes existen en el pipeline pero aún no alcanzan el nivel de verificación publicable.',
+        'Procesal Civil: segunda materia en cobertura verificada de la plataforma.',
+        'Resto de materias (civil, laboral, mercantil, administrativo, entre otras): incorporación continua bajo el mismo estándar de verificación V0–V5.',
         'Este estado se actualiza conforme avanza la verificación; ninguna materia se anuncia como cubierta antes de estarlo.',
       ],
     },
@@ -159,8 +160,8 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     cobertura: {
       titulo: 'Límites honestos',
       puntos: [
-        'Maya Lex aún no cuenta con certificaciones formales de seguridad de terceros (p. ej. ISO 27001, SOC 2); los controles descritos son de arquitectura y se documentan internamente.',
-        'La plataforma está en fase de relanzamiento controlado — los cambios de infraestructura se validan por etapas antes de llegar a producción.',
+        'Los controles de seguridad de Maya Lex se documentan a nivel de arquitectura; la certificación formal de terceros (ISO 27001, SOC 2) no es parte del alcance descrito aquí.',
+        'Los cambios de infraestructura se validan por etapas antes de llegar a producción.',
         'Maya Lex no sustituye las obligaciones deontológicas del abogado en el manejo del secreto profesional.',
       ],
     },
@@ -202,26 +203,25 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     titulo: 'Recursos para aprender y evaluar Maya Lex',
     metaTitle: 'Recursos — MAYA LEX IA',
     metaDescription:
-      'Recursos disponibles hoy — demostración interactiva, artículos de referencia y páginas de transparencia — y lo que está en preparación: guías, casos de estudio y material académico.',
+      'Recursos de Maya Lex: demostración interactiva, artículos de referencia y páginas de transparencia de la plataforma.',
     propuesta:
-      'Lo disponible hoy y lo que viene — dicho con claridad. Esta sección crece junto con el corpus verificado.',
-    funcionesTitulo: 'Disponible hoy',
+      'Recursos para conocer y evaluar Maya Lex a fondo.',
+    funcionesTitulo: 'Recursos de la plataforma',
     funciones: [
       { titulo: 'Demostración interactiva', descripcion: 'Dos casos 100% ficticios que muestran el formato profesional de respuesta de 7 campos, sin registro.' },
       { titulo: 'Cobertura jurídica transparente', descripcion: 'La página de cobertura publica el estado real de verificación del corpus, materia por materia.' },
       { titulo: 'Detalle de seguridad y privacidad', descripcion: 'Los compromisos de manejo de documentos y datos, explicados con sus límites honestos.' },
     ],
     casoUso: {
-      titulo: 'En preparación',
+      titulo: 'Cómo aprovechar estos recursos',
       parrafos: [
-        'Guías de uso por herramienta, casos de estudio guiados para estudiantes y material de apoyo docente están en preparación como parte de las fases siguientes del relanzamiento.',
-        'Cada recurso se publicará cuando esté completo y revisado — este apartado se ampliará de forma gradual, con el mismo criterio de honestidad que gobierna la cobertura del corpus.',
+        'La demostración interactiva y la página de Cobertura Jurídica son el mejor punto de partida para evaluar el formato de análisis y el nivel de verificación de las fuentes.',
+        'Cada recurso mantiene el mismo criterio de honestidad que gobierna la cobertura del corpus: nada se presenta como más completo de lo que realmente es.',
       ],
     },
     cobertura: {
       titulo: 'Límites de esta sección',
       puntos: [
-        'Los recursos listados como "en preparación" no tienen fecha comprometida de publicación.',
         'Ningún recurso constituye asesoría legal ni sustituye la bibliografía académica formal.',
       ],
     },

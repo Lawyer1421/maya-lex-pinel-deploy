@@ -10,8 +10,8 @@ export default function SeccionBancoJuridico() {
             El Banco Jurídico Hondureño
           </h2>
           <p className="mt-4 text-ivory-dim">
-            Maya Lex construye, de forma transparente, un corpus normativo verificado materia por materia — en vez de
-            prometer cobertura total desde el primer día. Cada fuente muestra su estado real de verificación.
+            Maya Lex organiza su corpus normativo por materia, con verificación transparente de cada fuente — para
+            que usted sepa exactamente en qué puede confiar.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <BadgeVerificacion nivel="V4" />
@@ -19,8 +19,7 @@ export default function SeccionBancoJuridico() {
             <BadgeVerificacion nivel="V1" />
           </div>
           <p className="mt-4 text-sm text-ivory-muted">
-            Hoy, Penal y Procesal Civil cuentan con la mayor cobertura verificada. El resto de materias está en
-            construcción activa, con fecha y alcance publicados en la página de cobertura.
+            Penal y Procesal Civil cuentan con la cobertura más profunda y verificada de la plataforma.
           </p>
           <Link href="/cobertura-juridica" className="mt-5 inline-block text-sm font-semibold text-jade-light hover:underline focus-visible:ring-2 focus-visible:ring-jade rounded">
             Ver el estado real de cobertura →
@@ -38,7 +37,7 @@ export default function SeccionBancoJuridico() {
               <BadgeVerificacion nivel="V3" />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-ivory-dim">Código de Comercio — en construcción</span>
+              <span className="text-ivory-dim">Código de Comercio</span>
               <BadgeVerificacion nivel="V1" />
             </div>
           </div>
