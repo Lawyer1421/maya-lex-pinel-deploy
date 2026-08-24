@@ -36,6 +36,20 @@ loadEnvLocal();
 // Las env vars de servidor se leen directamente desde process.env en las API routes.
 // La ANTHROPIC_API_KEY se carga vía Windows env var (registrada permanentemente)
 // o via loadEnvLocal() arriba para desarrollo local.
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // /demo mostraba un banner de "datos 100% ficticios" que hacía percibir
+      // el sitio entero como versión de prueba. El plan gratuito real (3
+      // consultas/día, sin registro) ya vive en /chat -- no hace falta una
+      // demo separada con datos simulados.
+      {
+        source: '/demo',
+        destination: '/chat',
+        permanent: true,
+      },
+    ];
+  },
+};
 
 export default nextConfig;

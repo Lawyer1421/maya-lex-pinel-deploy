@@ -77,7 +77,7 @@ export default function NavV2() {
             Iniciar sesión
           </Link>
           <Link
-            href="/demo"
+            href="/chat"
             className="rounded-xl bg-jade-deep px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
           >
             Probar gratis
@@ -117,7 +117,7 @@ export default function NavV2() {
             <Link href="/recursos" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Recursos</Link>
             <div className="mt-3 flex flex-col gap-2 border-t border-obsidian-medium pt-3">
               <Link href="/login" className="rounded-lg px-3 py-2 text-center text-sm text-ivory-dim hover:text-ivory">Iniciar sesión</Link>
-              <Link href="/demo" className="rounded-xl bg-jade-deep px-4 py-2 text-center text-sm font-semibold text-white">Probar gratis</Link>
+              <Link href="/chat" className="rounded-xl bg-jade-deep px-4 py-2 text-center text-sm font-semibold text-white">Probar gratis</Link>
             </div>
           </div>
         </div>

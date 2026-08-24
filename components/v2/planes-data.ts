@@ -36,14 +36,14 @@ export const PLANES_V2: PlanV2[] = [
     periodo: '',
     descripcion: 'Conozca Maya Lex antes de decidir.',
     caracteristicas: [
-      'Demostración sin registro',
+      'Sin registro requerido',
       'Consultas limitadas por día',
       'Acceso básico a artículos de referencia',
       'Sin herramientas profesionales completas',
     ],
     ctaLabel: 'Comenzar gratis',
     ctaEstado: 'enlace',
-    ctaHref: '/demo',
+    ctaHref: '/chat',
   },
   {
     id: 'academico',

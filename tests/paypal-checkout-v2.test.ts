@@ -19,7 +19,7 @@ describe('PLANES_V2 — qué planes invocan PayPal y con qué tier (Pruebas 1, 2
     const explorar = PLANES_V2.find((p) => p.id === 'explorar')!;
     expect(explorar.ctaEstado).toBe('enlace');
     expect(explorar.paypalTier).toBeUndefined();
-    expect(explorar.ctaHref).toBe('/demo');
+    expect(explorar.ctaHref).toBe('/chat');
   });
 
   it('2. Académico es checkout con el tier "academico" — nunca "pro"', () => {

@@ -4,7 +4,7 @@ const PUNTOS = [
   'Los instrumentos y documentos privados nunca alimentan respuestas públicas ni el corpus de referencia.',
   'Ninguna respuesta profesional se presenta como norma vigente sin verificación — el estado de cada fuente es siempre visible.',
   'Datos de suscripción y pagos protegidos con control de acceso a nivel de base de datos.',
-  'La demostración pública no usa expedientes reales ni información personal.',
+  'El plan gratuito se procesa bajo el mismo control de acceso y aislamiento de datos que los planes de pago.',
 ];
 
 export default function SeccionSeguridad() {
