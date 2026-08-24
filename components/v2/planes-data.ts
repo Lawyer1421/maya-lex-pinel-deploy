@@ -36,7 +36,7 @@ export const PLANES_V2: PlanV2[] = [
     periodo: '',
     descripcion: 'Conozca Maya Lex antes de decidir.',
     caracteristicas: [
-      'Sin registro requerido',
+      'Cuenta gratuita, sin tarjeta',
       'Consultas limitadas por día',
       'Acceso básico a artículos de referencia',
       'Sin herramientas profesionales completas',

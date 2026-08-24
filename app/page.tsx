@@ -30,8 +30,8 @@ const PREGUNTAS_FAQ = [
       'No. Maya Lex es una herramienta de apoyo a la investigación y el análisis jurídico — no sustituye el criterio de un abogado colegiado ni constituye asesoría legal formal.',
   },
   {
-    pregunta: '¿Puedo probarlo sin crear una cuenta?',
-    respuesta: 'Sí — puede usar Maya Lex en /chat sin crear una cuenta, con hasta 3 consultas reales gratuitas por día.',
+    pregunta: '¿Necesito pagar para probarlo?',
+    respuesta: 'No — cree una cuenta gratuita (sin tarjeta) y use Maya Lex en /chat con hasta 3 consultas reales por día.',
   },
   {
     pregunta: '¿Qué pasa con mis suscripciones y datos si cambia el diseño del sitio?',
