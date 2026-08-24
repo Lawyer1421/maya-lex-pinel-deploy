@@ -68,7 +68,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Vea el formato de respuesta con sus propios ojos',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver cobertura jurídica', href: '/cobertura-juridica' },
   },
 
@@ -96,7 +96,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de análisis sin registrarse',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver planes', href: '/pricing' },
   },
 
@@ -131,7 +131,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cierreTitulo: 'Vea cómo se cita una fuente verificada',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Conocer las herramientas', href: '/herramientas' },
   },
 
@@ -140,21 +140,21 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     titulo: 'Seguridad y privacidad, no como promesa vacía',
     metaTitle: 'Seguridad y privacidad — MAYA LEX IA',
     metaDescription:
-      'Cómo protege Maya Lex los documentos, datos y suscripciones: aislamiento de instrumentos privados, control de acceso a nivel de base de datos y demostración sin datos reales.',
+      'Cómo protege Maya Lex los documentos, datos y suscripciones: aislamiento de instrumentos privados y control de acceso a nivel de base de datos.',
     propuesta:
       'Los documentos de sus clientes son materia de secreto profesional. La arquitectura de Maya Lex parte de esa premisa, no la agrega después.',
     funcionesTitulo: 'Compromisos verificables',
     funciones: [
       { titulo: 'Instrumentos privados aislados', descripcion: 'Los instrumentos y documentos privados nunca alimentan respuestas públicas ni el corpus de referencia compartido.' },
       { titulo: 'Control de acceso en la base de datos', descripcion: 'Datos de suscripción y pagos protegidos con control de acceso a nivel de base de datos (RLS), no solo en la aplicación.' },
-      { titulo: 'Demostración sin datos reales', descripcion: 'La demostración pública usa únicamente casos 100% ficticios — ningún expediente real, ninguna información personal.' },
+      { titulo: 'Mismo aislamiento para todos los planes', descripcion: 'El plan gratuito se procesa bajo el mismo control de acceso y aislamiento de datos que los planes de pago — no hay una vía distinta con menor protección.' },
       { titulo: 'Verificación siempre visible', descripcion: 'Ninguna respuesta se presenta como norma vigente sin verificación; el estado de cada fuente es siempre visible.' },
     ],
     casoUso: {
       titulo: 'Evaluación por un bufete',
       parrafos: [
         'Antes de adoptar cualquier herramienta, un bufete responsable pregunta: ¿dónde quedan los documentos de mis clientes? ¿quién puede verlos? ¿alimentan algún modelo o corpus compartido?',
-        'En Maya Lex la respuesta es directa: los documentos privados quedan aislados del corpus de referencia, el acceso se controla a nivel de base de datos y ninguna demostración pública contiene datos reales.',
+        'En Maya Lex la respuesta es directa: los documentos privados quedan aislados del corpus de referencia y el acceso se controla a nivel de base de datos.',
       ],
     },
     cobertura: {
@@ -166,7 +166,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cierreTitulo: 'La confianza se construye con evidencia',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Conocer al fundador', href: '/fundador' },
   },
 
@@ -194,7 +194,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conozca la plataforma que salió de un despacho real',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver el producto', href: '/producto' },
   },
 
@@ -203,19 +203,19 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     titulo: 'Recursos para aprender y evaluar Maya Lex',
     metaTitle: 'Recursos — MAYA LEX IA',
     metaDescription:
-      'Recursos de Maya Lex: demostración interactiva, artículos de referencia y páginas de transparencia de la plataforma.',
+      'Recursos de Maya Lex: prueba gratuita, artículos de referencia y páginas de transparencia de la plataforma.',
     propuesta:
       'Recursos para conocer y evaluar Maya Lex a fondo.',
     funcionesTitulo: 'Recursos de la plataforma',
     funciones: [
-      { titulo: 'Demostración interactiva', descripcion: 'Dos casos 100% ficticios que muestran el formato profesional de respuesta de 7 campos, sin registro.' },
+      { titulo: 'Prueba gratuita en /chat', descripcion: 'Hasta 3 consultas reales por día, sin necesidad de registro — el mismo formato profesional de respuesta de 7 campos que usan los planes de pago.' },
       { titulo: 'Cobertura jurídica transparente', descripcion: 'La página de cobertura publica el estado real de verificación del corpus, materia por materia.' },
       { titulo: 'Detalle de seguridad y privacidad', descripcion: 'Los compromisos de manejo de documentos y datos, explicados con sus límites honestos.' },
     ],
     casoUso: {
       titulo: 'Cómo aprovechar estos recursos',
       parrafos: [
-        'La demostración interactiva y la página de Cobertura Jurídica son el mejor punto de partida para evaluar el formato de análisis y el nivel de verificación de las fuentes.',
+        'La prueba gratuita en /chat y la página de Cobertura Jurídica son el mejor punto de partida para evaluar el formato de análisis y el nivel de verificación de las fuentes.',
         'Cada recurso mantiene el mismo criterio de honestidad que gobierna la cobertura del corpus: nada se presenta como más completo de lo que realmente es.',
       ],
     },
@@ -225,8 +225,8 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
         'Ningún recurso constituye asesoría legal ni sustituye la bibliografía académica formal.',
       ],
     },
-    cierreTitulo: 'Empiece por la demostración',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    cierreTitulo: 'Empiece gratis en el chat',
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver cobertura jurídica', href: '/cobertura-juridica' },
   },
 };
@@ -258,7 +258,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de análisis profesional',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver plan Profesional', href: '/pricing' },
   },
 
@@ -284,7 +284,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Vea la plataforma en acción',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver seguridad y privacidad', href: '/seguridad' },
   },
 
@@ -309,8 +309,8 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
-    cierreTitulo: 'Empiece gratis con la demostración',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    cierreTitulo: 'Empiece gratis',
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver plan Académico', href: '/pricing' },
   },
 
@@ -335,8 +335,8 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
-    cierreTitulo: 'Vea el formato de caso en la demostración',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    cierreTitulo: 'Pruebe el formato de caso con Maya Lex',
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver plan Académico', href: '/pricing' },
   },
 
@@ -364,7 +364,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conversemos sobre su despacho',
     ctaPrimario: { label: 'Ver plan Bufete', href: '/pricing' },
-    ctaSecundario: { label: 'Probar demostración', href: '/demo' },
+    ctaSecundario: { label: 'Probar gratis', href: '/chat' },
   },
 
   universidades: {
@@ -391,7 +391,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conversemos sobre su programa',
     ctaPrimario: { label: 'Ver plan Universidad', href: '/pricing' },
-    ctaSecundario: { label: 'Probar demostración', href: '/demo' },
+    ctaSecundario: { label: 'Probar gratis', href: '/chat' },
   },
 
   empresas: {
@@ -416,7 +416,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Evalúe la plataforma con su equipo',
-    ctaPrimario: { label: 'Probar demostración', href: '/demo' },
+    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver planes', href: '/pricing' },
   },
 };

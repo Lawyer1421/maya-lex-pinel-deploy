@@ -32,10 +32,10 @@ export default function SeccionDemoPreview() {
       </div>
       <div className="mt-6 text-center">
         <Link
-          href="/demo"
+          href="/chat"
           className="inline-block rounded-xl bg-jade-deep px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
         >
-          Probar la demostración interactiva →
+          Probar Maya Lex gratis →
         </Link>
       </div>
     </section>

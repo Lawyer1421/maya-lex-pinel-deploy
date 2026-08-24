@@ -31,7 +31,7 @@ const PREGUNTAS_FAQ = [
   },
   {
     pregunta: '¿Puedo probarlo sin crear una cuenta?',
-    respuesta: 'Sí — la demostración en /demo funciona sin registro, con un caso completamente ficticio.',
+    respuesta: 'Sí — puede usar Maya Lex en /chat sin crear una cuenta, con hasta 3 consultas reales gratuitas por día.',
   },
   {
     pregunta: '¿Qué pasa con mis suscripciones y datos si cambia el diseño del sitio?',
@@ -61,13 +61,13 @@ export default function HomePageV2() {
         <FAQV2 preguntas={PREGUNTAS_FAQ} />
         <section className="px-4 pb-20 pt-4 text-center sm:px-6">
           <h2 className="font-serif text-2xl font-bold text-ivory sm:text-3xl">
-            Comience con una demostración, sin compromiso.
+            Comience gratis, sin compromiso.
           </h2>
           <Link
-            href="/demo"
+            href="/chat"
             className="mt-6 inline-block rounded-xl bg-jade-deep px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
           >
-            Probar demostración
+            Probar gratis
           </Link>
         </section>
       </main>
