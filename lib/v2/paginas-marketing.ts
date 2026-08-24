@@ -95,7 +95,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
-    cierreTitulo: 'Pruebe el formato de análisis sin registrarse',
+    cierreTitulo: 'Pruebe el formato de análisis gratis',
     ctaPrimario: { label: 'Probar gratis', href: '/chat' },
     ctaSecundario: { label: 'Ver planes', href: '/pricing' },
   },
@@ -208,7 +208,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       'Recursos para conocer y evaluar Maya Lex a fondo.',
     funcionesTitulo: 'Recursos de la plataforma',
     funciones: [
-      { titulo: 'Prueba gratuita en /chat', descripcion: 'Hasta 3 consultas reales por día, sin necesidad de registro — el mismo formato profesional de respuesta de 7 campos que usan los planes de pago.' },
+      { titulo: 'Prueba gratuita en /chat', descripcion: 'Hasta 3 consultas reales por día con una cuenta gratuita (sin tarjeta) — el mismo formato profesional de respuesta de 7 campos que usan los planes de pago.' },
       { titulo: 'Cobertura jurídica transparente', descripcion: 'La página de cobertura publica el estado real de verificación del corpus, materia por materia.' },
       { titulo: 'Detalle de seguridad y privacidad', descripcion: 'Los compromisos de manejo de documentos y datos, explicados con sus límites honestos.' },
     ],
