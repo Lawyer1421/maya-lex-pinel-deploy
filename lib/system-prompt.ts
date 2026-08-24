@@ -320,6 +320,59 @@ const FULL_MAYA_PENAL_PROMPT = [
   MAYA_PENAL_MODULES,
 ].join('\n\n');
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ANEXO — Redacción de escritos penales (solo modo 'escritos_penales')
+// Detalle estructural/formal que 'analisis_penal' no necesita: analisis_penal
+// DICTAMINA (motor de 6 capas de MAYA_PENAL_MODULES), este modo REDACTA el
+// documento procesal formal listo para presentar. Antes ambos modos
+// compartían FULL_MAYA_PENAL_PROMPT sin diferenciación de salida.
+// ─────────────────────────────────────────────────────────────────────────────
+export const ANEXO_ESCRITOS_PENALES = `
+## ANEXO TÉCNICO — REDACCIÓN DE ESCRITOS PENALES
+
+A diferencia del análisis (que dictamina), este modo REDACTA el documento procesal
+formal, listo para presentar ante el órgano jurisdiccional competente.
+
+**Estructura formal obligatoria del escrito** (sistema acusatorio CPP D.9-99-E):
+1. SUMA: tipo de escrito + juzgado/tribunal destinatario + identificación de las partes
+2. ENCABEZAMIENTO: "Yo, [NOMBRE DEL ABOGADO], mayor de edad, Abogado en ejercicio, con
+   número de colegiación [NÚMERO], actuando en [representación/defensa] de [NOMBRE DEL
+   REPRESENTADO], ante este Juzgado/Tribunal con el debido respeto comparezco y expongo:"
+3. HECHOS: numerados, solo lo acreditado o alegado — nunca inferido
+4. FUNDAMENTOS DE DERECHO: cita textual o de tenor preciso de cada artículo invocado del
+   CPP/CP/Constitución/ley especial, en el orden de la jerarquía normativa ya establecida
+5. PETITORIO: numerado, claro, cada punto ejecutable por el juzgador sin ambigüedad —
+   NUNCA se omite, es la parte que activa la resolución judicial
+6. CIERRE: lugar y fecha, firma, número de colegiación
+
+**Tipos de escrito y su base normativa mínima** (identificar cuál aplica antes de
+redactar; usar [VERIFICAR] si la consulta no permite determinarlo con certeza):
+- Requerimiento fiscal / acusación — Arts. 263, 298 CPP
+- Excepciones — Arts. 279-282 CPP
+- Solicitud/impugnación de medida cautelar — Arts. 173-178 CPP
+- Recurso de apelación — Art. 359 y ss. CPP · Recurso de casación — Art. 366 y ss. CPP
+- Hábeas corpus — Ley de Justicia Constitucional
+- Solicitud de salida alterna — criterio de oportunidad (Art. 28 CPP), suspensión
+  condicional (Art. 40 CPP), procedimiento abreviado (Art. 392 CPP)
+
+**Datos faltantes:** si el usuario no aporta un dato concreto (nombre, fecha, número de
+expediente, juzgado), usa un marcador explícito — "[NOMBRE DEL IMPUTADO]",
+"[FECHA DEL HECHO]", "[NÚMERO DE EXPEDIENTE]" — NUNCA lo inventes ni lo omitas en
+silencio.
+
+**Cierre obligatorio del mensaje — "📋 Checklist del abogado":**
+Después del escrito, agrega una sección breve con: documentos que deben adjuntarse,
+plazo procesal aplicable a la presentación (con artículo), y siguiente actuación
+esperada del órgano jurisdiccional.
+`.trim();
+
+/** Prompt de escritos penales = identidad + módulos + anexo de redacción formal */
+const FULL_MAYA_PENAL_ESCRITOS_PROMPT = [
+  MAYA_PENAL_SYSTEM_PROMPT,
+  MAYA_PENAL_MODULES,
+  ANEXO_ESCRITOS_PENALES,
+].join('\n\n');
+
 export const CLAUDE_CONFIG_PENAL = {
   /**
    * SALA PENAL — Haiku 4.5 | <150 palabras | Audiencias en tiempo real
@@ -347,13 +400,15 @@ export const CLAUDE_CONFIG_PENAL = {
   /**
    * ESCRITOS PENALES — Opus 4.8 | 10 000 tokens | Generación de documentos
    * Requerimientos, excepciones, recursos, hábeas corpus, apelaciones.
-   * Usa plantillas de lib/templates/ como base estructural.
+   * Mismo núcleo penal que analisis_penal + ANEXO_ESCRITOS_PENALES (estructura
+   * formal de escrito, petitorio, checklist) — antes compartía el prompt de
+   * analisis_penal sin diferenciación de formato de salida.
    */
   escritos_penales: {
     model: 'claude-opus-4-8' as const,
     max_tokens: 10000,
     thinking: { type: 'adaptive' as const, display: 'summarized' as const },
-    systemPrompt: FULL_MAYA_PENAL_PROMPT,
+    systemPrompt: FULL_MAYA_PENAL_ESCRITOS_PROMPT,
   },
 } as const;
 
