@@ -1,4 +1,7 @@
-# Cotejo — Art. 68 y 70, Código de Familia (paquete aparte, no resuelto)
+# Dossier 31-2015 (régimen patrimonial) — Cotejo Art. 68 y 70, Código de Familia
+
+**Este es el dossier separado para el Decreto 31-2015 (D10.4) — no mezclar con el
+dossier 102-2018 (adopción) ni con el 35-2013 (niñez).**
 
 **No se decide aquí cuál versión es la vigente. Es un cotejo factual para que el
 equipo jurídico del fundador decida contra fuente oficial.**
@@ -53,6 +56,21 @@ haber modificado el texto de los Arts. 68 y 70 existentes al mismo tiempo.
 Esta hipótesis es plausible por la evidencia estructural anterior, pero **no está
 confirmada contra fuente oficial** en este documento. El humano decide qué versión
 entra al corpus canónico.
+
+## Actualización — control del Nivel 3 (D10.5), evidencia nueva no buscada a propósito
+
+Al correr el control del regex "Reformado mediante Decreto" contra el bloque 1
+como prueba de que el Nivel 3 no está roto, apareció esta cita textual, literal,
+del propio documento (Art. 31 local, no buscada intencionalmente, hallazgo
+colateral del control):
+
+> "5 Artículo 30. Reformado mediante Decreto 31-2015, del 7 de abril de 2015.
+> Publicado en el Diario Oficial La Gaceta No."
+
+**Esto confirma que el Decreto 31-2015 existe y tiene fecha 2015-04-07** —
+corrobora (sin probar del todo, la cita sigue truncada antes del número de
+Gaceta) la hipótesis de este dossier. Sigue sin verificarse contra fuente oficial
+completa (no se bajó la Gaceta).
 
 ---
 

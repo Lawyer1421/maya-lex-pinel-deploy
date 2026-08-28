@@ -242,6 +242,69 @@ Decreto 54), varios sin ninguna investigación posterior. Ver
 
 ---
 
-*Próxima entrada: decisión del fundador sobre pausar/continuar el triage de
-AUSENTE_EN_VERSION_LOCAL dado el defecto de extractor confirmado, salvaguarda de
-seguridad, esquema de resoluciones, y re-extracción vs. exclusión.*
+## 2026-08-27 — Resolución consolidada del fundador D6-D12 (arbitraje Qwen + auditoría Grok)
+
+El fundador integra revisión de otros dos sistemas (Qwen como árbitro, Grok como
+auditor independiente) y resuelve los puntos abiertos. Ejecutado en orden:
+
+**D10.5 — control del Nivel 3**: regex "Reformado mediante Decreto" corrido contra
+el bloque 1 completo. **7 de 50 artículos con match (no 0)** -- confirma que el
+regex no está roto. Art. 11 y Art. 25 confirmados con match, como esperaba el
+fundador. Hallazgo colateral no buscado: Art. 31 (local) cita textualmente
+"Reformado mediante Decreto 31-2015, del 7 de abril de 2015" -- confirma que ese
+decreto existe con fecha 2015-04-07, agregado al dossier 31-2015
+(`art-68-70-cotejo.md`).
+
+**D10.1 — corrección Art. 120**: la auditoría de Grok detectó que el Art. 120
+quedó contradictoriamente en dos estados (DATO_FALTANTE en el bloque 2 vs.
+confirmado-derogado en la retractación) -- error real: se corrigieron 121 y
+123-C en la ronda anterior pero se omitió 120 mismo. Corregido en
+`hn-codigo-familia-bloque-02-CORRECCION.jsonl` y en el encabezado de
+`hn-codigo-familia-bloque-02.md` (cifra de dato-faltante corregida de 11 a 8).
+
+**D10.2 — cruce completo AUSENTE × lista Art.63 (Decreto 102-2018)**: de los 247
+hallazgos `AUSENTE_EN_VERSION_LOCAL_CAUSA_NO_CONFIRMADA` en las 958 líneas
+(no solo bloques 2-3 -- el archivo completo):
+- **40 coinciden con la lista** proporcionada por el fundador → `DEROGADO_CANDIDATO`.
+- **2 son Art. 1 y 2** → incidente técnico, no derogación (D10.3).
+- **205 no están explicados** por la lista ni son 1-2 -- quedan documentados en
+  `extractor-defecto-alcance.md`, no procesados uno por uno (pausados por D9).
+
+**Discrepancia encontrada, no resuelta por el asistente**: Art. 129 tiene
+evidencia textual directa de derogación (línea 941 del archivo fuente) pero NO
+aparece en la lista del Art.63 proporcionada. Marcada explícitamente para
+revisión del equipo jurídico en `dossier-DEROGACION_ADOPCION_102-2018.md`.
+
+**D10.4 — dossier único**: `dossier-DEROGACION_ADOPCION_102-2018.md` consolida
+Nivel 1 (25 artículos, evidencia textual directa) + Nivel 2 (30 artículos,
+candidatos por lista) = 55 artículos totales. Dossiers separados confirmados:
+31-2015 en `art-68-70-cotejo.md` (renombrado como dossier 31-2015), 35-2013 nuevo
+en `dossier-35-2013-NINEZ.md` (solo indicios de reforma, no derogación --
+distinto patrón).
+
+**D11 — resoluciones masivas preparadas, sin aplicar**:
+`resoluciones-dossier-102-2018.jsonl`, esquema extendido con `articulos: []`
+(D7), dos registros (Nivel 1 y Nivel 2), ambos `estado: DEROGADO_CANDIDATO` --
+ninguno se marca `DEROGADO` sin ratificación humana, incluso el Nivel 1 con
+evidencia textual directa.
+
+**D9 — extractor re-encuadrado**: alcance documentado en
+`extractor-defecto-alcance.md` -- (a) Arts. 1-2 marcados como posible defecto
+DISTINTO (no confirmado, están lejos de la zona de alta densidad de notas al pie
+que causa el defecto ya conocido), (b) 205 artículos ausentes sin explicar por
+ningún dossier, (c) alcance de re-extracción completa. Triaje mecánico de
+`AUSENTE_EN_VERSION_LOCAL` ya explicado, pausado.
+
+**D7 — esquema confirmado con extensión**: `articulos: []` además de `articulo`
+(string) para resoluciones masivas, fail-hard por elemento -- aplicado en
+`resoluciones-dossier-102-2018.jsonl`.
+
+**Pendiente de este mismo turno**: D6(a) -- cambio de código en producción
+(`formatearContextoRAG`, default nunca null) -- ver entrada siguiente cuando se
+complete. D6(b) -- exclusión real (Opción B) -- mismo sprint, no en este turno.
+D12 -- bloque 3 con el método nuevo, próximo turno.
+
+---
+
+*Próxima entrada: D6(a) en código real (preview + merge a main), o continuación
+de bloque 3 con el método D12.*
