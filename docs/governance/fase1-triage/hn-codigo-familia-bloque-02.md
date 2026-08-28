@@ -1,5 +1,14 @@
 # Fase 1 — Triage de HUMAN_LEGAL_REVIEW_QUEUE.jsonl — Bloque 2/N
 
+> **⚠️ CORRECCIÓN POSTERIOR (ver `hn-codigo-familia-bloque-03-RETRACTACION.md` y
+> `hn-codigo-familia-bloque-02-CORRECCION.jsonl`)**: los artículos **121** y
+> **123-C**, clasificados abajo como `DATO_FALTANTE`, fueron reclasificados a
+> `DEROGADO_CONFIRMADO_POR_FUENTE` tras descubrir que el propio archivo de origen
+> contiene una lectura directa del PDF que cita textualmente su derogación
+> (Decreto 102-2018). No estaban ausentes — estaban en cuarentena por un defecto
+> confirmado del extractor. El conteo original de este documento (11 dato-faltante)
+> queda desactualizado; la cifra corregida es 9.
+
 **Métrica congelada** (para no volver a mezclar líneas con artículos): el archivo
 `corpus-data/estructurado/HUMAN_LEGAL_REVIEW_QUEUE.jsonl` tiene **958 líneas**,
 donde **cada línea = 1 hallazgo**, no 1 artículo ni 1 línea de código. Bloque 2 =

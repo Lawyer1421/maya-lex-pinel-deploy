@@ -188,6 +188,60 @@ Requiere decisión de producto del fundador sobre si entra al roadmap.
 
 ---
 
-*Próxima entrada: bloque 3/N de la cola de triage (líneas 101-150), decisión
-del fundador sobre salvaguarda de seguridad, esquema de resoluciones, y
-re-extracción vs. exclusión de los 7 dato-faltante.*
+## 2026-08-27 — Descubrimiento mayor: retractación en el propio archivo de cola + defecto de extractor confirmado
+
+Al preparar el bloque 3 (líneas 101-150), se descubrió que `HUMAN_LEGAL_REVIEW_QUEUE.jsonl`
+no es una lista plana -- líneas 357-958 son una segunda pasada de investigación
+posterior (mismo día) que:
+
+1. Primero concluyó (línea 693) que la extracción local del Código de Familia
+   cubre solo artículos 3-123 (misma conclusión a la que había llegado esta
+   sesión de forma independiente en el bloque 2/3).
+2. **Retractó esa conclusión** (línea 940, `RETRACTACION_HALLAZGO_ALCANCE_DOCUMENTO`,
+   prioridad ALTA): el PDF local es el Código COMPLETO de 338 artículos, confirmado
+   por lectura directa del texto crudo (cláusula de vigencia + firma de
+   promulgación). El límite de 123 es un **defecto confirmado del extractor**
+   (`intentarSepararNotaAlPie` en `lib/ingesta-oficial/extraccion-ndestructiva.ts`,
+   ventana de nota al pie fija de 10 que se desincroniza por la alta densidad de
+   notas al pie del Capítulo de Adopción) -- NO un límite real del documento. Sin
+   fix aplicado todavía.
+3. Confirmó por lectura directa (`HALLAZGO_DEROGACION_EXPLICITA_CONFIRMADA_POR_TEXTO_FUENTE`,
+   línea 941), con cita textual literal del PDF, que 24 artículos (120, 120-A a
+   120-D, 121, 122, 123, 123-A a 123-H, 124-130, 132) citan su propia derogación
+   vía Decreto 102-2018 / La Gaceta No.34,841 (2019-01-10) -- extiende y confirma
+   con evidencia más fuerte el hallazgo del bloque 2.
+4. Confirmó que el **Art. 131 sí tiene contenido sustantivo vigente** -- no todo
+   lo posterior al 123 está derogado.
+
+**Corrección aplicada**: Art. 121 y 123-C, clasificados en el bloque 2 como
+`DATO_FALTANTE`, se reclasifican a `DEROGADO_CONFIRMADO_POR_FUENTE` -- ver
+`hn-codigo-familia-bloque-02-CORRECCION.jsonl`. No estaban ausentes, estaban en
+cuarentena por el defecto de extractor.
+
+**Verificación de seguridad extendida** (producción, solo lectura): 121, 123-C,
+124-132 -- los 11 -- tienen `es_norma_vigente=false`. Mismo patrón que el bloque
+2, mismo gap sin mitigar ya documentado (búsqueda semántica sin filtro).
+
+**Bloque 3 NO se publica como resuelto**. De los 50 artículos (124-173): 8
+confirmados derogados, 1 (Art. 131) confirmado vigente pero sin texto disponible
+en los hallazgos revisados, y **41 (133-173) genuinamente sin resolver** --
+bloqueados por el mismo defecto de extractor, no por ausencia real. Ver
+`hn-codigo-familia-bloque-03-RETRACTACION.md`.
+
+**Recomendación registrada**: no continuar generando bloques mecánicos de
+`AUSENTE_EN_VERSION_LOCAL` (comparten esta misma incertidumbre estructural en todo
+el rango 90-336 del archivo) hasta decidir corregir el extractor o leer a mano
+contra el PDF. El triage de comparación textual de valor real
+(`CLASIFICACION_AMBIGUA_REFORMA_VS_EXTRACCION`, líneas 1-89) ya está completo.
+
+**Grupo secundario documentado, sin resolver**: 30 hallazgos de
+`HN_LEY_ORGANIZACION_ATRIBUCIONES_TRIBUNALES` -- 2 resueltos, 5 enriquecidos pero
+pendientes de revisión legal (incluye una inconsistencia de fecha detectada en
+Decreto 54), varios sin ninguna investigación posterior. Ver
+`decretos-tribunales-pendientes.md`.
+
+---
+
+*Próxima entrada: decisión del fundador sobre pausar/continuar el triage de
+AUSENTE_EN_VERSION_LOCAL dado el defecto de extractor confirmado, salvaguarda de
+seguridad, esquema de resoluciones, y re-extracción vs. exclusión.*
