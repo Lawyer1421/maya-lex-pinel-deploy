@@ -488,7 +488,21 @@ async function buscarEnSupabase(
   // [Teléfono_Oculto]) — mismo criterio que la contención SEO de /leyes y
   // /consultas (lib/seo/estado-editorial.ts). Auditoría de corpus 2026-07-27
   // encontró este patrón en 76.6% del corpus legacy.
-  const fragmentos = fragmentosSinFiltrar.filter((f) => !contieneArtefactoAnonimizacion(f.contenido));
+  //
+  // D6(b) (Operación "Facultades Completas", 2026-08-28): exclusión real de
+  // artículos de código hondureño confirmados NO vigentes (ej. derogados —
+  // dossier DEROGACION_ADOPCION_102-2018 de Fase 1). Antes solo se
+  // etiquetaban (D6a) pero seguían llegando al contexto del modelo por esta
+  // vía sin filtro (`fragmentosNormal`, similitud pura, sin filtro de
+  // vigencia) — un artículo derogado con embedding cercano a la consulta
+  // podía colarse igual, con o sin etiqueta. Se excluyen aquí, antes de
+  // construir el contexto, no solo se marcan. No se borran de la base de
+  // datos (quedan disponibles para la futura feature de vigencia/derogación
+  // visible, ver decision log 2026-08-27) — solo se excluyen de esta
+  // recuperación semántica sin filtro.
+  const fragmentos = fragmentosSinFiltrar
+    .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
+    .filter((f) => !esRegistroNoVigenteExcluido(f));
 
   const articulos = [...new Set(
     fragmentos
@@ -503,6 +517,18 @@ const PATRON_ANONIMIZACION_SIN_LIMPIAR = /\[(Cliente|Empresa)_An[oó]nimo|Tel[e�
 
 export function contieneArtefactoAnonimizacion(contenido: string): boolean {
   return PATRON_ANONIMIZACION_SIN_LIMPIAR.test(contenido);
+}
+
+/**
+ * D6(b) — true para un artículo de código hondureño confirmado NO vigente
+ * (ej. derogado). Mismo criterio exacto que la etiqueta de seguridad D6(a)
+ * en formatearContextoRAG, pero aplicado ANTES de que el fragmento llegue al
+ * contexto, no solo al mostrarlo. Se define aquí (no inline) para que ambos
+ * puntos del código — exclusión y etiqueta — usen la misma condición, nunca
+ * dos copias que puedan desincronizarse.
+ */
+export function esRegistroNoVigenteExcluido(f: Pick<FragmentoRAG, 'es_norma_vigente' | 'fuente_tipo' | 'jurisdiccion'>): boolean {
+  return f.es_norma_vigente === false && f.fuente_tipo === 'codigo' && f.jurisdiccion === 'HN';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -642,21 +668,27 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   ];
 
   for (const [i, f] of resultado.fragmentos.entries()) {
-    // Salvaguarda D6(a) (Operación "Facultades Completas", 2026-08-27): esta
-    // etiqueta NUNCA debe quedar en null. Antes, un fragmento con
-    // es_norma_vigente=false + fuente_tipo='codigo' + jurisdiccion='HN' (ej.
-    // un artículo derogado, ya confirmado en producción vía el dossier de
-    // triage de Fase 1) no encajaba en ninguna de las tres ramas anteriores y
-    // llegaba al contexto del modelo SIN ninguna etiqueta de advertencia —
-    // indistinguible de un fragmento normal. El fallback explícito cierra ese
-    // hueco en código, no solo en el prompt.
+    // Salvaguarda D6(a) (2026-08-27), corregida D6(a-bis) (2026-08-28): esta
+    // etiqueta NUNCA debe quedar en null. Un artículo de código hondureño
+    // confirmado NO vigente (derogado — dossier DEROGACION_ADOPCION_102-2018)
+    // ahora recibe su propia etiqueta específica, distinta del fallback
+    // genérico: "NO VIGENTE" es una afirmación conocida y verificada, no lo
+    // mismo que "no sabemos qué es esto" (fuente sin clasificar). El fallback
+    // genérico queda reservado solo para metadata realmente ausente/ambigua.
+    // Nota: desde D6(b), esRegistroNoVigenteExcluido() ya excluye estos
+    // fragmentos ANTES de llegar aquí en la vía de búsqueda semántica de
+    // Supabase — esta etiqueta es la segunda capa de defensa, por si un
+    // fragmento con este mismo patrón llega por otra vía (ej. backend
+    // Python, o una recuperación exacta futura que no pase por ese filtro).
     const etiqueta = f.es_norma_vigente === true
       ? 'NORMA VIGENTE HONDURAS'
       : f.jurisdiccion && f.jurisdiccion !== 'HN'
         ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
         : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
           ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
-          : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
+          : esRegistroNoVigenteExcluido(f)
+            ? 'NO VIGENTE — NO CITAR COMO NORMA'
+            : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
     const tag = ` [${etiqueta}]`;
     lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);

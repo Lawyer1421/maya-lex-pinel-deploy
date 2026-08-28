@@ -45,11 +45,16 @@ describe('formatearContextoRAG — ninguna etiqueta queda en null', () => {
     expect(ctx).toContain('[DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE]');
   });
 
-  it('el caso encontrado en la auditoría (codigo + HN + no vigente) ya NO queda sin etiqueta', () => {
+  it('el caso encontrado en la auditoría (codigo + HN + no vigente) recibe su etiqueta específica, corregida el 2026-08-28', () => {
     const ctx = formatearContextoRAG(
       resultado([fragmento({ fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: false })])
     );
-    expect(ctx).toContain('[FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE]');
+    // Corrección: ya no cae al fallback genérico "FUENTE SIN CLASIFICAR" --
+    // es una afirmación conocida y verificada (derogado), no una ausencia de
+    // metadata. El fallback genérico queda reservado para metadata realmente
+    // ausente/ambigua (ver prueba siguiente).
+    expect(ctx).toContain('[NO VIGENTE — NO CITAR COMO NORMA]');
+    expect(ctx).not.toContain('FUENTE SIN CLASIFICAR');
   });
 
   it('metadata ausente/desconocida por completo también cae en la etiqueta de seguridad, nunca sin etiqueta', () => {
