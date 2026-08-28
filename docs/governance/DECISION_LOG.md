@@ -95,4 +95,43 @@ quedan en la cola de revisión humana, consistente con D2.
 
 ---
 
-*Próxima entrada: bloque 2/N de la cola de triage, o cierre de Fase 1.*
+## 2026-08-27 — Bloque 2/N + paquete Art. 68/70 + Nivel 3 del clasificador
+
+Autorización del fundador (misma fecha): "Continúa con bloque 2... El Art 68/70 lo
+revisa mi equipo jurídico... márcalas como prioridad ALTA... no detengas el
+proceso." Incorpora también instrucciones de gobernanza detalladas: ranking de
+fuente (Gaceta > CEDIJ con fecha > PDF TSC/OEA), `tecnico_resuelto ≠ aprobado para
+corpus`, métrica de 958 congelada explícitamente como líneas del archivo de
+hallazgos (no artículos, no líneas de código), un commit por bloque sin pedir
+permiso entre bloques técnicos, y un nuevo Nivel 3 de clasificador (separar notas
+de reforma embebidas del cuerpo antes de comparar).
+
+**Auditoría de calidad realizada** (10 hallazgos técnicos re-verificados con texto
+completo, 5 antes y 5 después de corregir bugs) — **se encontraron y corrigieron 2
+bugs reales** en el normalizador durante el proceso, documentados en
+`hn-codigo-familia-bloque-02.md`. Ningún hallazgo jurídico fue forzado a técnico.
+
+**Bloque 2** (líneas 51-100, mezcla de dos tipos de hallazgo): 24 técnicos, 15
+reforma-candidata (12 de prioridad ALTA, 3 MEDIA), 11 dato-faltante (7
+corroborados por gaps documentados en el manifest de extracción, 4 sin
+corroboración).
+
+**Hallazgo de prioridad ALTA**: 12 artículos (119-B, 120-A a 120-D, 122, 123, 123-D
+a 123-H) de la sección de adopción muestran la versión local marcada "Derogado",
+con una cita completa y verificable: "Artículo 120. Derogado mediante Decreto
+102-2018 del 25 de septiembre de 2018. Publicado en el Diario Oficial La Gaceta
+No.34,841 de fecha 10 de enero de 2019." La versión TSC (base) no refleja esta
+derogación. No se resolvió ni se marcó como vigente -- va a la cola jurídica.
+
+**Paquete Art. 68/70** entregado por separado en `art-68-70-cotejo.md`: cotejo TSC
+vs. local, confirmación de que Arts. 70-A a 70-D existen solo en la versión local
+(evidencia estructural, no prueba), hipótesis de Decreto 31-2015 marcada
+explícitamente como no verificada -- no se intentó descargar Gaceta 33.799 por no
+tener una fuente confiable disponible en esta sesión para ese tipo de verificación.
+
+Detalle completo: `hn-codigo-familia-bloque-02.md` / `.jsonl`, `art-68-70-cotejo.md`.
+
+---
+
+*Próxima entrada: bloque 3/N de la cola de triage (líneas 101-150), o cierre de
+Fase 1.*

@@ -36,7 +36,12 @@ Cada hallazgo compara el texto de un artículo en dos fuentes ya extraídas al c
 | No resuelto (dato faltante) | 0 |
 | **Total** | **50** |
 
-**Técnicos resueltos** (artículos): 5, 6, 14, 15, 21, 24, 26, 27, 28, 32, 33, 34, 35,
+**Corrección (auditoría de calidad, ver bloque 2)**: esta lista tenía un error de
+transcripción — decía "5" donde el dato real (`hn-codigo-familia-bloque-01.json`) dice
+"20". El Art. 5 SÍ está correctamente en la lista de jurídicos pendientes abajo; nunca
+estuvo mal clasificado, solo mal transcrito en este resumen. Lista corregida:
+
+**Técnicos resueltos** (artículos): 6, 14, 15, 20, 21, 24, 26, 27, 28, 32, 33, 34, 35,
 37, 38, 43, 46, 49, 50, 52, 56, 58, 61, 63, 65, 67, 72. En su mayoría, artefactos de
 extracción de PDF (pie de página "-- N of 72 --", marca de agua del Centro Electrónico
 de Documentación e Información Judicial) o palabras separadas incorrectamente por la
