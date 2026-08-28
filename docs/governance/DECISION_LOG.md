@@ -133,5 +133,61 @@ Detalle completo: `hn-codigo-familia-bloque-02.md` / `.jsonl`, `art-68-70-cotejo
 
 ---
 
-*Próxima entrada: bloque 3/N de la cola de triage (líneas 101-150), o cierre de
-Fase 1.*
+## 2026-08-27 — Verificación de seguridad post-bloque-2 + esquema de resoluciones
+
+**Verificación solicitada por el fundador (urgente, solo lectura)**: los 13
+artículos marcados "Derogado"/candidatos de reforma (68, 70, 119-B, 120-A a
+120-D, 122, 123, 123-D a 123-H) tienen `es_norma_vigente=false` en
+`biblioteca_vectores` de producción -- confirmado en vivo. No aparecen en la
+lista de citas estructuradas ni en el lookup exacto por artículo (ambos exigen
+`es_norma_vigente=true`).
+
+**Gap real encontrado y NO mitigado**: la búsqueda semántica "normal" en
+`lib/rag/search.ts` (`buscarEnSupabase`) no filtra por `es_norma_vigente` --
+solo hay una llamada paralela adicional filtrada a vigentes, cuyos resultados
+se fusionan con los de la búsqueda sin filtrar. Además, estos 13 registros
+(fuente_tipo='codigo', jurisdiccion='HN', es_norma_vigente=false) no encajan
+en ninguna de las tres etiquetas de advertencia que ya existen en
+`formatearContextoRAG` -- aparecerían en el contexto del modelo SIN ninguna
+etiqueta, a diferencia de jurisprudencia/doctrina que sí se marcan. Propuestas
+de salvaguarda (sello en código vs. exclusión real de la búsqueda semántica)
+entregadas al fundador, **ninguna aplicada** -- pendiente de su aprobación.
+
+**Esquema de resoluciones jurídicas**: confirmado aplicable con 3 ajustes --
+`estado` como enum cerrado (no texto libre), `texto_vigente_fuente` separado
+en `origenTextoVigente` (puntero) + `textoVigenteLiteral` (solo si aplica), y
+`fundamento` estructurado (decreto/fecha/gaceta) en vez de texto libre.
+Pendiente de confirmación del fundador.
+
+**Estimación de esfuerzo entregada** (decisión pendiente del fundador) para
+los 7 "dato faltante" corroborados por gaps del pipeline: re-extraer con
+parser corregido (medio, ~1 sesión) vs. excluir y usar solo TSC/base para
+esos 7 (bajo, casi sin trabajo nuevo, sin conflicto activo que resolver).
+
+---
+
+## 2026-08-27 — Oportunidad de producto derivada del triage: "estado de vigencia visible con cita de derogación"
+
+El proceso de triage de Fase 1 produce, para cada artículo con contradicción
+resuelta, un dato ya estructurado y verificable: estado (vigente/derogado/
+reformado) + cita exacta del decreto y Gaceta que lo sustenta. Hoy ese dato
+solo existe internamente (sellos V0-V5, columna `es_norma_vigente`) -- nunca
+se expone al usuario final en la respuesta del chat.
+
+**Oportunidad**: extender el sistema de verificación V0-V5 ya visible en
+producción para mostrar explícitamente, cuando aplique, un estado de vigencia
+con su cita de derogación directamente en la respuesta (ej. un badge o nota
+"Este artículo fue derogado por Decreto 102-2018, La Gaceta No.34,841" en vez
+de simplemente omitir el artículo o dejarlo fuera de las citas sin
+explicación). Convierte un hallazgo de auditoría en una ventaja de producto
+real: transparencia de vigencia como diferenciador, no solo como control
+interno de calidad.
+
+**Estado**: registrado como oportunidad, no implementado, no priorizado.
+Requiere decisión de producto del fundador sobre si entra al roadmap.
+
+---
+
+*Próxima entrada: bloque 3/N de la cola de triage (líneas 101-150), decisión
+del fundador sobre salvaguarda de seguridad, esquema de resoluciones, y
+re-extracción vs. exclusión de los 7 dato-faltante.*
