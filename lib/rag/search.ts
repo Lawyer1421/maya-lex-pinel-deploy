@@ -642,15 +642,23 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   ];
 
   for (const [i, f] of resultado.fragmentos.entries()) {
+    // Salvaguarda D6(a) (Operación "Facultades Completas", 2026-08-27): esta
+    // etiqueta NUNCA debe quedar en null. Antes, un fragmento con
+    // es_norma_vigente=false + fuente_tipo='codigo' + jurisdiccion='HN' (ej.
+    // un artículo derogado, ya confirmado en producción vía el dossier de
+    // triage de Fase 1) no encajaba en ninguna de las tres ramas anteriores y
+    // llegaba al contexto del modelo SIN ninguna etiqueta de advertencia —
+    // indistinguible de un fragmento normal. El fallback explícito cierra ese
+    // hueco en código, no solo en el prompt.
     const etiqueta = f.es_norma_vigente === true
       ? 'NORMA VIGENTE HONDURAS'
       : f.jurisdiccion && f.jurisdiccion !== 'HN'
         ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
         : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
           ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
-          : null;
+          : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
-    const tag = etiqueta ? ` [${etiqueta}]` : '';
+    const tag = ` [${etiqueta}]`;
     lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);
     lineas.push(f.contenido.trim());
     lineas.push('');
