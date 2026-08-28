@@ -68,4 +68,31 @@ activación explícita posterior fase por fase.
 
 ---
 
-*Próxima entrada: cierre de Fase 0 (infraestructura de feature flags).*
+## 2026-08-27 — Cierre de Fase 0
+
+Tabla `feature_flags` aplicada y verificada en producción (6 flags, todos `enabled:
+false`). `lib/flags.ts` (fail-closed) mergeado a `main`, desplegado, sin código
+consumiéndola todavía — cero impacto de comportamiento. Ver commit `752d8d0` /
+merge `0bbecef`.
+
+---
+
+## 2026-08-27 — Fase 1, inicio de triage: HUMAN_LEGAL_REVIEW_QUEUE.jsonl
+
+**Corrección de alcance**: el archivo real tiene 958 líneas, no 602 (cifra del
+commit original). Los bloques de 50 se numeran sobre las 958 líneas reales.
+
+**Bloque 1/N** (líneas 1–50, `HN_CODIGO_FAMILIA`, artículos 5–72) clasificado con
+prueba automática de dos niveles (normalización de texto + detección de ruido de
+extracción de PDF). Resultado: 27 técnicos resueltos, 23 jurídicos pendientes.
+Hallazgo de prioridad alta para el equipo jurídico: Art. 68/70 muestran una
+diferencia sustantiva real (régimen de bienes separados vs. sociedad de gananciales
+como régimen por defecto), no un defecto de extracción. Detalle completo en
+`docs/governance/fase1-triage/hn-codigo-familia-bloque-01.md` y `.json`.
+
+Ningún hallazgo de fondo jurídico fue resuelto por el asistente — todos los 23
+quedan en la cola de revisión humana, consistente con D2.
+
+---
+
+*Próxima entrada: bloque 2/N de la cola de triage, o cierre de Fase 1.*
