@@ -690,3 +690,42 @@ número de nota al pie pegado al inicio del `contenido` ("79Los alimentos…",
 explícitamente dejado sin limpiar por instrucción del Fundador ("no
 limpies 79/82 ahora"). `206` (Decreto 73-96) y `175-A` (Decreto 124-92)
 siguen pendientes de ratificación/inserción separada.
+
+---
+
+## 2026-08-28 — Corrigendum a `f59b2b2` (append, SQL de esa entrada sin reescribir)
+
+Precisión del Fundador + dictamen jurídico sobre la entrada anterior:
+
+- **174–184** son la cola del **Título IV Adopción** (no Título V) —
+  derogados por el **art. 63.1.b del Decreto 102-2018** (La Gaceta 34.841,
+  10-ene-2019), **junto con el 173**. Verificado por SELECT abajo: `173`
+  → `false`, contenido de jurisdicción de adopción — consistente.
+- **206**: se corrige la caracterización previa. No es
+  "`INDETERMINADO` por falta de ratificación" — es **`DEROGADO`
+  confirmado** por el **Decreto 73-96** (Código de la Niñez y la
+  Adolescencia, La Gaceta 28.053, 5-sep-1996). Permanece `false`, sin
+  ningún UPDATE — solo se corrige el motivo registrado.
+- **207-A** (introducido por Decreto 35-2013) ya cubre alimentos y está
+  `true` desde el UPDATE de `f59b2b2` — confirmado, sin acción.
+- **175-A**: confirmado que **no existe en la consolidación oficial** —
+  no se inserta, cierre del hallazgo colateral abierto en el bloque 3.
+- **207-B, 207-E y 210-A**: notas CEDIJ residuales pegadas al inicio del
+  `contenido` ("79", "82", "85" respectivamente) — backlog de limpieza de
+  contenido, no de vigencia.
+
+**SELECT de solo lectura solicitado** (`173`, `209`, `210`, `210-A`, sin
+`BETWEEN`, sin escritura):
+
+| num_articulo | es_norma_vigente | contenido (80 chars) |
+|---|---|---|
+| 173 | **false** | "Conocerá de la adopción el Juez de Letras de lo Civil del domicilio del adoptant…" |
+| 209 | false | "El derecho a pedir alimentos no puede transmitirse por causa de muerte, ni enaje…" |
+| 210 | false | "El Juez competente conocerá del juicio de alimentos. Podrá acordar con sólo la p…" |
+| 210-A | false | "85El (la) Juez (a) podrá, a solicitud de parte o de oficio, ordenar que se den a…" |
+
+`173` = `false`, confirmado. `209`, `210`, `210-A` tienen contenido
+sustantivo de Alimentos (Título VI) pero **no se les hizo flip** — quedan
+reportados, pendientes de autorización explícita como los demás. `210-A`
+confirma la nota CEDIJ "85" pegada, tal como se anticipó. Sin bloque 4,
+sin `T022`.
