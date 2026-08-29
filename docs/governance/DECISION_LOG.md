@@ -645,3 +645,48 @@ edita esa entrada — este es un ajuste posterior, append-only):
 el PR" sigue sin estar conectado — faltan el owner de GitHub y el login
 OAuth; sin eso no hay listener. No se solicitó ninguna acción sobre esto
 en este paquete.
+
+---
+
+## 2026-08-28 — PRIMER UPDATE a producción del bloque 3: es_norma_vigente=true en 38 artículos (Patria Potestad/Alimentos)
+
+Autorizado explícitamente por el Fundador, lista cerrada, un solo campo.
+Ejecutado en `biblioteca_vectores` (`thgrhueckkjdutjvcufp`).
+
+**Query ejecutada** (bloque `DO $$` con `GET DIAGNOSTICS` + `RAISE
+EXCEPTION` si `row_count != 38`, para fail-hard sin transacción manual
+multi-statement):
+
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = true
+WHERE fuente = 'Codigo de Familia'
+  AND es_norma_vigente = false
+  AND num_articulo IN ('185','186','187','188','189','190','191','192','193',
+    '194','195','196','197','197-A','197-B','197-C','197-D','197-E','198',
+    '198-A','198-B','198-C','199','200','201','202','203','204','205','207',
+    '207-A','207-B','207-C','207-D','207-E','207-F','207-G','208'); -- 38 valores
+```
+
+**Resultado**: `row_count = 38` (exacto, sin disparar el `RAISE
+EXCEPTION`). Verificación posterior de solo lectura confirmó: los 38 →
+`true`; `174-184` (11) → `false` sin tocar; `206` → `false` sin tocar.
+Nada de `contenido` se modificó. `175-A` no se insertó. Sin `BETWEEN`
+(lista cerrada explícita). Sin bloque 4.
+
+**Efecto real**: honorable — antes de este UPDATE, 38 artículos vigentes
+reales de Título V (Patria Potestad) y Título VI (Alimentos) del Código de
+Familia estaban marcados `es_norma_vigente=false` en producción,
+excluidos de la búsqueda semántica citable (D6b) y etiquetados `[NO
+VIGENTE — NO CITAR COMO NORMA]` pese a ser derecho vigente real. A partir
+de este UPDATE, `buscarArticuloExacto`/`buscarEnSupabase` pueden servirlos
+como norma vigente citable normalmente. `174-184` (Decreto 102-2018,
+derogación ratificada) y `206` (Decreto 73-96, sin ratificar) siguen
+excluidos correctamente.
+
+**Pendiente, no resuelto aquí**: `207-B` y `207-E` conservan un residuo de
+número de nota al pie pegado al inicio del `contenido` ("79Los alimentos…",
+"82Si los bienes…") — cosmético, no afecta la clasificación de vigencia,
+explícitamente dejado sin limpiar por instrucción del Fundador ("no
+limpies 79/82 ahora"). `206` (Decreto 73-96) y `175-A` (Decreto 124-92)
+siguen pendientes de ratificación/inserción separada.
