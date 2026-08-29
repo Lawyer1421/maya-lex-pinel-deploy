@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { RUTAS_MARKETING_PUBLICAS } from '@/lib/seo/rutas-publicas';
 
 const ARTICULO_CONTAMINADO = '1';
 const ARTICULO_LIMPIO = '11';
@@ -42,5 +43,31 @@ describe('sitemap.ts — contención SEO data-driven', () => {
     const { listarNumerosArticulo } = await import('@/lib/seo/articulos-vigentes');
     const todos = await listarNumerosArticulo();
     expect(todos).toContain(ARTICULO_CONTAMINADO);
+  });
+
+  it('anuncia las URLs públicas reales, incluyendo /pricing y /cobertura-juridica', async () => {
+    const sitemap = (await import('@/app/sitemap')).default;
+    const rutas = await sitemap();
+    const urls = rutas.map((r) => r.url);
+
+    expect(urls.some((u) => u === 'https://mayalexhn.com/pricing' || u.endsWith('/pricing'))).toBe(true);
+    expect(urls.some((u) => u.endsWith('/cobertura-juridica'))).toBe(true);
+    for (const ruta of RUTAS_MARKETING_PUBLICAS) {
+      if (ruta === '/') {
+        expect(urls.some((u) => u === 'https://mayalexhn.com' || u.endsWith('mayalexhn.com'))).toBe(true);
+      } else {
+        expect(urls.some((u) => u.endsWith(ruta))).toBe(true);
+      }
+    }
+  });
+
+  it('no anuncia aliases 404 (/precios, /planes, /cobertura)', async () => {
+    const sitemap = (await import('@/app/sitemap')).default;
+    const rutas = await sitemap();
+    const urls = rutas.map((r) => r.url);
+
+    expect(urls.some((u) => u.endsWith('/precios'))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/planes'))).toBe(false);
+    expect(urls.some((u) => /\/cobertura$/.test(u))).toBe(false);
   });
 });
