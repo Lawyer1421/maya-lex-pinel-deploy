@@ -404,6 +404,41 @@ sobre Art. 68/70 (GAP 3) y ratificación de las resoluciones preparadas
 
 ---
 
-*Próxima entrada: ratificación del equipo jurídico, o continuación de bloque
-3 con el método D12 (pendiente de autorización explícita -- D9 sigue
-pausando el triaje mecánico de AUSENTE hasta corregir el extractor).*
+## 2026-08-28 — Cierre de auditoría GAP1-4: confirmaciones sin código nuevo
+
+**GAP 2 — verificación final, sin más inserts**: `construirCitas`
+(`app/api/chat/route.ts:171`, `if (f.es_norma_vigente !== true) continue;`) y
+el paso 2 de `buscarArticuloExacto` (`lib/rag/search.ts:335-357`, match
+exacto por `numero`, solo se intenta si el paso vigente devolvió 0)
+confirmados en el código real de `main`. Confirmado además, en vivo contra
+producción, que el stub `123-A` -- que sí tiene un embedding real (copiado
+de `123-D`) -- **también** queda excluido del RPC semántico
+(`buscar_biblioteca_v2` + filtro D6b da 0 filas usando el propio embedding
+de 123-A como consulta) -- mismo resultado que 119-B. No se insertó nada
+adicional.
+
+**GAP 4 — decisión de producto explícita, no un gap a corregir**:
+`sala_ia` y `sala_penal` no pasan por `buscarEnSupabase` **por diseño**, no
+por omisión. Son los modos de audiencia en tiempo real (Haiku 4.5, <150
+palabras, sin `thinking`) -- priorizan latencia mínima sobre grounding
+documental profundo, y su propio system prompt (`SALA_IA_SYSTEM_PROMPT`) ya
+exige citar artículo + texto literal + argumento corto sin necesitar
+recuperación semántica. Meter RAG a ciegas en estos dos modos sería una
+regresión de velocidad para resolver un problema que no existe -- no se
+toca código por esto.
+
+**GAP 3 (68/70)**: sin cambios -- siguen sin ingestarse, esperando dictamen
+del equipo jurídico o el índice/articulado completo del Decreto 31-2015 (o
+el instrumento que corresponda). Resolución `INDETERMINADO` sigue sin
+aplicar.
+
+**GAP colateral (metadata de 123-D, similitud=1 duplicada entre varios
+artículos)**: registrado como backlog, sin backfill ahora.
+
+**Sin tocar**: bloque 3, defecto de extractor (D9),
+`T022-staging-piloto.sql`.
+
+---
+
+*Próxima entrada: ratificación del equipo jurídico (68/70, dossier
+102-2018), o autorización explícita para bloque 3 / fix del extractor.*
