@@ -306,5 +306,62 @@ D12 -- bloque 3 con el método nuevo, próximo turno.
 
 ---
 
-*Próxima entrada: D6(a) en código real (preview + merge a main), o continuación
-de bloque 3 con el método D12.*
+## 2026-08-28 — D6(a) y D6(b) desplegados a producción; corrección de Grokbot DevOps
+
+D6(a) (etiqueta) y D6(b) (exclusión real de `biblioteca_vectores` no vigente +
+`fuente_tipo='codigo'` + `jurisdiccion='HN'` de la búsqueda semántica sin filtro)
+mergeados a `main` y confirmados en vivo en `mayalexhn.com`. Auditoría de
+Grokbot DevOps encontró que D6(a) por sí solo era insuficiente (la etiqueta no
+impedía que el fragmento llegara al contexto) -- corregido con D6(b) en commit
+separado, con las dos pruebas obligatorias del fundador verdes: consulta de
+adopción sin 119-B/120 en el contexto, `buscarArticuloExacto("120")` confirma
+el filtro `es_norma_vigente=true` real. Detalle completo con diffs y logs en
+la conversación -- no repetido aquí para no duplicar.
+
+## 2026-08-28 — GAP 1-4 (auditoría post-D6b)
+
+**GAP 1 (smoke test)**: no fue posible autenticarse en `mayalexhn.com` -- sin
+credenciales, y entrar contraseñas en nombre del fundador es una acción
+prohibida para el asistente incluso si se solicita explícitamente. Prueba
+equivalente ejecutada contra producción real: RPC `buscar_biblioteca_v2` real,
+con el embedding real del Art. 119-B (caso más adversarial posible) como
+consulta. Sin el filtro D6(b): 10/10 filas devueltas eran no-vigentes. Con el
+filtro D6(b) aplicado: 0 filas. Cero de los 16 artículos derogados listados
+por el fundador aparecieron en ningún resultado. Consecuencia honesta: para
+una consulta centrada en el capítulo derogado de adopción, el contexto queda
+vacío (correcto -- activa el fail-closed ya existente en `chat/route.ts` en
+vez de alucinar), lo que sugiere que no queda regulación de adopción vigente
+en este corpus tras el Decreto 102-2018.
+
+**GAP 2 (fallback a derogación confirmada)**: implementado en
+`lib/rag/search.ts` -- `buscarArticuloExacto()` ahora intenta un segundo paso
+(solo artículos confirmados no vigentes) cuando no hay match vigente, mismo
+resultado nunca citable como norma (protecciones D6a/D6b ya existentes, sin
+cambios). **Desviación documentada de la instrucción literal**: el contenido
+sugerido ("Artículo derogado" o vacío) habría sido rechazado por
+`tieneEncabezadoArticulo()` -- el filtro de calidad que ya existe para
+rechazar fragmentos sin encabezado real. Se usa en su lugar el formato
+"ARTICULO N.- Derogado mediante Decreto 102-2018..." (mismo texto ya
+confirmado por lectura directa de fuente para el resto del dossier). 6
+pruebas nuevas, incluida una que confirma explícitamente que el contenido
+genérico SÍ sería rechazado. Preview + merge a `main` pendiente de
+confirmación en este mismo turno. Ingesta real de 123-A/123-B: pendiente,
+después del merge del código.
+
+**GAP 3 (68/70)**: `SELECT * FROM biblioteca_vectores WHERE num_articulo IN
+('68','70') AND fuente='Codigo de Familia' AND es_norma_vigente=true` → **0
+filas**, confirmado. **68/70 requieren dictamen del equipo jurídico antes de
+ingestar texto vigente** -- no se rellenó con texto TSC (sería citar
+derogado/incierto como vigente). Resolución `INDETERMINADO` preparada en
+`resolucion-68-70-indeterminado.jsonl`, sin aplicar. No es un gap técnico del
+extractor -- ambas versiones (TSC y local) SÍ tienen texto extraído; el
+problema es que dan contenido sustantivamente distinto y no hay forma de
+saber cuál -- si alguna -- es la redacción vigente sin cotejo directo contra
+Gaceta 33.799.
+
+**GAP 4 (auditoría de los 6 modos)**: ver análisis completo abajo.
+
+---
+
+*Próxima entrada: resultado de GAP 4, y cierre de la ingesta de 123-A/123-B
+tras el merge del código de GAP 2.*
