@@ -363,5 +363,47 @@ Gaceta 33.799.
 
 ---
 
-*Próxima entrada: resultado de GAP 4, y cierre de la ingesta de 123-A/123-B
-tras el merge del código de GAP 2.*
+*GAP 4: ver `gap4-auditoria-6-modos.md` -- 4 de 6 modos usan el RAG
+(`analisis`, `analisis_penal`, `escritos_penales`, `documento`), ninguno
+necesita datos no-vigentes como feature hoy, D6(b) bien alcanzado.*
+
+---
+
+## 2026-08-28 — Cierre de GAP 2: código desplegado + datos insertados + verificado
+
+Código de GAP 2 (`buscarArticuloExacto` con fallback a derogación confirmada)
+mergeado a `main`, confirmado en vivo en `mayalexhn.com` (deployment
+`f168c85`).
+
+**Datos insertados en producción** (`biblioteca_vectores`, proyecto
+`thgrhueckkjdutjvcufp`): dos filas nuevas, `123-A` y `123-B`, Código de
+Familia, `es_norma_vigente=false`, contenido con formato de encabezado real
+("ARTICULO 123-A.- Derogado mediante Decreto 102-2018...") para pasar el
+filtro de calidad `tieneEncabezadoArticulo()` ya existente -- no el
+"Artículo derogado" genérico sugerido originalmente (ver GAP 2 arriba).
+Embedding reutilizado del hermano `123-D` ya existente (irrelevante para la
+seguridad de estos registros, ya que D6b los excluye de cualquier ruta
+semántica sin depender de similitud vectorial).
+
+**Verificado en vivo, solo lectura, contra producción real**: la consulta de
+dos pasos que hace el código desplegado -- primero `es_norma_vigente=true`
+(0 filas), luego el fallback `es_norma_vigente=false` (2 filas, exactamente
+123-A y 123-B) -- confirmada exactamente como se esperaba.
+
+**Hallazgo colateral de calidad de datos, no corregido, solo anotado**: la
+fila hermana `123-D` (ya existente, insertada en una carga anterior) tiene
+`es_norma_vigente=false` correcto en la columna real, pero su
+`metadata.estado_articulo` interno todavía dice `"VIGENTE"` -- inconsistencia
+preexistente que no afecta ninguna ruta de la aplicación (solo lee la
+columna real, nunca el metadata para esa decisión), pero vale la pena
+limpiarla en un backfill futuro del corpus.
+
+GAP 1-4 cerrados. Pendiente exclusivamente: dictamen del equipo jurídico
+sobre Art. 68/70 (GAP 3) y ratificación de las resoluciones preparadas
+(`resoluciones-dossier-102-2018.jsonl`, `resolucion-68-70-indeterminado.jsonl`).
+
+---
+
+*Próxima entrada: ratificación del equipo jurídico, o continuación de bloque
+3 con el método D12 (pendiente de autorización explícita -- D9 sigue
+pausando el triaje mecánico de AUSENTE hasta corregir el extractor).*
