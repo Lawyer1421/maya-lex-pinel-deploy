@@ -729,3 +729,24 @@ sustantivo de Alimentos (Título VI) pero **no se les hizo flip** — quedan
 reportados, pendientes de autorización explícita como los demás. `210-A`
 confirma la nota CEDIJ "85" pegada, tal como se anticipó. Sin bloque 4,
 sin `T022`.
+
+---
+
+## 2026-08-28 — SEGUNDO UPDATE a producción: es_norma_vigente=true en 209, 210, 210-A
+
+Autorizado explícitamente por el Fundador, lista cerrada de 3, un solo
+campo. Mismo patrón fail-hard que `f59b2b2` (`DO $$` + `GET DIAGNOSTICS`
++ `RAISE EXCEPTION` si `row_count != 3`).
+
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = true
+WHERE fuente = 'Codigo de Familia'
+  AND es_norma_vigente = false
+  AND num_articulo IN ('209','210','210-A');
+```
+
+**Resultado**: `row_count = 3` (exacto). Verificación posterior: `209`,
+`210`, `210-A` → `true`; `173`, `174-184`, `206` → `false`, sin tocar. Sin
+`UPDATE` de `contenido` — la nota CEDIJ "85" pegada al inicio de `210-A`
+permanece igual (backlog de contenido, no de vigencia). Sin `BETWEEN`.
