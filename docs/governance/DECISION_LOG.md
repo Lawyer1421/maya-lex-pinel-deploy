@@ -440,5 +440,80 @@ artículos)**: registrado como backlog, sin backfill ahora.
 
 ---
 
+## 2026-08-28 — D9: fix del extractor + merge acotado a corpus-p0 + topología de ramas
+
+**Nota de repositorio**: este ítem vive fuera de `mayalex-rag-citations-integration`
+— el pipeline de ingesta (`lib/ingesta-oficial/*`) y el corpus no forman
+parte de esta app de producción, viven en el grupo de worktrees compartidos
+`mayalex-corpus` / `mayalex-jurisprudence` / `mayalex-harness` / `mayalex-qa`
+(mismo object store, distintas ramas checked-out). Se documenta aquí porque
+este archivo es la bitácora de gobernanza de facto de toda la sesión.
+
+**Topología de ramas verificada** (worktree `C:\dev\mayalex-corpus`):
+- `feature/mayalex-official-corpus-p0` es la rama base real del pipeline de
+  ingesta — NO `main` de ese repo. `main` de `mayalex-corpus` es un
+  snapshot histórico distinto que no contiene `lib/ingesta-oficial/` en
+  absoluto y trae contenido no relacionado (billing/PixelPay, marketing
+  v2) — confirmado por `git diff --name-status main feature/mayalex-official-corpus-p0`
+  antes de mergear nada. El fundador confirmó (consenso Qwen/Grokbot/Gemini)
+  que el target correcto es `feature/mayalex-official-corpus-p0`.
+- Rama de trabajo `fix/extractor-ventana-nota-adopcion`, creada directamente
+  desde la punta de `feature/mayalex-official-corpus-p0` (commit `72d1948`).
+  `git merge-base --is-ancestor` confirmó `72d1948` como ancestro común
+  exacto en el momento del merge — cero commits de diferencia, no hizo
+  falta rebase.
+- Commit de trabajo completo (fix + tests + script de re-extracción +
+  staging + doc): `5610895` en `fix/extractor-ventana-nota-adopcion`
+  (permanece ahí, NO mergeado en su totalidad).
+- **Merge acotado** a `feature/mayalex-official-corpus-p0`: commit
+  `aee3cfac9f5ebf0051750b965fedfb2ec69dac85`, conteniendo ÚNICAMENTE
+  `lib/ingesta-oficial/extraccion-ndestructiva.ts` + 2 archivos de test +
+  `docs/backlog/D9-defecto-ventana-nota-familia-diagnostico-fix.md` — nada
+  de `scripts/corpus/d9-reextraer-familia-staging.ts` ni
+  `corpus-data/estructurado/staging-d9/*`, que permanecen solo en la rama
+  fix. `npx vitest run` en corpus-p0 tras el merge: 35 archivos, 276
+  passed, 1 skipped, 0 failed.
+
+**Diagnóstico D9 (resumen)**: dos defectos reales confirmados y corregidos
+en `intentarSepararNotaAlPie`/rama de sufijo de letra del extractor (P2:
+el contador de nota no tenía recuperación tras un primer fallo de
+partición, causando cascada permanente; P3, el disparador real: la rama de
+sufijo de letra aceptaba el dígito de nota sin validar, y el PDF real
+contiene un dígito duplicado por artefacto de extracción — `"Artículo
+70-A99."`, nota real = 9). Re-extracción real a staging local (nunca a
+Supabase): 128 → 370 artículos, secuencia 3-338 con solo 2 saltos
+restantes. De 247 hallazgos `HALLAZGO_AUSENCIA_SIN_RASTRO_EN_CUARENTENA`
+(líneas 357-958 de `HUMAN_LEGAL_REVIEW_QUEUE.jsonl`), 242 (98.0%) ahora
+resuelven con un `ARTICLE_HEADING` real.
+
+**Defecto nuevo P4** (identificado, NO corregido, fuera del alcance
+autorizado de D9): orden no monótono del texto extraído por `pdf-parse` —
+bloques de notas al pie preceden a veces al encabezado real que anotan.
+Explica los 5 casos restantes (`1`, `2`, `123-C`, `133`, `142`) —
+confirmado con evidencia de offset para los 5.
+
+**Defecto nuevo P5** (identificado, NO corregido): la lógica de extensión
+multilínea de contenido puede absorber texto no relacionado (notas de
+otros artículos, títulos de sección, marcadores de página) cuando el
+siguiente encabezado real está lejos y no hay ninguna línea intermedia que
+matchee el patrón. Confirmado real: el `contenido` de `119-B` en
+staging-d9 tiene 900 caracteres, mezclando su propia nota con las de los
+Arts. 118, 119-A y el título de sección "Título IV de la Adopción" — **no
+usar ese campo como evidencia de contenido para ningún insert**. `120,
+121, 122, 123, 123-D` no tienen este problema (contenido = `"Derogado"`,
+8 caracteres exactos, limpio).
+
+**Evidencia cruda de auditoría (unique-set, presencia, 80-chars) entregada
+al fundador/Grokbot en el propio hilo de la sesión — no duplicada aquí.**
+
+**Sin tocar en todo D9**: `main` de `mayalex-corpus`, `T022-staging-piloto.sql`,
+stubs `123-A`/`123-B`, estado de `68`/`70`, `HUMAN_LEGAL_REVIEW_QUEUE.jsonl`,
+bloque 3, ingest a `biblioteca_vectores`, ningún push a ninguna rama
+`main`. Investigación de `123-A`/`123-B`/`123-C` continúa en paralelo, no
+depende de este merge.
+
+---
+
 *Próxima entrada: ratificación del equipo jurídico (68/70, dossier
-102-2018), o autorización explícita para bloque 3 / fix del extractor.*
+102-2018), fix del defecto P4 (orden no monótono del texto extraído) si se
+autoriza, o resolución de los stubs 123-A/123-B/123-C.*
