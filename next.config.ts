@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import fs from 'fs';
 import path from 'path';
+import { ALIAS_REDIRECTS } from './lib/seo/rutas-publicas';
 
 /**
  * Carga manualmente .env.local y lo inyecta en process.env.
@@ -48,6 +49,10 @@ const nextConfig: NextConfig = {
         destination: '/chat',
         permanent: true,
       },
+      // Aliases históricos en español: las páginas V2 viven en slugs en
+      // inglés (/pricing, /cobertura-juridica). Sin estos 308, /precios,
+      // /planes y /cobertura responden 404 (verificado en producción).
+      ...ALIAS_REDIRECTS,
     ];
   },
 };
