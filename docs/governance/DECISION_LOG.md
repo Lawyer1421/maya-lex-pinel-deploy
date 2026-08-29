@@ -514,6 +514,83 @@ depende de este merge.
 
 ---
 
-*Próxima entrada: ratificación del equipo jurídico (68/70, dossier
-102-2018), fix del defecto P4 (orden no monótono del texto extraído) si se
-autoriza, o resolución de los stubs 123-A/123-B/123-C.*
+## 2026-08-28 — SQL de verificación 123-A/B/C/D, 133, 142, 119-B/120-123 (producción, solo lectura)
+
+`SELECT num_articulo, es_norma_vigente FROM biblioteca_vectores WHERE
+fuente = 'Codigo de Familia' AND num_articulo IN (...)` — las 11 filas
+pedidas (`119-B, 120, 121, 122, 123, 123-A, 123-B, 123-C, 123-D, 133,
+142`) **ya existían**, las 11 con `es_norma_vigente=false`. Conclusión: la
+ingesta real de producción para este rango vino de una fuente distinta a
+`hn-codigo-familia-local-reformas-adopciones` (probablemente la versión
+TSC/base) — los defectos P2/P3/P4/P5 diagnosticados en D9 son reales en el
+pipeline de la versión local, pero no explican ni afectan estas 11 filas
+ya existentes.
+
+**123-C: NO se creó ningún stub** — la regla acordada ("stub nuevo SOLO si
+el SELECT dice 0 filas") no se cumplió (el SELECT devolvió 1 fila). Cero
+inserts, cero updates.
+
+## 2026-08-28 — Ratificación formal: Decreto 102-2018 y Decreto 31-2015
+
+Fundador + Asesor Jurídico ratifican dos dossiers:
+1. **Decreto 102-2018** (La Gaceta 34,841): derogación expresa del bloque
+   de Adopción (Título IV, Código de Familia). Regla de
+   exclusión/no-vigencia confirmada — consistente con D6(b), ya en
+   producción.
+2. **Decreto 31-2015** (La Gaceta 33,799): reformas de Arts. 68/70 y
+   adiciones 70-A a 70-D son derecho vigente hondureño — la versión local
+   es correcta. Esto **resuelve** el GAP3 que quedaba abierto desde el
+   cierre de gaps post-D6(b) (antes: `INDETERMINADO`, sin ingestar). No se
+   ejecutó ningún cambio de código ni de datos en esta entrada — la
+   resolución formal `resolucion-68-70-indeterminado.jsonl` queda
+   pendiente de actualizarse a la luz de esta ratificación en una tarea
+   futura, no ejecutada aquí.
+
+## 2026-08-28 — Bloque 3 (líneas 151–200, artículos 174–208)
+
+Ver detalle completo en `docs/governance/fase1-triage/hn-codigo-familia-bloque-03.md`
+y `hn-codigo-familia-bloque-03.jsonl`. Resumen:
+
+- **11 artículos** (`174-184`) confirmados `DEROGADO_CONFIRMADO_POR_FUENTE`
+  — Decreto 102-2018, cubiertos por el dossier ratificado hoy. El
+  Art. 184 marca el límite real del Título IV (Adopción); inmediatamente
+  después el texto fuente pasa a "TÍTULO V DE LA PATRIA POTESTAD".
+- **1 artículo** (`206`) confirmado `DEROGADO_CONFIRMADO_POR_FUENTE` pero
+  por un instrumento **distinto**: Decreto No. 73-96 (Código de la Niñez y
+  la Adolescencia, 1996) — **no cubierto por ningún dossier ratificado
+  hoy**, verificado por su propia cita textual (nota 110), no asumido por
+  cercanía con el bloque de Adopción. Requiere ratificación separada.
+- **38 artículos** (`185-205, 207-208` + 15 variantes con sufijo
+  `197-A..E, 198-A..C, 207-A..G`) reclasificados `TECNICO_EXTRACCION` —
+  contenido sustantivo VIGENTE real (Título V Patria Potestad, Título VI
+  Alimentos), recuperado por el fix D9 (P2/P3). No eran ausencias reales,
+  eran síntoma del defecto de extractor ya corregido y mergeado
+  (`aee3cfac9f5ebf0051750b965fedfb2ec69dac85` en `feature/mayalex-official-corpus-p0`).
+
+**🔴 Hallazgo crítico, NO corregido**: los 50 números de este bloque —
+incluidos los 38 confirmados como contenido VIGENTE real — **ya existen en
+producción con `es_norma_vigente=false`**. Verificado por SQL de solo
+lectura. Consistente con que la carga real a producción haya heredado el
+supuesto ya retractado ("todo más allá del ~123 está fuera de alcance",
+`HALLAZGO_ALCANCE_DOCUMENTO_SUPERSEDE_SIN_RASTRO`, línea 940 de
+`HUMAN_LEGAL_REVIEW_QUEUE.jsonl`) de forma generalizada, sin verificación
+individual. Esto significa que Honduras' law real y vigente sobre patria
+potestad y alimentos (Arts. 185-205, 207-208, 197-A-E, 198-A-C, 207-A-G)
+está siendo tratada como no-vigente en el sistema de citas. **No se
+corrigió aquí** — requiere autorización explícita separada para un UPDATE
+masivo en `biblioteca_vectores` (fuera del alcance de "resolver técnicos
+con tests").
+
+**Hallazgo colateral, sin resolver**: Artículo 175-A (Decreto 124-92,
+1992) — encontrado dentro del mismo bloque de notas al pie, no forma
+parte de las 50 líneas del bloque 3, no está en la cola de revisión en
+absoluto. Documentado, no insertado.
+
+**Sin tocar**: `main`, `T022-staging-piloto.sql`, stubs 123-A/123-B, ningún
+insert/update en `biblioteca_vectores`.
+
+---
+
+*Próxima entrada: autorización para el UPDATE masivo de `es_norma_vigente`
+en el rango Patria Potestad/Alimentos (185-208 + sufijos), ratificación
+del Decreto 73-96 (Art. 206), o resolución de 123-A/B/C/175-A.*
