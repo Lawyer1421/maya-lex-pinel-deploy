@@ -1,6 +1,24 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import {
+  DOCUMENT_FORMAT_ERROR,
+  DOCUMENT_PLAN_ERROR,
+  DOCUMENT_SIZE_ERROR,
+  MAX_DOCUMENT_BYTES,
+  isAllowedDocumentExtension,
+} from '@/lib/documents/upload-rules';
+
+async function getAuthHeader(): Promise<Record<string, string>> {
+  try {
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session ? { Authorization: `Bearer ${session.access_token}` } : {};
+  } catch {
+    return {};
+  }
+}
 
 // ── Tipos exportados ────────────────────────────────────────────────────────
 
@@ -22,8 +40,13 @@ export interface PromptInputProps {
   isLoading: boolean;
   onCancel: () => void;
   placeholder?: string;
-  /** Tier del usuario (free | academico | pro | admin). Gatea análisis documental (H3). */
+  /** Tier del usuario (free | academico | pro | admin). Fallback del gate si canAttach no llega. */
   tier?: string;
+  /**
+   * Gate de adjuntos desde /api/usage (honra PayPal Profesional activo).
+   * Si es undefined, se usa tier === 'pro' | 'admin' (compatibilidad).
+   */
+  canAttach?: boolean;
 }
 
 // ── Modelos disponibles ─────────────────────────────────────────────────────
@@ -72,9 +95,11 @@ export default function PromptInput({
   onCancel,
   placeholder = 'Consulta jurídica en español o inglés...',
   tier,
+  canAttach: canAttachProp,
 }: PromptInputProps) {
-  const canAttach = tier === 'pro' || tier === 'admin';
+  const canAttach = canAttachProp ?? (tier === 'pro' || tier === 'admin');
   const [text, setText] = useState('');
+  const [extractError, setExtractError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showAttachHint, setShowAttachHint] = useState(false);
@@ -135,30 +160,53 @@ export default function PromptInput({
       const files = Array.from(e.target.files ?? []);
       if (!files.length) return;
       setMenuOpen(false);
+      setExtractError(null);
       setIsExtracting(true);
+
+      const authHeader = await getAuthHeader();
+      const failures: string[] = [];
 
       for (const file of files) {
         try {
-          let extracted = '';
-          if (file.name.toLowerCase().endsWith('.txt')) {
-            extracted = await file.text();
-          } else {
-            const fd = new FormData();
-            fd.append('file', file);
-            const res = await fetch('/api/extract-text', { method: 'POST', body: fd });
-            if (!res.ok) throw new Error('Error al extraer texto');
-            const data = await res.json() as { text?: string };
-            extracted = data.text ?? '';
+          if (!isAllowedDocumentExtension(file.name)) {
+            failures.push(`${file.name}: ${DOCUMENT_FORMAT_ERROR}`);
+            continue;
+          }
+          if (file.size > MAX_DOCUMENT_BYTES) {
+            failures.push(`${file.name}: ${DOCUMENT_SIZE_ERROR}`);
+            continue;
+          }
+
+          const fd = new FormData();
+          fd.append('file', file);
+          const res = await fetch('/api/extract-text', {
+            method: 'POST',
+            headers: authHeader,
+            body: fd,
+          });
+          const data = await res.json() as { text?: string; error?: string; code?: string };
+          if (!res.ok) {
+            const message =
+              data.error ??
+              (data.code === 'PLAN_REQUIRED'
+                ? DOCUMENT_PLAN_ERROR
+                : 'Error al extraer texto del documento.');
+            failures.push(`${file.name}: ${message}`);
+            continue;
           }
           setAttachments((prev) => [
             ...prev,
-            { id: `att-${Date.now()}-${Math.random()}`, filename: file.name, text: extracted },
+            { id: `att-${Date.now()}-${Math.random()}`, filename: file.name, text: data.text ?? '' },
           ]);
         } catch (err) {
           console.error('[PromptInput] Extracción fallida:', file.name, err);
+          failures.push(`${file.name}: Error al extraer texto del documento.`);
         }
       }
 
+      if (failures.length) {
+        setExtractError(failures.join(' · '));
+      }
       setIsExtracting(false);
       e.target.value = '';
     },
@@ -213,6 +261,12 @@ export default function PromptInput({
 
   return (
     <div className="w-full">
+
+      {extractError && (
+        <div className="mb-2 px-3 py-2 rounded-lg bg-red-900/30 border border-red-500/30 text-xs text-red-200">
+          {extractError}
+        </div>
+      )}
 
       {/* ── Chips: adjuntos ──────────────────────────────────────── */}
       {(attachments.length > 0 || isExtracting) && (
