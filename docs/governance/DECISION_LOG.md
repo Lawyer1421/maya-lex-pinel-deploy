@@ -622,3 +622,26 @@ sesión, ahora formalizado):
 
 No se propaga este kit de gobernanza a otros repositorios todavía. Sin
 tocar producción, `T022-staging-piloto.sql`, ni ingest en este commit.
+
+---
+
+## 2026-08-28 — Ajuste de reparto de roles: Qwen sale, Grok Bot toma el rol de abogado (pruebas/verificación)
+
+Corrección al reparto de roles registrado en la entrada anterior (no se
+edita esa entrada — este es un ajuste posterior, append-only):
+
+- **Qwen** sale del reparto activo.
+- **Grok Bot** — auditor DevOps **+ rol de abogado**: además de auditar
+  evidencia técnica (`AUDIT_CHECKLIST.md`), asume las verificaciones tipo
+  "pruebas" que hasta ahora consumían tiempo del Fundador (p. ej.
+  confirmaciones puntuales de estado, checks de consistencia) — dentro
+  del mismo límite ya documentado en `devops-auditor.md`: **no implementa,
+  no automatiza, no tiene workflow ni `XAI_API_KEY`**. Este ajuste es de
+  alcance/rol, no habilita ninguna integración nueva.
+- **Claude** — ejecución (sin cambio).
+- **Fundador** — decisión legal y de producción (sin cambio).
+
+**Residual explícitamente confirmado, sin acción de Claude**: "Grok Bot en
+el PR" sigue sin estar conectado — faltan el owner de GitHub y el login
+OAuth; sin eso no hay listener. No se solicitó ninguna acción sobre esto
+en este paquete.
