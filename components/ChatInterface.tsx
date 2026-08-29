@@ -46,6 +46,7 @@ interface UsageInfo {
   outputTokens?: number;
   remaining?: number;
   tier?: string;
+  canAttach?: boolean;
 }
 
 // ── Constantes ───────────────────────────────────────────────────────
@@ -115,7 +116,12 @@ export default function ChatInterface() {
         const authHeader = await getAuthHeader();
         const res = await fetch('/api/usage', { headers: authHeader });
         const data = await res.json();
-        setUsage((prev) => ({ ...prev, tier: data.tier, remaining: data.limit - data.used }));
+        setUsage((prev) => ({
+          ...prev,
+          tier: data.tier,
+          remaining: data.limit - data.used,
+          canAttach: data.canAttach === true,
+        }));
       } catch {
         // No bloquear el UI — gating de adjuntos degrada a "sin tier conocido"
       }
@@ -235,12 +241,13 @@ export default function ChatInterface() {
                   break;
 
                 case 'done':
-                  setUsage({
+                  setUsage((prev) => ({
                     inputTokens: event.usage?.inputTokens,
                     outputTokens: event.usage?.outputTokens,
                     remaining: event.remaining,
                     tier: event.tier,
-                  });
+                    canAttach: prev.canAttach === true || event.tier === 'pro' || event.tier === 'admin',
+                  }));
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
@@ -525,6 +532,7 @@ export default function ChatInterface() {
             onCancel={cancelGeneration}
             placeholder={placeholder}
             tier={usage.tier}
+            canAttach={usage.canAttach}
           />
         </div>
       </div>

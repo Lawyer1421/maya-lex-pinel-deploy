@@ -4,6 +4,10 @@
  * Recibe: multipart/form-data con campo "file"
  * Devuelve: { text, filename, chars, truncated }
  *
+ * Gate: sesión autenticada + plan Profesional activo (USD 15 / tier 'pro')
+ * o queries_log admin/pro. No usa feature flags (flag_expediente no está
+ * cableado en esta ruta).
+ *
  * PDF  → pdf-parse (importado via lib/ para evitar el bug de test-files en Next.js)
  * DOCX → mammoth
  * TXT  → UTF-8 directo
@@ -11,12 +15,26 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
+import {
+  DOCUMENT_FORMAT_ERROR,
+  DOCUMENT_SIZE_ERROR,
+  MAX_DOCUMENT_BYTES,
+  extensionOfFilename,
+  isAllowedDocumentExtension,
+} from '@/lib/documents/upload-rules';
+import { resolveDocumentAnalysisAccess } from '@/lib/paypal/document-analysis';
 
 const MAX_CHARS = 20_000;
 
-const ALLOWED_EXTENSIONS = new Set(['.txt', '.pdf', '.docx']);
-
 export async function POST(req: NextRequest) {
+  const access = await resolveDocumentAnalysisAccess(req);
+  if (!access.ok) {
+    return NextResponse.json(
+      { error: access.error, code: access.code },
+      { status: access.status }
+    );
+  }
+
   let formData: FormData;
   try {
     formData = await req.formData();
@@ -30,16 +48,34 @@ export async function POST(req: NextRequest) {
   }
 
   const filename = file.name;
-  const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase();
 
-  if (!ALLOWED_EXTENSIONS.has(ext)) {
+  if (!isAllowedDocumentExtension(filename)) {
+    const ext = extensionOfFilename(filename) || '(sin extensión)';
     return NextResponse.json(
-      { error: `Formato no soportado: "${ext}". Use PDF, DOCX o TXT.` },
+      {
+        error: `${DOCUMENT_FORMAT_ERROR} Recibido: "${ext}".`,
+        code: 'FILE_FORMAT',
+      },
       { status: 400 }
     );
   }
 
+  if (typeof file.size === 'number' && file.size > MAX_DOCUMENT_BYTES) {
+    return NextResponse.json(
+      { error: DOCUMENT_SIZE_ERROR, code: 'FILE_TOO_LARGE' },
+      { status: 413 }
+    );
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
+  if (buffer.byteLength > MAX_DOCUMENT_BYTES) {
+    return NextResponse.json(
+      { error: DOCUMENT_SIZE_ERROR, code: 'FILE_TOO_LARGE' },
+      { status: 413 }
+    );
+  }
+
+  const ext = extensionOfFilename(filename);
 
   try {
     let rawText = '';
@@ -78,7 +114,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[extract-text] Error al procesar:', filename, err);
     return NextResponse.json(
-      { error: 'Error al extraer texto del documento. Verifique que el archivo no esté protegido.' },
+      {
+        error: 'Error al extraer texto del documento. Verifique que el archivo no esté protegido y sea PDF, DOCX o TXT.',
+        code: 'EXTRACT_FAILED',
+      },
       { status: 500 }
     );
   }

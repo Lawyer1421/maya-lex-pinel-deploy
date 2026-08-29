@@ -46,6 +46,31 @@ export interface CurrentAccess {
   source:               AccessSource;
   verificationPending:  boolean;
   reasonCode:           AccessReasonCode;
+  /**
+   * Adjuntos / análisis de documentos (plan Profesional USD 15).
+   * Chat sigue gobernado por queries_log; el adjunto SÍ honra una
+   * suscripción PayPal activa de tier 'pro' aunque queries_log del
+   * día todavía diga 'free' (webhook pendiente o fila diaria ausente).
+   */
+  canAnalyzeDocuments:  boolean;
+}
+
+/**
+ * ¿Puede este usuario adjuntar documentos para análisis?
+ *
+ * - queries_log pro/admin: sí (mismo gate que el chat).
+ * - subscriptions.status='active' + tier 'pro': sí, aunque queries_log
+ *   aún no se haya sincronizado. El copy de /pricing vende análisis
+ *   documental en Profesional; bloquear a quien ya pagó es el bug.
+ * - Académico (USD 9), trialing, past_due, cancelled: no.
+ */
+export function canAnalyzeDocuments(params: {
+  gateTier: AccessTier;
+  billingStatus: string | null;
+  billingTier: 'pro' | 'academico' | null;
+}): boolean {
+  if (params.gateTier === 'pro' || params.gateTier === 'admin') return true;
+  return params.billingStatus === 'active' && params.billingTier === 'pro';
 }
 
 export async function resolveCurrentAccess(userIdentifier: string): Promise<CurrentAccess> {
@@ -111,5 +136,10 @@ export async function resolveCurrentAccess(userIdentifier: string): Promise<Curr
     source: usage ? 'queries_log' : sub ? 'subscriptions' : 'none',
     verificationPending,
     reasonCode,
+    canAnalyzeDocuments: canAnalyzeDocuments({
+      gateTier,
+      billingStatus,
+      billingTier,
+    }),
   };
 }
