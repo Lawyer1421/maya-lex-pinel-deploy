@@ -302,11 +302,11 @@ export function resolverArticuloExacto(
   return { fragmentos, ambiguo: false };
 }
 
-export async function buscarArticuloExacto(
+async function consultarPorVigencia(
   numero: string,
   materiaDetectada: string | null,
-  instrumentoSolicitado: InstrumentoNormalizado | null,
-): Promise<ResultadoExacto> {
+  esNormaVigente: boolean,
+): Promise<FilaExactaDB[]> {
   const { createServerSupabaseClient } = await import('@/lib/supabase');
   const supabase = createServerSupabaseClient();
 
@@ -315,7 +315,7 @@ export async function buscarArticuloExacto(
     .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia, metadata')
     .eq('num_articulo', numero)
     .eq('fuente_tipo', 'codigo')
-    .eq('es_norma_vigente', true);
+    .eq('es_norma_vigente', esNormaVigente);
 
   // Filtro de materia: solo optimiza la consulta a la DB (menos filas a
   // traer) — la aceptación real la decide identidadDocumentalCoincide() en
@@ -323,9 +323,38 @@ export async function buscarArticuloExacto(
   if (materiaDetectada) consulta = consulta.eq('materia', materiaDetectada);
 
   const { data, error } = await consulta;
-  if (error || !data) return { fragmentos: [], ambiguo: false };
+  if (error || !data) return [];
+  return data as FilaExactaDB[];
+}
 
-  return resolverArticuloExacto(data as FilaExactaDB[], numero, instrumentoSolicitado);
+export async function buscarArticuloExacto(
+  numero: string,
+  materiaDetectada: string | null,
+  instrumentoSolicitado: InstrumentoNormalizado | null,
+): Promise<ResultadoExacto> {
+  const filasVigentes = await consultarPorVigencia(numero, materiaDetectada, true);
+  const resultadoVigente = resolverArticuloExacto(filasVigentes, numero, instrumentoSolicitado);
+  if (resultadoVigente.fragmentos.length > 0 || resultadoVigente.ambiguo) {
+    return resultadoVigente;
+  }
+
+  // GAP 2 (Operación "Facultades Completas", 2026-08-28): si no hay ningún
+  // artículo vigente con ese número, se intenta un segundo paso -- solo
+  // artículos CONFIRMADOS no vigentes (ej. derogados, con evidencia textual
+  // directa de fuente -- nunca inferidos). Reutiliza exactamente la misma
+  // función de resolución (mismos tres filtros: anonimización, encabezado
+  // real, identidad de instrumento) -- ningún criterio se relaja para este
+  // camino. El resultado NUNCA se presenta como norma vigente: construirCitas
+  // ya exige es_norma_vigente===true para entrar a la lista de citas, y
+  // formatearContextoRAG ya etiqueta este patrón exacto como
+  // "[NO VIGENTE — NO CITAR COMO NORMA]" (D6a-bis). Este paso es
+  // deliberadamente distinto de la exclusión de D6(b): esa protege contra
+  // que un artículo derogado se cuele por similitud semántica sin que el
+  // usuario lo haya pedido; esto responde de forma honesta cuando el usuario
+  // SÍ preguntó explícitamente por ese número exacto -- "fue derogado" es
+  // información real, no una alucinación.
+  const filasNoVigentes = await consultarPorVigencia(numero, materiaDetectada, false);
+  return resolverArticuloExacto(filasNoVigentes, numero, instrumentoSolicitado);
 }
 
 export interface ResultadoRAG {
