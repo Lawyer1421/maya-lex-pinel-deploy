@@ -594,3 +594,31 @@ insert/update en `biblioteca_vectores`.
 *Próxima entrada: autorización para el UPDATE masivo de `es_norma_vigente`
 en el rango Patria Potestad/Alimentos (185-208 + sufijos), ratificación
 del Decreto 73-96 (Art. 206), o resolución de 123-A/B/C/175-A.*
+
+---
+
+## 2026-08-28 — Kit de gobernanza (mayalex-corpus): checklist de evidencia + rol de auditor
+
+Solo documentación, sin automatización. En `feature/mayalex-official-corpus-p0`
+(repo `mayalex-corpus`, commit `0e290f5`): `docs/governance/AUDIT_CHECKLIST.md`
+(reglas de evidencia — diff real, resultado real de test suite, query
+real; fail-closed si falta evidencia; prohibido secrets de producción en
+CI, ingest sin `SELECT` previo, 🟢 de producto por home 200) y
+`docs/governance/agents/devops-auditor.md` (define el ROL de auditor
+DevOps independiente — no implementa, escala P0/P1/P2/aprobado-a-deploy —
+con sección explícita de que NO se implementa `ai-audit.yml` ni
+`XAI_API_KEY` ni ningún MCP `solicitar_auditoria`; la auditoría real la
+hace Grok Bot en el PR, fuera de este repositorio).
+
+**Reparto de roles del equipo** (tal como se ha operado en toda esta
+sesión, ahora formalizado):
+- **Qwen** — estrategia.
+- **Grok Bot** — auditor DevOps (rol documentado arriba; externo al
+  repositorio, no automatizado).
+- **Claude** — ejecución (implementación, diagnóstico, evidencia).
+- **Fundador** — decisión legal y de producción (única autoridad para
+  autorizar escritura a `biblioteca_vectores`, merges a `main`, y
+  ratificación jurídica de dossiers).
+
+No se propaga este kit de gobernanza a otros repositorios todavía. Sin
+tocar producción, `T022-staging-piloto.sql`, ni ingest en este commit.
