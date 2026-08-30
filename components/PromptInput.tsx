@@ -3,10 +3,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import {
+  DOCUMENT_AUTH_ERROR,
   DOCUMENT_FORMAT_ERROR,
   DOCUMENT_PLAN_ERROR,
+  DOCUMENT_QUOTA_ERROR,
   DOCUMENT_SIZE_ERROR,
   MAX_DOCUMENT_BYTES,
+  documentAttachAllowed,
   isAllowedDocumentExtension,
 } from '@/lib/documents/upload-rules';
 
@@ -40,11 +43,11 @@ export interface PromptInputProps {
   isLoading: boolean;
   onCancel: () => void;
   placeholder?: string;
-  /** Tier del usuario (free | academico | pro | admin). Fallback del gate si canAttach no llega. */
+  /** Tier del usuario (free | academico | pro | admin). Informativo; el adjunto no se gatea por plan. */
   tier?: string;
   /**
-   * Gate de adjuntos desde /api/usage (honra PayPal Profesional activo).
-   * Si es undefined, se usa tier === 'pro' | 'admin' (compatibilidad).
+   * Gate de adjuntos desde /api/usage (true si hay sesión autenticada).
+   * Si es undefined, se usa la sesión del cliente: autenticado = puede adjuntar.
    */
   canAttach?: boolean;
 }
@@ -94,10 +97,10 @@ export default function PromptInput({
   isLoading,
   onCancel,
   placeholder = 'Consulta jurídica en español o inglés...',
-  tier,
   canAttach: canAttachProp,
 }: PromptInputProps) {
-  const canAttach = canAttachProp ?? (tier === 'pro' || tier === 'admin');
+  const [hasSession, setHasSession] = useState(false);
+  const canAttach = documentAttachAllowed(canAttachProp, hasSession);
   const [text, setText] = useState('');
   const [extractError, setExtractError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -113,6 +116,16 @@ export default function PromptInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<AnySpeechRecognition>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAuthHeader().then((header) => {
+      if (!cancelled) setHasSession(Boolean(header.Authorization));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -188,7 +201,11 @@ export default function PromptInput({
           if (!res.ok) {
             const message =
               data.error ??
-              (data.code === 'PLAN_REQUIRED'
+              (data.code === 'AUTH_REQUIRED'
+                ? DOCUMENT_AUTH_ERROR
+                : data.code === 'QUOTA_EXCEEDED'
+                ? DOCUMENT_QUOTA_ERROR
+                : data.code === 'PLAN_REQUIRED'
                 ? DOCUMENT_PLAN_ERROR
                 : 'Error al extraer texto del documento.');
             failures.push(`${file.name}: ${message}`);
@@ -355,7 +372,7 @@ export default function PromptInput({
             >
               <div className="glass-card border border-white/10 rounded-xl overflow-hidden py-1.5">
 
-                {/* Subir documento — exclusivo Plan Profesional/Admin (H3) */}
+                {/* Subir documento — cualquier sesión autenticada (cuota diaria aparte) */}
                 <button
                   onClick={() => {
                     if (!canAttach) { setShowAttachHint(true); return; }
@@ -378,8 +395,8 @@ export default function PromptInput({
 
                 {showAttachHint && !canAttach && (
                   <div className="mx-3 mb-1.5 px-3 py-2 rounded-lg bg-gold/10 border border-gold/25 text-xs text-gold">
-                    Análisis documental exclusivo del plan Profesional.{' '}
-                    <a href="/pricing" className="underline hover:no-underline">Actualizar →</a>
+                    {DOCUMENT_AUTH_ERROR}{' '}
+                    <a href="/login" className="underline hover:no-underline">Iniciar sesión →</a>
                   </div>
                 )}
 

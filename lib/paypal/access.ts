@@ -47,10 +47,10 @@ export interface CurrentAccess {
   verificationPending:  boolean;
   reasonCode:           AccessReasonCode;
   /**
-   * Adjuntos / análisis de documentos (plan Profesional USD 15).
-   * Chat sigue gobernado por queries_log; el adjunto SÍ honra una
-   * suscripción PayPal activa de tier 'pro' aunque queries_log del
-   * día todavía diga 'free' (webhook pendiente o fila diaria ausente).
+   * Adjuntos / análisis de documentos — misma función en todos los planes.
+   * Cualquier identidad autenticada (email:…) puede adjuntar; IP / anónimo no
+   * (hace falta login para contar la cuota diaria). El plan solo cambia el
+   * tope de consultas, no el adjunto.
    */
   canAnalyzeDocuments:  boolean;
 }
@@ -58,19 +58,14 @@ export interface CurrentAccess {
 /**
  * ¿Puede este usuario adjuntar documentos para análisis?
  *
- * - queries_log pro/admin: sí (mismo gate que el chat).
- * - subscriptions.status='active' + tier 'pro': sí, aunque queries_log
- *   aún no se haya sincronizado. El copy de /pricing vende análisis
- *   documental en Profesional; bloquear a quien ya pagó es el bug.
- * - Académico (USD 9), trialing, past_due, cancelled: no.
+ * Producto (ago 2026): free / académico / pro / admin autenticados = sí.
+ * Identidad por IP o ausente (`ip:`) = no — 401 AUTH_REQUIRED.
+ * El plan no bloquea el adjunto; la cuota diaria sí (en extract-text).
  */
 export function canAnalyzeDocuments(params: {
-  gateTier: AccessTier;
-  billingStatus: string | null;
-  billingTier: 'pro' | 'academico' | null;
+  userIdentifier: string;
 }): boolean {
-  if (params.gateTier === 'pro' || params.gateTier === 'admin') return true;
-  return params.billingStatus === 'active' && params.billingTier === 'pro';
+  return Boolean(params.userIdentifier) && !params.userIdentifier.startsWith('ip:');
 }
 
 export async function resolveCurrentAccess(userIdentifier: string): Promise<CurrentAccess> {
@@ -137,9 +132,7 @@ export async function resolveCurrentAccess(userIdentifier: string): Promise<Curr
     verificationPending,
     reasonCode,
     canAnalyzeDocuments: canAnalyzeDocuments({
-      gateTier,
-      billingStatus,
-      billingTier,
+      userIdentifier,
     }),
   };
 }

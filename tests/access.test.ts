@@ -47,11 +47,11 @@ describe('resolveCurrentAccess — precedencia de fuentes', () => {
     expect(access.reasonCode).toBe('billing_state_inconsistent');
     expect(access.verificationPending).toBe(true);
     expect(access.pendingTier).toBe('pro');
-    // Chat sigue fail-closed; el adjunto Profesional SÍ honra PayPal active.
+    // Autenticado: el adjunto ya no depende de Profesional.
     expect(access.canAnalyzeDocuments).toBe(true);
   });
 
-  it('billing=trialing + gate=free → verification_pending', async () => {
+  it('billing=trialing + gate=free → verification_pending; adjunto sí (autenticado)', async () => {
     const { resolveCurrentAccess } = await freshAccess(
       { tier: 'academico', status: 'trialing' },
       null
@@ -59,7 +59,7 @@ describe('resolveCurrentAccess — precedencia de fuentes', () => {
     const access = await resolveCurrentAccess('email:x@y.com');
     expect(access.reasonCode).toBe('verification_pending');
     expect(access.verificationPending).toBe(true);
-    expect(access.canAnalyzeDocuments).toBe(false);
+    expect(access.canAnalyzeDocuments).toBe(true);
   });
 
   it('billing=past_due + gate=free → payment_failed (no se trata como inconsistente)', async () => {
@@ -70,48 +70,45 @@ describe('resolveCurrentAccess — precedencia de fuentes', () => {
     const access = await resolveCurrentAccess('email:x@y.com');
     expect(access.reasonCode).toBe('payment_failed');
     expect(access.verificationPending).toBe(false);
-    expect(access.canAnalyzeDocuments).toBe(false);
+    expect(access.canAnalyzeDocuments).toBe(true);
   });
 
-  it('sin ninguna fuente → no_subscription', async () => {
+  it('sin ninguna fuente, autenticado → no_subscription; adjunto sí', async () => {
     const { resolveCurrentAccess } = await freshAccess(null, null);
     const access = await resolveCurrentAccess('email:x@y.com');
     expect(access.reasonCode).toBe('no_subscription');
     expect(access.accessGranted).toBe(false);
+    expect(access.canAnalyzeDocuments).toBe(true);
+  });
+
+  it('identidad por IP → no puede adjuntar (hace falta login)', async () => {
+    const { resolveCurrentAccess } = await freshAccess(null, null);
+    const access = await resolveCurrentAccess('ip:1.2.3.4');
     expect(access.canAnalyzeDocuments).toBe(false);
   });
 
-  it('billing=active academico + gate=free → no adjuntos (solo Profesional)', async () => {
+  it('billing=active academico + gate=free autenticado → sí puede adjuntar', async () => {
     const { resolveCurrentAccess } = await freshAccess(
       { tier: 'academico', status: 'active' },
       null
     );
-    const access = await resolveCurrentAccess('email:x@y.com');
-    expect(access.canAnalyzeDocuments).toBe(false);
+    const access = await resolveCurrentAccess('email:alumno@ejemplo.com');
+    expect(access.canAnalyzeDocuments).toBe(true);
   });
 });
 
 describe('canAnalyzeDocuments — helper puro', () => {
-  it('gate pro/admin siempre permite, aunque billing no esté active', async () => {
-    const { canAnalyzeDocuments } = await freshAccess(null, { tier: 'pro' });
-    expect(canAnalyzeDocuments({ gateTier: 'pro', billingStatus: 'cancelled', billingTier: 'pro' })).toBe(true);
-    expect(canAnalyzeDocuments({ gateTier: 'admin', billingStatus: null, billingTier: null })).toBe(true);
+  it('true para autenticados free / academico / pro', async () => {
+    const { canAnalyzeDocuments } = await freshAccess(null, null);
+    expect(canAnalyzeDocuments({ userIdentifier: 'email:free@ejemplo.com' })).toBe(true);
+    expect(canAnalyzeDocuments({ userIdentifier: 'email:alumno@ejemplo.com' })).toBe(true);
+    expect(canAnalyzeDocuments({ userIdentifier: 'email:abogado@ejemplo.com' })).toBe(true);
   });
 
-  it('PayPal active + pro permite aunque queries_log sea free', async () => {
+  it('false para ip: y anónimo', async () => {
     const { canAnalyzeDocuments } = await freshAccess(null, null);
-    expect(canAnalyzeDocuments({ gateTier: 'free', billingStatus: 'active', billingTier: 'pro' })).toBe(true);
-  });
-
-  it('Académico active no permite adjuntos', async () => {
-    const { canAnalyzeDocuments } = await freshAccess(null, null);
-    expect(canAnalyzeDocuments({ gateTier: 'academico', billingStatus: 'active', billingTier: 'academico' })).toBe(false);
-  });
-
-  it('trialing / past_due / cancelled no permiten adjuntos si el gate no es pro', async () => {
-    const { canAnalyzeDocuments } = await freshAccess(null, null);
-    expect(canAnalyzeDocuments({ gateTier: 'free', billingStatus: 'trialing', billingTier: 'pro' })).toBe(false);
-    expect(canAnalyzeDocuments({ gateTier: 'free', billingStatus: 'past_due', billingTier: 'pro' })).toBe(false);
-    expect(canAnalyzeDocuments({ gateTier: 'free', billingStatus: 'cancelled', billingTier: 'pro' })).toBe(false);
+    expect(canAnalyzeDocuments({ userIdentifier: 'ip:1.2.3.4' })).toBe(false);
+    expect(canAnalyzeDocuments({ userIdentifier: 'ip:unknown' })).toBe(false);
+    expect(canAnalyzeDocuments({ userIdentifier: '' })).toBe(false);
   });
 });

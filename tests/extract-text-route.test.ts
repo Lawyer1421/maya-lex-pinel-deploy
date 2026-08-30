@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DOCUMENT_AUTH_ERROR, DOCUMENT_PLAN_ERROR, DOCUMENT_SIZE_ERROR } from '@/lib/documents/upload-rules';
+import { DOCUMENT_AUTH_ERROR, DOCUMENT_QUOTA_ERROR, DOCUMENT_SIZE_ERROR } from '@/lib/documents/upload-rules';
 
 const resolveAccess = vi.fn();
 
@@ -36,8 +36,8 @@ beforeEach(() => {
   resolveAccess.mockResolvedValue({ ok: true, userIdentifier: 'email:x@y.com' });
 });
 
-describe('POST /api/extract-text — gate de plan y archivo', () => {
-  it('401 AUTH_REQUIRED si no hay sesión (no es el gate de $15)', async () => {
+describe('POST /api/extract-text — gate de sesión, cuota y archivo', () => {
+  it('401 AUTH_REQUIRED si no hay sesión', async () => {
     resolveAccess.mockResolvedValue({
       ok: false, status: 401, error: DOCUMENT_AUTH_ERROR, code: 'AUTH_REQUIRED',
     });
@@ -49,19 +49,19 @@ describe('POST /api/extract-text — gate de plan y archivo', () => {
     expect(data.error).toBe(DOCUMENT_AUTH_ERROR);
   });
 
-  it('403 PLAN_REQUIRED si PayPal no es Profesional activo ni queries_log pro', async () => {
+  it('429 QUOTA_EXCEEDED si el helper reporta cuota agotada (no incrementa aquí)', async () => {
     resolveAccess.mockResolvedValue({
-      ok: false, status: 403, error: DOCUMENT_PLAN_ERROR, code: 'PLAN_REQUIRED',
+      ok: false, status: 429, error: DOCUMENT_QUOTA_ERROR, code: 'QUOTA_EXCEEDED',
     });
     const { POST } = await freshRoute();
     const res = await POST(fakeReq(fakeFile('a.txt', 'hola')));
     const data = await res.json();
-    expect(res.status).toBe(403);
-    expect(data.code).toBe('PLAN_REQUIRED');
-    expect(data.error).toBe(DOCUMENT_PLAN_ERROR);
+    expect(res.status).toBe(429);
+    expect(data.code).toBe('QUOTA_EXCEEDED');
+    expect(data.error).toBe(DOCUMENT_QUOTA_ERROR);
   });
 
-  it('400 FILE_FORMAT si la extensión no es PDF/DOCX/TXT — gate de archivo, no de $15', async () => {
+  it('400 FILE_FORMAT si la extensión no es PDF/DOCX/TXT', async () => {
     const { POST } = await freshRoute();
     const res = await POST(fakeReq(fakeFile('scan.png', 'xx')));
     const data = await res.json();
@@ -70,7 +70,7 @@ describe('POST /api/extract-text — gate de plan y archivo', () => {
     expect(data.error).toMatch(/png/i);
   });
 
-  it('413 FILE_TOO_LARGE si supera 4 MB — gate de archivo, no de $15', async () => {
+  it('413 FILE_TOO_LARGE si supera 4 MB', async () => {
     const { POST } = await freshRoute();
     const res = await POST(fakeReq(fakeFile('grande.txt', 'x', 4 * 1024 * 1024 + 1)));
     const data = await res.json();
@@ -79,7 +79,7 @@ describe('POST /api/extract-text — gate de plan y archivo', () => {
     expect(data.error).toBe(DOCUMENT_SIZE_ERROR);
   });
 
-  it('Profesional autenticado puede extraer un TXT', async () => {
+  it('usuario autenticado (cualquier plan) puede extraer un TXT', async () => {
     const { POST } = await freshRoute();
     const res = await POST(fakeReq(fakeFile('notas.txt', 'Artículo 294 CPP')));
     const data = await res.json();

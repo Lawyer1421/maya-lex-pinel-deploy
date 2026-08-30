@@ -53,6 +53,42 @@ describe('PLANES_V2 — qué planes invocan PayPal y con qué tier (Pruebas 1, 2
       ['Universidad', 'Personalizado', ''],
     ]);
   });
+
+  it('self-serve se diferencian por consultas/día; no venden expediente/export/prioridad/casos-como-producto', () => {
+    const explorar = PLANES_V2.find((p) => p.id === 'explorar')!;
+    const academico = PLANES_V2.find((p) => p.id === 'academico')!;
+    const profesional = PLANES_V2.find((p) => p.id === 'profesional')!;
+    const selfServe = [explorar, academico, profesional];
+
+    expect(explorar.caracteristicas).toContain('3 consultas/día');
+    expect(academico.caracteristicas).toContain('20 consultas/día');
+    expect(profesional.caracteristicas).toContain('1000 consultas/día');
+
+    const mismasFunciones = [
+      'Modos de chat: Sala IA, Análisis y Documento',
+      'Adjuntar documentos (PDF, DOCX, TXT)',
+      'Voz a texto y búsqueda web',
+    ];
+    for (const plan of selfServe) {
+      for (const fn of mismasFunciones) {
+        expect(plan.caracteristicas).toContain(fn);
+      }
+      expect(plan.caracteristicas.join(' ')).not.toMatch(/ilimitad/i);
+    }
+
+    const prohibido = [
+      'Expediente de trabajo personal',
+      'Exportación de análisis',
+      'Prioridad de respuesta',
+      'Casos de estudio guiados',
+      'Evaluaciones y guías de estudio',
+      'Historial académico personal',
+    ];
+    const bullets = PLANES_V2.flatMap((p) => p.caracteristicas);
+    for (const item of prohibido) {
+      expect(bullets).not.toContain(item);
+    }
+  });
 });
 
 describe('autoStartTierDesde — validación del ?plan= al regresar del login (Prueba 5)', () => {

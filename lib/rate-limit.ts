@@ -1,18 +1,53 @@
 /**
  * Rate Limiting — MAYA LEX IA PINEL HN
  *
- * Plan gratuito: FREE_TIER_DAILY_LIMIT consultas/día (default: 3)
- * Plan Pro: ilimitado (PRO_TIER_DAILY_LIMIT = 100 por seguridad)
- * Identificación: IP address (sin login) o user_id (con Supabase Auth)
+ * Los planes self-serve se diferencian SOLO por cuota diaria:
+ *   free      → FREE_TIER_DAILY_LIMIT      (default 3)
+ *   academico → ACADEMICO_TIER_DAILY_LIMIT (default 20)
+ *   pro       → PRO_TIER_DAILY_LIMIT       (default 1000)
+ * Identificación: IP (sin login) o email: (Supabase Auth)
  */
 
-import { createServerSupabaseClient } from './supabase';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 const FREE_LIMIT      = parseInt(process.env.FREE_TIER_DAILY_LIMIT      ?? '3',   10);
 const PRO_LIMIT       = parseInt(process.env.PRO_TIER_DAILY_LIMIT       ?? '1000', 10);
 const ACADEMICO_LIMIT = parseInt(process.env.ACADEMICO_TIER_DAILY_LIMIT ?? '20',  10);
 
 export type UserTier = 'free' | 'pro' | 'academico' | 'admin';
+
+const PAID_TIERS: ReadonlySet<UserTier> = new Set(['pro', 'academico', 'admin']);
+
+function isUserTier(value: unknown): value is UserTier {
+  return value === 'free' || value === 'pro' || value === 'academico' || value === 'admin';
+}
+
+/**
+ * Tier que debe escribirse / usarse cuando NO hay fila de queries_log hoy.
+ *
+ * Si subscriptions.status === 'active' y el tier es academico / pro / admin,
+ * usar ESE tier de facturación — no defaultar a 'free'. Un PayPal activo
+ * no debe caer al tope gratuito (~3) en la primera consulta del día.
+ * Free autenticado y anónimo (IP) siguen en 'free'.
+ *
+ * No lee auth.users ni el resto de la fila de pago: solo tier + status.
+ */
+export function resolveTierForNewDay(params: {
+  subscriptionStatus: string | null | undefined;
+  subscriptionTier: string | null | undefined;
+}): UserTier {
+  if (params.subscriptionStatus === 'active' && isUserTier(params.subscriptionTier) && PAID_TIERS.has(params.subscriptionTier)) {
+    return params.subscriptionTier;
+  }
+  return 'free';
+}
+
+function limitForTier(tier: UserTier): number {
+  if (tier === 'admin') return 9999;
+  if (tier === 'pro') return PRO_LIMIT;
+  if (tier === 'academico') return ACADEMICO_LIMIT;
+  return FREE_LIMIT;
+}
 
 /**
  * Única función que construye el user_identifier a partir de un correo.
@@ -111,7 +146,7 @@ export async function checkAndIncrementRateLimit(
     .eq('query_date', today)
     .single();
 
-  const tier = (existing?.tier ?? 'free') as UserTier;
+  const tier = await resolveTodayTier(supabase, userIdentifier, existing?.tier);
   const currentCount = existing?.query_count ?? 0;
 
   // Admins nunca tienen límite
@@ -120,10 +155,7 @@ export async function checkAndIncrementRateLimit(
     return { allowed: true, remaining: 9999, tier: 'admin' };
   }
 
-  const limit =
-    tier === 'pro'       ? PRO_LIMIT :
-    tier === 'academico' ? ACADEMICO_LIMIT :
-    FREE_LIMIT;
+  const limit = limitForTier(tier);
 
   if (currentCount >= limit) {
     const tomorrow = new Date();
@@ -145,6 +177,31 @@ export async function checkAndIncrementRateLimit(
     remaining: limit - currentCount - 1,
     tier,
   };
+}
+
+/**
+ * Si ya hay queries_log.tier hoy, ese es el gate.
+ * Si no hay fila (día nuevo), heredar de subscriptions.active + academico/pro/admin.
+ */
+async function resolveTodayTier(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+  existingTier: unknown
+): Promise<UserTier> {
+  if (isUserTier(existingTier)) return existingTier;
+  if (userIdentifier.startsWith('ip:')) return 'free';
+
+  const { data: sub } = await supabase
+    .from('subscriptions')
+    .select('tier, status')
+    .eq('user_identifier', userIdentifier)
+    .maybeSingle();
+
+  return resolveTierForNewDay({
+    subscriptionStatus: sub?.status,
+    subscriptionTier: sub?.tier,
+  });
 }
 
 async function incrementCount(
@@ -196,13 +253,9 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
     .eq('query_date', today)
     .single();
 
-  const tier = (data?.tier ?? 'free') as UserTier;
+  const tier = await resolveTodayTier(supabase, userIdentifier, data?.tier);
   const used = data?.query_count ?? 0;
-  const limit =
-    tier === 'admin'     ? 9999 :
-    tier === 'pro'       ? PRO_LIMIT :
-    tier === 'academico' ? ACADEMICO_LIMIT :
-    FREE_LIMIT;
+  const limit = limitForTier(tier);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
