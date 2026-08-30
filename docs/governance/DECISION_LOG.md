@@ -798,3 +798,94 @@ derecho vigente hondureño"), pero no hay ningún registro que activar — es
 un vacío de contenido, no de vigencia. Nada insertado aquí; queda como
 hallazgo pendiente, mismo tipo de gap que 175-A pero para artículos que
 el Fundador ya ratificó como vigentes.
+
+---
+
+## 2026-08-28 — CUARTO UPDATE a producción: es_norma_vigente=true en CPC_TEXTO_BASE_D211-2006 (995 filas)
+
+**Corrección de registro**: al reportar esta acción al Fundador dije
+"registrado, comiteado, pusheado" — era falso, solo se había ejecutado el
+SQL. Se corrige aquí, tarde pero antes de que quedara sin registrar.
+
+Autorizado explícitamente por el Fundador. A diferencia de los UPDATEs
+anteriores (listas cerradas de artículos individuales), este fue un
+UPDATE de **todo un cuerpo normativo** (995 filas) — exigió diagnóstico
+agregado completo antes de escribir, no solo muestreo, por el propio
+estándar de `AUDIT_CHECKLIST.md`.
+
+**Diagnóstico previo** (sobre las 995 filas completas, no una muestra):
+- 2 filas con la palabra "derogad" (Arts. 920 y 921) — investigadas a
+  fondo: el Art. 921 es la cláusula derogatoria/transitoria del propio
+  Decreto 211-2006, y **nombra explícitamente** los instrumentos que
+  deroga — "todos de El Código de Procedimientos emitido... el 8 de
+  febrero de 1906", más artículos puntuales del Código Civil de 1906, Ley
+  de Conciliación y Arbitraje, Ley de Propiedad, Ley de Inquilinato, Ley
+  del Sistema Financiero y Código de Comercio. Ninguno es un artículo
+  propio de este CPC — Art. 920/921 son ellos mismos vigentes.
+- 79 "duplicados" por `num_articulo` — verificados como chunking legítimo
+  (ids `cpc_base_a0036_c00`..`c03`, mismo artículo largo partido en
+  fragmentos secuenciales), no error de datos.
+- 0 filas sin `num_articulo`.
+
+**UPDATE**:
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = true
+WHERE fuente = 'CPC_TEXTO_BASE_D211-2006'
+  AND es_norma_vigente IS NULL;
+```
+
+**Resultado**: `row_count = 995` (exacto). Verificación posterior:
+995/995 → `true`. El Código Procesal Civil (Decreto 211-2006) queda
+citable como norma vigente.
+
+---
+
+## 2026-08-28 — QUINTO UPDATE a producción: es_norma_vigente=false en las 8,366 filas sin fuente (`fuente IS NULL`) — aislamiento preventivo
+
+**Justificación** (regla del Fundador): "ninguna fila sin fuente
+verificable debe ser considerada norma vigente" — trazabilidad total como
+regla de oro en producción.
+
+**Diagnóstico previo, sin inspeccionar más contenido sensible del
+necesario**: de las 8,366 filas con `fuente IS NULL` (5,024 de ellas ya
+tenían además `es_norma_vigente IS NULL`), el 75.1% (6,282) contiene
+marcadores explícitos de anonimización (`[Cliente_Anónimo_N]`,
+`[Empresa_Anónima_N]`, etc.) — corpus legacy V1, coincide casi exacto con
+el 76.6% medido en una auditoría previa (27-jul-2026, documentada en el
+propio código de `lib/rag/search.ts`). Ese contenido **ya estaba
+bloqueado** de aparecer en cualquier respuesta del chat por
+`contieneArtefactoAnonimizacion()`, un filtro aplicado incondicionalmente
+en `buscarEnSupabase` desde esa auditoría previa — verificado en el
+código, no asumido. El 24.9% restante (~2,084 filas) no tiene marcador de
+anonimización — podría ser texto legal genuino sin clasificar o contenido
+privado no anonimizado correctamente; no se inspeccionó más para
+decidir, por instrucción explícita del Fundador de no revisar más
+contenido sensible.
+
+**Hallazgo colateral de verificación del código** (no bloqueó esta
+acción, pero se documenta): `construirCitas` (`app/api/chat/route.ts:171`,
+`if (f.es_norma_vigente !== true) continue;`) es el gate real que decide
+qué se presenta como cita verificada al usuario — exige `=== true` sin
+excepción, así que este UPDATE blinda completamente esa vía. Aparte, en
+`formatearContextoRAG` (`lib/rag/search.ts:644-651`) se encontró que un
+fragmento con `es_norma_vigente=false/NULL`, `fuente_tipo='codigo'` y
+`jurisdiccion='HN'` recibe `etiqueta = null` — es decir, el texto libre de
+contexto que lee el modelo NO trae una advertencia explícita "NO VIGENTE"
+para ese caso específico, a diferencia de lo documentado en sesiones
+anteriores sobre D6(a)/D6(b). Esto es un hallazgo NUEVO, separado, que
+afecta el contexto libre (no las citas estructuradas) — queda como
+backlog de hardening, no se corrigió en este commit.
+
+**UPDATE**:
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = false
+WHERE fuente IS NULL;
+```
+
+**Resultado**: `row_count = 8366` (exacto). Verificación posterior:
+8,366/8,366 → `false`, 0 con `NULL` restante entre las filas sin fuente.
+
+**Sin escritura de `contenido`, sin purga, sin más inspección de
+contenido sensible.**
