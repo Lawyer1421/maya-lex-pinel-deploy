@@ -935,3 +935,65 @@ clasificar SÍ pasan, como debe ser).
 **No mergeado a `main`, no desplegado** — queda en
 `feature/facultades-completas-f1-triage-familia` hasta autorización
 explícita de merge/deploy, mismo patrón de toda la sesión.
+
+---
+
+## 2026-08-28 — Corrección importante: la rama de triage estaba desactualizada respecto a `main`, D6(a)/D6(b)/GAP2 SÍ existen
+
+Al recibir autorización explícita del Fundador para mergear
+`feature/facultades-completas-f1-triage-familia` a `main`, `git fetch`
+reveló que `origin/main` había avanzado (`f168c85..b2a8f92`, 3 PRs vía
+Cursor: `#5` SEO, `#6` "honor active Profesional PayPal on document
+upload", `#7` "same functions on all plans; quota-only"). `#6` describe
+casi exactamente el caso de Ernesto Morales de horas antes en esta
+sesión, con causa más precisa (candado leía `queries_log.tier` en vez de
+`subscriptions`) — no contradice el diagnóstico anterior (Ernesto no
+tenía fila en `subscriptions` en absoluto), es un bug relacionado
+distinto, ya corregido en paralelo por el Fundador con Cursor.
+
+**El hallazgo que obliga a esta corrección**: el merge-base real entre
+`origin/main` y la rama de triage es `0bbecef`, varios commits ANTES de
+que `main` recibiera `b532f1c` (D6a), `4144ab1` (D6b) y `0c403bf` (GAP2)
+— los mismos fixes documentados como desplegados en entradas anteriores
+de este log. La rama de triage se ramificó ANTES de esos merges y nunca
+se actualizó contra `main` durante toda la sesión. Consecuencia directa:
+**todas las verificaciones de código hechas hoy contra
+`lib/rag/search.ts` y funciones relacionadas se hicieron contra una
+copia desactualizada**, sin saberlo.
+
+Esto incluye, específicamente, la corrección que se le hizo hoy a un
+reporte de auditoría que citaba la función `esRegistroNoVigenteExcluido`:
+se afirmó "esa función no existe, verificado con grep" — **la afirmación
+era falsa**. La función sí existe en `origin/main`
+(`f.es_norma_vigente === false && f.fuente_tipo === 'codigo' &&
+f.jurisdiccion === 'HN'`), ya aplicada como filtro real en
+`buscarEnSupabase` y reutilizada en el etiquetado de
+`formatearContextoRAG` — el reporte original tenía razón en el nombre;
+esta sesión estaba equivocada por trabajar sobre una rama vieja, no por
+mala fe de quien reportó.
+
+**Corrección aplicada, no solo documentada**: se hizo
+`git merge origin/main` en la rama de triage (commit `c842359`). El único
+conflicto real fue en `lib/rag/search.ts` (ambas ramas modificaron la
+misma zona de forma independiente). Resuelto integrando ambos mecanismos,
+sin duplicar ni descartar ninguno:
+- Se conserva `esRegistroNoVigenteExcluido` de `main` sin tocar su lógica
+  (ya cubre código hondureño confirmado derogado con `fuente_tipo='codigo'`).
+- Se agrega un filtro adicional, angosto, solo `f.fuente !== null` —
+  necesario porque `esRegistroNoVigenteExcluido` exige `fuente_tipo ===
+  'codigo'` exacto y NO cubre las 5,024 filas realmente huérfanas
+  (`fuente`/`fuente_tipo`/`jurisdiccion` todas NULL) del QUINTO UPDATE de
+  esta misma sesión.
+
+`npx vitest run` tras el merge: 41 archivos, 318 passed, 1 skipped, 0
+failed (un timeout aislado de un test no relacionado —
+`tests/extract-text-route.test.ts`, código del PR de Cursor — se
+reprodujo como flake: pasó limpio en aislamiento y en una segunda corrida
+completa). `npx tsc --noEmit`: limpio.
+
+**Lección para el registro**: verificar "existe/no existe" con `grep`
+sobre el working tree local no es suficiente cuando la rama puede estar
+desactualizada respecto a `main` — hay que confirmar contra
+`origin/main` (o hacer `git fetch` primero) antes de corregir la premisa
+de un reporte externo. Se corrige aquí en cuanto se detectó, antes de
+completar el merge a `main`.
