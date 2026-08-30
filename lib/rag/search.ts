@@ -488,7 +488,41 @@ async function buscarEnSupabase(
   // [Teléfono_Oculto]) — mismo criterio que la contención SEO de /leyes y
   // /consultas (lib/seo/estado-editorial.ts). Auditoría de corpus 2026-07-27
   // encontró este patrón en 76.6% del corpus legacy.
-  const fragmentos = fragmentosSinFiltrar.filter((f) => !contieneArtefactoAnonimizacion(f.contenido));
+  //
+  // Filtro duro de trazabilidad/vigencia (2026-08-28): hasta este fix, esta
+  // llamada "normal" de arriba no filtra por es_norma_vigente en absoluto
+  // (buscar_biblioteca_v2 con solo_norma_vigente=false por defecto), así que
+  // CUALQUIER fila podía llegar aquí por similitud pura -- incluidas filas
+  // sin fuente (huérfanas del corpus legacy, ver DECISION_LOG.md 2026-08-28
+  // "QUINTO UPDATE") o artículos de código hondureño explícitamente
+  // derogados (es_norma_vigente=false). formatearContextoRAG() (más abajo)
+  // NO les pone ninguna etiqueta de advertencia en ese caso (etiqueta=null),
+  // así que llegaban al prompt del modelo como texto sin marcar -- gap real,
+  // no el mecanismo que describía el reporte que motivó este fix (no existe
+  // ninguna función esRegistroNoVigenteExcluido en este archivo), pero el
+  // problema de fondo sí era real.
+  //
+  // Regla, deliberadamente MÁS ANGOSTA que "solo es_norma_vigente=true":
+  // - fuente === null -> excluir SIEMPRE (sin trazabilidad, sin excepción).
+  // - fuente_tipo === 'codigo' && es_norma_vigente === false -> excluir
+  //   SIEMPRE (código hondureño confirmado derogado).
+  // Deliberadamente NO se excluye jurisprudencia/doctrina comparada
+  // (fuente_tipo 'sentencia'/'doctrina', es_norma_vigente false o NULL por
+  // diseño -- no son norma hondureña vigente y nunca lo serán, pero sí son
+  // contexto legítimo, ya etiquetado "DOCTRINA/JURISPRUDENCIA COMPARADA" o
+  // "...NO ES NORMA VIGENTE" por formatearContextoRAG). Tampoco se excluye
+  // código con es_norma_vigente=NULL (aún sin clasificar, deuda de triage
+  // documentada aparte, no un caso confirmado de derogación) -- excluirlo
+  // aquí apagaría de golpe la mayoría del corpus todavía sin clasificar.
+  const debeExcluirseDelContexto = (f: FragmentoRAG): boolean => {
+    if (f.fuente === null) return true;
+    if (f.fuente_tipo === 'codigo' && f.es_norma_vigente === false) return true;
+    return false;
+  };
+
+  const fragmentos = fragmentosSinFiltrar
+    .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
+    .filter((f) => !debeExcluirseDelContexto(f));
 
   const articulos = [...new Set(
     fragmentos
