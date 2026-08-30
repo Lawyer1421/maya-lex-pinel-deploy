@@ -246,7 +246,10 @@ export default function ChatInterface() {
                     outputTokens: event.usage?.outputTokens,
                     remaining: event.remaining,
                     tier: event.tier,
-                    canAttach: prev.canAttach === true || event.tier === 'pro' || event.tier === 'admin',
+                    // No re-gatear adjuntos por plan: free/académico autenticados
+                    // conservan canAttach de /api/usage. El SSE no debe volver
+                    // a candar al terminar un chat.
+                    canAttach: prev.canAttach,
                   }));
                   setMessages((prev) =>
                     prev.map((m) =>
@@ -510,7 +513,7 @@ export default function ChatInterface() {
               : usage.tier === 'academico'
               ? `${usage.remaining} consultas restantes hoy (Plan Académico)`
               : usage.tier === 'pro'
-              ? '✓ Plan Profesional — consultas ilimitadas'
+              ? `${usage.remaining} consultas restantes hoy (Plan Profesional)`
               : usage.tier === 'admin'
               ? '✓ Acceso Admin'
               : ''}

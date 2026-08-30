@@ -28,6 +28,11 @@ export function autoStartTierDesde(valor: string | undefined): 'pro' | 'academic
   return valor === 'pro' || valor === 'academico' ? valor : null;
 }
 
+/**
+ * Self-serve (Explorar / Académico / Profesional): mismas funciones reales;
+ * solo cambia la cuota diaria. Defaults = env de lib/rate-limit.ts
+ * (FREE 3, ACADEMICO 20, PRO 1000). No vender expediente / export / prioridad.
+ */
 export const PLANES_V2: PlanV2[] = [
   {
     id: 'explorar',
@@ -36,10 +41,10 @@ export const PLANES_V2: PlanV2[] = [
     periodo: '',
     descripcion: 'Conozca Maya Lex antes de decidir.',
     caracteristicas: [
-      'Cuenta gratuita, sin tarjeta',
-      'Consultas limitadas por día',
-      'Acceso básico a artículos de referencia',
-      'Sin herramientas profesionales completas',
+      '3 consultas/día',
+      'Modos de chat: Sala IA, Análisis y Documento',
+      'Adjuntar documentos (PDF, DOCX, TXT)',
+      'Voz a texto y búsqueda web',
     ],
     ctaLabel: 'Comenzar gratis',
     ctaEstado: 'enlace',
@@ -52,10 +57,10 @@ export const PLANES_V2: PlanV2[] = [
     periodo: '/mes',
     descripcion: 'Para estudiantes y docentes de derecho.',
     caracteristicas: [
-      'Casos de estudio guiados',
-      'Evaluaciones y guías de estudio',
-      'Explicaciones paso a paso',
-      'Historial académico personal',
+      '20 consultas/día',
+      'Modos de chat: Sala IA, Análisis y Documento',
+      'Adjuntar documentos (PDF, DOCX, TXT)',
+      'Voz a texto y búsqueda web',
     ],
     ctaLabel: 'Suscribirme con PayPal',
     ctaEstado: 'checkout',
@@ -69,12 +74,10 @@ export const PLANES_V2: PlanV2[] = [
     destacado: true,
     descripcion: 'Para el ejercicio activo de la abogacía.',
     caracteristicas: [
-      'Análisis jurídico profundo',
-      'Generación de documentos y escritos',
-      'Herramientas procesales',
-      'Exportación de análisis',
-      'Expediente de trabajo personal',
-      'Prioridad de respuesta',
+      '1000 consultas/día',
+      'Modos de chat: Sala IA, Análisis y Documento',
+      'Adjuntar documentos (PDF, DOCX, TXT)',
+      'Voz a texto y búsqueda web',
     ],
     notaUsoRazonable: 'Sujeto a política de uso razonable — no es un plan de volumen ilimitado sin control técnico.',
     ctaLabel: 'Suscribirme con PayPal',

@@ -4,9 +4,9 @@
  * Recibe: multipart/form-data con campo "file"
  * Devuelve: { text, filename, chars, truncated }
  *
- * Gate: sesión autenticada + plan Profesional activo (USD 15 / tier 'pro')
- * o queries_log admin/pro. No usa feature flags (flag_expediente no está
- * cableado en esta ruta).
+ * Gate: sesión autenticada (free / académico / pro / admin). Anónimo = 401.
+ * Si la cuota diaria ya está agotada = 429 (sin incrementar).
+ * No usa feature flags. Formato/tamaño: PDF, DOCX, TXT, máx. 4 MB.
  *
  * PDF  → pdf-parse (importado via lib/ para evitar el bug de test-files en Next.js)
  * DOCX → mammoth
