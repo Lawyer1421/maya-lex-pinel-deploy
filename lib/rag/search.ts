@@ -302,11 +302,11 @@ export function resolverArticuloExacto(
   return { fragmentos, ambiguo: false };
 }
 
-export async function buscarArticuloExacto(
+async function consultarPorVigencia(
   numero: string,
   materiaDetectada: string | null,
-  instrumentoSolicitado: InstrumentoNormalizado | null,
-): Promise<ResultadoExacto> {
+  esNormaVigente: boolean,
+): Promise<FilaExactaDB[]> {
   const { createServerSupabaseClient } = await import('@/lib/supabase');
   const supabase = createServerSupabaseClient();
 
@@ -315,7 +315,7 @@ export async function buscarArticuloExacto(
     .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia, metadata')
     .eq('num_articulo', numero)
     .eq('fuente_tipo', 'codigo')
-    .eq('es_norma_vigente', true);
+    .eq('es_norma_vigente', esNormaVigente);
 
   // Filtro de materia: solo optimiza la consulta a la DB (menos filas a
   // traer) — la aceptación real la decide identidadDocumentalCoincide() en
@@ -323,9 +323,38 @@ export async function buscarArticuloExacto(
   if (materiaDetectada) consulta = consulta.eq('materia', materiaDetectada);
 
   const { data, error } = await consulta;
-  if (error || !data) return { fragmentos: [], ambiguo: false };
+  if (error || !data) return [];
+  return data as FilaExactaDB[];
+}
 
-  return resolverArticuloExacto(data as FilaExactaDB[], numero, instrumentoSolicitado);
+export async function buscarArticuloExacto(
+  numero: string,
+  materiaDetectada: string | null,
+  instrumentoSolicitado: InstrumentoNormalizado | null,
+): Promise<ResultadoExacto> {
+  const filasVigentes = await consultarPorVigencia(numero, materiaDetectada, true);
+  const resultadoVigente = resolverArticuloExacto(filasVigentes, numero, instrumentoSolicitado);
+  if (resultadoVigente.fragmentos.length > 0 || resultadoVigente.ambiguo) {
+    return resultadoVigente;
+  }
+
+  // GAP 2 (Operación "Facultades Completas", 2026-08-28): si no hay ningún
+  // artículo vigente con ese número, se intenta un segundo paso -- solo
+  // artículos CONFIRMADOS no vigentes (ej. derogados, con evidencia textual
+  // directa de fuente -- nunca inferidos). Reutiliza exactamente la misma
+  // función de resolución (mismos tres filtros: anonimización, encabezado
+  // real, identidad de instrumento) -- ningún criterio se relaja para este
+  // camino. El resultado NUNCA se presenta como norma vigente: construirCitas
+  // ya exige es_norma_vigente===true para entrar a la lista de citas, y
+  // formatearContextoRAG ya etiqueta este patrón exacto como
+  // "[NO VIGENTE — NO CITAR COMO NORMA]" (D6a-bis). Este paso es
+  // deliberadamente distinto de la exclusión de D6(b): esa protege contra
+  // que un artículo derogado se cuele por similitud semántica sin que el
+  // usuario lo haya pedido; esto responde de forma honesta cuando el usuario
+  // SÍ preguntó explícitamente por ese número exacto -- "fue derogado" es
+  // información real, no una alucinación.
+  const filasNoVigentes = await consultarPorVigencia(numero, materiaDetectada, false);
+  return resolverArticuloExacto(filasNoVigentes, numero, instrumentoSolicitado);
 }
 
 export interface ResultadoRAG {
@@ -489,40 +518,30 @@ async function buscarEnSupabase(
   // /consultas (lib/seo/estado-editorial.ts). Auditoría de corpus 2026-07-27
   // encontró este patrón en 76.6% del corpus legacy.
   //
-  // Filtro duro de trazabilidad/vigencia (2026-08-28): hasta este fix, esta
-  // llamada "normal" de arriba no filtra por es_norma_vigente en absoluto
-  // (buscar_biblioteca_v2 con solo_norma_vigente=false por defecto), así que
-  // CUALQUIER fila podía llegar aquí por similitud pura -- incluidas filas
-  // sin fuente (huérfanas del corpus legacy, ver DECISION_LOG.md 2026-08-28
-  // "QUINTO UPDATE") o artículos de código hondureño explícitamente
-  // derogados (es_norma_vigente=false). formatearContextoRAG() (más abajo)
-  // NO les pone ninguna etiqueta de advertencia en ese caso (etiqueta=null),
-  // así que llegaban al prompt del modelo como texto sin marcar -- gap real,
-  // no el mecanismo que describía el reporte que motivó este fix (no existe
-  // ninguna función esRegistroNoVigenteExcluido en este archivo), pero el
-  // problema de fondo sí era real.
+  // D6(b) (Operación "Facultades Completas", 2026-08-28): exclusión real de
+  // artículos de código hondureño confirmados NO vigentes (ej. derogados —
+  // dossier DEROGACION_ADOPCION_102-2018 de Fase 1). Antes solo se
+  // etiquetaban (D6a) pero seguían llegando al contexto del modelo por esta
+  // vía sin filtro (`fragmentosNormal`, similitud pura, sin filtro de
+  // vigencia) — un artículo derogado con embedding cercano a la consulta
+  // podía colarse igual, con o sin etiqueta. Se excluyen aquí, antes de
+  // construir el contexto, no solo se marcan. No se borran de la base de
+  // datos (quedan disponibles para la futura feature de vigencia/derogación
+  // visible, ver decision log 2026-08-27) — solo se excluyen de esta
+  // recuperación semántica sin filtro.
   //
-  // Regla, deliberadamente MÁS ANGOSTA que "solo es_norma_vigente=true":
-  // - fuente === null -> excluir SIEMPRE (sin trazabilidad, sin excepción).
-  // - fuente_tipo === 'codigo' && es_norma_vigente === false -> excluir
-  //   SIEMPRE (código hondureño confirmado derogado).
-  // Deliberadamente NO se excluye jurisprudencia/doctrina comparada
-  // (fuente_tipo 'sentencia'/'doctrina', es_norma_vigente false o NULL por
-  // diseño -- no son norma hondureña vigente y nunca lo serán, pero sí son
-  // contexto legítimo, ya etiquetado "DOCTRINA/JURISPRUDENCIA COMPARADA" o
-  // "...NO ES NORMA VIGENTE" por formatearContextoRAG). Tampoco se excluye
-  // código con es_norma_vigente=NULL (aún sin clasificar, deuda de triage
-  // documentada aparte, no un caso confirmado de derogación) -- excluirlo
-  // aquí apagaría de golpe la mayoría del corpus todavía sin clasificar.
-  const debeExcluirseDelContexto = (f: FragmentoRAG): boolean => {
-    if (f.fuente === null) return true;
-    if (f.fuente_tipo === 'codigo' && f.es_norma_vigente === false) return true;
-    return false;
-  };
-
+  // Extensión (2026-08-28, mismo día): `esRegistroNoVigenteExcluido` exige
+  // `fuente_tipo === 'codigo'` exacto, así que NO cubre las filas realmente
+  // huérfanas del corpus legacy (`fuente IS NULL`, y con ella
+  // `fuente_tipo`/`jurisdiccion` también NULL — 5,024 de las 8,366 puestas
+  // en `es_norma_vigente=false` en el QUINTO UPDATE, ver DECISION_LOG.md).
+  // Se agrega un filtro adicional, deliberadamente angosto (solo
+  // `fuente === null`, sin tocar la condición de D6b) para cerrar ese caso
+  // sin duplicar ni reemplazar la función existente.
   const fragmentos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
-    .filter((f) => !debeExcluirseDelContexto(f));
+    .filter((f) => !esRegistroNoVigenteExcluido(f))
+    .filter((f) => f.fuente !== null);
 
   const articulos = [...new Set(
     fragmentos
@@ -537,6 +556,18 @@ const PATRON_ANONIMIZACION_SIN_LIMPIAR = /\[(Cliente|Empresa)_An[oó]nimo|Tel[e�
 
 export function contieneArtefactoAnonimizacion(contenido: string): boolean {
   return PATRON_ANONIMIZACION_SIN_LIMPIAR.test(contenido);
+}
+
+/**
+ * D6(b) — true para un artículo de código hondureño confirmado NO vigente
+ * (ej. derogado). Mismo criterio exacto que la etiqueta de seguridad D6(a)
+ * en formatearContextoRAG, pero aplicado ANTES de que el fragmento llegue al
+ * contexto, no solo al mostrarlo. Se define aquí (no inline) para que ambos
+ * puntos del código — exclusión y etiqueta — usen la misma condición, nunca
+ * dos copias que puedan desincronizarse.
+ */
+export function esRegistroNoVigenteExcluido(f: Pick<FragmentoRAG, 'es_norma_vigente' | 'fuente_tipo' | 'jurisdiccion'>): boolean {
+  return f.es_norma_vigente === false && f.fuente_tipo === 'codigo' && f.jurisdiccion === 'HN';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -676,15 +707,29 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   ];
 
   for (const [i, f] of resultado.fragmentos.entries()) {
+    // Salvaguarda D6(a) (2026-08-27), corregida D6(a-bis) (2026-08-28): esta
+    // etiqueta NUNCA debe quedar en null. Un artículo de código hondureño
+    // confirmado NO vigente (derogado — dossier DEROGACION_ADOPCION_102-2018)
+    // ahora recibe su propia etiqueta específica, distinta del fallback
+    // genérico: "NO VIGENTE" es una afirmación conocida y verificada, no lo
+    // mismo que "no sabemos qué es esto" (fuente sin clasificar). El fallback
+    // genérico queda reservado solo para metadata realmente ausente/ambigua.
+    // Nota: desde D6(b), esRegistroNoVigenteExcluido() ya excluye estos
+    // fragmentos ANTES de llegar aquí en la vía de búsqueda semántica de
+    // Supabase — esta etiqueta es la segunda capa de defensa, por si un
+    // fragmento con este mismo patrón llega por otra vía (ej. backend
+    // Python, o una recuperación exacta futura que no pase por ese filtro).
     const etiqueta = f.es_norma_vigente === true
       ? 'NORMA VIGENTE HONDURAS'
       : f.jurisdiccion && f.jurisdiccion !== 'HN'
         ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
         : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
           ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
-          : null;
+          : esRegistroNoVigenteExcluido(f)
+            ? 'NO VIGENTE — NO CITAR COMO NORMA'
+            : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
-    const tag = etiqueta ? ` [${etiqueta}]` : '';
+    const tag = ` [${etiqueta}]`;
     lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);
     lineas.push(f.contenido.trim());
     lineas.push('');

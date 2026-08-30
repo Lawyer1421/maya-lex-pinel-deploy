@@ -46,6 +46,26 @@ export interface CurrentAccess {
   source:               AccessSource;
   verificationPending:  boolean;
   reasonCode:           AccessReasonCode;
+  /**
+   * Adjuntos / análisis de documentos — misma función en todos los planes.
+   * Cualquier identidad autenticada (email:…) puede adjuntar; IP / anónimo no
+   * (hace falta login para contar la cuota diaria). El plan solo cambia el
+   * tope de consultas, no el adjunto.
+   */
+  canAnalyzeDocuments:  boolean;
+}
+
+/**
+ * ¿Puede este usuario adjuntar documentos para análisis?
+ *
+ * Producto (ago 2026): free / académico / pro / admin autenticados = sí.
+ * Identidad por IP o ausente (`ip:`) = no — 401 AUTH_REQUIRED.
+ * El plan no bloquea el adjunto; la cuota diaria sí (en extract-text).
+ */
+export function canAnalyzeDocuments(params: {
+  userIdentifier: string;
+}): boolean {
+  return Boolean(params.userIdentifier) && !params.userIdentifier.startsWith('ip:');
 }
 
 export async function resolveCurrentAccess(userIdentifier: string): Promise<CurrentAccess> {
@@ -111,5 +131,8 @@ export async function resolveCurrentAccess(userIdentifier: string): Promise<Curr
     source: usage ? 'queries_log' : sub ? 'subscriptions' : 'none',
     verificationPending,
     reasonCode,
+    canAnalyzeDocuments: canAnalyzeDocuments({
+      userIdentifier,
+    }),
   };
 }
