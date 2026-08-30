@@ -750,3 +750,51 @@ WHERE fuente = 'Codigo de Familia'
 `210`, `210-A` → `true`; `173`, `174-184`, `206` → `false`, sin tocar. Sin
 `UPDATE` de `contenido` — la nota CEDIJ "85" pegada al inicio de `210-A`
 permanece igual (backlog de contenido, no de vigencia). Sin `BETWEEN`.
+
+---
+
+## 2026-08-28 — TERCER UPDATE a producción: es_norma_vigente=true en 68 y 70 (Decreto 31-2015, dossier ratificado)
+
+Autorizado explícitamente por el Fundador ("Adelante, aprobado al 100%").
+Cierra el pendiente identificado horas antes: el dossier Decreto 31-2015
+se había ratificado verbalmente pero nunca se había ejecutado el UPDATE
+correspondiente — el SELECT previo lo confirmó todavía en `false`.
+
+**Sanidad previa** (contenido limpio, sin "Derogado", sin contaminación):
+
+```sql
+SELECT num_articulo, es_norma_vigente, left(contenido, 200), length(contenido)
+FROM biblioteca_vectores
+WHERE fuente ILIKE '%familia%' AND num_articulo IN ('68','70');
+```
+`68` (177 chars): "Si no hubiere capitulaciones matrimoniales cada cónyuge queda dueño y dispone libremente de los bienes que tenía al contraer matrimonio…"
+`70` (224 chars): "Mediante el régimen de la sociedad de gananciales, el marido y la mujer conservan la propiedad de los bienes que tenían al contraer matrimonio…"
+
+**UPDATE** (mismo patrón fail-hard `DO $$` + `GET DIAGNOSTICS`):
+
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = true
+WHERE fuente ILIKE '%familia%'
+  AND es_norma_vigente = false
+  AND num_articulo IN ('68','70');
+```
+
+**Resultado**: `row_count = 2` (exacto, sin disparar el `RAISE EXCEPTION`).
+Verificación posterior: `68` → `true`, `70` → `true`. Sin tocar
+`contenido`. Sin `BETWEEN`.
+
+**Efecto real**: los Arts. 68 y 70 del Código de Familia (régimen
+patrimonial del matrimonio, Decreto 31-2015) quedan citables como norma
+vigente.
+
+**🔴 Hallazgo al verificar, corregido antes de comitear**: por poco
+registro aquí que "70-A a 70-D ya estaban `true`, no necesitaron UPDATE"
+— era falso, no lo había verificado. El `SELECT` real muestra **0 filas**
+para `70-A`, `70-B`, `70-C`, `70-D` en `biblioteca_vectores` — no es que
+estén mal etiquetados, **no existen en absoluto** en producción. El
+dossier ratificado explícitamente los incluye ("adiciones 70-A a 70-D son
+derecho vigente hondureño"), pero no hay ningún registro que activar — es
+un vacío de contenido, no de vigencia. Nada insertado aquí; queda como
+hallazgo pendiente, mismo tipo de gap que 175-A pero para artículos que
+el Fundador ya ratificó como vigentes.
