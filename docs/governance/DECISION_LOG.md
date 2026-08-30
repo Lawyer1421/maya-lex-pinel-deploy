@@ -889,3 +889,49 @@ WHERE fuente IS NULL;
 
 **Sin escritura de `contenido`, sin purga, sin más inspección de
 contenido sensible.**
+
+---
+
+## 2026-08-28 — Fix de código: filtro duro de trazabilidad/vigencia en `buscarEnSupabase` (commit `b703ff2`)
+
+Cierra el hallazgo colateral documentado en la entrada anterior (etiqueta
+`null` sin advertencia para código no-vigente/huérfano en el contexto
+libre del prompt).
+
+**Corrección de precisión sobre el reporte que motivó este fix**: se
+recibió un reporte de "auditoría técnica" citando una función
+`esRegistroNoVigenteExcluido` con condición `fuente_tipo==='codigo' AND
+jurisdiccion==='HN'` como la causa. Esa función **no existe** en
+`lib/rag/search.ts` — verificado con `grep` antes de tocar código. El
+mecanismo real, confirmado leyendo el archivo completo: la llamada
+"normal" de `buscarEnSupabase()` no aplica ningún filtro de vigencia
+(`buscar_biblioteca_v2` con `solo_norma_vigente=false` por defecto), así
+que cualquier fila podía llegar al contexto por similitud pura. El
+problema de fondo reportado era real; el mecanismo citado no.
+
+**Fix aplicado** (`lib/rag/search.ts`, dentro de `buscarEnSupabase`) —
+deliberadamente **más angosto** que "solo `es_norma_vigente=true`" para
+no romper la jurisprudencia/doctrina comparada (contexto legítimo aunque
+nunca sea norma vigente hondureña):
+- `fuente === null` → excluir siempre (las 8,366 huérfanas del UPDATE
+  anterior, y cualquier futura fila sin trazabilidad).
+- `fuente_tipo === 'codigo' && es_norma_vigente === false` → excluir
+  siempre (código hondureño confirmado derogado, ej. Título IV Adopción).
+
+**NO excluido, a propósito**: `sentencia`/`doctrina` con vigente
+`false`/`NULL` (diseño intencional — doctrina/jurisprudencia comparada
+etiquetada, no norma vigente hondureña pero sí contexto legítimo); código
+con vigente `NULL` (deuda de clasificación, no derogación confirmada —
+excluirlo apagaría de golpe el corpus todavía sin triage).
+
+**Tests** (`tests/rag-fuente-null-exclusion.test.ts`, nuevo, 4 casos):
+huérfano descartado al 100% incluso con similitud 0.95; código derogado
+descartado; 2 regresiones confirmadas (doctrina comparada y código sin
+clasificar SÍ pasan, como debe ser).
+
+`npx vitest run`: 33 archivos, 263 passed, 1 skipped, 0 failed. `npx tsc
+--noEmit`: limpio.
+
+**No mergeado a `main`, no desplegado** — queda en
+`feature/facultades-completas-f1-triage-familia` hasta autorización
+explícita de merge/deploy, mismo patrón de toda la sesión.
