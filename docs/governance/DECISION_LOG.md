@@ -997,3 +997,54 @@ desactualizada respecto a `main` — hay que confirmar contra
 `origin/main` (o hacer `git fetch` primero) antes de corregir la premisa
 de un reporte externo. Se corrige aquí en cuanto se detectó, antes de
 completar el merge a `main`.
+
+---
+
+## 2026-08-29 — SEXTO UPDATE a producción: es_norma_vigente=true en Codigo del Trabajo (870 filas, "B1")
+
+Radiografía de la base completa solicitada (post-merge a `main`):
+`biblioteca_vectores` mapeada por `fuente` real — confirmado **Código
+Tributario (D.170-2016) ausente por completo** (0 filas bajo cualquier
+`fuente` limpia), **Constitución de Honduras 1982 ausente como cuerpo
+propio** (solo 7 menciones sueltas; "Ley sobre Justicia Constitucional",
+124 filas, es una ley distinta, no la Constitución), **Código Civil
+ausente como cuerpo propio** (los 133 matches de "civil"+"1906" son
+comentario/legacy/citas cruzadas, no texto real; los 11,608 de
+`materia=02_CIVIL` siguen sin auditar, sin tocar). Verificación de
+jerarquía normativa: 0 contaminación real por D.144-83 o D.22-97
+(derogados) — los 2 matches marcados `true` resultaron ser las propias
+cláusulas de abrogación del Código Penal vigente (Arts. 632, 634) citando
+al decreto anterior por número, no el texto derogado en sí.
+
+**Hallazgo que originó este UPDATE**: `Codigo del Trabajo`, 870/870
+filas en `es_norma_vigente=false` — el código completo excluido de citas
+pese a no tener evidencia de derogación.
+
+**Diagnóstico previo a escribir** (mismo patrón que CPC): 5 muestras de
+contenido confirmadas como texto auténtico y reconocible (Arts. 1-5:
+objeto del código, orden público, irrenunciabilidad, definiciones de
+trabajador/patrono). 1 match de "derogad" investigado — Art. 874, la
+propia cláusula derogatoria final del código (cita decretos anteriores
+que deroga al entrar en vigencia, mismo patrón que Art. 921 CPC y Art.
+632/634 Código Penal) — no es autoderogación. 870 artículos distintos,
+0 duplicados, 0 sin `num_articulo`.
+
+**Autorizado explícitamente** ("CLO Maya Lex Pro emitió la aprobación
+formal del B1 estrecho"). Ejecutado el bloque `DO $$` exacto provisto,
+sin modificaciones:
+
+```sql
+UPDATE biblioteca_vectores
+SET es_norma_vigente = true
+WHERE fuente = 'Codigo del Trabajo'
+  AND es_norma_vigente = false;
+```
+
+**Resultado**: `row_count = 870` (exacto, sin disparar el `RAISE
+EXCEPTION`). Verificación posterior: 870/870 → `true`. Sin tocar
+`metadata`, sin cláusulas adicionales.
+
+**Cuarentena confirmada, respetada**: `02_CIVIL` (11,608), `doc_*`
+(66,534), `Codigo de Familia`, y la Sección B (regularización de
+metadata JSONB) del script de saneamiento — ninguno tocado en esta
+acción ni en las anteriores de esta ronda.
