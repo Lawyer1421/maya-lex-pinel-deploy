@@ -1142,3 +1142,56 @@ Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)`
 y `Codigo Tributario (Decreto 170-2016 - Consolidado SAR corte 2019)`
 como cuerpos normativos activos citables — fuera del alcance de esta
 tarea (solo ingesta de datos).
+
+---
+
+## 2026-09-01 — Ratificación del Fundador: Lote P0 cerrado + mapeo oficial de cuentas/entornos
+
+**1. Lote P0 — CERRADO Y APROBADO EN PRODUCCIÓN**. El Fundador valida y
+acepta el desglose reportado: 378 filas de Constitución 1982
+(373 `es_norma_vigente=true` + 5 `false`, Art. 200 entre ellas) + 215
+filas de Código Tributario D.170-2016 (`08_TRIBUTARIO`, todas `true`) =
+**593 filas exactas**, verificadas en vivo contra
+`biblioteca_vectores` (`thgrhueckkjdutjvcufp`) tras el INSERT registrado
+en la entrada anterior. No se ejecuta ninguna acción adicional sobre
+datos en esta entrada — es cierre formal de gobernanza, no una escritura
+nueva.
+
+**2. Arquitectura de cuentas — decisión explícita del Fundador**: se
+**mantiene** `Lawyer1421/maya-lex-pinel-deploy` como repositorio maestro
+de Maya Lex producción, pese al hallazgo reportado (repo de producción
+alojado bajo la cuenta GitHub designada como entorno secundario/sandbox)
+— la razón dada es evitar disrupciones en la integración con Vercel
+(el proyecto Vercel `maya-lex-pinel-deploy` está enlazado a ese repo/esa
+cuenta; migrar ownership de repo rompería ese enlace). Esto **no** es un
+error corregido — es una decisión de riesgo aceptado, documentada aquí
+para que quede trazable independientemente de la memoria de cualquier
+sesión de trabajo, tal como exige el encabezado de este archivo.
+
+**3. Mapeo oficial de entornos** (autoritativo desde esta fecha —
+reemplaza cualquier suposición previa no documentada; los tres proyectos
+Supabase mencionados fueron verificados con evidencia directa, no
+inferidos):
+
+| Capa | Valor | Verificado por |
+|---|---|---|
+| Repositorio maestro | `Lawyer1421/maya-lex-pinel-deploy` | `git remote -v` (esta sesión) |
+| Vercel Production → Supabase | `thgrhueckkjdutjvcufp` (`maya-lex-ia-pinel-hn`) | Conexión MCP Supabase directa usada en todo el hilo de ingesta (esta sesión) — **no** vía `.env.local` (ese archivo no trae ninguna variable Supabase) ni vía lectura de Vercel (las variables Supabase de Vercel son `sensitive`/solo-escritura, irreconocibles por CLI, API o dashboard) |
+| Vercel Preview → Supabase | `aicakncgtuiiuomflkqj` (`mayalexhn-staging`) | `MAYALEX_V2_PREVIEW_ENV_VERIFIED.md` (2026-07-29), log real de build de Vercel |
+| Organización Supabase secundaria (fuera de este repo) | `Lawyer1421's Org` (Plan Pro): `Cronista Studio`, `Lawyer1421's Project` | Directiva del Fundador — no verificado por esta sesión, sin acceso ni necesidad de acceso desde este repositorio |
+
+**Nota de trazabilidad conservada**: el mapeo Production→Preview de esta
+tabla fue confirmado por evidencia directa (log de build redactado,
+nunca secretos en texto plano); el scope Production de Vercel en sí
+sigue sin poder releerse por diseño (`sensitive`) — la fila
+`thgrhueckkjdutjvcufp` se sostiene en la conexión MCP independiente
+usada para escribir el Lote P0, no en una lectura del propio Vercel.
+Si esa conexión MCP cambiara de proyecto en el futuro, este mapeo
+requeriría re-verificación, no se debe asumir vigente indefinidamente.
+
+**4. Ingesta de Lote P0 — tarea finalizada.** Rama
+`docs/governance-p0-ingest-593` queda con el historial completo (INSERT
+de 593 filas + esta ratificación), working tree limpio, lista para
+revisión/PR del Fundador. Sin push ni merge a `main` ejecutado por el
+asistente en este cierre — acción de publicación externa/outward-facing
+que requiere confirmación explícita separada.
