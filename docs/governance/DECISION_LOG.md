@@ -1048,3 +1048,97 @@ EXCEPTION`). Verificación posterior: 870/870 → `true`. Sin tocar
 (66,534), `Codigo de Familia`, y la Sección B (regularización de
 metadata JSONB) del script de saneamiento — ninguno tocado en esta
 acción ni en las anteriores de esta ronda.
+
+---
+
+## 2026-09-01 — SÉPTIMO UPDATE (ingesta nueva, no UPDATE): 593 filas nuevas en `mayalex_normativos` — Constitución 1982 completa + Código Tributario D.170-2016 completo
+
+Cierra directamente los dos vacíos identificados en la radiografía del
+2026-08-29 (entrada "SEXTO UPDATE"): **Constitución de Honduras 1982
+ausente como cuerpo propio** y **Código Tributario (D.170-2016) ausente
+por completo**. Autorización explícita del Fundador para Paso 3 (INSERT
+real) obtenida en turno anterior de esta misma sesión; ejecutado en este
+turno tras completar la carga a staging.
+
+**Fuente y preparación**: corpus generado y validado en sesión previa —
+`C:\dev\mayalex-corpus\corpus-data\estructurado\lote-p0-con-embeddings.jsonl`
+(593 líneas, embeddings `intfloat/multilingual-e5-small`, 384 dim,
+prefijo `"passage: "`, L2-normalizados). Artículo 200 de la Constitución
+(derogado) cargado con `contenido` literal `"[Artículo 200. Derogado
+mediante Decreto No. 189-85 de fecha 30 de octubre de 1985]"` y
+`es_norma_vigente=false`, verificado antes del INSERT masivo.
+
+**Método**: tabla `UNLOGGED` de staging `stg_p0_ingesta` (mismo esquema
+que `biblioteca_vectores`), cargada en 66 lotes de ~9 filas desde
+`C:\dev\mayalex-corpus\sql_batches\b000.sql`...`b065.sql`, en varios
+turnos de esta sesión. Al cerrar la carga, el conteo de staging dio 584,
+no 593 — **9 filas faltantes** (`b017.sql`, artículos `constitucion_1982_a154`
+a `a162`, Título de Educación) que habían quedado sin ejecutar en un
+turno anterior. Diagnosticado por diff exacto de ids entre el `.jsonl`
+fuente (593 ids únicos, confirmado con `wc -l`) y `stg_p0_ingesta`
+(`SELECT id FROM stg_p0_ingesta ORDER BY id`) — el hueco `a153`→`a163` en
+la secuencia hizo evidente el lote faltante. Corregido antes de tocar
+`biblioteca_vectores`: `stg_p0_ingesta` verificado en `593/593` filas
+únicas (`count(*) = count(DISTINCT id) = 593`) antes de proceder.
+
+**Balance verificado antes del INSERT** (coincide exacto con el balance
+esperado por el Fundador): `mayalex_normativos = 37,240`,
+`biblioteca_vectores` total = `81,243`.
+
+**INSERT** (mismo patrón fail-hard `DO $$` + `GET DIAGNOSTICS` +
+`RAISE EXCEPTION` si `row_count != 593`, sin transacción manual
+multi-statement):
+
+```sql
+DO $$
+DECLARE
+  rc int;
+BEGIN
+  INSERT INTO biblioteca_vectores (id, coleccion, materia, contenido, num_articulo, fuente, metadata, embedding, jurisdiccion, fuente_tipo, es_norma_vigente)
+  SELECT id, coleccion, materia, contenido, num_articulo, fuente, metadata, embedding, jurisdiccion, fuente_tipo, es_norma_vigente
+  FROM stg_p0_ingesta;
+  GET DIAGNOSTICS rc = ROW_COUNT;
+  IF rc != 593 THEN
+    RAISE EXCEPTION 'ABORT: expected 593 rows moved, got %', rc;
+  END IF;
+END $$;
+```
+
+**Resultado**: `row_count = 593` (exacto, sin disparar el `RAISE
+EXCEPTION`). Balance posterior verificado exacto: `mayalex_normativos:
+37,240 → 37,833` (+593); `biblioteca_vectores` total: `81,243 → 81,836`
+(+593) — coincide dígito por dígito con lo especificado por el Fundador
+antes de iniciar. `stg_p0_ingesta` eliminada (`DROP TABLE`) inmediatamente
+después de confirmar el balance.
+
+**2 pruebas RAG obligatorias, ambas contra producción real, vía
+`buscar_biblioteca(embedding, coleccion, materia, limite)`** (consulta =
+embedding real de una fila recién insertada, contra su propia
+`materia`):
+
+- **Código Tributario**: query = embedding de `tributario_2016_a121`
+  ("Concepto y Clases de Determinación de Oficio") sobre
+  `materia='08_TRIBUTARIO'` → auto-match exacto (`similarity=1.0`) más
+  4 artículos semánticamente coherentes del mismo dominio (Liquidación
+  Administrativa a118, Deberes Generales a58, Formas de Determinación
+  a106, Etapas del Procedimiento a122), todos con `similarity > 0.91`.
+- **Constitución**: query = embedding de `constitucion_1982_a154`
+  (erradicación del analfabetismo) sobre `materia='00_CONSTITUCIONAL'`
+  → auto-match exacto (`similarity=1.0`) más vecinos temáticamente
+  correctos, incluido el Art. 150 que contiene literalmente el
+  encabezado "CAPITULO VIII DE LA EDUCACIÓN Y CULTURA" que agrupa al
+  propio Art. 154, `similarity > 0.87` en los 4 restantes.
+
+Retrieval semántico real confirmado funcionando para ambos cuerpos
+normativos recién cargados — no solo verificación de conteo.
+
+**Sin tocar**: `02_CIVIL`, `doc_*`, `Codigo de Familia`, ninguna otra
+`fuente` ya existente en `biblioteca_vectores`. Ningún cambio de código
+de aplicación en este turno — solo datos.
+
+**Pendiente, no ejecutado en este turno**: entrada en el índice de
+fuentes/documentación de producto que liste `Constitucion de la
+Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)`
+y `Codigo Tributario (Decreto 170-2016 - Consolidado SAR corte 2019)`
+como cuerpos normativos activos citables — fuera del alcance de esta
+tarea (solo ingesta de datos).
