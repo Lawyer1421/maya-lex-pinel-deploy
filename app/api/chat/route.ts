@@ -45,6 +45,7 @@ import {
   requiereEvidenciaCorpus,
   CORPUS_EVIDENCE_NOT_FOUND,
   MENSAJE_ABSTENCION_CORPUS,
+  FUENTES_DOCTRINALES,
   type FragmentoRAG,
 } from '@/lib/rag/search';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
@@ -164,16 +165,11 @@ export interface Cita {
   hash: string;
 }
 
-// Blindaje explícito (auditoría CLO 2026-09-02): en producción, las 1,481
-// filas de CPC_COMENTADO_ROMERO_2024 (doctrina/comentario, no norma) tienen
-// es_norma_vigente=NULL y fuente_tipo=NULL — el filtro `!== true` de abajo
-// ya las excluye hoy, pero de forma INCIDENTAL (depende de que nadie ponga
-// es_norma_vigente=true por error de ingesta futura). Esta lista hace la
-// exclusión de fuentes doctrinales/comentario explícita e independiente del
-// campo vigente, para que nunca aparezcan como fundamento normativo citable
-// aunque el dato de ingesta cambie. Añadir aquí cualquier otra fuente de
-// doctrina/comentario que se ingiera (comentarios, glosas, manuales).
-const FUENTES_DOCTRINALES = new Set<string>(['CPC_COMENTADO_ROMERO_2024']);
+// Blindaje explícito (auditoría CLO 2026-09-02): FUENTES_DOCTRINALES vive en
+// lib/rag/search.ts (una sola fuente de verdad, compartida también por
+// formatearContextoRAG() — ver comentario junto a su definición allí para el
+// detalle completo del hallazgo). Aquí se usa para excluir esas fuentes del
+// array de citas formales de la UI, independiente del campo es_norma_vigente.
 
 export function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
   const vistos = new Set<string>();
