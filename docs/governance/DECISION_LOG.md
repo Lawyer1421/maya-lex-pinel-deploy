@@ -1195,3 +1195,156 @@ de 593 filas + esta ratificación), working tree limpio, lista para
 revisión/PR del Fundador. Sin push ni merge a `main` ejecutado por el
 asistente en este cierre — acción de publicación externa/outward-facing
 que requiere confirmación explícita separada.
+
+---
+
+## 2026-09-02 — Auditoría post-PR#9 del CLO: radiografía completa, blindaje de citas y diseño del pliego de ingesta canónica
+
+**Directiva del Fundador**: dictamen del CLO exige (1) resolver la
+discrepancia aritmética de la radiografía anterior, (2) blindar
+`construirCitas` contra que doctrina/comentario aparezca como cita
+normativa formal, (3) diseñar (sin ejecutar) el esquema de ingesta para
+Decreto 102-2018 y CPP D.9-99-E. Cero INSERT/UPDATE en este turno salvo
+el cambio de código de la sección 2 (no es dato, es lógica de aplicación).
+
+### 1. Resolución de la discrepancia de ~15k filas
+
+La radiografía previa (2026-09-02, corte anterior) reportaba un Top 10
+de `fuente` con título legible que sumaba 6,861 filas, dejando sin
+explicar ~15,300 filas frente al total de 81,836. Consulta sin `LIMIT`
+sobre el 100% de las filas:
+
+| Categoría de `fuente` | Filas | % del total |
+|---|---:|---:|
+| `doc_xxxxxxxx` (hash opaco) | 66,534 | 81.3% |
+| `NULL` (columna sin poblar) | 8,366 | 10.2% |
+| Título legible (10 valores distintos) | 6,936 | 8.5% |
+
+**6,936, no 6,861** — la cifra anterior (Top 10) coincidía por
+construcción con el total real porque solo existen 10 valores de
+`fuente` legibles en toda la base; el error fue no sumar la categoría
+`NULL`, que es una tercera clase de fila **distinta** de los hashes
+`doc_*` (columna vacía, no un identificador ofuscado).
+
+**¿Qué son las 8,366 filas `fuente=NULL`?** Se concentran en 4 materias
+(`01_PENAL` 3,358 · `07_CONSTITUCIONAL` 2,630 · `06_FAMILIA` 2,369 ·
+`02_CIVIL` 9) y **ninguna trae `metadata.norm_id`**. Muestra de
+contenido confirma que son jurisprudencia (casos IDH), doctrina/manuales
+(ej. "Módulo Instruccional: Derecho Defensores Públicos Penal") y
+material procedimental — no texto de norma vigente citable; su propio
+`id` interno ya incrusta un sufijo `doc_xxxxxxxx`
+(`01_PENAL_6e0ce97f_0059_doc_6000f392`), es decir son la misma clase de
+carga masiva sin curar que las filas `doc_*`, solo que en estas materias
+la ingesta original no llegó a copiar el hash a la columna `fuente`.
+
+**Total corregido de corpus opaco/no identificable**: 66,534 + 8,366 =
+**74,900 de 81,836 filas (91.5%)** — más severo que el 81.3% reportado
+en el corte anterior. Esta es la cifra que debe entregarse al CLO como
+medida real de "falta de visibilidad directa".
+
+### 2. Art. 1 y Art. 634, Código Penal (Decreto 130-2017) — extracto para expediente
+
+> **Art. 1 — PRINCIPIO DE LEGALIDAD.** Nadie puede ser castigado por
+> acción u omisión que en el momento de su perpetración o comisión no
+> está prevista como delito o falta. Nadie puede ser castigado con una
+> pena o medida de seguridad que no ha sido previamente establecida por
+> la Ley e impuesta por Órgano Jurisdiccional competente conforme a las
+> leyes procesales. No puede ejecutarse pena ni medida de seguridad de
+> forma distinta a la prescrita por la Ley. La ley penal se aplica de
+> forma retroactiva en las disposiciones más favorables al imputado o
+> reo, así como al penado. No obstante y a no ser que se disponga
+> expresamente lo contrario, los hechos cometidos bajo la vigencia de
+> una ley temporal deben ser juzgados conforme a ella. La interpretación
+> de este Código se debe realizar conforme al sentido de la Ley y con
+> criterios de género. Se prohíbe la analogía salvo que beneficie al
+> imputado o reo, así como al penado.
+
+> **Art. 634 — ABROGACIÓN.** Derogar el Decreto No 144-83, de fecha 23
+> de Agosto de 1983, contentivo del Código Penal y todas sus reformas.
+
+Confirma, con texto literal, el hallazgo ya reportado: el corpus trae el
+Decreto 130-2017 completo (635 filas) y el 144-83 no existe como cuerpo
+propio — solo se le nombra en la cláusula de abrogación de su sucesor.
+
+### 3. Blindaje de citas — `CPC_COMENTADO_ROMERO_2024` fuera de citas formales
+
+**Hallazgo previo al fix**: las 1,481 filas de
+`CPC_COMENTADO_ROMERO_2024` tienen `es_norma_vigente=NULL` y
+`fuente_tipo=NULL` en producción (no `false` — nunca se marcaron
+explícitamente como no-vigentes). `construirCitas()`
+([app/api/chat/route.ts:167](../../app/api/chat/route.ts)) las excluía
+hoy solo por el filtro `f.es_norma_vigente !== true` — correcto en su
+efecto, pero **incidental**: dependía de que ninguna futura ingesta
+marcara por error `es_norma_vigente=true` sobre una fuente doctrinal.
+
+**Fix aplicado**: constante explícita `FUENTES_DOCTRINALES` (Set) en
+`app/api/chat/route.ts`, evaluada como primer filtro de
+`construirCitas()`, independiente del campo `vigente`. Hoy contiene
+`'CPC_COMENTADO_ROMERO_2024'`; cualquier futura fuente de
+doctrina/comentario/glosa debe añadirse a este set en el mismo commit
+que la ingesta. Test añadido en
+[tests/rag-citas-p0-2.test.ts](../../tests/rag-citas-p0-2.test.ts):
+verifica que Romero nunca entra como cita **incluso si** llegara
+marcado `es_norma_vigente=true` por error de ingesta futura — cierra la
+dependencia incidental descrita arriba. `tsc --noEmit` limpio, 15/15
+tests de citas en verde.
+
+Rama: `docs/env-example-cohere-key` (reutilizada de la tarea anterior de
+esta misma sesión; PR pendiente de abrir para este cambio de código).
+
+### 4. Diseño del pliego de ingesta canónica — Decreto 102-2018 y CPP (D. 9-99-E)
+
+**Solo diseño — cero ejecución.** Ningún INSERT corrido contra
+`biblioteca_vectores` en esta sección.
+
+**Hallazgo de reconciliación obligatorio antes de ingestar el CPP**: ya
+existe **una** fila curada manualmente para el CPP —
+`id: manual_curado:cpp_honduras:articulo_173`, `fuente: "Código Procesal
+Penal de Honduras (Decreto 9-99-E)"`, `fuente_tipo: 'codigo'`,
+`es_norma_vigente: true` — creada 2026-08-02 para resolver el incidente
+de producción del 2026-07-23 (Art. 173 rankeaba fuera del top-5 por
+similitud pura; ver comentario en `lib/rag/rerank.ts`). Su
+`metadata.embedding_reutilizado: true` y
+`metadata.embedding_pendiente_regeneracion: true` — el embedding de esa
+fila fue **prestado** de otro documento (`01_PENAL_...doc_6027f42f`),
+no generado del texto real. **La ingesta canónica del CPP debe
+reemplazar esta fila (mismo `id`, mismo `fuente`) con embedding
+regenerado real, no crear una fuente paralela** — de lo contrario el
+Art. 173 quedaría duplicado bajo dos `fuente` distintas o dos filas con
+el mismo `fuente` pero un embedding legítimo y otro prestado.
+
+**Contrato de columnas/metadata propuesto** (aplica a ambos
+instrumentos; normaliza el patrón hoy inconsistente entre P0-Tributario,
+Código Penal y la fila CPP-173, que usan tres formas distintas de
+metadata):
+
+| Columna | Regla | Ejemplo |
+|---|---|---|
+| `id` | `mayalex_normativos:<slug_instrumento>_a<N>` — semántico, **nunca** `doc_<hash>` | `mayalex_normativos:adopciones_2018_a12` |
+| `coleccion` | `mayalex_normativos` (fija, mismo patrón que P0) | — |
+| `materia` | Normalizada al catálogo existente — `06_FAMILIA` para Adopciones (mismo dominio que Código de Familia), `01_PENAL` para CPP | — |
+| `contenido` | Texto íntegro del artículo, sin metadata embebida, mismo formato que Código Penal 130-2017 | — |
+| `num_articulo` | String estricto, sin prefijos (`"12"`, no `"Art. 12"`) | `"12"` |
+| `fuente` | Título canónico único — reutilizar **exacto** el string ya en uso para CPP (`"Código Procesal Penal de Honduras (Decreto 9-99-E)"`); definir uno nuevo para Adopciones: `"Ley Especial de Adopciones (Decreto 102-2018)"` | — |
+| `fuente_tipo` | `'codigo'` (mismo valor que la fila CPP-173 ya en producción, para no introducir una 4ª variante junto a `NULL`/`'codigo'`/`'sentencia'`/`'doctrina'`) | — |
+| `jurisdiccion` | `'HN'` | — |
+| `es_norma_vigente` | `true` explícito para artículos vigentes, `false` explícito para derogados/transitorios — **nunca `NULL`** (la laguna que causó el hallazgo de la sección 3) | — |
+| `metadata.decreto` | Número de decreto, string | `"102-2018"` / `"9-99-E"` |
+| `metadata.norm_id` | Identificador estable del instrumento, mismo patrón que `HN_CODIGO_PENAL` | `"HN_LEY_ADOPCIONES"` / `"HN_CPP"` |
+| `metadata.fecha_publicacion` | Fecha de publicación en La Gaceta, ISO | `"2018-XX-XX"` |
+| `metadata.metodo_extraccion` | Trazabilidad de origen del texto (mismo campo que la fila CPP-173) | `"pdftotext -layout -enc UTF-8, verificado manualmente"` |
+| `metadata.hash_texto_sha256` | Hash del texto fuente, para integridad/idempotencia de re-ingesta | — |
+| `metadata.verificado` / `fecha_verificacion` | Booleano + fecha de revisión humana antes de publicar | — |
+| `embedding` | Generado real vía `intfloat/multilingual-e5-small`, prefijo `"passage: "` (mismo pipeline que `lib/rag/embed.ts`) — **nunca reutilizado de otra fila** | — |
+
+**Regla dura, explícita por directiva del Fundador**: **cero generación
+de `doc_<hash>` como `id` o como `fuente`** en este pliego — todo `id`
+y todo `fuente` deben ser semánticos y legibles, sin excepción, incluso
+para artículos transitorios o derogados.
+
+**Pendiente de decisión del Fundador antes de ejecutar** (no resuelto
+por diseño, requiere autorización explícita separada cuando se active):
+fuente del texto íntegro de ambos instrumentos (PDF oficial de La
+Gaceta a proveer), y si la reconciliación de la fila CPP-173 se hace
+como `UPDATE` in-place o `DELETE`+`INSERT` dentro de la misma
+transacción de la ingesta canónica del CPP completo.
