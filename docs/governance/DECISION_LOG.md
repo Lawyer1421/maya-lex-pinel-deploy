@@ -1348,3 +1348,50 @@ fuente del texto íntegro de ambos instrumentos (PDF oficial de La
 Gaceta a proveer), y si la reconciliación de la fila CPP-173 se hace
 como `UPDATE` in-place o `DELETE`+`INSERT` dentro de la misma
 transacción de la ingesta canónica del CPP completo.
+
+---
+
+## 2026-09-02 — Dictamen CLO: merge de PR #11 y condiciones duras para el próximo corte
+
+**1. Merge autorizado y ejecutado.** El CLO emite luz verde formal
+("🟢 merge") para PR #11. Ejecutado `--merge` (fast-forward
+`2e7ece2..47d8c01`) contra `main`. **Nota de trazabilidad**: la
+directiva nombró la rama a eliminar como
+`feature/isolate-doctrinal-citas-and-audit-report` — esa rama nunca
+existió en el remoto; la rama real detrás de PR #11, creada y pusheada
+por el asistente en el turno anterior, es
+`fix/blindaje-citas-doctrina-y-auditoria-clo`. Se eliminó esa (remota +
+local, `git fetch --prune` confirmado) y no la nombrada en la
+directiva, que no tenía correspondencia. `main` queda limpio y
+sincronizado con `origin/main` en `47d8c01`.
+
+**2. Backlog anotado — `FUENTES_DOCTRINALES` en etapa de retrieval.**
+Pendiente, no ejecutado: hoy `FUENTES_DOCTRINALES` (PR #11) solo excluye
+doctrina de la lista de citas formales (`construirCitas`,
+`app/api/chat/route.ts`); el contexto crudo inyectado al LLM
+(`lib/rag/search.ts` → `formatearContextoRAG`) sigue recibiendo
+fragmentos de `CPC_COMENTADO_ROMERO_2024` sin ese mismo filtro — el
+modelo puede seguir usándolos como contexto (correcto, es doctrina útil
+para razonar) pero deben llegar inequívocamente etiquetados como
+doctrina/comentario dentro del propio texto de contexto, no solo
+excluidos del array `Cita[]` de UI. Queda como tarea de código separada,
+no ejecutada en este turno.
+
+**3. Condiciones duras del CLO para el pliego de ingesta canónica**
+(ratifican y refuerzan el diseño de la entrada anterior; nada ejecutado):
+
+- **Decreto 102-2018 (Adopciones)**: `materia='06_FAMILIA'`; `fuente`
+  canónica única y legible (no `doc_*`); `es_norma_vigente` explícito
+  (`true`/`false`) en el 100% de las filas — **nunca `NULL`**.
+- **CPP (D. 9-99-E)**: la fila `manual_curado:cpp_honduras:articulo_173`
+  se reemplaza **in situ, en la misma transacción** que la ingesta
+  completa del CPP — prohibido crear una fuente paralela que fragmente
+  el Art. 173 entre dos `fuente` o dos embeddings distintos para el
+  mismo artículo.
+- **CERO INSERTs en `biblioteca_vectores`** hasta que el pliego completo
+  (ambos instrumentos) reciba aprobación formal explícita del Fundador
+  — el diseño de la entrada anterior es una propuesta, no una
+  autorización de ejecución.
+
+Ningún INSERT/UPDATE/DELETE ejecutado contra `biblioteca_vectores` en
+este turno. Único cambio: esta entrada de bitácora.
