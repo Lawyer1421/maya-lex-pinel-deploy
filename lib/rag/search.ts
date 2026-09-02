@@ -472,20 +472,32 @@ async function buscarEnSupabase(
   // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
   // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
   //
-  // Retrieval en dos etapas: el top-k por similitud pura puede quedar dominado
-  // por jurisprudencia/doctrina extranjera (puntúa más alto que el texto
-  // codificado plano) y dejar fuera la norma vigente real — confirmado en
-  // producción 2026-07-23 con "prisión preventiva" (Art. 173 CPP quedaba en
-  // la posición #8, fuera del top-5). Se fusiona el top-k normal con un
-  // top-3 adicional filtrado a solo_norma_vigente=true, para garantizar que
-  // el modelo siempre reciba algo de norma vigente hondureña cuando exista,
-  // sin importar cómo puntúe frente a la jurisprudencia comparada.
+  // Retrieval en dos etapas (Cohere rerank-v3.5, 2026-09-01):
+  //  Etapa 1 (aquí): en vez de traer directamente los k=5 finales por
+  //    similitud pura, se amplía la recuperación a RETRIEVAL_WIDE_K
+  //    candidatos — la similitud vectorial es barata pero imprecisa para
+  //    relevancia jurídica real; un embudo ancho le da más material al
+  //    reranker antes de decidir.
+  //  Etapa 2 (rerankearFragmentos, más abajo): Cohere reordena esos
+  //    candidatos por relevancia consulta-documento real y se trunca a los
+  //    k mejores — reemplaza a la similitud coseno como criterio final de
+  //    corte, con degradación elegante si Cohere no está disponible.
+  //
+  // El fusionado con un top-3 adicional filtrado a solo_norma_vigente=true
+  // se mantiene sin cambios: sigue siendo el mecanismo que garantiza que un
+  // artículo vigente con similitud pura baja (el caso real de producción,
+  // 2026-07-23: Art. 173 CPP en la posición #8 por similitud, fuera del
+  // top-5 de esa época) SIEMPRE entre al menos como candidato al pool que
+  // recibe el reranker — ya no depende de "forzar su inclusión final" sino
+  // de garantizarle una oportunidad justa de ranking por relevancia real,
+  // que es un criterio más fuerte que el hack de fusión que sustituye.
+  const RETRIEVAL_WIDE_K = Math.max(k, 25);
   const [normal, vigente] = await Promise.all([
     supabase.rpc('buscar_biblioteca_v2', {
       query_embedding: queryEmbedding,
       coleccion_filtro: coleccion,
       materia_filtro: materia ?? null,
-      limite: k,
+      limite: RETRIEVAL_WIDE_K,
     }),
     supabase.rpc('buscar_biblioteca_v2', {
       query_embedding: queryEmbedding,
@@ -538,10 +550,19 @@ async function buscarEnSupabase(
   // Se agrega un filtro adicional, deliberadamente angosto (solo
   // `fuente === null`, sin tocar la condición de D6b) para cerrar ese caso
   // sin duplicar ni reemplazar la función existente.
-  const fragmentos = fragmentosSinFiltrar
+  const candidatos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
     .filter((f) => !esRegistroNoVigenteExcluido(f))
     .filter((f) => f.fuente !== null);
+
+  // Etapa 2 del retrieval en dos etapas: Cohere reordena `candidatos` (hasta
+  // ~RETRIEVAL_WIDE_K + 3) por relevancia consulta-documento real y trunca a
+  // los k mejores. rerankearFragmentos() nunca lanza — si Cohere no está
+  // disponible, retorna candidatos.slice(0, k) en el mismo orden de
+  // similitud pgvector que tenía antes de esta integración (paridad de
+  // comportamiento con el pipeline previo en el camino de fallback).
+  const { rerankearFragmentos } = await import('@/lib/rag/rerank');
+  const fragmentos = await rerankearFragmentos(consulta, candidatos, k);
 
   const articulos = [...new Set(
     fragmentos
