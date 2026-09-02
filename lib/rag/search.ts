@@ -708,6 +708,28 @@ export async function buscarRAG(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FUENTES DOCTRINALES / COMENTARIO — NUNCA DERECHO POSITIVO VINCULANTE
+// ─────────────────────────────────────────────────────────────────────────────
+// Blindaje explícito (auditoría CLO 2026-09-02): en producción, las filas de
+// CPC_COMENTADO_ROMERO_2024 (doctrina/comentario, no norma) tienen
+// es_norma_vigente=NULL y fuente_tipo=NULL. Cualquier filtro basado solo en
+// esos campos es INCIDENTAL -- depende de que nadie los pueble mal en una
+// ingesta futura. Esta lista hace la exclusión/etiquetado explícito e
+// independiente de esos campos, en los dos puntos donde una fuente doctrinal
+// podría presentarse como si fuera norma vigente:
+//   1. construirCitas() (app/api/chat/route.ts) -- la excluye del array de
+//      citas formales de la UI.
+//   2. formatearContextoRAG() (abajo) -- la etiqueta inequívocamente dentro
+//      del propio contexto inyectado al modelo, para que el LLM nunca la
+//      trate como derecho positivo vinculante aunque siga usándola como
+//      referencia doctrinal.
+// Definida aquí (no en route.ts) para que ambos consumidores la importen de
+// una única fuente de verdad sin crear un import circular entre los dos
+// módulos. Añadir aquí cualquier otra fuente de doctrina/comentario/glosa
+// que se ingiera en el futuro.
+export const FUENTES_DOCTRINALES = new Set<string>(['CPC_COMENTADO_ROMERO_2024']);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // FORMATEAR CONTEXTO PARA EL SYSTEM PROMPT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -740,15 +762,21 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     // Supabase — esta etiqueta es la segunda capa de defensa, por si un
     // fragmento con este mismo patrón llega por otra vía (ej. backend
     // Python, o una recuperación exacta futura que no pase por ese filtro).
-    const etiqueta = f.es_norma_vigente === true
-      ? 'NORMA VIGENTE HONDURAS'
-      : f.jurisdiccion && f.jurisdiccion !== 'HN'
-        ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
-        : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
-          ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
-          : esRegistroNoVigenteExcluido(f)
-            ? 'NO VIGENTE — NO CITAR COMO NORMA'
-            : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
+    // Chequeo de FUENTES_DOCTRINALES primero y por separado del resto de la
+    // cadena: debe ganar incluso si es_norma_vigente llegara mal poblado
+    // como true por error de ingesta futura (mismo principio que en
+    // construirCitas() -- ver comentario junto a la constante).
+    const etiqueta = FUENTES_DOCTRINALES.has(f.fuente)
+      ? `FUENTE DOCTRINAL / COMENTARIO ACADÉMICO - NO VINCULANTE: ${f.fuente}`
+      : f.es_norma_vigente === true
+        ? 'NORMA VIGENTE HONDURAS'
+        : f.jurisdiccion && f.jurisdiccion !== 'HN'
+          ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
+          : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
+            ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
+            : esRegistroNoVigenteExcluido(f)
+              ? 'NO VIGENTE — NO CITAR COMO NORMA'
+              : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
     const tag = ` [${etiqueta}]`;
     lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);

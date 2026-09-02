@@ -63,4 +63,43 @@ describe('formatearContextoRAG — ninguna etiqueta queda en null', () => {
     );
     expect(ctx).toContain('[FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE]');
   });
+
+  it('FUENTES_DOCTRINALES (auditoría CLO 2026-09-02) → etiqueta explícita "NO VINCULANTE" en el contexto inyectado al modelo', () => {
+    const ctx = formatearContextoRAG(
+      resultado([
+        fragmento({
+          fuente: 'CPC_COMENTADO_ROMERO_2024',
+          fuente_tipo: null,
+          jurisdiccion: 'HN',
+          es_norma_vigente: null,
+        }),
+      ])
+    );
+    expect(ctx).toContain(
+      '[FUENTE DOCTRINAL / COMENTARIO ACADÉMICO - NO VINCULANTE: CPC_COMENTADO_ROMERO_2024]'
+    );
+    expect(ctx).not.toContain('FUENTE SIN CLASIFICAR');
+  });
+
+  it('FUENTES_DOCTRINALES gana incluso si es_norma_vigente=true llega por error de ingesta futura', () => {
+    const ctx = formatearContextoRAG(
+      resultado([
+        fragmento({
+          fuente: 'CPC_COMENTADO_ROMERO_2024',
+          fuente_tipo: 'codigo',
+          jurisdiccion: 'HN',
+          es_norma_vigente: true,
+        }),
+      ])
+    );
+    expect(ctx).toContain(
+      '[FUENTE DOCTRINAL / COMENTARIO ACADÉMICO - NO VINCULANTE: CPC_COMENTADO_ROMERO_2024]'
+    );
+    // La línea del FRAGMENTO específico no debe llevar la etiqueta de norma
+    // vigente (esa cadena sí aparece, sin corchetes de fragmento, dentro de
+    // la instrucción fija del pie de contexto -- por eso se verifica la
+    // línea, no el string completo).
+    const lineaFragmento = ctx.split('\n').find((l) => l.startsWith('[FRAGMENTO'));
+    expect(lineaFragmento).not.toContain('NORMA VIGENTE HONDURAS');
+  });
 });
