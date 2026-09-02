@@ -75,31 +75,32 @@
  */
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { sha256 } from '../lib/ingesta-oficial/hash';
 import { normalizarTexto } from '../lib/ingesta-oficial/extraccion';
 import { validarSinDatosPrivados } from '../lib/ingesta-oficial/validaciones';
 import type { ArticuloExtraido } from '../lib/ingesta-oficial/types';
 
-const PDF_FUENTE =
+export const PDF_FUENTE =
   'C:/Users/Fredy/OneDrive/SISTEMA_LEGAL_PRINCIPAL/00_ARCHIVOS_VARIOS/Biblioteca_Personal/Ley-Especial-de-Adopciones-DINAF.pdf';
 
-const FUENTE_CANONICA = 'Ley Especial de Adopciones de Honduras (Decreto 102-2018)';
-const MATERIA = '06_FAMILIA';
+export const FUENTE_CANONICA = 'Ley Especial de Adopciones de Honduras (Decreto 102-2018)';
+export const MATERIA = '06_FAMILIA';
 
 // Confirmado por el CLO (2026-09-02) contra el pie de página del propio
 // Decreto (DINAF, pág. 9) — ver nota "RESUELTO" arriba.
-const GACETA_CONFIRMADA = {
+export const GACETA_CONFIRMADA = {
   fecha_gaceta: '2019-01-10',
   publicacion: 'La Gaceta núm. 34,841',
 };
 
-function fallarDuro(motivo: string): never {
+export function fallarDuro(motivo: string): never {
   console.error(`\n🛑 FAIL-HARD: ${motivo}\n`);
   process.exit(1);
 }
 
 // ── 1. Extracción real del PDF ──────────────────────────────────────────
-function extraerTextoPDF(rutaPdf: string): string {
+export function extraerTextoPDF(rutaPdf: string): string {
   try {
     return execFileSync('pdftotext', ['-layout', '-enc', 'UTF-8', rutaPdf, '-'], {
       encoding: 'utf8',
@@ -118,7 +119,7 @@ function extraerTextoPDF(rutaPdf: string): string {
 // tramo real, desde "Por tanto, Decreta" hasta el inicio del bloque de
 // firmas ("Dado en la ciudad de Tegucigalpa..."), que cierra el cuerpo
 // dispositivo justo después del Artículo 64 (Vigencia, el último).
-function acotarCuerpoDispositivo(textoCrudo: string): string {
+export function acotarCuerpoDispositivo(textoCrudo: string): string {
   const inicioDecreta = textoCrudo.search(/Por tanto,\s*Decreta/i);
   if (inicioDecreta === -1) {
     fallarDuro('no se encontró la cláusula "Por tanto, Decreta" — el documento fuente pudo haber cambiado de formato');
@@ -135,7 +136,7 @@ function acotarCuerpoDispositivo(textoCrudo: string): string {
 // Aplicada ANTES de normalizarTexto() del pipeline compartido — ese es
 // genérico y determinístico, pero no conoce los encabezados/pies de
 // página específicos de esta edición.
-function limpiarRuidoDINAF(texto: string): string {
+export function limpiarRuidoDINAF(texto: string): string {
   return texto
     // Salto de página del PDF (form feed, 0x0C) — pdftotext lo inserta
     // entre páginas; no es contenido, es un artefacto de paginación.
@@ -175,7 +176,7 @@ function limpiarRuidoDINAF(texto: string): string {
 const PATRON_LIMITE_SEGMENTACION =
   /^\s*(?:Art[ií]culo\s+(\d+)\.-|Cap[ií]tulo\s+[IVXLCDM]+\b|Secci[oó]n\s+[IVXLCDM]+\b)/gim;
 
-function segmentarArticulosD102(textoNormalizado: string): ArticuloExtraido[] {
+export function segmentarArticulosD102(textoNormalizado: string): ArticuloExtraido[] {
   const coincidencias = [...textoNormalizado.matchAll(PATRON_LIMITE_SEGMENTACION)];
   const articulos: ArticuloExtraido[] = [];
   for (let i = 0; i < coincidencias.length; i++) {
@@ -193,7 +194,7 @@ function segmentarArticulosD102(textoNormalizado: string): ArticuloExtraido[] {
 // Exige una secuencia 1..N estrictamente consecutiva, sin huecos ni
 // duplicados -- cualquier desvío (ej. una referencia cruzada mal
 // segmentada como si fuera un artículo nuevo) lo detiene en seco.
-function validarSecuenciaCompleta(articulos: ArticuloExtraido[]): void {
+export function validarSecuenciaCompleta(articulos: ArticuloExtraido[]): void {
   if (articulos.length === 0) fallarDuro('no se segmentó ningún artículo del cuerpo acotado');
   const numeros = articulos.map((a) => Number(a.numArticulo));
   for (let i = 0; i < numeros.length; i++) {
@@ -216,7 +217,7 @@ const EXCEPCIONES_CIERRE_VERIFICADAS: Record<string, string> = {
 };
 
 // ── 5. Control de calidad fail-hard sobre cada fragmento segmentado ────
-function validarFragmentoFailHard(numArticulo: string, contenido: string): void {
+export function validarFragmentoFailHard(numArticulo: string, contenido: string): void {
   if (contenido.length < 20) {
     fallarDuro(`Art. ${numArticulo}: contenido sospechosamente corto (${contenido.length} caracteres) — posible segmentación fallida`);
   }
@@ -251,7 +252,7 @@ function validarFragmentoFailHard(numArticulo: string, contenido: string): void 
 }
 
 // ── 6. Contrato de columnas biblioteca_vectores ─────────────────────────
-interface RegistroCanonico {
+export interface RegistroCanonico {
   id: string;
   fuente: string;
   materia: string;
@@ -274,7 +275,7 @@ interface RegistroCanonico {
   contenido: string;
 }
 
-function construirRegistro(a: ArticuloExtraido): RegistroCanonico {
+export function construirRegistro(a: ArticuloExtraido): RegistroCanonico {
   return {
     id: `mayalex_normativos:adopciones_2018_a${a.numArticulo}`,
     fuente: FUENTE_CANONICA,
@@ -471,4 +472,10 @@ function main() {
   }
 }
 
-main();
+// Solo ejecuta main() cuando este archivo corre directamente (npx tsx
+// scripts/ingesta-d102-2018.ts) -- no cuando otro script lo importa para
+// reutilizar sus funciones (ej. scripts/insertar-d102-2018.ts), para no
+// disparar la extracción del PDF y el fail-hard como efecto colateral.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
