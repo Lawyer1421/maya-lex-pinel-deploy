@@ -1,6 +1,6 @@
 /**
  * scripts/ingesta-d102-2018.ts
- * Preparación LOCAL (staging, sin red) de los primeros 5 artículos del
+ * Preparación LOCAL (staging, sin red) del cuerpo COMPLETO de artículos del
  * Decreto No. 102-2018 (Ley Especial de Adopciones de Honduras), para
  * dictamen previo del CLO antes de cualquier ingesta real.
  *
@@ -15,44 +15,61 @@
  *   Biblioteca_Personal\Ley-Especial-de-Adopciones-DINAF.pdf
  *   — publicación oficial de DINAF (Dirección de Niñez, Adolescencia y
  *   Familia), primera edición agosto 2019, texto íntegro del Decreto
- *   No. 102-2018. Extraído con `pdftotext -layout -enc UTF-8` — mismo
- *   método ya registrado en producción para la fila
+ *   No. 102-2018 (64 artículos, del Objeto de la Ley hasta la Vigencia).
+ *   Extraído con `pdftotext -layout -enc UTF-8` — mismo método ya
+ *   registrado en producción para la fila
  *   manual_curado:cpp_honduras:articulo_173 (ver DECISION_LOG.md).
- *   (Había un segundo archivo candidato, ADOPCION.pdf, en la misma
- *   carpeta — descartado: 23 KB / 89 líneas de texto, es un resumen, no
- *   el texto íntegro del decreto.)
  *
- * ⚠ DISCREPANCIA DE METADATOS — PENDIENTE DE DICTAMEN DEL CLO:
- *   La directiva especificó fecha_gaceta="2019-01-21" y
- *   publicacion="La Gaceta No. 34,851". El pie de página del propio
- *   Decreto (DINAF, pág. 9) dice textualmente: "Publicado en el Diario
- *   Oficial La Gaceta núm. 34,841 del 10 de enero de 2019" — número de
- *   Gaceta Y fecha distintos de los indicados en la directiva. Este
- *   script emite el valor VERIFICADO contra la fuente primaria, nunca el
- *   de la directiva sin verificar — no se fabrica ni se asume cuál de
- *   los dos está equivocado. Ambos valores se imprimen al final, uno
- *   junto al otro, para que el CLO resuelva la discrepancia.
- *
- * ⚠ NOMBRE DE COLUMNA: la directiva pide "numero_articulo"; la columna
- *   real verificada en `biblioteca_vectores` (auditoría 2026-09-02) es
- *   `num_articulo`. Este script usa el nombre real de columna para que
- *   estos registros sean insertables tal cual el día que se autorice.
+ * RESUELTO por directiva del CLO 2026-09-02 (ya no es discrepancia
+ * abierta — histórico para trazabilidad):
+ *   - Convención de id: se cambió de "hn:decreto_102-2018:art_<N>" a
+ *     "mayalex_normativos:adopciones_2018_a<N>", alineada con la
+ *     convención canónica del Lote P0 (tributario_2016_a<N>,
+ *     constitucion_1982_a<N>).
+ *   - fecha_gaceta/publicacion: el CLO confirmó el valor VERIFICADO
+ *     contra el pie de página del propio Decreto (DINAF, pág. 9:
+ *     "Publicado en el Diario Oficial La Gaceta núm. 34,841 del 10 de
+ *     enero de 2019") — el valor que traía la directiva original
+ *     (34,851 / 21-ene-2019) no se usa en ningún registro.
+ *   - Nombre de columna: la directiva ya usa "num_articulo" (el nombre
+ *     real y verificado en producción), no "numero_articulo".
  *
  * ⚠ SEGMENTACIÓN — por qué este script NO reutiliza
  *   segmentarPorArticulo() de lib/ingesta-oficial/extraccion.ts tal
- *   cual: ese segmentador genérico corta por cualquier línea que
- *   empiece con "Artículo N". El texto real de este decreto contiene,
- *   dentro del propio Artículo 5 (Definiciones), una referencia cruzada
- *   que el ajuste de línea del PDF deja como línea propia: "Artículo 15
- *   de la presente Ley." (línea 348 del texto extraído). El segmentador
- *   genérico la tomaría como un encabezado de artículo nuevo, truncando
- *   el Artículo 5 real y creando un "Artículo 15" espurio. Los
- *   encabezados reales de este documento siempre traen ".-" pegado al
- *   número ("Artículo 1.- Objeto..."); las referencias cruzadas nunca
- *   ("Artículo 15 de la presente Ley."). Este script segmenta con esa
- *   distinción explícita — si esa convención cambiara en un futuro
- *   re-procesamiento, el control de conteo de abajo (exactamente
- *   ['1','2','3','4','5']) lo detendría en seco de todos modos.
+ *   cual, y dos problemas reales encontrados al extender la extracción
+ *   al cuerpo completo (más allá de los primeros 5 artículos, donde no
+ *   eran visibles):
+ *
+ *   1) Referencias cruzadas mal segmentadas. El texto contiene, dentro
+ *      del propio Artículo 5 (Definiciones), una referencia cruzada que
+ *      el ajuste de línea del PDF deja como línea propia: "Artículo 15
+ *      de la presente Ley." Un segmentador que corte por cualquier
+ *      línea que empiece con "Artículo N" la tomaría como un encabezado
+ *      nuevo. Los encabezados reales de este documento siempre traen
+ *      ".-" pegado al número ("Artículo 1.- Objeto..."); las
+ *      referencias cruzadas nunca. También hay dos referencias cruzadas
+ *      a "Capítulo" y una a "Sección" en el Art. 63 (Derogatorias) y en
+ *      otro punto del cuerpo -- ninguna con un número romano pegado, a
+ *      diferencia de los encabezados reales.
+ *
+ *   2) Encabezados de Capítulo/Sección intercalados entre artículos. El
+ *      documento intercala títulos de capítulo/sección ("Capítulo II /
+ *      Adoptabilidad y consentimiento / Sección I / Adoptabilidad")
+ *      entre el cierre de un artículo y el encabezado del siguiente. Una
+ *      segmentación que corte solo por "Artículo N.-" les asignaría ese
+ *      texto de encabezado al artículo ANTERIOR como si fuera parte de
+ *      su contenido (encontrado al procesar el Art. 5 completo: su
+ *      contenido se extendía hasta "Capítulo II ... Sección I ...
+ *      Adoptabilidad" en vez de terminar en "... tema de niñez.").
+ *
+ *   Este script resuelve ambos con un único patrón combinado que trata
+ *   "Artículo N.-", "Capítulo <romano>" y "Sección <romano>" como
+ *   límites de segmentación (solo cuando encabezan su propia línea),
+ *   pero conserva como artículo real únicamente los segmentos cuyo
+ *   límite es "Artículo N.-" -- los segmentos de Capítulo/Sección se
+ *   descartan (no tienen contenido normativo propio, solo título). El
+ *   control de secuencia (abajo) exige además 1..N consecutivo sin
+ *   huecos ni duplicados sobre el resultado final.
  */
 import { execFileSync } from 'node:child_process';
 import { sha256 } from '../lib/ingesta-oficial/hash';
@@ -65,15 +82,12 @@ const PDF_FUENTE =
 
 const FUENTE_CANONICA = 'Ley Especial de Adopciones de Honduras (Decreto 102-2018)';
 const MATERIA = '06_FAMILIA';
-const NUM_ARTICULOS_ESPERADOS = ['1', '2', '3', '4', '5'];
 
-const GACETA_VERIFICADA_CONTRA_PDF = {
+// Confirmado por el CLO (2026-09-02) contra el pie de página del propio
+// Decreto (DINAF, pág. 9) — ver nota "RESUELTO" arriba.
+const GACETA_CONFIRMADA = {
   fecha_gaceta: '2019-01-10',
   publicacion: 'La Gaceta núm. 34,841',
-};
-const GACETA_SEGUN_DIRECTIVA_CLO = {
-  fecha_gaceta: '2019-01-21',
-  publicacion: 'La Gaceta No. 34,851',
 };
 
 function fallarDuro(motivo: string): never {
@@ -93,24 +107,23 @@ function extraerTextoPDF(rutaPdf: string): string {
   }
 }
 
-// ── 2. Acotar al cuerpo dispositivo real del Decreto ────────────────────
+// ── 2. Acotar al cuerpo dispositivo real del Decreto (Art. 1 a Art. 64) ─
 // CRÍTICO: los "CONSIDERANDO" del preámbulo citan Artículo 59/111/116 de
 // la Constitución y Artículo 21 de la Convención de los Derechos del
 // Niño — si se segmentara el documento completo esas referencias se
 // confundirían con artículos propios del Decreto 102-2018. Se acota al
-// tramo real "Decreta ... Capítulo I ... Capítulo II" antes de segmentar,
-// y el "Capítulo II" se busca DESPUÉS de "Decreta" (el índice, al inicio
-// del PDF, también contiene la cadena "Capítulo II" y produciría un
-// corte prematuro si se buscara sobre el documento completo).
+// tramo real, desde "Por tanto, Decreta" hasta el inicio del bloque de
+// firmas ("Dado en la ciudad de Tegucigalpa..."), que cierra el cuerpo
+// dispositivo justo después del Artículo 64 (Vigencia, el último).
 function acotarCuerpoDispositivo(textoCrudo: string): string {
   const inicioDecreta = textoCrudo.search(/Por tanto,\s*Decreta/i);
   if (inicioDecreta === -1) {
     fallarDuro('no se encontró la cláusula "Por tanto, Decreta" — el documento fuente pudo haber cambiado de formato');
   }
   const tramoDesdeDecreta = textoCrudo.slice(inicioDecreta);
-  const finRelativo = tramoDesdeDecreta.search(/Cap[ií]tulo\s+II\b/);
+  const finRelativo = tramoDesdeDecreta.search(/Dado en la ciudad/i);
   if (finRelativo === -1) {
-    fallarDuro('no se encontró el encabezado "Capítulo II" después de "Decreta" — el documento fuente pudo haber cambiado de formato');
+    fallarDuro('no se encontró el bloque de firmas ("Dado en la ciudad...") después de "Decreta" — el documento fuente pudo haber cambiado de formato');
   }
   return tramoDesdeDecreta.slice(0, finRelativo);
 }
@@ -150,20 +163,54 @@ function limpiarRuidoDINAF(texto: string): string {
 }
 
 // ── 4. Segmentación estricta específica de este documento ──────────────
-const PATRON_ARTICULO_D102_2018 = /^\s*Art[ií]culo\s+(\d+)\.-\s*(.*)$/gim;
+// Límite de segmentación combinado: "Artículo N.-" (captura numArticulo
+// en el grupo 1), o "Capítulo <romano>" / "Sección <romano>" (sin grupo
+// 1 -- se usan solo para no dejarles su título colgado al artículo
+// anterior, se descartan después). Los tres exigen encabezar su propia
+// línea, que es justo lo que distingue un encabezado real de una
+// referencia cruzada dentro de la prosa (ver comentario del archivo).
+const PATRON_LIMITE_SEGMENTACION =
+  /^\s*(?:Art[ií]culo\s+(\d+)\.-|Cap[ií]tulo\s+[IVXLCDM]+\b|Secci[oó]n\s+[IVXLCDM]+\b)/gim;
 
 function segmentarArticulosD102(textoNormalizado: string): ArticuloExtraido[] {
-  const coincidencias = [...textoNormalizado.matchAll(PATRON_ARTICULO_D102_2018)];
+  const coincidencias = [...textoNormalizado.matchAll(PATRON_LIMITE_SEGMENTACION)];
   const articulos: ArticuloExtraido[] = [];
   for (let i = 0; i < coincidencias.length; i++) {
     const actual = coincidencias[i];
+    const numArticulo = actual[1];
+    if (numArticulo === undefined) continue; // límite de Capítulo/Sección -- no es un artículo, se descarta
     const siguiente = coincidencias[i + 1];
     const inicio = actual.index ?? 0;
     const fin = siguiente?.index ?? textoNormalizado.length;
-    articulos.push({ numArticulo: actual[1], contenido: textoNormalizado.slice(inicio, fin).trim() });
+    articulos.push({ numArticulo, contenido: textoNormalizado.slice(inicio, fin).trim() });
   }
   return articulos;
 }
+
+// Exige una secuencia 1..N estrictamente consecutiva, sin huecos ni
+// duplicados -- cualquier desvío (ej. una referencia cruzada mal
+// segmentada como si fuera un artículo nuevo) lo detiene en seco.
+function validarSecuenciaCompleta(articulos: ArticuloExtraido[]): void {
+  if (articulos.length === 0) fallarDuro('no se segmentó ningún artículo del cuerpo acotado');
+  const numeros = articulos.map((a) => Number(a.numArticulo));
+  for (let i = 0; i < numeros.length; i++) {
+    const esperado = i + 1;
+    if (numeros[i] !== esperado) {
+      fallarDuro(
+        `secuencia de artículos rota en la posición ${i + 1}: se esperaba el Artículo ${esperado} y se obtuvo el Artículo ${numeros[i]} — posible referencia cruzada mal segmentada o artículo faltante`,
+      );
+    }
+  }
+}
+
+// Excepciones al cierre de puntuación, verificadas MANUALMENTE contra el
+// PDF crudo (byte a byte, no solo el texto extraído) antes de añadirse
+// aquí -- nunca una relajación general de la regla. Cada entrada exige
+// haber confirmado que la ausencia de puntuación de cierre es del propio
+// documento oficial impreso, no un artefacto de extracción/limpieza.
+const EXCEPCIONES_CIERRE_VERIFICADAS: Record<string, string> = {
+  '10': 'La edición impresa de DINAF (pág. 22) termina esta oración sin punto final ("...ni puede realizarse trámite alguno de adopciones") -- verificado contra el PDF crudo con `cat -A`, no hay carácter suelto ni salto de página a mitad de la palabra. Se preserva el texto tal cual el original, sin corregir la omisión editorial.',
+};
 
 // ── 5. Control de calidad fail-hard sobre cada fragmento segmentado ────
 function validarFragmentoFailHard(numArticulo: string, contenido: string): void {
@@ -189,7 +236,11 @@ function validarFragmentoFailHard(numArticulo: string, contenido: string): void 
   }
   const ultimoCaracter = contenido.trim().slice(-1);
   if (!'.;:)'.includes(ultimoCaracter)) {
-    fallarDuro(`Art. ${numArticulo}: el contenido no termina en puntuación de cierre válida ('${ultimoCaracter}') — posible texto cortado`);
+    const excepcion = EXCEPCIONES_CIERRE_VERIFICADAS[numArticulo];
+    if (!excepcion) {
+      fallarDuro(`Art. ${numArticulo}: el contenido no termina en puntuación de cierre válida ('${ultimoCaracter}') — posible texto cortado`);
+    }
+    console.warn(`⚠️  Art. ${numArticulo}: cierre sin puntuación aceptado como excepción verificada manualmente — ${excepcion}`);
   }
   if (!new RegExp(`^Art[ií]culo\\s+${numArticulo}\\.-`).test(contenido)) {
     fallarDuro(`Art. ${numArticulo}: el contenido no comienza con su propio encabezado "Artículo ${numArticulo}.-"`);
@@ -222,7 +273,7 @@ interface RegistroCanonico {
 
 function construirRegistro(a: ArticuloExtraido): RegistroCanonico {
   return {
-    id: `hn:decreto_102-2018:art_${a.numArticulo}`,
+    id: `mayalex_normativos:adopciones_2018_a${a.numArticulo}`,
     fuente: FUENTE_CANONICA,
     materia: MATERIA,
     num_articulo: a.numArticulo,
@@ -234,15 +285,24 @@ function construirRegistro(a: ArticuloExtraido): RegistroCanonico {
       decreto: '102-2018',
       norm_id: 'HN_LEY_ESPECIAL_ADOPCIONES',
       tipo_instrumento: 'ley',
-      ...GACETA_VERIFICADA_CONTRA_PDF,
+      ...GACETA_CONFIRMADA,
       metodo_extraccion:
-        'pdftotext -layout -enc UTF-8 + limpieza de ruido DINAF y validación fail-hard automatizada (scripts/ingesta-d102-2018.ts) — PENDIENTE de verificación manual humana antes de ingesta real',
+        'pdftotext -layout -enc UTF-8 + limpieza de ruido DINAF y validación fail-hard automatizada (scripts/ingesta-d102-2018.ts) — PENDIENTE de verificación manual humana artículo por artículo antes de ingesta real',
       hash_texto_sha256: sha256(a.contenido),
       verificado: false,
       fecha_verificacion: null,
     },
     contenido: a.contenido,
   };
+}
+
+// Extrae, dentro del contenido ya segmentado del Art. 5, el párrafo
+// exacto que contiene la referencia cruzada "Artículo 15 de la presente
+// Ley" -- evidencia textual para expediente de que esa referencia quedó
+// DENTRO del Art. 5 y no partió el artículo en dos.
+function extraerParrafoConReferencia(contenidoArt5: string, frase: string): string | null {
+  const parrafos = contenidoArt5.split(/\n\n+/);
+  return parrafos.find((p) => p.includes(frase)) ?? null;
 }
 
 function main() {
@@ -255,74 +315,50 @@ function main() {
   // limpiarRuidoDINAF() reparadora de guiones de corte de línea busca
   // literalmente "-\n" -- si se aplicara antes, el \r sobrante entre el
   // guion y el salto de línea le impediría reconocer el patrón y dejaría
-  // palabras cortadas sin reparar (detectado por el fail-hard de abajo
-  // en la primera corrida de este script contra el PDF real).
+  // palabras cortadas sin reparar (detectado por el fail-hard en la
+  // primera corrida de este script contra el PDF real).
   const cuerpoLimpio = limpiarRuidoDINAF(normalizarTexto(cuerpoAcotado));
 
   const articulos = segmentarArticulosD102(cuerpoLimpio);
-  console.log(`Artículos segmentados en el tramo acotado: [${articulos.map((a) => a.numArticulo).join(', ')}]`);
+  validarSecuenciaCompleta(articulos);
 
-  const primeros5 = articulos.slice(0, 5);
-  const numerosObtenidos = primeros5.map((a) => a.numArticulo);
-  if (JSON.stringify(numerosObtenidos) !== JSON.stringify(NUM_ARTICULOS_ESPERADOS)) {
-    fallarDuro(
-      `se esperaban exactamente los artículos [${NUM_ARTICULOS_ESPERADOS.join(', ')}] y se obtuvieron [${numerosObtenidos.join(', ')}]`,
-    );
-  }
+  const TOTAL = articulos.length;
+  console.log(`Artículos segmentados en el cuerpo completo: ${TOTAL} (secuencia 1..${TOTAL} consecutiva, sin huecos ni duplicados — verificado)\n`);
 
-  for (const a of primeros5) validarFragmentoFailHard(a.numArticulo, a.contenido);
-
-  const errPII = validarSinDatosPrivados(primeros5);
+  for (const a of articulos) validarFragmentoFailHard(a.numArticulo, a.contenido);
+  const errPII = validarSinDatosPrivados(articulos);
   if (errPII) fallarDuro(errPII);
 
   console.log(
-    `\n✅ Fail-hard QC superado — ${primeros5.length}/5 fragmentos limpios, sin PII, con encabezado propio y cierre de puntuación válido.\n`,
+    `✅ Fail-hard QC superado — ${TOTAL}/${TOTAL} (100%) fragmentos limpios, sin PII, sin caracteres de control residuales, longitud no vacía, con encabezado propio y cierre de puntuación válido.\n`,
   );
 
-  const registros = primeros5.map(construirRegistro);
+  const registros = articulos.map(construirRegistro);
 
-  console.log('=== MUESTRA PARA DICTAMEN DEL CLO (5/5) ===\n');
+  console.log('=== RESUMEN DE LOS 64 REGISTROS (id, longitud, hash) ===\n');
   for (const r of registros) {
-    console.log(
-      JSON.stringify(
-        {
-          ...r,
-          contenido: r.contenido.length > 200 ? `${r.contenido.slice(0, 200)}…` : r.contenido,
-          contenido_longitud_total: r.contenido.length,
-        },
-        null,
-        2,
-      ),
-    );
-    console.log('');
+    console.log(`  ${r.id.padEnd(38)} | ${String(r.contenido.length).padStart(5)} chars | sha256:${r.metadata.hash_texto_sha256.slice(0, 12)}…`);
   }
 
-  console.log('=== ⚠ DISCREPANCIAS PENDIENTES DE DICTAMEN DEL CLO (sin resolver por este script) ===\n');
-  console.log(
-    JSON.stringify(
-      {
-        discrepancia: 'fecha_gaceta / publicacion',
-        segun_directiva_clo: GACETA_SEGUN_DIRECTIVA_CLO,
-        verificado_contra_pdf_oficial_dinaf: GACETA_VERIFICADA_CONTRA_PDF,
-        nota:
-          'El pie de página del propio Decreto (DINAF, pág. 9) dice: "Publicado en el Diario Oficial La Gaceta núm. 34,841 del 10 de enero de 2019" — número de Gaceta Y fecha distintos de los indicados en la directiva. Este script emitió el valor verificado contra la fuente primaria en los registros de arriba, no el de la directiva.',
-      },
-      null,
-      2,
-    ),
-  );
-  console.log(
-    JSON.stringify(
-      {
-        discrepancia: 'nombre de columna',
-        segun_directiva_clo: 'numero_articulo',
-        columna_real_en_produccion: 'num_articulo',
-        nota: 'biblioteca_vectores no tiene una columna numero_articulo — se usó el nombre real (verificado en la auditoría del 2026-09-02) para que estos registros sean insertables tal cual el día que se autorice la ingesta.',
-      },
-      null,
-      2,
-    ),
-  );
+  console.log('\n=== ⚖ EVIDENCIA TEXTUAL PARA EXPEDIENTE (exigida por el CLO) ===\n');
+
+  const art1 = articulos.find((a) => a.numArticulo === '1');
+  if (!art1) fallarDuro('no se encontró el Artículo 1 para la evidencia textual exigida');
+  console.log('--- Texto COMPLETO del Artículo 1 ---\n');
+  console.log(art1!.contenido);
+
+  const art5 = articulos.find((a) => a.numArticulo === '5');
+  if (!art5) fallarDuro('no se encontró el Artículo 5 para la evidencia textual exigida');
+  const FRASE = 'Artículo 15 de la presente Ley';
+  const parrafoConReferencia = extraerParrafoConReferencia(art5!.contenido, FRASE);
+  if (!parrafoConReferencia) {
+    fallarDuro(`no se encontró dentro del Art. 5 el párrafo con la frase "${FRASE}" -- la evidencia exigida por el CLO no puede construirse`);
+  }
+  const encabezadoArt5 = art5!.contenido.split('\n').slice(0, 2).join('\n');
+  console.log('\n--- Encabezado del Artículo 5 ---\n');
+  console.log(encabezadoArt5);
+  console.log(`\n--- Numeral/definición exacta del Art. 5 que contiene "${FRASE}" (prueba de que NO hubo partición indebida) ---\n`);
+  console.log(parrafoConReferencia);
 
   console.log(
     '\n🔒 CERO escrituras ejecutadas — este script no importa ningún cliente de Supabase, no abre conexión de red, y termina aquí. Pendiente de dictamen y aprobación formal del CLO antes de cualquier INSERT real.',
