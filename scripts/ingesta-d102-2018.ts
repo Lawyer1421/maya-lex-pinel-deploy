@@ -5,10 +5,12 @@
  * dictamen previo del CLO antes de cualquier ingesta real.
  *
  * Ejecutar: npx tsx scripts/ingesta-d102-2018.ts
+ * Ejecutar con expediente para PR: npx tsx scripts/ingesta-d102-2018.ts --expediente <ruta.md>
  *
- * CERO ESCRITURAS: este script no importa ningún cliente de Supabase, no
- * abre conexión de red, y no tiene ninguna vía hacia thgrhueckkjdutjvcufp.
- * Solo lee un PDF local y escribe a stdout.
+ * CERO ESCRITURAS EN PRODUCCIÓN: este script no importa ningún cliente de
+ * Supabase, no abre conexión de red, y no tiene ninguna vía hacia
+ * thgrhueckkjdutjvcufp. Lee un PDF local y escribe a stdout; con
+ * --expediente además escribe un .md local (nunca a la base de datos).
  *
  * Fuente documental (verificada localmente, 2026-09-02):
  *   C:\Users\Fredy\OneDrive\SISTEMA_LEGAL_PRINCIPAL\00_ARCHIVOS_VARIOS\
@@ -72,6 +74,7 @@
  *   huecos ni duplicados sobre el resultado final.
  */
 import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { sha256 } from '../lib/ingesta-oficial/hash';
 import { normalizarTexto } from '../lib/ingesta-oficial/extraccion';
 import { validarSinDatosPrivados } from '../lib/ingesta-oficial/validaciones';
@@ -305,6 +308,100 @@ function extraerParrafoConReferencia(contenidoArt5: string, frase: string): stri
   return parrafos.find((p) => p.includes(frase)) ?? null;
 }
 
+function ultimoParrafo(contenido: string): string {
+  const parrafos = contenido.split(/\n\n+/);
+  return parrafos[parrafos.length - 1];
+}
+
+function porNumero(articulos: ArticuloExtraido[], n: string): ArticuloExtraido {
+  const a = articulos.find((x) => x.numArticulo === n);
+  if (!a) fallarDuro(`expediente: no se encontró el Art. ${n} entre los segmentados`);
+  return a!;
+}
+
+// ── 7. Expediente documental para el dictamen del CLO (PR #14) ─────────
+// Genera el markdown exacto exigido por el CLO: tenores íntegros
+// auditados, matriz consolidada de los 64 registros, y declaración de
+// condiciones fail-hard. Todo derivado directamente de `articulos`/
+// `registros` ya validados -- ningún texto se retipea a mano, evita el
+// riesgo de transcripción que eso implicaría.
+function generarExpedienteMarkdown(articulos: ArticuloExtraido[], registros: RegistroCanonico[]): string {
+  const art1 = porNumero(articulos, '1');
+  const art5 = porNumero(articulos, '5');
+  const art10 = porNumero(articulos, '10');
+  const art60 = porNumero(articulos, '60');
+  const art63 = porNumero(articulos, '63');
+  const art64 = porNumero(articulos, '64');
+
+  const FRASE_ART15 = 'Artículo 15 de la presente Ley';
+  const numeralOrganismosAcreditados = extraerParrafoConReferencia(art5.contenido, FRASE_ART15);
+  if (!numeralOrganismosAcreditados) {
+    fallarDuro(`expediente: no se encontró en el Art. 5 el numeral con "${FRASE_ART15}"`);
+  }
+
+  const filas = registros
+    .map((r) => `| \`${r.id}\` | ${r.num_articulo} | ${r.contenido.length} | \`${r.metadata.hash_texto_sha256.slice(0, 12)}\` |`)
+    .join('\n');
+
+  return `# Expediente documental — Decreto 102-2018 (Ley Especial de Adopciones)
+
+Generado automáticamente por \`scripts/ingesta-d102-2018.ts\` a partir del PDF oficial de DINAF (verificado localmente), para el dictamen del CLO sobre este PR. **Cero escrituras SQL ejecutadas contra producción (thgrhueckkjdutjvcufp) en la generación de este expediente.**
+
+## 1. Tenores íntegros auditados
+
+### Art. 1 — completo
+
+\`\`\`
+${art1.contenido}
+\`\`\`
+
+### Art. 5 — numeral "Organismos Acreditados" completo (remisión al Art. 15 sin corte)
+
+\`\`\`
+${numeralOrganismosAcreditados}
+\`\`\`
+
+### Art. 10 — texto de cierre literal
+
+Termina en "...trámite alguno de adopciones" **sin punto final**, tal como aparece en la Gaceta núm. 34,841 (edición DINAF, pág. 22) — verificado byte a byte contra el PDF crudo, no es artefacto de extracción:
+
+\`\`\`
+${ultimoParrafo(art10.contenido)}
+\`\`\`
+
+### Art. 60 — completo (Reformas al Código de la Niñez y la Adolescencia)
+
+\`\`\`
+${art60.contenido}
+\`\`\`
+
+### Art. 63 — completo (Derogatorias — D. 75-84, Capítulos I y VI del Código de Familia)
+
+\`\`\`
+${art63.contenido}
+\`\`\`
+
+### Art. 64 — completo (Vigencia)
+
+\`\`\`
+${art64.contenido}
+\`\`\`
+
+## 2. Matriz consolidada de los 64 registros
+
+| ID | num_articulo | Longitud (chars) | SHA256 (primeros 12 hex) |
+|---|---|---:|---|
+${filas}
+
+## 3. Condiciones fail-hard declaradas (pre-condiciones para la futura ejecución)
+
+- **ROW_COUNT = 64 exacto** — verificado en esta corrida: secuencia 1..64 estrictamente consecutiva, sin huecos ni duplicados.
+- **IDs canónicos** \`mayalex_normativos:adopciones_2018_a1\` a \`...a64\` — verificado, cero \`doc_*\`.
+- **\`es_norma_vigente = true\`, \`fuente_tipo = 'ley'\`, \`materia = '06_FAMILIA'\`** en el 100% de los 64 registros — verificado.
+- **CERO UPDATE masivo sobre la materia \`06_FAMILIA\`.** Esta preparación es exclusivamente aditiva (INSERT de 64 filas nuevas bajo \`fuente = '${FUENTE_CANONICA}'\`, un valor de \`fuente\` que hoy no existe en \`biblioteca_vectores\`). Los stubs \`123-A\` y \`123-B\` de \`Codigo de Familia\` (\`es_norma_vigente=false\`) no son tocados por ninguna operación de este pliego — permanecen inalterados.
+`;
+}
+
 function main() {
   console.log('=== Preparación de ingesta canónica — Decreto 102-2018 (Ley Especial de Adopciones) ===');
   console.log(`Fuente PDF: ${PDF_FUENTE}\n`);
@@ -361,8 +458,17 @@ function main() {
   console.log(parrafoConReferencia);
 
   console.log(
-    '\n🔒 CERO escrituras ejecutadas — este script no importa ningún cliente de Supabase, no abre conexión de red, y termina aquí. Pendiente de dictamen y aprobación formal del CLO antes de cualquier INSERT real.',
+    '\n🔒 CERO escrituras SQL ejecutadas — este script no importa ningún cliente de Supabase, no abre conexión de red, y termina aquí. Pendiente de dictamen y aprobación formal del CLO antes de cualquier INSERT real.',
   );
+
+  const flagIdx = process.argv.indexOf('--expediente');
+  if (flagIdx !== -1) {
+    const rutaSalida = process.argv[flagIdx + 1];
+    if (!rutaSalida) fallarDuro('--expediente requiere una ruta de archivo de salida');
+    const markdown = generarExpedienteMarkdown(articulos, registros);
+    writeFileSync(rutaSalida, markdown, 'utf8');
+    console.log(`\n📄 Expediente documental escrito en: ${rutaSalida} (${markdown.length} caracteres)`);
+  }
 }
 
 main();
