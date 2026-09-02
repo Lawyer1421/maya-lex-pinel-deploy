@@ -73,6 +73,16 @@ describe('construirCitas — P0-2 pipeline de citas exactas', () => {
     expect(construirCitas([frag({ es_norma_vigente: false }), frag({ es_norma_vigente: null })])).toEqual([]);
   });
 
+  it('CPC_COMENTADO_ROMERO_2024 (doctrina) NUNCA entra como cita, incluso si llega marcado es_norma_vigente=true por error de ingesta', () => {
+    const citas = construirCitas([
+      frag({ num_articulo: '5', fuente: 'CPC_COMENTADO_ROMERO_2024', es_norma_vigente: true }),
+      frag({ num_articulo: '5', fuente: 'TSC', es_norma_vigente: true }),
+    ]);
+    expect(citas).toHaveLength(1);
+    expect(citas[0].fuente).toBe('TSC');
+    expect(citas.some((c) => c.fuente === 'CPC_COMENTADO_ROMERO_2024')).toBe(false);
+  });
+
   it('preserva el orden de aparición de los fragmentos de entrada', () => {
     const citas = construirCitas([
       frag({ num_articulo: '10', fuente: 'TSC' }),
