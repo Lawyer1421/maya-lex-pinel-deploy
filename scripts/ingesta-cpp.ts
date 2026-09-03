@@ -1,9 +1,11 @@
 /**
  * scripts/ingesta-cpp.ts
  * Preparación LOCAL (staging, sin red) del cuerpo COMPLETO de artículos del
- * Código Procesal Penal de Honduras (Decreto 9-99-E), para dictamen del CLO
- * antes de cualquier ingesta real, contemplando la sustitución in situ de la
- * fila manual `manual_curado:cpp_honduras:articulo_173`.
+ * Código Procesal Penal de Honduras (Decreto 9-99-E), a partir de la
+ * EDICIÓN CONSOLIDADA del Centro Electrónico de Documentación e Información
+ * Judicial (CEDIJ, Poder Judicial de Honduras), para dictamen del CLO antes
+ * de cualquier ingesta real, contemplando la sustitución in situ de la fila
+ * manual `manual_curado:cpp_honduras:articulo_173`.
  *
  * Ejecutar: npx tsx scripts/ingesta-cpp.ts
  *
@@ -12,87 +14,88 @@
  * thgrhueckkjdutjvcufp. Lee un PDF local y escribe a stdout. El bloque SQL
  * que imprime al final es texto DECLARADO, no ejecutado.
  *
- * Fuente documental (verificada localmente, 2026-09-02):
- *   C:\Users\Fredy\OneDrive\SISTEMA_LEGAL_PRINCIPAL\02_EJERCICIO_LEGAL\
- *   05_LEYES_Y_CODIGOS\Codigo Procesal penal de Honduras.pdf
- *   — edición compilada del Centro Electrónico de Documentación e
- *   Información Judicial (CEDIJ), Poder Judicial de Honduras, Febrero/2002,
- *   texto íntegro del Decreto No. 9-99-E. Extraído con
- *   `pdftotext -layout -enc UTF-8` — mismo método ya registrado en
- *   producción para la fila manual_curado:cpp_honduras:articulo_173, cuyo
- *   metadata.pagina_impresa='50' coincide exactamente con el artefacto de
- *   paginación embebido dentro del propio Art. 173 en esta extracción,
- *   confirmando que es el mismo documento fuente.
+ * ═══════════════════════════════════════════════════════════════════════
+ * CAMBIO DE FUENTE (dictamen del CLO, 2026-09-02): la fuente anterior
+ * (edición DECRETO 9-99-E de 1999 pura, sin reformas integradas) fue
+ * reemplazada por la edición CONSOLIDADA moderna localizada localmente:
  *
- * ⚠ DELIMITACIÓN DOCUMENTAL (dictamen de preingesta del CLO, 2026-09-02):
- *   El cuerpo dispositivo real va del Art. 1 (Libro Primero, Título I,
- *   Capítulo Único) al Art. 447 y su fórmula de cierre ("Dado en la Ciudad
- *   de Tegucigalpa... a los diecinueve días del mes de diciembre de mil
- *   novecientos noventa y nueve"). El PDF fuente trae ADEMÁS, a
- *   continuación de esa fórmula de cierre y de las firmas, el texto
- *   íntegro del DECRETO 195-2004 (reforma al procedimiento de altos
- *   funcionarios), con su propia numeración de artículos reiniciada desde
- *   el 1 — que colisionaría con los Arts. 1, 3, 4, 414-417 del Decreto
- *   9-99-E si no se excluyera. Este script acota el cuerpo ANTES de esa
- *   primera ocurrencia de "Dado en la Ciudad de Tegucigalpa", excluyendo
- *   por completo el Decreto 195-2004 — verificado: sin la acotación, la
- *   detección de duplicados sube de 8 grupos (373-380, ver abajo) a 15
- *   (suma de 1,3,4,373,374,375,376,377,378,379,380,414,415,416,417, estos
- *   últimos 7 números pertenecientes al 195-2004); acotando correctamente
- *   al cuerpo del 9-99-E, quedan exactamente los 8 grupos esperados.
+ *   C:\Users\Fredy\OneDrive\Email attachments\Documentos\CODIGOS\
+ *   Codigo Procesal Penal (2024).pdf
  *
- * ⚠ DISPOSITIVOS DEROGADOS (Arts. 373-380) — hallazgo y resolución:
- *   Dentro del cuerpo ya acotado del Decreto 9-99-E (sin el 195-2004), el
- *   propio compilador del CEDIJ intercala DOS bloques bajo los mismos
- *   ocho números 373 a 380:
- *     1) Un bloque de 8 líneas breves "ARTÍCULO N.-Derogado" (encabezado
- *        "TÍTULO III / DE LA REVISIÓN / CAPÍTULO ÚNICO / DE LAS NORMAS A
- *        QUE ESTÁ SUJETA LA REVISIÓN"), seguido de una nota del propio
- *        compilador, verificada aquí AUTOMÁTICAMENTE (no solo por
- *        dictamen), que cita textualmente:
- *          "REVISION, Articulo 373,374, 375, 376,377,378,379,380 fueron
- *           derogados por la Ley Sobre Justicia Constitucional Decreto
- *           244-2003, publicada en el Diario Oficial la Gaceta No. 30,792
- *           de fecha 3 de septiembre de 2005. Para los casos anteriores a
- *           la derogación el texto es el que a continuación se lee;"
- *     2) Inmediatamente después, un SEGUNDO bloque bajo los MISMOS ocho
- *        números (373 "Casos en que procede la Revisión..." hasta 380),
- *        con contenido sustantivo real — que la propia nota del
- *        compilador encuadra como el texto aplicable únicamente a "los
- *        casos anteriores a la derogación" (es decir, texto histórico de
- *        aplicación transitoria a casos previos a septiembre de 2005, no
- *        derecho vigente para casos nuevos).
+ * Verificada por inspección directa (no es una suposición): es una
+ * compilación oficial del CEDIJ/Poder Judicial con aparato de notas al pie
+ * numeradas (78 notas), cada una citando el Decreto, fecha y Gaceta exactos
+ * de cada reforma. Confirmado por lectura del propio documento que integra
+ * TODAS las reformas exigidas por el CLO:
+ *   - D.14-2006: Arts. 26-A, 219-A                          ✓ verificado
+ *   - D.74-2013: Arts. 440-A al 440-O (Flagrancia)          ✓ verificado
+ *   - D.22-2015: Arts. 237-A, 237-B                         ✓ verificado
+ *   - D.70-2015: Arts. 402-A al 402-G                       ✓ verificado
+ *   - D.195-2004: Arts. 414-417 (tenor reformado integrado  ✓ verificado
+ *     directamente en la secuencia principal, sin el anexo separado que
+ *     traía la edición 1999 -- por eso esta edición NO requiere excluir
+ *     ningún "Decreto 195-2004" apéndice, a diferencia del script anterior)
+ * Además halladas (no exigidas explícitamente por el CLO, pero presentes
+ * en la fuente y por tanto incluidas para una ingesta fiel y completa):
+ * Arts. 26-B, 127-A, 127-B, 173-A, 173-B, 224-A, 336-A.
  *
- *   RESOLUCIÓN (dictamen del CLO, 2026-09-02): se ingresa UNA fila por
- *   cada uno de los ocho números (a373..a380), es_norma_vigente=false,
- *   con el contenido registrando la mención de derogatoria (nota de
- *   compilación, citada literalmente arriba — no una afirmación
- *   independiente de este script). El segundo bloque (texto histórico
- *   "Casos en que procede la Revisión...") se OMITE deliberadamente de
- *   esta ingesta -- ingerirlo bajo los mismos ocho números violaría la
- *   prohibición expresa de duplicar IDs, y el propio compilador lo
- *   encuadra como aplicable solo a casos anteriores a la derogación, no
- *   como derecho vigente. Este script lo detecta, lo cuenta y lo excluye
- *   de forma fail-hard verificable (ver detectarZonaContestada373a380) --
- *   nunca lo descarta en silencio: si la forma del bloque cambiara
- *   respecto de lo aquí verificado, el script falla en vez de adivinar.
- *   Queda como pendiente explícito para una futura revisión del equipo
- *   jurídico del fundador si ese texto histórico amerita su propia
- *   ingesta bajo un identificador distinto (ver nota en el reporte final).
+ * ═══════════════════════════════════════════════════════════════════════
+ * NOTAS AL PIE — hallazgo central de esta edición y por qué cambia el
+ * diseño del pipeline por completo respecto de la edición 1999 pura:
  *
- * ⚠ SEGMENTACIÓN — mismo riesgo de contaminación por encabezados de
- *   Libro/Título/Capítulo/Sección intercalados ya resuelto para el
- *   Decreto 102-2018 (ver scripts/ingesta-d102-2018.ts): se usa un patrón
- *   combinado que trata "ARTÍCULO N[-Letra].-" y los encabezados
- *   estructurales como límites de segmentación, descartando estos
- *   últimos. El encabezado real de artículo en este documento admite
- *   variantes tipográficas de OCR/imprenta verificadas contra el PDF
- *   (p.ej. "ARTCULO 10.-" sin la Í, "ARTÍCULO 92. -Función." con espacio
- *   antes del guion, "ARTÍCULO 241. Personas..." con punto sin guion) --
- *   el patrón las tolera todas. También admite (sin que existan
- *   actualmente en este documento, verificado por barrido completo)
- *   artículos "bis"/con letra tipo "26-A" o "402-A", para no romper si
- *   una edición futura los trajera.
+ * El aparato de notas está renderizado por pdftotext linealmente dentro
+ * del propio cuerpo del texto (no hay separación de página/nota real en
+ * texto plano). Cada nota aparece como un párrafo que empieza con su
+ * número desnudo ("3 Artículo 26-A. Adicionado por Decreto 14-2006...");
+ * el número de nota vuelve a aparecer, PEGADO sin espacio (o a veces con
+ * un espacio simple antes de un salto de línea), justo después del texto
+ * o encabezado al que anota (ej. "Artículo 26-A.3 Acción pública...",
+ * "TÍTULO III62"). Sin depurar esto:
+ *   (a) el marcador pegado ("26-A.3") contamina el INICIO del contenido
+ *       del artículo siguiente;
+ *   (b) el párrafo completo de la nota (con su cita "Reformado por
+ *       Decreto...") queda dentro del contenido del artículo que anota,
+ *       si no se recorta.
+ *
+ * Los números de nota son estrictamente CRECIENTES en todo el documento
+ * (1, 2, 3, ..., 78) según el orden en que aparecen los artículos
+ * reformados -- se aprovecha esa propiedad para detectarlas con precisión
+ * (ver detectarNotasAlPie): una línea que empieza con un número desnudo
+ * SOLO cuenta como inicio de nota si ese número es exactamente el
+ * siguiente esperado en la secuencia. Esto evita falsos positivos de
+ * líneas que, por el ajuste de columna de `pdftotext -layout`, empiezan
+ * por casualidad con un número que en realidad es la continuación de una
+ * oración (verificado: sin este control secuencial aparecían "notas"
+ * fantasma hasta el número 436, todas espurias).
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * REFERENCIAS CRUZADAS A MITAD DE LÍNEA -- en esta edición, a diferencia
+ * del Decreto 102-2018 (donde los encabezados reales siempre traían ".-"
+ * y las referencias cruzadas nunca), TANTO un encabezado real
+ * ("Artículo 303. Remisión de actuaciones...") COMO una referencia
+ * cruzada que cae al inicio de línea por ajuste de columna
+ * ("...a que se refiere el\nArtículo 303. El Órgano...") usan EXACTAMENTE
+ * el mismo formato tipográfico. Se distinguen por el CONTEXTO, no por la
+ * forma del propio encabezado -- ver esLimiteReal(): un límite real
+ * siempre viene precedido de (a) una línea en blanco, o (b) puntuación de
+ * cierre de oración, o (c) un encabezado estructural en mayúsculas, o
+ * (d) la palabra "Derogado" (excepción verificada para Arts. 223/373-380,
+ * que en esta edición no cierran con punto); una referencia cruzada a
+ * mitad de oración no cumple ninguna de las cuatro.
+ *
+ * ═══════════════════════════════════════════════════════════════════════
+ * ARTS. 373-380 -- ya NO hay bloque duplicado en esta edición (a
+ * diferencia de la edición 1999 pura, que traía el bloque "Derogado" MÁS
+ * un bloque histórico completo bajo los mismos números). Aquí cada uno
+ * aparece UNA sola vez, como "Artículo N. Derogado", con una nota al pie
+ * consolidada (nota 62) citando la derogatoria por la Ley sobre Justicia
+ * Constitucional (Decreto 244-2003). Este script generaliza el criterio:
+ * CUALQUIER artículo cuyo contenido (tras su encabezado) sea exactamente
+ * "Derogado" o "Derogado." se marca es_norma_vigente=false, con la cita
+ * de derogatoria extraída de su propia nota al pie -- lo que también
+ * resuelve, sin caso especial, los Arts. 223 (D.243-2011) y 418/419
+ * (D.195-2004), hallados en esta pasada y no exigidos explícitamente por
+ * el CLO pero presentes en la fuente.
  */
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -102,23 +105,33 @@ import { validarSinDatosPrivados } from '../lib/ingesta-oficial/validaciones';
 import type { ArticuloExtraido } from '../lib/ingesta-oficial/types';
 
 export const PDF_FUENTE =
-  'C:/Users/Fredy/OneDrive/SISTEMA_LEGAL_PRINCIPAL/02_EJERCICIO_LEGAL/05_LEYES_Y_CODIGOS/Codigo Procesal penal de Honduras.pdf';
+  'C:/Users/Fredy/OneDrive/Email attachments/Documentos/CODIGOS/Codigo Procesal Penal (2024).pdf';
 
 export const FUENTE_CANONICA = 'Código Procesal Penal de Honduras (Decreto 9-99-E)';
 export const MATERIA = '01_PENAL';
 export const DECRETO = '9-99-E';
 export const NORM_ID = 'HN_CODIGO_PROCESAL_PENAL';
+export const EDICION_FUENTE =
+  'Compilación consolidada del Centro Electrónico de Documentación e Información Judicial (CEDIJ), Poder Judicial de Honduras -- edición con reformas integradas hasta Decreto 74-2013 (Flagrancia)';
 
 // Fila manual a reconciliar in situ (ver DECISION_LOG.md).
 export const ID_STUB_MANUAL_ART173 = 'manual_curado:cpp_honduras:articulo_173';
 
-// Cita literal del compilador (CEDIJ / Poder Judicial), verificada
-// AUTOMÁTICAMENTE contra el texto extraído en verificarNotaDerogatoria() --
-// no es una afirmación independiente de este script ni del CLO sin
-// respaldo textual: es lo que el propio documento fuente dice.
-export const DECRETO_DEROGATORIO = '244-2003';
-export const LEY_DEROGATORIA = 'Ley sobre Justicia Constitucional';
-export const GACETA_DEROGATORIA = 'La Gaceta No. 30,792 de fecha 3 de septiembre de 2005';
+// Arts. bis exigidos explícitamente por el dictamen del CLO -- fail-hard si
+// falta alguno. No es una lista cerrada: pueden existir MÁS artículos bis
+// en la fuente (y de hecho los hay -- ver cabecera del archivo) sin que eso
+// sea un error; esta lista es un PISO mínimo verificable, no un techo.
+export const LITERALES_REFORMADOS_REQUERIDOS = [
+  '26-A', '219-A', // D.14-2006
+  '237-A', '237-B', // D.22-2015
+  '402-A', '402-B', '402-C', '402-D', '402-E', '402-F', '402-G', // D.70-2015
+  '440-A', '440-B', '440-C', '440-D', '440-E', '440-F', '440-G', '440-H',
+  '440-I', '440-J', '440-K', '440-L', '440-M', '440-N', '440-O', // D.74-2013
+];
+// Arts. base exigidos con tenor reformado integrado (D.195-2004) -- deben
+// existir como artículos BASE normales (sin sufijo), ya que en esta
+// edición vienen reformados in situ, no como anexo aparte.
+export const BASE_REFORMADOS_REQUERIDOS = ['414', '415', '416', '417'];
 
 export function fallarDuro(motivo: string): never {
   console.error(`\n🛑 FAIL-HARD: ${motivo}\n`);
@@ -138,9 +151,11 @@ export function extraerTextoPDF(rutaPdf: string): string {
 }
 
 // ── 2. Acotar al cuerpo dispositivo real del Decreto 9-99-E ────────────
-// Excluye el preámbulo (portada CEDIJ, "DECRETA: El siguiente:") y, sobre
-// todo, EXCLUYE por completo el Decreto 195-2004 anexado a continuación de
-// la fórmula de cierre -- ver nota "DELIMITACIÓN DOCUMENTAL" arriba.
+// Esta edición consolidada NO trae anexado el Decreto 195-2004 (sus
+// reformas ya están integradas in situ en Arts. 414-417) -- verificado:
+// el documento termina justo después de la fórmula de cierre y las firmas
+// del propio Decreto 9-99-E, sin texto adicional. Se acota igual por
+// robustez (si una futura edición SÍ trajera un anexo, esto lo excluiría).
 export function acotarCuerpoDispositivo(textoCrudo: string): string {
   const marcaInicio = 'El siguiente:';
   const inicioIdx = textoCrudo.indexOf(marcaInicio);
@@ -155,201 +170,290 @@ export function acotarCuerpoDispositivo(textoCrudo: string): string {
   return tramoDesdeInicio.slice(0, finRelativo);
 }
 
-// ── 3. Limpieza específica de esta edición (ruido de paginación CEDIJ) ─
-// Aplicada DESPUÉS de normalizarTexto() (que resuelve \r\n -> \n primero;
-// ver mismo bug ya documentado y corregido para el Decreto 102-2018).
-export function limpiarRuidoCPP(texto: string): string {
-  return texto
-    // Salto de página del PDF (form feed, 0x0C) — no es contenido.
-    .replace(/\f/g, '\n')
-    // Números de página sueltos en su propia línea (1 a 4 dígitos,
-    // fuertemente sangrados a la derecha en el original) — verificado:
-    // 190 ocurrencias en todo el documento, todas artefactos de
-    // paginación (incluida la que aparece a mitad del Art. 173, cuyo
-    // valor "50" coincide con metadata.pagina_impresa de la fila manual
-    // a reconciliar). Nunca contenido real: ningún artículo del cuerpo
-    // consiste en una línea con solo un número.
-    .replace(/^[ \t]*\d{1,4}[ \t]*$/gm, '')
-    // Repara guiones de corte de línea del PDF ("vigi-\nlancia" ->
-    // "vigilancia"), igual que en el Decreto 102-2018. Solo une cuando la
-    // continuación empieza en minúscula, para no fusionar enumeraciones
-    // ("10)", "11)") con la palabra siguiente.
-    .replace(/(\p{L})-\n\s*\n?\s*(\p{Ll})/gu, '$1$2')
-    // Recorta espacios horizontales colgantes antes de un salto de línea
-    // y colapsa el hueco en blanco que dejan las remociones de arriba.
-    .replace(/[ \t]+(?=\n)/g, '')
-    .replace(/\n{3,}/g, '\n\n');
+// ── 3. Detección y eliminación de notas al pie ──────────────────────────
+export interface NotaAlPie {
+  num: number;
+  texto: string; // texto completo de la nota, espacios colapsados
 }
 
-// ── 4. Segmentación estricta específica de este documento ──────────────
-// Límite combinado: "ARTÍCULO N[-Letra].-" (grupo 1 = número, grupo 2 =
-// letra bis opcional, no usada actualmente pero soportada), o encabezado
-// estructural Libro/Título/Capítulo/Sección (romano o "ÚNICO/ÚNICA"), que
-// se descarta. Tolera las variantes tipográficas verificadas contra el
-// PDF real: "ARTCULO" (sin Í), punto sin guion, espacio antes del guion.
-const PATRON_LIMITE_SEGMENTACION =
-  /^\s*(?:ART[IÍ]?CULO\s+(\d+)(?:[-\s]([A-Z]))?\.\s*-{0,2}\s*|(?:LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N)\s+(?:[IVXLCDM]+\b|[UÚ]NIC[OA]\b))/gim;
+// Detección secuencial estricta (1, 2, 3, ..., N): una línea que empieza
+// con un número desnudo solo cuenta como inicio de nota si ese número es
+// EXACTAMENTE el siguiente esperado -- ver justificación en la cabecera.
+export function detectarNotasAlPie(cuerpo: string): { notas: NotaAlPie[]; spans: Array<{ desde: number; hasta: number }> } {
+  const lineas = cuerpo.split('\n');
+  const offsets: number[] = [];
+  { let acc = 0; for (const l of lineas) { offsets.push(acc); acc += l.length + 1; } }
 
-// CRÍTICO: se conservan TODAS las coincidencias (artículo Y estructural)
-// en una sola lista ordenada -- el límite de corte de cada artículo debe
-// ser la SIGUIENTE coincidencia de cualquier tipo, no la siguiente
-// coincidencia de artículo. Si se filtraran los límites estructurales
-// ANTES de cortar contenido (como en un primer intento de este script),
-// un encabezado de Libro/Título/Capítulo/Sección que cae entre el
-// Artículo N y el Artículo N+1 queda pegado al final del contenido del
-// Artículo N -- detectado en la primera corrida real contra este PDF
-// (el Art. 23 arrastraba "TITULO II / DE LAS ACCIONES PENALES Y CIVILES /
-// CAPITULO I / DE LA CLASIFICACION..." hasta el Art. 24).
-interface CoincidenciaBruta {
-  numArticulo: string | undefined; // undefined = límite estructural (Libro/Título/Capítulo/Sección)
-  inicio: number;
+  let siguienteEsperado = 1;
+  const inicios: number[] = []; // indices de linea
+  for (let i = 0; i < lineas.length; i++) {
+    const m = lineas[i].match(/^(\d{1,3})\s+\S/);
+    if (m && Number(m[1]) === siguienteEsperado) { inicios.push(i); siguienteEsperado++; }
+  }
+  if (inicios.length === 0) {
+    fallarDuro('no se detectó ninguna nota al pie con la detección secuencial estricta — el documento fuente pudo haber cambiado de formato');
+  }
+
+  // Span de cada nota: desde su línea de inicio hasta la primera línea en
+  // blanco (o hasta el inicio de la siguiente nota, lo que ocurra primero).
+  const notas: NotaAlPie[] = [];
+  const spans: Array<{ desde: number; hasta: number }> = [];
+  for (let k = 0; k < inicios.length; k++) {
+    const li = inicios[k];
+    let lf = li;
+    const limite = k + 1 < inicios.length ? inicios[k + 1] : lineas.length;
+    while (lf < limite && lineas[lf].trim() !== '') lf++;
+    const desde = offsets[li];
+    const hasta = offsets[lf] ?? cuerpo.length;
+    spans.push({ desde, hasta });
+    notas.push({ num: k + 1, texto: cuerpo.slice(desde, hasta).replace(/\s+/g, ' ').trim() });
+  }
+  return { notas, spans };
 }
 
-function recolectarTodasLasCoincidencias(textoNormalizado: string): CoincidenciaBruta[] {
-  const coincidencias = [...textoNormalizado.matchAll(PATRON_LIMITE_SEGMENTACION)];
-  return coincidencias.map((c) => {
-    const numero = c[1];
-    const letra = c[2] ?? '';
-    return { numArticulo: numero !== undefined ? `${numero}${letra}` : undefined, inicio: c.index ?? 0 };
-  });
-}
-
-// Extrae SOLO los tramos de artículo (descarta los estructurales DESPUÉS
-// de haberlos usado como límite de corte, nunca antes).
-function extraerArticulos(textoNormalizado: string, todas: CoincidenciaBruta[]): ArticuloExtraido[] {
-  const out: ArticuloExtraido[] = [];
-  for (let i = 0; i < todas.length; i++) {
-    const actual = todas[i];
-    if (actual.numArticulo === undefined) continue; // límite estructural -- se descarta aquí, no antes
-    const fin = todas[i + 1]?.inicio ?? textoNormalizado.length;
-    out.push({ numArticulo: actual.numArticulo, contenido: textoNormalizado.slice(actual.inicio, fin).trim() });
+export function eliminarSpans(cuerpo: string, spans: Array<{ desde: number; hasta: number }>): string {
+  let out = cuerpo;
+  for (let i = spans.length - 1; i >= 0; i--) {
+    out = out.slice(0, spans[i].desde) + out.slice(spans[i].hasta);
   }
   return out;
 }
 
-// ── 5. Zona contestada 373-380: detección y resolución fail-hard ───────
-// Verifica AUTOMÁTICAMENTE (no solo por dictamen) que el bloque duplicado
-// tiene exactamente la forma documentada: 8 coincidencias "373..380"
-// (bloque derogado, contenido corto) seguidas inmediatamente de 8
-// coincidencias "373..380" otra vez (bloque histórico, contenido largo),
-// y que justo después continúa "381". Si la forma real del documento no
-// coincide EXACTAMENTE con esto, falla en vez de adivinar qué hacer.
-export interface ResultadoZonaContestada {
-  indiceInicioStubs: number; // índice dentro de `articulos` donde empieza el bloque "373 Derogado"
-  indiceInicioHistorico: number; // índice donde empieza el segundo bloque "373 Casos en que procede..."
-  indiceSiguiente381: number; // índice donde retoma la numeración normal
-  bloqueHistorico: ArticuloExtraido[]; // ya correctamente segmentado -- capturado para transparencia, NO se ingiere
+// ── 4. Limpieza: marcadores de nota inline + ruido de paginación ───────
+// Elimina los marcadores de nota PEGADOS al texto que anotan (glued, sin
+// espacio) y los que quedan con UN espacio antes de un salto de línea
+// (variante de renderizado de pdftotext para notas al final de párrafo) --
+// en ambos casos SOLO si el número coincide con una nota realmente
+// detectada (numerosValidos), para no arriesgar borrar un número legítimo
+// del texto (ver comentario extenso en el cuerpo de este archivo/PR).
+export function limpiarMarcadoresInline(texto: string, numerosValidos: Set<number>): string {
+  function combinacionValida(grupo: string): boolean {
+    return grupo.split(',').every((n) => numerosValidos.has(Number(n)));
+  }
+  let out = texto.replace(/(?<=[\p{L}.)])(\d{1,3}(?:,\d{1,3})*)(?=[\s])/gu, (m, g) =>
+    combinacionValida(g) ? '' : m,
+  );
+  out = out.replace(/(?<=\.) (\d{1,3}(?:,\d{1,3})*)(?=[ \t]*\n)/g, (m, g) =>
+    combinacionValida(g) ? '' : m,
+  );
+  return out;
 }
 
-// Recibe la lista de artículos YA correctamente segmentada (sin
-// contaminación de encabezados estructurales -- ver extraerArticulos) y
-// localiza en ella el patrón exacto verificado: 8 ocurrencias de
-// "373".."380" (stubs), seguidas inmediatamente de otras 8 ocurrencias de
-// "373".."380" (histórico), seguidas de "381". Si la forma real no
-// coincide EXACTAMENTE, falla en vez de adivinar qué hacer.
-export function detectarZonaContestada373a380(articulos: ArticuloExtraido[]): ResultadoZonaContestada {
-  const RANGO = ['373', '374', '375', '376', '377', '378', '379', '380'];
-  const idx373primero = articulos.findIndex((a) => a.numArticulo === '373');
-  if (idx373primero === -1) {
-    fallarDuro('no se encontró ninguna coincidencia para el Art. 373 — la zona contestada 373-380 no tiene la forma esperada');
-  }
-
-  // Bloque 1 esperado: 373..380 consecutivos exactos, sin nada intercalado.
-  for (let i = 0; i < RANGO.length; i++) {
-    const a = articulos[idx373primero + i];
-    if (!a || a.numArticulo !== RANGO[i]) {
-      fallarDuro(
-        `zona contestada 373-380: se esperaba "${RANGO[i]}" en la posición ${idx373primero + i} del primer bloque (derogado) y se obtuvo "${a?.numArticulo ?? '(fin)'}" — la forma del documento cambió respecto de lo verificado`,
-      );
-    }
-  }
-  const idxInicioHistorico = idx373primero + RANGO.length;
-
-  // Bloque 2 esperado: 373..380 otra vez, consecutivos, inmediatamente después.
-  for (let i = 0; i < RANGO.length; i++) {
-    const a = articulos[idxInicioHistorico + i];
-    if (!a || a.numArticulo !== RANGO[i]) {
-      fallarDuro(
-        `zona contestada 373-380: se esperaba "${RANGO[i]}" en la posición ${idxInicioHistorico + i} del segundo bloque (histórico) y se obtuvo "${a?.numArticulo ?? '(fin)'}" — la forma del documento cambió respecto de lo verificado`,
-      );
-    }
-  }
-  const idxSiguiente381 = idxInicioHistorico + RANGO.length;
-  const siguiente = articulos[idxSiguiente381];
-  if (!siguiente || siguiente.numArticulo !== '381') {
-    fallarDuro(
-      `zona contestada 373-380: tras los dos bloques de 8 se esperaba retomar en "381" y se obtuvo "${siguiente?.numArticulo ?? '(fin)'}"`,
-    );
-  }
-
-  const bloqueHistorico = articulos.slice(idxInicioHistorico, idxInicioHistorico + RANGO.length);
-
-  // Sanity check: el bloque histórico debe ser sustantivo (no otro "Derogado" corto) --
-  // si algún día resultara corto, la asunción de este script ya no aplicaría.
-  for (const a of bloqueHistorico) {
-    if (a.contenido.length < 50) {
-      fallarDuro(`zona contestada 373-380: el Art. ${a.numArticulo} del bloque histórico es sospechosamente corto (${a.contenido.length} caracteres) — no coincide con lo verificado manualmente`);
-    }
-  }
-
-  return {
-    indiceInicioStubs: idx373primero,
-    indiceInicioHistorico: idxInicioHistorico,
-    indiceSiguiente381: idxSiguiente381,
-    bloqueHistorico,
-  };
+export function limpiarRuidoPaginacion(texto: string): string {
+  return texto
+    .replace(/\f/g, '\n')
+    .replace(/^\s*CENTRO ELECTRÓNICO DE DOCUMENTACIÓN E INFORMACIÓN JUDICIAL\s*$/gim, '')
+    .replace(/^[ \t]*\d{1,4}[ \t]*$/gm, '')
+    .replace(/(\p{L})-\n\s*\n?\s*(\p{Ll})/gu, '$1$2')
+    // Corte de palabra CON guion pero SIN salto de línea real -- artefacto
+    // propio de esta extracción (verificado: 6 casos, ej. "Re- pública",
+    // "Pro- curaduría", "jue- ces", todos en la misma línea impresa, no en
+    // un borde de columna). Distinto del caso anterior (que sí cruza un
+    // salto de línea); ambos son la misma clase de defecto de extracción,
+    // no un guion compuesto real (los compuestos reales de esta fuente no
+    // llevan espacio tras el guion, ej. "político-administrativo").
+    .replace(/(\p{L})- (\p{Ll})/gu, '$1$2')
+    .replace(/[ \t]+(?=\n)/g, '')
+    .replace(/\n{3,}/g, '\n\n');
 }
 
-// Verifica que la nota de derogatoria citada en las constantes de este
-// módulo (DECRETO_DEROGATORIO, LEY_DEROGATORIA, GACETA_DEROGATORIA)
-// aparece REALMENTE en el texto fuente, en la zona 373-380 -- para que la
-// atribución de este script nunca dependa de una afirmación no verificada.
-export function verificarNotaDerogatoria(textoNormalizado: string): string {
-  const inicioZona = textoNormalizado.search(/ART[IÍ]?CULO\s+373\.-?\s*Derogado/i);
-  if (inicioZona === -1) {
-    fallarDuro('no se encontró el bloque "ARTÍCULO 373.-Derogado" para verificar la nota de derogatoria');
-  }
-  const ventana = textoNormalizado.slice(inicioZona, inicioZona + 1500);
-  if (!ventana.includes(DECRETO_DEROGATORIO)) {
-    fallarDuro(`la nota de derogatoria no cita el decreto "${DECRETO_DEROGATORIO}" en el texto fuente — verificación automática falló`);
-  }
-  if (!new RegExp(LEY_DEROGATORIA.replace(/\s+/g, '\\s+'), 'i').test(ventana)) {
-    fallarDuro(`la nota de derogatoria no cita "${LEY_DEROGATORIA}" en el texto fuente — verificación automática falló`);
-  }
-  const parrafos = ventana.split(/\n\n+/);
-  const parrafoNota = parrafos.find((p) => p.includes(DECRETO_DEROGATORIO));
-  if (!parrafoNota) fallarDuro('no se pudo aislar el párrafo exacto de la nota de derogatoria');
-  return parrafoNota.replace(/\s+/g, ' ').trim();
+// ── 5. Segmentación ──────────────────────────────────────────────────────
+// Patrón combinado: "Artículo N[-Letra]." en sus TRES variantes
+// tipográficas verificadas contra esta fuente ("26-A." con guion antes del
+// punto, "219.-A." con guion después del punto, "373." sin sufijo -- y
+// "146." sin espacio entre "Artículo" y el número, verificado como
+// artefacto puntual de extracción), o encabezado estructural
+// Libro/Título/Capítulo/Sección -- el numeral que sigue puede ser romano
+// ("CAPÍTULO IV"), "ÚNICO/ÚNICA", o un ordinal en palabra ("SECCIÓN
+// SEGUNDA", verificado como variante real de esta fuente -- el Art. 54
+// termina con ese encabezado intercalado antes del Art. 55).
+const NUMERAL_ESTRUCTURAL =
+  '(?:[IVXLCDM]+\\b|[UÚ]NIC[OA]\\b|PRIMER[OA]\\b|SEGUND[OA]\\b|TERCER[OA]\\b|CUART[OA]\\b|QUINT[OA]\\b|SEXT[OA]\\b|S[ÉE]PTIM[OA]\\b|OCTAV[OA]\\b|NOVEN[OA]\\b|D[ÉE]CIM[OA]\\b)';
+// "DISPOSICIONES" (GENERALES/COMUNES/TRANSITORIAS Y FINALES/FINALES) es un
+// encabezado de sección propio de este documento que NO lleva prefijo
+// Libro/Título/Capítulo/Sección -- verificado: 12 apariciones, todas
+// genuinos títulos de apartado (nunca a mitad de oración). Sin
+// reconocerlo, el Art. 440-O (última reforma de Flagrancia) arrastraba
+// "DISPOSICIONES TRANSITORIAS Y FINALES" como si fuera parte de su propio
+// contenido.
+// SIN el flag 'i': los encabezados estructurales reales de esta fuente
+// SIEMPRE están en mayúsculas (verificado: 0 ocurrencias en minúscula de
+// "Artículo" fuera de encabezado; en cambio "libro"/"título"/"capítulo"/
+// "sección" en minúscula SÍ aparecen dentro de prosa normal -- 1, 1, 4 y 2
+// veces respectivamente -- y con el flag 'i' cualquiera de ellas que
+// cayera al inicio de línea por el ajuste de columna se habría
+// confundido con un encabezado real). El único elemento que SÍ tolera
+// mayús/minúscula es la letra de sufijo bis ([A-Za-z]), que es un
+// carácter suelto, no una palabra clave estructural.
+const PATRON_LIMITE_SEGMENTACION = new RegExp(
+  `^[ \\t]*(?:Art[ií]culos?\\s*(\\d+)(?:(?:[-\\s]([A-Za-z])\\.|\\.-([A-Za-z])\\.|\\.))|(?:LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N)\\s+${NUMERAL_ESTRUCTURAL}|DISPOSICIONES\\s+\\S+)`,
+  'gm',
+);
+
+interface CoincidenciaBruta {
+  num: string | undefined; // ej. "26A", "373", undefined si es estructural
+  inicio: number;
 }
 
-// Exige secuencia 1..447 estrictamente consecutiva sobre el conjunto final
-// ya resuelto (stubs 373-380 incluidos, histórico 373-380 excluido).
-export function validarSecuenciaCompleta(articulos: ArticuloExtraido[]): void {
-  if (articulos.length === 0) fallarDuro('no se segmentó ningún artículo del cuerpo acotado');
-  const numeros = articulos.map((a) => Number(a.numArticulo));
-  for (let i = 0; i < numeros.length; i++) {
-    const esperado = i + 1;
-    if (numeros[i] !== esperado) {
-      fallarDuro(
-        `secuencia de artículos rota en la posición ${i + 1}: se esperaba el Artículo ${esperado} y se obtuvo el Artículo ${numeros[i]} — posible encabezado mal segmentado o artículo faltante`,
-      );
-    }
+function recolectarCoincidencias(texto: string): CoincidenciaBruta[] {
+  const coincidencias = [...texto.matchAll(PATRON_LIMITE_SEGMENTACION)];
+  return coincidencias.map((c) => {
+    const numero = c[1];
+    const letra = (c[2] ?? c[3] ?? '').toUpperCase();
+    return { num: numero !== undefined ? `${numero}${letra}` : undefined, inicio: c.index ?? 0 };
+  });
+}
+
+// Determina si una coincidencia de "Artículo N" es un límite de artículo
+// REAL, o una referencia cruzada que cae al inicio de línea por ajuste de
+// columna -- ver justificación extensa en la cabecera del archivo. Un
+// límite real cumple AL MENOS UNA de: (a) inicio del texto, (b) línea en
+// blanco justo antes, (c) puntuación de cierre de oración justo antes,
+// (d) línea previa en MAYÚSCULAS (encabezado estructural), (e) la palabra
+// exacta "Derogado" justo antes (excepción verificada para esta fuente).
+export function esLimiteReal(texto: string, idx: number): boolean {
+  if (idx === 0) return true;
+
+  let k = idx;
+  while (k > 0 && (texto[k - 1] === ' ' || texto[k - 1] === '\t')) k--;
+  if (texto.slice(Math.max(0, k - 2), k) === '\n\n') return true;
+
+  let j = idx;
+  while (j > 0 && /\s/.test(texto[j - 1])) j--;
+  if (j === 0) return true;
+  const ultimoChar = texto[j - 1];
+  if ('.;:)"”\''.includes(ultimoChar)) return true;
+
+  let lineStart = j - 1;
+  while (lineStart > 0 && texto[lineStart - 1] !== '\n') lineStart--;
+  const linea = texto.slice(lineStart, j);
+  const soloLetras = linea.replace(/[^\p{L}]/gu, '');
+  if (soloLetras.length > 0 && soloLetras === soloLetras.toUpperCase() && soloLetras !== soloLetras.toLowerCase()) {
+    return true;
+  }
+
+  const mPalabra = texto.slice(Math.max(0, j - 20), j).match(/(\p{L}+)$/u);
+  if (mPalabra && mPalabra[1] === 'Derogado') return true;
+
+  return false;
+}
+
+export function segmentarArticulos(textoLimpio: string): ArticuloExtraido[] {
+  const crudas = recolectarCoincidencias(textoLimpio);
+  // esLimiteReal se aplica a TODAS las coincidencias, no solo a las de
+  // artículo -- un encabezado estructural (Libro/Título/Capítulo/Sección)
+  // también puede caer a mitad de oración como referencia cruzada por el
+  // ajuste de columna de `pdftotext -layout` (ej. "...las normas
+  // contenidas en el\nTítulo IV del..."), y de no filtrarse cortaría en
+  // seco el contenido del artículo en curso, PERDIENDO el resto de su
+  // texto real (detectado: el Art. 362 quedaba truncado a mitad de
+  // oración exactamente en un "Título IV" de este tipo).
+  const filtradas = crudas.filter((c) => esLimiteReal(textoLimpio, c.inicio));
+  const articulos: ArticuloExtraido[] = [];
+  for (let i = 0; i < filtradas.length; i++) {
+    if (filtradas[i].num === undefined) continue; // límite estructural -- se descarta
+    const fin = filtradas[i + 1]?.inicio ?? textoLimpio.length;
+    articulos.push({ numArticulo: filtradas[i].num!, contenido: textoLimpio.slice(filtradas[i].inicio, fin).trim() });
+  }
+  return articulos;
+}
+
+// ── 6. Validación de integridad (adaptada: no exige secuencia 1..N pura) ─
+// Los artículos BASE (sin sufijo de letra) deben cubrir 1..447 sin huecos
+// ni duplicados. Los artículos con sufijo de letra NO forman una secuencia
+// continua por naturaleza (son adiciones dispersas) -- se valida en su
+// lugar que exista cada literal reformado EXIGIDO por el dictamen del CLO
+// (lista mínima verificable, no cierre exhaustivo).
+export function validarIntegridad(articulos: ArticuloExtraido[]): void {
+  const base = articulos.filter((a) => /^\d+$/.test(a.numArticulo)).map((a) => Number(a.numArticulo));
+  const bis = articulos.filter((a) => !/^\d+$/.test(a.numArticulo)).map((a) => a.numArticulo);
+
+  const baseSet = new Set(base);
+  const faltantes: number[] = [];
+  for (let i = 1; i <= 447; i++) if (!baseSet.has(i)) faltantes.push(i);
+  if (faltantes.length > 0) {
+    fallarDuro(`faltan artículos base en la secuencia 1..447: ${faltantes.join(', ')}`);
+  }
+  const maxBase = Math.max(...base);
+  if (maxBase !== 447 || base.length !== 447) {
+    fallarDuro(`secuencia base inconsistente: ${base.length} artículos base, máximo ${maxBase} (se esperaba exactamente 447)`);
+  }
+
+  const bisDisplaySet = new Set(bis.map((n) => formatearNumArticuloDisplay(n)));
+  const faltantesBis = LITERALES_REFORMADOS_REQUERIDOS.filter((r) => !bisDisplaySet.has(r));
+  if (faltantesBis.length > 0) {
+    fallarDuro(`faltan literales reformados exigidos por el dictamen del CLO: ${faltantesBis.join(', ')}`);
+  }
+
+  const faltantesReformadosBase = BASE_REFORMADOS_REQUERIDOS.filter((r) => !baseSet.has(Number(r)));
+  if (faltantesReformadosBase.length > 0) {
+    fallarDuro(`faltan artículos base con reforma integrada exigidos por el dictamen del CLO: ${faltantesReformadosBase.join(', ')}`);
+  }
+
+  // Cero IDs duplicados (base + bis combinados).
+  const idsVistos = new Set<string>();
+  for (const a of articulos) {
+    if (idsVistos.has(a.numArticulo)) fallarDuro(`ID de artículo duplicado tras la segmentación: ${a.numArticulo}`);
+    idsVistos.add(a.numArticulo);
   }
 }
 
-// ── 6. Control de calidad fail-hard sobre cada fragmento sustantivo ────
+// "26A" -> "26-A" (formato de num_articulo exigido por el dictamen del CLO)
+export function formatearNumArticuloDisplay(numInterno: string): string {
+  const m = numInterno.match(/^(\d+)([A-Za-z])$/);
+  if (!m) return numInterno;
+  return `${m[1]}-${m[2].toUpperCase()}`;
+}
+
+// "26A" -> "26_a" (formato del ID canónico exigido: mayalex_normativos:cpp_1999_a26_a)
+export function formatearNumArticuloId(numInterno: string): string {
+  const m = numInterno.match(/^(\d+)([A-Za-z])$/);
+  if (!m) return numInterno;
+  return `${m[1]}_${m[2].toLowerCase()}`;
+}
+
+// Excepciones al cierre de puntuación, verificadas MANUALMENTE contra el
+// texto crudo de pdftotext (antes de cualquier limpieza de este script)
+// antes de añadirse aquí -- nunca una relajación general de la regla.
+const EXCEPCIONES_CIERRE_VERIFICADAS: Record<string, string> = {
+  '348': 'La edición consolidada CEDIJ termina esta oración sin punto final ("...ante el respectivo órgano jurisdiccional") -- verificado contra la salida cruda de `pdftotext -layout -enc UTF-8` ANTES de aplicar ninguna limpieza de este script (no es un artefacto introducido por la extracción/limpieza propia). Se preserva el texto tal cual el original, sin corregir la omisión editorial.',
+};
+
+// ── 7. Control de calidad fail-hard sobre cada fragmento ────────────────
 export function validarFragmentoFailHard(numArticulo: string, contenido: string): void {
-  if (contenido.length < 20) {
+  const esDerogado = /^Derogado\.?$/.test(contenido.replace(/^Art[ií]culos?\s*\d+(?:[-\s]?[A-Za-z]\.|\.-[A-Za-z]\.|\.)\s*/, '').trim());
+
+  if (contenido.length < 15) {
     fallarDuro(`Art. ${numArticulo}: contenido sospechosamente corto (${contenido.length} caracteres) — posible segmentación fallida`);
   }
   if (contenido.length > 20000) {
     fallarDuro(`Art. ${numArticulo}: contenido sospechosamente largo (${contenido.length} caracteres) — posible fallo de segmentación (¿se arrastró el artículo siguiente?)`);
   }
-  if (/^\s*(LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N)\s+(?:[IVXLCDM]+\b|[UÚ]NIC[OA]\b)/im.test(contenido.slice(contenido.indexOf('\n') + 1))) {
-    fallarDuro(`Art. ${numArticulo}: quedó un encabezado estructural (Libro/Título/Capítulo/Sección) sin depurar dentro del contenido`);
+  // Un encabezado estructural (Libro/Título/Capítulo/Sección) SOLO cuenta
+  // como contaminación si además pasa esLimiteReal (es decir, si de verdad
+  // se comporta como un límite real, no como una mención de paso dentro de
+  // la propia prosa -- ej. "...las normas contenidas en el Título IV del
+  // Libro..." es una referencia legítima, NO un encabezado suelto; el Art.
+  // 362 de esta fuente contiene exactamente ese caso).
+  // Se escanea el CONTENIDO COMPLETO (no un substring) para que
+  // esLimiteReal evalúe posiciones reales -- su caso especial "idx===0 =>
+  // inicio de documento" solo es válido si idx=0 corresponde de verdad al
+  // inicio de TODO el texto, no al inicio de un substring recortado (bug
+  // real detectado: al pasar solo el resto tras la primera línea, un
+  // "disposiciones relativas..." de prosa normal en la segunda línea del
+  // Art. 441 quedaba en idx=0 del substring y se aceptaba siempre como
+  // límite válido). El propio encabezado del artículo (primera línea)
+  // siempre matchea como tipo "Artículo N" (m[1] definido) y se descarta
+  // aquí sin necesitar recortar nada.
+  for (const m of contenido.matchAll(PATRON_LIMITE_SEGMENTACION)) {
+    if (m[1] !== undefined) continue; // es un "Artículo N", no un encabezado estructural
+    if ((m.index ?? 0) === 0) continue; // es el propio encabezado del artículo (caso límite improbable)
+    if (esLimiteReal(contenido, m.index ?? 0)) {
+      fallarDuro(`Art. ${numArticulo}: quedó un encabezado estructural (Libro/Título/Capítulo/Sección) sin depurar dentro del contenido`);
+    }
   }
-  if (/\p{L}-\n\s*\p{Ll}/u.test(contenido)) {
-    fallarDuro(`Art. ${numArticulo}: quedó un corte de línea con guion sin reparar (texto cortado) dentro del contenido`);
+  if (/\p{L}-\n\s*\p{Ll}/u.test(contenido) || /\p{L}- \p{Ll}/u.test(contenido)) {
+    fallarDuro(`Art. ${numArticulo}: quedó un corte de palabra con guion sin reparar (texto cortado) dentro del contenido`);
   }
   // eslint-disable-next-line no-control-regex -- detección deliberada de
   // caracteres de control residuales (form feed, etc.) de la extracción PDF.
@@ -362,12 +466,25 @@ export function validarFragmentoFailHard(numArticulo: string, contenido: string)
   if (/^[ \t]*\d{1,4}[ \t]*$/m.test(contenido)) {
     fallarDuro(`Art. ${numArticulo}: quedó una línea de número de página suelta sin depurar dentro del contenido`);
   }
-  if (!new RegExp(`^ART[IÍ]?CULO\\s+${numArticulo}\\b`, 'i').test(contenido)) {
-    fallarDuro(`Art. ${numArticulo}: el contenido no comienza con su propio encabezado "ARTÍCULO ${numArticulo}"`);
+  if (/Reformado por Decreto|Adicionado por Decreto|Derogado por Decreto|CENTRO ELECTRÓNICO/i.test(contenido)) {
+    fallarDuro(`Art. ${numArticulo}: quedó texto de una nota al pie sin depurar dentro del contenido`);
+  }
+  if (!new RegExp(`^Art[ií]culos?\\s*${numArticulo.replace(/[A-Za-z]$/, '')}\\b`, 'i').test(contenido)) {
+    fallarDuro(`Art. ${numArticulo}: el contenido no comienza con su propio encabezado "Artículo ${numArticulo}"`);
+  }
+  if (!esDerogado) {
+    const ultimoCaracter = contenido.trim().slice(-1);
+    if (!'.;:)'.includes(ultimoCaracter)) {
+      const excepcion = EXCEPCIONES_CIERRE_VERIFICADAS[numArticulo];
+      if (!excepcion) {
+        fallarDuro(`Art. ${numArticulo}: el contenido no termina en puntuación de cierre válida ('${ultimoCaracter}') — posible texto cortado`);
+      }
+      console.warn(`⚠️  Art. ${numArticulo}: cierre sin puntuación aceptado como excepción verificada manualmente — ${excepcion}`);
+    }
   }
 }
 
-// ── 7. Contrato de columnas biblioteca_vectores ─────────────────────────
+// ── 8. Contrato de columnas biblioteca_vectores ─────────────────────────
 export interface RegistroCanonicoCPP {
   id: string;
   fuente: string;
@@ -382,69 +499,75 @@ export interface RegistroCanonicoCPP {
 }
 
 const METODO_EXTRACCION =
-  'pdftotext -layout -enc UTF-8 + limpieza de ruido de paginación CEDIJ y validación fail-hard automatizada (scripts/ingesta-cpp.ts) — PENDIENTE de verificación manual humana artículo por artículo antes de ingesta real';
+  'pdftotext -layout -enc UTF-8 (edición consolidada CEDIJ) + eliminación de notas al pie y limpieza de ruido de paginación + validación fail-hard automatizada (scripts/ingesta-cpp.ts) — PENDIENTE de verificación manual humana artículo por artículo antes de ingesta real';
 
-export function construirRegistro(a: ArticuloExtraido): RegistroCanonicoCPP {
+// Busca, entre las notas al pie, aquella(s) que mencionan explícitamente
+// este número de artículo junto con "Derogad", para citar la derogatoria
+// con la fuente exacta (Decreto/fecha/Gaceta) tal como consta en el propio
+// documento -- soporta el formato de rango "N al M" (ej. nota 62: "373 al
+// 380") ademas de menciones directas de un solo número.
+export function buscarCitaDerogatoria(numeroBase: number, notas: NotaAlPie[]): string | null {
+  for (const nota of notas) {
+    if (!/Derogad/i.test(nota.texto)) continue;
+    // NO anclado al inicio de la nota: algunas (ej. nota 62) empiezan con
+    // el título de la sección derogada ("Título III. De la Revisión,
+    // Capítulo Único...") ANTES de la mención "Artículos 373 al 380
+    // Derogados..." -- se busca la frase en cualquier posición del texto.
+    const mCabecera = nota.texto.match(/Art[ií]culos?\s+(.+?)\s+[Dd]erogad/);
+    if (!mCabecera) continue;
+    const listado = mCabecera[1];
+    const mRango = listado.match(/^(\d+)\s+al\s+(\d+)$/i);
+    if (mRango) {
+      const desde = Number(mRango[1]);
+      const hasta = Number(mRango[2]);
+      if (numeroBase >= desde && numeroBase <= hasta) return nota.texto.replace(/^\d+\s+/, '');
+      continue;
+    }
+    const numeros = listado.match(/\d+/g)?.map(Number) ?? [];
+    if (numeros.includes(numeroBase)) return nota.texto.replace(/^\d+\s+/, '');
+  }
+  return null;
+}
+
+export function construirRegistro(a: ArticuloExtraido, notas: NotaAlPie[]): RegistroCanonicoCPP {
+  const esBis = !/^\d+$/.test(a.numArticulo);
+  const numDisplay = esBis ? formatearNumArticuloDisplay(a.numArticulo) : a.numArticulo;
+  const idSufijo = esBis ? formatearNumArticuloId(a.numArticulo) : a.numArticulo;
+  const numeroBaseParaCita = Number(a.numArticulo.match(/^\d+/)![0]);
+
+  const contenidoSinEncabezado = a.contenido.replace(/^Art[ií]culos?\s*\d+(?:[-\s]?[A-Za-z]\.|\.-[A-Za-z]\.|\.)\s*/, '').trim();
+  const esDerogado = /^Derogado\.?$/.test(contenidoSinEncabezado);
+
+  const metadata: Record<string, unknown> = {
+    decreto: DECRETO,
+    norm_id: NORM_ID,
+    tipo_instrumento: 'codigo',
+    edicion_fuente: EDICION_FUENTE,
+    metodo_extraccion: METODO_EXTRACCION,
+    hash_texto_sha256: sha256(a.contenido),
+    verificado: false,
+    fecha_verificacion: null,
+  };
+
+  if (esDerogado) {
+    const cita = buscarCitaDerogatoria(numeroBaseParaCita, notas);
+    if (!cita) fallarDuro(`Art. ${a.numArticulo}: contenido es "Derogado" pero no se encontró su nota de derogatoria correspondiente entre las ${notas.length} notas al pie detectadas`);
+    metadata.estado_articulo = 'DEROGADO';
+    metadata.derogado_por = cita;
+  }
+
   return {
-    id: `mayalex_normativos:cpp_1999_a${a.numArticulo}`,
+    id: `mayalex_normativos:cpp_1999_a${idSufijo}`,
     fuente: FUENTE_CANONICA,
     materia: MATERIA,
-    num_articulo: a.numArticulo,
-    es_norma_vigente: true,
+    num_articulo: numDisplay,
+    es_norma_vigente: !esDerogado,
     jurisdiccion: 'HN',
     fuente_tipo: 'codigo',
     coleccion: 'mayalex_normativos',
-    metadata: {
-      decreto: DECRETO,
-      norm_id: NORM_ID,
-      tipo_instrumento: 'codigo',
-      metodo_extraccion: METODO_EXTRACCION,
-      hash_texto_sha256: sha256(a.contenido),
-      verificado: false,
-      fecha_verificacion: null,
-    },
+    metadata,
     contenido: a.contenido,
   };
-}
-
-// Construye las 8 filas derogadas (a373..a380). El contenido registra la
-// mención de derogatoria como NOTA DE COMPILACIÓN, citando literalmente lo
-// que el propio documento fuente dice (verificado por
-// verificarNotaDerogatoria) — no se presenta como si fuera el texto
-// original de 1999 del articulado (que la propia fuente ya no reproduce,
-// reemplazado por la palabra "Derogado").
-export function construirRegistrosDerogados373a380(notaFuenteVerificada: string): RegistroCanonicoCPP[] {
-  const RANGO = ['373', '374', '375', '376', '377', '378', '379', '380'];
-  return RANGO.map((n) => {
-    const contenido =
-      `ARTÍCULO ${n}.- Derogado. ` +
-      `[Nota de compilación oficial — Centro Electrónico de Documentación e Información Judicial (CEDIJ), Poder Judicial de Honduras, edición Febrero/2002 — verificada textualmente contra el propio documento fuente:] ` +
-      `${notaFuenteVerificada}`;
-    return {
-      id: `mayalex_normativos:cpp_1999_a${n}`,
-      fuente: FUENTE_CANONICA,
-      materia: MATERIA,
-      num_articulo: n,
-      es_norma_vigente: false,
-      jurisdiccion: 'HN',
-      fuente_tipo: 'codigo',
-      coleccion: 'mayalex_normativos',
-      metadata: {
-        decreto: DECRETO,
-        norm_id: NORM_ID,
-        tipo_instrumento: 'codigo',
-        estado_articulo: 'DEROGADO',
-        derogado_por: `${LEY_DEROGATORIA} (Decreto ${DECRETO_DEROGATORIO})`,
-        publicacion_derogatoria: GACETA_DEROGATORIA,
-        derogatoria_citada_en_fuente: true, // verificada automáticamente, no afirmación independiente
-        metodo_extraccion: METODO_EXTRACCION,
-        hash_texto_sha256: sha256(contenido),
-        verificado: false,
-        fecha_verificacion: null,
-      },
-      contenido,
-    };
-  });
 }
 
 function porNumero(articulos: ArticuloExtraido[], n: string): ArticuloExtraido {
@@ -453,58 +576,38 @@ function porNumero(articulos: ArticuloExtraido[], n: string): ArticuloExtraido {
   return a!;
 }
 
-// ── 8. Ensamble del pipeline completo (reutilizable por insertar-cpp.ts) ─
+// ── 9. Ensamble del pipeline completo (reutilizable por insertar-cpp.ts) ─
 export interface ResultadoPipelineCPP {
-  articulosVigentes: ArticuloExtraido[]; // 1-372 + 381-447 (439 artículos)
-  registrosDerogados: RegistroCanonicoCPP[]; // a373..a380 (8 filas, es_norma_vigente=false)
-  bloqueHistoricoOmitido: ArticuloExtraido[]; // 373-380 "Casos en que procede la Revisión..." -- NO se ingiere
-  notaDerogatoriaVerificada: string;
-  textoNormalizado: string;
+  articulos: ArticuloExtraido[]; // TODOS -- base + bis, incluidos los derogados
+  registros: RegistroCanonicoCPP[];
+  notas: NotaAlPie[];
 }
 
 export function ejecutarPipelineCompleto(): ResultadoPipelineCPP {
   const textoCrudo = extraerTextoPDF(PDF_FUENTE);
   const cuerpoAcotado = acotarCuerpoDispositivo(textoCrudo);
-  // normalizarTexto() primero (\r\n -> \n) antes de la reparación de
-  // guiones de corte de línea -- mismo orden ya requerido para el
-  // Decreto 102-2018 y re-confirmado aquí durante el análisis crudo.
-  const textoNormalizado = limpiarRuidoCPP(normalizarTexto(cuerpoAcotado));
+  const cuerpoNormalizado = normalizarTexto(cuerpoAcotado);
 
-  // Segmentación en dos fases: primero se cortan TODOS los tramos de
-  // artículo con límites correctos (incluyendo los estructurales como
-  // frontera, ver extraerArticulos), lo que produce naturalmente las DOS
-  // ocurrencias de "373".."380" en su posición real dentro de la
-  // secuencia -- ninguna re-segmentación adicional hace falta para
-  // aislar la zona contestada, solo localizarla dentro de esta lista ya
-  // correcta.
-  const todasLasCoincidencias = recolectarTodasLasCoincidencias(textoNormalizado);
-  const articulosCompletos = extraerArticulos(textoNormalizado, todasLasCoincidencias);
+  const { notas, spans } = detectarNotasAlPie(cuerpoNormalizado);
+  const numerosValidos = new Set(notas.map((n) => n.num));
+  const sinNotas = eliminarSpans(cuerpoNormalizado, spans);
+  const sinMarcadores = limpiarMarcadoresInline(sinNotas, numerosValidos);
+  const textoLimpio = limpiarRuidoPaginacion(sinMarcadores);
 
-  const zona = detectarZonaContestada373a380(articulosCompletos);
-  const notaDerogatoriaVerificada = verificarNotaDerogatoria(textoNormalizado);
+  const articulos = segmentarArticulos(textoLimpio);
+  validarIntegridad(articulos);
+  for (const a of articulos) validarFragmentoFailHard(a.numArticulo, a.contenido);
 
-  const articulosAntes = articulosCompletos.slice(0, zona.indiceInicioStubs);
-  const articulosDespues = articulosCompletos.slice(zona.indiceSiguiente381);
+  const registros = articulos.map((a) => construirRegistro(a, notas));
 
-  const articulosVigentes = [...articulosAntes, ...articulosDespues];
-  for (const a of articulosVigentes) validarFragmentoFailHard(a.numArticulo, a.contenido);
-
-  const registrosDerogados = construirRegistrosDerogados373a380(notaDerogatoriaVerificada);
-
-  return {
-    articulosVigentes,
-    registrosDerogados,
-    bloqueHistoricoOmitido: zona.bloqueHistorico,
-    notaDerogatoriaVerificada,
-    textoNormalizado,
-  };
+  return { articulos, registros, notas };
 }
 
-// ── 9. Declaración (NO ejecución) del SQL de reemplazo atómico Art.173 ──
+// ── 10. Declaración (NO ejecución) del SQL de reemplazo atómico Art.173 ─
 export function declararSQLReemplazoAtomico(totalFilas: number): string {
   return `-- ESTRATEGIA DECLARADA -- NO EJECUTADA EN ESTE TURNO --
 -- Reemplazo atómico del stub manual del Art. 173 del CPP + ingesta de
--- las ${totalFilas} filas canónicas del Decreto 9-99-E (${totalFilas - 8} vigentes + 8 derogadas a373-a380).
+-- las ${totalFilas} filas canónicas del Decreto 9-99-E (edición consolidada CEDIJ).
 -- Fase posterior (no este turno): scripts/insertar-cpp.ts genera los
 -- embeddings reales (intfloat/multilingual-e5-small, 384 dims) y produce
 -- el archivo .sql definitivo -- este bloque es solo la forma de la
@@ -557,48 +660,47 @@ DROP TABLE stg_cpp_1999_ingesta;
 }
 
 function main() {
-  console.log('=== Preparación de ingesta canónica — Código Procesal Penal (Decreto 9-99-E) ===');
+  console.log('=== Preparación de ingesta canónica — Código Procesal Penal (Decreto 9-99-E), edición consolidada CEDIJ ===');
   console.log(`Fuente PDF: ${PDF_FUENTE}\n`);
 
   const resultado = ejecutarPipelineCompleto();
-  const todosLosArticulos: ArticuloExtraido[] = [
-    ...resultado.articulosVigentes,
-    ...resultado.registrosDerogados.map((r) => ({ numArticulo: r.num_articulo, contenido: r.contenido })),
-  ].sort((a, b) => Number(a.numArticulo) - Number(b.numArticulo));
-
-  validarSecuenciaCompleta(todosLosArticulos);
-
-  const errPII = validarSinDatosPrivados(resultado.articulosVigentes);
+  const errPII = validarSinDatosPrivados(resultado.articulos);
   if (errPII) fallarDuro(errPII);
 
-  const TOTAL_VIGENTES = resultado.articulosVigentes.length;
-  const TOTAL_DEROGADOS = resultado.registrosDerogados.length;
-  const TOTAL = TOTAL_VIGENTES + TOTAL_DEROGADOS;
+  const vigentes = resultado.registros.filter((r) => r.es_norma_vigente);
+  const derogados = resultado.registros.filter((r) => !r.es_norma_vigente);
+  const base = resultado.articulos.filter((a) => /^\d+$/.test(a.numArticulo));
+  const bis = resultado.articulos.filter((a) => !/^\d+$/.test(a.numArticulo));
 
-  console.log(`✅ Fail-hard QC superado — secuencia 1..${TOTAL} consecutiva, sin huecos ni duplicados.`);
-  console.log(`   Vigentes (es_norma_vigente=true):  ${TOTAL_VIGENTES}`);
-  console.log(`   Derogados (es_norma_vigente=false): ${TOTAL_DEROGADOS}  (Arts. 373-380)`);
-  console.log(`   TOTAL:                              ${TOTAL}\n`);
+  console.log(`✅ Fail-hard QC superado — ${resultado.registros.length}/${resultado.registros.length} (100%) fragmentos.`);
+  console.log(`   Artículos base (1..447, sin huecos):     ${base.length}`);
+  console.log(`   Artículos con sufijo de letra (reformas): ${bis.length}`);
+  console.log(`   TOTAL:                                    ${resultado.registros.length}`);
+  console.log(`   Vigentes (es_norma_vigente=true):         ${vigentes.length}`);
+  console.log(`   Derogados (es_norma_vigente=false):       ${derogados.length}  (${derogados.map((d) => d.num_articulo).join(', ')})\n`);
 
-  console.log(
-    `ℹ️  Bloque histórico OMITIDO deliberadamente (texto "Casos en que procede la Revisión..." bajo los mismos números 373-380, encuadrado por el propio compilador como aplicable solo a casos anteriores a la derogación de 2005) -- ${resultado.bloqueHistoricoOmitido.length} fragmentos, ${resultado.bloqueHistoricoOmitido.reduce((s, a) => s + a.contenido.length, 0)} caracteres totales, no ingeridos en este pliego. Pendiente de revisión del equipo jurídico del fundador si amerita ingesta propia bajo otro identificador.\n`,
-  );
+  console.log('=== Grid de muestra para dictamen ===\n');
+  const muestras = ['1', '26A', '173', '219A', '373', '402A', '440A', '447'];
+  console.log('| num_articulo | id | es_norma_vigente | sha256 (12) |');
+  console.log('|---|---|---|---|');
+  for (const m of muestras) {
+    const a = porNumero(resultado.articulos, m);
+    const r = resultado.registros.find((x) => x.metadata.hash_texto_sha256 === sha256(a.contenido))!;
+    console.log(`| ${r.num_articulo} | \`${r.id}\` | ${r.es_norma_vigente} | \`${(r.metadata.hash_texto_sha256 as string).slice(0, 12)}\` |`);
+  }
 
-  console.log('=== Nota de derogatoria verificada AUTOMÁTICAMENTE contra el texto fuente ===\n');
-  console.log(resultado.notaDerogatoriaVerificada);
+  console.log('\n=== ⚖ EVIDENCIA TEXTUAL — Art. 1 (texto completo) ===\n');
+  console.log(porNumero(resultado.articulos, '1').contenido);
 
-  console.log('\n=== ⚖ EVIDENCIA TEXTUAL EXIGIDA — Art. 1 (texto completo) ===\n');
-  console.log(porNumero(resultado.articulosVigentes, '1').contenido);
-
-  console.log('\n=== ⚖ EVIDENCIA TEXTUAL EXIGIDA — Art. 173 (texto completo) ===\n');
-  console.log(porNumero(resultado.articulosVigentes, '173').contenido);
+  console.log('\n=== ⚖ EVIDENCIA TEXTUAL — Art. 173 (texto completo) ===\n');
+  console.log(porNumero(resultado.articulos, '173').contenido);
 
   console.log('\n=== ⚖ DETALLE DE FILA GENERADA — Art. 373 (demuestra es_norma_vigente=false) ===\n');
-  const registro373 = resultado.registrosDerogados.find((r) => r.num_articulo === '373')!;
+  const registro373 = resultado.registros.find((r) => r.num_articulo === '373')!;
   console.log(JSON.stringify(registro373, null, 2));
 
   console.log('\n=== 🔧 BLOQUE SQL DECLARADO (NO EJECUTADO) — reemplazo atómico Art. 173 ===\n');
-  console.log(declararSQLReemplazoAtomico(TOTAL));
+  console.log(declararSQLReemplazoAtomico(resultado.registros.length));
 
   console.log(
     '\n🔒 CERO escrituras SQL ejecutadas — este script no importa ningún cliente de Supabase, no abre conexión de red, y termina aquí. Pendiente de dictamen y aprobación formal del CLO antes de cualquier INSERT/DELETE real.',
