@@ -156,16 +156,66 @@ export interface NotaAlPie {
   texto: string;
 }
 
-export function detectarNotasAlPie(cuerpo: string): { notas: NotaAlPie[]; spans: Array<{ desde: number; hasta: number }> } {
+export function detectarNotasAlPie(cuerpoOriginal: string): { notas: NotaAlPie[]; spans: Array<{ desde: number; hasta: number }> } {
+  // BUG real encontrado en la primera corrida (2026-09-03): pdftotext -layout
+  // inserta el carácter de salto de página \f PEGADO al inicio de la línea
+  // siguiente, sin su propio \n -- ej. "...gob.hn\n\f21. Lo que una ley...".
+  // El \f queda como PRIMER carácter de esa línea, desplazando "21." fuera
+  // de la posición 0 y rompiendo el ancla `^(\d{1,3})`. Verificado: de las
+  // 43 notas reales, la nota 21 cae exactamente en un salto de página así
+  // (la única de las 43 que lo hace -- por eso la detección se cortaba en
+  // 20/43, no antes). limpiarRuidoPaginacion() ya convierte \f -> \n, pero
+  // corre DESPUÉS de la detección de notas en el pipeline -- aquí se separa
+  // ese único paso (\f -> \n) para que corra ANTES, sin duplicar el resto
+  // de limpiarRuidoPaginacion (que sí debe seguir corriendo después, sobre
+  // el texto ya sin notas).
+  const cuerpo = cuerpoOriginal.replace(/\f/g, '\n');
   const lineas = cuerpo.split('\n');
   const offsets: number[] = [];
   { let acc = 0; for (const l of lineas) { offsets.push(acc); acc += l.length + 1; } }
 
+  // BUG real #2 encontrado en la primera corrida: la detección puramente
+  // SECUENCIAL (sin más criterio) que sí bastaba para el CPP (ver
+  // ingesta-cpp.ts) NO basta aquí -- el Código Civil tiene, dentro del
+  // cuerpo de varios artículos, listas numeradas largas de requisitos,
+  // impedimentos, causas, etc. (ej. Art. sobre testigos inhábiles en
+  // testamentos, con ítems "10. Los deudores fraudulentos.", "19. Los
+  // herederos y legatarios..."; Art.2370 con una lista de 21 reglas
+  // transitorias, "20. La prescripción...", "21. Lo que una ley
+  // posterior..."). Esas listas empiezan en "1." y coinciden por pura
+  // COINCIDENCIA con el número de nota esperado en ese punto del barrido,
+  // secuestrando el contador -- verificado: sin filtro adicional, el
+  // barrido se desincroniza ya en la nota 4 (folio Art.79) y nunca se
+  // recupera, terminando por "encontrar" 43 falsas notas si no fuera por
+  // el chequeo de cantidad. Filtro añadido: una nota real de ESTA fuente
+  // SIEMPRE cita su decreto/Gaceta dentro del propio párrafo (verificado
+  // contra las 43 notas reales) -- una lista de requisitos del cuerpo,
+  // en cambio, nunca lo hace. Se exige esa cita dentro del span completo
+  // de la nota candidata (hasta la siguiente línea en blanco) antes de
+  // aceptarla; si no la cita, se descarta como coincidencia y el barrido
+  // sigue buscando el mismo número más adelante.
+  const PATRON_CITA_DECRETO = /Decreto\s*(No\.?|N[°º])?\s*\d|Diario\s+Oficial|Gaceta/i;
+
+  // BUG real #3: no todas las notas empiezan en la columna 0 -- algunas
+  // (ej. la nota 6, sobre Art.84) traen espacios de indentación delante
+  // del número ("   6 Artículo 84. Reformado..."), verificado contra la
+  // salida real de pdftotext. Se tolera indentación inicial; el filtro de
+  // cita de decreto (arriba) es lo que sigue evitando falsos positivos de
+  // las listas numeradas del cuerpo, que también suelen venir indentadas.
   let siguienteEsperado = 1;
   const inicios: number[] = [];
   for (let i = 0; i < lineas.length; i++) {
-    const m = lineas[i].match(/^(\d{1,3})\s?\S/);
-    if (m && Number(m[1]) === siguienteEsperado) { inicios.push(i); siguienteEsperado++; }
+    const m = lineas[i].match(/^\s*(\d{1,3})\s?\S/);
+    if (!m || Number(m[1]) !== siguienteEsperado) continue;
+    // Construye el span candidato (hasta la próxima línea en blanco) SOLO
+    // para verificar la cita -- el span real y definitivo se recalcula
+    // más abajo, igual que antes.
+    let lf = i;
+    while (lf < lineas.length && lineas[lf].trim() !== '') lf++;
+    const spanCandidato = lineas.slice(i, lf).join(' ');
+    if (!PATRON_CITA_DECRETO.test(spanCandidato)) continue; // coincidencia numérica de una lista del cuerpo, no una nota real
+    inicios.push(i);
+    siguienteEsperado++;
   }
   if (inicios.length === 0) {
     fallarDuro('no se detectó ninguna nota al pie con la detección secuencial estricta — el documento fuente pudo haber cambiado de formato');
@@ -187,6 +237,31 @@ export function detectarNotasAlPie(cuerpo: string): { notas: NotaAlPie[]; spans:
     notas.push({ num: k + 1, texto: cuerpo.slice(desde, hasta).replace(/\s+/g, ' ').trim() });
   }
   return { notas, spans };
+}
+
+// BUG real #8, verificado puntualmente (un solo caso en toda la fuente):
+// el marcador de la nota al pie 35 queda PEGADO directamente al número del
+// propio artículo que anota, sin ningún separador -- "Artículo 178735. Lo
+// dispuesto..." (= "Artículo 1787" + marcador "35", sin punto ni espacio
+// entre ambos). limpiarMarcadoresInline() no lo puede separar porque su
+// lookbehind exige una LETRA/puntuación antes del marcador, no otro
+// dígito (con razón: aflojar esa condición arriesgaría cortar dígitos
+// legítimos de cualquier número real de artículo). Se corrige aquí como
+// una excepción puntual, verificada manualmente contra la fuente cruda de
+// `pdftotext -layout` -- NO es una regla general.
+const EXCEPCIONES_MARCADOR_PEGADO_A_NUMERO: Array<{ buscar: string; reemplazar: string }> = [
+  { buscar: 'Artículo 178735.', reemplazar: 'Artículo 1787.' },
+];
+
+export function corregirExcepcionesPuntuales(texto: string): string {
+  let out = texto;
+  for (const { buscar, reemplazar } of EXCEPCIONES_MARCADOR_PEGADO_A_NUMERO) {
+    if (!out.includes(buscar)) {
+      fallarDuro(`excepción puntual "${buscar}" no encontrada en el texto -- la fuente pudo haber cambiado, revisar antes de aplicar esta corrección a ciegas`);
+    }
+    out = out.replaceAll(buscar, reemplazar);
+  }
+  return out;
 }
 
 export function eliminarSpans(cuerpo: string, spans: Array<{ desde: number; hasta: number }>): string {
@@ -226,6 +301,16 @@ export function limpiarRuidoPaginacion(texto: string): string {
     .replace(/\f/g, '\n')
     .replace(/^\s*www\.poderjudicial\.gob\.hn\s*$/gim, '')
     .replace(/^[ \t]*\d{1,4}[ \t]*$/gm, '')
+    // BUG real #10: encabezados de subsección con numeral romano PEGADO a
+    // un punto y sin espacio ("II.DE LOS INSTRUMENTOS O DOCUMENTOS
+    // PRIVADOS", "III.REGLAS RELATIVAS A LA EDAD") -- verificado: 2 casos
+    // en toda la fuente, ambos en línea propia fuertemente indentada
+    // (centrada). No los reconoce PATRON_LIMITE_SEGMENTACION porque ese
+    // patrón exige la palabra "SECCIÓN" -- esta fuente, en estos dos
+    // puntos, solo imprime el numeral. Se descartan aquí como el resto
+    // del ruido estructural (igual que Libro/Título/Capítulo/Sección, que
+    // tampoco se preservan en ningún metadata -- ver scripts/ingesta-cpp.ts).
+    .replace(/^[ \t]*[IVXLCDM]+\.[A-ZÁÉÍÓÚÑ][^\n]*$/gm, '')
     .replace(/(\p{L})-\n\s*\n?\s*(\p{Ll})/gu, '$1$2')
     .replace(/(\p{L})- (\p{Ll})/gu, '$1$2')
     .replace(/[ \t]+(?=\n)/g, '')
@@ -235,19 +320,55 @@ export function limpiarRuidoPaginacion(texto: string): string {
 // ── 5. Segmentación (sin bis-letras — más simple que el CPP) ───────────
 const NUMERAL_ESTRUCTURAL =
   '(?:[IVXLCDM]+\\b|[UÚ]NIC[OA]\\b|PRIMER[OA]\\b|SEGUND[OA]\\b|TERCER[OA]\\b|CUART[OA]\\b|QUINT[OA]\\b|SEXT[OA]\\b|S[ÉE]PTIM[OA]\\b|OCTAV[OA]\\b|NOVEN[OA]\\b|D[ÉE]CIM[OA]\\b|FINAL\\b)';
+// BUG real #5: no todos los encabezados de artículo llevan punto o guion
+// tras el número -- verificado: "Artículo 126 Derogado" (sin punto),
+// "Artículo 523 La sentencia..." (sin punto) conviven en la misma fuente
+// con la forma normal "Artículo 1381." (con punto). El terminador ahora
+// acepta punto/guion O simplemente un espacio (fin del token numérico).
+//
+// BUG real #6: no todo encabezado real empieza al inicio de línea --
+// verificado: "...pondrán fin a ella. Artículo 565. La demencia..." trae
+// el encabezado A MITAD DE LÍNEA porque `pdftotext -layout` no rompió ahí.
+// La rama de "Artículo" ya NO exige `^[ \t]*` -- puede matchear en
+// cualquier posición; esLimiteReal() es quien decide si es un límite real
+// o una referencia cruzada, igual que en scripts/ingesta-cpp.ts. La rama
+// estructural (LIBRO/TÍTULO/CAPÍTULO/SECCIÓN) SÍ mantiene el anclaje de
+// inicio de línea -- esos encabezados, cuando son reales, siempre abren
+// línea propia en esta fuente.
 const PATRON_LIMITE_SEGMENTACION = new RegExp(
-  `^[ \\t]*(?:Art[ií]culos?\\s*(\\d+)\\s*[Oo]?\\s*[.\\-]|(?:LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N)\\s+${NUMERAL_ESTRUCTURAL})`,
+  `(?:Art[ií]culos?\\s*(\\d+)\\s*[Oo]?\\s*(?:[.\\-]|(?=\\s))|^[ \\t]*(?:LIBRO|T[IÍ]TULO|CAP[IÍ]TULO|SECCI[OÓ]N)\\s+${NUMERAL_ESTRUCTURAL})`,
   'gm',
 );
 
 interface CoincidenciaBruta {
   num: string | undefined;
   inicio: number;
+  fin: number; // fin del propio encabezado matcheado (num[.\-]  o estructural)
 }
 
 function recolectarCoincidencias(texto: string): CoincidenciaBruta[] {
   const coincidencias = [...texto.matchAll(PATRON_LIMITE_SEGMENTACION)];
-  return coincidencias.map((c) => ({ num: c[1], inicio: c.index ?? 0 }));
+  return coincidencias.map((c) => ({ num: c[1], inicio: c.index ?? 0, fin: (c.index ?? 0) + c[0].length }));
+}
+
+// BUG real #9: una referencia cruzada a mitad de oración puede caer justo
+// después de una línea en blanco espuria de `-layout` (salto de página o
+// justificado raro), colando la regla (b) de esLimiteReal -- verificado:
+// "...treinta (30) días que en el\n\nArtículo 574 se prescribe." (nótese
+// la línea en blanco entre "el" y "Artículo 574", pese a ser una sola
+// oración). Filtro adicional, aplicado SOLO a encabezados de "Artículo"
+// (num !== undefined): el contenido inmediatamente después del número
+// debe empezar en MAYÚSCULA (o dígito) -- norma de redacción constante en
+// esta fuente para el arranque real de un artículo ("Artículo 574. Las
+// excusas...", "Artículo 126 Derogado"); una referencia cruzada, en
+// cambio, continúa en minúscula ("574 se prescribe.").
+function contenidoEmpiezaEnMayuscula(texto: string, fin: number): boolean {
+  let p = fin;
+  while (p < texto.length && /\s/.test(texto[p])) p++;
+  const ch = texto[p];
+  if (ch === undefined) return false;
+  if (/\p{Ll}/u.test(ch)) return false; // minúscula -> NO es un arranque real
+  return true; // mayúscula, dígito, o cualquier otro carácter no-minúscula
 }
 
 // Idéntica lógica que scripts/ingesta-cpp.ts::esLimiteReal -- ver
@@ -280,19 +401,81 @@ export function esLimiteReal(texto: string, idx: number): boolean {
   const mPalabra = texto.slice(Math.max(0, j - 20), j).match(/(\p{L}+)$/u);
   if (mPalabra && mPalabra[1] === 'Derogado') return true;
 
+  // Rule (f) -- BUG real #7: un encabezado estructural (TÍTULO/CAPÍTULO)
+  // puede caer "flotando" a mitad de la MISMA línea que el cierre de un
+  // artículo derogado, separado por un hueco de columna de `-layout`
+  // (2+ espacios) -- verificado: "Artículo 381. Derogado      TÍTULO
+  // XVII\nArtículo 382. Derogado  DE LOS ALIMENTOS". Sin esta regla,
+  // "Artículo 382" quedaba absorbido como contenido del Art.381 porque el
+  // límite real quedaba "escondido" tras ese encabezado flotante. Se
+  // detecta exigiendo 2+ espacios seguidos de un tramo en MAYÚSCULAS
+  // hasta el punto de corte -- la misma señal tipográfica que ya usa la
+  // regla (d), pero sin exigir que TODA la línea sea mayúscula.
+  const mHueco = texto.slice(0, j).match(/ {2,}([\p{Lu}\d ]+)$/u);
+  if (mHueco) {
+    const soloLetrasHueco = mHueco[1].replace(/[^\p{L}]/gu, '');
+    if (soloLetrasHueco.length > 0 && soloLetrasHueco === soloLetrasHueco.toUpperCase()) {
+      return true;
+    }
+  }
+
   return false;
+}
+
+// Complemento de la regla (f) de esLimiteReal: aquella regla decide que un
+// encabezado flotante ("...Derogado      TÍTULO XVII") NO bloquea que el
+// SIGUIENTE artículo cuente como límite real, pero no borra el fragmento
+// flotante en sí -- ese fragmento queda como cola dentro del contenido del
+// artículo ANTERIOR ("Artículo 381. Derogado      TÍTULO XVII14"), y
+// contaminaría la validación fail-hard (que exige contenido EXACTO
+// "Derogado" para los artículos del set FALSE). Se limpia aquí con la
+// misma señal tipográfica (2+ espacios + tramo en mayúsculas hasta fin de
+// línea) -- verificado contra los dos casos reales de esta fuente: la cola
+// "TÍTULO XVII" en Art.381 y la cola "DE LOS ALIMENTOS" en Art.382.
+export function limpiarEncabezadosFlotantes(contenido: string): string {
+  return contenido
+    .replace(/ {2,}[\p{Lu}][\p{Lu}\d ]*$/gmu, '')
+    .replace(/[ \t]+$/gm, '')
+    .trim();
 }
 
 export function segmentarArticulos(textoLimpio: string): ArticuloExtraido[] {
   const crudas = recolectarCoincidencias(textoLimpio);
-  const filtradas = crudas.filter((c) => esLimiteReal(textoLimpio, c.inicio));
+  const filtradas = crudas.filter(
+    (c) => esLimiteReal(textoLimpio, c.inicio) && (c.num === undefined || contenidoEmpiezaEnMayuscula(textoLimpio, c.fin)),
+  );
   const articulos: ArticuloExtraido[] = [];
   for (let i = 0; i < filtradas.length; i++) {
     if (filtradas[i].num === undefined) continue;
     const fin = filtradas[i + 1]?.inicio ?? textoLimpio.length;
-    articulos.push({ numArticulo: filtradas[i].num!, contenido: textoLimpio.slice(filtradas[i].inicio, fin).trim() });
+    const contenido = limpiarEncabezadosFlotantes(textoLimpio.slice(filtradas[i].inicio, fin).trim());
+    articulos.push({ numArticulo: filtradas[i].num!, contenido });
   }
-  return articulos;
+  return colapsarDuplicadosIdenticos(articulos);
+}
+
+// BUG real #4 encontrado en la primera corrida: el propio PDF fuente
+// imprime el Art.1381 DOS VECES consecutivas, con texto byte-a-byte
+// idéntico ("Se tendrá por cumplida la condición cuando el obligado
+// impidiere voluntariamente su cumplimiento.") -- verificado contra la
+// salida cruda de pdftotext, líneas 9059 y 9062 de la extracción directa:
+// es una duplicación de IMPRENTA de la fuente, no un artefacto de este
+// script. Se colapsa a UNA sola fila SOLO cuando dos ocurrencias
+// CONSECUTIVAS del mismo número tienen contenido idéntico tras recortar
+// espacios -- si el contenido difiere, NO se colapsa (fail-hard más abajo
+// sigue abortando, porque eso sí requeriría juicio humano, no una fusión
+// mecánica).
+export function colapsarDuplicadosIdenticos(articulos: ArticuloExtraido[]): ArticuloExtraido[] {
+  const out: ArticuloExtraido[] = [];
+  for (const a of articulos) {
+    const anterior = out[out.length - 1];
+    if (anterior && anterior.numArticulo === a.numArticulo && anterior.contenido.trim() === a.contenido.trim()) {
+      console.warn(`⚠️  Art. ${a.numArticulo}: duplicado de imprenta en la fuente (contenido idéntico) — colapsado a una sola fila`);
+      continue;
+    }
+    out.push(a);
+  }
+  return out;
 }
 
 // ── 6. Los 16 stubs no impresos (Arts. 21-36) ───────────────────────────
@@ -408,7 +591,9 @@ export function validarIntegridadExtraccion(articulos: ArticuloExtraido[]): void
 // decir solo "Derogado" -- si el set cerrado y el contenido real
 // discrepan, el script aborta (ver advertencia de cabecera sobre Art.511).
 export function contenidoSinEncabezado(contenido: string): string {
-  return contenido.replace(/^Art[ií]culos?\s*\d+\s*[Oo]?\s*[.\-]\s*/, '').trim();
+  // Mismo terminador relajado que PATRON_LIMITE_SEGMENTACION -- punto,
+  // guion, o simplemente el fin del token numérico (ver BUG real #5).
+  return contenido.replace(/^Art[ií]culos?\s*\d+\s*[Oo]?\s*(?:[.\-]\s*|\s+)/, '').trim();
 }
 
 export function validarFragmentoFailHard(numArticulo: string, contenido: string, esFalseCerrado: boolean): void {
@@ -514,7 +699,7 @@ export interface ResultadoPipelineCivil {
 export function ejecutarPipelineCompleto(): ResultadoPipelineCivil {
   const textoCrudo = extraerTextoPDF(PDF_FUENTE);
   const cuerpoAcotado = acotarCuerpoDispositivo(textoCrudo);
-  const cuerpoNormalizado = normalizarTexto(cuerpoAcotado);
+  const cuerpoNormalizado = corregirExcepcionesPuntuales(normalizarTexto(cuerpoAcotado));
 
   const { notas, spans } = detectarNotasAlPie(cuerpoNormalizado);
   const numerosValidos = new Set(notas.map((n) => n.num));
