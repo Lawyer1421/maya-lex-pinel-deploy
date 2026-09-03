@@ -112,7 +112,7 @@ export const MATERIA = '01_PENAL';
 export const DECRETO = '9-99-E';
 export const NORM_ID = 'HN_CODIGO_PROCESAL_PENAL';
 export const EDICION_FUENTE =
-  'Compilación consolidada del Centro Electrónico de Documentación e Información Judicial (CEDIJ), Poder Judicial de Honduras -- edición con reformas integradas hasta Decreto 74-2013 (Flagrancia)';
+  'Compilación consolidada del Centro Electrónico de Documentación e Información Judicial (CEDIJ), Poder Judicial de Honduras -- edición con reformas integradas de los Decretos 14-2006 (Arts. 26-A, 219-A), 22-2015 (Arts. 237-A, 237-B), 70-2015 (Arts. 402-A al 402-G), 74-2013 (Arts. 440-A al 440-O, Flagrancia) y 195-2004 (Arts. 414-417)';
 
 // Fila manual a reconciliar in situ (ver DECISION_LOG.md).
 export const ID_STUB_MANUAL_ART173 = 'manual_curado:cpp_honduras:articulo_173';
