@@ -1,25 +1,54 @@
 /**
  * scripts/insertar-civil.ts
  * Genera los 2372 embeddings (intfloat/multilingual-e5-small, 384-dim,
- * prefijo "passage: " -- mismo modelo/endpoint/normalización que usa el
- * resto del corpus en producción, ver lib/rag/embed.ts) para los
- * artículos ya validados del Código Civil (Decreto del Poder Ejecutivo,
- * 8 de febrero de 1906), y escribe el SQL de staging + movimiento
- * aditivo (SIN DELETE de las filas existentes de materia='02_CIVIL')
- * listo para ejecutar contra `biblioteca_vectores` (thgrhueckkjdutjvcufp).
+ * prefijo "passage: " -- mismo modelo/normalización que usa el resto del
+ * corpus en producción, ver lib/rag/embed.ts) para los artículos ya
+ * validados del Código Civil (Decreto del Poder Ejecutivo, 8 de febrero
+ * de 1906), y escribe el SQL de staging + movimiento aditivo (SIN DELETE
+ * de las filas existentes de materia='02_CIVIL') listo para ejecutar
+ * contra `biblioteca_vectores` (thgrhueckkjdutjvcufp).
  *
- * Este script NO tiene credenciales de Supabase y no las necesita -- solo
- * lee HF_API_TOKEN de .env.local (fs puro, nunca dotenv/dotenvx en esta
- * máquina) para llamar a la API de HuggingFace, y escribe un archivo
- * .sql local bajo out/. La ejecución real del SQL contra producción
- * ocurre por separado, a través del canal MCP de Supabase ya
- * autenticado -- este script no abre ninguna conexión a esa base de
- * datos.
+ * ═══════════════════════════════════════════════════════════════════════
+ * CAMBIO DE PROVEEDOR DE EMBEDDING (2026-09-03, instrucción explícita
+ * del CLO): la versión anterior de este script llamaba a la API remota
+ * de HuggingFace Inference. Tras CUATRO corridas reales abortando con
+ * HTTP 402 "depleted your monthly included credits" (en los artículos
+ * 179, 178, 176 y 296 de 2372 -- confirmado con el propio dashboard de
+ * facturación de HuggingFace: "Usage Cost: $0.00" pese al saldo de $22,
+ * es decir, el 402 viene de un cupo mensual incluido separado, no del
+ * saldo prepago), se cambia a inferencia LOCAL con '@xenova/transformers'
+ * (ONNX Runtime en Node, sin red más allá de la descarga única de los
+ * pesos del modelo público la primera vez que corre).
+ *
+ * EQUIVALENCIA NUMÉRICA VERIFICADA ANTES DE ESTE CAMBIO (no asumida):
+ * se comparó, para el mismo texto, el vector devuelto por la API real de
+ * HF contra el vector local:
+ *   - Con el modelo ONNX CUANTIZADO por defecto (quantized:true, el que
+ *     usa @xenova/transformers si no se especifica lo contrario):
+ *     cosine similarity = 0.9966 -- ruido de cuantización real, NO
+ *     equivalente para un corpus que debe ser comparable por coseno
+ *     contra embeddings de producción calculados en precisión completa.
+ *   - Con el modelo ONNX en PRECISIÓN COMPLETA (quantized:false):
+ *     cosine similarity = 0.9999999999998946, diferencia absoluta máxima
+ *     por componente ~6.7e-8 -- equivalente a ruido de punto flotante,
+ *     prácticamente bit-idéntico a la API de HF.
+ * Por eso este script exige `quantized: false` explícitamente (ver
+ * cargarExtractor() más abajo) -- usar el modelo cuantizado por defecto
+ * produciría vectores incompatibles con el resto del corpus (indexado
+ * vía la API de HF en precisión completa) y con lib/rag/embed.ts en
+ * tiempo de consulta.
+ *
+ * Ya no lee HF_API_TOKEN ni hace ninguna llamada de red para embeddings
+ * -- la única red que toca este script es la descarga pública, una sola
+ * vez, de los pesos del modelo desde el Hub de HuggingFace (igual que
+ * `npm install` descarga paquetes; no es una llamada a producción ni
+ * consume ninguna cuota de inferencia).
  *
  * Ejecutar: npx tsx scripts/insertar-civil.ts <ruta-salida.sql>
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
 import {
   ejecutarPipelineCompleto,
   TOTAL_ESPERADO,
@@ -28,80 +57,30 @@ import {
   type RegistroCanonicoCivil,
 } from './ingesta-civil';
 
-// ── Lectura de .env.local con fs puro (NUNCA dotenv/dotenvx en esta
-// máquina -- corrompió secretos en Vercel el 2026-07-09, ver memoria).
-// Mismo mecanismo que scripts/insertar-cpp.ts -- no lee ningún secreto de
-// Supabase, solo HF_API_TOKEN. ──
-function parseEnvFile(ruta: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  const raw = readFileSync(ruta, 'utf8');
-  for (const linea of raw.split('\n')) {
-    const t = linea.trim();
-    if (!t || t.startsWith('#')) continue;
-    const eq = t.indexOf('=');
-    if (eq === -1) continue;
-    const key = t.slice(0, eq).trim();
-    let val = t.slice(eq + 1).trim();
-    if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
-    out[key] = val;
-  }
-  return out;
-}
-
-// ── Embedding de documento (passage), mismo endpoint/normalización que
-// lib/rag/embed.ts -- ese módulo solo expone embedQuery() (prefijo
-// "query: ", trunca a 500 chars, pensado para consultas cortas del
-// usuario). Los artículos de este código llegan hasta varios miles de
-// caracteres, así que se necesita el lado "passage: " sin ese truncado
-// corto. Solo intfloat/multilingual-e5-small -- nada de Cohere. ──
-const HF_MODEL_URL =
-  'https://router.huggingface.co/hf-inference/models/intfloat/multilingual-e5-small/pipeline/feature-extraction';
 const EMBED_DIMS = 384;
+const MODELO_LOCAL = 'Xenova/multilingual-e5-small';
 
-function normalizarSalidaHF(data: unknown): number[] {
-  let vec: number[];
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error('HF Inference: respuesta vacía o inválida');
+// Carga perezosa, una sola vez -- los pesos completos (~470MB en fp32)
+// se cachean en node_modules/@xenova/transformers/.cache/ tras la primera
+// corrida (fuera del repo, no se comitea).
+let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
+function cargarExtractor(): Promise<FeatureExtractionPipeline> {
+  if (!extractorPromise) {
+    console.log(`Cargando ${MODELO_LOCAL} localmente (precisión completa, quantized:false)...`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tipos de @xenova/transformers no exponen la opción quantized en su firma pública
+    extractorPromise = pipeline('feature-extraction', MODELO_LOCAL, { quantized: false } as any);
   }
-  if (typeof data[0] === 'number') {
-    vec = data as number[];
-  } else {
-    let tokens = data as number[][] | number[][][];
-    if (Array.isArray(tokens[0]) && Array.isArray((tokens[0] as number[][])[0])) {
-      tokens = (tokens as number[][][])[0];
-    }
-    const matriz = tokens as number[][];
-    const dims = matriz[0].length;
-    vec = new Array(dims).fill(0);
-    for (const fila of matriz) for (let i = 0; i < dims; i++) vec[i] += fila[i];
-    for (let i = 0; i < dims; i++) vec[i] /= matriz.length;
-  }
-  if (vec.length !== EMBED_DIMS) {
-    throw new Error(`HF Inference: dims inesperadas (${vec.length} ≠ ${EMBED_DIMS})`);
-  }
-  const norma = Math.sqrt(vec.reduce((s, x) => s + x * x, 0)) || 1;
-  return vec.map((x) => x / norma);
+  return extractorPromise;
 }
 
-async function embedPassage(texto: string, token: string): Promise<number[]> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 20000);
-  try {
-    const res = await fetch(HF_MODEL_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inputs: `passage: ${texto}`, options: { wait_for_model: true } }),
-      signal: controller.signal,
-    });
-    if (!res.ok) {
-      const err = await res.text().catch(() => res.statusText);
-      throw new Error(`HF Inference ${res.status}: ${err.slice(0, 200)}`);
-    }
-    const data = (await res.json()) as unknown;
-    return normalizarSalidaHF(data);
-  } finally {
-    clearTimeout(timeoutId);
+async function embedPassage(texto: string): Promise<number[]> {
+  const extractor = await cargarExtractor();
+  const salida = await extractor(`passage: ${texto}`, { pooling: 'mean', normalize: true });
+  const vec = Array.from(salida.data as Float32Array);
+  if (vec.length !== EMBED_DIMS) {
+    throw new Error(`embedding local: dims inesperadas (${vec.length} ≠ ${EMBED_DIMS})`);
   }
+  return vec;
 }
 
 // ── Generación del SQL de staging + movimiento aditivo ──────────────────
@@ -171,13 +150,6 @@ async function main() {
     process.exit(1);
   }
 
-  const env = parseEnvFile('.env.local');
-  const HF_TOKEN = env.HF_API_TOKEN;
-  if (!HF_TOKEN) {
-    console.error('HF_API_TOKEN no encontrado en .env.local');
-    process.exit(1);
-  }
-
   // Reconstruye el MISMO pipeline ya validado de ingesta-civil.ts (no se
   // retipea ninguna lógica de extracción/segmentación/QC/notas al pie/set
   // de vigencia cerrado).
@@ -206,7 +178,7 @@ async function main() {
   for (const r of resultado.registros) {
     i++;
     process.stdout.write(`[${i}/${TOTAL_ESPERADO}] Generando embedding Art. ${r.num_articulo}... `);
-    const embedding = await embedPassage(r.contenido, HF_TOKEN);
+    const embedding = await embedPassage(r.contenido);
     if (embedding.length !== EMBED_DIMS) {
       console.error(`\nFAIL-HARD: Art. ${r.num_articulo} produjo ${embedding.length} dims, se esperaban ${EMBED_DIMS}`);
       process.exit(1);
