@@ -164,13 +164,24 @@ describe('identidadDocumentalCoincide', () => {
 });
 
 describe('tieneEncabezadoArticulo', () => {
-  it('reconoce el encabezado real, con o sin tilde', () => {
+  it('reconoce el encabezado real, con o sin tilde (formato CPP/CEDIJ ".-")', () => {
     expect(tieneEncabezadoArticulo('...preciso: 1)... ARTICULO 173.- Medidas cautelares aplicables...', '173')).toBe(true);
     expect(tieneEncabezadoArticulo('ARTÍCULO 173.- Medidas cautelares aplicables', '173')).toBe(true);
   });
 
-  it('rechaza una mera mención de paso (jurisprudencia citando el número)', () => {
+  it('reconoce el formato Código Civil (Poder Judicial, punto + espacio, sin guion)', () => {
+    expect(tieneEncabezadoArticulo('Artículo 1. La ley es una declaración de la voluntad soberana...', '1')).toBe(true);
+    expect(tieneEncabezadoArticulo('Artículo 234. Los derechos concedidos a los padres...', '234')).toBe(true);
+  });
+
+  it('reconoce el formato stub del Civil (sin punto, Arts.21-36 sintetizados)', () => {
+    expect(tieneEncabezadoArticulo('Artículo 126 Derogado', '126')).toBe(true);
+    expect(tieneEncabezadoArticulo('Artículo 21. Derogado', '21')).toBe(true);
+  });
+
+  it('rechaza una mera mención de paso (jurisprudencia citando el número) — CPP y Civil', () => {
     expect(tieneEncabezadoArticulo('la defensa del imputado en el artículo 173 numeral 3 del Código Penal, encuadrando la conducta...', '173')).toBe(false);
+    expect(tieneEncabezadoArticulo('según el artículo 1 del Código Civil, la ley es obligatoria...', '1')).toBe(false);
   });
 
   it('rechaza un fragmento mal segmentado que no contiene el encabezado en absoluto', () => {
@@ -179,12 +190,13 @@ describe('tieneEncabezadoArticulo', () => {
 
   it('no confunde el número de otro artículo (ej. Art. 1730 no es Art. 173)', () => {
     expect(tieneEncabezadoArticulo('ARTICULO 1730.- Otra cosa completamente distinta', '173')).toBe(false);
+    expect(tieneEncabezadoArticulo('Artículo 2130. Otro artículo civil distinto', '213')).toBe(false);
   });
 });
 
 function fila(overrides: Partial<FilaExactaDB>): FilaExactaDB {
   return {
-    id: 'x', contenido: 'ARTICULO 173.- texto del articulo', num_articulo: '173', fuente: 'TSC',
+    id: 'x', contenido: 'ARTICULO 173.- Texto del articulo', num_articulo: '173', fuente: 'TSC',
     fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '01_PENAL',
     ...overrides,
   };
@@ -226,8 +238,8 @@ describe('resolverArticuloExacto', () => {
 
   it('dos instrumentos distintos con el mismo número → ambiguo, no cita ninguno', () => {
     const r = resolverArticuloExacto([
-      fila({ materia: '01_PENAL', contenido: 'ARTICULO 173.- texto penal' }),
-      fila({ materia: '02_CIVIL', contenido: 'ARTICULO 173.- texto civil', fuente: 'Codigo Civil' }),
+      fila({ materia: '01_PENAL', contenido: 'ARTICULO 173.- Texto penal' }),
+      fila({ materia: '02_CIVIL', contenido: 'ARTICULO 173.- Texto civil', fuente: 'Codigo Civil' }),
     ], '173', 'CODIGO_CIVIL' as InstrumentoNormalizado);
     // El primero no coincide con CODIGO_CIVIL (fuente 'TSC' no confirma
     // ningún instrumento) así que solo queda el segundo — no ambiguo.
