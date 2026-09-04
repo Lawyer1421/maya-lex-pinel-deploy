@@ -209,15 +209,66 @@ export const MENSAJE_ABSTENCION_CORPUS =
   'Para evitar una respuesta jurídica sin respaldo documental, Maya Lex no responderá desde conocimiento general.';
 
 /**
- * Confirma que el fragmento contiene el encabezado real del artículo
- * ("ARTICULO {n}.-" / "ARTÍCULO {n}.-"), no solo una mención de paso (p. ej.
- * una sentencia que cita "el artículo 173 numeral 3" sin ser el texto del
- * artículo). Sin esto, un fragmento mal segmentado que solo contiene la cola
- * de un artículo distinto podía citarse como si fuera el artículo pedido.
+ * Confirma que el fragmento contiene el encabezado real del artículo, no
+ * solo una mención de paso (p. ej. una sentencia que cita "el artículo 173
+ * numeral 3" sin ser el texto del artículo). Sin esto, un fragmento mal
+ * segmentado que solo contiene la cola de un artículo distinto podía
+ * citarse como si fuera el artículo pedido.
+ *
+ * BUG P1 (2026-09-04): esta función solo reconocía el formato CEDIJ/CPP
+ * ("ARTICULO 173.-"). El Código Civil (fuente Poder Judicial,
+ * CodigoCivil(Actualizado2014).pdf) usa "Artículo 1. " (punto+espacio, sin
+ * guion) y, en los 16 stubs sintetizados de Arts.21-36, ni siquiera punto
+ * ("Artículo 126 Derogado") -- verificado: 0/6 artículos del Civil pasaban
+ * el filtro viejo, dejando la búsqueda exacta del Civil siempre vacía pese
+ * a que el fuente/instrumento sí resolvía correctamente.
+ *
+ * Ahora acepta tres terminadores reales del corpus: ".-" (CPP), ". " (Civil,
+ * mayoría) y " " suelto (stubs del Civil sin punto). El terminador por sí
+ * solo ya no basta para distinguir un encabezado real de una referencia
+ * cruzada una vez que se acepta el espacio suelto -- se exige además que lo
+ * que sigue empiece en MAYÚSCULA (o dígito/comilla): un encabezado real
+ * siempre abre su propio texto en mayúscula; una referencia cruzada a mitad
+ * de oración ("el artículo 173 numeral 3...") continúa en minúscula.
+ *
+ * NO se ancla a inicio de línea/párrafo -- se probó esa variante (propuesta
+ * inicial del auditor) y rompía un test ya existente y correcto: el CPP
+ * real trae encabezados que aparecen a mitad de una cadena sin salto de
+ * línea previo ("...preciso: 1)... ARTICULO 173.- Medidas...",
+ * tests/rag-articulo-exacto.test.ts:168). El filtro mayúscula+terminador ya
+ * discrimina correctamente sin ese ancla, verificado contra los 4 casos
+ * exigidos más los 4 tests preexistentes de este archivo.
+ *
+ * BUG #2 encontrado al probar la primera versión (también corregido aquí):
+ * un lookahead de mayúscula `(?=[A-Z...])` DENTRO de una regex con flag `i`
+ * (necesario para aceptar "articulo"/"Artículo"/"ARTICULO") queda anulado
+ * -- bajo `/i`, `[A-Z]` matchea minúsculas también, así que "numeral"
+ * (minúscula) pasaba igual que "Medidas" (mayúscula). Verificado con el
+ * test negativo del propio auditor ("...el artículo 173 numeral 3..."),
+ * que fallaba con la regex de una sola pieza. Se resuelve en dos pasos: la
+ * regex (case-insensitive) solo localiza "artículo N" + terminador; el
+ * chequeo de mayúscula del carácter siguiente se hace aparte, comparando
+ * el carácter crudo contra su propia mayúscula/minúscula -- sensible a
+ * caso de verdad, sin depender del flag de la regex.
+ *
+ * BUG #3 (encontrado por el suite completo, no solo este archivo): el
+ * saneo `numero.replace(/[^0-9]/g, '')` de la propuesta del auditor
+ * descarta el sufijo de letra de los artículos bis ("123-A" -> "123"),
+ * rompiendo tests/rag-articulo-derogado-fallback.test.ts (D.102-2018,
+ * Arts. 123-A/123-B). `numero` ya llega formateado por el caller
+ * (formatearNumArticuloDisplay-equivalente) -- no hace falta sanearlo, y
+ * sanearlo mal rompe un caso real ya cubierto por tests. Se usa tal cual,
+ * igual que el código original antes de este fix.
  */
 export function tieneEncabezadoArticulo(contenido: string, numero: string): boolean {
-  const re = new RegExp(`art[ií]culo\\s*${numero}\\s*\\.-`, 'i');
-  return re.test(contenido);
+  if (!numero) return false;
+  const re = new RegExp(`art[ií]culo\\s*${numero}\\s*(?:\\.-\\s*|\\.\\s+|\\s+)`, 'i');
+  const m = re.exec(contenido);
+  if (!m) return false;
+  const siguiente = contenido[m.index + m[0].length];
+  if (!siguiente) return false;
+  if (/[0-9"«]/.test(siguiente)) return true;
+  return siguiente === siguiente.toUpperCase() && siguiente !== siguiente.toLowerCase();
 }
 
 export interface ResultadoExacto {
