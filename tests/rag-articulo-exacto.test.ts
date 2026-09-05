@@ -330,3 +330,70 @@ describe('resolverArticuloExacto', () => {
     expect(r.ambiguo).toBe(false);
   });
 });
+
+// ── REGLAMENTO_NOTARIADO — guardia anti-colisión con CODIGO_NOTARIADO ────────
+//
+// La fuente real del Reglamento del Código del Notariado (Resolución
+// PCSJ-17-2012) es literalmente "Reglamento del Código del Notariado (...)",
+// que contiene "Código del Notariado" como subcadena. Sin (a) la precedencia
+// de orden en RE_INSTRUMENTO (detección de texto) y (b) el negative
+// lookbehind en RE_FUENTE_POR_INSTRUMENTO.CODIGO_NOTARIADO (identidad
+// documental real), una fila del Reglamento se habría confirmado como
+// CODIGO_NOTARIADO -- la misma clase de colisión no determinista del bug P1
+// real de esta sesión (Decreto 77-2006 vs Código del Notariado).
+const REGLAMENTO: InstrumentoNormalizado = 'REGLAMENTO_NOTARIADO';
+const NOTARIADO: InstrumentoNormalizado = 'CODIGO_NOTARIADO';
+
+const filaReglamentoNotariado = fila({
+  id: 'reglamento-a1',
+  num_articulo: '1',
+  contenido: 'ARTICULO 1.- Texto real del Reglamento.',
+  fuente: 'Reglamento del Código del Notariado (Resolución PCSJ-17-2012)',
+  materia: '03_NOTARIAL',
+});
+const filaCodigoNotariado = fila({
+  id: 'notariado-a1',
+  num_articulo: '1',
+  contenido: 'ARTICULO 1.- Texto real del Código del Notariado.',
+  fuente: 'Código del Notariado (Decreto 353-2005)',
+  materia: '03_NOTARIAL',
+});
+
+describe('detectarInstrumentoDesdeTexto / identidadDocumentalCoincide — REGLAMENTO_NOTARIADO', () => {
+  it('detecta REGLAMENTO_NOTARIADO cuando la consulta menciona "reglamento", no CODIGO_NOTARIADO', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 1 del Reglamento del Código del Notariado')).toBe('REGLAMENTO_NOTARIADO');
+    expect(detectarInstrumentoDesdeTexto('artículo 5 del reglamento notariado')).toBe('REGLAMENTO_NOTARIADO');
+  });
+
+  it('sigue detectando CODIGO_NOTARIADO cuando la consulta NO menciona "reglamento"', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 1 del Código del Notariado')).toBe('CODIGO_NOTARIADO');
+  });
+
+  it('el Reglamento NO confirma identidad de CODIGO_NOTARIADO pese a contener esa frase como subcadena de su fuente', () => {
+    expect(identidadDocumentalCoincide(filaReglamentoNotariado, NOTARIADO)).toBe(false);
+    expect(identidadDocumentalCoincide(filaCodigoNotariado, NOTARIADO)).toBe(true);
+  });
+
+  it('el Reglamento SÍ confirma identidad de REGLAMENTO_NOTARIADO; el Código base no', () => {
+    expect(identidadDocumentalCoincide(filaReglamentoNotariado, REGLAMENTO)).toBe(true);
+    expect(identidadDocumentalCoincide(filaCodigoNotariado, REGLAMENTO)).toBe(false);
+  });
+
+  it('resolverArticuloExacto: pedir el Código del Notariado nunca devuelve una fila del Reglamento, aunque sea la única candidata', () => {
+    const r = resolverArticuloExacto([filaReglamentoNotariado], '1', NOTARIADO);
+    expect(r.fragmentos).toHaveLength(0);
+    expect(r.ambiguo).toBe(false);
+  });
+
+  it('resolverArticuloExacto: con ambas filas presentes, cada instrumento resuelve a la suya sin ambigüedad ni cruce', () => {
+    const rNotariado = resolverArticuloExacto([filaCodigoNotariado, filaReglamentoNotariado], '1', NOTARIADO);
+    expect(rNotariado.ambiguo).toBe(false);
+    expect(rNotariado.fragmentos).toHaveLength(1);
+    expect(rNotariado.fragmentos[0].fuente).toBe('Código del Notariado (Decreto 353-2005)');
+
+    const rReglamento = resolverArticuloExacto([filaCodigoNotariado, filaReglamentoNotariado], '1', REGLAMENTO);
+    expect(rReglamento.ambiguo).toBe(false);
+    expect(rReglamento.fragmentos).toHaveLength(1);
+    expect(rReglamento.fragmentos[0].fuente).toBe('Reglamento del Código del Notariado (Resolución PCSJ-17-2012)');
+  });
+});

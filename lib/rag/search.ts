@@ -109,10 +109,15 @@ export type InstrumentoNormalizado =
   | 'CODIGO_CIVIL'
   | 'CODIGO_TRABAJO'
   | 'CODIGO_FAMILIA'
-  | 'CODIGO_NOTARIADO';
+  | 'CODIGO_NOTARIADO'
+  | 'REGLAMENTO_NOTARIADO';
 
 // Orden importa: las variantes "procesal" se evalúan primero para que
 // "Código Procesal Penal" nunca caiga en CODIGO_PENAL por contener "penal".
+// Mismo motivo para REGLAMENTO_NOTARIADO antes que CODIGO_NOTARIADO: el texto
+// "Reglamento del Código del Notariado" contiene "Código del Notariado" como
+// subcadena, así que si CODIGO_NOTARIADO se evaluara primero se quedaría con
+// la coincidencia por error.
 const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_PROCESAL_PENAL', /\bcpp\b|c[oó]digo\s+procesal\s+penal\b/i],
   ['CODIGO_PROCESAL_CIVIL', /\bcpc\b|c[oó]digo\s+procesal\s+civil\b/i],
@@ -120,6 +125,7 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_CIVIL', /c[oó]digo\s+civil\b/i],
   ['CODIGO_TRABAJO', /c[oó]digo\s+(?:del?\s+)?trabajo\b/i],
   ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
+  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b/i],
   ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
 ];
 
@@ -142,7 +148,14 @@ const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> = {
   CODIGO_CIVIL: /c[oó]digo\s+civil\b/i,
   CODIGO_TRABAJO: /c[oó]digo\s+(?:del?\s+)?trabajo/i,
   CODIGO_FAMILIA: /c[oó]digo\s+de\s+familia/i,
-  CODIGO_NOTARIADO: /c[oó]digo\s+(?:del?\s+)?notariado/i,
+  // Negative lookbehind: la fuente real del Reglamento es literalmente
+  // "Reglamento del Código del Notariado (...)", que contiene "Código del
+  // Notariado" como subcadena. Sin esta exclusión, una fila del Reglamento
+  // confirmaría identidad para CODIGO_NOTARIADO igual que las filas del
+  // Código base — la misma clase de colisión de `fuente` que causó el bug
+  // P1 con Decreto 77-2006 (ver hallazgo de esta sesión).
+  CODIGO_NOTARIADO: /(?<!reglamento\s+(?:del?\s+)?)c[oó]digo\s+(?:del?\s+)?notariado/i,
+  REGLAMENTO_NOTARIADO: /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado/i,
 };
 
 /**
