@@ -650,3 +650,55 @@ describe('resolverArticuloExacto — regresión: instrumentos fuera de la allowl
     expect(rReglamento.fragmentos).toHaveLength(1);
   });
 });
+
+// ── CODIGO_COMERCIO — Decreto 73-1950 (pliego P0 2026-09-05) ────────────────
+//
+// A diferencia del lote V2 sin encabezado (CONSTITUCION, CODIGO_FAMILIA,
+// etc.), el contenido ingerido del Código de Comercio SÍ trae el encabezado
+// real ("Articulo N") -- verificado contra la segmentación real de la fuente
+// (scripts/ingesta-comercio.ts, dry-run 2026-09-05: 1,720 aceptados por
+// tieneEncabezadoArticulo antes de resolver duplicados). No se agrega a
+// INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL -- estas pruebas confirman que la ruta
+// normal (sin Opción C) basta.
+const COMERCIO: InstrumentoNormalizado = 'CODIGO_COMERCIO';
+
+const filaComercio = fila({
+  id: 'mayalex_normativos:codigo_comercio_1950_a1',
+  num_articulo: '1',
+  contenido:
+    'Articulo 1\n\nLos comerciantes, los actos de comercio y las cosas mercantiles se regirán por las\ndisposiciones de este Código y de las demás leyes mercantiles en su defecto, por\nlos usos y costumbres mercantiles y a falta de éstos, por las normas del Código\nCivil.\n\nLos usos y costumbres especiales y locales prevalecerán sobre los generales.',
+  fuente: 'Codigo de Comercio (Decreto No. 73-1950, Congreso Nacional de Honduras)',
+  materia: '10_LEYES_REGLAMENTOS',
+});
+
+describe('detectarInstrumentoDesdeTexto / identidadDocumentalCoincide / resolverArticuloExacto — CODIGO_COMERCIO', () => {
+  it('detecta CODIGO_COMERCIO desde el texto de la consulta', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 1 del Código de Comercio')).toBe('CODIGO_COMERCIO');
+    expect(detectarInstrumentoDesdeTexto('¿qué dice el Código de Comercio sobre las sociedades?')).toBe('CODIGO_COMERCIO');
+  });
+
+  it('identidadDocumentalCoincide confirma solo con la fuente real del Código de Comercio', () => {
+    expect(identidadDocumentalCoincide(filaComercio, COMERCIO)).toBe(true);
+    expect(identidadDocumentalCoincide(filaCPLimpia, COMERCIO)).toBe(false);
+    expect(identidadDocumentalCoincide(filaComercio, CP)).toBe(false);
+  });
+
+  it('resolverArticuloExacto: Art.1 real (CON encabezado textual, sin Opción C) resuelve directo', () => {
+    const r = resolverArticuloExacto([filaComercio], '1', COMERCIO);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('Los comerciantes, los actos de comercio');
+    expect(r.fragmentos[0].fuente).toBe('Codigo de Comercio (Decreto No. 73-1950, Congreso Nacional de Honduras)');
+  });
+
+  it('tieneIdentidadSinEncabezado nunca aplica a CODIGO_COMERCIO (no está en la allowlist)', () => {
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', COMERCIO)).toBe(false);
+  });
+
+  it('REGRESIÓN — Constitución, Civil, CPP, Notariado y Reglamento no se ven afectados por agregar CODIGO_COMERCIO', () => {
+    expect(resolverArticuloExacto([filaConstitucion], '1', CONSTITUCION).fragmentos).toHaveLength(1);
+    expect(resolverArticuloExacto([filaCPPLimpia], '173', CPP).fragmentos).toHaveLength(1);
+    expect(resolverArticuloExacto([filaCodigoNotariado], '1', NOTARIADO).fragmentos).toHaveLength(1);
+    expect(resolverArticuloExacto([filaReglamentoNotariado], '1', REGLAMENTO).fragmentos).toHaveLength(1);
+  });
+});

@@ -113,7 +113,8 @@ export type InstrumentoNormalizado =
   | 'REGLAMENTO_NOTARIADO'
   | 'CODIGO_TRIBUTARIO'
   | 'LEY_JUSTICIA_CONSTITUCIONAL'
-  | 'CONSTITUCION';
+  | 'CONSTITUCION'
+  | 'CODIGO_COMERCIO';
 
 // Orden importa: las variantes "procesal" se evalúan primero para que
 // "Código Procesal Penal" nunca caiga en CODIGO_PENAL por contener "penal".
@@ -131,6 +132,7 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b/i],
   ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
   ['CODIGO_TRIBUTARIO', /c[oó]digo\s+tributario\b/i],
+  ['CODIGO_COMERCIO', /c[oó]digo\s+de\s+comercio\b/i],
   // Se evalúa antes que CONSTITUCION por el mismo motivo que
   // REGLAMENTO_NOTARIADO antes que CODIGO_NOTARIADO: aunque el \b de
   // CONSTITUCION ya evita coincidir dentro de "Constitucional" (ver abajo),
@@ -179,6 +181,11 @@ const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> = {
   // de esta sesión: sin este aislamiento, ambas fuentes contienen la raíz
   // "constituci" y podrían confundirse en la identidad documental.
   CONSTITUCION: /constituci[oó]n\b/i,
+  // La fuente real es "Codigo de Comercio (Decreto No. 73-1950, Congreso
+  // Nacional de Honduras)". A diferencia del lote V2 (CONSTITUCION,
+  // CODIGO_FAMILIA, etc.), el contenido ingerido SÍ trae el encabezado real
+  // "Articulo N" -- no se agrega a INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL.
+  CODIGO_COMERCIO: /c[oó]digo\s+de\s+comercio/i,
 };
 
 /**
