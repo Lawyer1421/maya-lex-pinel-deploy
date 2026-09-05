@@ -123,7 +123,35 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
     expect(mock.eqCallsPorConsulta).toHaveLength(2); // intentó vigente, luego no-vigente
   });
 
-  it('una fila derogada SIN el encabezado real ("Artículo derogado" genérico) es rechazada -- mismo filtro de calidad de siempre', async () => {
+  it('una fila derogada SIN el encabezado real ("Artículo derogado" genérico) es rechazada para un instrumento FUERA de la allowlist de Opción C', async () => {
+    // NOTA (P0 2026-09-05): este caso usaba originalmente CODIGO_FAMILIA
+    // como instrumento. Desde que CODIGO_FAMILIA entró a la allowlist de
+    // tieneIdentidadSinEncabezado (Opción C), este escenario exacto SÍ se
+    // acepta para CODIGO_FAMILIA específicamente -- ver el test explícito de
+    // ese trade-off aceptado justo abajo. Aquí se usa CODIGO_NOTARIADO
+    // (fuera de la allowlist) para conservar la garantía original que este
+    // test verifica: un stub degradado sin contenido real no se cuela solo
+    // porque num_articulo coincide.
+    const filaMalFormada = {
+      id: 'stub-notariado-1a',
+      contenido: 'Artículo derogado', // sin "ARTICULO 1-A.-"
+      num_articulo: '1-A',
+      fuente: 'Código del Notariado (Decreto 353-2005)',
+      fuente_tipo: 'codigo',
+      jurisdiccion: 'HN',
+      es_norma_vigente: false,
+      materia: '03_NOTARIAL',
+    };
+    const mock = mockSupabaseSecuencial([], [filaMalFormada]);
+    vi.doMock('@/lib/supabase', () => mock);
+
+    const { buscarArticuloExacto } = await import('@/lib/rag/search');
+    const r = await buscarArticuloExacto('1-A', '03_NOTARIAL', 'CODIGO_NOTARIADO' as any);
+
+    expect(r.fragmentos).toHaveLength(0);
+  });
+
+  it('TRADE-OFF ACEPTADO de Opción C: para CODIGO_FAMILIA (allowlisteado), la MISMA fila derogada degradada ("Artículo derogado" genérico, sin texto real) SÍ se acepta si num_articulo coincide -- riesgo conocido y aceptado, no un bug', async () => {
     const filaMalFormada = filaDerogada({ contenido: 'Artículo derogado' }); // sin "ARTICULO 123-A.-"
     const mock = mockSupabaseSecuencial([], [filaMalFormada]);
     vi.doMock('@/lib/supabase', () => mock);
@@ -131,6 +159,10 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
     const { buscarArticuloExacto } = await import('@/lib/rag/search');
     const r = await buscarArticuloExacto('123-A', '06_FAMILIA', 'CODIGO_FAMILIA' as any);
 
-    expect(r.fragmentos).toHaveLength(0);
+    // Intencional: la identidad documental (fuente 'Codigo de Familia') y
+    // num_articulo ('123-A') confirman el candidato aunque el contenido sea
+    // un stub genérico -- exactamente el trade-off que Fredy autorizó
+    // explícitamente para estos 7 instrumentos.
+    expect(r.fragmentos).toHaveLength(1);
   });
 });

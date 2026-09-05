@@ -6,6 +6,7 @@ import {
   identidadDocumentalCoincide,
   resolverArticuloExacto,
   tieneEncabezadoArticulo,
+  tieneIdentidadSinEncabezado,
   type FilaExactaDB,
   type InstrumentoNormalizado,
 } from '@/lib/rag/search';
@@ -282,10 +283,16 @@ describe('resolverArticuloExacto', () => {
     expect(r.ambiguo).toBe(false);
   });
 
-  it('WAR ROOM: un fragmento de jurisprudencia que solo menciona el número no cuenta como encabezado', () => {
+  it('WAR ROOM: un fragmento de jurisprudencia que solo menciona el número no cuenta como encabezado (instrumento FUERA de la allowlist de Opción C)', () => {
+    // NOTA (P0 2026-09-05): este caso usaba originalmente CODIGO_PENAL (CP)
+    // como instrumento. Desde que CODIGO_PENAL entró a la allowlist de
+    // tieneIdentidadSinEncabezado (Opción C), este escenario exacto SÍ se
+    // acepta para CODIGO_PENAL específicamente -- ver el test explícito de
+    // ese trade-off aceptado más abajo. Aquí se usa CPP, que no está en la
+    // allowlist, para conservar la garantía original que este test verifica.
     const r = resolverArticuloExacto([
-      fila({ fuente_tipo: 'codigo', contenido: 'la defensa del imputado en el artículo 173 numeral 3 del Código Penal, encuadrando la conducta...', fuente: 'Codigo Penal' }),
-    ], '173', CP);
+      fila({ fuente_tipo: 'codigo', contenido: 'la defensa del imputado en el artículo 173 numeral 3 del Código Procesal Penal, encuadrando la conducta...', fuente: 'Código Procesal Penal de Honduras (Decreto 9-99-E)' }),
+    ], '173', CPP);
     expect(r.fragmentos).toHaveLength(0);
   });
 
@@ -395,5 +402,251 @@ describe('detectarInstrumentoDesdeTexto / identidadDocumentalCoincide — REGLAM
     expect(rReglamento.ambiguo).toBe(false);
     expect(rReglamento.fragmentos).toHaveLength(1);
     expect(rReglamento.fragmentos[0].fuente).toBe('Reglamento del Código del Notariado (Resolución PCSJ-17-2012)');
+  });
+});
+
+// ── CONSTITUCION y LEY_JUSTICIA_CONSTITUCIONAL — guardia anti-colisión ───────
+//
+// La fuente real de la Ley sobre Justicia Constitucional contiene la palabra
+// "Constitucional" -- si CONSTITUCION no exigiera un límite de palabra (\b)
+// justo después de "constituci[oó]n", ambos instrumentos se confundirían
+// (misma raíz "constituci"). Pruebas contra las fuentes REALES de producción
+// (thgrhueckkjdutjvcufp, verificado 2026-09-05): "Constitucion de la
+// Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)" y
+// "Ley sobre Justicia Constitucional".
+const CONSTITUCION: InstrumentoNormalizado = 'CONSTITUCION';
+const LJC: InstrumentoNormalizado = 'LEY_JUSTICIA_CONSTITUCIONAL';
+
+const filaConstitucion = fila({
+  id: 'constitucion-a1',
+  num_articulo: '1',
+  contenido: 'Honduras es un Estado de derecho, soberano, constituido como república libre, democrática e independiente para asegurar a sus habitantes el goce de la justicia, la libertad, la cultura y el bienestar económico y social.',
+  fuente: 'Constitucion de la Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)',
+  materia: '07_CONSTITUCIONAL',
+});
+
+const filaLJC = fila({
+  id: 'ljc-a1',
+  num_articulo: '1',
+  contenido: 'OBJETO DE LA LEY. La presente ley tiene por objeto desarrollar las garantías constitucionales y las de más ámbito, mediante los procesos de amparo, hábeas corpus, hábeas data e inconstitucionalidad.',
+  fuente: 'Ley sobre Justicia Constitucional',
+  materia: '07_CONSTITUCIONAL',
+});
+
+describe('detectarInstrumentoDesdeTexto / identidadDocumentalCoincide — CONSTITUCION y LEY_JUSTICIA_CONSTITUCIONAL', () => {
+  it('detecta CONSTITUCION sin confundirse con "Constitucional"', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 1 de la Constitución de Honduras')).toBe('CONSTITUCION');
+    expect(detectarInstrumentoDesdeTexto('¿qué dice la Constitución sobre el artículo 11?')).toBe('CONSTITUCION');
+  });
+
+  it('detecta LEY_JUSTICIA_CONSTITUCIONAL, no CONSTITUCION, cuando la consulta la menciona por su nombre completo', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 1 de la Ley sobre Justicia Constitucional')).toBe('LEY_JUSTICIA_CONSTITUCIONAL');
+    expect(detectarInstrumentoDesdeTexto('artículo 1 de la Ley de Justicia Constitucional')).toBe('LEY_JUSTICIA_CONSTITUCIONAL');
+  });
+
+  it('identidadDocumentalCoincide: cada fuente confirma solo su propio instrumento, nunca el otro', () => {
+    expect(identidadDocumentalCoincide(filaConstitucion, CONSTITUCION)).toBe(true);
+    expect(identidadDocumentalCoincide(filaConstitucion, LJC)).toBe(false);
+    expect(identidadDocumentalCoincide(filaLJC, LJC)).toBe(true);
+    expect(identidadDocumentalCoincide(filaLJC, CONSTITUCION)).toBe(false);
+  });
+
+  it('resolverArticuloExacto: con ambas filas presentes, cada instrumento resuelve a la suya sin cruce', () => {
+    const rConst = resolverArticuloExacto([filaConstitucion, filaLJC], '1', CONSTITUCION);
+    expect(rConst.ambiguo).toBe(false);
+    expect(rConst.fragmentos).toHaveLength(1);
+    expect(rConst.fragmentos[0].fuente).toBe('Constitucion de la Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)');
+
+    const rLjc = resolverArticuloExacto([filaConstitucion, filaLJC], '1', LJC);
+    expect(rLjc.ambiguo).toBe(false);
+    expect(rLjc.fragmentos).toHaveLength(1);
+    expect(rLjc.fragmentos[0].fuente).toBe('Ley sobre Justicia Constitucional');
+  });
+});
+
+// ── tieneIdentidadSinEncabezado — ruta paralela, P0 2026-09-05 ───────────────
+//
+// Hallazgo: el `contenido` real de Constitución, Código de Familia, Código
+// del Trabajo, Código Penal, Código Procesal Civil, Código Tributario y Ley
+// sobre Justicia Constitucional NUNCA contiene el literal "Artículo N." --
+// arranca directo en el título/cuerpo. tieneEncabezadoArticulo por sí solo
+// deja estos 7 instrumentos sin resultado en la búsqueda exacta pese a que
+// el router identifique el instrumento correctamente. Opción C (sí explícito
+// de Fredy, 2026-09-05): una ruta paralela, allowlisteada explícitamente a
+// estos 7, que confía en `num_articulo` cuando el encabezado textual no
+// aparece -- sin relajar tieneEncabezadoArticulo para el resto del corpus.
+describe('tieneIdentidadSinEncabezado — ruta paralela para instrumentos sin encabezado textual (P0 2026-09-05)', () => {
+  it('false para un instrumento fuera de la allowlist, aunque num_articulo coincida', () => {
+    expect(tieneIdentidadSinEncabezado(filaCPPLimpia, '173', CPP)).toBe(false);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_CIVIL' as InstrumentoNormalizado)).toBe(false);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', NOTARIADO)).toBe(false);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', REGLAMENTO)).toBe(false);
+  });
+
+  it('true solo si el instrumento está en la allowlist Y num_articulo coincide exactamente', () => {
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', CONSTITUCION)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_FAMILIA' as InstrumentoNormalizado)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_TRABAJO' as InstrumentoNormalizado)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_PENAL' as InstrumentoNormalizado)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_PROCESAL_CIVIL' as InstrumentoNormalizado)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', 'CODIGO_TRIBUTARIO' as InstrumentoNormalizado)).toBe(true);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '1' }), '1', LJC)).toBe(true);
+  });
+
+  it('false si num_articulo NO coincide exactamente, aunque el instrumento esté en la allowlist', () => {
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: '2' }), '1', CONSTITUCION)).toBe(false);
+    expect(tieneIdentidadSinEncabezado(fila({ num_articulo: null }), '1', CONSTITUCION)).toBe(false);
+  });
+
+  it('TRADE-OFF ACEPTADO de Opción C: para un instrumento allowlisteado, un fragmento que solo MENCIONA el número de paso (no es el artículo real) también pasa si num_articulo coincide -- a diferencia de un instrumento fuera de la allowlist (ver test equivalente con CPP arriba), donde tieneEncabezadoArticulo sigue rechazándolo', () => {
+    const r = resolverArticuloExacto([
+      fila({ fuente_tipo: 'codigo', num_articulo: '173', contenido: 'la defensa del imputado en el artículo 173 numeral 3 del Código Penal, encuadrando la conducta...', fuente: 'Codigo Penal' }),
+    ], '173', 'CODIGO_PENAL' as InstrumentoNormalizado);
+    // Esto es intencional, no un bug: Fredy autorizó explícitamente confiar
+    // en num_articulo + fuente para estos 7 instrumentos porque su
+    // `contenido` real nunca trae el encabezado textual de todos modos --
+    // este mismo criterio no discrimina "mención de paso" de "texto real
+    // del artículo" para ESTOS instrumentos específicamente. La identidad
+    // documental (fuente) y la ausencia de artefactos de anonimización
+    // siguen aplicándose sin excepción.
+    expect(r.fragmentos).toHaveLength(1);
+  });
+});
+
+// ── resolverArticuloExacto — Art.1 real de los 7 instrumentos allowlisteados ─
+//
+// Contenido reproducido de forma abreviada, tal como está almacenado hoy en
+// producción (thgrhueckkjdutjvcufp), para probar la ruta sin encabezado
+// contra la forma REAL de los datos, no contra un fixture idealizado.
+describe('resolverArticuloExacto — Art.1 real (sin encabezado textual) de los 7 instrumentos allowlisteados', () => {
+  it('Constitución Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const r = resolverArticuloExacto([filaConstitucion], '1', CONSTITUCION);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('Honduras es un Estado de derecho');
+  });
+
+  it('Constitución Art.11 (otro artículo real, también sin encabezado) resuelve', () => {
+    const filaArt11 = fila({
+      id: 'constitucion-a11',
+      num_articulo: '11',
+      contenido: 'Toda persona tiene derecho a circular libremente, salir, entrar y permanecer en el territorio nacional.',
+      fuente: 'Constitucion de la Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)',
+      materia: '07_CONSTITUCIONAL',
+    });
+    const r = resolverArticuloExacto([filaArt11], '11', CONSTITUCION);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('circular libremente');
+  });
+
+  it('Código Penal Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const filaPenal = fila({
+      id: 'penal-a1',
+      num_articulo: '1',
+      contenido: 'PRINCIPIO DE LEGALIDAD. Nadie puede ser castigado por acción u omisión que en el momento de producirse no esté calificada como delito.',
+      fuente: 'Codigo Penal',
+      materia: '01_PENAL',
+    });
+    const r = resolverArticuloExacto([filaPenal], '1', 'CODIGO_PENAL' as InstrumentoNormalizado);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('PRINCIPIO DE LEGALIDAD');
+  });
+
+  it('Código del Trabajo Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const filaTrabajo = fila({
+      id: 'trabajo-a1',
+      num_articulo: '1',
+      contenido: 'El presente código regula las relaciones entre el capital y el trabajo, colocándolas sobre una base de justicia social.',
+      fuente: 'Codigo del Trabajo',
+      materia: '05_LABORAL',
+    });
+    const r = resolverArticuloExacto([filaTrabajo], '1', 'CODIGO_TRABAJO' as InstrumentoNormalizado);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('capital y el trabajo');
+  });
+
+  it('Código de Familia Art.68 resuelve pese a no tener "Artículo 68." en el contenido', () => {
+    const filaFamilia = fila({
+      id: 'familia-a68',
+      num_articulo: '68',
+      contenido: 'Si no hubiere capitulaciones matrimoniales cada cónyuge queda dueño y dispone libremente de sus bienes.',
+      fuente: 'Codigo de Familia',
+      materia: '06_FAMILIA',
+    });
+    const r = resolverArticuloExacto([filaFamilia], '68', 'CODIGO_FAMILIA' as InstrumentoNormalizado);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('capitulaciones matrimoniales');
+  });
+
+  it('Código Procesal Civil Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const filaCPC = fila({
+      id: 'cpc-a1',
+      num_articulo: '1',
+      contenido: 'DERECHO DE ACCESO A LOS JUZGADOS Y TRIBUNALES. 1. Toda persona tiene derecho a plantear pretensiones ante los tribunales.',
+      fuente: 'Codigo Procesal Civil',
+      materia: '02_CIVIL',
+    });
+    const r = resolverArticuloExacto([filaCPC], '1', 'CODIGO_PROCESAL_CIVIL' as InstrumentoNormalizado);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('DERECHO DE ACCESO');
+  });
+
+  it('Código Tributario Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const filaTributario = fila({
+      id: 'tributario-a1',
+      num_articulo: '1',
+      contenido: 'ÁMBITO DE APLICACIÓN. 1) Las disposiciones de este Código establecen los principios básicos y las normas fundamentales del sistema tributario.',
+      fuente: 'Codigo Tributario (Decreto 170-2016 - Consolidado SAR corte 2019)',
+      materia: '04_TRIBUTARIO',
+    });
+    const r = resolverArticuloExacto([filaTributario], '1', 'CODIGO_TRIBUTARIO' as InstrumentoNormalizado);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('ÁMBITO DE APLICACIÓN');
+  });
+
+  it('Ley sobre Justicia Constitucional Art.1 resuelve pese a no tener "Artículo 1." en el contenido', () => {
+    const r = resolverArticuloExacto([filaLJC], '1', LJC);
+    expect(r.ambiguo).toBe(false);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].contenido).toContain('OBJETO DE LA LEY');
+  });
+});
+
+// ── Regresión: la ruta sin encabezado NO se extiende fuera de la allowlist ──
+//
+// Confirma que Opción C no reabre el bug que tieneEncabezadoArticulo existe
+// para prevenir: un candidato sin encabezado real de un instrumento FUERA de
+// la allowlist sigue rechazándose, y los instrumentos ya verdes (Civil, CPP,
+// Notariado, Reglamento) siguen resolviendo su Art.1 exactamente igual que
+// antes de este cambio.
+describe('resolverArticuloExacto — regresión: instrumentos fuera de la allowlist siguen exigiendo encabezado real', () => {
+  it('un candidato de CODIGO_CIVIL sin encabezado real se rechaza (CODIGO_CIVIL no está en la allowlist)', () => {
+    const filaCivilSinEncabezado = fila({
+      id: 'civil-sin-encabezado',
+      num_articulo: '1',
+      contenido: 'La ley es una declaración de la voluntad soberana que, manifestada en la forma prescrita por la Constitución, manda, prohíbe o permite.',
+      fuente: 'Codigo Civil',
+      materia: '02_CIVIL',
+    });
+    const r = resolverArticuloExacto([filaCivilSinEncabezado], '1', 'CODIGO_CIVIL' as InstrumentoNormalizado);
+    expect(r.fragmentos).toHaveLength(0);
+    expect(r.ambiguo).toBe(false);
+  });
+
+  it('CPP, Código del Notariado y Reglamento con encabezado real siguen resolviendo exactamente igual (sin cambios)', () => {
+    const rCPP = resolverArticuloExacto([filaCPPLimpia], '173', CPP);
+    expect(rCPP.fragmentos).toHaveLength(1);
+
+    const rNotariado = resolverArticuloExacto([filaCodigoNotariado], '1', NOTARIADO);
+    expect(rNotariado.fragmentos).toHaveLength(1);
+
+    const rReglamento = resolverArticuloExacto([filaReglamentoNotariado], '1', REGLAMENTO);
+    expect(rReglamento.fragmentos).toHaveLength(1);
   });
 });
