@@ -103,13 +103,26 @@ describe('buscarRAG — identidad estricta de instrumento (HOTFIX FINAL)', () =>
     expect(resultado.fragmentos[0].fuente).toBe('Código Procesal Penal de Honduras (Decreto 9-99-E)');
   });
 
-  it('B. "artículo 173 Código Penal" con ambas filas en la DB → NUNCA devuelve el registro del CPP; abstención', async () => {
+  it('B. "artículo 173 Código Penal" con ambas filas en la DB → NUNCA devuelve el registro del CPP; ahora resuelve al Código Penal real (Opción C, P0 2026-09-05)', async () => {
+    // NOTA: hasta antes de Opción C (2026-09-05), esta prueba esperaba
+    // abstención (toHaveLength(0)) porque filaCPSinEncabezado -- que
+    // representa fielmente el `contenido` REAL del Código Penal en
+    // producción, sin el literal "Artículo N." -- era descartada por
+    // tieneEncabezadoArticulo. Eso NO era la protección funcionando: era
+    // exactamente el mismo bug estructural que dejaba Constitución, Familia,
+    // Trabajo, CPC y Tributario siempre vacíos en la búsqueda exacta. Con
+    // CODIGO_PENAL en la allowlist de tieneIdentidadSinEncabezado, la
+    // identidad sigue siendo estricta (la fila del CPP se sigue excluyendo
+    // -- no coincide con el patrón de fuente de CODIGO_PENAL), pero ya no se
+    // abstiene del Código Penal real solo por la falta de encabezado.
     vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => fakeSupabaseConFilas([filaCPP, filaCPSinEncabezado]) }));
     const { buscarRAG } = await import('@/lib/rag/search');
 
     const resultado = await buscarRAG('Cita el artículo 173 del Código Penal de Honduras', 5, 'mayalex_normativos');
 
-    expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.ambiguo).toBeFalsy();
+    expect(resultado.fragmentos).toHaveLength(1);
+    expect(resultado.fragmentos[0].fuente).toBe('Codigo Penal');
+    expect(resultado.fragmentos[0].contenido).toContain('CLONACIÓN');
   });
 });

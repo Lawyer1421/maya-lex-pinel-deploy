@@ -110,7 +110,10 @@ export type InstrumentoNormalizado =
   | 'CODIGO_TRABAJO'
   | 'CODIGO_FAMILIA'
   | 'CODIGO_NOTARIADO'
-  | 'REGLAMENTO_NOTARIADO';
+  | 'REGLAMENTO_NOTARIADO'
+  | 'CODIGO_TRIBUTARIO'
+  | 'LEY_JUSTICIA_CONSTITUCIONAL'
+  | 'CONSTITUCION';
 
 // Orden importa: las variantes "procesal" se evalúan primero para que
 // "Código Procesal Penal" nunca caiga en CODIGO_PENAL por contener "penal".
@@ -127,6 +130,17 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
   ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b/i],
   ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
+  ['CODIGO_TRIBUTARIO', /c[oó]digo\s+tributario\b/i],
+  // Se evalúa antes que CONSTITUCION por el mismo motivo que
+  // REGLAMENTO_NOTARIADO antes que CODIGO_NOTARIADO: aunque el \b de
+  // CONSTITUCION ya evita coincidir dentro de "Constitucional" (ver abajo),
+  // declarar el instrumento más específico primero es la convención de este
+  // archivo y evita depender solo del \b si el patrón de CONSTITUCION cambia.
+  ['LEY_JUSTICIA_CONSTITUCIONAL', /ley\s+(?:sobre|de)\s+justicia\s+constitucional\b/i],
+  // \b tras "constituci[oó]n" es lo que evita que esto capture "Ley sobre
+  // Justicia Constitucional" (que en la fuente real contiene "Constitucional",
+  // sin límite de palabra inmediatamente después de "constitucion").
+  ['CONSTITUCION', /constituci[oó]n\b/i],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
@@ -156,6 +170,15 @@ const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> = {
   // P1 con Decreto 77-2006 (ver hallazgo de esta sesión).
   CODIGO_NOTARIADO: /(?<!reglamento\s+(?:del?\s+)?)c[oó]digo\s+(?:del?\s+)?notariado/i,
   REGLAMENTO_NOTARIADO: /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado/i,
+  CODIGO_TRIBUTARIO: /c[oó]digo\s+tributario/i,
+  // La fuente real es literalmente "Ley sobre Justicia Constitucional".
+  LEY_JUSTICIA_CONSTITUCIONAL: /ley\s+(?:sobre|de)\s+justicia\s+constitucional/i,
+  // La fuente real es "Constitucion de la Republica de Honduras (...)". El \b
+  // evita coincidir con "Ley sobre Justicia Constitucional" (otro instrumento
+  // ya presente en el corpus, materia 07_CONSTITUCIONAL) -- ver hallazgo P0
+  // de esta sesión: sin este aislamiento, ambas fuentes contienen la raíz
+  // "constituci" y podrían confundirse en la identidad documental.
+  CONSTITUCION: /constituci[oó]n\b/i,
 };
 
 /**
@@ -284,6 +307,60 @@ export function tieneEncabezadoArticulo(contenido: string, numero: string): bool
   return siguiente === siguiente.toUpperCase() && siguiente !== siguiente.toLowerCase();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// RUTA PARALELA DE VERIFICACIÓN — INSTRUMENTOS SIN ENCABEZADO TEXTUAL (P0 2026-09-05)
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Hallazgo: para estos 7 instrumentos, el `contenido` almacenado en el corpus
+// NUNCA incluye el literal "Artículo N." -- arranca directo en el título o
+// cuerpo del artículo (ej. Constitución Art.1: "Honduras es un Estado de
+// derecho, soberano..."; Código Penal Art.1: "PRINCIPIO DE LEGALIDAD. Nadie
+// puede ser castigado..."). Confirmado contra el contenido REAL de producción
+// para los 7, no por inferencia. `tieneEncabezadoArticulo` exige ese literal
+// como defensa contra fragmentos mal segmentados -- aplicado tal cual, deja
+// estos 7 instrumentos permanentemente sin resultado en la búsqueda exacta,
+// sin importar qué tan bien rutee el instrumento.
+//
+// Opción C (decisión explícita de Fredy, 2026-09-05): en vez de relajar
+// tieneEncabezadoArticulo de forma abierta (arriesgaría reabrir el bug que
+// esa función fue creada para prevenir, para TODO el corpus) o reescribir
+// `contenido` con un UPDATE masivo, se agrega una ruta de verificación
+// paralela y explícitamente allowlisteada: solo para estos 7 instrumentos,
+// se acepta un candidato sin encabezado textual si (a) su identidad
+// documental real (fuente/metadata) confirma el instrumento pedido, Y (b) su
+// propia columna `num_articulo` coincide exactamente con el número pedido.
+// Los otros dos filtros de resolverArticuloExacto (sin artefactos de
+// anonimización, identidad documental) NO se relajan -- esta ruta solo
+// sustituye el requisito de encabezado textual, nada más. Ningún otro
+// instrumento pasa por esta ruta: para todo lo demás, tieneEncabezadoArticulo
+// sigue siendo el único criterio.
+const INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL: ReadonlySet<InstrumentoNormalizado> = new Set([
+  'CONSTITUCION',
+  'CODIGO_FAMILIA',
+  'CODIGO_TRABAJO',
+  'CODIGO_PENAL',
+  'CODIGO_PROCESAL_CIVIL',
+  'CODIGO_TRIBUTARIO',
+  'LEY_JUSTICIA_CONSTITUCIONAL',
+]);
+
+/**
+ * true solo si el instrumento está en la allowlist de "sin encabezado
+ * textual" Y la propia columna `num_articulo` de la fila coincide
+ * exactamente con el número pedido. No sustituye identidadDocumentalCoincide
+ * ni el filtro de anonimización -- resolverArticuloExacto sigue aplicando
+ * ambos sin excepción; esto solo reemplaza tieneEncabezadoArticulo como
+ * segunda vía, y únicamente para los instrumentos explícitamente listados.
+ */
+export function tieneIdentidadSinEncabezado(
+  row: FilaExactaDB,
+  numero: string,
+  instrumento: InstrumentoNormalizado,
+): boolean {
+  if (!INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL.has(instrumento)) return false;
+  return row.num_articulo === numero;
+}
+
 export interface ResultadoExacto {
   fragmentos: FragmentoRAG[];
   /** true cuando hay más de un candidato (posibles instrumentos distintos con el mismo número) — no citar ninguno como autoritativo. */
@@ -332,14 +409,19 @@ export function resolverArticuloExacto(
   //    "[Cliente_Anónimo]" como si fuera texto de ley real);
   // 2) el fragmento debe contener el encabezado real del artículo, no solo
   //    mencionarlo de paso o ser un trozo de un artículo distinto mal
-  //    segmentado;
+  //    segmentado -- salvo para el allowlist explícito de instrumentos sin
+  //    encabezado textual (ver tieneIdentidadSinEncabezado arriba), donde se
+  //    confía en `num_articulo` en su lugar;
   // 3) identidad documental real que confirme el instrumento pedido — no
   //    materia, no fuente_tipo, no vigencia. Si ningún candidato cumple los
   //    tres, se trata como "no encontrado" — mejor abstenerse que citar un
   //    fragmento degradado, mal atribuido o del instrumento equivocado.
   const limpias = filas
     .filter((row) => !contieneArtefactoAnonimizacion(row.contenido))
-    .filter((row) => tieneEncabezadoArticulo(row.contenido, numero))
+    .filter((row) =>
+      tieneEncabezadoArticulo(row.contenido, numero) ||
+      tieneIdentidadSinEncabezado(row, numero, instrumentoSolicitado),
+    )
     .filter((row) => identidadDocumentalCoincide(row, instrumentoSolicitado));
 
   // Más de un candidato en materias distintas (posibles instrumentos
