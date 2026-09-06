@@ -163,21 +163,147 @@ export interface ChunkCandidato {
   aceptado: boolean;
 }
 
-export function segmentarGenerico(textoLimpio: string): ChunkCandidato[] {
+// Cuántos caracteres tras el propio match bastan para que
+// tieneEncabezadoArticulo decida aceptar/rechazar -- esa función solo mira
+// UN caracter después del separador (ver lib/rag/search.ts:311), así que
+// cualquier ventana holgada es suficiente; 250 dobla el margen del match
+// más largo posible (artículo + número de 4 dígitos + letra + separador).
+const VENTANA_ENCABEZADO = 250;
+
+// HALLAZGO (2026-09-05, post-mortem del apply de Código de Comercio,
+// ~62/1674 filas ya en producción): esta función truncaba ~140 artículos
+// reales (≈8.4% del Código de Comercio) cortando su contenido a media
+// oración. Causa raíz: PATRON_CANDIDATO no distingue un encabezado real
+// ("Articulo 65") de una referencia cruzada DENTRO del cuerpo de OTRO
+// artículo ("...a que se refieren los artículos 197 y 198"). La versión
+// anterior fijaba el límite `fin` de cada candidato en el índice del
+// SIGUIENTE match crudo, sin importar si ese siguiente match terminaba
+// siendo aceptado o rechazado -- así que en cuanto el cuerpo de un
+// artículo real mencionaba "artículo N" de pasada, el candidato real se
+// cortaba ahí mismo, perdiendo el resto de su propio contenido (y ese
+// fragmento de referencia cruzada, correctamente rechazado después por
+// tieneEncabezadoArticulo, absorbía en su lugar todo lo que faltaba del
+// artículo real MÁS el artículo siguiente completo).
+//
+// Fix: separar en dos pasadas. (1) decidir aceptado/rechazado de cada
+// match crudo mirando solo una ventana acotada inmediatamente después de
+// su propio índice -- nunca el texto hasta el siguiente match, así que
+// una referencia cruzada se evalúa (y se rechaza) con SU PROPIO contexto,
+// sin depender de dónde empiece el candidato siguiente. (2) una vez que
+// sabemos qué matches son encabezados reales, los límites de cada
+// segmento se fijan SOLO entre encabezados aceptados consecutivos -- un
+// match rechazado nunca puede partir en dos el contenido de un artículo
+// real. Los rechazados se conservan aparte (con su propia ventana corta
+// como contenido) únicamente para el reporte de diagnóstico de main(); no
+// participan en la segmentación real.
+export interface OpcionesSegmentacion {
+  // HALLAZGO 3 (post-mortem Código de Comercio, 2026-09-05): tieneEncabezadoArticulo
+  // por sí sola es demasiado débil para distinguir un encabezado real de una
+  // cita dentro de una oración -- "conforme al artículo 43. Ni la escritura
+  // social..." pasa exactamente igual que un encabezado real, porque "Ni"
+  // empieza con mayúscula como cualquier oración nueva. Se verificó contra
+  // TODA la fuente del Código de Comercio (script de diagnóstico ad-hoc, no
+  // versionado) que ESA fuente distingue consistentemente ambos casos por
+  // ORTOGRAFÍA, no por posición: cada una de las ~1680 apariciones de
+  // encabezado real usa la forma "Articulo" (A mayúscula, SIN tilde en la
+  // í) -- mientras que las ~150 citas dentro del cuerpo de otros artículos
+  // usan siempre "artículo"/"Artículo"/"artículos"/"Artículos" (con tilde)
+  // o, unas pocas veces, "articulo" (minúscula, sin tilde) -- nunca la
+  // forma exacta de encabezado. Cero excepciones encontradas en ninguna
+  // dirección PARA ESA FUENTE.
+  //
+  // Esto es una convención tipográfica de ESE documento, no una regla
+  // universal -- el propio test suite de este archivo (formato "stub sin
+  // punto") ejercita una fuente sintética que usa la forma CON tilde
+  // ("Artículo 21 Derogado") como encabezado real legítimo. Por eso esta
+  // señal es opt-in (default false, preserva el comportamiento genérico
+  // para cualquier fuente nueva) -- cada ingesta-<ley>.ts decide si su
+  // propia fuente sigue esta convención, tras verificarlo contra su propio
+  // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
+  exigirOrtografiaSinTilde?: boolean;
+}
+
+export function segmentarGenerico(
+  textoLimpio: string,
+  opciones: OpcionesSegmentacion = {},
+): ChunkCandidato[] {
   const coincidencias = [...textoLimpio.matchAll(PATRON_CANDIDATO)];
-  const candidatos: ChunkCandidato[] = [];
-  for (let i = 0; i < coincidencias.length; i++) {
-    const m = coincidencias[i];
+
+  const esOrtografiaDeEncabezado = (matchTexto: string): boolean =>
+    !opciones.exigirOrtografiaSinTilde || (/^A/.test(matchTexto) && !/[íÍ]/.test(matchTexto));
+
+  const brutos = coincidencias.map((m) => {
     const inicio = m.index ?? 0;
-    const fin = coincidencias[i + 1]?.index ?? textoLimpio.length;
     const numArticulo = m[1];
-    const contenido = textoLimpio.slice(inicio, fin).trim();
+    const largoMatch = m[0].length;
+    const ventana = textoLimpio.slice(inicio, inicio + VENTANA_ENCABEZADO);
     // Única fuente de verdad para "¿es un encabezado real?" -- la misma
     // función que ya filtra en producción, no un criterio local distinto.
-    const aceptado = tieneEncabezadoArticulo(contenido, numArticulo);
-    candidatos.push({ numArticulo, contenido, aceptado });
-  }
-  return candidatos;
+    // Se evalúa contra una ventana corta, NUNCA contra el texto completo
+    // hasta el siguiente match (ver hallazgo arriba). Se exige además la
+    // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
+    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    return { inicio, numArticulo, aceptado, largoMatch };
+  });
+
+  const aceptados = brutos.filter((b) => b.aceptado);
+
+  // HALLAZGO 2 (mismo post-mortem): tieneEncabezadoArticulo también acepta
+  // por pura coincidencia una referencia cruzada de UN SOLO número que
+  // queda justo pegada, tras un salto de párrafo, al inicio del siguiente
+  // encabezado real -- p.ej. "...se estará a lo dispuesto por el Artículo
+  // 31.\n\nArticulo 34\n..." (Art.33 citando al 31, un número YA usado
+  // antes); el caracter que sigue al "31." es la "A" mayúscula de
+  // "Articulo 34", así que el heurístico (que solo mira un caracter) la
+  // acepta como si fuera un encabezado propio. Se detecta igual que antes:
+  // un candidato "aceptado" cuyo contenido, una vez restado el propio
+  // texto del match, no deja NINGÚN cuerpo real -- un artículo real nunca
+  // tiene cuerpo vacío. Este chequeo usa una frontera PROVISIONAL (el
+  // siguiente aceptado crudo, sin filtrar todavía) -- eso basta para
+  // detectar el fantasma, sin importar si ese "siguiente" resulta a su vez
+  // ser otro fantasma.
+  const esVacio = aceptados.map((b, i) => {
+    const finProvisional = aceptados[i + 1]?.inicio ?? textoLimpio.length;
+    const cuerpo = textoLimpio.slice(b.inicio, finProvisional).slice(b.largoMatch).trim();
+    return cuerpo.length === 0;
+  });
+
+  // Corrección clave (sin la cual el hallazgo 2 solo tapaba el síntoma):
+  // un fantasma detectado arriba NO puede seguir actuando como frontera
+  // para el artículo real que lo precede -- si lo hiciera, ese artículo
+  // real perdería igual su propia referencia cruzada final (el "Artículo
+  // 31." desaparecería sin dejar rastro en ningún lado, en vez de quedar
+  // dentro del cuerpo de Art.33, que es donde realmente pertenece). Por
+  // eso las fronteras reales de segmentación se recalculan aquí usando
+  // SOLO los encabezados que sobrevivieron ambos filtros (aceptado Y no
+  // vacío) -- un fantasma de por medio simplemente se salta, y el
+  // artículo anterior se extiende hasta el siguiente encabezado genuino.
+  const reales = aceptados.filter((_, i) => !esVacio[i]);
+  const candidatos: ChunkCandidato[] = reales.map((b, i) => {
+    const fin = reales[i + 1]?.inicio ?? textoLimpio.length;
+    const contenido = textoLimpio.slice(b.inicio, fin).trim();
+    return { numArticulo: b.numArticulo, contenido, aceptado: true };
+  });
+
+  // Diagnóstico solamente -- main() los usa para mostrar "primeros 10
+  // rechazados" en el dry-run; su `contenido` aquí es deliberadamente la
+  // ventana corta (no el tramo completo hasta el siguiente match real).
+  const rechazados: ChunkCandidato[] = brutos
+    .filter((b) => !b.aceptado)
+    .map((b) => ({
+      numArticulo: b.numArticulo,
+      contenido: textoLimpio.slice(b.inicio, b.inicio + VENTANA_ENCABEZADO).trim(),
+      aceptado: false,
+    }));
+  const vacios: ChunkCandidato[] = aceptados
+    .filter((_, i) => esVacio[i])
+    .map((b) => ({
+      numArticulo: b.numArticulo,
+      contenido: textoLimpio.slice(b.inicio, b.inicio + VENTANA_ENCABEZADO).trim(),
+      aceptado: false,
+    }));
+
+  return [...candidatos, ...rechazados, ...vacios];
 }
 
 function limpiarRuidoBasico(texto: string): string {

@@ -26,6 +26,23 @@
  * Todo lo demás (extracción, segmentación, encabezado real, metadata,
  * SQL aditivo con ON CONFLICT DO NOTHING, fail-hard) reutiliza EXACTAMENTE
  * la misma lógica ya verificada de ingestar-ley.ts -- nada se relaja.
+ *
+ * CORRECCIÓN 2026-09-05 (post-mortem del primer apply real, ~62/1674 filas
+ * llegaron a producción con contenido truncado -- ver DECISION_LOG): la
+ * segmentación genérica fijaba el límite de cada artículo en el siguiente
+ * match crudo de "artículo N", sin importar si ese match era un encabezado
+ * real o una cita cruzada dentro del propio cuerpo del artículo
+ * ("...se estará a lo dispuesto en el artículo 31"). Fix en
+ * segmentarGenerico (ver ese archivo): (1) aceptar/rechazar con una
+ * ventana acotada, nunca con el texto hasta el siguiente match; (2)
+ * recalcular fronteras usando solo encabezados que sobrevivan un chequeo
+ * de "cuerpo no vacío"; (3) para ESTA fuente específicamente, exigir
+ * además la ortografía exacta de encabezado ("Articulo" sin tilde) --
+ * verificado contra las ~1850 apariciones de "artículo" en todo el texto,
+ * los encabezados reales usan siempre esa forma exacta, las citas nunca.
+ * Se activa vía `exigirOrtografiaSinTilde: true` -- NO es el default de
+ * segmentarGenerico porque es una convención tipográfica de este documento
+ * en particular, no una regla universal.
  */
 import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
@@ -213,7 +230,7 @@ async function main() {
 
   const textoCrudo = extraerTexto(opts.input);
   const textoLimpio = limpiarRuidoBasico(textoCrudo);
-  const candidatos = segmentarGenerico(textoLimpio);
+  const candidatos = segmentarGenerico(textoLimpio, { exigirOrtografiaSinTilde: true });
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
 

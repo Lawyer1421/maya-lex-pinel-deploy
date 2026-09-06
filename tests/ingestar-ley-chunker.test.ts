@@ -109,6 +109,114 @@ describe('segmentarGenerico — reutiliza tieneEncabezadoArticulo real, no un cr
   });
 });
 
+// ─────────────────────────────────────────────────────────────────────────
+// Post-mortem 2026-09-05 -- Código de Comercio: ~62/1674 filas llegaron a
+// producción con contenido truncado antes de detectarse. Causa raíz: el
+// límite de cada artículo se fijaba en el índice del SIGUIENTE match crudo
+// de "artículo N", sin importar si ese match terminaba siendo un
+// encabezado real o una cita cruzada dentro del cuerpo del propio
+// artículo. Ver comentarios en segmentarGenerico (hallazgos 1, 2 y 3).
+// ─────────────────────────────────────────────────────────────────────────
+describe('segmentarGenerico — no trunca un artículo real por una cita cruzada en su propio cuerpo', () => {
+  it('conserva el resto del artículo cuando termina citando OTRO artículo (caso real: Art.65 del Código de Comercio)', () => {
+    // Reproduce la forma exacta del bug real: Art.65 cita a los artículos
+    // 41-43 justo antes de que empiece el encabezado de Art.66 -- antes
+    // del fix, Art.65 quedaba truncado en "...Sociedad en Comandita los".
+    const texto =
+      'Articulo 65\n\nSon aplicables a la Sociedad en Comandita los artículos 41 a 43.\n\n' +
+      'Articulo 66\n\nSociedad de responsabilidad limitada es la que existe.';
+    const chunks = segmentarGenerico(texto, { exigirOrtografiaSinTilde: true });
+    const art65 = chunks.find((c) => c.numArticulo === '65' && c.aceptado);
+    expect(art65?.contenido).toContain('los artículos 41 a 43.');
+    expect(art65?.contenido).not.toMatch(/Comandita los$/);
+  });
+
+  it('conserva el resto del artículo cuando cita a un artículo ANTERIOR ya usado (caso real: Art.33 cita al Art.31)', () => {
+    // El caso más difícil: la cita ("Artículo 31.") reutiliza un número
+    // que YA tiene su propio encabezado real más arriba -- sin el fix,
+    // Art.33 quedaba truncado en "...se estará a lo dispuesto por el", y
+    // la cita fantasma no dejaba rastro en ningún lado (ni en Art.33 ni
+    // como fila propia).
+    const texto =
+      'Articulo 31\n\nLa repartición de utilidades reales.\n\n' +
+      'Articulo 33\n\nLas cantidades indebidamente pagadas se estará a lo dispuesto por el Artículo 31.\n\n' +
+      'Articulo 34\n\nEl embargo practicado por acreedores.';
+    const chunks = segmentarGenerico(texto, { exigirOrtografiaSinTilde: true });
+    const art33 = chunks.find((c) => c.numArticulo === '33' && c.aceptado);
+    expect(art33?.contenido).toContain('dispuesto por el Artículo 31.');
+    const art31 = chunks.filter((c) => c.numArticulo === '31' && c.aceptado);
+    expect(art31).toHaveLength(1); // la cita NO crea un segundo "31" real
+  });
+
+  it('no crea un artículo fantasma cuando una cita de cierre queda pegada al siguiente encabezado real', () => {
+    // "artículo 29." no deja ningún cuerpo propio antes de "Articulo 128"
+    // -- antes del fix, esto se aceptaba como un "29" independiente
+    // (cuerpo vacío) Y truncaba el artículo que lo contenía.
+    const texto =
+      'Articulo 29\n\nNo producirán ningún efecto legal las estipulaciones reales.\n\n' +
+      'Articulo 127\n\nDerechos especiales, observándose siempre lo dispuesto en el\nartículo 29.\n\n' +
+      'Articulo 128\n\nLa exhibición material de los títulos.';
+    const chunks = segmentarGenerico(texto, { exigirOrtografiaSinTilde: true });
+    const ocurrencias29 = chunks.filter((c) => c.numArticulo === '29' && c.aceptado);
+    expect(ocurrencias29).toHaveLength(1); // solo el Art.29 real, sin fantasma
+    const art127 = chunks.find((c) => c.numArticulo === '127' && c.aceptado);
+    expect(art127?.contenido).toContain('el\nartículo 29.');
+  });
+
+  it('no crea un artículo fantasma cuando la cita cierra oración justo antes del siguiente encabezado (mayúscula coincidente)', () => {
+    // El caso de fondo (hallazgo 3): "artículo 43. Ni la escritura..." pasa
+    // el heurístico de tieneEncabezadoArticulo porque "Ni" empieza con
+    // mayúscula como cualquier oración nueva -- sin `exigirOrtografiaSinTilde`
+    // esto se aceptaba como un "43" propio, robándole contenido real a
+    // Art.76 (el artículo que en verdad contiene esa cita).
+    const texto =
+      'Articulo 43\n\nLos socios no pueden ceder sus derechos reales.\n\n' +
+      'Articulo 76\n\nEn los aumentos de capital, en los casos y con los requisitos que señala el\n' +
+      'artículo 43. Ni la escritura social ni la asamblea pueden privar a los socios.\n\n' +
+      'Articulo 77\n\nLa sociedad llevará un libro especial.';
+    const chunks = segmentarGenerico(texto, { exigirOrtografiaSinTilde: true });
+    const ocurrencias43 = chunks.filter((c) => c.numArticulo === '43' && c.aceptado);
+    expect(ocurrencias43).toHaveLength(1);
+    const art76 = chunks.find((c) => c.numArticulo === '76' && c.aceptado);
+    expect(art76?.contenido).toContain('Ni la escritura social ni la asamblea');
+  });
+
+  it('exigirOrtografiaSinTilde es opt-in: sin la opción, una fuente que use "Artículo" (con tilde) para sus encabezados reales sigue funcionando igual que antes', () => {
+    // Ver describe de arriba: "acepta el formato stub sin punto" ya
+    // ejercita esto sin la opción. Esta prueba lo deja explícito: la
+    // MISMA fuente sintética con tildes deja de aceptarse si una fuente
+    // *distinta* (como Comercio) activa la opción -- por eso es opt-in,
+    // no el default.
+    const texto = 'Artículo 21 Derogado\nArtículo 22 Derogado';
+    const sinOpcion = segmentarGenerico(texto).filter((c) => c.aceptado);
+    const conOpcion = segmentarGenerico(texto, { exigirOrtografiaSinTilde: true }).filter((c) => c.aceptado);
+    expect(sinOpcion.map((c) => c.numArticulo)).toEqual(['21', '22']);
+    expect(conOpcion).toHaveLength(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// Regresión Civil/Notariado: ninguno de los dos usa segmentarGenerico.
+// ingesta-civil.ts e ingesta-cpp.ts tienen su propia segmentación afinada a
+// mano (ver cabecera de ingestar-ley.ts); el Código de Comercio 2005/2012
+// de Notariado se ingirió con scripts ad-hoc fuera de este archivo. Este
+// fix no puede regresionarlos porque no comparten código con ellos -- se
+// deja esta prueba como documentación explícita de ese hecho, no como
+// ejercicio de su lógica (que vive en otros archivos).
+// ─────────────────────────────────────────────────────────────────────────
+describe('alcance del fix -- no toca otras fuentes', () => {
+  it('segmentarGenerico es consumida únicamente por ingesta-comercio.ts en este repo', async () => {
+    const { execFileSync } = await import('node:child_process');
+    const salida = execFileSync(
+      'git',
+      ['grep', '-l', 'segmentarGenerico', '--', 'scripts/'],
+      { encoding: 'utf8', cwd: process.cwd() },
+    ).trim();
+    const archivos = salida.split('\n').map((f) => f.trim()).sort();
+    expect(archivos).toEqual(['scripts/ingesta-comercio.ts', 'scripts/ingestar-ley.ts']);
+  });
+});
+
 describe('construirRegistro', () => {
   const opts: OpcionesCLI = {
     input: 'x.txt',
