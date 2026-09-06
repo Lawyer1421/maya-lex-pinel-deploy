@@ -2,26 +2,30 @@
  * Ingesta del Código de Comercio de Honduras (Decreto 73-1950).
  *
  * Basado en scripts/ingestar-ley.ts (extractor genérico) pero con
- * resolución EXPLÍCITA de los 27 números de artículo duplicados que la
- * segmentación genérica encontró en la primera corrida real (fail-hard
- * documentado, ver reporte de dry-run 2026-09-05). Decisión editorial de
- * Fredy, no inventada por este script:
+ * resolución EXPLÍCITA de los números de artículo que la segmentación
+ * genérica encontró duplicados. Decisión editorial de Fredy, no inventada
+ * por este script:
  *
  *   1) DEDUPLICAR_IDENTICOS (1511, 1541): las dos ocurrencias son el mismo
  *      texto (1541 solo difiere en acentos OCR) -- se conserva una sola
  *      fila, la de mejor calidad de texto.
- *   2) DESCARTAR_FRAGMENTO (486, 493, 556, 586, 1133, 1251): una de las dos
- *      ocurrencias no es contenido real del artículo -- es una mención de
- *      paso truncada justo antes de un título de CAPITULO/SECCION/
- *      SUBSECCION que coincidió por casualidad con el patrón de
- *      encabezado. Se descarta esa, se conserva el cuerpo real.
- *   3) EXCLUIR_AMBIGUOS (19 números): ambas ocurrencias tienen contenido
- *      legal sustantivo y coherente -- no hay forma de determinar cuál es
- *      el vigente sin revisar el layout visual de la página original
- *      (pdftoppm no disponible en este entorno). Se EXCLUYEN ambas de este
- *      primer .sql -- no se elige ninguna. Quedan como brecha de
- *      numeración pendiente de adjudicación visual (ver reporte al
- *      Auditor).
+ *   2) DESCARTAR_FRAGMENTO (486, 493, 556, 586, 1133, 1251): categoría
+ *      histórica de la primera corrida (dry-run 2026-09-05, antes del fix
+ *      de segmentarGenerico) -- una de las dos ocurrencias era un
+ *      fragmento de encabezado truncado. Tras el fix de segmentación
+ *      (ver CORRECCIÓN abajo), estos 6 números ya NO llegan duplicados a
+ *      esta función -- se resuelven solos a su única ocurrencia real
+ *      antes de necesitar esta categoría. Se deja el código por si algún
+ *      caso futuro coincide con exactamente este patrón; no se ejercita
+ *      con el dataset actual.
+ *   3) EXCLUIR_AMBIGUOS (2 números: 418, 1662): ambas ocurrencias tienen
+ *      contenido legal sustantivo, coherente y DISTINTO entre sí -- no hay
+ *      forma de determinar cuál es el vigente sin revisar el layout
+ *      visual de la página original (pdftoppm no disponible en este
+ *      entorno). Duplicado real de imprenta del propio Código de 1950, no
+ *      un artefacto de esta herramienta. Se EXCLUYEN ambas de este .sql --
+ *      no se elige ninguna. Quedan como brecha de numeración pendiente de
+ *      adjudicación visual (ver reporte al Auditor).
  *
  * Todo lo demás (extracción, segmentación, encabezado real, metadata,
  * SQL aditivo con ON CONFLICT DO NOTHING, fail-hard) reutiliza EXACTAMENTE
@@ -43,6 +47,21 @@
  * Se activa vía `exigirOrtografiaSinTilde: true` -- NO es el default de
  * segmentarGenerico porque es una convención tipográfica de este documento
  * en particular, no una regla universal.
+ *
+ * EFECTO SECUNDARIO del fix, descubierto al regenerar (2026-09-05, mismo
+ * día): 17 de los 19 números que antes estaban en EXCLUIR_AMBIGUOS
+ * (15, 43, 168, 205, 249, 490, 500, 509, 516, 522, 534, 634, 750, 868,
+ * 1137, 1139, 1343) resultaron ser el MISMO bug de segmentación, no una
+ * ambigüedad real -- lo que parecía una "segunda ocurrencia con contenido
+ * sustantivo" era, en cada uno de los 17 casos, un fantasma de cita
+ * cruzada (hallazgo 2/3 de segmentarGenerico) que le robaba contenido
+ * real a OTRO artículo, y por eso parecía un cuerpo legítimo propio. Con
+ * el fix, cada uno de los 17 se resuelve solo a su única ocurrencia real
+ * -- se recuperan como artículos normales, YA NO están en
+ * EXCLUIR_AMBIGUOS. Solo 418 y 1662 siguen siendo ambigüedad real
+ * (verificado a mano: dos cuerpos legales distintos y completos bajo el
+ * mismo número, duplicado de imprenta genuino del documento de 1950).
+ * Conteo final: 1674 (objetivo original) + 17 (recuperados) = 1691.
  */
 import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
@@ -60,9 +79,11 @@ const EMBED_DIMS = 384;
 
 const DEDUPLICAR_IDENTICOS = new Set(['1511', '1541']);
 const DESCARTAR_FRAGMENTO = new Set(['486', '493', '556', '586', '1133', '1251']);
+// Reducido de 19 a 2 números el 2026-09-05, tras el fix de segmentación --
+// ver "EFECTO SECUNDARIO" en la cabecera de este archivo: los 17 restantes
+// eran el mismo bug de citas cruzadas, no ambigüedad real.
 const EXCLUIR_AMBIGUOS = new Set([
-  '15', '43', '168', '205', '249', '418', '490', '500', '509', '516',
-  '522', '534', '634', '750', '868', '1137', '1139', '1343', '1662',
+  '418', '1662',
 ]);
 
 function esFragmentoEncabezado(c: ChunkCandidato): boolean {
@@ -255,7 +276,11 @@ async function main() {
 
   console.log(`\n=== Conjunto final: ${finales.length} artículos (de ${aceptados.length} aceptados, -${excluidos.length} excluidos ambiguos, -2 duplicados de imprenta/fragmentos colapsados) ===`);
 
-  const muestra = ['1', '10', '100'];
+  // '65': antes truncado en "...Sociedad en Comandita los" (ver PR #27).
+  // '15'/'43': recuperados el 2026-09-05 -- antes en EXCLUIR_AMBIGUOS por
+  // el mismo bug, ya no son ambiguos tras el fix de segmentación.
+  // '100': sigue ausente -- brecha conocida del glifo "°" (pliego aparte).
+  const muestra = ['1', '10', '65', '15', '43', '100'];
   for (const n of muestra) {
     const f = finales.find((x) => x.numArticulo === n);
     console.log(`Art.${n}:`, f ? JSON.stringify(f.contenido.slice(0, 200)) : '(no encontrado)');
