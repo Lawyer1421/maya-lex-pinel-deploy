@@ -1395,3 +1395,77 @@ no ejecutada en este turno.
 
 Ningún INSERT/UPDATE/DELETE ejecutado contra `biblioteca_vectores` en
 este turno. Único cambio: esta entrada de bitácora.
+
+---
+
+## 2026-09-05 — Resolución del Fundador v3: Fase 0 de la Suite de Productividad Jurídica
+
+**Contexto**: Fredy propone una suite de productividad (expedientes,
+artefactos de estudio, memoria de conversación, comparador de casos) sobre
+la base RAG existente, con 6 principios mecánicos (P1-P6: jobs async vía
+Inngest, Structured Outputs nativos, tabla de mensajes normalizada, RLS
+performante `(select auth.uid())`, embeddings vía API en cola, React Flow +
+Dagre). Antes de escribir cualquier SQL, tres hallazgos cambiaron el punto
+de partida asumido por el plan:
+
+**1. Las 6 tablas de Fase 0.1 no existen en `thgrhueckkjdutjvcufp`.**
+El plan decía "expedientes (igual, pero con RLS performante)" como si ya
+existiera — falso, verificado contra `information_schema.tables`. Fase
+0.1 es un `CREATE` completo, no un `ALTER`.
+
+**2. `feature_flags` existe, pero de un triage anterior no relacionado**
+(Operación "Facultades Completas", 20260827000000_feature_flags.sql):
+`flag_corpus_p0`, `flag_corpus_profesional`, `flag_osint`,
+`flag_expediente` (descripción menciona `case_documents`), `flag_voz`,
+`flag_paywall`. **`case_documents` nunca existió como tabla real** —
+confirmado contra el esquema. Decisión: una sola tabla `feature_flags`
+(no un segundo sistema); se agregan los 4 flags nuevos de esta Suite
+(`flag_modo_expediente`, `flag_herramientas_estudio`,
+`flag_memoria_conversacion`, `flag_casos_similares`, default `false`);
+`flag_expediente` queda marcado `OBSOLETO` en su descripción (superseded
+por `flag_modo_expediente`), no se borra la fila.
+
+**3. Identidad de usuario: dos sistemas paralelos.** La app sí tiene
+Supabase Auth real (magic link + Google OAuth, `app/auth/callback/
+route.ts`) — `auth.uid()` resuelve a un usuario real con sesión. El resto
+del negocio (`subscriptions`, `queries_log`) usa `user_identifier` (texto,
+email) vía `service_role`, un sistema paralelo sin relación a
+`auth.users`. **Decisión explícita (Fredy + Auditor)**: las tablas nuevas
+de esta Suite usan `user_id uuid REFERENCES auth.users(id)` + RLS real vía
+`(select auth.uid()) = user_id`, no el patrón `user_identifier`/
+`service_role` del resto del esquema — más defensa en profundidad,
+justificada por la sensibilidad de datos de clientes (secreto
+profesional) frente a datos de facturación. Corolario: las rutas API
+nuevas de la Suite usan `createSupabaseServerClient()` (con sesión) para
+CRUD de expedientes/artefactos/mensajes — nunca `service_role` para eso.
+Única excepción estructural, no una violación de la regla: el job de
+Inngest en background que completa el análisis de un expediente (Fase
+1.2) no tiene sesión de usuario (no hay cookies en un evento en cola) y
+debe usar `service_role` para su `UPDATE` puntual — seguro porque
+`expediente_id`/`user_id` ya quedaron fijados por la ruta API con sesión
+validada antes de encolar el job.
+
+**4. Embeddings**: se descarta `vector(1536)`/OpenAI del plan original.
+Se reutiliza Xenova/multilingual-e5-small local (`vector(384)`), mismo
+modelo ya verificado del corpus legal — cero credenciales nuevas, cero
+costo incremental.
+
+**5. Abstención en análisis de expediente**: `AnalisisExpedienteSchema`
+debe permitir `null` + razón por cada campo cuando el documento no lo dice
+claramente — nunca inferir un hecho del caso no evidenciado en el texto
+fuente. Mismo principio de no inventar que ya rige el corpus legal,
+aplicado a documentos de cliente.
+
+**6. Tests de RLS**: se corren contra `aicakncgtuiiuomflkqj`
+(`mayalexhn-staging`), verificado 2026-09-05 — misma organización que
+producción, `ACTIVE_HEALTHY`, sin datos de clientes (solo texto legal de
+prueba). Nunca contra `thgrhueckkjdutjvcufp`.
+
+**Estado de ejecución**: migración escrita en
+`supabase/migrations/20260905000000_suite_productividad_fase0.sql`
+(6 tablas + reconciliación de `feature_flags`). **No aplicada a ningún
+proyecto todavía** — pendiente de tests de RLS en staging, luego sí
+explícito de Fredy para producción. `stg_codigo_comercio_1950` (staging
+del pliego de Código de Comercio, apply pendiente por separado) recibió
+`ENABLE ROW LEVEL SECURITY` este mismo día, sí explícito de Fredy,
+tabla vacía (0 filas) — anotado, no relacionado a esta Suite.
