@@ -1446,3 +1446,81 @@ o cualquier recurso de `thgr` en este turno.
 de `extract-text-route "401 AUTH_REQUIRED"` en corrida completa (2 corridas full
 verdes seguidas: 43 archivos, 380 pass, 1 skip). PROPUESTA — sin push, sin merge,
 sin settings de GitHub. Commit local aparte.
+
+**Adenda 2026-09-06 (handoff nocturno — P2 rerank, PREP + STOP):** hallazgo: el
+rerank Cohere ya está integrado y activo sin flag en `main` (`lib/rag/rerank.ts`
++ `search.ts:717`, commit `c6da65a` del 2026-09-01), con tests. El Punto 2 no es
+"agregar rerank" sino "ponerle flag a un rerank siempre-encendido". Prep local
+sin tocar `search.ts` (el cableado es ambiguo — 3 lecturas de "flag OFF",
+divergen en el comportamiento de producción): `supabase/migrations/20260906000000_flag_rerank.sql`
+(fila `flag_rerank` OFF, **NO aplicada**), `flag_rerank` en `KNOWN_FLAGS`,
+puntero en `.env.example`, `docs/runbooks/cohere-rerank-flag.md` con la decisión
+pendiente. STOP nocturno hasta que Fredy elija A/B/C. Cero apply, cero `thgr`,
+cero secrets.
+
+**Adenda 2026-09-06 (Auditor DevOps — decisión C, PROPUESTA):** el Auditor
+selecciona la **Opción C** del runbook `cohere-rerank-flag.md` como destino de
+diseño para `flag_rerank`: con el flag OFF, `buscarEnSupabase` devuelve
+`candidatos.slice(0, k)` (orden pgvector puro, sin llamada a Cohere) —
+regresión deliberada de `c6da65a` mientras dure la fase de activación gradual
+(R1/R8), con activación posterior por `allowed_emails` y luego amplia. Esto
+**no está cableado ni autorizado para ejecución**: C cambia el retrieval RAG
+que reciben clientes de pago, así que el PR de cableado (`search.ts` +
+plumbing de `userEmail` desde `app/api/chat/route.ts` y `app/api/rag/route.ts`)
+requiere el sí explícito de Fredy, en su sesión, antes de escribirse. Orden de
+PRs acordado: PR1 = `59b6342`+`c186767`; PR2 = `b46724f`; PR3 = cableado C,
+después. Ningún push/PR/merge/apply en este turno.
+
+---
+
+## 2026-09-07 — Delegación Controlada v1 (regla de operación del fundador)
+
+**Resolución de Fredy Pinel**: para todo paso de gobernanza que **NO** toque
+BD de producción ni runtime de clientes de pago, el asistente ejecuta directo
+y solo reporta al terminar. Antes de cada paso delegable: 1 línea con qué hará
+y el riesgo. Si algo falla: para y reporta — **nunca "arregla a mano" sin
+preguntar**.
+
+**Delegado (sin "sí" previo):** branch protection vía `gh` CLI · crear/editar
+labels en GitHub · correr tests y evals · abrir PRs · mergear PRs con CI verde
++ auditor verde + sin cambios a BD/runtime.
+
+**Sigue exigiendo "sí" literal de Fredy en el chat:** apply de migraciones a
+`biblioteca_vectores` (prod) · merges que cambien runtime (`search.ts`, rutas
+de chat, pagos) · activación de flags para clientes de pago · cualquier write
+irreversible en BD de producción.
+
+**Dos ajustes del asistente al aceptar la regla (2026-09-07):**
+1. **El `PUT .../branches/main/protection` lo corre Fredy**, no el asistente:
+   es un control de seguridad del repo de producción. El asistente prepara,
+   verifica y entrega el comando exacto; crear el label `auditor-green` sí lo
+   toma como delegado.
+2. **Un PR que introduce un archivo de migración de producción** (aunque no se
+   aplique) NO cuenta como "sin cambios a BD" para el auto-merge: el asistente
+   lo abre bajo la delegación pero pide "sí" literal para mergearlo. Aplica a
+   **PR2** (`20260906000000_flag_rerank.sql`). PRs de solo CI/docs/config: se
+   mergean bajo la delegación.
+
+Referencia: `docs/runbooks/branch-protection-setup.md`, `docs/runbooks/cohere-rerank-flag.md`.
+
+---
+
+## 2026-09-07 — Delegación Controlada v1.1 — whitelist de auto-merge
+
+Ajuste 3 del fundador (con OK del Auditor) sobre [[Delegación Controlada v1]].
+Se copia al encabezado de `docs/runbooks/branch-protection-setup.md` para que
+toda sesión nueva (incluidas las de la CLO) lo herede sin re-preguntar.
+
+**Auto-merge bajo delegación — SOLO si _todos_ los archivos del PR** están en la
+whitelist: `.github/workflows/**`, `docs/**`, `.nvmrc`, `vitest.config.ts`.
+
+**Merge requiere "sí" literal de Fredy en el chat** si el PR toca cualquier
+archivo bajo: `supabase/migrations/**`, `lib/**`, `app/**`, `middleware.*`,
+`vercel.json`, `next.config.*` — aunque el cambio no se aplique / no se active.
+
+**`auditor-green`**: el label se coloca SOLO tras 🟢 explícito del Auditor en el
+chat. Crear el label es delegado; el `PUT .../branches/main/protection` lo corre
+Fredy.
+
+Efecto inmediato: **PR2** toca `supabase/migrations/**` y `lib/flags.ts` → su
+merge exige "sí" literal de Fredy. Se abre bajo delegación, no se mergea.

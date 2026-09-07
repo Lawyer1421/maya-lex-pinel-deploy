@@ -1,12 +1,29 @@
 # Runbook: activar branch protection en `main` (deploy cero-manual)
 
-## Por qué esto lo ejecuta Fredy y no Claude
+## Delegación Controlada v1.1 — whitelist de auto-merge (heredable, no re-preguntar)
 
-Activar branch protection y crear labels son operaciones de **administración
-del repositorio**. La sesión de Claude Code corre con el token de la CLI de
-`gh` (cuenta `Lawyer1421`) pero **no debe** cambiar settings del repo/organización
-por su cuenta — igual que no aplica migraciones a producción sin 🟢 + sí
-explícito. Este runbook entrega los comandos exactos; los corre Fredy.
+Regla de operación vigente (ver `docs/governance/DECISION_LOG.md`, entradas
+2026-09-07). **Toda sesión nueva la hereda sin volver a pedirla a Fredy.**
+
+- **Auto-merge bajo delegación SOLO si _todos_ los archivos del PR** caen en:
+  `.github/workflows/**`, `docs/**`, `.nvmrc`, `vitest.config.ts`.
+- **Requieren "sí" literal de Fredy en el chat para mergear** (aunque no se
+  apliquen): cualquier archivo bajo `supabase/migrations/**`, `lib/**`,
+  `app/**`, `middleware.*`, `vercel.json`, `next.config.*`.
+- **`auditor-green`**: el label se pone SOLO después de 🟢 explícito del
+  Auditor en el chat. Crearlo (`gh label create`) sí es delegado; el
+  **`PUT .../branches/main/protection` lo corre Fredy**, no el asistente.
+- Siempre exigen "sí" literal: apply de migraciones a `biblioteca_vectores`,
+  merges que cambien runtime, activación de flags para clientes de pago,
+  cualquier write irreversible en BD de producción.
+
+## Por qué el `PUT` de protección lo ejecuta Fredy
+
+Activar branch protection es un control de **seguridad del repo de producción**.
+La sesión corre con el token `gh` (cuenta `Lawyer1421`) pero **no debe** cambiar
+ese setting por su cuenta — igual que no aplica migraciones a producción sin
+🟢 + sí explícito. Este runbook entrega el comando exacto; lo corre Fredy. El
+label `auditor-green` sí lo crea el asistente (delegado, v1.1).
 
 Estado observado el 2026-09-06 (`gh api`):
 
