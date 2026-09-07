@@ -1457,3 +1457,16 @@ divergen en el comportamiento de producción): `supabase/migrations/202609060000
 puntero en `.env.example`, `docs/runbooks/cohere-rerank-flag.md` con la decisión
 pendiente. STOP nocturno hasta que Fredy elija A/B/C. Cero apply, cero `thgr`,
 cero secrets.
+
+**Adenda 2026-09-06 (Auditor DevOps — decisión C, PROPUESTA):** el Auditor
+selecciona la **Opción C** del runbook `cohere-rerank-flag.md` como destino de
+diseño para `flag_rerank`: con el flag OFF, `buscarEnSupabase` devuelve
+`candidatos.slice(0, k)` (orden pgvector puro, sin llamada a Cohere) —
+regresión deliberada de `c6da65a` mientras dure la fase de activación gradual
+(R1/R8), con activación posterior por `allowed_emails` y luego amplia. Esto
+**no está cableado ni autorizado para ejecución**: C cambia el retrieval RAG
+que reciben clientes de pago, así que el PR de cableado (`search.ts` +
+plumbing de `userEmail` desde `app/api/chat/route.ts` y `app/api/rag/route.ts`)
+requiere el sí explícito de Fredy, en su sesión, antes de escribirse. Orden de
+PRs acordado: PR1 = `59b6342`+`c186767`; PR2 = `b46724f`; PR3 = cableado C,
+después. Ningún push/PR/merge/apply en este turno.
