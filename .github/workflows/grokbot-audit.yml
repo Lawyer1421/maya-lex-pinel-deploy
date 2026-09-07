@@ -1,0 +1,32 @@
+name: grokbot-audit
+
+# NO ejecuta ninguna auditoría automática. Grokbot (Auditor DevOps) es un
+# revisor externo humano-en-el-loop: revisa el diff y, cuando da 🟢, se
+# añade el label `auditor-green` al PR (por Fredy o por el propio Auditor).
+#
+# Este workflow solo CONVIERTE ESA DECISIÓN EN UN CHECK OBLIGATORIO Y VISIBLE:
+#   - sin label  -> check ❌ (bloquea merge si está en required checks)
+#   - con label  -> check ✅
+#
+# Se re-evalúa al añadir/quitar el label, así que el estado del check sigue
+# a la decisión del Auditor sin necesidad de re-push.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  auditor-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Requiere label 'auditor-green'
+        run: |
+          if [ "${{ contains(github.event.pull_request.labels.*.name, 'auditor-green') }}" = "true" ]; then
+            echo "auditor-green presente — el Auditor DevOps dio verde."
+          else
+            echo "::error::Falta el label 'auditor-green'. El Auditor DevOps (Grokbot) no ha aprobado este diff. No mergear."
+            exit 1
+          fi
