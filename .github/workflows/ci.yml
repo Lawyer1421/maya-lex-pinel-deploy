@@ -1,0 +1,47 @@
+name: CI
+
+# Crea los status checks que hoy no existen en el repo (2026-09-06: el único
+# check en `main` era `Vercel`). Estos jobs se declaran como "required" en la
+# branch protection de `main` — ver docs/runbooks/branch-protection-setup.md.
+#
+# Contrato: cero red real, cero credenciales. `vitest.config.ts` ya restringe
+# la suite a unidades puras (tests/README.md). No agregar aquí pasos que
+# necesiten secrets.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+
+# Un push nuevo al mismo PR cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test

@@ -1395,3 +1395,54 @@ no ejecutada en este turno.
 
 Ningún INSERT/UPDATE/DELETE ejecutado contra `biblioteca_vectores` en
 este turno. Único cambio: esta entrada de bitácora.
+
+---
+
+## 2026-09-06 — Stack Maestro P1: deploy cero-manual (branch protection + gate del Auditor) — PROPUESTA, sin aplicar
+
+**Rama**: `feature/stack-maestro` (worktree dedicado, desde `main` @ `9c8a3d8`).
+**Nada mergeado a `main`. Ningún setting de repo/organización modificado.**
+
+Primer PR chico de la Resolución Stack Maestro (Auditor DevOps, 6-sep-2026).
+Objetivo: que ningún cambio llegue a `main` / producción sin (a) PR, (b) checks
+verdes y (c) 🟢 explícito del Auditor DevOps.
+
+### Estado real observado (`gh api`, 2026-09-06)
+
+- `main` **NO** tiene branch protection (`404 Branch not protected`).
+- Único status check en commits de `main`: **`Vercel`** (contexto exacto,
+  Vercel GitHub App). Cero GitHub Actions / cero check-runs.
+- No existe el label `auditor-green` en el repo (solo labels default).
+
+### Entregado en este PR (código + docs, **no** settings)
+
+| Archivo | Qué hace |
+|---|---|
+| `.github/workflows/ci.yml` | Jobs `typecheck` (`npm run typecheck` = `tsc --noEmit`) y `test` (`npm run test` = `vitest run`) en `pull_request` + push a `main`/`feature/**`. Crea los checks que hoy no existen. `node-version-file: .nvmrc`, `npm ci`, cero secrets. |
+| `.github/workflows/grokbot-audit.yml` | Job `auditor-gate`: ❌ mientras el PR no tenga el label `auditor-green`; ✅ cuando está. **No ejecuta auditoría** — solo refleja la decisión humana/Grokbot como check obligatorio y visible. Re-evalúa en `labeled`/`unlabeled`. |
+| `.nvmrc` | Node `22` — alinea CI con el entorno local (`v22.17.1`). |
+| `docs/runbooks/branch-protection-setup.md` | Guía exacta `gh api` + UI para que **Fredy** cree el label y active la protección. Claude no cambia settings de repo/org. |
+
+### Branch protection deseada en `main` (a activar por Fredy tras merge)
+
+- Require a pull request before merging — 1 approval, dismiss stale approvals.
+- Require status checks + require branches up to date. **Checks requeridos
+  (nombres exactos): `Vercel`, `typecheck`, `test`, `auditor-gate`.**
+- Require conversation resolution. `enforce_admins: true`. Sin force-push,
+  sin deletion sobre `main`.
+
+### Pendiente
+
+1. 🟢 del Auditor DevOps sobre el diff de este PR.
+2. Merge a `main` (con el `auditor-gate` aún sin efecto porque la protección
+   todavía no existe — de ahí que este PR vaya primero).
+3. Fredy corre `docs/runbooks/branch-protection-setup.md` (label + protección).
+
+Cero cambios a `biblioteca_vectores`, `stg_codigo_comercio_1950`, feature flags
+o cualquier recurso de `thgr` en este turno.
+
+**Adenda 2026-09-06 (handoff nocturno, 🟢 CONDICIONADO del Auditor al diff CI + este fix):**
+`vitest.config.ts` → `test.testTimeout: 15000` (era default 5000). Elimina el flake
+de `extract-text-route "401 AUTH_REQUIRED"` en corrida completa (2 corridas full
+verdes seguidas: 43 archivos, 380 pass, 1 skip). PROPUESTA — sin push, sin merge,
+sin settings de GitHub. Commit local aparte.
