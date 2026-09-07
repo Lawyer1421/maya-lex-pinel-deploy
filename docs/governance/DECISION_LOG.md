@@ -1440,3 +1440,9 @@ verdes y (c) 🟢 explícito del Auditor DevOps.
 
 Cero cambios a `biblioteca_vectores`, `stg_codigo_comercio_1950`, feature flags
 o cualquier recurso de `thgr` en este turno.
+
+**Adenda 2026-09-06 (handoff nocturno, 🟢 CONDICIONADO del Auditor al diff CI + este fix):**
+`vitest.config.ts` → `test.testTimeout: 15000` (era default 5000). Elimina el flake
+de `extract-text-route "401 AUTH_REQUIRED"` en corrida completa (2 corridas full
+verdes seguidas: 43 archivos, 380 pass, 1 skip). PROPUESTA — sin push, sin merge,
+sin settings de GitHub. Commit local aparte.
