@@ -1502,3 +1502,25 @@ irreversible en BD de producción.
    mergean bajo la delegación.
 
 Referencia: `docs/runbooks/branch-protection-setup.md`, `docs/runbooks/cohere-rerank-flag.md`.
+
+---
+
+## 2026-09-07 — Delegación Controlada v1.1 — whitelist de auto-merge
+
+Ajuste 3 del fundador (con OK del Auditor) sobre [[Delegación Controlada v1]].
+Se copia al encabezado de `docs/runbooks/branch-protection-setup.md` para que
+toda sesión nueva (incluidas las de la CLO) lo herede sin re-preguntar.
+
+**Auto-merge bajo delegación — SOLO si _todos_ los archivos del PR** están en la
+whitelist: `.github/workflows/**`, `docs/**`, `.nvmrc`, `vitest.config.ts`.
+
+**Merge requiere "sí" literal de Fredy en el chat** si el PR toca cualquier
+archivo bajo: `supabase/migrations/**`, `lib/**`, `app/**`, `middleware.*`,
+`vercel.json`, `next.config.*` — aunque el cambio no se aplique / no se active.
+
+**`auditor-green`**: el label se coloca SOLO tras 🟢 explícito del Auditor en el
+chat. Crear el label es delegado; el `PUT .../branches/main/protection` lo corre
+Fredy.
+
+Efecto inmediato: **PR2** toca `supabase/migrations/**` y `lib/flags.ts` → su
+merge exige "sí" literal de Fredy. Se abre bajo delegación, no se mergea.
