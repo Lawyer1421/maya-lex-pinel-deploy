@@ -1470,3 +1470,35 @@ plumbing de `userEmail` desde `app/api/chat/route.ts` y `app/api/rag/route.ts`)
 requiere el sí explícito de Fredy, en su sesión, antes de escribirse. Orden de
 PRs acordado: PR1 = `59b6342`+`c186767`; PR2 = `b46724f`; PR3 = cableado C,
 después. Ningún push/PR/merge/apply en este turno.
+
+---
+
+## 2026-09-07 — Delegación Controlada v1 (regla de operación del fundador)
+
+**Resolución de Fredy Pinel**: para todo paso de gobernanza que **NO** toque
+BD de producción ni runtime de clientes de pago, el asistente ejecuta directo
+y solo reporta al terminar. Antes de cada paso delegable: 1 línea con qué hará
+y el riesgo. Si algo falla: para y reporta — **nunca "arregla a mano" sin
+preguntar**.
+
+**Delegado (sin "sí" previo):** branch protection vía `gh` CLI · crear/editar
+labels en GitHub · correr tests y evals · abrir PRs · mergear PRs con CI verde
++ auditor verde + sin cambios a BD/runtime.
+
+**Sigue exigiendo "sí" literal de Fredy en el chat:** apply de migraciones a
+`biblioteca_vectores` (prod) · merges que cambien runtime (`search.ts`, rutas
+de chat, pagos) · activación de flags para clientes de pago · cualquier write
+irreversible en BD de producción.
+
+**Dos ajustes del asistente al aceptar la regla (2026-09-07):**
+1. **El `PUT .../branches/main/protection` lo corre Fredy**, no el asistente:
+   es un control de seguridad del repo de producción. El asistente prepara,
+   verifica y entrega el comando exacto; crear el label `auditor-green` sí lo
+   toma como delegado.
+2. **Un PR que introduce un archivo de migración de producción** (aunque no se
+   aplique) NO cuenta como "sin cambios a BD" para el auto-merge: el asistente
+   lo abre bajo la delegación pero pide "sí" literal para mergearlo. Aplica a
+   **PR2** (`20260906000000_flag_rerank.sql`). PRs de solo CI/docs/config: se
+   mergean bajo la delegación.
+
+Referencia: `docs/runbooks/branch-protection-setup.md`, `docs/runbooks/cohere-rerank-flag.md`.
