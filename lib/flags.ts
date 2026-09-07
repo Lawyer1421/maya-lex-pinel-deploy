@@ -23,6 +23,11 @@ export const KNOWN_FLAGS = [
   'flag_expediente',
   'flag_voz',
   'flag_paywall',
+  // Stack Maestro P2 — gate del rerank Cohere (lib/rag/rerank.ts). Sembrado
+  // OFF por 20260906000000_flag_rerank.sql. Todavía no lo lee ningún código:
+  // el cableado en lib/rag/search.ts depende de una decisión de diseño
+  // (docs/runbooks/cohere-rerank-flag.md).
+  'flag_rerank',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];

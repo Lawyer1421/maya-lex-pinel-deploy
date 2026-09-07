@@ -1446,3 +1446,14 @@ o cualquier recurso de `thgr` en este turno.
 de `extract-text-route "401 AUTH_REQUIRED"` en corrida completa (2 corridas full
 verdes seguidas: 43 archivos, 380 pass, 1 skip). PROPUESTA — sin push, sin merge,
 sin settings de GitHub. Commit local aparte.
+
+**Adenda 2026-09-06 (handoff nocturno — P2 rerank, PREP + STOP):** hallazgo: el
+rerank Cohere ya está integrado y activo sin flag en `main` (`lib/rag/rerank.ts`
++ `search.ts:717`, commit `c6da65a` del 2026-09-01), con tests. El Punto 2 no es
+"agregar rerank" sino "ponerle flag a un rerank siempre-encendido". Prep local
+sin tocar `search.ts` (el cableado es ambiguo — 3 lecturas de "flag OFF",
+divergen en el comportamiento de producción): `supabase/migrations/20260906000000_flag_rerank.sql`
+(fila `flag_rerank` OFF, **NO aplicada**), `flag_rerank` en `KNOWN_FLAGS`,
+puntero en `.env.example`, `docs/runbooks/cohere-rerank-flag.md` con la decisión
+pendiente. STOP nocturno hasta que Fredy elija A/B/C. Cero apply, cero `thgr`,
+cero secrets.
