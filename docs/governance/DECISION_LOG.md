@@ -1589,3 +1589,42 @@ fallback que `rerankearFragmentos()` ya hacía. Verificado: `tsc` limpio,
 **Pendiente con "sí" literal de Fredy**: (1) merge de PR3; (2) después, activar
 `flag_rerank` (`enabled=true` o `allowed_emails`) — recién ahí el rerank vuelve
 a correr, ya de forma controlada.
+
+---
+
+## 2026-09-08 — CANARY: `flag_rerank` activado para 1 correo en `thgr`
+
+**Autoriza**: Fredy, *"sí, aplicá la actualización del canary para
+abogadofredypinel.firmalegal@gmail.com con backup confirmado"* (R4 confirmado).
+
+**Contexto**: PR #31 (cableado C) mergeado a `main` @ `6b3d3549` y desplegado a
+Vercel Production (deploy `success`). Con `flag_rerank=false` el rerank quedó
+apagado para todos. Este UPDATE lo enciende **solo para el correo del fundador**.
+
+**Ejecutado** (`execute_sql` por MCP, 2026-09-08 02:20:52 UTC) contra
+`thgrhueckkjdutjvcufp`:
+
+```sql
+UPDATE public.feature_flags
+SET enabled = true,
+    allowed_emails = ARRAY['abogadofredypinel.firmalegal@gmail.com'],
+    updated_at = now(),
+    updated_by = 'stack-maestro canary 2026-09-08'
+WHERE flag_name = 'flag_rerank';
+```
+
+**Antes**: `enabled=false`, `allowed_emails={}`.
+**Después**: `enabled=true`, `allowed_emails={abogadofredypinel.firmalegal@gmail.com}`.
+Los otros 6 flags **sin cambio** (todos `enabled=false`, allowlist vacía —
+verificado).
+
+**Efecto en producción** (sin redeploy, R2): requests autenticadas de
+`abogadofredypinel.firmalegal@gmail.com` → `isFlagEnabledForUser` = `true` →
+Cohere rerank-v3.5. Cualquier otro usuario / identidad por IP → `false` →
+`candidatos.slice(0, k)`. `lib/flags.ts` lee la tabla en vivo por request.
+
+**Rollback**: `UPDATE public.feature_flags SET enabled=false WHERE flag_name='flag_rerank';`
+**Ampliar canary**: agregar correos a `allowed_emails`; **activación amplia**:
+`allowed_emails='{}'` con `enabled=true`.
+
+Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit).
