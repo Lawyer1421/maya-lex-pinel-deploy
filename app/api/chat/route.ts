@@ -55,6 +55,7 @@ import {
   formatearContextoWeb,
   AVISO_BUSQUEDA_FALLIDA,
 } from '@/lib/websearch/tavily';
+import { evaluateNeedForOfficialWeb } from '@/lib/websearch/evaluate-web-need';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
 
@@ -282,16 +283,23 @@ export async function POST(req: NextRequest) {
     ? clasificarConsulta(ultimaPregunta as string, mode)
     : 'D';
 
-  // 3c. Recuperar contexto RAG (A/B/C/D) y búsqueda web (Tavily) EN PARALELO.
-  // Antes eran dos awaits secuenciales (RAG completo, luego Tavily) que sumaban
-  // su latencia total antes de emitir el primer token del streaming. Son
-  // independientes entre sí — solo el ORDEN DE INYECCIÓN en el prompt importa
-  // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
+  // 3c. ORQUESTACIÓN SECUENCIAL: RAG → evaluate → optional Tavily
+  //
+  // Cambio de arquitectura (2026-09-08):
+  // - RAG se ejecuta primero (mismo que antes)
+  // - Luego se EVALÚA si web es necesaria (nueva función determinista)
+  // - Si es necesaria, ejecutar Tavily (solo en base a decisión del servidor)
+  // - Componer contextos (RAG siempre antes que web, OWASP RAG)
+  //
+  // El cliente flag webSearch ya no es autoridad final: es un HINT.
+  // La decisión real depende de: RAG result + corpus evidence requirement.
+
   let systemConRAG = config.systemPrompt;
 
   interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
 
-  const ragPromise: Promise<RagOut> = (async () => {
+  // ── PASO 1: Ejecutar RAG (mismo código que antes) ────────────────────
+  const ragData: RagOut = await (async () => {
     if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
@@ -318,9 +326,34 @@ export async function POST(req: NextRequest) {
     return { texto: contextoRAG, fragmentos };
   })();
 
-  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
-  const webPromise: Promise<string> = (async () => {
-    if (!webSearch) return '';
+  const contextoRAG = ragData.texto;
+  const citas = construirCitas(ragData.fragmentos);
+
+  // ── PASO 2: Evaluar necesidad de búsqueda web oficial ──────────────
+  const ragWasAttempted = ruta !== 'D' && usarRouter;
+  const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
+  const requiereCorpusEvidencia =
+    requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria);
+
+  const webSearchNeeded = evaluateNeedForOfficialWeb(
+    ragData.fragmentos,
+    requiereCorpusEvidencia,
+    ragWasAttempted
+  );
+
+  // Log de decisión (debug)
+  if (process.env.DEBUG_CLAUDE === 'true') {
+    console.log(
+      `[Orquestación] webSearchNeeded=${webSearchNeeded}` +
+      ` | ragFragments=${ragData.fragmentos.length}` +
+      ` | requiereCorpusEvidencia=${requiereCorpusEvidencia}` +
+      ` | clientWebSearchHint=${webSearch}`
+    );
+  }
+
+  // ── PASO 3: Ejecutar Tavily SOLO si es necesario ──────────────────
+  let contextoWeb = '';
+  if (webSearchNeeded) {
     const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
     try {
       const resultadosWeb = await buscarWeb(queryBusqueda, {
@@ -331,19 +364,20 @@ export async function POST(req: NextRequest) {
 
       if (resultadosWeb.length > 0) {
         console.log(
-          `[WebSearch] Tavily OK | resultados=${resultadosWeb.length}` +
+          `[WebSearch] Tavily OK (server-decided) | resultados=${resultadosWeb.length}` +
           ` | query="${queryBusqueda.slice(0, 55)}..."` +
           ` | mode=${mode} | ruta=${ruta}`
         );
-        // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
-        return '\n\n' + formatearContextoWeb(resultadosWeb);
+        // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (OWASP RAG)
+        contextoWeb = '\n\n' + formatearContextoWeb(resultadosWeb);
+      } else {
+        // 0 resultados relevantes: flujo continúa con solo RAG
+        console.log(
+          `[WebSearch] Tavily 0 resultados relevantes (server-decided) — RAG local` +
+          ` | query="${queryBusqueda.slice(0, 55)}..."`
+        );
+        contextoWeb = '';
       }
-      // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
-      console.log(
-        `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
-        ` | query="${queryBusqueda.slice(0, 55)}..."`
-      );
-      return '';
     } catch (err) {
       const msg       = err instanceof Error ? err.message : String(err);
       const isTimeout = err instanceof Error && err.name === 'AbortError';
@@ -354,15 +388,16 @@ export async function POST(req: NextRequest) {
         ` | ${isNoKey ? '' : msg.slice(0, 90)}`
       );
 
-      // Notificar al modelo para que informe al usuario de forma discreta —
-      // solo si había intención de búsqueda (la clave existe pero falló)
-      return isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      // Notificar al modelo solo si la clave existe pero falló (no por SIN_APIKEY)
+      contextoWeb = isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
     }
-  })();
-
-  const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
-  const contextoRAG = ragData.texto;
-  const citas = construirCitas(ragData.fragmentos);
+  } else if (webSearch) {
+    // Cliente solicitó web pero servidor determinó que no es necesario
+    console.log(
+      `[WebSearch] Cliente solicitó, servidor denegó (corpus verificado)` +
+      ` | ruta=${ruta} | ragFragments=${ragData.fragmentos.length}`
+    );
+  }
 
   // 3d. FAIL-CLOSED (WAR ROOM FINAL): decisión determinista, ANTES de invocar
   // al LLM. Si la consulta exige evidencia verificable del corpus y la
@@ -370,7 +405,6 @@ export async function POST(req: NextRequest) {
   // encabezado) no trajo ningún fragmento válido, no se llama al modelo —
   // se abstiene en código. No aplica a conversación general que no exige
   // fundamentación documental (modos "sala", o rutas sin router).
-  const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
   const evidenciaInsuficiente =
     requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria) &&
     ragData.fragmentos.length === 0;
