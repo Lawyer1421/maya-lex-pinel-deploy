@@ -1556,3 +1556,36 @@ llama en ningún lado (el cableado en `search.ts` es PR3, aún sin autorizar).
 
 Pendiente con "sí" literal de Fredy: PR3 (cablear decisión C) y, después,
 activar `flag_rerank` (`enabled=true` / `allowed_emails`).
+
+---
+
+## 2026-09-08 — PR3: cableado de la Decisión C (`flag_rerank` en `search.ts`) — SIN merge
+
+**Autoriza el desarrollo + apertura de PR**: Fredy, *"Procedé a escribir el
+código y abrir el PR3 (sin merge)"*, sobre el plan revisado. **El merge exige
+"sí" literal aparte** (toca `lib/**` + `app/**`).
+
+**Confirmado por Fredy antes de escribir**:
+- `/api/rag/route.ts` (debug, sin auth) hereda `rerank: false` — correcto, no
+  puede evaluar un flag por usuario de forma segura.
+- `COHERE_API_KEY` **está** en Vercel Production. La intención de C es apagar el
+  rerank indiscriminado en prod hasta activación granular; mergear PR3 lo apaga
+  hasta `enabled=true` / `allowed_emails`.
+
+**Cambios (rama `feat/flag-rerank-cableado-c`, desde `main` @ `c3c82b5`):**
+| Archivo | Qué |
+|---|---|
+| `lib/rag/search.ts` | nuevo `seleccionarFinal(consulta, candidatos, k, rerankHabilitado)` exportado: OFF → `slice(0, k)` (sin Cohere), ON → `rerankearFragmentos`. `buscarEnSupabase` recibe `rerankHabilitado`; `buscarRAG` recibe `opts?: { rerank?: boolean }` (default false). `RETRIEVAL_WIDE_K` intacto. |
+| `lib/rate-limit.ts` | nuevo `getVerifiedEmail(req): Promise<string\|null>` (primitiva); `getUserIdentifierVerificado` refactorizado sobre él, comportamiento externo idéntico. |
+| `app/api/chat/route.ts` | resuelve `isFlagEnabledForUser('flag_rerank', verifiedEmail)` una vez por request (dentro del `ragPromise`, solo si RUTA≠D); pasa `{ rerank }` a las 2 llamadas `buscarRAG`. |
+| `tests/rag-rerank-flag.test.ts` | nuevo — contrato de `seleccionarFinal` (OFF = slice sin fetch; ON+key = Cohere; ON sin key = degrada). |
+| `tests/chat-route-fail-closed.test.ts` | mock de `@/lib/rate-limit` extendido + mock de `@/lib/flags` (cambio de mantenimiento por el refactor). |
+| `docs/runbooks/cohere-rerank-flag.md` | estado → C cableada. |
+
+**No-regresión**: `flag OFF` + sin `COHERE_API_KEY` → `slice(0, k)`, idéntico al
+fallback que `rerankearFragmentos()` ya hacía. Verificado: `tsc` limpio,
+`vitest` 385 pass / 1 skip (44 archivos).
+
+**Pendiente con "sí" literal de Fredy**: (1) merge de PR3; (2) después, activar
+`flag_rerank` (`enabled=true` o `allowed_emails`) — recién ahí el rerank vuelve
+a correr, ya de forma controlada.

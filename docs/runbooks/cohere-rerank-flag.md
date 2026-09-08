@@ -1,7 +1,28 @@
 # Runbook: `flag_rerank` — gate del rerank Cohere (Stack Maestro P2)
 
-Estado: **prep local. Nada aplicado, nada en `search.ts`.** Este runbook
-existe para que Fredy tome UNA decisión de diseño; el cableado se hace después.
+Estado (2026-09-08): **Decisión C elegida y cableada (PR3, sin merge). Migración
+`flag_rerank` aplicada a `thgr` con `enabled=false`.** El flag NO está activado
+para nadie. Historial abajo.
+
+## Decisión C — cableada en PR3
+
+Con `flag_rerank` **OFF** (default): `buscarEnSupabase` corta por similitud
+pgvector (`candidatos.slice(0, k)` vía `seleccionarFinal()` en `lib/rag/search.ts`),
+sin llamar a Cohere. Con el flag **ON**: Cohere `rerank-v3.5` como Etapa 2, con
+degradación elegante. El flag se resuelve una vez por request en `/api/chat`
+(`isFlagEnabledForUser('flag_rerank', getVerifiedEmail(req))`). `/api/rag`
+(debug, sin auth) hereda OFF.
+
+**Confirmado por el fundador (2026-09-08):** `COHERE_API_KEY` está en Vercel
+Production → hoy el rerank corre para todos. Al mergear PR3 el rerank queda
+**apagado en prod** hasta activar el flag (`enabled=true` o `allowed_emails`) —
+esa es la intención de C (despliegue granular, sin sorpresas ni costos).
+
+`RETRIEVAL_WIDE_K` no se tocó (sigue `Math.max(k, 25)`).
+
+---
+
+## Contexto histórico (por qué C, no A ni B)
 
 ## Lo que el work order asumía vs. lo que hay en `main`
 

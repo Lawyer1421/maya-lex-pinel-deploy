@@ -101,7 +101,17 @@ export function getUserIdentifier(req: Request): string {
  * Seguridad: el token se VALIDA server-side (auth.getUser) — a diferencia del
  * viejo X-User-ID, no se puede suplantar con un simple header.
  */
-export async function getUserIdentifierVerificado(req: Request): Promise<string> {
+/**
+ * Correo VERIFICADO del usuario, o `null`.
+ *
+ * Valida el `Authorization: Bearer <access_token>` de Supabase Auth
+ * server-side (`auth.getUser`) y devuelve el correo normalizado
+ * (`trim().toLowerCase()`), o `null` si no hay token válido. Nunca lanza.
+ *
+ * Es la primitiva sobre la que se construye `getUserIdentifierVerificado()`
+ * (rate-limit) y la resolución del flag `flag_rerank` en `/api/chat`.
+ */
+export async function getVerifiedEmail(req: Request): Promise<string | null> {
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
 
@@ -110,14 +120,19 @@ export async function getUserIdentifierVerificado(req: Request): Promise<string>
       const supabase = createServerSupabaseClient();
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data.user?.email) {
-        return buildUserIdentifierFromEmail(data.user.email);
+        return data.user.email.trim().toLowerCase();
       }
     } catch {
-      // Token corrupto o Supabase caído → degradar a IP sin romper el chat
+      // Token corrupto o Supabase caído → sin identidad verificada
     }
   }
 
-  return getUserIdentifier(req);
+  return null;
+}
+
+export async function getUserIdentifierVerificado(req: Request): Promise<string> {
+  const email = await getVerifiedEmail(req);
+  return email ? buildUserIdentifierFromEmail(email) : getUserIdentifier(req);
 }
 
 /**

@@ -40,6 +40,14 @@ function mockDependenciasComunes() {
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
     getUserIdentifierVerificado: vi.fn().mockResolvedValue('ip:test'),
+    getVerifiedEmail: vi.fn().mockResolvedValue(null),
+    getUserIdentifier: vi.fn().mockReturnValue('ip:test'),
+    buildUserIdentifierFromEmail: (e: string) => `email:${e.trim().toLowerCase()}`,
+  }));
+
+  // flag_rerank OFF por default (Decisión C) — el chat corta por similitud pgvector.
+  vi.doMock('@/lib/flags', () => ({
+    isFlagEnabledForUser: vi.fn().mockResolvedValue(false),
   }));
 
   vi.doMock('@/lib/analytics/logger', () => ({
