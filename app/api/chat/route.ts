@@ -31,8 +31,11 @@ import { NextRequest, NextResponse, after } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   checkAndIncrementRateLimit,
-  getUserIdentifierVerificado,
+  getVerifiedEmail,
+  getUserIdentifier,
+  buildUserIdentifierFromEmail,
 } from '@/lib/rate-limit';
+import { isFlagEnabledForUser } from '@/lib/flags';
 import {
   CLAUDE_CONFIG,
   CLAUDE_CONFIG_PENAL,
@@ -240,7 +243,10 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Rate Limiting — identidad verificada: email:{correo} si hay sesión, ip: si no
-  const userIdentifier = await getUserIdentifierVerificado(req);
+  const verifiedEmail = await getVerifiedEmail(req);
+  const userIdentifier = verifiedEmail
+    ? buildUserIdentifierFromEmail(verifiedEmail)
+    : getUserIdentifier(req);
   const rateLimitResult = await checkAndIncrementRateLimit(userIdentifier);
 
   if (!rateLimitResult.allowed) {
@@ -308,15 +314,24 @@ export async function POST(req: NextRequest) {
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
     if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
 
+    // Rerank Cohere detrás de `flag_rerank` (Decisión C). OFF por default →
+    // corte por similitud pgvector. Se resuelve una vez por request y solo
+    // cuando el RAG realmente corre (RUTA != D).
+    const rerankHabilitado = await isFlagEnabledForUser('flag_rerank', verifiedEmail);
+
     const ragResultado = await buscarRAG(
-      ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
+      ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro,
+      { rerank: rerankHabilitado }
     );
     let contextoRAG = formatearContextoRAG(ragResultado);
     const fragmentos = [...ragResultado.fragmentos];
 
     // RUTA_C civil → segunda pasada con procedimental para completar el análisis
     if (ruta === 'C' && !esPenal) {
-      const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
+      const ragProc = await buscarRAG(
+        ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,
+        { rerank: rerankHabilitado }
+      );
       const contextoProc = formatearContextoRAG(ragProc);
       if (contextoProc) {
         contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;

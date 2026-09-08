@@ -588,7 +588,8 @@ async function buscarEnSupabase(
   consulta: string,
   k: number,
   coleccion: string,
-  materia?: string,
+  materia: string | undefined,
+  rerankHabilitado: boolean,
 ): Promise<ResultadoRAG> {
   // Requiere la tabla biblioteca_vectores + RPC buscar_biblioteca en Supabase
   // (supabase/vectores.sql — poblada por scripts/seed_vectores.py) y
@@ -708,14 +709,13 @@ async function buscarEnSupabase(
     .filter((f) => !esRegistroNoVigenteExcluido(f))
     .filter((f) => f.fuente !== null);
 
-  // Etapa 2 del retrieval en dos etapas: Cohere reordena `candidatos` (hasta
-  // ~RETRIEVAL_WIDE_K + 3) por relevancia consulta-documento real y trunca a
-  // los k mejores. rerankearFragmentos() nunca lanza — si Cohere no está
-  // disponible, retorna candidatos.slice(0, k) en el mismo orden de
-  // similitud pgvector que tenía antes de esta integración (paridad de
-  // comportamiento con el pipeline previo en el camino de fallback).
-  const { rerankearFragmentos } = await import('@/lib/rag/rerank');
-  const fragmentos = await rerankearFragmentos(consulta, candidatos, k);
+  // Etapa 2 — reranking Cohere, ahora detrás de `flag_rerank` (Decisión C,
+  // DECISION_LOG 2026-09-07). `rerankHabilitado` lo resuelve `/api/chat` una
+  // vez por request vía `isFlagEnabledForUser`. Con el flag OFF (default) el
+  // embudo ancho (RETRIEVAL_WIDE_K) se sigue trayendo pero el corte final es
+  // por similitud pgvector — `candidatos.slice(0, k)` —, idéntico al fallback
+  // que `rerankearFragmentos()` ya hacía sin `COHERE_API_KEY`.
+  const fragmentos = await seleccionarFinal(consulta, candidatos, k, rerankHabilitado);
 
   const articulos = [...new Set(
     fragmentos
@@ -744,6 +744,30 @@ export function esRegistroNoVigenteExcluido(f: Pick<FragmentoRAG, 'es_norma_vige
   return f.es_norma_vigente === false && f.fuente_tipo === 'codigo' && f.jurisdiccion === 'HN';
 }
 
+/**
+ * Corte final del retrieval semántico — Etapa 2, detrás de `flag_rerank`
+ * (Decisión C, DECISION_LOG 2026-09-07).
+ *
+ * - `rerankHabilitado === false` (default): devuelve `candidatos.slice(0, k)`
+ *   — los `k` mejores por similitud pgvector, SIN llamar a Cohere. Es
+ *   exactamente lo que `rerankearFragmentos()` ya devolvía en su camino de
+ *   fallback, así que con el flag OFF y sin `COHERE_API_KEY` el comportamiento
+ *   es idéntico al previo a este cableado.
+ * - `rerankHabilitado === true`: Cohere rerank-v3.5 reordena por relevancia
+ *   consulta-documento y trunca a `k`; degrada al slice si Cohere no está
+ *   disponible. Nunca lanza.
+ */
+export async function seleccionarFinal<T extends { contenido: string; relevancia: number }>(
+  consulta: string,
+  candidatos: T[],
+  k: number,
+  rerankHabilitado: boolean,
+): Promise<T[]> {
+  if (!rerankHabilitado) return candidatos.slice(0, k);
+  const { rerankearFragmentos } = await import('@/lib/rag/rerank');
+  return rerankearFragmentos(consulta, candidatos, k);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // FUNCIÓN PRINCIPAL
 // ─────────────────────────────────────────────────────────────────────────────
@@ -763,6 +787,7 @@ export async function buscarRAG(
   k = 5,
   coleccion = 'cpp_honduras',
   materia?: string,
+  opts?: { rerank?: boolean },
 ): Promise<ResultadoRAG> {
   const backend = getBackend();
 
@@ -843,7 +868,7 @@ export async function buscarRAG(
       return await buscarEnPython(consulta, k, coleccion, materiaSemantica);
     }
     if (backend === 'supabase') {
-      return await buscarEnSupabase(consulta, k, coleccion, materiaSemantica);
+      return await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
