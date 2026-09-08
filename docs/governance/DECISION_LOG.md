@@ -1524,3 +1524,35 @@ Fredy.
 
 Efecto inmediato: **PR2** toca `supabase/migrations/**` y `lib/flags.ts` → su
 merge exige "sí" literal de Fredy. Se abre bajo delegación, no se mergea.
+
+---
+
+## 2026-09-08 — APPLY a producción: migración `flag_rerank` en `thgr`
+
+**Autoriza**: Fredy Pinel, frase literal *"sí, aplicá la migración flag_rerank
+a thgr"* + *"Backup hecho, aplicá"* (R4 confirmado por el fundador). El Auditor
+no autoriza apply.
+
+**Ejecutado** (`apply_migration` por MCP, 2026-09-08 01:27 UTC) contra
+`thgrhueckkjdutjvcufp`:
+
+```sql
+INSERT INTO public.feature_flags (flag_name, enabled, allowed_emails, description)
+VALUES ('flag_rerank', false, '{}', 'Stack Maestro P2 -- rerank Cohere ...')
+ON CONFLICT (flag_name) DO NOTHING;
+```
+
+**Antes**: `feature_flags` = 6 filas, todas `false`. `flag_rerank` no existía.
+**Después**: 7 filas, `flag_rerank = false`, `allowed_emails = {}`.
+`bool_or(enabled)` sobre toda la tabla = **false** (nada activado).
+**Historial de migraciones de `thgr`**: `20260908012708 flag_rerank` (Supabase
+versiona por hora de aplicación; el archivo del repo es `20260906000000_flag_rerank.sql`
+— misma discrepancia de numeración que `feature_flags` repo `…827000000` vs thgr
+`…828030447`, sin efecto funcional).
+
+**Impacto en runtime**: cero. `isFlagEnabledForUser('flag_rerank', …)` no se
+llama en ningún lado (el cableado en `search.ts` es PR3, aún sin autorizar).
+**Rollback**: `DELETE FROM public.feature_flags WHERE flag_name = 'flag_rerank';`
+
+Pendiente con "sí" literal de Fredy: PR3 (cablear decisión C) y, después,
+activar `flag_rerank` (`enabled=true` / `allowed_emails`).
