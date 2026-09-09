@@ -1,23 +1,26 @@
 /**
  * lib/flags/flags.ts
  *
- * Vercel Flags SDK with entity-based targeting for Maya Lex hybrid router.
- * Uses identify callback to provide stable user context for dashboard targeting.
+ * Vercel Flags SDK (v4+) with entity-based targeting for Maya Lex hybrid router.
+ * Uses flag.run({ identify: ... }) to pass explicit user context for dashboard targeting.
  *
- * Entity hierarchy:
- *   - Authenticated Supabase user (stable UUID)
- *   - Session-based hash (fallback)
+ * Entity: Supabase authenticated user.id (stable UUID)
+ * Optional: email attribute for dashboard labels (not for targeting logic)
  *
  * Usage in API routes (app/api/chat/route.ts):
  *   import { mayaLexHybridRouter } from '@/lib/flags/flags';
- *   const flagValue = await mayaLexHybridRouter();
- *   // Context is automatically provided via identify() callback
+ *   const flagValue = await mayaLexHybridRouter.run({
+ *     identify: {
+ *       user: { id: supabaseUserId }
+ *     }
+ *   });
  */
 
-import { flag } from '@vercel/flags/next';
+import { flag } from 'flags/next';
+import { vercelAdapter } from '@flags-sdk/vercel';
 
 /**
- * Entity type for Vercel Flags targeting.
+ * Entity type for Vercel Flags targeting (v4+).
  * Matches dashboard entity definition.
  */
 export type MayaLexFlagEntities = {
@@ -28,34 +31,6 @@ export type MayaLexFlagEntities = {
 };
 
 /**
- * Extract stable user identity from request context.
- * Priority: Supabase auth UUID > hashed authenticated session > fallback
- *
- * For security:
- * - Do not use IP as primary identifier
- * - Do not use random/Date.now/Math.random
- * - Use deterministic hashed stable identifiers
- */
-function getStableEntityId(context: {
-  supabaseUserId?: string;
-  authenticatedIdentifier?: string;
-}): string {
-  // Prefer Supabase authenticated UUID (most stable)
-  if (context.supabaseUserId) {
-    return context.supabaseUserId;
-  }
-
-  // Fallback: use authenticated identifier (e.g., hashed email)
-  // Already stable by caller
-  if (context.authenticatedIdentifier) {
-    return context.authenticatedIdentifier;
-  }
-
-  // Last resort: return placeholder (no identity available)
-  return 'anonymous';
-}
-
-/**
  * Feature flag: maya-lex-hybrid-router-v2
  *
  * Controls orchestration path selection:
@@ -63,42 +38,17 @@ function getStableEntityId(context: {
  * - true (ON): Hardened sequential orchestration (server-decided web search)
  *
  * Targeting:
- * - Dashboard rules can target by user.id
- * - Default: false (safe, legacy path)
+ * - Dashboard rules target by user.id
+ * - Default: false (safe default, legacy path)
  *
- * Local dev behavior:
- * - Returns false unless FLAGS environment is set
+ * Evaluation:
+ * - flag.run({ identify: { user: { id: "..." } } }) passes explicit context
+ * - Vercel adapter reads dashboard configuration for environment + targeting
  */
 export const mayaLexHybridRouter = flag<boolean, MayaLexFlagEntities>({
   key: 'maya-lex-hybrid-router-v2',
   description: 'Canary: Hardened sequential RAG-Web orchestration (OFF=Legacy, ON=Hardened)',
-
-  /**
-   * Identify callback: provides stable user entity for targeting.
-   * Called automatically by Vercel Flags adapter on each evaluation.
-   * Returns consistent entity.user.id across requests for same user.
-   */
-  async identify(): Promise<MayaLexFlagEntities> {
-    // Note: In production with Vercel Flags middleware/adapter,
-    // this would receive request context automatically.
-    // For now, return minimal entity structure.
-    // Actual user ID resolution depends on request context availability.
-
-    return {
-      user: {
-        id: 'unknown',
-        // email intentionally omitted for privacy in logs
-      },
-    };
-  },
-
-  /**
-   * Decide function: fallback for local development or when adapter unavailable.
-   * In Vercel production, the adapter overrides this with dashboard configuration.
-   */
-  decide() {
-    return false; // Safe default: legacy path
-  },
+  adapter: vercelAdapter(),
 
   // Metadata for Vercel Toolbar
   options: [

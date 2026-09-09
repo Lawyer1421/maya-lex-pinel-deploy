@@ -265,7 +265,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 2b. Feature Flags — Vercel Flags integration (stable identity)
+  // 2b. Feature Flags — Extract stable entity ID for Vercel Flags targeting
+  // Reutiliza la autenticación Supabase ya validada, sin llamadas adicionales
+  let stableEntityId = 'anonymous';
+  const authHeader = (req.headers?.get?.('authorization') ||
+                      (req.headers as any)?.authorization ||
+                      null);
+  const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7).trim()
+    : null;
+
+  if (token && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const { createServerSupabaseClient } = await import('@/lib/supabase');
+      const supabase = createServerSupabaseClient();
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data.user?.id) {
+        stableEntityId = data.user.id; // Supabase UUID: most stable
+      }
+    } catch {
+      // Token corrupto o Supabase caído: usar anonymous fallback
+    }
+  }
+
+  // Logging identity (for telemetry, separate from targeting entity)
   const stableUserIdentity = getStableUserIdentity({
     userEmail: userIdentifier?.startsWith('user:') ? userIdentifier.slice(5) : undefined,
     sessionId: userIdentifier?.startsWith('session:') ? userIdentifier.slice(8) : undefined,
@@ -274,17 +297,20 @@ export async function POST(req: NextRequest) {
   // FAILSAFE: Evaluate flag with safe default (no try-catch in execution path)
   let flagValue: boolean | undefined = undefined;
   try {
-    // Vercel Flags SDK: Real evaluation via @vercel/flags/next
-    // - Imports mayaLexHybridRouter flag declaration from lib/flags/flags.ts
-    // - Calls the flag function (awaitable Promise<boolean>)
+    // Vercel Flags SDK v4+: flag.run() passes explicit entity context
+    // - identify: { user: { id: stableEntityId } } for dashboard targeting
+    // - Adapter reads dashboard configuration for environment + targeting rules
     // - Returns: true (hardened) | false (legacy) | undefined (error)
-    //
-    // In local dev: returns false (default from decide function)
-    // In Preview/Production: Vercel Flags adapter overrides with dashboard configuration
-    flagValue = await mayaLexHybridRouter();
+    flagValue = await mayaLexHybridRouter.run({
+      identify: {
+        user: {
+          id: stableEntityId,
+        },
+      },
+    });
 
     if (process.env.DEBUG_CLAUDE === 'true') {
-      console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity}`);
+      console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity} (entity: ${stableEntityId})`);
     }
   } catch (flagEvaluationError) {
     // If flag evaluation FAILS: default to legacy (safe fallback)
