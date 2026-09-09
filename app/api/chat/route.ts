@@ -61,6 +61,7 @@ import {
   shouldUseHardenedOrchestration,
   createOrchestrationContext,
 } from '@/lib/flags/feature-flags';
+import { mayaLexHybridRouter } from '@/lib/flags/flags';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
 
@@ -273,26 +274,14 @@ export async function POST(req: NextRequest) {
   // FAILSAFE: Evaluate flag with safe default (no try-catch in execution path)
   let flagValue: boolean | undefined = undefined;
   try {
-    // Vercel Flags SDK Integration:
-    // When Vercel Flags Next.js adapter is configured (see .vercel/flags.config.js):
+    // Vercel Flags SDK: Real evaluation via @vercel/flags/next
+    // - Imports mayaLexHybridRouter flag declaration from lib/flags/flags.ts
+    // - Calls the flag function (awaitable Promise<boolean>)
+    // - Returns: true (hardened) | false (legacy) | undefined (error)
     //
-    // import { define } = require('@vercel/flags/next');
-    // export default define({
-    //   key: 'maya-lex-hybrid-router-v2',
-    //   decide: () => false,  // Off by default
-    //   description: 'Canary: Hardened sequential orchestration'
-    // });
-    //
-    // Then uncomment:
-    // const { getFlag } = require('@vercel/flags/next');
-    // flagValue = await getFlag('maya-lex-hybrid-router-v2', {
-    //   uid: stableUserIdentity,
-    // });
-    //
-    // For now, placeholder evaluation (will be overridden by Vercel dashboard during Preview/Production):
-    // - In local dev: undefined → false (legacy)
-    // - In Preview/Production: Vercel Flags SDK evaluates from dashboard configuration
-    flagValue = undefined; // Placeholder: undefined = legacy (safe default)
+    // In local dev: returns false (default from decide function)
+    // In Preview/Production: Vercel Flags adapter overrides with dashboard configuration
+    flagValue = await mayaLexHybridRouter();
 
     if (process.env.DEBUG_CLAUDE === 'true') {
       console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity}`);
@@ -300,7 +289,7 @@ export async function POST(req: NextRequest) {
   } catch (flagEvaluationError) {
     // If flag evaluation FAILS: default to legacy (safe fallback)
     console.warn(
-      `[FlagEval] Error evaluating flag for ${stableUserIdentity}, defaulting to legacy: ${
+      `[FlagEval] Error evaluating maya-lex-hybrid-router-v2 for ${stableUserIdentity}, defaulting to legacy: ${
         flagEvaluationError instanceof Error ? flagEvaluationError.message : String(flagEvaluationError)
       }`
     );
