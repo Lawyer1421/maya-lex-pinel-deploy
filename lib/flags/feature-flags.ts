@@ -12,7 +12,29 @@
  */
 
 /**
- * Extract stable user identity from request context.
+ * Extract stable user entity ID for Vercel Flags targeting.
+ * Returns deterministic identifier suitable for targeting rules.
+ *
+ * Priority:
+ * 1. Supabase auth UUID (most stable)
+ * 2. Hashed authenticated identifier (session-based)
+ * 3. Anonymous fallback
+ */
+export function getStableEntityId(context: {
+  supabaseUserId?: string;
+  authenticatedHash?: string;
+}): string {
+  if (context.supabaseUserId) {
+    return context.supabaseUserId;
+  }
+  if (context.authenticatedHash) {
+    return context.authenticatedHash;
+  }
+  return 'anonymous';
+}
+
+/**
+ * Extract stable user identity from request context (for logging/telemetry).
  * Uses authenticated email or anonymous session identifier.
  *
  * Returns consistent identity across requests for the same user.

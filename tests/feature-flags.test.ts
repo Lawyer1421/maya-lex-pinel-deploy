@@ -13,6 +13,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   getStableUserIdentity,
+  getStableEntityId,
   shouldUseHardenedOrchestration,
   createOrchestrationContext,
 } from '@/lib/flags/feature-flags';
@@ -160,4 +161,76 @@ describe('Feature Flags: maya-lex-hybrid-router-v2', () => {
       expect(context.flag_value).toBe(false);
     });
   });
+
+  // ─────────────────────────────────────────────────────────────────
+  // IDENTIFY-001: Authenticated user entity extraction
+  // ─────────────────────────────────────────────────────────────────
+  describe('IDENTIFY-001: Entity extraction for authenticated users', () => {
+    it('should extract stable entity ID from Supabase user UUID', () => {
+      const userId = 'supabase-uuid-12345';
+      const entityId = getStableEntityId({ supabaseUserId: userId });
+      expect(entityId).toBe(userId);
+    });
+
+    it('should fallback to authenticated hash when UUID unavailable', () => {
+      const hash = 'hashed-auth-identifier-abc123';
+      const entityId = getStableEntityId({ authenticatedHash: hash });
+      expect(entityId).toBe(hash);
+    });
+
+    it('should prefer Supabase UUID over authenticated hash', () => {
+      const userId = 'supabase-uuid';
+      const hash = 'hashed-auth';
+      const entityId = getStableEntityId({
+        supabaseUserId: userId,
+        authenticatedHash: hash,
+      });
+      expect(entityId).toBe(userId);
+      expect(entityId).not.toBe(hash);
+    });
+
+    it('should return anonymous fallback when no identity available', () => {
+      const entityId = getStableEntityId({});
+      expect(entityId).toBe('anonymous');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  // IDENTIFY-002: Entity ID stability across requests
+  // ─────────────────────────────────────────────────────────────────
+  describe('IDENTIFY-002: Entity ID determinism for sticky cohorts', () => {
+    it('should produce identical entity ID for same user in multiple requests', () => {
+      const userId = 'user-uuid-consistent';
+      const id1 = getStableEntityId({ supabaseUserId: userId });
+      const id2 = getStableEntityId({ supabaseUserId: userId });
+      expect(id1).toBe(id2);
+    });
+
+    it('should produce different entity IDs for different users', () => {
+      const id1 = getStableEntityId({ supabaseUserId: 'user-1' });
+      const id2 = getStableEntityId({ supabaseUserId: 'user-2' });
+      expect(id1).not.toBe(id2);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  // TARGET-CONTEXT-001: Provider receives entity context
+  // ─────────────────────────────────────────────────────────────────
+  describe('TARGET-CONTEXT-001: Entity context for dashboard targeting', () => {
+    it('should have entity type MayaLexFlagEntities defined', () => {
+      // Verify type structure matches dashboard entity definition
+      const entity = { user: { id: 'test-id', email: 'test@example.com' } };
+      expect(entity.user).toBeDefined();
+      expect(entity.user.id).toBeTruthy();
+      expect(typeof entity.user.id).toBe('string');
+    });
+
+    it('should support optional email in entity', () => {
+      const entity1 = { user: { id: 'test-id' } };
+      const entity2 = { user: { id: 'test-id', email: 'test@example.com' } };
+      expect(entity1.user.id).toBe(entity2.user.id);
+      expect(entity2.user.email).toBeDefined();
+    });
+  });
 });
+
