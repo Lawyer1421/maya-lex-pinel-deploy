@@ -56,6 +56,11 @@ import {
   AVISO_BUSQUEDA_FALLIDA,
 } from '@/lib/websearch/tavily';
 import { evaluateNeedForOfficialWeb } from '@/lib/websearch/evaluate-web-need';
+import {
+  getStableUserIdentity,
+  shouldUseHardenedOrchestration,
+  createOrchestrationContext,
+} from '@/lib/flags/feature-flags';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
 
@@ -259,6 +264,60 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // 2b. Feature Flags — Vercel Flags integration (stable identity)
+  const stableUserIdentity = getStableUserIdentity({
+    userEmail: userIdentifier?.startsWith('user:') ? userIdentifier.slice(5) : undefined,
+    sessionId: userIdentifier?.startsWith('session:') ? userIdentifier.slice(8) : undefined,
+  });
+
+  // FAILSAFE: Evaluate flag with safe default (no try-catch in execution path)
+  let flagValue: boolean | undefined = undefined;
+  try {
+    // Vercel Flags SDK Integration:
+    // When Vercel Flags Next.js adapter is configured (see .vercel/flags.config.js):
+    //
+    // import { define } = require('@vercel/flags/next');
+    // export default define({
+    //   key: 'maya-lex-hybrid-router-v2',
+    //   decide: () => false,  // Off by default
+    //   description: 'Canary: Hardened sequential orchestration'
+    // });
+    //
+    // Then uncomment:
+    // const { getFlag } = require('@vercel/flags/next');
+    // flagValue = await getFlag('maya-lex-hybrid-router-v2', {
+    //   uid: stableUserIdentity,
+    // });
+    //
+    // For now, placeholder evaluation (will be overridden by Vercel dashboard during Preview/Production):
+    // - In local dev: undefined → false (legacy)
+    // - In Preview/Production: Vercel Flags SDK evaluates from dashboard configuration
+    flagValue = undefined; // Placeholder: undefined = legacy (safe default)
+
+    if (process.env.DEBUG_CLAUDE === 'true') {
+      console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity}`);
+    }
+  } catch (flagEvaluationError) {
+    // If flag evaluation FAILS: default to legacy (safe fallback)
+    console.warn(
+      `[FlagEval] Error evaluating flag for ${stableUserIdentity}, defaulting to legacy: ${
+        flagEvaluationError instanceof Error ? flagEvaluationError.message : String(flagEvaluationError)
+      }`
+    );
+    flagValue = false; // Safe default
+  }
+
+  const useHardenedOrchestration = shouldUseHardenedOrchestration(flagValue);
+  const orchestrationContext = createOrchestrationContext(
+    userIdentifier?.startsWith('user:') ? userIdentifier.slice(5) : undefined,
+    userIdentifier?.startsWith('session:') ? userIdentifier.slice(8) : undefined,
+    flagValue
+  );
+
+  if (process.env.DEBUG_CLAUDE === 'true') {
+    console.log(`[FeatureFlags] ${JSON.stringify(orchestrationContext)}`);
+  }
+
   // 3. Configurar según modo
   const config    = getConfig(mode);
   const consultaId = crypto.randomUUID();
@@ -283,120 +342,179 @@ export async function POST(req: NextRequest) {
     ? clasificarConsulta(ultimaPregunta as string, mode)
     : 'D';
 
-  // 3c. ORQUESTACIÓN SECUENCIAL: RAG → evaluate → optional Tavily
+  // Variables de control para ambas rutas (necesarias después de orquestación)
+  const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
+  const requiereCorpusEvidencia = requiereEvidenciaCorpus(
+    ultimaPregunta as string,
+    rutaCorpusObligatoria
+  );
+
+  // 3c. ORQUESTACIÓN: Bifurcación controlada por Vercel Flag
   //
-  // Cambio de arquitectura (2026-09-08):
-  // - RAG se ejecuta primero (mismo que antes)
-  // - Luego se EVALÚA si web es necesaria (nueva función determinista)
-  // - Si es necesaria, ejecutar Tavily (solo en base a decisión del servidor)
-  // - Componer contextos (RAG siempre antes que web, OWASP RAG)
+  // HARDENED (flag=ON):
+  //   - RAG → await
+  //   - Evaluar con evaluateNeedForOfficialWeb() (determinista, servidor)
+  //   - Ejecutar Tavily SI y SOLO SI servidor decide
   //
-  // El cliente flag webSearch ya no es autoridad final: es un HINT.
-  // La decisión real depende de: RAG result + corpus evidence requirement.
+  // LEGACY (flag=OFF):
+  //   - RAG y Web en paralelo (Promise.all)
+  //   - Decisión web: cliente flag webSearch solamente
+  //   - Sin evaluateNeedForOfficialWeb()
 
   let systemConRAG = config.systemPrompt;
+  let contextoRAG = '';
+  let contextoWeb = '';
+  let ragData: { texto: string; fragmentos: FragmentoRAG[] } = { texto: '', fragmentos: [] };
+  let citas: any = {};
+  let orchestrationVariant = 'legacy';
 
   interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
 
-  // ── PASO 1: Ejecutar RAG (mismo código que antes) ────────────────────
-  const ragData: RagOut = await (async () => {
-    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
-    const esPenal = esModoPenal(mode);
-    const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
-    const coleccionPrincipal = colecciones[ruta];
-    // Modo penal: filtrar por materia dentro de la colección compartida
-    const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
-    if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
+  // ── HARDENED ORCHESTRATION (flag=ON) ───────────────────────────────
+  async function executeHardenedOrchestration(): Promise<void> {
+    orchestrationVariant = 'hardened';
 
-    const ragResultado = await buscarRAG(
-      ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
-    );
-    let contextoRAG = formatearContextoRAG(ragResultado);
-    const fragmentos = [...ragResultado.fragmentos];
+    // PASO 1: Ejecutar RAG secuencial
+    ragData = await (async () => {
+      if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
+      const esPenal = esModoPenal(mode);
+      const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
+      const coleccionPrincipal = colecciones[ruta];
+      const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
+      if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
 
-    // RUTA_C civil → segunda pasada con procedimental para completar el análisis
-    if (ruta === 'C' && !esPenal) {
-      const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
-      const contextoProc = formatearContextoRAG(ragProc);
-      if (contextoProc) {
-        contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
+      const ragResultado = await buscarRAG(
+        ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
+      );
+      let contextoRAG = formatearContextoRAG(ragResultado);
+      const fragmentos = [...ragResultado.fragmentos];
+
+      if (ruta === 'C' && !esPenal) {
+        const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
+        const contextoProc = formatearContextoRAG(ragProc);
+        if (contextoProc) {
+          contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
+        }
+        fragmentos.push(...ragProc.fragmentos);
       }
-      fragmentos.push(...ragProc.fragmentos);
-    }
-    return { texto: contextoRAG, fragmentos };
-  })();
+      return { texto: contextoRAG, fragmentos };
+    })();
 
-  const contextoRAG = ragData.texto;
-  const citas = construirCitas(ragData.fragmentos);
+    contextoRAG = ragData.texto;
+    citas = construirCitas(ragData.fragmentos);
 
-  // ── PASO 2: Evaluar necesidad de búsqueda web oficial ──────────────
-  const ragWasAttempted = ruta !== 'D' && usarRouter;
-  const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
-  const requiereCorpusEvidencia =
-    requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria);
+    // PASO 2: Evaluar necesidad de web (servidor-side)
+    const ragWasAttempted = ruta !== 'D' && usarRouter;
 
-  const webSearchNeeded = evaluateNeedForOfficialWeb(
-    ragData.fragmentos,
-    requiereCorpusEvidencia,
-    ragWasAttempted
-  );
-
-  // Log de decisión (debug)
-  if (process.env.DEBUG_CLAUDE === 'true') {
-    console.log(
-      `[Orquestación] webSearchNeeded=${webSearchNeeded}` +
-      ` | ragFragments=${ragData.fragmentos.length}` +
-      ` | requiereCorpusEvidencia=${requiereCorpusEvidencia}` +
-      ` | clientWebSearchHint=${webSearch}`
+    const webSearchNeeded = evaluateNeedForOfficialWeb(
+      ragData.fragmentos,
+      requiereCorpusEvidencia,
+      ragWasAttempted
     );
+
+    if (process.env.DEBUG_CLAUDE === 'true') {
+      console.log(
+        `[Hardened] webSearchNeeded=${webSearchNeeded} | ragFragments=${ragData.fragmentos.length}`
+      );
+    }
+
+    // PASO 3: Ejecutar Tavily SÍ Y SOLO SÍ servidor decide
+    if (webSearchNeeded) {
+      const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
+      try {
+        const resultadosWeb = await buscarWeb(queryBusqueda, {
+          maxResultados: 5,
+          timeoutMs: 3500,
+          umbralScore: 0.3,
+        });
+
+        if (resultadosWeb.length > 0) {
+          contextoWeb = '\n\n' + formatearContextoWeb(resultadosWeb);
+          console.log(`[Hardened/Tavily] OK | resultados=${resultadosWeb.length}`);
+        } else {
+          console.log(`[Hardened/Tavily] 0 resultados`);
+          contextoWeb = '';
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const isNoKey = msg.includes('TAVILY_API_KEY');
+        console.warn(`[Hardened/Tavily] Error: ${isNoKey ? 'NO_KEY' : 'FAIL'}`);
+        contextoWeb = isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      }
+    }
   }
 
-  // ── PASO 3: Ejecutar Tavily SOLO si es necesario ──────────────────
-  let contextoWeb = '';
-  if (webSearchNeeded) {
-    const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
-    try {
-      const resultadosWeb = await buscarWeb(queryBusqueda, {
-        maxResultados: 5,
-        timeoutMs:     3500,
-        umbralScore:   0.3,
-      });
+  // ── LEGACY ORCHESTRATION (flag=OFF) ────────────────────────────────
+  async function executeLegacyOrchestration(): Promise<void> {
+    orchestrationVariant = 'legacy';
 
-      if (resultadosWeb.length > 0) {
-        console.log(
-          `[WebSearch] Tavily OK (server-decided) | resultados=${resultadosWeb.length}` +
-          ` | query="${queryBusqueda.slice(0, 55)}..."` +
-          ` | mode=${mode} | ruta=${ruta}`
-        );
-        // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (OWASP RAG)
-        contextoWeb = '\n\n' + formatearContextoWeb(resultadosWeb);
-      } else {
-        // 0 resultados relevantes: flujo continúa con solo RAG
-        console.log(
-          `[WebSearch] Tavily 0 resultados relevantes (server-decided) — RAG local` +
-          ` | query="${queryBusqueda.slice(0, 55)}..."`
-        );
-        contextoWeb = '';
-      }
-    } catch (err) {
-      const msg       = err instanceof Error ? err.message : String(err);
-      const isTimeout = err instanceof Error && err.name === 'AbortError';
-      const isNoKey   = msg.includes('TAVILY_API_KEY');
+    const ragPromise: Promise<string> = (async () => {
+      if (!(ruta !== 'D' && usarRouter)) return '';
+      const esPenal = esModoPenal(mode);
+      const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
+      const coleccionPrincipal = colecciones[ruta];
+      const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
+      if (!coleccionPrincipal) return '';
 
-      console.warn(
-        `[WebSearch] Fallback a RAG | motivo=${isTimeout ? 'TIMEOUT' : isNoKey ? 'SIN_APIKEY' : 'ERROR'}` +
-        ` | ${isNoKey ? '' : msg.slice(0, 90)}`
+      const ragResultado = await buscarRAG(
+        ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro
       );
+      let contextoRAG = formatearContextoRAG(ragResultado);
+      ragData.fragmentos = [...ragResultado.fragmentos];
 
-      // Notificar al modelo solo si la clave existe pero falló (no por SIN_APIKEY)
-      contextoWeb = isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      if (ruta === 'C' && !esPenal) {
+        const ragProc = await buscarRAG(ultimaPregunta as string, 3, 'mayalex_procedimental');
+        const contextoProc = formatearContextoRAG(ragProc);
+        if (contextoProc) {
+          contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
+        }
+        ragData.fragmentos.push(...ragProc.fragmentos);
+      }
+      return contextoRAG;
+    })();
+
+    const webPromise: Promise<string> = (async () => {
+      if (!webSearch) return '';
+      const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
+      try {
+        const resultadosWeb = await buscarWeb(queryBusqueda, {
+          maxResultados: 5,
+          timeoutMs: 3500,
+          umbralScore: 0.3,
+        });
+
+        if (resultadosWeb.length > 0) {
+          console.log(`[Legacy/Tavily] OK | resultados=${resultadosWeb.length}`);
+          return '\n\n' + formatearContextoWeb(resultadosWeb);
+        }
+        console.log(`[Legacy/Tavily] 0 resultados`);
+        return '';
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const isNoKey = msg.includes('TAVILY_API_KEY');
+        console.warn(`[Legacy/Tavily] Error: ${isNoKey ? 'NO_KEY' : 'FAIL'}`);
+        return isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      }
+    })();
+
+    const [contextRAGResult, contextWebResult] = await Promise.all([ragPromise, webPromise]);
+    contextoRAG = contextRAGResult;
+    contextoWeb = contextWebResult;
+    citas = construirCitas(ragData.fragmentos);
+
+    if (process.env.DEBUG_CLAUDE === 'true') {
+      console.log(`[Legacy] Promise.all executed | ragFragments=${ragData.fragmentos.length}`);
     }
-  } else if (webSearch) {
-    // Cliente solicitó web pero servidor determinó que no es necesario
-    console.log(
-      `[WebSearch] Cliente solicitó, servidor denegó (corpus verificado)` +
-      ` | ruta=${ruta} | ragFragments=${ragData.fragmentos.length}`
-    );
+  }
+
+  // ── ORCHESTRATION SELECTOR (Feature Flag) ──────────────────────────
+  // IMPORTANT: No try-catch here. If orchestration fails, error propagates normally.
+  // Failsafe is ONLY at flag evaluation (line ~275), not at execution.
+  // This prevents retry loops and hidden costs.
+  if (useHardenedOrchestration) {
+    await executeHardenedOrchestration();
+  } else {
+    await executeLegacyOrchestration();
   }
 
   // 3d. FAIL-CLOSED (WAR ROOM FINAL): decisión determinista, ANTES de invocar
