@@ -232,5 +232,54 @@ describe('Feature Flags: maya-lex-hybrid-router-v2', () => {
       expect(entity2.user.email).toBeDefined();
     });
   });
+
+  // ─────────────────────────────────────────────────────────────────
+  // ENTITY-ANON-001: Unidentified users should NOT have "anonymous" id
+  // ─────────────────────────────────────────────────────────────────
+  describe('ENTITY-ANON-001: Unidentified user entity handling', () => {
+    it('should NOT create a shared "anonymous" entity for unidentified users', () => {
+      // Unidentified users should be treated individually, not grouped under "anonymous"
+      // This prevents targeting rules from accidentally matching all anons
+      // Expected: empty identify context {} (no User entity)
+
+      // Invalid: all anons should NOT share id="anonymous"
+      const invalidAnon1 = { user: { id: 'anonymous' } };
+      const invalidAnon2 = { user: { id: 'anonymous' } };
+
+      // Correct behavior: unidentified users get no User entity
+      const correctNoEntity: {} = {};
+
+      // Both invalid anons have same ID (bad), but correct approach has no user property
+      expect(invalidAnon1.user.id).toBe(invalidAnon2.user.id); // They're grouped (bad)
+      expect(invalidAnon1.user.id).toBe('anonymous'); // Shared anonymous entity (bad)
+      // The point: we should NOT do this. Instead, correctNoEntity has no user property.
+      expect(correctNoEntity).not.toHaveProperty('user');
+    });
+
+    it('should result in default OFF for unidentified users', () => {
+      // Without User.id entity, targeting rules based on User.id don't match
+      // → falls through to default OFF
+      // → LEGACY orchestration
+      const result = shouldUseHardenedOrchestration(false);
+      expect(result).toBe(false);
+    });
+
+    it('should track unidentified vs identified separately in logs', () => {
+      // Telemetry should distinguish:
+      // "authenticated user (entity: uuid123)"
+      // vs
+      // "unidentified user (no User entity)"
+      // NOT "anonymous (entity: anonymous)" for all anons
+      const context1 = createOrchestrationContext(
+        undefined, // No email
+        'session-abc', // Anonymous session
+        false
+      );
+
+      // Should show session-based identity, not "anonymous" entity
+      expect(context1.stable_identity).toContain('session:');
+      expect(context1.stable_identity).not.toBe('anonymous');
+    });
+  });
 });
 

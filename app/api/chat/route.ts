@@ -267,7 +267,7 @@ export async function POST(req: NextRequest) {
 
   // 2b. Feature Flags — Extract stable entity ID for Vercel Flags targeting
   // Reutiliza la autenticación Supabase ya validada, sin llamadas adicionales
-  let stableEntityId = 'anonymous';
+  let supabaseUserId: string | undefined;
   const authHeader = (req.headers?.get?.('authorization') ||
                       (req.headers as any)?.authorization ||
                       null);
@@ -281,10 +281,11 @@ export async function POST(req: NextRequest) {
       const supabase = createServerSupabaseClient();
       const { data, error } = await supabase.auth.getUser(token);
       if (!error && data.user?.id) {
-        stableEntityId = data.user.id; // Supabase UUID: most stable
+        supabaseUserId = data.user.id; // Supabase UUID: most stable, deterministic
       }
     } catch {
-      // Token corrupto o Supabase caído: usar anonymous fallback
+      // Token corrupto o Supabase caído: fallback a usuario no identificado
+      // (no pasar user entity → no match targeting rules → default OFF)
     }
   }
 
@@ -298,19 +299,21 @@ export async function POST(req: NextRequest) {
   let flagValue: boolean | undefined = undefined;
   try {
     // Vercel Flags SDK v4+: flag.run() passes explicit entity context
-    // - identify: { user: { id: stableEntityId } } for dashboard targeting
+    // - Authenticated user: { user: { id: supabaseUserId } } for dashboard targeting
+    // - Unidentified user: {} (no User entity) → targeting rules don't match → default OFF
     // - Adapter reads dashboard configuration for environment + targeting rules
     // - Returns: true (hardened) | false (legacy) | undefined (error)
+    const identifyContext = supabaseUserId
+      ? { user: { id: supabaseUserId } }
+      : {}; // Unidentified users: no entity (not "anonymous")
+
     flagValue = await mayaLexHybridRouter.run({
-      identify: {
-        user: {
-          id: stableEntityId,
-        },
-      },
+      identify: identifyContext,
     });
 
     if (process.env.DEBUG_CLAUDE === 'true') {
-      console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity} (entity: ${stableEntityId})`);
+      const entityLabel = supabaseUserId ? `entity: ${supabaseUserId}` : 'unidentified';
+      console.log(`[FlagEval] maya-lex-hybrid-router-v2 = ${flagValue} for ${stableUserIdentity} (${entityLabel})`);
     }
   } catch (flagEvaluationError) {
     // If flag evaluation FAILS: default to legacy (safe fallback)
