@@ -109,7 +109,7 @@ describe('autoStartTierDesde — validación del ?plan= al regresar del login (P
 describe('construirUrlLogin — el plan sobrevive al login (Prueba 4 y 5)', () => {
   it('codifica el plan dentro de next= para que /login lo devuelva intacto a /pricing', () => {
     const url = construirUrlLogin('academico');
-    expect(url).toBe('/login?next=%2Fpricing%3Fplan%3Dacademico');
+    expect(url).toBe('/login?next=%2Fpricing%3Fplan%3Dacademico&intent=signup');
 
     // Round-trip: exactamente lo que /login lee vía nextDestino() y lo que
     // sanitizeNextPath()/auth/callback devuelven sin modificar (misma
@@ -126,5 +126,6 @@ describe('construirUrlLogin — el plan sobrevive al login (Prueba 4 y 5)', () =
     const url = construirUrlLogin('pro');
     const params = new URLSearchParams(url.split('?')[1]);
     expect(params.get('next')).toBe('/pricing?plan=pro');
+    expect(params.get('intent')).toBe('signup');
   });
 });

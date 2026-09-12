@@ -11,9 +11,11 @@ export const ALIAS_REDIRECTS: ReadonlyArray<{
   { source: '/precios', destination: '/pricing', permanent: true },
   { source: '/planes', destination: '/pricing', permanent: true },
   { source: '/cobertura', destination: '/cobertura-juridica', permanent: true },
+  { source: '/privacy', destination: '/privacidad', permanent: true },
+  { source: '/terms', destination: '/terminos', permanent: true },
 ];
 
-/** URLs reales que deben anunciarse en sitemap.xml (200). */
+/** URLs reales que deben anunciarse en sitemap.xml (200). /login queda fuera: no se indexa. */
 export const RUTAS_MARKETING_PUBLICAS: readonly string[] = [
   '/',
   '/pricing',
@@ -23,7 +25,8 @@ export const RUTAS_MARKETING_PUBLICAS: readonly string[] = [
   '/seguridad',
   '/fundador',
   '/recursos',
-  '/login',
+  '/privacidad',
+  '/terminos',
   '/soluciones/abogados',
   '/soluciones/notarios',
   '/soluciones/estudiantes',

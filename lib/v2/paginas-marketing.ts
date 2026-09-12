@@ -13,6 +13,8 @@
  * funcionalidad real y permanente, no una disculpa por estar incompleta.
  */
 
+import { SIGNUP_HREF } from '@/lib/marketing/cta';
+
 export interface FuncionMarketing {
   titulo: string;
   descripcion: string;
@@ -68,7 +70,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Vea el formato de respuesta con sus propios ojos',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver cobertura jurídica', href: '/cobertura-juridica' },
   },
 
@@ -96,7 +98,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de análisis gratis',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver planes', href: '/pricing' },
   },
 
@@ -131,7 +133,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cierreTitulo: 'Vea cómo se cita una fuente verificada',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Conocer las herramientas', href: '/herramientas' },
   },
 
@@ -166,7 +168,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cierreTitulo: 'La confianza se construye con evidencia',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Conocer al fundador', href: '/fundador' },
   },
 
@@ -194,7 +196,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conozca la plataforma que salió de un despacho real',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver el producto', href: '/producto' },
   },
 
@@ -226,7 +228,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       ],
     },
     cierreTitulo: 'Empiece gratis en el chat',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver cobertura jurídica', href: '/cobertura-juridica' },
   },
 };
@@ -258,7 +260,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de análisis profesional',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver plan Profesional', href: '/pricing' },
   },
 
@@ -284,7 +286,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Vea la plataforma en acción',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver seguridad y privacidad', href: '/seguridad' },
   },
 
@@ -310,7 +312,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Empiece gratis',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver plan Académico', href: '/pricing' },
   },
 
@@ -336,7 +338,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de caso con Maya Lex',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver plan Académico', href: '/pricing' },
   },
 
@@ -364,7 +366,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conversemos sobre su despacho',
     ctaPrimario: { label: 'Ver plan Bufete', href: '/pricing' },
-    ctaSecundario: { label: 'Probar gratis', href: '/chat' },
+    ctaSecundario: { label: 'Probar gratis', href: SIGNUP_HREF },
   },
 
   universidades: {
@@ -391,7 +393,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Conversemos sobre su programa',
     ctaPrimario: { label: 'Ver plan Universidad', href: '/pricing' },
-    ctaSecundario: { label: 'Probar gratis', href: '/chat' },
+    ctaSecundario: { label: 'Probar gratis', href: SIGNUP_HREF },
   },
 
   empresas: {
@@ -416,7 +418,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     },
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Evalúe la plataforma con su equipo',
-    ctaPrimario: { label: 'Probar gratis', href: '/chat' },
+    ctaPrimario: { label: 'Probar gratis', href: SIGNUP_HREF },
     ctaSecundario: { label: 'Ver planes', href: '/pricing' },
   },
 };

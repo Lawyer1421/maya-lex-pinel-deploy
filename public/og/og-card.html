@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; background: #0D1B3E; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      color: #F4F1EA;
+      display: flex;
+      align-items: center;
+      padding: 72px 80px;
+      background:
+        radial-gradient(60% 70% at 12% 50%, rgba(201, 168, 76, 0.10), transparent 60%),
+        #0D1B3E;
+    }
+    .scale { width: 220px; flex-shrink: 0; margin-right: 64px; }
+    .copy { flex: 1; }
+    .eyebrow {
+      letter-spacing: 0.28em;
+      font-size: 15px;
+      font-weight: 600;
+      color: #C9A84C;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 92px;
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    h1 span { color: #2D9B8A; }
+    .sub {
+      margin-top: 18px;
+      font-size: 28px;
+      color: #D8D2C4;
+      font-weight: 500;
+    }
+    .chips { display: flex; gap: 12px; margin-top: 32px; }
+    .chip {
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .v4 { background: rgba(45,155,138,0.18); color: #7ED9C7; border-color: rgba(45,155,138,0.45); }
+    .v3 { background: rgba(201,168,76,0.14); color: #E6C97A; border-color: rgba(201,168,76,0.4); }
+    .foot {
+      position: absolute;
+      left: 80px;
+      right: 80px;
+      bottom: 36px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      color: #8B8578;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <svg class="scale" viewBox="0 0 220 220" fill="none" aria-hidden="true">
+    <path d="M110 18 V168" stroke="#C9A84C" stroke-width="3" />
+    <circle cx="110" cy="18" r="6" fill="#C9A84C" />
+    <path d="M48 92 H172" stroke="#C9A84C" stroke-width="3" />
+    <path d="M48 92 L22 150 H74 Z" stroke="#C9A84C" stroke-width="2.5" />
+    <path d="M172 92 L146 150 H198 Z" stroke="#C9A84C" stroke-width="2.5" />
+    <path d="M78 168 H142" stroke="#C9A84C" stroke-width="3" />
+    <path d="M62 188 H158" stroke="#C9A84C" stroke-width="6" stroke-linecap="round" />
+  </svg>
+  <div class="copy">
+    <p class="eyebrow">Inteligencia jurídica hondureña</p>
+    <h1>MAYA <span>LEX</span></h1>
+    <p class="sub">Investigue. Cite. Actúe.</p>
+    <div class="chips">
+      <span class="chip v4">V4 · Verificada</span>
+      <span class="chip v3">V3 · Vigencia</span>
+    </div>
+  </div>
+  <p class="foot"><span>mayalexhn.com</span><span>Apoyo jurídico · no es asesoría legal</span></p>
+</body>
+</html>

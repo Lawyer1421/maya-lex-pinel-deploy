@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CtaProbarGratis from '@/components/marketing/CtaProbarGratis';
 
 export default function HeroV2() {
   return (
@@ -20,12 +21,12 @@ export default function HeroV2() {
           especializadas para la práctica, la enseñanza y la investigación del derecho hondureño.
         </p>
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/chat"
+          <CtaProbarGratis
+            source="hero"
             className="w-full rounded-xl bg-jade-deep px-6 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian sm:w-auto"
           >
             Probar gratis
-          </Link>
+          </CtaProbarGratis>
           <Link
             href="/herramientas"
             className="w-full rounded-xl border border-obsidian-medium px-6 py-3.5 text-center text-sm font-semibold text-ivory-dim transition hover:border-jade/40 hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian sm:w-auto"
