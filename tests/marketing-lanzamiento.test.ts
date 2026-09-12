@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildLoginHref, resolveAuthIntent, SIGNUP_HREF } from '@/lib/marketing/cta';
+import { construirUrlLogin } from '@/app/components/PayPalSubscribeButton';
 import { RUTAS_MARKETING_PUBLICAS } from '@/lib/seo/rutas-publicas';
 import { PREGUNTAS_FAQ_PORTADA, faqPageJsonLd } from '@/lib/marketing/faq';
 
@@ -14,6 +15,11 @@ describe('embudo de alta — Nivel 1', () => {
     expect(resolveAuthIntent('signup')).toBe('signup');
     expect(resolveAuthIntent('login')).toBe('login');
     expect(resolveAuthIntent('admin')).toBe('signup');
+  });
+
+  it('el checkout PayPal sin sesión abre alta, no “ya tengo cuenta”', () => {
+    expect(construirUrlLogin('academico')).toContain('intent=signup');
+    expect(construirUrlLogin('pro')).toContain('next=%2Fpricing');
   });
 
   it('buildLoginHref no acepta open redirect', () => {
@@ -46,6 +52,7 @@ describe('FAQ JSON-LD', () => {
     const json = faqPageJsonLd('https://mayalexhn.com');
     expect(json['@type']).toBe('FAQPage');
     expect(PREGUNTAS_FAQ_PORTADA.some((p) => /no sustituye|no constituye asesoría|ni constituye asesoría/i.test(p.respuesta))).toBe(true);
+    expect(PREGUNTAS_FAQ_PORTADA.some((p) => /nunca se autoentrena/i.test(p.respuesta))).toBe(true);
   });
 });
 

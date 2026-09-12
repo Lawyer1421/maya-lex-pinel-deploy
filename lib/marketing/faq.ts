@@ -29,6 +29,11 @@ export const PREGUNTAS_FAQ_PORTADA: PreguntaFaq[] = [
     respuesta:
       'Los planes con uso amplio están sujetos a una política de uso razonable — evitamos prometer "ilimitado" sin un control técnico y económico real detrás.',
   },
+  {
+    pregunta: '¿Maya Lex se entrena solo con mis consultas o expedientes?',
+    respuesta:
+      'No. El corpus oficial nunca se autoentrena con chats ni documentos de usuarios. Eso protege el secreto profesional y evita contaminar normas con casos ajenos. La siguiente fase de pago es una biblioteca privada de plantillas de su despacho — nunca se mezcla con el derecho de otros clientes.',
+  },
 ];
 
 export function faqPageJsonLd(baseUrl: string): Record<string, unknown> {

@@ -10,7 +10,7 @@ import { resolveCurrentAccess } from '@/lib/paypal/access';
 import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 
 export const metadata: Metadata = {
-  title: 'Mi Cuenta — MAYA LEX IA PINEL HN',
+  title: 'Mi Cuenta',
 };
 
 export default async function CuentaPage({
@@ -26,7 +26,7 @@ export default async function CuentaPage({
   const { data: { user } } = await supabaseAuth.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect('/login?next=/cuenta&intent=login');
   }
 
   // ── Obtener datos de suscripción ──────────────────────────────────────────
