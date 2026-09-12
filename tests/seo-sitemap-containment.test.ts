@@ -69,5 +69,6 @@ describe('sitemap.ts — contención SEO data-driven', () => {
     expect(urls.some((u) => u.endsWith('/precios'))).toBe(false);
     expect(urls.some((u) => u.endsWith('/planes'))).toBe(false);
     expect(urls.some((u) => /\/cobertura$/.test(u))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/login'))).toBe(false);
   });
 });

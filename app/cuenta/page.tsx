@@ -180,6 +180,21 @@ export default async function CuentaPage({
           </form>
         </div>
 
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+          <h2 className="font-serif text-lg font-semibold text-white">Biblioteca del despacho</h2>
+          <p className="mt-2 text-sm text-white/50 leading-relaxed">
+            El corpus oficial nunca se autoentrena con sus chats — eso protege a sus clientes.
+            La siguiente fase de pago es una biblioteca <em>privada</em> de sus plantillas (nunca pública).
+            Si quiere prioridad de acceso, escríbanos.
+          </p>
+          <a
+            href="mailto:contacto@abogadofredypinelfirmalegal.com?subject=Lista%20de%20espera%20%E2%80%94%20Biblioteca%20del%20despacho"
+            className="mt-3 inline-block text-sm text-jade hover:underline"
+          >
+            Quiero la lista de espera →
+          </a>
+        </div>
+
         <p className="text-center text-white/20 text-xs mt-8">
           ¿Preguntas? <a href="mailto:contacto@abogadofredypinelfirmalegal.com" className="text-jade/50 hover:text-jade transition-colors">contacto@abogadofredypinelfirmalegal.com</a>
         </p>

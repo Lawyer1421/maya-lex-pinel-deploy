@@ -340,7 +340,7 @@ export default function ChatInterface() {
 
         {/* Título */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-bold text-gradient-maya leading-tight">MAYA LEX IA PINEL HN</h1>
+          <h1 className="text-sm font-bold text-gradient-maya leading-tight">MAYA LEX IA</h1>
           <p className="text-white/40 text-xs truncate">Asistente Jurídico · Honduras</p>
         </div>
 
@@ -389,7 +389,7 @@ export default function ChatInterface() {
                 </svg>
               </div>
               <h2 className="font-serif text-2xl font-bold text-gradient-maya mb-1">
-                MAYA LEX IA PINEL HN
+                MAYA LEX IA
               </h2>
               <p className="text-white/50 text-sm">
                 Asistente jurídico inteligente · 34 años de experiencia legal hondureña

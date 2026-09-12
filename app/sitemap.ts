@@ -12,8 +12,8 @@ function urlAbsoluta(ruta: string): string {
 function urlsMarketing(): MetadataRoute.Sitemap {
   return RUTAS_MARKETING_PUBLICAS.map((ruta) => ({
     url: urlAbsoluta(ruta),
-    changeFrequency: ruta === '/' ? 'weekly' : ruta === '/login' ? 'yearly' : 'monthly',
-    priority: ruta === '/' ? 1 : ruta === '/login' ? 0.3 : 0.6,
+    changeFrequency: ruta === '/' ? 'weekly' : 'monthly',
+    priority: ruta === '/' ? 1 : ruta === '/pricing' ? 0.8 : 0.6,
   }));
 }
 

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { LOGIN_HREF } from '@/lib/marketing/cta';
+import CtaProbarGratis from '@/components/marketing/CtaProbarGratis';
 
 const SOLUCIONES = [
   { href: '/soluciones/abogados', label: 'Abogados' },
@@ -73,15 +75,15 @@ export default function NavV2() {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link href="/login" className="text-sm font-medium text-ivory-dim hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade rounded px-2 py-1">
+          <Link href={LOGIN_HREF} className="text-sm font-medium text-ivory-dim hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade rounded px-2 py-1">
             Iniciar sesión
           </Link>
-          <Link
-            href="/chat"
+          <CtaProbarGratis
+            source="nav_desktop"
             className="rounded-xl bg-jade-deep px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
           >
             Probar gratis
-          </Link>
+          </CtaProbarGratis>
         </div>
 
         {/* Botón móvil */}
@@ -116,8 +118,10 @@ export default function NavV2() {
             <Link href="/seguridad" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Seguridad</Link>
             <Link href="/recursos" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Recursos</Link>
             <div className="mt-3 flex flex-col gap-2 border-t border-obsidian-medium pt-3">
-              <Link href="/login" className="rounded-lg px-3 py-2 text-center text-sm text-ivory-dim hover:text-ivory">Iniciar sesión</Link>
-              <Link href="/chat" className="rounded-xl bg-jade-deep px-4 py-2 text-center text-sm font-semibold text-white">Probar gratis</Link>
+              <Link href={LOGIN_HREF} className="rounded-lg px-3 py-2 text-center text-sm text-ivory-dim hover:text-ivory">Iniciar sesión</Link>
+              <CtaProbarGratis source="nav_mobile" className="rounded-xl bg-jade-deep px-4 py-2 text-center text-sm font-semibold text-white">
+                Probar gratis
+              </CtaProbarGratis>
             </div>
           </div>
         </div>

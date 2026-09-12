@@ -37,6 +37,8 @@ export default function FooterV2() {
           <p className="text-xs font-semibold uppercase tracking-widest text-ivory-muted">Confianza</p>
           <ul className={listaFooter}>
             <li><Link href="/seguridad" className={enlaceFooter}>Seguridad y privacidad</Link></li>
+            <li><Link href="/privacidad" className={enlaceFooter}>Política de privacidad</Link></li>
+            <li><Link href="/terminos" className={enlaceFooter}>Términos de uso</Link></li>
             <li><Link href="/fundador" className={enlaceFooter}>El fundador</Link></li>
             <li><Link href="/recursos" className={enlaceFooter}>Recursos</Link></li>
           </ul>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 1080px; overflow: hidden; background: #0D1B3E; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      color: #F4F1EA;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(50% 40% at 50% 28%, rgba(201, 168, 76, 0.12), transparent 70%),
+        #0D1B3E;
+    }
+    svg { width: 220px; margin-bottom: 36px; }
+    .eyebrow {
+      letter-spacing: 0.28em;
+      font-size: 16px;
+      font-weight: 600;
+      color: #C9A84C;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 96px;
+      line-height: 0.95;
+      font-weight: 700;
+    }
+    h1 span { color: #2D9B8A; }
+    .sub { margin-top: 20px; font-size: 26px; color: #D8D2C4; }
+    .chips { display: flex; gap: 14px; margin-top: 36px; }
+    .chip {
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 18px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .v4 { background: rgba(45,155,138,0.18); color: #7ED9C7; border-color: rgba(45,155,138,0.45); }
+    .v3 { background: rgba(201,168,76,0.14); color: #E6C97A; border-color: rgba(201,168,76,0.4); }
+    .foot { position: absolute; bottom: 48px; font-size: 20px; color: #8B8578; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+  <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+    <path d="M110 18 V168" stroke="#C9A84C" stroke-width="3" />
+    <circle cx="110" cy="18" r="6" fill="#C9A84C" />
+    <path d="M48 92 H172" stroke="#C9A84C" stroke-width="3" />
+    <path d="M48 92 L22 150 H74 Z" stroke="#C9A84C" stroke-width="2.5" />
+    <path d="M172 92 L146 150 H198 Z" stroke="#C9A84C" stroke-width="2.5" />
+    <path d="M78 168 H142" stroke="#C9A84C" stroke-width="3" />
+    <path d="M62 188 H158" stroke="#C9A84C" stroke-width="6" stroke-linecap="round" />
+  </svg>
+  <p class="eyebrow">Inteligencia jurídica hondureña</p>
+  <h1>MAYA <span>LEX</span></h1>
+  <p class="sub">Investigue. Cite. Actúe.</p>
+  <div class="chips">
+    <span class="chip v4">V4 · Verificada</span>
+    <span class="chip v3">V3 · Vigencia</span>
+  </div>
+  <p class="foot">mayalexhn.com</p>
+</body>
+</html>
