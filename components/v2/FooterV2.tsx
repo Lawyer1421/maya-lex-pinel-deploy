@@ -45,7 +45,7 @@ export default function FooterV2() {
         </div>
       </div>
       <p className="mx-auto mt-10 max-w-7xl border-t border-obsidian-medium pt-6 text-xs text-ivory-muted">
-        © 2026 MAYA LEX IA PINEL HN · Choluteca, Honduras. Maya Lex es una herramienta de apoyo a la investigación
+        © 2026 MAYA LEX IA · Choluteca, Honduras. Maya Lex es una herramienta de apoyo a la investigación
         jurídica; no sustituye el criterio profesional de un abogado colegiado.
       </p>
     </footer>
