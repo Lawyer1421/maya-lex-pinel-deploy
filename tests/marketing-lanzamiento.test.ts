@@ -47,6 +47,17 @@ describe('sitemap de campaña', () => {
   });
 });
 
+describe('cobertura jurídica — honestidad L1', () => {
+  it('no anuncia Constitución, Civil ni Tributario como cubiertos', async () => {
+    const { PAGINAS_PRODUCTO } = await import('@/lib/v2/paginas-marketing');
+    const puntos = PAGINAS_PRODUCTO['cobertura-juridica'].cobertura.puntos.join(' ');
+    expect(puntos).toMatch(/Constitución de 1982/);
+    expect(puntos).toMatch(/no están como cuerpos propios/);
+    expect(puntos).toMatch(/búsqueda web no sustituye/i);
+    expect(puntos).not.toMatch(/toda la legislación/i);
+  });
+});
+
 describe('FAQ JSON-LD', () => {
   it('incluye la cláusula de no asesoría jurídica', () => {
     const json = faqPageJsonLd('https://mayalexhn.com');

@@ -20,9 +20,10 @@ export default function NavV2() {
   const [menuMovil, setMenuMovil] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-obsidian-medium bg-obsidian/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6" aria-label="Navegación principal">
-        <Link href="/" className="font-serif text-xl font-bold text-ivory">
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-obsidian/75 backdrop-blur-xl">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-gold/40 to-transparent" aria-hidden="true" />
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6" aria-label="Navegación principal">
+        <Link href="/" className="font-serif text-[1.15rem] font-bold tracking-wide text-ivory">
           MAYA <span className="text-jade">LEX</span>
         </Link>
 

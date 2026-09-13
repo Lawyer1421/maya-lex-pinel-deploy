@@ -34,9 +34,10 @@ export default function HomePageV2() {
         <SeccionFundador />
         <SeccionPreciosResumen />
         <FAQV2 preguntas={PREGUNTAS_FAQ_PORTADA} />
-        <section className="px-4 pb-20 pt-4 text-center sm:px-6">
-          <h2 className="font-serif text-2xl font-bold text-ivory sm:text-3xl">
-            Comience gratis, sin compromiso.
+        <section className="px-4 pb-24 pt-8 text-center sm:px-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-light">Empiece hoy</p>
+          <h2 className="mt-3 font-serif text-2xl font-bold text-ivory sm:text-3xl">
+            Tres consultas reales. Sin tarjeta.
           </h2>
           <CtaProbarGratis
             source="home_cierre"

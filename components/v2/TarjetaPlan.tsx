@@ -17,7 +17,9 @@ export default function TarjetaPlan({
   return (
     <div
       className={`flex h-full flex-col rounded-2xl border bg-obsidian-light p-6 ${
-        plan.destacado ? 'border-2 border-jade shadow-xl shadow-jade/10' : 'border-obsidian-medium'
+        plan.destacado
+          ? 'border-jade/70 shadow-[0_20px_50px_-28px_rgba(45,155,138,0.55)]'
+          : 'border-white/[0.06]'
       }`}
     >
       {plan.destacado && (

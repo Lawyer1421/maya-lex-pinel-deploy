@@ -39,9 +39,10 @@ export default function PricingPageV2() {
       <NavV2 />
       <main>
         <section className="px-4 pb-8 pt-16 text-center sm:px-6">
-          <h1 className="font-serif text-4xl font-bold text-ivory sm:text-5xl">Planes y precios</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-light">Honorarios claros</p>
+          <h1 className="mt-3 font-serif text-4xl font-bold text-ivory sm:text-5xl">Planes y precios</h1>
           <p className="mx-auto mt-4 max-w-2xl text-ivory-dim">
-            Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
+            Pague cupo de consultas reales. Bufete y Universidad se contratan con nosotros — no se venden como panel listo.
           </p>
           <p className="mx-auto mt-3 max-w-xl text-xs text-ivory-muted">
             Las suscripciones Académico y Profesional se procesan de forma segura mediante PayPal y tienen renovación mensual automática.

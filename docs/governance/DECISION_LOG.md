@@ -1048,3 +1048,17 @@ EXCEPTION`). Verificación posterior: 870/870 → `true`. Sin tocar
 (66,534), `Codigo de Familia`, y la Sección B (regularización de
 metadata JSONB) del script de saneamiento — ninguno tocado en esta
 acción ni en las anteriores de esta ronda.
+
+---
+
+## 2026-09-13 — Hoja de ruta Centroamérica y rechazo del sprint 72 h
+
+**Resolución (CEO / arquitectura):** no se ejecuta el “Sprint 72 horas”
+propuesto por Qwen (Inngest, Docling, expediente, STT, DeepEval, React
+Flow y siete fases en paralelo). Ese plan contradice R1–R8 y vendería
+flags en OFF.
+
+Fuente de fases: `docs/governance/HOJA_RUTA_CENTROAMERICA.md` — L0
+lanzar y cobrar, L1 corpus (Constitución → Civil → Tributario), L2
+expediente/biblioteca privada con flags, L3 réplica por jurisdicción.
+Qwen no es árbitro de merge. Figma es opcional y no bloquea L0.
