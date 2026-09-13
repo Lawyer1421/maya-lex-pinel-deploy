@@ -113,18 +113,18 @@ Detrás de `flag_expediente` / `flag_voz`, default OFF.
 Criterio de salida: un despacho paga convenio porque **su** biblioteca
 no se mezcla con la de otro.
 
-### L3 — Centroamérica (replicar el sistema, no el corpus)
+### L3 — Centroamérica (PROYECTO FUTURO — no se mezcla con Maya Lex)
 
-No se “aplica Honduras a Guatemala”. Cada país es:
+**Maya Lex hoy es solo Honduras.** L3 no comparte repo de producto, no
+comparte `biblioteca_vectores`, no comparte campaña ni Ads. No se pega
+corpus HN en otro país. No se implementa en esta ronda.
 
-- un tenant de corpus (`jurisdiccion`);
-- un pipeline de Gaceta propia;
-- un disclaimer de no asesoría;
-- las mismas flags y el mismo fail-closed.
+Cuando el fundador abra ese proyecto (otro alcance, otra jurisdicción):
 
-Orden tentativo de mercado: Honduras cobrando → El Salvador / Guatemala
-cuando L1 de HN esté cerrado. Costa Rica / Nicaragua / Panamá después.
-Nada de esto empieza por Figma ni por STT.
+- se replica el *sistema* (Gaceta propia + fail-closed + flags);
+- no se reutiliza el corpus hondureño.
+
+Hasta entonces, L3 es archivo de intención. Cero tickets en este repo.
 
 ---
 

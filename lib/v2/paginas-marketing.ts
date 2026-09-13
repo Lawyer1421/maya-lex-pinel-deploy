@@ -120,7 +120,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
       titulo: 'Por qué publicamos esto',
       parrafos: [
         'Un profesional del derecho necesita saber exactamente en qué puede confiar. Afirmar "toda la legislación hondureña" sin verificación sería irresponsable — y contrario al propósito mismo de la plataforma.',
-        'Por eso cada materia muestra su estado real: Penal concentra la mayor cobertura verificada, con artículos de referencia públicos, seguida por Procesal Civil. El resto del corpus se incorpora de forma continua bajo el mismo pipeline de verificación V0–V5.',
+        'La tabla de cuerpos más abajo es la fuente pública. El resto del texto de esta página no sustituye esa tabla ni anuncia incorporación continua como si ya estuviera hecha.',
       ],
     },
     cobertura: {

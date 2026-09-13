@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import PaginaMarketing from '@/components/v2/PaginaMarketing';
+import TablaCoberturaCuerpos from '@/components/v2/TablaCoberturaCuerpos';
 import { PAGINAS_PRODUCTO } from '@/lib/v2/paginas-marketing';
 
 const config = PAGINAS_PRODUCTO['cobertura-juridica'];
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PaginaMarketing config={config} />;
+  return (
+    <PaginaMarketing config={config}>
+      <TablaCoberturaCuerpos />
+    </PaginaMarketing>
+  );
 }

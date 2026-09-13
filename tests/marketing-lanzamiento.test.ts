@@ -56,6 +56,18 @@ describe('cobertura jurídica — honestidad L1', () => {
     expect(puntos).toMatch(/búsqueda web no sustituye/i);
     expect(puntos).not.toMatch(/toda la legislación/i);
   });
+
+  it('la tabla por cuerpo no inventa COUNTs ni promueve Comercio', async () => {
+    const { CUERPOS_COBERTURA, AVISO_FAIL_CLOSED } = await import('@/lib/marketing/cobertura-corpus');
+    const texto = CUERPOS_COBERTURA.map((f) => `${f.cuerpo} ${f.etiqueta} ${f.nota}`).join('\n');
+    expect(texto).not.toMatch(/\d+\s+filas/i);
+    expect(texto).not.toMatch(/\d+\s+art[ií]culos/i);
+    expect(texto).toMatch(/Constitución de la República/);
+    expect(texto).toMatch(/02_CIVIL/);
+    expect(texto).toMatch(/sin promote/i);
+    expect(CUERPOS_COBERTURA.find((f) => /Comercio/i.test(f.cuerpo))?.estado).toBe('staging_sin_promote');
+    expect(AVISO_FAIL_CLOSED).toMatch(/no inventa artículos/i);
+  });
 });
 
 describe('FAQ JSON-LD', () => {
