@@ -126,10 +126,11 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     cobertura: {
       titulo: 'Estado actual por materia',
       puntos: [
-        'Penal: mayor cobertura verificada de la plataforma; 198 artículos de referencia públicos, con revisión de calidad editorial continua.',
-        'Procesal Civil: segunda materia en cobertura verificada de la plataforma.',
-        'Resto de materias (civil, laboral, mercantil, administrativo, entre otras): incorporación continua bajo el mismo estándar de verificación V0–V5.',
-        'Este estado se actualiza conforme avanza la verificación; ninguna materia se anuncia como cubierta antes de estarlo.',
+        'Penal: mayor cobertura verificada de la plataforma; artículos de referencia públicos, con revisión editorial continua.',
+        'Procesal Civil y Código del Trabajo: cuerpos incorporados y marcados vigentes; la verificación editorial continúa.',
+        'Constitución de 1982, Código Civil y Código Tributario aún no están como cuerpos propios — no se anuncian como cubiertos.',
+        'Civil patrimonial y Familia permanecen en cuarentena editorial hasta cotejo; no se citan como vigentes por atajo.',
+        'La búsqueda web no sustituye integrar esos cuerpos. Este estado se actualiza solo cuando un cuerpo entra verificado.',
       ],
     },
     cierreTitulo: 'Vea cómo se cita una fuente verificada',

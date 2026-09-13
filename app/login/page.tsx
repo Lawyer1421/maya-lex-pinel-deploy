@@ -73,25 +73,29 @@ function LoginForm() {
     : 'Entre con Google o un enlace a su correo';
 
   return (
-    <main className="min-h-screen bg-navy flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-gradient-maya mx-auto mb-4 flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-            </svg>
-          </div>
-          <h1 className="font-serif text-2xl font-bold text-gradient-maya">MAYA LEX</h1>
-          <p className="text-white text-base font-semibold mt-3">{titulo}</p>
-          <p className="text-white/50 text-sm mt-1">{subtitulo}</p>
+    <main className="relative flex min-h-screen items-center justify-center bg-obsidian px-4">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(50% 40% at 50% 0%, rgba(45,155,138,0.12), transparent 60%)',
+        }}
+        aria-hidden="true"
+      />
+      <div className="relative w-full max-w-md">
+        <div className="mb-8 text-center">
+          <Link href="/" className="font-serif text-2xl font-bold tracking-wide text-ivory">
+            MAYA <span className="text-jade">LEX</span>
+          </Link>
+          <p className="mt-5 font-serif text-2xl font-semibold text-ivory">{titulo}</p>
+          <p className="mt-2 text-sm text-ivory-muted">{subtitulo}</p>
         </div>
 
-        <div className="glass-card p-7">
+        <div className="rounded-2xl border border-white/[0.08] bg-obsidian-light p-7 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.8)]">
           {estado === 'enviado' ? (
             <div className="text-center py-4">
-              <h2 className="font-semibold text-white mb-2">Revise su correo</h2>
-              <p className="text-white/50 text-sm leading-relaxed">
+              <h2 className="mb-2 font-semibold text-ivory">Revise su correo</h2>
+              <p className="text-sm leading-relaxed text-ivory-muted">
                 Enviamos un enlace de acceso a <span className="text-jade">{email}</span>.
                 Ese mismo enlace crea la cuenta si es la primera vez.
               </p>
@@ -125,11 +129,11 @@ function LoginForm() {
 
               <form onSubmit={handleMagicLink} className="space-y-5">
                 <div>
-                  <label htmlFor="email" className="block text-white/60 text-sm mb-1.5">Correo electrónico</label>
+                  <label htmlFor="email" className="mb-1.5 block text-sm text-ivory-dim">Correo electrónico</label>
                   <input
                     id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
                     placeholder="abogado@ejemplo.com" required
-                    className="w-full bg-navy-light/60 border border-white/15 focus:border-jade/60 rounded-xl px-4 py-3 text-white placeholder-white/25 outline-none transition-colors text-sm"
+                    className="w-full rounded-xl border border-white/10 bg-obsidian px-4 py-3 text-sm text-ivory outline-none placeholder-ivory-muted/50 transition-colors focus:border-jade/60"
                   />
                 </div>
 
@@ -145,7 +149,7 @@ function LoginForm() {
                   {estado === 'enviando' ? 'Enviando...' : 'Enviarme un enlace de acceso'}
                 </button>
 
-                <p className="text-white/30 text-xs text-center">
+                <p className="text-center text-xs text-ivory-muted">
                   Sin contraseñas. El enlace crea la cuenta si es su primera vez.
                 </p>
               </form>
@@ -153,26 +157,26 @@ function LoginForm() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-white/35">
+        <p className="mt-5 text-center text-xs text-ivory-muted">
           Al continuar acepta los{' '}
-          <Link href="/terminos" className="text-white/55 underline hover:text-white/80">Términos</Link>
+          <Link href="/terminos" className="text-ivory-dim underline hover:text-ivory">Términos</Link>
           {' '}y la{' '}
-          <Link href="/privacidad" className="text-white/55 underline hover:text-white/80">Privacidad</Link>.
+          <Link href="/privacidad" className="text-ivory-dim underline hover:text-ivory">Privacidad</Link>.
           Maya Lex no es asesoría jurídica.
         </p>
 
-        <div className="mt-5 flex justify-center gap-6 text-xs text-white/30">
+        <div className="mt-5 flex justify-center gap-6 text-xs text-ivory-muted">
           {esAlta ? (
-            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=login`} className="hover:text-white/50 transition-colors">
+            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=login`} className="transition-colors hover:text-ivory">
               Ya tengo cuenta
             </Link>
           ) : (
-            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=signup`} className="hover:text-white/50 transition-colors">
+            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=signup`} className="transition-colors hover:text-ivory">
               Crear cuenta gratis
             </Link>
           )}
-          <Link href="/pricing" className="hover:text-white/50 transition-colors">Planes</Link>
-          <Link href="/" className="hover:text-white/50 transition-colors">Inicio</Link>
+          <Link href="/pricing" className="transition-colors hover:text-ivory">Planes</Link>
+          <Link href="/" className="transition-colors hover:text-ivory">Inicio</Link>
         </div>
       </div>
     </main>
@@ -181,7 +185,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-navy" />}>
+    <Suspense fallback={<main className="min-h-screen bg-obsidian" />}>
       <LoginForm />
     </Suspense>
   );

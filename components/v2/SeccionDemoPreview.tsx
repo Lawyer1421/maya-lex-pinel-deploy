@@ -7,7 +7,7 @@ export default function SeccionDemoPreview() {
       <h2 id="demo-preview-titulo" className="text-center font-serif text-3xl font-bold text-ivory sm:text-4xl">
         Así se ve una respuesta de Maya Lex
       </h2>
-      <div className="mt-10 rounded-2xl border border-obsidian-medium bg-obsidian-light p-6 sm:p-8">
+      <div className="mt-10 rounded-2xl border border-white/[0.08] bg-obsidian-light p-6 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.9)] sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-obsidian-medium pb-4">
           <span className="text-xs font-semibold uppercase tracking-widest text-ivory-muted">Ejemplo ilustrativo — caso ficticio</span>
           <BadgeVerificacion nivel="V4" />
