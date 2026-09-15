@@ -55,6 +55,35 @@ describe('validarEmbeddingNoDummy — Dummy Embedding Guard (Patch 4)', () => {
   it('acepta un embedding real (dimensión correcta, valores variados)', () => {
     expect(() => validarEmbeddingNoDummy(vectorReal(1))).not.toThrow();
   });
+
+  // Corrección (revisión independiente de Cursor sobre 939956b): un
+  // componente NaN/Infinity/-Infinity no es un vector dummy en el sentido
+  // "constante", pero tampoco es un embedding real válido -- se rechaza
+  // por separado, de forma determinística (Number.isFinite), sin depender
+  // de heurísticas de valor.
+  describe('componentes no finitos', () => {
+    it('rechaza un vector de 384 dimensiones, variado, con un único NaN', () => {
+      const vec = vectorReal(2);
+      vec[200] = NaN;
+      expect(() => validarEmbeddingNoDummy(vec)).toThrow(/no finito/);
+    });
+
+    it('rechaza un vector variado con un único +Infinity', () => {
+      const vec = vectorReal(3);
+      vec[0] = Infinity;
+      expect(() => validarEmbeddingNoDummy(vec)).toThrow(/no finito/);
+    });
+
+    it('rechaza un vector variado con un único -Infinity', () => {
+      const vec = vectorReal(4);
+      vec[EMBED_DIMS - 1] = -Infinity;
+      expect(() => validarEmbeddingNoDummy(vec)).toThrow(/no finito/);
+    });
+
+    it('sigue aceptando un vector real sin ningún componente no finito', () => {
+      expect(() => validarEmbeddingNoDummy(vectorReal(5))).not.toThrow();
+    });
+  });
 });
 
 describe('validarSinDuplicadosDeterministico / validarLoteAntesDeSQL', () => {
@@ -90,20 +119,27 @@ describe('validarSinDuplicadosDeterministico / validarLoteAntesDeSQL', () => {
     expect(() => validarLoteAntesDeSQL(lote)).not.toThrow();
   });
 
-  it('FAIL-CLOSED: rechaza explícitamente un registro con es_norma_vigente=true sin vigencia_state=VERIFICADO_HUMANO', () => {
+  it('FAIL-CLOSED: rechaza explícitamente un registro con es_norma_vigente=true, sin excepción', () => {
     const r = registro('1');
     const forzadoVigente: RegistroGenerico = { ...r, es_norma_vigente: true };
-    expect(() => validarLoteAntesDeSQL([forzadoVigente])).toThrow(/vigencia implícita/);
+    expect(() => validarLoteAntesDeSQL([forzadoVigente])).toThrow(/NUNCA puede declarar vigencia/);
   });
 
-  it('permite es_norma_vigente=true SOLO cuando vigencia_state está explícitamente verificado por un humano', () => {
+  // Corrección (revisión independiente de Cursor sobre 939956b):
+  // 'VERIFICADO_HUMANO' es un valor de dato dentro de un JSONB que este
+  // mismo script construye -- no es prueba de ninguna decisión legal real.
+  // INGESTION_PIPELINE_CAN_DECLARE_VIGENCIA = NEVER: ni siquiera este valor
+  // puede autorizar es_norma_vigente=true. Este test reemplaza uno anterior
+  // que trataba ese string como suficiente -- aquí se prueba exactamente lo
+  // contrario, a propósito.
+  it('SEGURIDAD: vigencia_state=VERIFICADO_HUMANO NO es una excepción -- sigue siendo forgeable y se rechaza igual', () => {
     const r = registro('1');
-    const verificado: RegistroGenerico = {
+    const intentoDeBypass: RegistroGenerico = {
       ...r,
       es_norma_vigente: true,
       metadata: { ...r.metadata, vigencia_state: 'VERIFICADO_HUMANO' },
     };
-    expect(() => validarLoteAntesDeSQL([verificado])).not.toThrow();
+    expect(() => validarLoteAntesDeSQL([intentoDeBypass])).toThrow(/NUNCA puede declarar vigencia/);
   });
 });
 

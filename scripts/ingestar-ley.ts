@@ -397,6 +397,17 @@ export function validarEmbeddingNoDummy(vec: number[], dimEsperada: number = EMB
   if (vec.length !== dimEsperada) {
     throw new Error(`embedding: dimensión inesperada (${vec.length} ≠ ${dimEsperada})`);
   }
+  // Corrección (revisión independiente de Cursor sobre 939956b): un
+  // componente no finito (NaN/Infinity/-Infinity) no es un vector "real"
+  // válido -- Number.isFinite() rechaza los tres casos de una sola vez,
+  // de forma determinística, sin depender de heurísticas de valor.
+  const indiceNoFinito = vec.findIndex((x) => !Number.isFinite(x));
+  if (indiceNoFinito !== -1) {
+    throw new Error(
+      `embedding: componente no finito en el índice ${indiceNoFinito} (valor=${vec[indiceNoFinito]}) -- ` +
+      `un embedding real nunca contiene NaN/Infinity/-Infinity`,
+    );
+  }
   const valoresUnicos = new Set(vec.map((x) => x.toFixed(8)));
   if (valoresUnicos.size <= 1) {
     throw new Error(
@@ -419,8 +430,25 @@ export function validarSinDuplicadosDeterministico(registros: RegistroGenerico[]
 /**
  * Valida el lote completo antes de generar SQL:
  *  - cada registro tiene un hash de contenido no vacío;
- *  - ningún registro queda VIGENTE de forma implícita (fail-closed);
+ *  - NINGÚN registro puede declarar VIGENTE, sin excepción (fail-closed);
  *  - sin candidatos duplicados dentro del lote.
+ *
+ * CORRECCIÓN (revisión independiente de Cursor sobre 939956b): la versión
+ * anterior de este validador permitía es_norma_vigente=true cuando
+ * metadata.vigencia_state === 'VERIFICADO_HUMANO'. Eso NO es un límite de
+ * confianza aceptable: 'VERIFICADO_HUMANO' es hoy un valor de dato como
+ * cualquier otro dentro de un JSONB que este mismo script construye -- nada
+ * impide que un futuro autor de script (o un error) escriba ese string sin
+ * que haya ocurrido ninguna verificación real. Un valor de texto no puede
+ * ser la prueba de una decisión legal humana.
+ *
+ * Invariante adoptado para esta familia de generadores de ingesta:
+ *   INGESTION_PIPELINE_CAN_DECLARE_VIGENCIA = NEVER
+ * Ningún script de esta familia puede, bajo ninguna condición de datos,
+ * producir un registro con es_norma_vigente=true. La verificación
+ * legal/humana de vigencia es una transición gobernada FUTURA y separada
+ * (fuera de alcance aquí) -- no se implementa ese mecanismo en este patch,
+ * solo se cierra la puerta falsa que existía.
  */
 export function validarLoteAntesDeSQL(registros: RegistroGenerico[]): void {
   for (const r of registros) {
@@ -429,13 +457,11 @@ export function validarLoteAntesDeSQL(registros: RegistroGenerico[]): void {
       throw new Error(`lote: registro ${r.id} no tiene hash de contenido (content_sha256/hash_texto_sha256)`);
     }
     if (r.es_norma_vigente === true) {
-      const estado = (r.metadata as Record<string, unknown>).vigencia_state;
-      if (estado !== 'VERIFICADO_HUMANO') {
-        throw new Error(
-          `lote: registro ${r.id} tiene es_norma_vigente=true sin vigencia_state='VERIFICADO_HUMANO' -- ` +
-          `vigencia implícita prohibida (ADR-001 fail-closed); una extracción exitosa nunca implica VIGENTE`,
-        );
-      }
+      throw new Error(
+        `lote: registro ${r.id} tiene es_norma_vigente=true -- esta familia de scripts de ingesta NUNCA puede ` +
+        `declarar vigencia (INGESTION_PIPELINE_CAN_DECLARE_VIGENCIA = NEVER), sin excepción de metadata; ` +
+        `una extracción exitosa nunca implica VIGENTE (ADR-001 fail-closed)`,
+      );
     }
   }
   validarSinDuplicadosDeterministico(registros);
