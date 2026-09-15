@@ -65,17 +65,26 @@
  */
 import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
+import { createHash } from 'crypto';
 import {
   extraerTexto,
   segmentarGenerico,
   construirRegistro,
   fallarDuro,
+  validarEmbeddingNoDummy,
+  validarLoteAntesDeSQL,
+  validarSQLNoDestructivo,
+  generarManifest,
+  escribirManifest,
+  EMBED_DIMS,
   type OpcionesCLI,
   type ChunkCandidato,
   type RegistroGenerico,
 } from './ingestar-ley';
 
-const EMBED_DIMS = 384;
+function sha256(texto: string): string {
+  return createHash('sha256').update(texto, 'utf8').digest('hex');
+}
 
 const DEDUPLICAR_IDENTICOS = new Set(['1511', '1541']);
 const DESCARTAR_FRAGMENTO = new Set(['486', '493', '556', '586', '1133', '1251']);
@@ -220,11 +229,10 @@ async function cargarExtractorEmbeddings() {
 async function embedPassage(extractor: unknown, texto: string): Promise<number[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const salida = await (extractor as any)(`passage: ${texto}`, { pooling: 'mean', normalize: true });
-  const vec = Array.from(salida.data as Float32Array);
-  if (vec.length !== EMBED_DIMS) {
-    throw new Error(`embedding local: dims inesperadas (${vec.length} ≠ ${EMBED_DIMS})`);
-  }
-  return vec as number[];
+  const vec = Array.from(salida.data as Float32Array) as number[];
+  // Dummy Embedding Guard compartido (ver ingestar-ley.ts) -- dimensión + no-constante.
+  validarEmbeddingNoDummy(vec, EMBED_DIMS);
+  return vec;
 }
 
 async function main() {
@@ -288,6 +296,10 @@ async function main() {
 
   const registros = finales.map((c) => construirRegistro(c, opts));
 
+  // Canonical Ingestion Contract -- validación determinística antes de
+  // embeddings, también en dry-run.
+  validarLoteAntesDeSQL(registros);
+
   if (opts.dryRun) {
     console.log('\n🔒 DRY-RUN: no se generó ningún embedding, no se escribió ningún artefacto.');
     return;
@@ -306,10 +318,24 @@ async function main() {
 
   const stagingTable = 'stg_codigo_comercio_1950';
   const sql = generarSQL(conEmbeddings, stagingTable);
+  validarSQLNoDestructivo(sql, stagingTable);
   mkdirSync(dirname(opts.execute!), { recursive: true });
   writeFileSync(opts.execute!, sql, 'utf8');
   console.log(`\n✅ SQL escrito en: ${opts.execute} (${sql.length} caracteres, ${conEmbeddings.length} filas)`);
   console.log('🔒 Este script no ejecutó ningún SQL contra producción -- solo lo escribió a archivo. Aditivo, ON CONFLICT DO NOTHING, sin DELETE.');
+
+  // Ingestion Manifest (Patch 3) -- provenance operacional, no verdad legal.
+  const sourceHash = sha256(textoCrudo);
+  const sqlHash = sha256(sql);
+  const manifest = generarManifest(registros, opts, {
+    sourceHash,
+    embeddingModel: 'Xenova/multilingual-e5-small (quantized:false)',
+    sqlArtifactPath: opts.execute!,
+    sqlArtifactHash: sqlHash,
+  });
+  const rutaManifest = `${opts.execute}.manifest.json`;
+  escribirManifest(manifest, rutaManifest);
+  console.log(`📄 Manifest escrito en: ${rutaManifest} (batch_id=${manifest.batch_id})`);
 }
 
 main().catch((err) => {

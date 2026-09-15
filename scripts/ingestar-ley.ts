@@ -73,7 +73,7 @@ const COLECCIONES_VALIDAS = new Set([
 ]);
 const FUENTE_TIPOS_VALIDOS = new Set(['codigo', 'sentencia', 'doctrina']);
 
-const EMBED_DIMS = 384;
+export const EMBED_DIMS = 384;
 
 export function fallarDuro(motivo: string): never {
   console.error(`\n🛑 FAIL-HARD: ${motivo}\n`);
@@ -334,14 +334,31 @@ function sha256(texto: string): string {
   return createHash('sha256').update(texto, 'utf8').digest('hex');
 }
 
+// ADR-001 (enmienda Control Plane, hallazgo P1/HIGH): esta herramienta
+// genérica NO detecta derogación ni confirma vigencia -- una extracción
+// exitosa NUNCA implica VIGENTE. Regla fail-closed:
+//   SUCCESSFUL_INGESTION ≠ LEGAL_VERIFICATION ≠ CURRENT_VIGENCIA
+// El esquema actual de biblioteca_vectores solo tiene la columna booleana
+// `es_norma_vigente` -- no hay un tercer estado físico para "NO_VERIFICADO"
+// sin migrar el schema (prohibido en este alcance). Adaptación más segura
+// compatible con el esquema actual: el booleano se fija en `false` (nunca
+// se asume vigente sin evidencia), y el estado real ("no verificado", no
+// "derogado confirmado") queda explícito en `metadata.vigencia_state` para
+// que una futura reconciliación de ADR-001 no lo confunda con una
+// derogación real. DEUDA DE COMPATIBILIDAD documentada: cualquier código
+// que hoy lea únicamente la columna `es_norma_vigente` verá `false` tanto
+// para "derogado confirmado" como para "nunca verificado" -- son estados
+// distintos que el booleano no puede distinguir; `metadata.vigencia_state`
+// es la fuente de verdad real hasta que exista una migración de ADR-001.
 export function construirRegistro(c: ChunkCandidato, opts: OpcionesCLI): RegistroGenerico {
   const idSufijo = c.numArticulo.toLowerCase();
+  const contentHash = sha256(c.contenido);
   return {
     id: `${opts.idPrefix}_a${idSufijo}`,
     fuente: opts.fuente,
     materia: opts.materia,
     num_articulo: c.numArticulo,
-    es_norma_vigente: true, // esta herramienta genérica NO detecta "Derogado" -- revisar a mano si la fuente tiene derogaciones, igual que se hizo con Civil
+    es_norma_vigente: false, // FAIL-CLOSED (ADR-001 P1) -- ver comentario arriba; nunca true por defecto
     jurisdiccion: opts.jurisdiccion,
     fuente_tipo: opts.fuenteTipo,
     coleccion: opts.coleccion,
@@ -350,12 +367,175 @@ export function construirRegistro(c: ChunkCandidato, opts: OpcionesCLI): Registr
       norm_id: opts.idPrefix,
       tipo_instrumento: opts.fuenteTipo,
       metodo_extraccion: 'ingestar-ley.ts (extractor genérico, primera pasada) -- pendiente de verificación manual artículo por artículo, igual que toda fuente anterior de este corpus',
-      hash_texto_sha256: sha256(c.contenido),
+      hash_texto_sha256: contentHash,
+      content_sha256: contentHash, // nombre de campo unificado (Canonical Ingestion Contract) -- alias aditivo, no reemplaza el anterior
       verificado: false,
       fecha_verificacion: null,
+      // Estados separados explícitamente (ADR-001 Objetivo 11) -- nunca se
+      // infieren el uno del otro. LEGAL_VERIFICATION_STATE vive en `verificado`
+      // (ya existente); VIGENCIA_STATE es nuevo y explícito aquí.
+      vigencia_state: 'NO_VERIFICADO',
     },
     contenido: c.contenido,
   };
+}
+
+// ── Guardrails de ingesta (Canonical Ingestion Contract) ────────────────
+// Validaciones determinísticas que corren ANTES de generar SQL. Diseño:
+// docs/adr/ADR-001-canonical-legal-identity.md + MAYALEX_CANONICAL_INGESTION_CONTRACT.md.
+// Ninguna de estas funciones escribe a Supabase ni ejecuta SQL -- solo
+// lanzan (throw) si el lote no cumple el contrato, igual que fallarDuro().
+
+/**
+ * Rechaza un embedding cuya dimensión no sea la esperada, o que sea un
+ * vector constante (mismo patrón que el fallback dummy histórico
+ * `new Array(384).fill(0.001)` -- o cualquier otro valor constante
+ * equivalente). Un embedding real de un modelo de lenguaje sobre texto
+ * legal variado no tiene todos sus componentes idénticos.
+ */
+export function validarEmbeddingNoDummy(vec: number[], dimEsperada: number = EMBED_DIMS): void {
+  if (vec.length !== dimEsperada) {
+    throw new Error(`embedding: dimensión inesperada (${vec.length} ≠ ${dimEsperada})`);
+  }
+  const valoresUnicos = new Set(vec.map((x) => x.toFixed(8)));
+  if (valoresUnicos.size <= 1) {
+    throw new Error(
+      `embedding: vector constante detectado (${vec.length} componentes, ${valoresUnicos.size} valor(es) único(s)) -- ` +
+      `patrón idéntico al fallback dummy prohibido (new Array(n).fill(x)); un embedding real nunca es constante`,
+    );
+  }
+}
+
+/** Detecta candidatos duplicados dentro del mismo lote por `id` (identidad determinística, no semántica). */
+export function validarSinDuplicadosDeterministico(registros: RegistroGenerico[]): void {
+  const vistos = new Map<string, number>();
+  for (const r of registros) vistos.set(r.id, (vistos.get(r.id) ?? 0) + 1);
+  const duplicados = [...vistos.entries()].filter(([, n]) => n > 1);
+  if (duplicados.length > 0) {
+    throw new Error(`lote: ids duplicados detectados: ${duplicados.map(([id, n]) => `${id}(x${n})`).join(', ')}`);
+  }
+}
+
+/**
+ * Valida el lote completo antes de generar SQL:
+ *  - cada registro tiene un hash de contenido no vacío;
+ *  - ningún registro queda VIGENTE de forma implícita (fail-closed);
+ *  - sin candidatos duplicados dentro del lote.
+ */
+export function validarLoteAntesDeSQL(registros: RegistroGenerico[]): void {
+  for (const r of registros) {
+    const hash = (r.metadata as Record<string, unknown>).content_sha256 ?? (r.metadata as Record<string, unknown>).hash_texto_sha256;
+    if (typeof hash !== 'string' || hash.length === 0) {
+      throw new Error(`lote: registro ${r.id} no tiene hash de contenido (content_sha256/hash_texto_sha256)`);
+    }
+    if (r.es_norma_vigente === true) {
+      const estado = (r.metadata as Record<string, unknown>).vigencia_state;
+      if (estado !== 'VERIFICADO_HUMANO') {
+        throw new Error(
+          `lote: registro ${r.id} tiene es_norma_vigente=true sin vigencia_state='VERIFICADO_HUMANO' -- ` +
+          `vigencia implícita prohibida (ADR-001 fail-closed); una extracción exitosa nunca implica VIGENTE`,
+        );
+      }
+    }
+  }
+  validarSinDuplicadosDeterministico(registros);
+}
+
+/**
+ * Rechaza SQL generado que contenga una operación destructiva contra
+ * `biblioteca_vectores` (la única tabla productiva que este pipeline puede
+ * mencionar). DROP/TRUNCATE de la tabla de staging declarada están
+ * permitidos -- son desechables por diseño. DELETE no está permitido en
+ * ningún caso: este pipeline es aditivo puro.
+ */
+export function validarSQLNoDestructivo(sql: string, stagingTable: string): void {
+  if (/\bDELETE\s+FROM\b/i.test(sql)) {
+    throw new Error('sql: contiene DELETE FROM -- este pipeline es aditivo puro, DELETE nunca está permitido');
+  }
+  if (/\bTRUNCATE\b/i.test(sql)) {
+    throw new Error('sql: contiene TRUNCATE -- no permitido');
+  }
+  const dropMatches = [...sql.matchAll(/\bDROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?([a-zA-Z0-9_."]+)/gi)];
+  for (const m of dropMatches) {
+    const tabla = m[1].replace(/"/g, '');
+    if (tabla.toLowerCase() !== stagingTable.toLowerCase()) {
+      throw new Error(`sql: DROP TABLE contra "${tabla}" no permitido -- solo la tabla de staging ("${stagingTable}") puede eliminarse`);
+    }
+  }
+  if (/\bbiblioteca_vectores\b/i.test(sql.replace(new RegExp(`\\b${stagingTable}\\b`, 'gi'), ''))) {
+    // biblioteca_vectores debe aparecer SOLO en el INSERT...SELECT aditivo dentro del DO $$ -- verificación
+    // adicional de que no aparece junto a DROP/DELETE/TRUNCATE ya cubierta arriba; esta rama es un chequeo
+    // de cordura de que la tabla productiva sigue mencionada donde se espera (el INSERT aditivo).
+    if (!/INSERT\s+INTO\s+biblioteca_vectores/i.test(sql)) {
+      throw new Error('sql: menciona biblioteca_vectores fuera del patrón esperado (INSERT INTO aditivo)');
+    }
+  }
+}
+
+// ── Manifest de lote (Canonical Ingestion Contract, Patch 3) ────────────
+// Provenance OPERACIONAL, no verdad legal canónica -- ver ADR-001. Permite
+// reconstruir después qué se generó, con qué evidencia, sin re-extraer ni
+// re-embeder nada.
+export interface ManifestRegistro {
+  id: string;
+  document_identifier: string;
+  provision_locator: string;
+  content_hash: string;
+  verification_state: string;
+  vigencia_state: string;
+}
+
+export interface ManifestLote {
+  batch_id: string;
+  ingestion_version: string;
+  source_reference: string;
+  source_hash: string;
+  document_identifier: string;
+  embedding_model: string;
+  embedding_dimension: number;
+  generated_at: string;
+  sql_artifact_path: string | null;
+  sql_artifact_hash: string | null;
+  registros: ManifestRegistro[];
+}
+
+export function calcularBatchId(idPrefix: string, sourceHash: string): string {
+  // Determinístico: mismo prefijo + mismo hash de fuente -> mismo batch_id,
+  // reproducible entre corridas del mismo insumo (requisito de la Regla de
+  // Validación 8, "el lote es reproducible").
+  return `${idPrefix}__${sourceHash.slice(0, 12)}`;
+}
+
+export function generarManifest(
+  registros: RegistroGenerico[],
+  opts: OpcionesCLI,
+  extra: { sourceHash: string; embeddingModel: string; sqlArtifactPath?: string; sqlArtifactHash?: string },
+): ManifestLote {
+  return {
+    batch_id: calcularBatchId(opts.idPrefix, extra.sourceHash),
+    ingestion_version: 'ingestar-ley.ts@fail-closed-p1',
+    source_reference: opts.input,
+    source_hash: extra.sourceHash,
+    document_identifier: opts.idPrefix,
+    embedding_model: extra.embeddingModel,
+    embedding_dimension: EMBED_DIMS,
+    generated_at: new Date().toISOString(),
+    sql_artifact_path: extra.sqlArtifactPath ?? null,
+    sql_artifact_hash: extra.sqlArtifactHash ?? null,
+    registros: registros.map((r) => ({
+      id: r.id,
+      document_identifier: String((r.metadata as Record<string, unknown>).norm_id ?? opts.idPrefix),
+      provision_locator: r.num_articulo,
+      content_hash: String((r.metadata as Record<string, unknown>).content_sha256 ?? (r.metadata as Record<string, unknown>).hash_texto_sha256 ?? ''),
+      verification_state: (r.metadata as Record<string, unknown>).verificado === true ? 'VERIFICADO_HUMANO' : 'NO_VERIFICADO',
+      vigencia_state: String((r.metadata as Record<string, unknown>).vigencia_state ?? 'NO_VERIFICADO'),
+    })),
+  };
+}
+
+export function escribirManifest(manifest: ManifestLote, rutaSalida: string): void {
+  mkdirSync(dirname(rutaSalida), { recursive: true });
+  writeFileSync(rutaSalida, JSON.stringify(manifest, null, 2), 'utf8');
 }
 
 // ── Embeddings locales (solo en modo --execute) ─────────────────────────
@@ -371,11 +551,11 @@ async function cargarExtractorEmbeddings() {
 async function embedPassage(extractor: unknown, texto: string): Promise<number[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const salida = await (extractor as any)(`passage: ${texto}`, { pooling: 'mean', normalize: true });
-  const vec = Array.from(salida.data as Float32Array);
-  if (vec.length !== EMBED_DIMS) {
-    throw new Error(`embedding local: dims inesperadas (${vec.length} ≠ ${EMBED_DIMS})`);
-  }
-  return vec as number[];
+  const vec = Array.from(salida.data as Float32Array) as number[];
+  // Dummy Embedding Guard (Canonical Ingestion Contract, Patch 4) -- valida
+  // dimensión Y ausencia de vector constante, no solo dimensión.
+  validarEmbeddingNoDummy(vec);
+  return vec;
 }
 
 // ── SQL declarado (idéntico patrón a insertar-civil.ts) ────────────────
@@ -472,6 +652,11 @@ async function main() {
 
   const registros = aceptados.map((c) => construirRegistro(c, opts));
 
+  // Canonical Ingestion Contract -- validación determinística ANTES de
+  // gastar tiempo en embeddings, y también en dry-run (detecta problemas
+  // de contrato sin necesitar --execute).
+  validarLoteAntesDeSQL(registros);
+
   if (opts.dryRun) {
     console.log('\n🔒 DRY-RUN: no se generó ningún embedding, no se escribió ningún artefacto. Revisar los conteos/muestras de arriba antes de correr --execute.');
     return;
@@ -491,10 +676,24 @@ async function main() {
 
   const stagingTable = `stg_${opts.idPrefix.split(':')[1]?.replace(/[^a-z0-9_]/gi, '_') ?? 'ingesta_generica'}`;
   const sql = generarSQL(conEmbeddings, stagingTable);
+  validarSQLNoDestructivo(sql, stagingTable);
   mkdirSync(dirname(opts.execute!), { recursive: true });
   writeFileSync(opts.execute!, sql, 'utf8');
   console.log(`\n✅ SQL escrito en: ${opts.execute} (${sql.length} caracteres, ${conEmbeddings.length} filas)`);
   console.log('🔒 Este script no ejecutó ningún SQL contra producción -- solo lo escribió a archivo. Aditivo, ON CONFLICT DO NOTHING, sin DELETE.');
+
+  // Ingestion Manifest (Patch 3) -- provenance operacional, no verdad legal.
+  const sourceHash = sha256(textoCrudo);
+  const sqlHash = sha256(sql);
+  const manifest = generarManifest(registros, opts, {
+    sourceHash,
+    embeddingModel: 'Xenova/multilingual-e5-small (quantized:false)',
+    sqlArtifactPath: opts.execute!,
+    sqlArtifactHash: sqlHash,
+  });
+  const rutaManifest = `${opts.execute}.manifest.json`;
+  escribirManifest(manifest, rutaManifest);
+  console.log(`📄 Manifest escrito en: ${rutaManifest} (batch_id=${manifest.batch_id})`);
 }
 
 if (process.argv[1] && process.argv[1].endsWith('ingestar-ley.ts')) {

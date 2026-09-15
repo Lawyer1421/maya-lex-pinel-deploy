@@ -236,9 +236,32 @@ describe('construirRegistro', () => {
     expect(r.id).toBe('mayalex_normativos:ley_prueba_a5');
     expect(r.materia).toBe('01_PENAL');
     expect(r.jurisdiccion).toBe('HN');
-    expect(r.es_norma_vigente).toBe(true);
-    expect(r.metadata.verificado).toBe(false);
     expect(typeof r.metadata.hash_texto_sha256).toBe('string');
+  });
+
+  // ADR-001 (enmienda Control Plane, P1/HIGH): una extracción exitosa nunca
+  // implica VIGENTE. Antes de este fix, es_norma_vigente:true era el default
+  // hardcodeado -- este test es la regresión que lo bloquea hacia adelante.
+  it('FAIL-CLOSED: nunca marca es_norma_vigente=true sin evidencia jurídica, y deja el estado real explícito en metadata', () => {
+    const r = construirRegistro({ numArticulo: '5', contenido: 'Artículo 5.- Texto.', aceptado: true }, opts);
+    expect(r.es_norma_vigente).toBe(false);
+    expect(r.metadata.verificado).toBe(false);
+    expect(r.metadata.fecha_verificacion).toBeNull();
+    expect(r.metadata.vigencia_state).toBe('NO_VERIFICADO');
+  });
+
+  it('expone content_sha256 como alias del hash de contenido (Canonical Ingestion Contract) sin eliminar el nombre legacy', () => {
+    const r = construirRegistro({ numArticulo: '5', contenido: 'Artículo 5.- Texto.', aceptado: true }, opts);
+    expect(r.metadata.content_sha256).toBe(r.metadata.hash_texto_sha256);
+    expect(typeof r.metadata.content_sha256).toBe('string');
+    expect((r.metadata.content_sha256 as string).length).toBe(64); // sha256 hex
+  });
+
+  it('el hash de contenido es determinístico: mismo texto -> mismo hash en corridas repetidas', () => {
+    const r1 = construirRegistro({ numArticulo: '9', contenido: 'Mismo texto exacto.', aceptado: true }, opts);
+    const r2 = construirRegistro({ numArticulo: '9', contenido: 'Mismo texto exacto.', aceptado: true }, opts);
+    expect(r1.id).toBe(r2.id);
+    expect(r1.metadata.content_sha256).toBe(r2.metadata.content_sha256);
   });
 
   it('usa --instrumento en metadata cuando se provee, o cae a --fuente si no', () => {
