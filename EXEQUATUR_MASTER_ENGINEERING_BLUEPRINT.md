@@ -1,10 +1,10 @@
 # EXEQUÁTUR DE NOTARIO — MASTER ENGINEERING BLUEPRINT
 
-**Estado: `DRAFT — PENDING ARCHITECTURE APPROVAL`**
+**Estado: `MASTER_BLUEPRINT = ARCHITECTURE_GOVERNING_BASELINE`** (Fase 1, Paso 1A, 2026-09-14 — Human Owner con revisión de arquitectura/seguridad). `TECHNICAL_PHASE_0 = CLOSED`. `SHARED_GIT_IDENTITY = CLOSED`. **Este estado del documento NO es autorización de implementación de Exequátur** — cada ADR individual mantiene su propio estado (algunas `ACCEPTED`, otras `PROPOSED` y bloqueadas — ver Sección 38); `HUMAN_GO` para construcción sigue sin otorgarse salvo autorización limitada explícita.
 
-Este es el documento gobernante único. No existen "Claude Blueprint" ni "Cursor Blueprint" alternativos — este archivo concilia ambas fuentes de evidencia contra el repositorio y las bases de datos reales. Ninguna sección de este documento autoriza implementación. `HUMAN_GO` no ha sido otorgado.
+Este es el documento gobernante único. No existen "Claude Blueprint" ni "Cursor Blueprint" alternativos — este archivo concilia ambas fuentes de evidencia contra el repositorio y las bases de datos reales.
 
-**Baseline compartido (`PHASE_0D_SHARED_GIT_IDENTITY = CLOSED`):** `origin/main @ 00b74484a9c933c7e8f0ea995b725509e327f098` (`Lawyer1421/maya-lex-pinel-deploy`). Rama documental: `audit/exequatur-source-reconciliation`. Este es el estado técnico de referencia para toda afirmación de arquitectura de este documento salvo que se marque explícitamente `CLAUDE_LOCAL_HISTORICAL`.
+**Baseline compartido:** `origin/main @ 00b74484a9c933c7e8f0ea995b725509e327f098` (`Lawyer1421/maya-lex-pinel-deploy`), blueprint verificado en el commit `5659cfebdcf9956e551709b4d6837d25ea4296e7` de la rama `audit/exequatur-source-reconciliation`. Este es el estado técnico de referencia para toda afirmación de arquitectura de este documento salvo que se marque explícitamente `CLAUDE_LOCAL_HISTORICAL`.
 
 **Worktrees:** checkout principal `C:\Proyectos\maya-lex-pinel-deploy` (branch `feature/mayalex-rag-citations-integration`, HEAD local `4ce513e771de9cbdc420fcfa30dfe9dc14379855`, 5 commits locales nunca pusheados) + worktree de reconciliación `C:\Proyectos\maya-lex-reconciliation` (branch `audit/exequatur-source-reconciliation`, basado en `origin/main`).
 
@@ -155,7 +155,7 @@ La autorización ocurre server-side, distribuida por página/ruta (Sección 8), 
 
 ## 11. Canonical Legal Identity — ADR-001
 
-**Estado: `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `BLOCKED_BY_EVIDENCE`.**
+**Estado: `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `BLOCKED_BY_EVIDENCE`.** Gate principal registrado en Fase 1, Paso 1A: `PRODUCTION_SUPABASE_IDENTITY = UNVERIFIED` (Sección 7) — no se puede diseñar el físico definitivo de identidad canónica hasta confirmar contra qué proyecto Supabase real se aplicaría. Estado sin cambios; `EXACT NEXT STEP` de este documento es precisamente resolver ese gate (Sección 42).
 
 ```
 legal_document
@@ -330,7 +330,7 @@ No evaluado. El Tribunal Virtual (turnos múltiples, extracción de conceptos, r
 
 ## 27. MayaLex App Shell — ADR-004
 
-**Estado: `PROPOSED`, `READY_FOR_HUMAN_DECISION`.**
+**Estado: `ACCEPTED`** (Fase 1, Paso 1A, 2026-09-14). Documento formal: `docs/adr/ADR-004-mayalex-app-shell.md`. **La aceptación de esta ADR no autoriza su implementación** — ningún Shell, ruta, layout o componente se crea en esta sesión; requiere autorización de construcción limitada y separada.
 
 ```
 MayaLex
@@ -359,7 +359,9 @@ Confirmado contra `origin/main`: no existe App Shell autenticado unificado hoy �
 
 ## 29. Feature Flags — ADR-005
 
-**Estado: `PROPOSED`, `READY_FOR_HUMAN_DECISION`.**
+**Estado: `ACCEPTED`** (Fase 1, Paso 1A, 2026-09-14). Documento formal: `docs/adr/ADR-005-exequatur-feature-flags.md`. **La aceptación de esta ADR no autoriza crear flags ni modificar `lib/flags.ts`** — ningún flag `flag_exq_*` se crea en esta sesión.
+
+Registrado explícitamente, sin excepción: `FEATURE_FLAG != AUTHORIZATION`, `FEATURE_FLAG != ENTITLEMENT`, `HIDDEN_UI != ACCESS_CONTROL`. Un usuario no adquiere acceso a una capacidad de Exequátur solo porque el flag esté activo — la autorización server-side (tier/entitlement) se verifica de forma independiente, con o sin el flag.
 
 **EXISTING:** `lib/flags.ts` — infraestructura server-side real, `KNOWN_FLAGS`, tabla `feature_flags`, `isFlagEnabledForUser()`, fail-closed-to-OFF por diseño explícito, ya gatea `flag_rerank` en producción (Sección 2). **NOT EXISTING:** ningún flag específico de Exequátur.
 
@@ -456,11 +458,11 @@ Regla: nunca `OWNER = BOTH` sobre el mismo conjunto de archivos simultáneamente
 | ADR-001 | Canonical Legal Identity | `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `BLOCKED_BY_EVIDENCE` |
 | ADR-002 | Structured Citation Contract | `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `DEPENDENCY_ON_ADR001` |
 | ADR-003 | Pedagogical Content Architecture | `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `BLOCKED_BY_LEGAL_REVIEW` |
-| ADR-004 | MayaLex App Shell / Vertical Navigation | `PROPOSED`, `READY_FOR_HUMAN_DECISION` |
-| ADR-005 | Feature Flag Architecture (extend `lib/flags.ts`) | `PROPOSED`, `READY_FOR_HUMAN_DECISION` |
+| ADR-004 | MayaLex App Shell / Vertical Navigation | `ACCEPTED` — `docs/adr/ADR-004-mayalex-app-shell.md` |
+| ADR-005 | Feature Flag Architecture (extend `lib/flags.ts`) | `ACCEPTED` — `docs/adr/ADR-005-exequatur-feature-flags.md` |
 | ADR-006 | AI Evaluation Architecture | `PROPOSED`, `READY_FOR_HUMAN_DECISION`, `NEEDS_REVISION` |
 
-Ninguna `ACCEPTED`.
+ADR-004 y ADR-005 `ACCEPTED` (Fase 1, Paso 1A) — aceptación arquitectónica, no autorización de implementación. ADR-001/002/003/006 permanecen sin cambio de estado (ver Sección 9 de la instrucción de Fase 1: no se modifican).
 
 ## 39. LEGAL_REVIEW_REQUIRED
 
@@ -486,7 +488,7 @@ Ninguna `ACCEPTED`.
 
 ## 42. Exact Next Step
 
-**`CURSOR VERIFY BLUEPRINT PATCH`** — que Cursor confirme que las correcciones de este patch (identidad git, feature flags, RAG, CI, tests, auth/middleware, App Shell, `REGLAMENTO_NOTARIADO`) describen correctamente `origin/main @ 00b7448`, antes de que este documento avance a revisión de arquitectura/seguridad.
+**`VERIFY PRODUCTION SUPABASE IDENTITY READ-ONLY`** (Fase 1, Paso 1A) — confirmar, sin escrituras, cuál proyecto Supabase sirve realmente a `mayalexhn.com`, para desbloquear el gate principal de ADR-001 (Sección 11) y resolver `PRODUCTION_SUPABASE_IDENTITY = UNVERIFIED` (Sección 7). `CURSOR VERIFY BLUEPRINT PATCH` (paso anterior, Fase 0-E) queda superado por la aceptación de ADR-004/005 en esta fase.
 
 ---
 
