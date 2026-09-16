@@ -26,3 +26,15 @@ First-pass filter that treated any preceding `“` (U+201C) as a quote also drop
 | **46** | Pre-existing: `ARTICULO 46. es repistradores…` fails uppercase-after-separator (`tieneEncabezadoArticulo`); not invented |
 
 No extra nums. No invented article text. Civil scripts untouched.
+
+## Local execute artifacts (gitignored `out/`, not applied)
+
+`--execute /workspace/out/ingesta-propiedad-d82-2004/ingesta.sql` with the same flag. Xenova/multilingual-e5-small `quantized:false`. **SQL_APPLIED=NO** — file write only, no Supabase.
+
+| Artifact | Path | Notes |
+|---|---|---|
+| SQL | `out/ingesta-propiedad-d82-2004/ingesta.sql` | 139 filas, ~698 KB, staging `stg_ley_propiedad_82_2004`, `INSERT … ON CONFLICT DO NOTHING`, no DELETE |
+| Manifest | `out/ingesta-propiedad-d82-2004/ingesta.sql.manifest.json` | `batch_id=mayalex_normativos:ley_propiedad_82_2004__faf2807a9758` |
+| Execute log | `out/ingesta-propiedad-d82-2004/execute.log` | `[139/139] Art. 139... OK` |
+
+PR #37 invariants in the artifact: every row `es_norma_vigente=false`; metadata/manifest `vigencia_state=NO_VERIFICADO`. Unique Art.2 id `…_a2` body starts `Las disposiciones de esta Ley…`. Impuesto quotation lives inside Art.140 only. Art.108/18/46 absent (not invented).
