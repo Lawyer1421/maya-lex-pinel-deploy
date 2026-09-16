@@ -28,6 +28,15 @@ export const KNOWN_FLAGS = [
   // el cableado en lib/rag/search.ts depende de una decisión de diseño
   // (docs/runbooks/cohere-rerank-flag.md).
   'flag_rerank',
+  // Exequátur Slice 1 (feat/exequatur-slice-1-access-shell) — gate de la
+  // vertical completa detrás de lib/exequatur/access.ts. Sin fila sembrada
+  // en `feature_flags` todavía (ninguna migración/seed en esta slice) --
+  // fila ausente = isFlagEnabledForUser() devuelve false = Exequátur
+  // permanece deshabilitado incluso para usuarios Premium ('pro'). Sembrar
+  // la fila (enabled=false por defecto, activación gradual vía
+  // allowed_emails) es la dependencia de activación pendiente antes de
+  // que esta vertical pueda mostrarse a cualquier usuario real.
+  'flag_exq_enabled',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];
