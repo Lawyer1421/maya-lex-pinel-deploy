@@ -277,15 +277,23 @@ describe('segmentarGenerico — rejectQuotedSubstituteHeading (Propiedad D.82-20
     expect(sinFlag.find((c) => c.contenido.includes('El monto del impuesto'))?.aceptado).toBe(true);
   });
 
-  it('también rechaza comilla ASCII " y comilla tipográfica “ inmediatamente antes del match', () => {
-    const ascii = 'texto previo\n"ARTÍCULO 7.- Cuerpo citado con comilla ASCII.\nARTÍCULO 8.- Encabezado real.';
-    const tipografica = 'texto previo\n\u201CARTÍCULO 7.- Cuerpo citado con comilla tipográfica.\nARTÍCULO 8.- Encabezado real.';
-    for (const texto of [ascii, tipografica]) {
+  it('« basta para rechazar; " y “ solo con marco de reforma (Art.49 OCR U+201C no es cita)', () => {
+    const asciiConMarco =
+      'el que deberá leerse así:\n"ARTÍCULO 7.- Cuerpo citado con comilla ASCII.\nARTÍCULO 8.- Encabezado real.';
+    const tipograficaConMarco =
+      'Reformar el Artículo 7 de la Ley X, el que deberá leerse así:\n\u201CARTÍCULO 7.- Cuerpo citado.\nARTÍCULO 8.- Encabezado real.';
+    for (const texto of [asciiConMarco, tipograficaConMarco]) {
       const aceptados = segmentarGenerico(texto, { rejectQuotedSubstituteHeading: true }).filter(
         (c) => c.aceptado,
       );
       expect(aceptados.map((c) => c.numArticulo)).toEqual(['8']);
     }
+    // Propiedad Art.49: line-start U+201C is an OCR artifact, not a substitute quote.
+    const art49Ocr = 'aceptado.\n\u201CARTÍCULO 49.- En las zonas catastradas donde el registro opere.\nARTÍCULO 50.- Siguiente.';
+    const aceptados49 = segmentarGenerico(art49Ocr, { rejectQuotedSubstituteHeading: true }).filter(
+      (c) => c.aceptado,
+    );
+    expect(aceptados49.map((c) => c.numArticulo)).toEqual(['49', '50']);
   });
 
   it('ignora whitespace entre la comilla de apertura y el match', () => {
@@ -299,11 +307,13 @@ describe('segmentarGenerico — rejectQuotedSubstituteHeading (Propiedad D.82-20
 });
 
 describe('precedidoPorComillaDeSustituto', () => {
-  it('detecta « " “ inmediatamente antes, ignorando whitespace; no inventa positivos', () => {
+  it('« es suficiente; " / “ requieren marco de reforma; no inventa positivos', () => {
     expect(precedidoPorComillaDeSustituto('«ARTÍCULO', 1)).toBe(true);
-    expect(precedidoPorComillaDeSustituto('"ARTÍCULO', 1)).toBe(true);
-    expect(precedidoPorComillaDeSustituto('\u201CARTÍCULO', 1)).toBe(true);
     expect(precedidoPorComillaDeSustituto('« \nARTÍCULO', 3)).toBe(true);
+    expect(precedidoPorComillaDeSustituto('"ARTÍCULO', 1)).toBe(false);
+    expect(precedidoPorComillaDeSustituto('\u201CARTÍCULO', 1)).toBe(false);
+    const asciiConMarco = 'deberá leerse así:\n"ARTÍCULO';
+    expect(precedidoPorComillaDeSustituto(asciiConMarco, asciiConMarco.indexOf('ARTÍCULO'))).toBe(true);
     expect(precedidoPorComillaDeSustituto('ARTÍCULO', 0)).toBe(false);
     expect(precedidoPorComillaDeSustituto('. ARTÍCULO', 2)).toBe(false);
   });
