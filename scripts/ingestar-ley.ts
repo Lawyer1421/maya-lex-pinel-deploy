@@ -48,6 +48,14 @@
  *     --instrumento "Decreto N-AAAA" \
  *     [--dry-run]              (default: true)
  *     [--execute <salida.sql>] (genera embeddings + .sql local; NO inserta)
+ *     [--stop-at-text <string>]
+ *         (opt-in, default unset. MULTI_INSTRUMENT_APPEND: deja de aceptar
+ *          encabezados de artículo en/después de la primera línea que
+ *          contenga <string>, y recorta el cuerpo del último artículo
+ *          aceptado en ese punto. Código del Notariado CEDIJ: el PDF
+ *          anexa el D.77-2006 completo tras D.353-2005 — usar
+ *          scripts/ingesta-notariado.ts o pasar
+ *          --stop-at-text "DECRETO No. 77-2006". No cambia vigencia.)
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -92,6 +100,10 @@ export interface OpcionesCLI {
   jurisdiccion: string;
   dryRun: boolean;
   execute: string | null; // ruta de salida .sql, o null si no se pidió --execute
+  // Opt-in (default unset). Mapped from --stop-at-text. See
+  // OpcionesSegmentacion.stopAtText — MULTI_INSTRUMENT_APPEND (Notariado
+  // CEDIJ anexa D.77-2006 tras D.353-2005). Must NOT be the generic default.
+  stopAtText?: string;
 }
 
 export function parsearArgs(argv: string[]): OpcionesCLI {
@@ -110,6 +122,10 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
   const jurisdiccion = get('--jurisdiccion') ?? 'HN';
   const executeOut = get('--execute') ?? null;
   const dryRun = !executeOut; // --execute es lo único que saca del modo dry-run
+  const stopAtRaw = has('--stop-at-text') ? get('--stop-at-text') : undefined;
+  if (has('--stop-at-text') && (!stopAtRaw || stopAtRaw.startsWith('--'))) {
+    fallarDuro('falta valor para --stop-at-text <string>');
+  }
 
   if (!input) fallarDuro('falta --input <ruta.pdf|ruta.txt>');
   if (!coleccion) fallarDuro('falta --coleccion');
@@ -132,6 +148,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
     jurisdiccion,
     dryRun,
     execute: executeOut,
+    stopAtText: stopAtRaw,
   };
 }
 
@@ -221,13 +238,47 @@ export interface OpcionesSegmentacion {
   // propia fuente sigue esta convención, tras verificarlo contra su propio
   // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
   exigirOrtografiaSinTilde?: boolean;
+  /**
+   * When set, stop accepting article headings at/after the first line that
+   * contains this literal substring, and cap the last accepted article's
+   * body at that line. Opt-in (default unset).
+   *
+   * Classification: MULTI_INSTRUMENT_APPEND — CEDIJ PDFs sometimes append a
+   * second decree (reform text that restates articles). Código del
+   * Notariado: D.353-2005 followed by full D.77-2006, which dry-run
+   * FAIL-HARDs as dups on arts 1,2,3,4,11,27. `--reject-quoted-heading`
+   * does not help (0 guillemets). Marker: `DECRETO No. 77-2006`.
+   */
+  stopAtText?: string;
+}
+
+/**
+ * Byte offset of the first line that contains `marker` as a literal
+ * substring. `null` if `marker` is empty or no line matches. Line-based
+ * (not a whole-document search) so a mid-line marker still cuts at the
+ * start of that line — headings on/after it are rejected.
+ */
+export function encontrarIndiceStopAtText(texto: string, marker: string): number | null {
+  if (!marker) return null;
+  const lineas = texto.split('\n');
+  let offset = 0;
+  for (let i = 0; i < lineas.length; i++) {
+    const linea = lineas[i];
+    if (linea.includes(marker)) return offset;
+    offset += linea.length + (i < lineas.length - 1 ? 1 : 0);
+  }
+  return null;
 }
 
 export function segmentarGenerico(
   textoLimpio: string,
   opciones: OpcionesSegmentacion = {},
 ): ChunkCandidato[] {
-  const coincidencias = [...textoLimpio.matchAll(PATRON_CANDIDATO)];
+  const patron = new RegExp(PATRON_CANDIDATO.source, PATRON_CANDIDATO.flags);
+  const coincidencias = [...textoLimpio.matchAll(patron)];
+  const stopIndex = opciones.stopAtText
+    ? encontrarIndiceStopAtText(textoLimpio, opciones.stopAtText)
+    : null;
 
   const esOrtografiaDeEncabezado = (matchTexto: string): boolean =>
     !opciones.exigirOrtografiaSinTilde || (/^A/.test(matchTexto) && !/[íÍ]/.test(matchTexto));
@@ -242,7 +293,12 @@ export function segmentarGenerico(
     // Se evalúa contra una ventana corta, NUNCA contra el texto completo
     // hasta el siguiente match (ver hallazgo arriba). Se exige además la
     // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
-    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    let aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    // MULTI_INSTRUMENT_APPEND: headings on/after the stop line are not
+    // accepted. Default unset — other corpora unchanged.
+    if (aceptado && stopIndex !== null && inicio >= stopIndex) {
+      aceptado = false;
+    }
     return { inicio, numArticulo, aceptado, largoMatch };
   });
 
@@ -280,7 +336,10 @@ export function segmentarGenerico(
   // artículo anterior se extiende hasta el siguiente encabezado genuino.
   const reales = aceptados.filter((_, i) => !esVacio[i]);
   const candidatos: ChunkCandidato[] = reales.map((b, i) => {
-    const fin = reales[i + 1]?.inicio ?? textoLimpio.length;
+    const finNatural = reales[i + 1]?.inicio ?? textoLimpio.length;
+    // Cap the last accepted article before the appended instrument so it
+    // does not absorb D.77-2006 (or any stop-at appendix) as its body.
+    const fin = stopIndex !== null ? Math.min(finNatural, stopIndex) : finNatural;
     const contenido = textoLimpio.slice(b.inicio, fin).trim();
     return { numArticulo: b.numArticulo, contenido, aceptado: true };
   });
@@ -635,16 +694,26 @@ function generarSQL(registros: Array<RegistroGenerico & { embedding: number[] }>
 }
 
 // ── main ─────────────────────────────────────────────────────────────────
-async function main() {
-  const opts = parsearArgs(process.argv.slice(2));
-
+export async function ejecutarIngesta(opts: OpcionesCLI): Promise<void> {
   console.log(`=== ingestar-ley.ts — ${opts.dryRun ? 'DRY-RUN (solo lectura local, sin embeddings)' : 'EXECUTE (genera embeddings + .sql local, NO inserta a producción)'} ===`);
   console.log(`Fuente: ${opts.input}`);
   console.log(`Coleccion: ${opts.coleccion} | Materia: ${opts.materia} | Fuente_tipo: ${opts.fuenteTipo}\n`);
 
   const textoCrudo = extraerTexto(opts.input);
   const textoLimpio = limpiarRuidoBasico(textoCrudo);
-  const candidatos = segmentarGenerico(textoLimpio);
+  if (opts.stopAtText) {
+    console.log(`Filtro opt-in: stopAtText=${JSON.stringify(opts.stopAtText)} (--stop-at-text) — MULTI_INSTRUMENT_APPEND`);
+    if (encontrarIndiceStopAtText(textoLimpio, opts.stopAtText) === null) {
+      fallarDuro(
+        `--stop-at-text ${JSON.stringify(opts.stopAtText)} no aparece en ninguna línea de la fuente — ` +
+        `no se trunca el apéndice (MULTI_INSTRUMENT_APPEND)`,
+      );
+    }
+  }
+
+  const candidatos = segmentarGenerico(textoLimpio, {
+    stopAtText: opts.stopAtText,
+  });
 
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
@@ -720,6 +789,11 @@ async function main() {
   const rutaManifest = `${opts.execute}.manifest.json`;
   escribirManifest(manifest, rutaManifest);
   console.log(`📄 Manifest escrito en: ${rutaManifest} (batch_id=${manifest.batch_id})`);
+}
+
+async function main() {
+  const opts = parsearArgs(process.argv.slice(2));
+  await ejecutarIngesta(opts);
 }
 
 if (process.argv[1] && process.argv[1].endsWith('ingestar-ley.ts')) {
