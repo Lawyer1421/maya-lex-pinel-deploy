@@ -34,8 +34,8 @@ Regenerated against the updated OCR (`8fd84d0c…5208eed`) after Art.108 recover
 
 | Artifact | Path | Notes |
 |---|---|---|
-| SQL | `out/ingesta-propiedad-d82-2004/ingesta.sql` | expected **140** filas after execute |
-| Manifest | `out/ingesta-propiedad-d82-2004/ingesta.sql.manifest.json` | `source_hash` = OCR sha256 above |
-| Execute log | `out/ingesta-propiedad-d82-2004/execute.log` | local embeddings only |
+| SQL | `out/ingesta-propiedad-d82-2004/ingesta.sql` | **140** filas, ~703 KB, staging `stg_ley_propiedad_82_2004`, `INSERT … ON CONFLICT DO NOTHING`, no DELETE |
+| Manifest | `out/ingesta-propiedad-d82-2004/ingesta.sql.manifest.json` | `batch_id=mayalex_normativos:ley_propiedad_82_2004__8fd84d0c3928` |
+| Execute log | `out/ingesta-propiedad-d82-2004/execute.log` | `[140/140] Art. 139... OK` including `[107/140] Art. 108... OK` |
 
-PR #37 invariants: every row `es_norma_vigente=false`; metadata/manifest `vigencia_state=NO_VERIFICADO`.
+PR #37 invariants: every row `es_norma_vigente=false`; metadata/manifest `vigencia_state=NO_VERIFICADO`. Unique Art.2 body starts `Las disposiciones de esta Ley…`. Art.108 row is the recovered lotificación text (`sezn` kept). Impuesto quotation lives inside Art.140 only.
