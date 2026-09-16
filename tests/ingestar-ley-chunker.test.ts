@@ -319,24 +319,38 @@ describe('precedidoPorComillaDeSustituto', () => {
   });
 });
 
-// Art.108 gap (Propiedad D.82-2004 OCR): the heading is absent from the
-// scan text. Fail-closed — do not invent ARTÍCULO 108 or its body.
-describe('segmentarGenerico — Art.108 OCR gap (fail-closed, no invented heading)', () => {
-  const ocrGap =
-    'ARTÍCULO 107.- Para resolver cualquier disputa entre los pobladores\n' +
-    'de los asentamientos humanos originada en la aplicación de los\n' +
-    'procedimientos de regularización contenidos en este Título tendrán valor\n' +
-    'probatorio para acreditar la posesión, uso, tenencia o habitación, los\n' +
-    'documentos que las comunidades beneficiadas por estos procedimientos\n' +
-    'reconozcan como válidos.\n' +
-    '(IP) serán remitidos por éste a la corporación municipal correspondiente\n' +
-    'para que gratuitamente sean incorporados en los catastros municipales,\n' +
-    'planes reguladores y mapas de zonificación.\n' +
-    'Los mismos tendrán la consideración de planos municipales aprobados.\n' +
-    'ARTÍCULO 109.- Los planos que prepare el Instituto de la Propiedad\n' +
-    '(IP) a solicitud de las municipalidades definiendo los límites urbanos.';
+// Art.108: combined two-column OCR dropped the heading; page-14 re-OCR recovered
+// it. Use recovered text — do not invent. If the heading is still absent, do not
+// synthesize ARTÍCULO 108.
+const ART108_FROM_PAGE14_REOCR =
+  'ARTÍCULO 108.- Los planos de lotificación y urbanización de los\n' +
+  'asentamientos humanos regularizados por el Instituto de la Propiedad\n' +
+  '(IP) serán remitidos por éste a la corporación municipal correspondiente\n' +
+  'para que gratuitamente sezn incorporados en los catastros municipales,\n' +
+  'planes reguladores y mapas de zonificación,\n\n' +
+  'Los mismos tendrán la consideración de planos municipales\n' +
+  'aprobados.\n';
+
+describe('segmentarGenerico — Art.108 recovered from page-14 re-OCR (technical, not invented)', () => {
+  it('acepta el Art.108 recuperado (planos de lotificación…) entre 107 y 109', () => {
+    const texto =
+      'ARTÍCULO 107.- Para resolver cualquier disputa entre los pobladores.\n\n' +
+      ART108_FROM_PAGE14_REOCR +
+      '\nARTÍCULO 109.- Los planos que prepare el Instituto de la Propiedad.';
+    const aceptados = segmentarGenerico(texto, { rejectQuotedSubstituteHeading: true }).filter(
+      (c) => c.aceptado,
+    );
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['107', '108', '109']);
+    const art108 = aceptados.find((c) => c.numArticulo === '108');
+    expect(art108?.contenido).toContain('Los planos de lotificación y urbanización');
+    expect(art108?.contenido).toContain('sezn incorporados'); // recovered OCR, not corrected
+  });
 
   it('no inventa un Art.108 cuando el OCR no trae la etiqueta', () => {
+    const ocrGap =
+      'ARTÍCULO 107.- Para resolver cualquier disputa entre los pobladores.\n' +
+      '(IP) serán remitidos por éste a la corporación municipal correspondiente.\n' +
+      'ARTÍCULO 109.- Los planos que prepare el Instituto de la Propiedad.';
     const aceptados = segmentarGenerico(ocrGap, { rejectQuotedSubstituteHeading: true }).filter(
       (c) => c.aceptado,
     );

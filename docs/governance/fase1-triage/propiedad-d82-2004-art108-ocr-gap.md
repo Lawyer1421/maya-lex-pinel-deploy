@@ -1,53 +1,41 @@
-# Propiedad D.82-2004 — Art.108 OCR gap (QUEUE_C, fail-closed)
+# Propiedad D.82-2004 — Art.108 OCR miss (technical, recovered)
 
 **Instrument:** Ley de Propiedad, Decreto No. 82-2004 (Gaceta 30,428 — 29 jun 2004)  
-**OCR:** `propiedad-d82-2004.ocr.txt` (tesseract spa+eng psm6, two-column Gaceta scan)  
 **Constraint:** do not invent article text. `PRODUCTION_WRITE_AUTHORIZED=NO`.
 
 ## Classification
 
-**QUEUE_C — OCR heading absent; legal reconstruction required to fill the gap.**
+**OCR_MISS / DETERMINISTIC — not legal ambiguity. QUEUE_A (technical).**  
+`LEGAL_REVIEW_REQUIRED = NO`.
 
-The linear OCR stream has **zero** occurrences of the token `108` and **zero** matches of `ARTÍCULO 108` / `Artículo 108`. The skip is 107 → remnant body → 109 on the left column of page-13, interleaved with Arts. 110–112 on the right column.
+Page A.14 of the Gaceta scan (`page-14.png`) contains `ARTÍCULO 108` between 107 and 109. Combined linear OCR of the two-column layout dropped the heading while keeping 107 and 109. Re-OCR of page-14 alone recovered the provision. The recovered text was inserted into the OCR file immediately before `ARTÍCULO 109` (same official page; not a different edition, not invented).
 
-This is **not** a deterministic label repair (no garbled `1O8` / `I08` / `10 8` heading exists to rewrite). Filling the provision would require:
-
-1. Asserting that the orphaned left-column remnant belongs to Art. 108 (layout interpretation of a two-column Gaceta page).
-2. Reconstructing the lost prefix of that remnant. The OCR fragment begins mid-phrase: `(IP) serán remitidos por éste a la corporación municipal correspondiente…`
-
-Both steps invent provision identity and/or wording that is **not present** in this OCR. Fail-closed: **do not stitch**.
-
-## Evidence from this OCR (verbatim vicinity)
-
-After `ARTÍCULO 107.- Para resolver cualquier disputa entre los pobladores… reconozcan como válidos.` the stream continues:
+## Recovered text (page-14 re-OCR, verbatim)
 
 ```
+ARTÍCULO 108.- Los planos de lotificación y urbanización de los
+asentamientos humanos regularizados por el Instituto de la Propiedad
 (IP) serán remitidos por éste a la corporación municipal correspondiente
-para que gratuitamente sean incorporados en los catastros municipales,
-planes reguladores y mapas de zonificación. ARTÍCULO 111.- …
+para que gratuitamente sezn incorporados en los catastros municipales,
+planes reguladores y mapas de zonificación,
+
 Los mismos tendrán la consideración de planos municipales
 aprobados.
-ARTÍCULO 109.- Los planos que prepare el Instituto de ‘a Propiedad
 ```
 
-- No heading characters for 108.
-- Right-column bleed (`ARTÍCULO 111`, procedure numerals, `TÍTULO VI`) sits *inside* the same lines.
-- Assigning the remnant to 108 is a human/legal layout call, not a regex.
+OCR artifact `sezn` (for `sean`) is kept as recovered. No legal rewrite.
 
-## External corroboration (not ingested)
+## Combined-OCR remnant (not used as the heading)
 
-TSC PDF `https://www.tsc.gob.hn/web/leyes/Ley-de-la-Propiedad.pdf` (and secondary aggregators) indicate a real Art. 108 exists in this instrument, about planos de lotificación/urbanización remitted by the Instituto de la Propiedad. That confirms the skip is a **gap in this OCR**, not a skip in the statute numbering.
-
-**That external wording is not copied into this corpus.** Using it would mix a different digital edition into the Gaceta-scan identity of this ingest.
+The interleaved page-13/14 stream still has an orphaned left-column fragment after Art.107 (`(IP) serán remitidos…`) without an `ARTÍCULO 108` label. That remnant is **not** stitched into a heading. The accepted Art.108 row comes only from the recovered page-14 block.
 
 ## Disposition
 
 | Item | Value |
 |---|---|
-| `ocr_missing_label` | `[108]` |
-| Technical fix in `segmentarGenerico` | **None** (nothing to match) |
-| Invented heading/body | **Forbidden** |
-| Queue | **QUEUE_C** (human legal/layout reconstruction from the Gaceta page or a same-edition re-OCR) |
-| Prep impact | Art.2 FAIL-HARD is independent (quoted Impuesto Tradición substitute). Art.108 remains a documented unique-number gap after the quoted-heading filter. |
+| `ocr_missing_label` | **cleared for 108** once the updated OCR is the ingest input |
+| Invented heading/body | **No** — page-14 re-OCR of the same Gaceta scan |
+| Queue | **QUEUE_A** (technical recovery) |
+| Parser change | None required beyond ingesting the updated OCR |
 
-Regression: `tests/ingestar-ley-chunker.test.ts` — “Art.108 OCR gap (fail-closed, no invented heading)”.
+Regression: `tests/ingestar-ley-chunker.test.ts` — recovered Art.108 accepted; missing-heading fixture still does not invent 108.
