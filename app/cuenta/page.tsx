@@ -146,6 +146,18 @@ export default async function CuentaPage({
           </Link>
         </div>
 
+        {/* Exequátur — descubribilidad mínima. La ruta real decide qué mostrar
+            (activo, activándose por grupos, o requiere Premium) según el
+            plan y el flag_exq_enabled -- este enlace nunca afirma
+            disponibilidad general, solo apunta a la ruta que ya lo resuelve. */}
+        <Link href="/exequatur" className="glass-card-hover p-4 mb-5 flex items-center justify-between">
+          <div>
+            <p className="text-white text-sm font-semibold">Exequátur</p>
+            <p className="text-white/50 text-xs">Preparación para notariado — Premium</p>
+          </div>
+          <span className="text-white/40 text-lg">→</span>
+        </Link>
+
         {/* Gestionar suscripción / Cerrar sesión */}
         <div className="glass-card p-5 space-y-3">
           {(esPro || esAcademico) && suscripcion?.paypal_sub_id && (
