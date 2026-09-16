@@ -4,6 +4,7 @@ import {
   segmentarGenerico,
   construirRegistro,
   fallarDuro,
+  precedidoPorComillaDeSustituto,
   type OpcionesCLI,
 } from '@/scripts/ingestar-ley';
 
@@ -69,6 +70,11 @@ describe('parsearArgs', () => {
       '--fuente', 'Fuente de prueba',
     ];
     expect(() => parsearArgs(sinIdPrefix)).toThrow();
+  });
+
+  it('--reject-quoted-heading es opt-in (default false) y se mapea a OpcionesCLI', () => {
+    expect(parsearArgs(argsBase).rejectQuotedSubstituteHeading).toBe(false);
+    expect(parsearArgs([...argsBase, '--reject-quoted-heading']).rejectQuotedSubstituteHeading).toBe(true);
   });
 });
 
@@ -204,6 +210,132 @@ describe('segmentarGenerico — no trunca un artículo real por una cita cruzada
 // deja esta prueba como documentación explícita de ese hecho, no como
 // ejercicio de su lógica (que vive en otros archivos).
 // ─────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// Propiedad D.82-2004 PRIORITY 2 — Art.2 quoted substitute inside Art.140.
+// The generic extractor accepted «ARTÍCULO 2.- El monto del impuesto…»
+// (Ley de Impuesto de Tradición, Decreto 76/1957) as a second Propiedad
+// Art.2. Opt-in rejectQuotedSubstituteHeading; default false so other
+// corpora are unchanged.
+// ─────────────────────────────────────────────────────────────────────────
+const FIXTURE_PROPIEDAD_ART2 =
+  'ARTÍCULO 2.- Las disposiciones de esta Ley comprenden la\n' +
+  'propiedad mueble, inmueble, mercantil, intelectual, derechos reales y\n' +
+  'otros derechos con el propósito de hacer expedito.\n\n' +
+  'ARTÍCULO 140.- Reformar el Artículo 2 de la Ley de Impuesto de\n' +
+  'Tradición de Bienes Inmuebles contenida en el Decreto No. 76 del 9 de\n' +
+  'abril de 1957, el que deberá leerse así:\n' +
+  '«ARTÍCULO 2.- El monto del impuesto de tradición de bienes\n' +
+  'inmuebles será de uno y medio por ciento (1,5%) del valor de la\n' +
+  'transacción. Estos actos o contratos quedarán exentos del pago de\n' +
+  'impuestos y de la tasa de registro.\n\n' +
+  'ARTÍCULO 141.- La presente Ley deroga el Artículo 6 de la Ley de\n' +
+  'Papel Sellado y Timbres.';
+
+describe('segmentarGenerico — rejectQuotedSubstituteHeading (Propiedad D.82-2004 Art.2)', () => {
+  it('acepta el Art.2 real de Propiedad: “Las disposiciones de esta Ley…”', () => {
+    const aceptados = segmentarGenerico(FIXTURE_PROPIEDAD_ART2, {
+      rejectQuotedSubstituteHeading: true,
+    }).filter((c) => c.aceptado);
+    const art2 = aceptados.filter((c) => c.numArticulo === '2');
+    expect(art2).toHaveLength(1);
+    expect(art2[0]?.contenido).toContain('Las disposiciones de esta Ley');
+    expect(art2[0]?.contenido).not.toContain('El monto del impuesto de tradición');
+  });
+
+  it('rechaza el Art.2 citado con « tras el marco de reforma de Art.140', () => {
+    const chunks = segmentarGenerico(FIXTURE_PROPIEDAD_ART2, {
+      rejectQuotedSubstituteHeading: true,
+    });
+    const quoted = chunks.find(
+      (c) => c.numArticulo === '2' && c.contenido.includes('El monto del impuesto'),
+    );
+    expect(quoted?.aceptado).toBe(false);
+    const aceptados = chunks.filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['2', '140', '141']);
+    const art140 = aceptados.find((c) => c.numArticulo === '140');
+    expect(art140?.contenido).toContain('deberá leerse así');
+    expect(art140?.contenido).toContain('«ARTÍCULO 2.- El monto del impuesto');
+  });
+
+  it('sigue rechazando la mención a mitad de oración “Reformar el Artículo 2 de la Ley…”', () => {
+    const texto = 'ARTÍCULO 140.- Reformar el Artículo 2 de la Ley de Impuesto de Tradición de Bienes Inmuebles.';
+    const chunks = segmentarGenerico(texto, { rejectQuotedSubstituteHeading: true });
+    const aceptados = chunks.filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['140']);
+    const mencion = chunks.filter((c) => c.numArticulo === '2');
+    expect(mencion.length).toBeGreaterThan(0);
+    expect(mencion.every((c) => c.aceptado === false)).toBe(true);
+  });
+
+  it('default false no cambia el comportamiento: el Art.2 citado con « sigue aceptándose (otros corpus intactos)', () => {
+    const sinFlag = segmentarGenerico(FIXTURE_PROPIEDAD_ART2).filter((c) => c.aceptado);
+    const conFalse = segmentarGenerico(FIXTURE_PROPIEDAD_ART2, {
+      rejectQuotedSubstituteHeading: false,
+    }).filter((c) => c.aceptado);
+    expect(sinFlag.map((c) => c.numArticulo)).toEqual(conFalse.map((c) => c.numArticulo));
+    expect(sinFlag.filter((c) => c.numArticulo === '2')).toHaveLength(2);
+    expect(sinFlag.find((c) => c.contenido.includes('El monto del impuesto'))?.aceptado).toBe(true);
+  });
+
+  it('también rechaza comilla ASCII " y comilla tipográfica “ inmediatamente antes del match', () => {
+    const ascii = 'texto previo\n"ARTÍCULO 7.- Cuerpo citado con comilla ASCII.\nARTÍCULO 8.- Encabezado real.';
+    const tipografica = 'texto previo\n\u201CARTÍCULO 7.- Cuerpo citado con comilla tipográfica.\nARTÍCULO 8.- Encabezado real.';
+    for (const texto of [ascii, tipografica]) {
+      const aceptados = segmentarGenerico(texto, { rejectQuotedSubstituteHeading: true }).filter(
+        (c) => c.aceptado,
+      );
+      expect(aceptados.map((c) => c.numArticulo)).toEqual(['8']);
+    }
+  });
+
+  it('ignora whitespace entre la comilla de apertura y el match', () => {
+    const texto =
+      'ARTÍCULO 1.- Primero.\n« \nARTÍCULO 2.- El monto del impuesto citado.\nARTÍCULO 3.- Tercero.';
+    const aceptados = segmentarGenerico(texto, { rejectQuotedSubstituteHeading: true }).filter(
+      (c) => c.aceptado,
+    );
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['1', '3']);
+  });
+});
+
+describe('precedidoPorComillaDeSustituto', () => {
+  it('detecta « " “ inmediatamente antes, ignorando whitespace; no inventa positivos', () => {
+    expect(precedidoPorComillaDeSustituto('«ARTÍCULO', 1)).toBe(true);
+    expect(precedidoPorComillaDeSustituto('"ARTÍCULO', 1)).toBe(true);
+    expect(precedidoPorComillaDeSustituto('\u201CARTÍCULO', 1)).toBe(true);
+    expect(precedidoPorComillaDeSustituto('« \nARTÍCULO', 3)).toBe(true);
+    expect(precedidoPorComillaDeSustituto('ARTÍCULO', 0)).toBe(false);
+    expect(precedidoPorComillaDeSustituto('. ARTÍCULO', 2)).toBe(false);
+  });
+});
+
+// Art.108 gap (Propiedad D.82-2004 OCR): the heading is absent from the
+// scan text. Fail-closed — do not invent ARTÍCULO 108 or its body.
+describe('segmentarGenerico — Art.108 OCR gap (fail-closed, no invented heading)', () => {
+  const ocrGap =
+    'ARTÍCULO 107.- Para resolver cualquier disputa entre los pobladores\n' +
+    'de los asentamientos humanos originada en la aplicación de los\n' +
+    'procedimientos de regularización contenidos en este Título tendrán valor\n' +
+    'probatorio para acreditar la posesión, uso, tenencia o habitación, los\n' +
+    'documentos que las comunidades beneficiadas por estos procedimientos\n' +
+    'reconozcan como válidos.\n' +
+    '(IP) serán remitidos por éste a la corporación municipal correspondiente\n' +
+    'para que gratuitamente sean incorporados en los catastros municipales,\n' +
+    'planes reguladores y mapas de zonificación.\n' +
+    'Los mismos tendrán la consideración de planos municipales aprobados.\n' +
+    'ARTÍCULO 109.- Los planos que prepare el Instituto de la Propiedad\n' +
+    '(IP) a solicitud de las municipalidades definiendo los límites urbanos.';
+
+  it('no inventa un Art.108 cuando el OCR no trae la etiqueta', () => {
+    const aceptados = segmentarGenerico(ocrGap, { rejectQuotedSubstituteHeading: true }).filter(
+      (c) => c.aceptado,
+    );
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['107', '109']);
+    expect(aceptados.some((c) => c.numArticulo === '108')).toBe(false);
+    expect(ocrGap).not.toMatch(/art[ií]culo\s*108/i);
+  });
+});
+
 describe('alcance del fix -- no toca otras fuentes', () => {
   it('segmentarGenerico es consumida únicamente por ingesta-comercio.ts en este repo', async () => {
     const { execFileSync } = await import('node:child_process');

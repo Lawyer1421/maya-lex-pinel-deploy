@@ -48,6 +48,7 @@
  *     --instrumento "Decreto N-AAAA" \
  *     [--dry-run]              (default: true)
  *     [--execute <salida.sql>] (genera embeddings + .sql local; NO inserta)
+ *     [--reject-quoted-heading] (opt-in: rechaza encabezados precedidos por « " “)
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -92,6 +93,10 @@ export interface OpcionesCLI {
   jurisdiccion: string;
   dryRun: boolean;
   execute: string | null; // ruta de salida .sql, o null si no se pidió --execute
+  // Opt-in (default false). Mapped from --reject-quoted-heading. See
+  // OpcionesSegmentacion.rejectQuotedSubstituteHeading — Propiedad D.82-2004
+  // Art.140 quotes Impuesto Tradición Art.2; must NOT be the generic default.
+  rejectQuotedSubstituteHeading?: boolean;
 }
 
 export function parsearArgs(argv: string[]): OpcionesCLI {
@@ -110,6 +115,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
   const jurisdiccion = get('--jurisdiccion') ?? 'HN';
   const executeOut = get('--execute') ?? null;
   const dryRun = !executeOut; // --execute es lo único que saca del modo dry-run
+  const rejectQuotedSubstituteHeading = has('--reject-quoted-heading');
 
   if (!input) fallarDuro('falta --input <ruta.pdf|ruta.txt>');
   if (!coleccion) fallarDuro('falta --coleccion');
@@ -132,6 +138,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
     jurisdiccion,
     dryRun,
     execute: executeOut,
+    rejectQuotedSubstituteHeading,
   };
 }
 
@@ -221,6 +228,30 @@ export interface OpcionesSegmentacion {
   // propia fuente sigue esta convención, tras verificarlo contra su propio
   // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
   exigirOrtografiaSinTilde?: boolean;
+  /**
+   * When true, reject candidates whose match is immediately preceded (ignoring
+   * whitespace) by an opening quotation mark (« " “). Used for Gaceta reform
+   * clauses that quote another statute's substitute article text
+   * (Propiedad D.82-2004 Art.140 → Impuesto Tradición Art.2). Default false.
+   *
+   * Do NOT enable globally: other corpora are not audited for this signal.
+   */
+  rejectQuotedSubstituteHeading?: boolean;
+}
+
+/** Opening quotes used in Gaceta substitute-article quotations. */
+const COMILLAS_APERTURA_SUSTITUTO = new Set(['«', '"', '\u201C']);
+
+/**
+ * True when the character immediately before `inicio` (skipping space/tab/CR/LF)
+ * is an opening quotation mark. Does not invent or rewrite source text.
+ */
+export function precedidoPorComillaDeSustituto(texto: string, inicio: number): boolean {
+  if (inicio <= 0 || inicio > texto.length) return false;
+  let i = inicio - 1;
+  while (i >= 0 && /[ \t\r\n]/.test(texto[i]!)) i--;
+  if (i < 0) return false;
+  return COMILLAS_APERTURA_SUSTITUTO.has(texto[i]!);
 }
 
 export function segmentarGenerico(
@@ -242,7 +273,10 @@ export function segmentarGenerico(
     // Se evalúa contra una ventana corta, NUNCA contra el texto completo
     // hasta el siguiente match (ver hallazgo arriba). Se exige además la
     // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
-    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    let aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    if (aceptado && opciones.rejectQuotedSubstituteHeading && precedidoPorComillaDeSustituto(textoLimpio, inicio)) {
+      aceptado = false;
+    }
     return { inicio, numArticulo, aceptado, largoMatch };
   });
 
@@ -644,7 +678,12 @@ async function main() {
 
   const textoCrudo = extraerTexto(opts.input);
   const textoLimpio = limpiarRuidoBasico(textoCrudo);
-  const candidatos = segmentarGenerico(textoLimpio);
+  const candidatos = segmentarGenerico(textoLimpio, {
+    rejectQuotedSubstituteHeading: opts.rejectQuotedSubstituteHeading === true,
+  });
+  if (opts.rejectQuotedSubstituteHeading) {
+    console.log('Filtro opt-in: rejectQuotedSubstituteHeading=true (--reject-quoted-heading)\n');
+  }
 
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
