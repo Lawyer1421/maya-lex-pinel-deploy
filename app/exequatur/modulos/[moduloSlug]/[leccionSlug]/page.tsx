@@ -97,6 +97,13 @@ export default async function LeccionPage({
                         <p className="text-white/80 text-sm whitespace-pre-line">{resolucion.contenido}</p>
                         <p className="text-white/30 text-[11px] mt-2">
                           Fuente: {resolucion.fuente}
+                          {' · '}
+                          {/* RESUELTO significa evidencia del corpus jurídico encontrada y
+                              atribuible, NUNCA que la vigencia haya sido verificada de forma
+                              independiente -- vigenciaSegunCorpus es un dato heredado de la
+                              ingesta, no una conclusión propia del adaptador. Sin insignia
+                              "Vigente": ese dato por sí solo no basta para afirmarlo. */}
+                          evidencia del corpus jurídico, no verificación independiente de vigencia
                           {resolucion.vigenciaSegunCorpus === false && (
                             <span className="text-gold ml-2">
                               — marcado como no vigente en el corpus, no citar como norma actual
