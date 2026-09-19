@@ -39,6 +39,31 @@ npx tsx scripts/ingesta-notariado.ts --instrumento reglamento --input <pdf|txt>
 
 Siempre dry-run. `--execute` falla cerrado.
 
+## Dry-run de fuente real (autorizado, local, read-only)
+
+`scripts/dry-run-notariado-fuente-real.ts` analiza los PDF oficiales en
+`/tmp/notarial-sources/` (no versionados) y escribe solo SHA-256, conteos y
+huecos de parseo:
+
+```
+npx tsx scripts/dry-run-notariado-fuente-real.ts
+```
+
+Informe: `docs/governance/exequatur-ingesta-notariado-dry-run-fuente-real.{json,md}`.
+
+El analizador (`analizarFuenteNotariado`) es tolerante a huecos: reporta
+currículo faltante y duplicados divergentes sin abortar. El camino de ingesta
+(`prepararLoteNotariado`) sigue fail-hard. Cero `SQL_APPLY`, cero write a
+corpus, cero declaración de VIGENTE.
+
+Hallazgos del dry-run contra las fuentes primarias (CEDIJ / Drive):
+
+| Fuente | SHA-256 | Parseo |
+|---|---|---|
+| Código Decreto 353-2005 | `efe971f8…dd2513c8` | 85 únicos; currículo 2/3 bloqueados por divergente; OCR `2O/3O/5O/6O/9O`; 21/52 rechazados por ` -`; 17 sin candidato (`17.Los`) |
+| Reglamento PCSJ-17-2012 | `4d00378b…eaf2750` | 111 únicos, 1–111 sin huecos |
+| AMHON / PJ (descartadas) | hash only | escaneos sin texto extraíble |
+
 ## Invariantes
 
 ```

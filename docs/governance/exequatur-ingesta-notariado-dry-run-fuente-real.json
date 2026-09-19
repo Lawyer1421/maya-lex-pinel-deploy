@@ -1,0 +1,532 @@
+{
+  "modo": "NOTARIAL_REAL_SOURCE_DRY_RUN",
+  "sqlApply": false,
+  "corpusWrite": false,
+  "vigenciaDeclarada": false,
+  "productionIngestion": false,
+  "featureFlagActivation": false,
+  "instrumentos": [
+    {
+      "instrumento": "CODIGO_NOTARIADO",
+      "fuenteIdentidad": "Código del Notariado de Honduras (Decreto 353-2005)",
+      "idPrefix": "mayalex_normativos:codigo_notariado_2005",
+      "source": {
+        "path": "drive-Codigo-del-Notariado.pdf",
+        "sha256": "efe971f876fa9b9bc23fad82fc3d669aab864f48dab6169a85f202c1dd2513c8",
+        "bytes": 206761,
+        "pages": 34,
+        "provenance": "Drive Codigo-del-Notariado.pdf (1XxG0go0Ajoa4_jjmmroHXBtfJiq2w3ke) bit-idéntico a https://www.notarioshonduras.org/wp-content/uploads/2017/01/Codigo-del-Notariado.pdf — CEDIJ, Decreto 353-2005",
+        "extractedChars": 64759
+      },
+      "counts": {
+        "candidatos": 108,
+        "aceptados": 98,
+        "rechazados": 10,
+        "finalesUnicos": 85,
+        "colapsadosIdenticos": 0,
+        "divergentes": 6
+      },
+      "articulosAceptados": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "18",
+        "19",
+        "2O",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "28",
+        "29",
+        "3O",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "5O",
+        "51",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "6O",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82",
+        "83",
+        "84",
+        "85",
+        "86",
+        "87",
+        "88",
+        "89",
+        "9O",
+        "91",
+        "92",
+        "93",
+        "94"
+      ],
+      "huecosNumeracion": [
+        "11",
+        "17",
+        "20",
+        "21",
+        "27",
+        "30",
+        "50",
+        "52",
+        "60",
+        "90"
+      ],
+      "curriculoFaltantes": [
+        "2",
+        "3"
+      ],
+      "colapsadosIdenticos": [],
+      "divergentes": [
+        {
+          "numArticulo": "1",
+          "ocurrencias": 2,
+          "longitudes": [
+            310,
+            25
+          ]
+        },
+        {
+          "numArticulo": "2",
+          "ocurrencias": 2,
+          "longitudes": [
+            349,
+            357
+          ]
+        },
+        {
+          "numArticulo": "3",
+          "ocurrencias": 2,
+          "longitudes": [
+            1388,
+            585
+          ]
+        },
+        {
+          "numArticulo": "4",
+          "ocurrencias": 2,
+          "longitudes": [
+            472,
+            1186
+          ]
+        },
+        {
+          "numArticulo": "11",
+          "ocurrencias": 3,
+          "longitudes": [
+            342,
+            165,
+            246
+          ]
+        },
+        {
+          "numArticulo": "27",
+          "ocurrencias": 2,
+          "longitudes": [
+            617,
+            641
+          ]
+        }
+      ],
+      "rechazados": [
+        {
+          "numArticulo": "205",
+          "snippet": "Artículo 205 numeral 1 de la Constitución dé la República, c"
+        },
+        {
+          "numArticulo": "21",
+          "snippet": "ARTÍCULO 21 -Acta Notarial es el instrumento público que aut"
+        },
+        {
+          "numArticulo": "52",
+          "snippet": "ARTÍCULO 52. -Cuando se pierda o inutilice en todo o en part"
+        },
+        {
+          "numArticulo": "112",
+          "snippet": "artículos 112 al 122 de la Ley de Propiedad, contenida en el"
+        },
+        {
+          "numArticulo": "72",
+          "snippet": "Artículos 72 y 73, que se refieren a la creación y patrimoni"
+        },
+        {
+          "numArticulo": "84",
+          "snippet": "Artículos 84 y 87; el inciso 11 del Articulo 12 y el inciso "
+        },
+        {
+          "numArticulo": "12",
+          "snippet": "Articulo 12 y el inciso 5 del Articulo 76 del mismo Código. "
+        },
+        {
+          "numArticulo": "76",
+          "snippet": "Articulo 76 del mismo Código. ARTÍCULO 3.- Los ingresos prod"
+        },
+        {
+          "numArticulo": "22",
+          "snippet": "Artículo 22 de su Estatuto. La liquidación del patrimonio de"
+        },
+        {
+          "numArticulo": "22",
+          "snippet": "Artículo 22 de su estatuto. ARTICULO 4.- El presente Decreto"
+        }
+      ],
+      "hallazgos": {
+        "ocrLetraOPorCero": [
+          "2O",
+          "3O",
+          "5O",
+          "6O",
+          "9O"
+        ],
+        "huecosPorDivergente": [
+          "11",
+          "27"
+        ],
+        "huecosPorRechazo": [
+          "21",
+          "52"
+        ],
+        "huecosSinCandidato": [
+          "17"
+        ],
+        "curriculoBloqueadoPorDivergente": [
+          "2",
+          "3"
+        ],
+        "curriculoAusente": []
+      },
+      "vigenciaDeclarada": false,
+      "corpusWrite": false,
+      "sqlApply": false
+    },
+    {
+      "instrumento": "REGLAMENTO_NOTARIADO",
+      "fuenteIdentidad": "Reglamento del Código del Notariado (Resolución PCSJ-17-2012)",
+      "idPrefix": "mayalex_normativos:reglamento_notariado_2012",
+      "source": {
+        "path": "drive-REGLAMENTO-DEL-CODIGO-DEL-NOTARIADO.pdf",
+        "sha256": "4d00378b07e06bba870fcda71eeedbb73abb6add41c20d1b5816df4eceaf2750",
+        "bytes": 222361,
+        "pages": 28,
+        "provenance": "Drive REGLAMENTO-DEL-CODIGO-DEL-NOTARIADO.pdf (1CxIW_vLZZUD0W0-OsYgALabkEBc432Q_) — Resolución PCSJ-17-2012. El PDF del Poder Judicial (12.7 MiB) es escaneo sin texto extraíble y no se usó.",
+        "extractedChars": 78782
+      },
+      "counts": {
+        "candidatos": 137,
+        "aceptados": 111,
+        "rechazados": 26,
+        "finalesUnicos": 111,
+        "colapsadosIdenticos": 0,
+        "divergentes": 0
+      },
+      "articulosAceptados": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82",
+        "83",
+        "84",
+        "85",
+        "86",
+        "87",
+        "88",
+        "89",
+        "90",
+        "91",
+        "92",
+        "93",
+        "94",
+        "95",
+        "96",
+        "97",
+        "98",
+        "99",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106",
+        "107",
+        "108",
+        "109",
+        "110",
+        "111"
+      ],
+      "huecosNumeracion": [],
+      "curriculoFaltantes": [],
+      "colapsadosIdenticos": [],
+      "divergentes": [],
+      "rechazados": [
+        {
+          "numArticulo": "86",
+          "snippet": "artículo 86 facultó a la Corte Suprema de Justicia para emit"
+        },
+        {
+          "numArticulo": "313",
+          "snippet": "Artículo 313 de la Constitución de la República, es atribuci"
+        },
+        {
+          "numArticulo": "3",
+          "snippet": "Artículo 3 transitorio y aplicando por analogía los numerale"
+        },
+        {
+          "numArticulo": "53",
+          "snippet": "Artículos 53 y 59 del Código del Notariado y en otras leyes,"
+        },
+        {
+          "numArticulo": "53",
+          "snippet": "Artículos 53 y 59 del Código del Notariado y en otras leyes,"
+        },
+        {
+          "numArticulo": "92",
+          "snippet": "Artículo 92 del Código del Notariado, vigilará porque se res"
+        },
+        {
+          "numArticulo": "13",
+          "snippet": "Artículos 13 y 28 de éste Reglamento. ARTÍCULO 22.- REDACCIÓ"
+        },
+        {
+          "numArticulo": "29",
+          "snippet": "Artículo 29 de éste Reglamento. ARTÍCULO 24.- TESTIGOS INSTR"
+        },
+        {
+          "numArticulo": "993",
+          "snippet": "artículos 993 del Código Civil y 30 del Código de Familia. E"
+        },
+        {
+          "numArticulo": "89",
+          "snippet": "Artículo 89 del Código del Notariado y luego de que el notar"
+        },
+        {
+          "numArticulo": "1551",
+          "snippet": "artículo 1551 del Código Civil y en el artículo 740 del Códi"
+        },
+        {
+          "numArticulo": "740",
+          "snippet": "artículo 740 del Código de Comercio; pero sólo ésta tercera "
+        },
+        {
+          "numArticulo": "38",
+          "snippet": "artículo 38 del Código del Notariado, dejando en blanco el f"
+        },
+        {
+          "numArticulo": "38",
+          "snippet": "artículo 38 del Código del Notariado. En caso de que el prot"
+        },
+        {
+          "numArticulo": "41",
+          "snippet": "artículo 41 del Código del Notariado y en el folio uno del s"
+        },
+        {
+          "numArticulo": "41",
+          "snippet": "artículo 41 del Código del Notariado y en el folio dos concl"
+        },
+        {
+          "numArticulo": "38",
+          "snippet": "Artículo 38 del Código del Notariado en pliego individualiza"
+        },
+        {
+          "numArticulo": "59",
+          "snippet": "artículo 59 del Código del Notariado, en relación con el Lib"
+        },
+        {
+          "numArticulo": "919",
+          "snippet": "Artículo 919 del Código Procesal Civil emitido mediante Decr"
+        },
+        {
+          "numArticulo": "59",
+          "snippet": "Artículo 59 del Código del Notariado y en otras leyes, que s"
+        },
+        {
+          "numArticulo": "1046",
+          "snippet": "Artículos 1046 y 1047 del Código de Procedimientos Civiles d"
+        },
+        {
+          "numArticulo": "79",
+          "snippet": "Artículo 79 anterior, ante la Contraloría del Notariado, con"
+        },
+        {
+          "numArticulo": "86",
+          "snippet": "Artículo 86 párrafo segundo del precitado Código. ARTÍCULO 9"
+        },
+        {
+          "numArticulo": "293",
+          "snippet": "Artículo 293 del Código Penal, ninguna persona que no esté a"
+        },
+        {
+          "numArticulo": "81",
+          "snippet": "Artículo 81 del Código del Notariado y de oficio se iniciará"
+        },
+        {
+          "numArticulo": "92",
+          "snippet": "Artículo 92 del Código del Notariado, vigilará porque se res"
+        }
+      ],
+      "hallazgos": {
+        "ocrLetraOPorCero": [],
+        "huecosPorDivergente": [],
+        "huecosPorRechazo": [],
+        "huecosSinCandidato": [],
+        "curriculoBloqueadoPorDivergente": [],
+        "curriculoAusente": []
+      },
+      "vigenciaDeclarada": false,
+      "corpusWrite": false,
+      "sqlApply": false
+    }
+  ],
+  "fuentesDescartadas": [
+    {
+      "label": "Código AMHON (web)",
+      "path": "web-Codigo-del-Notariado-amhon.pdf",
+      "sha256": "74890f95a1511ba6b75429c07f5edb01f016fcb17b2a0d7e2d0ded41945c1819",
+      "bytes": 932160,
+      "pages": 14,
+      "motivo": "Escaneo sin texto extraíble. No se parseó."
+    },
+    {
+      "label": "Reglamento Poder Judicial (web)",
+      "path": "web-Reglamento-poderjudicial.pdf",
+      "sha256": "a238d1941c20f1f82099b616099d1f33aa93436ce9311214768936a5a7349ea2",
+      "bytes": 12694789,
+      "pages": 16,
+      "motivo": "Escaneo 12.7 MiB sin texto extraíble. No se parseó."
+    }
+  ],
+  "verificaciones": {
+    "codigoDriveIgualColegioNotarios": true
+  }
+}
