@@ -1,7 +1,8 @@
 /**
  * Dominio de diagnóstico de colocación (Slice 3).
- * Repositorio-versionado, sin persistencia. El ítem es pedagógico:
- * no almacena texto legal ni identidad de chunk.
+ * El banco sigue versionado en el repositorio. Slice 3B persiste
+ * respuestas + metadatos; el puntaje se re-evalúa al leer.
+ * El ítem es pedagógico: no almacena texto legal ni identidad de chunk.
  */
 export interface OpcionDiagnostico {
   id: string;
