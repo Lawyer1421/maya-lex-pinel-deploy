@@ -1,12 +1,11 @@
 /**
- * app/exequatur/page.tsx — Entry de Exequátur (Slice 1, con enlace a
- * currículo agregado en Slice 2).
+ * app/exequatur/page.tsx — Entry de Exequátur (Slice 3: diagnóstico + módulos).
  *
  * La autorización real ocurre en app/exequatur/layout.tsx: este
  * componente solo se renderiza cuando el layout ya decidió exequatur.access
  * = true y pasa {children} sin sustituir. Sin progreso simulado, sin texto
- * legal citado aquí -- el contenido curricular vive en /exequatur/modulos y
- * se resuelve contra evidencia real ahí, nunca en esta página estática.
+ * legal citado aquí -- el currículo vive en /exequatur/modulos y el
+ * diagnóstico/plan en /exequatur/diagnostico y /exequatur/plan.
  */
 import Link from 'next/link';
 
@@ -16,13 +15,18 @@ export default function ExequaturEntryPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="font-serif text-3xl font-bold text-gradient-maya mb-4">Exequátur</h1>
         <p className="text-white/70 mb-6">
-          Bienvenido a Exequátur. La preparación estructurada para el examen de
-          incorporación notarial está en construcción — el diagnóstico y el plan de
-          estudio personalizado llegarán pronto.
+          Bienvenido a Exequátur. Empieza por el diagnóstico de colocación o recorre
+          los módulos. El texto legal se verifica en cada lección contra el corpus;
+          no se cita desde el repositorio.
         </p>
-        <Link href="/exequatur/modulos" className="btn-jade inline-block text-sm py-2 px-4">
-          Ver módulos disponibles →
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/exequatur/diagnostico" className="btn-jade inline-block text-sm py-2 px-4">
+            Diagnóstico de colocación →
+          </Link>
+          <Link href="/exequatur/modulos" className="btn-jade inline-block text-sm py-2 px-4">
+            Ver módulos disponibles →
+          </Link>
+        </div>
       </div>
     </main>
   );
