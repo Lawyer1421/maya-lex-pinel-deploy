@@ -2,25 +2,29 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirect';
+import { resolveAuthIntent, type AuthIntent } from '@/lib/marketing/cta';
+import { trackCampaignEvent } from '@/lib/analytics/campaign';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 
-/**
- * Hotfix mínimo (hotfix/google-login-visible): agrega "Continuar con
- * Google" al login existente. Alcance reducido a propósito — sin
- * pestaña de contraseña, sin dependencias de entitlements/profiles/
- * migraciones. El único flujo que ya funcionaba (enlace mágico) se
- * mantiene sin cambios de comportamiento.
- */
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const intent: AuthIntent = resolveAuthIntent(searchParams.get('intent'));
+  const esAlta = intent === 'signup';
+
   const [email, setEmail] = useState('');
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'enviado' | 'error'>('idle');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    trackCampaignEvent(esAlta ? 'signup_view' : 'login_view');
+  }, [esAlta]);
+
   function nextDestino(): string {
-    return new URLSearchParams(window.location.search).get('next') ?? '/chat';
+    return searchParams.get('next') ?? '/chat';
   }
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -28,6 +32,7 @@ export default function LoginPage() {
     if (!email.trim()) return;
     setEstado('enviando');
     setError('');
+    trackCampaignEvent('signup_magic_link_submit', { intent });
 
     const supabase = createSupabaseBrowserClient();
     const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
@@ -36,14 +41,20 @@ export default function LoginPage() {
       options: { emailRedirectTo: callbackUrl },
     });
 
-    if (authError) { setError(authError.message); setEstado('error'); }
-    else setEstado('enviado');
+    if (authError) {
+      setError(authError.message);
+      setEstado('error');
+    } else {
+      trackCampaignEvent('signup_magic_link_sent', { intent });
+      setEstado('enviado');
+    }
   }
 
   async function handleGoogle() {
-    if (estado === 'enviando') return; // evita doble envío si ya hay una acción en curso
+    if (estado === 'enviando') return;
     setError('');
     setEstado('enviando');
+    trackCampaignEvent('signup_google_click', { intent });
     const supabase = createSupabaseBrowserClient();
     const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
     const { error: authError } = await supabase.auth.signInWithOAuth({
@@ -54,9 +65,12 @@ export default function LoginPage() {
       setError(authError.message);
       setEstado('error');
     }
-    // Si no hay error, el navegador redirige a Google — no hace falta
-    // volver a 'idle' aquí.
   }
+
+  const titulo = esAlta ? 'Cree su cuenta gratis' : 'Iniciar sesión';
+  const subtitulo = esAlta
+    ? '3 consultas al día · sin tarjeta · 30 segundos'
+    : 'Entre con Google o un enlace a su correo';
 
   return (
     <main className="min-h-screen bg-navy flex items-center justify-center px-4">
@@ -69,7 +83,8 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="font-serif text-2xl font-bold text-gradient-maya">MAYA LEX</h1>
-          <p className="text-white/40 text-sm mt-1">Iniciar sesión</p>
+          <p className="text-white text-base font-semibold mt-3">{titulo}</p>
+          <p className="text-white/50 text-sm mt-1">{subtitulo}</p>
         </div>
 
         <div className="glass-card p-7">
@@ -78,6 +93,7 @@ export default function LoginPage() {
               <h2 className="font-semibold text-white mb-2">Revise su correo</h2>
               <p className="text-white/50 text-sm leading-relaxed">
                 Enviamos un enlace de acceso a <span className="text-jade">{email}</span>.
+                Ese mismo enlace crea la cuenta si es la primera vez.
               </p>
               <button onClick={() => setEstado('idle')} className="mt-5 text-jade text-sm hover:underline">
                 Usar otro correo
@@ -85,12 +101,11 @@ export default function LoginPage() {
             </div>
           ) : (
             <>
-              {/* Google — visible siempre */}
               <button
                 type="button"
                 onClick={handleGoogle}
                 disabled={estado === 'enviando'}
-                aria-label="Continuar con Google"
+                aria-label={esAlta ? 'Crear cuenta con Google' : 'Continuar con Google'}
                 className="w-full flex items-center justify-center gap-3 bg-white text-navy font-semibold text-sm rounded-xl py-3 mb-5 hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -99,7 +114,7 @@ export default function LoginPage() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                {estado === 'enviando' ? 'Redirigiendo…' : 'Continuar con Google'}
+                {estado === 'enviando' ? 'Redirigiendo…' : esAlta ? 'Continuar con Google — es gratis' : 'Continuar con Google'}
               </button>
 
               <div className="flex items-center gap-3 mb-5">
@@ -131,18 +146,43 @@ export default function LoginPage() {
                 </button>
 
                 <p className="text-white/30 text-xs text-center">
-                  Sin contraseñas. Solo su correo electrónico.
+                  Sin contraseñas. El enlace crea la cuenta si es su primera vez.
                 </p>
               </form>
             </>
           )}
         </div>
 
+        <p className="mt-4 text-center text-xs text-white/35">
+          Al continuar acepta los{' '}
+          <Link href="/terminos" className="text-white/55 underline hover:text-white/80">Términos</Link>
+          {' '}y la{' '}
+          <Link href="/privacidad" className="text-white/55 underline hover:text-white/80">Privacidad</Link>.
+          Maya Lex no es asesoría jurídica.
+        </p>
+
         <div className="mt-5 flex justify-center gap-6 text-xs text-white/30">
+          {esAlta ? (
+            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=login`} className="hover:text-white/50 transition-colors">
+              Ya tengo cuenta
+            </Link>
+          ) : (
+            <Link href={`/login?next=${encodeURIComponent(nextDestino())}&intent=signup`} className="hover:text-white/50 transition-colors">
+              Crear cuenta gratis
+            </Link>
+          )}
           <Link href="/pricing" className="hover:text-white/50 transition-colors">Planes</Link>
           <Link href="/" className="hover:text-white/50 transition-colors">Inicio</Link>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-navy" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

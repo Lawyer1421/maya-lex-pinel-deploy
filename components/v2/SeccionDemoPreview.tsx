@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import BadgeVerificacion from './BadgeVerificacion';
+import CtaProbarGratis from '@/components/marketing/CtaProbarGratis';
 
 export default function SeccionDemoPreview() {
   return (
@@ -31,12 +31,12 @@ export default function SeccionDemoPreview() {
         </dl>
       </div>
       <div className="mt-6 text-center">
-        <Link
-          href="/chat"
+        <CtaProbarGratis
+          source="demo_preview"
           className="inline-block rounded-xl bg-jade-deep px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-jade/20 hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
         >
           Probar Maya Lex gratis →
-        </Link>
+        </CtaProbarGratis>
       </div>
     </section>
   );

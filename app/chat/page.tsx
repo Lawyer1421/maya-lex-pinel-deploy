@@ -15,13 +15,14 @@ export default async function ChatPage() {
   const { data: { user } } = await supabaseAuth.auth.getUser();
 
   if (!user) {
-    redirect('/login?next=/chat');
+    redirect('/login?next=/chat&intent=signup');
   }
 
   return <ChatInterface />;
 }
 
 export const metadata = {
-  title: 'Consulta Jurídica · MAYA LEX IA PINEL HN',
-  description: 'Chat jurídico inteligente para Honduras — Derecho Civil, Penal, Notarial y Laboral',
+  title: 'Consulta jurídica',
+  description: 'Chat de investigación jurídica hondureña — apoyo profesional, no asesoría legal',
+  robots: { index: false, follow: false },
 };
