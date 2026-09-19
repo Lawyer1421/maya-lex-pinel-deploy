@@ -198,14 +198,12 @@ describe('segmentarGenerico — no trunca un artículo real por una cita cruzada
 // ─────────────────────────────────────────────────────────────────────────
 // Regresión Civil/Notariado: ninguno de los dos usa segmentarGenerico.
 // ingesta-civil.ts e ingesta-cpp.ts tienen su propia segmentación afinada a
-// mano (ver cabecera de ingestar-ley.ts); el Código de Comercio 2005/2012
-// de Notariado se ingirió con scripts ad-hoc fuera de este archivo. Este
-// fix no puede regresionarlos porque no comparten código con ellos -- se
-// deja esta prueba como documentación explícita de ese hecho, no como
-// ejercicio de su lógica (que vive en otros archivos).
+// mano (ver cabecera de ingestar-ley.ts). Comercio y Notariado (dry-run)
+// reutilizan segmentarGenerico. Este allowlist documenta esos consumidores
+// autorizados -- no es un ejercicio de la lógica afinada de Civil/CPP.
 // ─────────────────────────────────────────────────────────────────────────
 describe('alcance del fix -- no toca otras fuentes', () => {
-  it('segmentarGenerico es consumida únicamente por ingesta-comercio.ts en este repo', async () => {
+  it('segmentarGenerico solo la consumen scripts de ingesta autorizados', async () => {
     const { execFileSync } = await import('node:child_process');
     const salida = execFileSync(
       'git',
@@ -213,7 +211,11 @@ describe('alcance del fix -- no toca otras fuentes', () => {
       { encoding: 'utf8', cwd: process.cwd() },
     ).trim();
     const archivos = salida.split('\n').map((f) => f.trim()).sort();
-    expect(archivos).toEqual(['scripts/ingesta-comercio.ts', 'scripts/ingestar-ley.ts']);
+    expect(archivos).toEqual([
+      'scripts/ingesta-comercio.ts',
+      'scripts/ingesta-notariado.ts',
+      'scripts/ingestar-ley.ts',
+    ]);
   });
 });
 
