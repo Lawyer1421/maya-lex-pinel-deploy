@@ -1,19 +1,24 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { evaluarDiagnostico, parsearRespuestas } from '@/lib/exequatur/diagnostico/evaluar';
+import { parsearRespuestas } from '@/lib/exequatur/diagnostico/evaluar';
+import { guardarIntento, resolverSesionExequatur } from '@/lib/exequatur/diagnostico/persistencia';
 
 /**
- * POST del formulario de diagnóstico. Solo redirige con IDs de objetivos
- * pendientes ya validados contra el currículo. No persiste, no escribe DB.
+ * POST del diagnóstico (Slice 3B).
+ * Identidad y autorización se resuelven en servidor. El cliente solo envía
+ * item:<id>=opcion. Score, plan y user_id no se leen del form.
  */
 export async function enviarDiagnostico(formData: FormData): Promise<void> {
-  const resultado = evaluarDiagnostico(parsearRespuestas(formData));
-  const params = new URLSearchParams();
-  if (resultado.objetivosPendientes.length > 0) {
-    params.set('objetivos', resultado.objetivosPendientes.join(','));
+  const sesion = await resolverSesionExequatur();
+  if (!sesion) {
+    redirect('/login?next=/exequatur/diagnostico');
   }
-  params.set('aciertos', String(resultado.aciertos.length));
-  params.set('total', String(resultado.total));
-  redirect(`/exequatur/plan?${params.toString()}`);
+
+  const respuestas = parsearRespuestas(formData);
+  const guardado = await guardarIntento(sesion, respuestas);
+  if (!guardado) {
+    redirect('/exequatur/plan');
+  }
+  redirect(`/exequatur/plan?intento=${guardado.id}`);
 }

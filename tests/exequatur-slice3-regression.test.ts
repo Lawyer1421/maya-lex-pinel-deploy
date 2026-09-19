@@ -88,3 +88,43 @@ describe('Regresión Slice 3 — rutas nuevas heredan el gate, no crean uno prop
     expect(plan).not.toMatch(/use client/);
   });
 });
+
+describe('Regresión Slice 3B — persistencia no usa query-score ni service_role', () => {
+  it('plan no toma autoridad de objetivos/aciertos/total', () => {
+    const plan = readFileSync('app/exequatur/plan/page.tsx', 'utf8');
+    expect(plan).not.toMatch(/parsearObjetivosQuery/);
+    expect(plan).toMatch(/cargarIntentoPropio/);
+    expect(plan).toMatch(/cargarUltimoIntentoPropio/);
+    expect(plan).not.toMatch(/aciertos\?:/);
+    expect(plan).not.toMatch(/objetivos\?:/);
+  });
+
+  it('actions no redirige con score en query y exige sesión', () => {
+    const actions = readFileSync('app/exequatur/diagnostico/actions.ts', 'utf8');
+    expect(actions).toMatch(/resolverSesionExequatur/);
+    expect(actions).toMatch(/guardarIntento/);
+    expect(actions).not.toMatch(/objetivos=/);
+    expect(actions).not.toMatch(/aciertos=/);
+    expect(actions).not.toMatch(/createServerSupabaseClient/);
+  });
+
+  it('persistencia usa cliente SSR (JWT) y user_id de sesión', () => {
+    const persist = readFileSync('lib/exequatur/diagnostico/persistencia.ts', 'utf8');
+    expect(persist).toMatch(/createSupabaseServerClient/);
+    expect(persist).not.toMatch(/createServerSupabaseClient/);
+    expect(persist).not.toMatch(/SUPABASE_SERVICE_ROLE_KEY/);
+    expect(persist).toMatch(/auth\.getUser/);
+    expect(persist).toMatch(/evaluarDiagnostico/);
+  });
+
+  it('migración no crea política ni GRANT de service_role', () => {
+    const sql = readFileSync(
+      'supabase/migrations/20260919000000_exequatur_diagnostico_intentos.sql',
+      'utf8',
+    );
+    expect(sql).not.toMatch(/TO service_role/i);
+    expect(sql).not.toMatch(/GRANT .+ TO service_role/i);
+    expect(sql).toMatch(/user_id = auth\.uid\(\)/);
+    expect(sql).toMatch(/REVOKE ALL ON public\.exequatur_diagnostico_intentos FROM PUBLIC, anon, service_role/);
+  });
+});
