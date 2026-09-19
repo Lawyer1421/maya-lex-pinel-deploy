@@ -12,7 +12,12 @@
  *   REGLAMENTO_NOTARIADO Resolución PCSJ-17-2012
  *
  * Duplicados: colapso solo si el cuerpo normalizado es idéntico.
- * Ambiguos (mismo número, cuerpo distinto) → fail-hard. No se adjudica.
+ * Ambiguos (mismo número, cuerpo distinto) → fail-hard, EXCEPTO la allowlist
+ * Control Plane de Decreto 77-2006 (arts. 2, 3, 11, 27): prevalece la última
+ * ocurrencia (anexo CEDIJ). No se trunca el decreto (eso descartaría la reforma).
+ * OCR: solo el número de artículo (`2O` → `20`). No se reescribe el cuerpo.
+ *
+ * NETWORK_WRITES = 0. Este archivo NUNCA abre red ni Supabase.
  *
  * Uso:
  *   npx tsx scripts/ingesta-notariado.ts --instrumento codigo --input fuente.txt
@@ -66,6 +71,11 @@ export const IDENTIDAD_REGLAMENTO_NOTARIADO: IdentidadNotarial = {
   },
 };
 
+/** Fail-closed: este slice no abre red ni escribe corpus/SQL. */
+export const NETWORK_WRITES = 0 as const;
+export const MARCADOR_DECRETO_77_2006 = 'DECRETO No. 77-2006';
+export const ARTICULOS_REFORMA_77_2006: readonly string[] = ['2', '3', '11', '27'];
+
 export function identidadPorClave(clave: string): IdentidadNotarial {
   if (clave === 'codigo') return IDENTIDAD_CODIGO_NOTARIADO;
   if (clave === 'reglamento') return IDENTIDAD_REGLAMENTO_NOTARIADO;
@@ -88,6 +98,30 @@ export interface DuplicadoDivergente {
   numArticulo: string;
   ocurrencias: number;
   longitudes: number[];
+}
+
+export function normalizarNumeroArticuloOcr(num: string): { normalizado: string; eraOcr: boolean } {
+  if (!/^\d+[Oo]$/.test(num)) {
+    return { normalizado: num, eraOcr: false };
+  }
+  return { normalizado: `${num.slice(0, -1)}0`, eraOcr: true };
+}
+
+export function aplicarOcrNumerosNotariado(chunks: ChunkCandidato[]): {
+  chunks: ChunkCandidato[];
+  ocrNormalizados: string[];
+} {
+  const ocrNormalizados: string[] = [];
+  const normalizados = chunks.map((c) => {
+    const { normalizado, eraOcr } = normalizarNumeroArticuloOcr(c.numArticulo);
+    if (eraOcr) ocrNormalizados.push(normalizado);
+    return { ...c, numArticulo: normalizado };
+  });
+  return { chunks: normalizados, ocrNormalizados };
+}
+
+export function esArticuloReforma77(num: string): boolean {
+  return ARTICULOS_REFORMA_77_2006.includes(num);
 }
 
 export function clasificarDuplicadosNotariado(aceptados: ChunkCandidato[]): {
@@ -127,18 +161,71 @@ export function clasificarDuplicadosNotariado(aceptados: ChunkCandidato[]): {
   return { finales, colapsadosIdenticos, divergentes };
 }
 
+export interface LoteEditorialNotariado {
+  finales: ChunkCandidato[];
+  colapsadosIdenticos: string[];
+  divergentes: DuplicadoDivergente[];
+  adjudicadosReforma77: string[];
+  ocrNormalizados: string[];
+}
+
+/**
+ * OCR de número + prevalencia 77-2006 (última ocurrencia) para 2/3/11/27.
+ * El resto de divergentes no se adjudica. No declara VIGENTE.
+ */
+export function aplicarPoliticaEditorialNotariado(aceptados: ChunkCandidato[]): LoteEditorialNotariado {
+  const { chunks, ocrNormalizados } = aplicarOcrNumerosNotariado(aceptados);
+  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(chunks);
+  const adjudicadosReforma77: string[] = [];
+  const finalesConReforma = [...finales];
+  const divergentesRestantes: DuplicadoDivergente[] = [];
+
+  for (const d of divergentes) {
+    if (!esArticuloReforma77(d.numArticulo)) {
+      divergentesRestantes.push(d);
+      continue;
+    }
+    const ocurrencias = chunks.filter((c) => c.numArticulo === d.numArticulo);
+    const elegido = ocurrencias[ocurrencias.length - 1];
+    if (!elegido) {
+      divergentesRestantes.push(d);
+      continue;
+    }
+    finalesConReforma.push(elegido);
+    adjudicadosReforma77.push(d.numArticulo);
+  }
+
+  const orden = new Map(chunks.map((c, i) => [c, i]));
+  finalesConReforma.sort((a, b) => (orden.get(a) ?? 0) - (orden.get(b) ?? 0));
+
+  return {
+    finales: finalesConReforma,
+    colapsadosIdenticos,
+    divergentes: divergentesRestantes,
+    adjudicadosReforma77,
+    ocrNormalizados,
+  };
+}
+
 export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
+  adjudicadosReforma77: string[];
+  ocrNormalizados: string[];
 } {
-  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(aceptados);
-  if (divergentes.length > 0) {
+  const editorial = aplicarPoliticaEditorialNotariado(aceptados);
+  if (editorial.divergentes.length > 0) {
     fallarDuro(
-      `artículos con cuerpos distintos no se adjudican: ${divergentes.map((d) => d.numArticulo).join(', ')}. ` +
-        'Revisar la fuente o excluir en un slice editorial posterior.',
+      `artículos con cuerpos distintos no se adjudican: ${editorial.divergentes.map((d) => d.numArticulo).join(', ')}. ` +
+        `Allowlist 77-2006 (${ARTICULOS_REFORMA_77_2006.join(', ')}) ya se aplicó; el resto exige decisión editorial.`,
     );
   }
-  return { finales, colapsadosIdenticos };
+  return {
+    finales: editorial.finales,
+    colapsadosIdenticos: editorial.colapsadosIdenticos,
+    adjudicadosReforma77: editorial.adjudicadosReforma77,
+    ocrNormalizados: editorial.ocrNormalizados,
+  };
 }
 
 function snippetEncabezado(texto: string): string {
@@ -179,17 +266,22 @@ export interface InformeDryRunNotariado {
     finalesUnicos: number;
     colapsadosIdenticos: number;
     divergentes: number;
+    adjudicadosReforma77: number;
+    ocrNormalizados: number;
   };
   articulosAceptados: string[];
   huecosNumeracion: string[];
   curriculoFaltantes: string[];
   colapsadosIdenticos: string[];
   divergentes: DuplicadoDivergente[];
+  adjudicadosReforma77: string[];
+  ocrNormalizados: string[];
   rechazados: Array<{ numArticulo: string; snippet: string }>;
   hallazgos: HallazgoParseo;
   vigenciaDeclarada: false;
   corpusWrite: false;
   sqlApply: false;
+  networkWrites: 0;
 }
 
 export interface HallazgoParseo {
@@ -199,6 +291,8 @@ export interface HallazgoParseo {
   huecosSinCandidato: string[];
   curriculoBloqueadoPorDivergente: string[];
   curriculoAusente: string[];
+  ocrNormalizados: string[];
+  adjudicadosReforma77: string[];
 }
 
 export function clasificarHuecosParseo(
@@ -207,9 +301,14 @@ export function clasificarHuecosParseo(
   curriculoFaltantes: string[],
   divergentes: DuplicadoDivergente[],
   rechazados: Array<{ numArticulo: string }>,
+  ocrNormalizados: string[] = [],
+  adjudicadosReforma77: string[] = [],
 ): HallazgoParseo {
-  const ocrLetraOPorCero = articulosAceptados.filter((n) => /^\d+O$/.test(n));
-  const equivalentesOcr = new Set(ocrLetraOPorCero.map((n) => n.replace(/O/g, '0')));
+  const ocrLetraOPorCero = articulosAceptados.filter((n) => /^\d+[Oo]$/.test(n));
+  const equivalentesOcr = new Set([
+    ...ocrLetraOPorCero.map((n) => n.slice(0, -1) + '0'),
+    ...ocrNormalizados,
+  ]);
   const divergenteNums = new Set(divergentes.map((d) => d.numArticulo));
   const rechazoNums = new Set(rechazados.map((r) => r.numArticulo));
   return {
@@ -221,6 +320,8 @@ export function clasificarHuecosParseo(
     ),
     curriculoBloqueadoPorDivergente: curriculoFaltantes.filter((n) => divergenteNums.has(n)),
     curriculoAusente: curriculoFaltantes.filter((n) => !divergenteNums.has(n)),
+    ocrNormalizados,
+    adjudicadosReforma77,
   };
 }
 
@@ -233,12 +334,12 @@ export function analizarFuenteNotariado(
   const candidatos = segmentarGenerico(limpio);
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
-  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(aceptados);
-  const articulosAceptados = finales.map((c) => c.numArticulo);
+  const editorial = aplicarPoliticaEditorialNotariado(aceptados);
+  const articulosAceptados = editorial.finales.map((c) => c.numArticulo);
   const curriculoFaltantes = identidad.articulosCurriculo.filter((n) => !articulosAceptados.includes(n));
   const huecosNumeracion = huecosNumericos(articulosAceptados);
   const rechazadosInforme = rechazados.map((c) => ({
-    numArticulo: c.numArticulo,
+    numArticulo: normalizarNumeroArticuloOcr(c.numArticulo).normalizado,
     snippet: snippetEncabezado(c.contenido),
   }));
 
@@ -251,26 +352,33 @@ export function analizarFuenteNotariado(
       candidatos: candidatos.length,
       aceptados: aceptados.length,
       rechazados: rechazados.length,
-      finalesUnicos: finales.length,
-      colapsadosIdenticos: colapsadosIdenticos.length,
-      divergentes: divergentes.length,
+      finalesUnicos: editorial.finales.length,
+      colapsadosIdenticos: editorial.colapsadosIdenticos.length,
+      divergentes: editorial.divergentes.length,
+      adjudicadosReforma77: editorial.adjudicadosReforma77.length,
+      ocrNormalizados: editorial.ocrNormalizados.length,
     },
     articulosAceptados,
     huecosNumeracion,
     curriculoFaltantes,
-    colapsadosIdenticos,
-    divergentes,
+    colapsadosIdenticos: editorial.colapsadosIdenticos,
+    divergentes: editorial.divergentes,
+    adjudicadosReforma77: editorial.adjudicadosReforma77,
+    ocrNormalizados: editorial.ocrNormalizados,
     rechazados: rechazadosInforme,
     hallazgos: clasificarHuecosParseo(
       articulosAceptados,
       huecosNumeracion,
       curriculoFaltantes,
-      divergentes,
+      editorial.divergentes,
       rechazadosInforme,
+      editorial.ocrNormalizados,
+      editorial.adjudicadosReforma77,
     ),
     vigenciaDeclarada: false,
     corpusWrite: false,
     sqlApply: false,
+    networkWrites: NETWORK_WRITES,
   };
 }
 
@@ -281,6 +389,8 @@ export interface LoteNotariado {
   rechazados: ChunkCandidato[];
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
+  adjudicadosReforma77: string[];
+  ocrNormalizados: string[];
   registros: RegistroGenerico[];
 }
 
@@ -289,8 +399,19 @@ export function prepararLoteNotariado(texto: string, identidad: IdentidadNotaria
   const candidatos = segmentarGenerico(limpio);
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
-  const { finales, colapsadosIdenticos } = resolverDuplicadosNotariado(aceptados);
-  const registros = finales.map((c) => construirRegistro(c, identidad.opts));
+  const { finales, colapsadosIdenticos, adjudicadosReforma77, ocrNormalizados } =
+    resolverDuplicadosNotariado(aceptados);
+  const registros = finales.map((c) => {
+    const registro = construirRegistro(c, identidad.opts);
+    if (adjudicadosReforma77.includes(c.numArticulo)) {
+      registro.metadata.reforma_adjudicada = 'Decreto 77-2006';
+      registro.metadata.adjudicacion_editorial = 'prevalece_anexo_77_2006';
+    }
+    if (ocrNormalizados.includes(c.numArticulo)) {
+      registro.metadata.ocr_numero_normalizado = true;
+    }
+    return registro;
+  });
   validarLoteAntesDeSQL(registros);
 
   for (const registro of registros) {
@@ -337,6 +458,8 @@ export function prepararLoteNotariado(texto: string, identidad: IdentidadNotaria
     rechazados,
     finales,
     colapsadosIdenticos,
+    adjudicadosReforma77,
+    ocrNormalizados,
     registros,
   };
 }

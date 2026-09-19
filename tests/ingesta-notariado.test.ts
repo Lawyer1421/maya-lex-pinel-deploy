@@ -3,12 +3,16 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { identidadDocumentalCoincide } from '@/lib/rag/search';
 import {
+  ARTICULOS_REFORMA_77_2006,
   IDENTIDAD_CODIGO_NOTARIADO,
   IDENTIDAD_REGLAMENTO_NOTARIADO,
+  NETWORK_WRITES,
   analizarFuenteNotariado,
+  aplicarPoliticaEditorialNotariado,
   clasificarDuplicadosNotariado,
   clasificarHuecosParseo,
   identidadPorClave,
+  normalizarNumeroArticuloOcr,
   parsearArgsNotariado,
   prepararLoteNotariado,
   resolverDuplicadosNotariado,
@@ -32,6 +36,10 @@ const fixtureCodigo = readFileSync(
 );
 const fixtureReglamento = readFileSync(
   resolve(process.cwd(), 'tests/fixtures/notariado-reglamento-muestra.txt'),
+  'utf8',
+);
+const fixtureEditorial = readFileSync(
+  resolve(process.cwd(), 'tests/fixtures/notariado-codigo-editorial-77-2006.txt'),
   'utf8',
 );
 
@@ -225,5 +233,84 @@ describe('prepararLoteNotariado — fixtures sintéticas', () => {
         opts: { ...IDENTIDAD_CODIGO_NOTARIADO.opts, input: 'x' },
       }),
     ).toThrow(/process.exit/);
+  });
+});
+
+describe('política editorial 77-2006 + OCR — fail-closed', () => {
+  it('NETWORK_WRITES=0 y allowlist fija 2/3/11/27', () => {
+    expect(NETWORK_WRITES).toBe(0);
+    expect(ARTICULOS_REFORMA_77_2006).toEqual(['2', '3', '11', '27']);
+    expect(normalizarNumeroArticuloOcr('2O')).toEqual({ normalizado: '20', eraOcr: true });
+    expect(normalizarNumeroArticuloOcr('5A')).toEqual({ normalizado: '5A', eraOcr: false });
+  });
+
+  it('los scripts de notariado no abren Supabase ni fetch', () => {
+    const fuentes = [
+      readFileSync(resolve(process.cwd(), 'scripts/ingesta-notariado.ts'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'scripts/dry-run-notariado-fuente-real.ts'), 'utf8'),
+    ];
+    for (const src of fuentes) {
+      expect(src).not.toMatch(/@supabase|createClient\s*\(|\bfetch\s*\(/);
+    }
+  });
+
+  it('prevalece el cuerpo reformado (última ocurrencia) en arts. 2/3/11/27', () => {
+    const editorial = aplicarPoliticaEditorialNotariado([
+      chunk('2', 'Cuerpo 2005 sintético del segundo'),
+      chunk('3', 'Cuerpo 2005 sintético del tercero'),
+      chunk('2', 'Cuerpo 77-2006 sintético del segundo'),
+      chunk('3', 'Cuerpo 77-2006 sintético del tercero'),
+      chunk('11', 'Cuerpo 2005 sintético del undécimo'),
+      chunk('11', 'Cuerpo 77-2006 sintético del undécimo'),
+      chunk('27', 'Cuerpo 77-2006 sintético del 27'),
+    ]);
+    expect(editorial.adjudicadosReforma77).toEqual(['2', '3', '11']);
+    expect(editorial.divergentes).toEqual([]);
+    expect(editorial.finales.find((c) => c.numArticulo === '2')?.contenido).toMatch(/77-2006/);
+    expect(editorial.finales.find((c) => c.numArticulo === '3')?.contenido).toMatch(/77-2006/);
+  });
+
+  it('art. 1 o 4 divergente NO se adjudica y prepararLote falla cerrado', () => {
+    const editorial = aplicarPoliticaEditorialNotariado([
+      chunk('1', 'Cuerpo 2005 sintético del primero'),
+      chunk('1', 'Cuerpo anexo sintético distinto del primero'),
+      chunk('2', 'Único dos'),
+      chunk('3', 'Único tres'),
+      chunk('7', 'Único siete'),
+      chunk('8', 'Único ocho'),
+    ]);
+    expect(editorial.divergentes.map((d) => d.numArticulo)).toEqual(['1']);
+    expect(editorial.adjudicadosReforma77).toEqual([]);
+
+    expect(() =>
+      resolverDuplicadosNotariado([
+        chunk('1', 'Cuerpo 2005 sintético del primero'),
+        chunk('1', 'Cuerpo anexo sintético distinto del primero'),
+      ]),
+    ).toThrow(/process.exit/);
+  });
+
+  it('fixture editorial cubre currículo, OCR 20 y reforma 2/3; nunca vigente', () => {
+    const informe = analizarFuenteNotariado(fixtureEditorial, IDENTIDAD_CODIGO_NOTARIADO, fuenteSintetica);
+    expect(informe.curriculoFaltantes).toEqual([]);
+    expect(informe.adjudicadosReforma77).toEqual(['2', '3', '11']);
+    expect(informe.ocrNormalizados).toEqual(['20']);
+    expect(informe.articulosAceptados).toContain('20');
+    expect(informe.articulosAceptados).toContain('27');
+    expect(informe.networkWrites).toBe(0);
+    expect(informe.vigenciaDeclarada).toBe(false);
+
+    const lote = prepararLoteNotariado(fixtureEditorial, {
+      ...IDENTIDAD_CODIGO_NOTARIADO,
+      opts: { ...IDENTIDAD_CODIGO_NOTARIADO.opts, input: 'fixture-editorial' },
+    });
+    expect(lote.registros.find((r) => r.num_articulo === '2')?.contenido).toMatch(/reformado/);
+    expect(lote.registros.find((r) => r.num_articulo === '2')?.metadata.reforma_adjudicada).toBe(
+      'Decreto 77-2006',
+    );
+    expect(lote.registros.find((r) => r.num_articulo === '20')?.id).toBe(
+      'mayalex_normativos:codigo_notariado_2005_a20',
+    );
+    expect(lote.registros.every((r) => r.es_norma_vigente === false)).toBe(true);
   });
 });

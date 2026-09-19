@@ -64,6 +64,11 @@ Hallazgos del dry-run contra las fuentes primarias (CEDIJ / Drive):
 | Reglamento PCSJ-17-2012 | `4d00378b…eaf2750` | 111 únicos, 1–111 sin huecos |
 | AMHON / PJ (descartadas) | hash only | escaneos sin texto extraíble |
 
+Slice editorial (post PR #47): ver
+`docs/governance/exequatur-ingesta-notariado-editorial-77-2006.md`.
+77-2006 prevalece en 2/3/11/27; OCR de número `O`→`0`. Arts. 1 y 4 siguen
+sin adjudicación. `NETWORK_WRITES = 0`.
+
 ## Invariantes
 
 ```

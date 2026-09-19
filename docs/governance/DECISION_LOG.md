@@ -1628,3 +1628,22 @@ Cohere rerank-v3.5. Cualquier otro usuario / identidad por IP → `false` →
 `allowed_emails='{}'` con `enabled=true`.
 
 Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit).
+
+---
+
+## 2026-09-19 — INGESTA_LEYES_NOTARIADO Slice editorial 77-2006 + OCR
+
+**Resolución Control Plane** (post merge PR #47, dry-run fuente real):
+
+1. En el PDF CEDIJ del Código (Decreto 353-2005) el anexo **Decreto 77-2006**
+   reexpide arts. 2, 3, 11 y 27. Esas versiones **prevalecen** sobre el texto
+   original de 2005. No se trunca el anexo (eso descartaría la reforma).
+2. Normalización tipográfica OCR aprobada: solo el **número** de artículo
+   (`2O`/`3O`/`5O`/`6O`/`9O` → `20`/`30`/`50`/`60`/`90`). No se reescribe el cuerpo.
+3. Arts. 1 y 4 (también restados en el anexo) **no** tienen adjudicación
+   autorizada: siguen fail-hard / informe.
+4. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
+   `FLAG_ACTIVATION`, sin `--execute`.
+
+**No autorizado**: embeddings, `.sql` local, apply a staging/prod, declarar VIGENTE.
+
