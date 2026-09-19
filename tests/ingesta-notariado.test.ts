@@ -126,7 +126,7 @@ describe('prepararLoteNotariado — fixtures sintéticas', () => {
     expect(lote.registros.every((r) => r.es_norma_vigente === false)).toBe(true);
     expect(lote.registros.every((r) => r.metadata.verificado === false)).toBe(true);
     expect(lote.registros.every((r) => r.metadata.vigencia_state === 'NO_VERIFICADO')).toBe(true);
-    expect(lote.finales.find((c) => c.numArticulo === '3')?.contenido).toMatch(/artículo 31/);
+    expect(lote.finales.find((c) => c.numArticulo === '3')?.contenido).toMatch(/treinta y uno/);
   });
 
   it('Reglamento no se etiqueta como Código y no exige arts. del currículo', () => {
