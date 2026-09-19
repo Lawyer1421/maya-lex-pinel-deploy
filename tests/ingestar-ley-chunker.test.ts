@@ -1,11 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   parsearArgs,
   segmentarGenerico,
   construirRegistro,
   fallarDuro,
+  ejecutarIngesta,
+  encontrarIndiceStopAtText,
   type OpcionesCLI,
 } from '@/scripts/ingestar-ley';
+import {
+  argvPrepNotariado,
+  STOP_AT_TEXT_CODIGO_NOTARIADO,
+} from '@/scripts/ingesta-notariado';
 
 // fallarDuro() llama a process.exit(1) -- sin mockearlo, cualquier test que
 // ejercite una ruta inválida mataría el propio proceso de vitest. Se
@@ -69,6 +78,18 @@ describe('parsearArgs', () => {
       '--fuente', 'Fuente de prueba',
     ];
     expect(() => parsearArgs(sinIdPrefix)).toThrow();
+  });
+
+  it('--stop-at-text es opt-in (default unset) y se mapea a OpcionesCLI', () => {
+    expect(parsearArgs(argsBase).stopAtText).toBeUndefined();
+    const o = parsearArgs([...argsBase, '--stop-at-text', 'DECRETO No. 77-2006']);
+    expect(o.stopAtText).toBe('DECRETO No. 77-2006');
+    expect(o.dryRun).toBe(true);
+  });
+
+  it('--stop-at-text sin valor (o con otro flag) es FAIL-HARD', () => {
+    expect(() => parsearArgs([...argsBase, '--stop-at-text'])).toThrow();
+    expect(() => parsearArgs([...argsBase, '--stop-at-text', '--execute', 'out.sql'])).toThrow();
   });
 });
 
@@ -196,16 +217,14 @@ describe('segmentarGenerico — no trunca un artículo real por una cita cruzada
 });
 
 // ─────────────────────────────────────────────────────────────────────────
-// Regresión Civil/Notariado: ninguno de los dos usa segmentarGenerico.
-// ingesta-civil.ts e ingesta-cpp.ts tienen su propia segmentación afinada a
-// mano (ver cabecera de ingestar-ley.ts); el Código de Comercio 2005/2012
-// de Notariado se ingirió con scripts ad-hoc fuera de este archivo. Este
-// fix no puede regresionarlos porque no comparten código con ellos -- se
-// deja esta prueba como documentación explícita de ese hecho, no como
-// ejercicio de su lógica (que vive en otros archivos).
+// Alcance: Civil/CPP siguen con scripts ad-hoc (ingesta-civil.ts /
+// ingesta-cpp.ts). Comercio llama segmentarGenerico directo. Notariado
+// D.353-2005 entra por scripts/ingesta-notariado.ts → ejecutarIngesta
+// (MULTI_INSTRUMENT_APPEND / --stop-at-text), sin importar
+// segmentarGenerico en ese archivo.
 // ─────────────────────────────────────────────────────────────────────────
 describe('alcance del fix -- no toca otras fuentes', () => {
-  it('segmentarGenerico es consumida únicamente por ingesta-comercio.ts en este repo', async () => {
+  it('segmentarGenerico es consumida únicamente por ingesta-comercio.ts y el extractor genérico (Notariado entra por ejecutarIngesta)', async () => {
     const { execFileSync } = await import('node:child_process');
     const salida = execFileSync(
       'git',
@@ -214,6 +233,164 @@ describe('alcance del fix -- no toca otras fuentes', () => {
     ).trim();
     const archivos = salida.split('\n').map((f) => f.trim()).sort();
     expect(archivos).toEqual(['scripts/ingesta-comercio.ts', 'scripts/ingestar-ley.ts']);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// MULTI_INSTRUMENT_APPEND — Código del Notariado CEDIJ PDF appends the
+// full D.77-2006 after D.353-2005. Dry-run FAIL-HARD dups on arts
+// 1,2,3,4,11,27 because the reform appendix restates those articles.
+// `--reject-quoted-heading` does NOT help (0 guillemets). Opt-in
+// stopAtText / --stop-at-text; default unset so other corpora are
+// unchanged. Also covers the look-ahead phantom Art.11 on `Artículos 11 Y`.
+// ─────────────────────────────────────────────────────────────────────────
+const FIXTURE_NOTARIADO_MULTI_INSTRUMENT =
+  'ARTICULO 1.- El notario es un profesional del derecho.\n' +
+  'ARTICULO 2.- El ejercicio del notariado es una función pública.\n' +
+  'ARTICULO 3.- Son requisitos para ser notario.\n' +
+  'ARTICULO 4.- El notario debe residir en el lugar.\n' +
+  'ARTICULO 11.- El protocolo se formará con los instrumentos.\n' +
+  'ARTICULO 27.- Los instrumentos se redactarán en español.\n' +
+  'ARTICULO 100.- El presente Código entra en vigencia.\n' +
+  '\nDECRETO No. 77-2006\n\n' +
+  'EL CONGRESO NACIONAL DECRETA:\n\n' +
+  'ARTICULO 1.- Reformar los Artículos 11 Y 27 del Código del Notariado.\n' +
+  'ARTICULO 2.- El ejercicio del notariado reformado.\n' +
+  'ARTICULO 3.- Requisitos reformados para ser notario.\n' +
+  'ARTICULO 4.- Residencia reformada del notario.\n' +
+  'ARTICULO 11.- El protocolo reformado se formará.\n' +
+  'ARTICULO 27.- Los instrumentos reformados se redactarán.\n';
+
+function numerosAceptados(texto: string, stopAtText?: string): string[] {
+  return segmentarGenerico(texto, stopAtText ? { stopAtText } : {})
+    .filter((c) => c.aceptado)
+    .map((c) => c.numArticulo);
+}
+
+function duplicadosDe(nums: string[]): string[] {
+  const vistos = new Map<string, number>();
+  for (const n of nums) vistos.set(n, (vistos.get(n) ?? 0) + 1);
+  return [...vistos.entries()].filter(([, c]) => c > 1).map(([n]) => n).sort((a, b) => Number(a) - Number(b));
+}
+
+describe('segmentarGenerico — stopAtText MULTI_INSTRUMENT_APPEND (Notariado D.77-2006)', () => {
+  const marker = STOP_AT_TEXT_CODIGO_NOTARIADO;
+
+  it('sin flag el comportamiento no cambia: dups 1,2,3,4,11,27 (apéndice + phantom Art.11)', () => {
+    const sinFlag = numerosAceptados(FIXTURE_NOTARIADO_MULTI_INSTRUMENT);
+    const conFalse = numerosAceptados(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, undefined);
+    expect(sinFlag).toEqual(conFalse);
+    expect(duplicadosDe(sinFlag)).toEqual(['1', '2', '3', '4', '11', '27']);
+    expect(sinFlag.filter((n) => n === '11').length).toBeGreaterThanOrEqual(2);
+    expect(sinFlag.find((_, i) => sinFlag[i] === '1' && i > 0)).toBeDefined();
+  });
+
+  it('con stop-at, dups cleared: unique 1,2,3,4,11,27,100 del D.353-2005', () => {
+    const aceptados = segmentarGenerico(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, {
+      stopAtText: marker,
+    }).filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['1', '2', '3', '4', '11', '27', '100']);
+    expect(duplicadosDe(aceptados.map((c) => c.numArticulo))).toEqual([]);
+    expect(aceptados.find((c) => c.numArticulo === '1')?.contenido).toContain('El notario es un profesional del derecho');
+    expect(aceptados.find((c) => c.numArticulo === '1')?.contenido).not.toContain('Reformar los Artículos');
+    expect(aceptados.find((c) => c.numArticulo === '11')?.contenido).toContain('El protocolo se formará con los instrumentos');
+    expect(aceptados.find((c) => c.numArticulo === '11')?.contenido).not.toContain('El protocolo reformado');
+  });
+
+  it('el último artículo aceptado no absorbe el decreto anexado como cuerpo', () => {
+    const art100 = segmentarGenerico(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, {
+      stopAtText: marker,
+    }).find((c) => c.aceptado && c.numArticulo === '100');
+    expect(art100?.contenido).toContain('El presente Código entra en vigencia');
+    expect(art100?.contenido).not.toContain('DECRETO No. 77-2006');
+    expect(art100?.contenido).not.toContain('EL CONGRESO NACIONAL');
+  });
+
+  it('encabezados del apéndice quedan rechazados (diagnóstico), no aceptados', () => {
+    const chunks = segmentarGenerico(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, { stopAtText: marker });
+    const reformado = chunks.find((c) =>
+      c.contenido.startsWith('ARTICULO 2.- El ejercicio del notariado reformado'),
+    );
+    expect(reformado?.aceptado).toBe(false);
+    expect(reformado?.numArticulo).toBe('2');
+  });
+
+  it('phantom Art.11 por look-ahead en “Artículos 11 Y” del apéndice no se acepta con el flag', () => {
+    const chunks = segmentarGenerico(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, { stopAtText: marker });
+    const phantom = chunks.filter(
+      (c) => c.numArticulo === '11' && c.contenido.includes('Artículos 11 Y'),
+    );
+    expect(phantom.length).toBeGreaterThan(0);
+    expect(phantom.every((c) => c.aceptado === false)).toBe(true);
+  });
+
+  it('si el marcador no aparece, no se trunca (misma lista que sin flag)', () => {
+    const sin = numerosAceptados(FIXTURE_NOTARIADO_MULTI_INSTRUMENT);
+    const conMarkerAusente = numerosAceptados(
+      FIXTURE_NOTARIADO_MULTI_INSTRUMENT,
+      'DECRETO No. 99-2099',
+    );
+    expect(conMarkerAusente).toEqual(sin);
+  });
+
+  it('encontrarIndiceStopAtText corta al inicio de la línea que contiene el marcador', () => {
+    const idx = encontrarIndiceStopAtText(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, marker);
+    expect(idx).not.toBeNull();
+    expect(FIXTURE_NOTARIADO_MULTI_INSTRUMENT.slice(idx!).startsWith('DECRETO No. 77-2006')).toBe(true);
+    expect(encontrarIndiceStopAtText(FIXTURE_NOTARIADO_MULTI_INSTRUMENT, '')).toBeNull();
+    expect(encontrarIndiceStopAtText('ARTICULO 1.- Solo un decreto.\n', marker)).toBeNull();
+  });
+});
+
+describe('prep path Notariado — argvPrepNotariado cablea --stop-at-text', () => {
+  it('siempre incluye el marcador D.77-2006 y la materia 03_NOTARIAL', () => {
+    const argv = argvPrepNotariado('notariado.txt');
+    const o = parsearArgs(argv);
+    expect(o.stopAtText).toBe(STOP_AT_TEXT_CODIGO_NOTARIADO);
+    expect(STOP_AT_TEXT_CODIGO_NOTARIADO).toBe('DECRETO No. 77-2006');
+    expect(o.materia).toBe('03_NOTARIAL');
+    expect(o.idPrefix).toBe('mayalex_normativos:codigo_notariado_2005');
+    expect(o.dryRun).toBe(true);
+    expect(o.execute).toBeNull();
+  });
+
+  it('dry-run con stop-at pasa el gate de dups; sin flag FALLA (FAIL-HARD)', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'notariado-stop-at-'));
+    const ruta = join(dir, 'fuente.txt');
+    writeFileSync(ruta, FIXTURE_NOTARIADO_MULTI_INSTRUMENT, 'utf8');
+    const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const conFlag = parsearArgs(argvPrepNotariado(ruta));
+    await expect(ejecutarIngesta(conFlag)).resolves.toBeUndefined();
+
+    const sinFlag = parsearArgs([
+      '--input', ruta,
+      '--coleccion', 'mayalex_normativos',
+      '--materia', '03_NOTARIAL',
+      '--fuente', 'Código del Notariado (Decreto 353-2005)',
+      '--id-prefix', 'mayalex_normativos:codigo_notariado_2005',
+    ]);
+    expect(sinFlag.stopAtText).toBeUndefined();
+    await expect(ejecutarIngesta(sinFlag)).rejects.toThrow(/process.exit\(1\)/);
+    expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/1\(x2\).*11\(x/));
+    spyLog.mockRestore();
+  });
+
+  it('ejecutarIngesta FAIL-HARD si --stop-at-text no aparece en la fuente', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'notariado-stop-missing-'));
+    const ruta = join(dir, 'fuente.txt');
+    writeFileSync(ruta, 'ARTICULO 1.- Solo el código base, sin apéndice.\n', 'utf8');
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const opts = parsearArgs([
+      '--input', ruta,
+      '--coleccion', 'mayalex_normativos',
+      '--materia', '03_NOTARIAL',
+      '--fuente', 'Código del Notariado (Decreto 353-2005)',
+      '--id-prefix', 'mayalex_normativos:codigo_notariado_2005',
+      '--stop-at-text', STOP_AT_TEXT_CODIGO_NOTARIADO,
+    ]);
+    await expect(ejecutarIngesta(opts)).rejects.toThrow(/process.exit\(1\)/);
+    expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/stop-at-text/));
   });
 });
 
