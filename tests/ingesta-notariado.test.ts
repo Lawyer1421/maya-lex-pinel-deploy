@@ -5,6 +5,9 @@ import { identidadDocumentalCoincide } from '@/lib/rag/search';
 import {
   IDENTIDAD_CODIGO_NOTARIADO,
   IDENTIDAD_REGLAMENTO_NOTARIADO,
+  analizarFuenteNotariado,
+  clasificarDuplicadosNotariado,
+  clasificarHuecosParseo,
   identidadPorClave,
   parsearArgsNotariado,
   prepararLoteNotariado,
@@ -95,6 +98,15 @@ describe('parsearArgsNotariado — dry-run only', () => {
   });
 });
 
+const fuenteSintetica = {
+  path: 'fixture.txt',
+  sha256: '0'.repeat(64),
+  bytes: 128,
+  pages: 1,
+  provenance: 'fixture sintética — no es texto legal oficial',
+  extractedChars: 128,
+};
+
 describe('resolverDuplicadosNotariado', () => {
   it('colapsa ocurrencias idénticas y falla si el cuerpo diverge', () => {
     const { finales, colapsadosIdenticos } = resolverDuplicadosNotariado([
@@ -110,6 +122,72 @@ describe('resolverDuplicadosNotariado', () => {
         chunk('7', 'Cuerpo B distinto y también sustantivo'),
       ]),
     ).toThrow(/process.exit/);
+  });
+});
+
+describe('clasificarDuplicadosNotariado — informe, sin fail-hard', () => {
+  it('colapsa idénticos y reporta divergentes sin abortar ni adjudicar', () => {
+    const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado([
+      chunk('2', 'Mismo cuerpo'),
+      chunk('2', 'Mismo   cuerpo'),
+      chunk('7', 'Cuerpo A sustantivo'),
+      chunk('7', 'Cuerpo B distinto y también sustantivo'),
+    ]);
+    expect(finales.map((c) => c.numArticulo)).toEqual(['2']);
+    expect(colapsadosIdenticos).toEqual(['2']);
+    expect(divergentes).toEqual([
+      {
+        numArticulo: '7',
+        ocurrencias: 2,
+        longitudes: ['Cuerpo A sustantivo'.length, 'Cuerpo B distinto y también sustantivo'.length],
+      },
+    ]);
+  });
+});
+
+describe('analizarFuenteNotariado — dry-run tolerante a huecos', () => {
+  it('reporta huecos 4/5/6 del fixture y nunca declara vigencia ni write', () => {
+    const informe = analizarFuenteNotariado(fixtureCodigo, IDENTIDAD_CODIGO_NOTARIADO, fuenteSintetica);
+    expect(informe.articulosAceptados).toEqual(['1', '2', '3', '7', '8']);
+    expect(informe.huecosNumeracion).toEqual(['4', '5', '6']);
+    expect(informe.curriculoFaltantes).toEqual([]);
+    expect(informe.hallazgos.huecosSinCandidato).toEqual(['4', '5', '6']);
+    expect(informe.vigenciaDeclarada).toBe(false);
+    expect(informe.corpusWrite).toBe(false);
+    expect(informe.sqlApply).toBe(false);
+  });
+
+  it('Código sin art. 8 del currículo NO aborta: lo lista como faltante', () => {
+    const incompleto = 'ARTÍCULO 2. Solo dos.\nARTÍCULO 3. Solo tres.\nARTÍCULO 7. Solo siete.';
+    const informe = analizarFuenteNotariado(incompleto, IDENTIDAD_CODIGO_NOTARIADO, fuenteSintetica);
+    expect(informe.curriculoFaltantes).toEqual(['8']);
+    expect(informe.articulosAceptados).toEqual(['2', '3', '7']);
+    expect(informe.sqlApply).toBe(false);
+  });
+
+  it('recorta snippets de rechazados a 60 caracteres y no incluye el cuerpo', () => {
+    const texto =
+      'Según el artículo 9 de la ley, corresponde y este párrafo sintético es deliberadamente largo para forzar el recorte.';
+    const informe = analizarFuenteNotariado(texto, IDENTIDAD_REGLAMENTO_NOTARIADO, fuenteSintetica);
+    expect(informe.counts.rechazados).toBeGreaterThan(0);
+    expect(informe.rechazados.every((r) => r.snippet.length <= 60)).toBe(true);
+    expect(informe.rechazados[0]?.numArticulo).toBe('9');
+  });
+
+  it('clasifica OCR O-por-0 y currículo bloqueado por divergente, sin adjudicar', () => {
+    const ocr = clasificarHuecosParseo(
+      ['5', '2O', '7', '8'],
+      ['2', '3', '6', '20'],
+      ['2', '3'],
+      [{ numArticulo: '3', ocurrencias: 2, longitudes: [10, 12] }],
+      [{ numArticulo: '6' }],
+    );
+    expect(ocr.ocrLetraOPorCero).toEqual(['2O']);
+    expect(ocr.huecosPorDivergente).toEqual(['3']);
+    expect(ocr.huecosPorRechazo).toEqual(['6']);
+    expect(ocr.huecosSinCandidato).toEqual(['2']);
+    expect(ocr.curriculoBloqueadoPorDivergente).toEqual(['3']);
+    expect(ocr.curriculoAusente).toEqual(['2']);
   });
 });
 

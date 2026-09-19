@@ -84,9 +84,16 @@ function normalizarCuerpo(texto: string): string {
   return texto.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
+export interface DuplicadoDivergente {
+  numArticulo: string;
+  ocurrencias: number;
+  longitudes: number[];
+}
+
+export function clasificarDuplicadosNotariado(aceptados: ChunkCandidato[]): {
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
+  divergentes: DuplicadoDivergente[];
 } {
   const porNumero = new Map<string, ChunkCandidato[]>();
   for (const chunk of aceptados) {
@@ -97,6 +104,7 @@ export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
 
   const finales: ChunkCandidato[] = [];
   const colapsadosIdenticos: string[] = [];
+  const divergentes: DuplicadoDivergente[] = [];
 
   for (const [numero, ocurrencias] of porNumero) {
     if (ocurrencias.length === 1) {
@@ -109,13 +117,161 @@ export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
       colapsadosIdenticos.push(numero);
       continue;
     }
-    fallarDuro(
-      `artículo ${numero} aparece ${ocurrencias.length} veces con cuerpos distintos -- ` +
-        'no se adjudica. Revisar la fuente o excluir en un slice editorial posterior.',
-    );
+    divergentes.push({
+      numArticulo: numero,
+      ocurrencias: ocurrencias.length,
+      longitudes: ocurrencias.map((c) => c.contenido.length),
+    });
   }
 
+  return { finales, colapsadosIdenticos, divergentes };
+}
+
+export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
+  finales: ChunkCandidato[];
+  colapsadosIdenticos: string[];
+} {
+  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(aceptados);
+  if (divergentes.length > 0) {
+    fallarDuro(
+      `artículos con cuerpos distintos no se adjudican: ${divergentes.map((d) => d.numArticulo).join(', ')}. ` +
+        'Revisar la fuente o excluir en un slice editorial posterior.',
+    );
+  }
   return { finales, colapsadosIdenticos };
+}
+
+function snippetEncabezado(texto: string): string {
+  return texto.replace(/\s+/g, ' ').trim().slice(0, 60);
+}
+
+function huecosNumericos(numeros: string[]): string[] {
+  const enteros = numeros
+    .filter((n) => /^\d+$/.test(n))
+    .map((n) => Number.parseInt(n, 10));
+  if (enteros.length === 0) return [];
+  const vistos = new Set(enteros);
+  const min = Math.min(...enteros);
+  const max = Math.max(...enteros);
+  const huecos: string[] = [];
+  for (let n = min; n <= max; n += 1) {
+    if (!vistos.has(n)) huecos.push(String(n));
+  }
+  return huecos;
+}
+
+export interface InformeDryRunNotariado {
+  instrumento: InstrumentoNormalizado;
+  fuenteIdentidad: string;
+  idPrefix: string;
+  source: {
+    path: string;
+    sha256: string;
+    bytes: number;
+    pages: number | null;
+    provenance: string;
+    extractedChars: number;
+  };
+  counts: {
+    candidatos: number;
+    aceptados: number;
+    rechazados: number;
+    finalesUnicos: number;
+    colapsadosIdenticos: number;
+    divergentes: number;
+  };
+  articulosAceptados: string[];
+  huecosNumeracion: string[];
+  curriculoFaltantes: string[];
+  colapsadosIdenticos: string[];
+  divergentes: DuplicadoDivergente[];
+  rechazados: Array<{ numArticulo: string; snippet: string }>;
+  hallazgos: HallazgoParseo;
+  vigenciaDeclarada: false;
+  corpusWrite: false;
+  sqlApply: false;
+}
+
+export interface HallazgoParseo {
+  ocrLetraOPorCero: string[];
+  huecosPorDivergente: string[];
+  huecosPorRechazo: string[];
+  huecosSinCandidato: string[];
+  curriculoBloqueadoPorDivergente: string[];
+  curriculoAusente: string[];
+}
+
+export function clasificarHuecosParseo(
+  articulosAceptados: string[],
+  huecosNumeracion: string[],
+  curriculoFaltantes: string[],
+  divergentes: DuplicadoDivergente[],
+  rechazados: Array<{ numArticulo: string }>,
+): HallazgoParseo {
+  const ocrLetraOPorCero = articulosAceptados.filter((n) => /^\d+O$/.test(n));
+  const equivalentesOcr = new Set(ocrLetraOPorCero.map((n) => n.replace(/O/g, '0')));
+  const divergenteNums = new Set(divergentes.map((d) => d.numArticulo));
+  const rechazoNums = new Set(rechazados.map((r) => r.numArticulo));
+  return {
+    ocrLetraOPorCero,
+    huecosPorDivergente: huecosNumeracion.filter((n) => divergenteNums.has(n)),
+    huecosPorRechazo: huecosNumeracion.filter((n) => rechazoNums.has(n) && !divergenteNums.has(n)),
+    huecosSinCandidato: huecosNumeracion.filter(
+      (n) => !equivalentesOcr.has(n) && !divergenteNums.has(n) && !rechazoNums.has(n),
+    ),
+    curriculoBloqueadoPorDivergente: curriculoFaltantes.filter((n) => divergenteNums.has(n)),
+    curriculoAusente: curriculoFaltantes.filter((n) => !divergenteNums.has(n)),
+  };
+}
+
+export function analizarFuenteNotariado(
+  texto: string,
+  identidad: IdentidadNotarial,
+  source: InformeDryRunNotariado['source'],
+): InformeDryRunNotariado {
+  const limpio = limpiarRuidoBasico(texto);
+  const candidatos = segmentarGenerico(limpio);
+  const aceptados = candidatos.filter((c) => c.aceptado);
+  const rechazados = candidatos.filter((c) => !c.aceptado);
+  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(aceptados);
+  const articulosAceptados = finales.map((c) => c.numArticulo);
+  const curriculoFaltantes = identidad.articulosCurriculo.filter((n) => !articulosAceptados.includes(n));
+  const huecosNumeracion = huecosNumericos(articulosAceptados);
+  const rechazadosInforme = rechazados.map((c) => ({
+    numArticulo: c.numArticulo,
+    snippet: snippetEncabezado(c.contenido),
+  }));
+
+  return {
+    instrumento: identidad.instrumentoNormalizado,
+    fuenteIdentidad: identidad.opts.fuente,
+    idPrefix: identidad.opts.idPrefix,
+    source,
+    counts: {
+      candidatos: candidatos.length,
+      aceptados: aceptados.length,
+      rechazados: rechazados.length,
+      finalesUnicos: finales.length,
+      colapsadosIdenticos: colapsadosIdenticos.length,
+      divergentes: divergentes.length,
+    },
+    articulosAceptados,
+    huecosNumeracion,
+    curriculoFaltantes,
+    colapsadosIdenticos,
+    divergentes,
+    rechazados: rechazadosInforme,
+    hallazgos: clasificarHuecosParseo(
+      articulosAceptados,
+      huecosNumeracion,
+      curriculoFaltantes,
+      divergentes,
+      rechazadosInforme,
+    ),
+    vigenciaDeclarada: false,
+    corpusWrite: false,
+    sqlApply: false,
+  };
 }
 
 export interface LoteNotariado {
