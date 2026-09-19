@@ -66,8 +66,8 @@ Hallazgos del dry-run contra las fuentes primarias (CEDIJ / Drive):
 
 Slice editorial (post PR #47): ver
 `docs/governance/exequatur-ingesta-notariado-editorial-77-2006.md`.
-77-2006 prevalece en 2/3/11/27; OCR de número `O`→`0`. Arts. 1 y 4 siguen
-sin adjudicación. `NETWORK_WRITES = 0`.
+77-2006 prevalece solo en 11/27; 1/2/3/4 = primera ocurrencia (Código 2005).
+OCR de número `O`→`0`. `NETWORK_WRITES = 0`.
 
 ## Invariantes
 

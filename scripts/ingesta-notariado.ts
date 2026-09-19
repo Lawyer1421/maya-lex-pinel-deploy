@@ -13,8 +13,9 @@
  *
  * Duplicados: colapso solo si el cuerpo normalizado es idéntico.
  * Ambiguos (mismo número, cuerpo distinto) → fail-hard, EXCEPTO:
- *   - 2/3/11/27: última ocurrencia (reforma sustantiva 77-2006).
- *   - 1/4: primera ocurrencia (cuerpo 353-2005); el anexo es trámite, no Código.
+ *   - 11/27: última ocurrencia (única reforma sustantiva 77-2006 del Código).
+ *   - 1/2/3/4: primera ocurrencia (Código 353-2005); el anexo 1–4 es trámite
+ *     del decreto (orden, derogación Instituto, timbres CAH, vigencia).
  * OCR: solo el número de artículo (`2O` → `20`). No se reescribe el cuerpo.
  * 17/21/52: GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA
  * (no bloquean prepararLote).
@@ -76,8 +77,8 @@ export const IDENTIDAD_REGLAMENTO_NOTARIADO: IdentidadNotarial = {
 /** Fail-closed: este slice no abre red ni escribe corpus/SQL. */
 export const NETWORK_WRITES = 0 as const;
 export const MARCADOR_DECRETO_77_2006 = 'DECRETO No. 77-2006';
-export const ARTICULOS_REFORMA_77_2006: readonly string[] = ['2', '3', '11', '27'];
-export const ARTICULOS_TRAMITE_77_2006: readonly string[] = ['1', '4'];
+export const ARTICULOS_REFORMA_77_2006: readonly string[] = ['11', '27'];
+export const ARTICULOS_TRAMITE_77_2006: readonly string[] = ['1', '2', '3', '4'];
 export const CODIGO_GAP_DOCUMENTAL =
   'GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA' as const;
 
@@ -157,6 +158,45 @@ export function esArticuloTramite77(num: string): boolean {
   return ARTICULOS_TRAMITE_77_2006.includes(num);
 }
 
+/** Anclas de contenido: 2/3 canónicos = Código 2005, no cláusulas del 77-2006. */
+export const ANCLA_ART2_CODIGO =
+  /el notariado es la instituci[oó]n del estado/i;
+export const ANCLA_ART2_TRAMITE_77 = /derogar el cap[ií]tulo\s*vi/i;
+export const ANCLA_ART3_CODIGO =
+  /funci[oó]n notarial es aquella funci[oó]n de inter[eé]s p[uú]blico/i;
+export const ANCLA_ART3_TRAMITE_77 = /certificados de autenticidad/i;
+
+export function verificarAnclasSustantivasNotariado(
+  registros: Array<{ num_articulo: string; contenido: string; id: string }>,
+): void {
+  for (const r of registros) {
+    if (r.num_articulo === '2') {
+      if (ANCLA_ART2_TRAMITE_77.test(r.contenido)) {
+        fallarDuro(
+          `art. 2 canónico no puede ser la derogación del Capítulo VI / Instituto (cláusula 77-2006). id=${r.id}`,
+        );
+      }
+      if (r.contenido.length >= 200 && !ANCLA_ART2_CODIGO.test(r.contenido)) {
+        fallarDuro(
+          `art. 2 canónico debe ser el concepto de Notariado (institución del Estado). id=${r.id}`,
+        );
+      }
+    }
+    if (r.num_articulo === '3') {
+      if (ANCLA_ART3_TRAMITE_77.test(r.contenido)) {
+        fallarDuro(
+          `art. 3 canónico no puede ser el reparto de timbres / certificados CAH (cláusula 77-2006). id=${r.id}`,
+        );
+      }
+      if (r.contenido.length >= 200 && !ANCLA_ART3_CODIGO.test(r.contenido)) {
+        fallarDuro(
+          `art. 3 canónico debe ser la función notarial. id=${r.id}`,
+        );
+      }
+    }
+  }
+}
+
 export function gapsDocumentalesPendientes(huecosNumeracion: string[]): GapDocumentalNotariado[] {
   return GAPS_DOCUMENTALES_CODIGO_NOTARIADO.filter((g) => huecosNumeracion.includes(g.numArticulo));
 }
@@ -209,8 +249,8 @@ export interface LoteEditorialNotariado {
 
 /**
  * OCR de número + adjudicación Control Plane:
- *   2/3/11/27 → última ocurrencia (reforma sustantiva 77-2006)
- *   1/4       → primera ocurrencia (Código 353-2005; anexo = trámite)
+ *   11/27   → última ocurrencia (reforma sustantiva 77-2006 del Código)
+ *   1/2/3/4 → primera ocurrencia (Código 353-2005; anexo = trámite del decreto)
  * El resto de divergentes no se adjudica. No declara VIGENTE.
  */
 export function aplicarPoliticaEditorialNotariado(aceptados: ChunkCandidato[]): LoteEditorialNotariado {
@@ -506,6 +546,9 @@ export function prepararLoteNotariado(texto: string, identidad: IdentidadNotaria
     return registro;
   });
   validarLoteAntesDeSQL(registros);
+  if (identidad.clave === 'codigo') {
+    verificarAnclasSustantivasNotariado(registros);
+  }
 
   for (const registro of registros) {
     if (registro.es_norma_vigente) {

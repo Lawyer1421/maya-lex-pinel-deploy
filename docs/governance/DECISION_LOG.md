@@ -1635,18 +1635,18 @@ Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit)
 
 **Resolución Control Plane** (post merge PR #47, dry-run fuente real):
 
-1. En el PDF CEDIJ del Código (Decreto 353-2005) el anexo **Decreto 77-2006**
-   reexpide arts. 2, 3, 11 y 27. Esas versiones **prevalecen** sobre el texto
-   original de 2005. No se trunca el anexo (eso descartaría la reforma).
-2. Normalización tipográfica OCR aprobada: solo el **número** de artículo
+1. El Decreto 77-2006 reformó **únicamente** arts. **11 y 27** del Código.
+   Esas dos prevalecen por **última** ocurrencia. No se trunca el anexo.
+2. Arts. **1, 2, 3 y 4** del anexo son cláusulas del decreto reformatorio
+   (orden, derogación del Instituto, timbres CAH, vigencia), no del Código.
+   Canónico = **primera** ocurrencia (Decreto 353-2005). Art. 2 debe ser
+   “institución del Estado”; art. 3, función notarial.
+3. Normalización tipográfica OCR aprobada: solo el **número** de artículo
    (`2O`/`3O`/`5O`/`6O`/`9O` → `20`/`30`/`50`/`60`/`90`). No se reescribe el cuerpo.
-3. Arts. 1 y 4 del anexo 77-2006 son **trámite legislativo** (orden de reforma
-   / vacatio legis), no numeración sustantiva del Código. Canónico = **primera**
-   ocurrencia (Decreto 353-2005). Ver
-   `docs/governance/exequatur-adjudicacion-editorial-notariado-2026.md`.
-4. Arts. 17, 21 y 52 = `GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA`
+4. Ver `docs/governance/exequatur-adjudicacion-editorial-notariado-2026.md`.
+5. Arts. 17, 21 y 52 = `GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA`
    en el manifest; no bloquean `prepararLoteNotariado`.
-5. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
+6. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
    `FLAG_ACTIVATION`, sin `--execute`.
 
 **No autorizado**: embeddings, `.sql` local, apply a staging/prod, declarar VIGENTE.
