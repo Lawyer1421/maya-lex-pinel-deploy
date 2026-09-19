@@ -1,11 +1,18 @@
 /**
- * app/exequatur/plan/page.tsx — Plan de estudio derivado (Slice 3).
- * Solo acepta objetivo IDs que existen en el currículo. No fabrica lecciones.
+ * app/exequatur/plan/page.tsx — Plan de estudio persistido (Slice 3B).
+ * Autoridad: intento propio re-evaluado. Query objetivos/aciertos/total se ignora.
+ * Solo acepta lecciones que existen en el currículo. No fabrica lecciones.
  */
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { parsearObjetivosQuery, recomendarLecciones } from '@/lib/exequatur/diagnostico/evaluar';
 import { localizarObjetivo } from '@/lib/exequatur/curriculum/localizar';
+import {
+  cargarIntentoPropio,
+  cargarUltimoIntentoPropio,
+  parsearIntentoQuery,
+  resolverSesionExequatur,
+} from '@/lib/exequatur/diagnostico/persistencia';
 
 export const metadata: Metadata = {
   title: 'Plan de estudio · Exequátur · MAYA LEX IA PINEL HN',
@@ -14,14 +21,21 @@ export const metadata: Metadata = {
 export default async function PlanEstudioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ objetivos?: string; aciertos?: string; total?: string }>;
+  searchParams: Promise<{ intento?: string }>;
 }) {
   const params = await searchParams;
-  const objetivos = parsearObjetivosQuery(params.objetivos);
-  const lecciones = recomendarLecciones(objetivos);
-  const aciertos = Number.parseInt(params.aciertos ?? '', 10);
-  const total = Number.parseInt(params.total ?? '', 10);
-  const hayPuntaje = Number.isFinite(aciertos) && Number.isFinite(total) && total > 0;
+  const sesion = await resolverSesionExequatur();
+  if (!sesion) {
+    redirect('/login?next=/exequatur/plan');
+  }
+
+  const intentoId = parsearIntentoQuery(params.intento);
+  const guardado = intentoId
+    ? await cargarIntentoPropio(sesion, intentoId)
+    : await cargarUltimoIntentoPropio(sesion);
+
+  const resultado = guardado?.resultado ?? null;
+  const lecciones = resultado?.leccionesRecomendadas ?? [];
 
   return (
     <main className="min-h-screen bg-navy pt-12 pb-20 px-4">
@@ -30,20 +44,42 @@ export default async function PlanEstudioPage({
           ← Diagnóstico
         </Link>
         <h1 className="font-serif text-3xl font-bold text-gradient-maya mb-2">Plan de estudio</h1>
-        {hayPuntaje && (
+        {resultado ? (
           <p className="text-white/50 text-sm mb-6">
-            {aciertos} de {total} ítems alineados con el objetivo. Las lecciones
-            abajo cubren lo pendiente. El texto legal se abre en la lección
-            (evidencia de corpus, no vigencia verificada de forma independiente).
+            {resultado.aciertos.length} de {resultado.total} ítems alineados con el
+            objetivo. Las lecciones abajo cubren lo pendiente. El texto legal se
+            abre en la lección (evidencia de corpus, no vigencia verificada de
+            forma independiente).
+          </p>
+        ) : (
+          <p className="text-white/50 text-sm mb-6">
+            No hay un diagnóstico persistido para esta sesión. Completa el
+            diagnóstico para generar tu plan. El puntaje no se lee de la URL.
           </p>
         )}
 
-        {lecciones.length === 0 ? (
+        {!resultado ? (
           <div className="glass-card p-5">
             <p className="text-white/80 text-sm mb-3">
-              {objetivos.length === 0
-                ? 'No hay objetivos pendientes. Puedes recorrer los módulos o repetir el diagnóstico.'
-                : 'Los identificadores recibidos no corresponden a objetivos del currículo.'}
+              {intentoId
+                ? 'Ese intento no existe o no te pertenece. Vuelve a diagnosticarte o abre tu último plan.'
+                : 'Aún no hay un plan guardado. El diagnóstico escribe el intento en servidor con tu sesión.'}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/exequatur/diagnostico" className="btn-jade inline-block text-sm py-2 px-4">
+                Ir al diagnóstico →
+              </Link>
+              {intentoId && (
+                <Link href="/exequatur/plan" className="btn-jade inline-block text-sm py-2 px-4">
+                  Ver último plan →
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : lecciones.length === 0 ? (
+          <div className="glass-card p-5">
+            <p className="text-white/80 text-sm mb-3">
+              No hay objetivos pendientes. Puedes recorrer los módulos o repetir el diagnóstico.
             </p>
             <Link href="/exequatur/modulos" className="btn-jade inline-block text-sm py-2 px-4">
               Ver módulos →

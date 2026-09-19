@@ -22,7 +22,7 @@ Diagnóstico de colocación + plan de estudio derivado del currículo Slice 2.
 | Formularios de instrumentos notariales | Slice 4+ |
 | Validación sustantiva de un acto concreto | Slice 4+ |
 | Generación / procesamiento documental | Slice 5+ |
-| Persistencia de progreso / intentos | fuera (sin DB write) |
+| Persistencia de progreso / intentos | Slice 3B (`feat/exequatur-slice-3b-persistence`) |
 | Ingesta masiva de normativa | frente aparte; no este PR |
 | Campaña / marketing / flags de lanzamiento | P3 fundador |
 | Cambios PayPal, subscriptions, `lib/rag/search.ts`, `access.ts` | prohibido |

@@ -23,6 +23,9 @@ export default function ExequaturEntryPage() {
           <Link href="/exequatur/diagnostico" className="btn-jade inline-block text-sm py-2 px-4">
             Diagnóstico de colocación →
           </Link>
+          <Link href="/exequatur/plan" className="btn-jade inline-block text-sm py-2 px-4">
+            Ver plan de estudio →
+          </Link>
           <Link href="/exequatur/modulos" className="btn-jade inline-block text-sm py-2 px-4">
             Ver módulos disponibles →
           </Link>
