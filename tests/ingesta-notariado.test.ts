@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import { identidadDocumentalCoincide } from '@/lib/rag/search';
 import {
   ARTICULOS_REFORMA_77_2006,
+  ARTICULOS_TRAMITE_77_2006,
+  CODIGO_GAP_DOCUMENTAL,
   IDENTIDAD_CODIGO_NOTARIADO,
   IDENTIDAD_REGLAMENTO_NOTARIADO,
   NETWORK_WRITES,
@@ -237,9 +239,10 @@ describe('prepararLoteNotariado — fixtures sintéticas', () => {
 });
 
 describe('política editorial 77-2006 + OCR — fail-closed', () => {
-  it('NETWORK_WRITES=0 y allowlist fija 2/3/11/27', () => {
+  it('NETWORK_WRITES=0 y allowlists fijas', () => {
     expect(NETWORK_WRITES).toBe(0);
     expect(ARTICULOS_REFORMA_77_2006).toEqual(['2', '3', '11', '27']);
+    expect(ARTICULOS_TRAMITE_77_2006).toEqual(['1', '4']);
     expect(normalizarNumeroArticuloOcr('2O')).toEqual({ normalizado: '20', eraOcr: true });
     expect(normalizarNumeroArticuloOcr('5A')).toEqual({ normalizado: '5A', eraOcr: false });
   });
@@ -270,22 +273,25 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     expect(editorial.finales.find((c) => c.numArticulo === '3')?.contenido).toMatch(/77-2006/);
   });
 
-  it('art. 1 o 4 divergente NO se adjudica y prepararLote falla cerrado', () => {
+  it('arts. 1 y 4: prevalece la primera ocurrencia (Código 2005); el anexo es trámite', () => {
     const editorial = aplicarPoliticaEditorialNotariado([
       chunk('1', 'Cuerpo 2005 sintético del primero'),
-      chunk('1', 'Cuerpo anexo sintético distinto del primero'),
-      chunk('2', 'Único dos'),
-      chunk('3', 'Único tres'),
-      chunk('7', 'Único siete'),
-      chunk('8', 'Único ocho'),
+      chunk('4', 'Cuerpo 2005 sintético del cuarto'),
+      chunk('1', 'Cuerpo anexo sintético de trámite'),
+      chunk('4', 'Cuerpo anexo sintético de vacatio'),
     ]);
-    expect(editorial.divergentes.map((d) => d.numArticulo)).toEqual(['1']);
-    expect(editorial.adjudicadosReforma77).toEqual([]);
+    expect(editorial.adjudicadosTramite77).toEqual(['1', '4']);
+    expect(editorial.divergentes).toEqual([]);
+    expect(editorial.finales.find((c) => c.numArticulo === '1')?.contenido).toMatch(/2005/);
+    expect(editorial.finales.find((c) => c.numArticulo === '4')?.contenido).toMatch(/2005/);
+    expect(editorial.finales.find((c) => c.numArticulo === '1')?.contenido).not.toMatch(/trámite/);
+  });
 
+  it('un divergente fuera de allowlist sigue fail-hard', () => {
     expect(() =>
       resolverDuplicadosNotariado([
-        chunk('1', 'Cuerpo 2005 sintético del primero'),
-        chunk('1', 'Cuerpo anexo sintético distinto del primero'),
+        chunk('7', 'Cuerpo A sustantivo'),
+        chunk('7', 'Cuerpo B distinto y también sustantivo'),
       ]),
     ).toThrow(/process.exit/);
   });
@@ -294,6 +300,7 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     const informe = analizarFuenteNotariado(fixtureEditorial, IDENTIDAD_CODIGO_NOTARIADO, fuenteSintetica);
     expect(informe.curriculoFaltantes).toEqual([]);
     expect(informe.adjudicadosReforma77).toEqual(['2', '3', '11']);
+    expect(informe.adjudicadosTramite77).toEqual(['1', '4']);
     expect(informe.ocrNormalizados).toEqual(['20']);
     expect(informe.articulosAceptados).toContain('20');
     expect(informe.articulosAceptados).toContain('27');
@@ -305,12 +312,17 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
       opts: { ...IDENTIDAD_CODIGO_NOTARIADO.opts, input: 'fixture-editorial' },
     });
     expect(lote.registros.find((r) => r.num_articulo === '2')?.contenido).toMatch(/reformado/);
+    expect(lote.registros.find((r) => r.num_articulo === '1')?.contenido).toMatch(/original del primer/);
+    expect(lote.registros.find((r) => r.num_articulo === '1')?.metadata.adjudicacion_editorial).toBe(
+      'primera_ocurrencia_tramite_77_2006',
+    );
     expect(lote.registros.find((r) => r.num_articulo === '2')?.metadata.reforma_adjudicada).toBe(
       'Decreto 77-2006',
     );
     expect(lote.registros.find((r) => r.num_articulo === '20')?.id).toBe(
       'mayalex_normativos:codigo_notariado_2005_a20',
     );
+    expect(lote.manifest.gaps_documentales.some((g) => g.codigo === CODIGO_GAP_DOCUMENTAL)).toBe(true);
     expect(lote.registros.every((r) => r.es_norma_vigente === false)).toBe(true);
   });
 });

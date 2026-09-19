@@ -118,8 +118,13 @@ function informeMarkdown(sesion: InformeSesionDryRun): string {
       `- Divergentes (no adjudicados): ${i.divergentes.map((d) => `${d.numArticulo}×${d.ocurrencias}`).join(', ') || '(ninguno)'}`,
     );
     lineas.push(`- Adjudicados 77-2006 (última ocurrencia): ${i.adjudicadosReforma77.join(', ') || '(ninguno)'}`);
+    lineas.push(`- Trámite 77-2006 (primera ocurrencia): ${i.adjudicadosTramite77.join(', ') || '(ninguno)'}`);
     lineas.push(`- OCR número O→0: ${i.ocrNormalizados.join(', ') || '(ninguno)'}`);
     lineas.push(`- Huecos de numeración: ${i.huecosNumeracion.join(', ') || '(ninguno)'}`);
+    lineas.push(`- Huecos bloqueantes: ${i.huecosBloqueantes.join(', ') || '(ninguno)'}`);
+    lineas.push(
+      `- Gaps documentales: ${i.gapsDocumentales.map((g) => `${g.numArticulo} (${g.codigo})`).join(', ') || '(ninguno)'}`,
+    );
     lineas.push(`- Currículo faltante: ${i.curriculoFaltantes.join(', ') || '(ninguno)'}`);
     lineas.push(`- Artículos aceptados: ${i.articulosAceptados.join(', ')}`);
     lineas.push(`- Hallazgos OCR \`O\` por \`0\`: ${i.hallazgos.ocrLetraOPorCero.join(', ') || '(ninguno)'}`);

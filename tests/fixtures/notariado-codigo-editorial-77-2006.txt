@@ -4,6 +4,7 @@ FIXTURE SINTÉTICA — no es el texto legal oficial.
 ARTÍCULO 1. Texto sintético original del primer ítem. No es norma vigente.
 ARTÍCULO 2. Texto sintético original del segundo ítem. No es norma vigente.
 ARTÍCULO 3. Texto sintético original del tercer ítem. No es norma vigente.
+ARTÍCULO 4. Texto sintético original del cuarto ítem. No es norma vigente.
 ARTÍCULO 7. Texto sintético del séptimo ítem. No es norma vigente.
 ARTÍCULO 8. Texto sintético del octavo ítem. No es norma vigente.
 ARTÍCULO 11. Texto sintético original del undécimo ítem. No es norma vigente.
@@ -15,3 +16,5 @@ ARTÍCULO 2. Texto sintético reformado del segundo ítem. No es norma vigente.
 ARTÍCULO 3. Texto sintético reformado del tercer ítem. No es norma vigente.
 ARTÍCULO 11. Texto sintético reformado del undécimo ítem. No es norma vigente.
 ARTÍCULO 27. Texto sintético reformado del vigésimo séptimo ítem. No es norma vigente.
+ARTÍCULO 1. Texto sintético de trámite del decreto reformatorio. No es el Código.
+ARTÍCULO 4. Texto sintético de vacatio legis del decreto reformatorio. No es el Código.

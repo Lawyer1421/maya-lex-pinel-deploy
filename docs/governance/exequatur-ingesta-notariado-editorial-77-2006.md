@@ -9,7 +9,7 @@
 | Artículo | Política |
 |---|---|
 | 2, 3, 11, 27 | Prevalece la **última** ocurrencia (anexo `DECRETO No. 77-2006`) sobre el texto 2005 |
-| 1, 4 | Sin adjudicación. Siguen divergentes (fail-hard en `prepararLoteNotariado`) |
+| 1, 4 | **Primera** ocurrencia (Código 353-2005). El anexo 77-2006 es trámite, no Código |
 | `2O` `3O` `5O` `6O` `9O` | Número OCR → `20` `30` `50` `60` `90`. El cuerpo no se reescribe |
 
 No se usa `--stop-at-text "DECRETO No. 77-2006"` (PR #41): truncar el anexo
@@ -32,8 +32,7 @@ Adjudicar 77-2006 **no** declara `es_norma_vigente`.
 | `--execute` / embeddings / `.sql` | slice posterior |
 | `SQL_APPLY` / write a `biblioteca_vectores` | P3 fundador |
 | Red (Supabase, fetch de fuentes) | `NETWORK_WRITES = 0` |
-| Adjudicar arts. 1 y 4 | sin resolución |
-| Encabezados `ARTÍCULO N -` (21, 52) y `17.Los` | gap de patrón, no este slice |
+| Encabezados 17 / 21 / 52 | `GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA` (no bloquean lote) |
 
 ## Uso
 
@@ -50,8 +49,8 @@ Contra los PDF de `/tmp/notarial-sources/` (mismos SHA-256 del PR #47):
 
 | Instrumento | Finales | 77-2006 | OCR | Divergentes restantes | Currículo |
 |---|---:|---|---|---|---|
-| Código | 89 | 2, 3, 11, 27 | 20, 30, 50, 60, 90 | 1, 4 | cubierto |
+| Código | 91 | 2, 3, 11, 27 | 20, 30, 50, 60, 90 | (ninguno) | cubierto |
 | Reglamento | 111 | — | — | — | n/a |
 
-Huecos residuales del Código: 4 (divergente), 17 (`17.Los`), 21/52 (`ARTÍCULO N -`).
-`prepararLoteNotariado` del Código real sigue fail-hard por 1 y 4.
+Resolución formal: `docs/governance/exequatur-adjudicacion-editorial-notariado-2026.md`.
+Huecos 17/21/52 = gaps documentales; no bloquean `prepararLoteNotariado`.

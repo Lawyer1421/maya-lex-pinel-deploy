@@ -1640,9 +1640,13 @@ Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit)
    original de 2005. No se trunca el anexo (eso descartaría la reforma).
 2. Normalización tipográfica OCR aprobada: solo el **número** de artículo
    (`2O`/`3O`/`5O`/`6O`/`9O` → `20`/`30`/`50`/`60`/`90`). No se reescribe el cuerpo.
-3. Arts. 1 y 4 (también restados en el anexo) **no** tienen adjudicación
-   autorizada: siguen fail-hard / informe.
-4. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
+3. Arts. 1 y 4 del anexo 77-2006 son **trámite legislativo** (orden de reforma
+   / vacatio legis), no numeración sustantiva del Código. Canónico = **primera**
+   ocurrencia (Decreto 353-2005). Ver
+   `docs/governance/exequatur-adjudicacion-editorial-notariado-2026.md`.
+4. Arts. 17, 21 y 52 = `GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA`
+   en el manifest; no bloquean `prepararLoteNotariado`.
+5. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
    `FLAG_ACTIVATION`, sin `--execute`.
 
 **No autorizado**: embeddings, `.sql` local, apply a staging/prod, declarar VIGENTE.
