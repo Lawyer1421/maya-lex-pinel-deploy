@@ -69,6 +69,23 @@ Slice editorial (post PR #47): ver
 77-2006 prevalece solo en 11/27; 1/2/3/4 = primera ocurrencia (Código 2005).
 OCR de número `O`→`0`. `NETWORK_WRITES = 0`.
 
+## Lote formal (Carril B, post PR #48)
+
+`scripts/generar-lote-formal-notariado.ts` llama `prepararLoteNotariado` contra
+los PDF oficiales locales y exporta el lote consolidado para auditoría:
+
+```
+npx tsx scripts/generar-lote-formal-notariado.ts
+```
+
+Artefacto: `docs/governance/exequatur-ingesta-notariado-lote-formal.{json,md}`.
+
+- Código: **91** registros; reformas 11/27; trámite 1–4; OCR 20/30/50/60/90;
+  gaps 17/21/52 en manifest.
+- Reglamento: **111** registros (1–111).
+- Anclas 2/3 = concepto de Notariado / función notarial (353-2005).
+- `es_norma_vigente = false`. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`.
+
 ## Invariantes
 
 ```

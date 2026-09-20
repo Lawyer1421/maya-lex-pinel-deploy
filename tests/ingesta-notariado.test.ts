@@ -251,6 +251,7 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     const fuentes = [
       readFileSync(resolve(process.cwd(), 'scripts/ingesta-notariado.ts'), 'utf8'),
       readFileSync(resolve(process.cwd(), 'scripts/dry-run-notariado-fuente-real.ts'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'scripts/generar-lote-formal-notariado.ts'), 'utf8'),
     ];
     for (const src of fuentes) {
       expect(src).not.toMatch(/@supabase|createClient\s*\(|\bfetch\s*\(/);

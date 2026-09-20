@@ -66,3 +66,9 @@ Arts. **17, 21 y 52** se registran en el manifest del corpus como:
 ## Barreras vigentes
 
 `NETWORK_WRITES = 0` · `SQL_APPLY = NO` · `CORPUS_WRITE = NO` · `--execute` fail-hard · `FLAG_ACTIVATION = NO`
+
+## Lote formal (Carril B)
+
+El lote estructurado generado con esta matriz vive en
+`docs/governance/exequatur-ingesta-notariado-lote-formal.{json,md}`.
+No es apply a corpus. `INGESTED ≠ VERIFIED ≠ VIGENTE`.
