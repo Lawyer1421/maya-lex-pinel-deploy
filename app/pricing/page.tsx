@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import NavV2 from '@/components/v2/NavV2';
 import FooterV2 from '@/components/v2/FooterV2';
 import FAQV2 from '@/components/v2/FAQV2';
@@ -46,6 +47,23 @@ export default function PricingPageV2() {
           <p className="mx-auto mt-3 max-w-xl text-xs text-ivory-muted">
             Las suscripciones Académico y Profesional se procesan de forma segura mediante PayPal y tienen renovación mensual automática.
           </p>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-4 pb-2 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-jade/25 bg-obsidian-light px-6 py-5 text-center sm:flex-row sm:text-left">
+            <div>
+              <p className="font-serif text-lg font-semibold text-ivory">¿Se gradúa este año?</p>
+              <p className="mt-1 text-sm text-ivory-dim">
+                Prepare su Exequátur con diagnóstico de colocación y plan de estudio personalizado.
+              </p>
+            </div>
+            <Link
+              href="/exequatur"
+              className="shrink-0 rounded-xl bg-jade-deep px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
+            >
+              Ver Exequátur →
+            </Link>
+          </div>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

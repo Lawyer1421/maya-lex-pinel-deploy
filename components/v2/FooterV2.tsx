@@ -21,6 +21,7 @@ export default function FooterV2() {
           <ul className={listaFooter}>
             <li><Link href="/producto" className={enlaceFooter}>Producto</Link></li>
             <li><Link href="/herramientas" className={enlaceFooter}>Herramientas</Link></li>
+            <li><Link href="/exequatur" className={enlaceFooter}>Exequátur</Link></li>
             <li><Link href="/cobertura-juridica" className={enlaceFooter}>Cobertura jurídica</Link></li>
             <li><Link href="/pricing" className={enlaceFooter}>Precios</Link></li>
           </ul>

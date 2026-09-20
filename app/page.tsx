@@ -3,6 +3,7 @@ import Link from 'next/link';
 import NavV2 from '@/components/v2/NavV2';
 import FooterV2 from '@/components/v2/FooterV2';
 import HeroV2 from '@/components/v2/HeroV2';
+import SeccionExequatur from '@/components/v2/SeccionExequatur';
 import SeccionDemoPreview from '@/components/v2/SeccionDemoPreview';
 import SeccionHerramientas from '@/components/v2/SeccionHerramientas';
 import SeccionPerfiles from '@/components/v2/SeccionPerfiles';
@@ -51,6 +52,7 @@ export default function HomePageV2() {
       <NavV2 />
       <main>
         <HeroV2 />
+        <SeccionExequatur />
         <SeccionDemoPreview />
         <SeccionHerramientas />
         <SeccionPerfiles />

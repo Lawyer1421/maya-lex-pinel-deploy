@@ -21,6 +21,13 @@ const HERRAMIENTAS = [
     titulo: 'Generación de escritos',
     descripcion: 'Genere borradores de escritos y documentos con base en su información del caso.',
   },
+  {
+    icono: 'M12 3 4.5 6.75v6c0 4.83 3.216 8.58 7.5 9.75 4.284-1.17 7.5-4.92 7.5-9.75v-6L12 3Z',
+    titulo: 'Exequátur',
+    descripcion: 'Diagnóstico de colocación, plan de estudio y módulos verificados para preparar su Exequátur.',
+    href: '/exequatur',
+    destacado: true,
+  },
 ];
 
 export default function SeccionHerramientas() {
@@ -32,16 +39,44 @@ export default function SeccionHerramientas() {
       <p className="mx-auto mt-3 max-w-2xl text-center text-ivory-dim">
         Diseñadas para acompañar la práctica profesional, no para sustituir el criterio jurídico.
       </p>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {HERRAMIENTAS.map((h) => (
-          <div key={h.titulo} className="rounded-2xl border border-obsidian-medium bg-obsidian-light p-6">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="text-jade" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d={h.icono} />
-            </svg>
-            <h3 className="mt-4 font-serif text-lg font-semibold text-ivory">{h.titulo}</h3>
-            <p className="mt-2 text-sm text-ivory-dim">{h.descripcion}</p>
-          </div>
-        ))}
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        {HERRAMIENTAS.map((h) => {
+          const claseBase = `group relative overflow-hidden rounded-2xl border p-6 transition duration-300 hover:-translate-y-1 ${
+            h.destacado
+              ? 'border-jade/40 bg-gradient-to-b from-jade/10 to-obsidian-light hover:border-jade/70 hover:shadow-xl hover:shadow-jade/10'
+              : 'border-obsidian-medium bg-obsidian-light hover:border-jade/30 hover:shadow-lg hover:shadow-black/20'
+          }`;
+          const contenido = (
+            <>
+              {h.destacado && (
+                <span className="absolute right-4 top-4 rounded-full bg-jade/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-jade-light">
+                  Destacado
+                </span>
+              )}
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-jade/10 text-jade transition group-hover:bg-jade/20">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={h.icono} />
+                </svg>
+              </span>
+              <h3 className="mt-4 font-serif text-lg font-semibold text-ivory">{h.titulo}</h3>
+              <p className="mt-2 text-sm text-ivory-dim">{h.descripcion}</p>
+              {h.href && (
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-jade-light opacity-0 transition group-hover:opacity-100">
+                  Conocer más →
+                </span>
+              )}
+            </>
+          );
+          return h.href ? (
+            <Link key={h.titulo} href={h.href} className={claseBase}>
+              {contenido}
+            </Link>
+          ) : (
+            <div key={h.titulo} className={claseBase}>
+              {contenido}
+            </div>
+          );
+        })}
       </div>
       <div className="mt-8 text-center">
         <Link href="/herramientas" className="text-sm font-semibold text-jade-light hover:underline focus-visible:ring-2 focus-visible:ring-jade rounded">

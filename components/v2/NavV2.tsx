@@ -58,6 +58,9 @@ export default function NavV2() {
           <Link href="/herramientas" className="text-sm text-ivory-dim transition-colors hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian rounded">
             Herramientas
           </Link>
+          <Link href="/exequatur" className="text-sm text-ivory-dim transition-colors hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian rounded">
+            Exequátur
+          </Link>
           <Link href="/cobertura-juridica" className="text-sm text-ivory-dim transition-colors hover:text-ivory focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian rounded">
             Cobertura jurídica
           </Link>
@@ -111,6 +114,7 @@ export default function NavV2() {
               <Link key={s.href} href={s.href} className="rounded-lg px-3 py-2 pl-6 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">{s.label}</Link>
             ))}
             <Link href="/herramientas" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Herramientas</Link>
+            <Link href="/exequatur" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Exequátur</Link>
             <Link href="/cobertura-juridica" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Cobertura jurídica</Link>
             <Link href="/pricing" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Precios</Link>
             <Link href="/seguridad" className="rounded-lg px-3 py-2 text-sm text-ivory-dim hover:bg-obsidian-medium hover:text-ivory">Seguridad</Link>
