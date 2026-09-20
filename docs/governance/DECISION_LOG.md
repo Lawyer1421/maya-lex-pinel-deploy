@@ -1628,3 +1628,26 @@ Cohere rerank-v3.5. Cualquier otro usuario / identidad por IP → `false` →
 `allowed_emails='{}'` con `enabled=true`.
 
 Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit).
+
+---
+
+## 2026-09-19 — INGESTA_LEYES_NOTARIADO Slice editorial 77-2006 + OCR
+
+**Resolución Control Plane** (post merge PR #47, dry-run fuente real):
+
+1. El Decreto 77-2006 reformó **únicamente** arts. **11 y 27** del Código.
+   Esas dos prevalecen por **última** ocurrencia. No se trunca el anexo.
+2. Arts. **1, 2, 3 y 4** del anexo son cláusulas del decreto reformatorio
+   (orden, derogación del Instituto, timbres CAH, vigencia), no del Código.
+   Canónico = **primera** ocurrencia (Decreto 353-2005). Art. 2 debe ser
+   “institución del Estado”; art. 3, función notarial.
+3. Normalización tipográfica OCR aprobada: solo el **número** de artículo
+   (`2O`/`3O`/`5O`/`6O`/`9O` → `20`/`30`/`50`/`60`/`90`). No se reescribe el cuerpo.
+4. Ver `docs/governance/exequatur-adjudicacion-editorial-notariado-2026.md`.
+5. Arts. 17, 21 y 52 = `GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA`
+   en el manifest; no bloquean `prepararLoteNotariado`.
+6. `NETWORK_WRITES = 0`. Sin `SQL_APPLY`, sin write a corpus, sin
+   `FLAG_ACTIVATION`, sin `--execute`.
+
+**No autorizado**: embeddings, `.sql` local, apply a staging/prod, declarar VIGENTE.
+
