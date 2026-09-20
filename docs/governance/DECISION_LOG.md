@@ -1651,3 +1651,22 @@ Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit)
 
 **No autorizado**: embeddings, `.sql` local, apply a staging/prod, declarar VIGENTE.
 
+---
+
+## 2026-09-20 — Carril B: lote formal notariado (anclas)
+
+**Resolución Control Plane** (post merge PR #48, `main` @ `d569790`):
+
+1. Carril B activo: generar el lote estructurado de 91 registros del Código
+   (más el Reglamento) con `prepararLoteNotariado`. Carril A (Slice 3B SQL
+   apply) permanece en pausa preventiva.
+2. Matriz canónica inalterada: 1/2/3/4 primera ocurrencia (353-2005);
+   11/27 última ocurrencia (77-2006). Guardián
+   `verificarAnclasSustantivasNotariado` activo. OCR de número aprobado.
+3. Artefacto de auditoría: `docs/governance/exequatur-ingesta-notariado-lote-formal.{json,md}`.
+   `es_norma_vigente = false` en todos los registros. `NETWORK_WRITES = 0`.
+4. Sin `SQL_APPLY`, sin write a corpus, sin embeddings, sin `--execute`,
+   sin `FLAG_ACTIVATION`. Claude audita el artefacto en el PR draft.
+
+**No autorizado**: apply a staging/prod, declarar VIGENTE o VERIFICADO.
+
