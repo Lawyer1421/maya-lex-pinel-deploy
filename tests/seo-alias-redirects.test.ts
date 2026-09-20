@@ -37,5 +37,7 @@ describe('aliases SEO históricos → slugs V2 reales', () => {
     const src = readFileSync(resolve(process.cwd(), 'next.config.ts'), 'utf8');
     expect(src).toContain("from './lib/seo/rutas-publicas'");
     expect(src).toContain('...ALIAS_REDIRECTS');
+    expect(src).toContain('Strict-Transport-Security');
+    expect(src).toContain('Content-Security-Policy');
   });
 });

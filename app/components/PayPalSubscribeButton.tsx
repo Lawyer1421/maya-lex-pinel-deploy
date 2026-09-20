@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { autoStartTierDesde } from '@/components/v2/planes-data';
+import { buildLoginHref } from '@/lib/marketing/cta';
 
 interface Props {
   plan: 'pro' | 'academico';
@@ -15,7 +16,7 @@ const MENSAJE_ERROR_GENERICO = 'No pudimos iniciar el pago. Intenta de nuevo en 
 
 /** Exportada para prueba unitaria — la construcción real ocurre en el mismo lugar que la usa. */
 export function construirUrlLogin(plan: 'pro' | 'academico'): string {
-  return `/login?next=${encodeURIComponent(`/pricing?plan=${plan}`)}`;
+  return buildLoginHref(`/pricing?plan=${plan}`, 'signup');
 }
 
 export default function PayPalSubscribeButton({ plan, label, className }: Props) {

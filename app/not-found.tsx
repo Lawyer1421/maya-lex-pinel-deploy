@@ -13,7 +13,7 @@ export default function NotFound() {
           Si llegó aquí desde un enlace, puede que haya expirado.
         </p>
         <div className="flex gap-3 justify-center">
-          <Link href="/chat" className="btn-jade text-sm">
+          <Link href="/login?next=/chat&intent=signup" className="btn-jade text-sm">
             Ir al chat
           </Link>
           <Link href="/" className="btn-ghost text-sm">
