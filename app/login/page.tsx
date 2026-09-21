@@ -45,6 +45,8 @@ export default function LoginPage() {
     setError('');
     setEstado('enviando');
     const supabase = createSupabaseBrowserClient();
+    // Origin del navegador: http://localhost:3000 en local, https://mayalexhn.com
+    // en producción. No se usa NEXT_PUBLIC_APP_URL (puede ser un dominio residual).
     const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
