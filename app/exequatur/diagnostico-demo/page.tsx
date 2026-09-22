@@ -50,7 +50,7 @@ export default async function DiagnosticoDemoPage({
             <p className="mb-8 mt-3 text-ivory-dim">
               Respondió correctamente <strong className="text-ivory">{aciertos}</strong> de{' '}
               <strong className="text-ivory">{total}</strong> reactivos de muestra. El Plan Notarial completo
-              incluye los {`${totalDelBanco}+`} reactivos auditados contra el corpus legislativo hondureño vigente,
+              incluye el banco completo de reactivos auditados contra el corpus legislativo hondureño vigente,
               organizados en los 4 ejes formativos, con simulador cronometrado y plan de estudio personalizado.
             </p>
             <div className="flex flex-wrap gap-3">
