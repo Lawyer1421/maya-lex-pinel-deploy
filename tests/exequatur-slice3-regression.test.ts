@@ -69,19 +69,19 @@ describe('Regresión Slice 1 — auth intacta tras Slice 3', () => {
 
 describe('Regresión Slice 3 — rutas nuevas heredan el gate, no crean uno propio', () => {
   it('no hay layout.tsx bajo diagnostico ni plan', () => {
-    expect(existsSync('app/exequatur/diagnostico/layout.tsx')).toBe(false);
-    expect(existsSync('app/exequatur/plan/layout.tsx')).toBe(false);
+    expect(existsSync('app/exequatur/(protegido)/diagnostico/layout.tsx')).toBe(false);
+    expect(existsSync('app/exequatur/(protegido)/plan/layout.tsx')).toBe(false);
   });
 
-  it('el único layout de la vertical sigue siendo app/exequatur/layout.tsx', () => {
-    expect(existsSync('app/exequatur/layout.tsx')).toBe(true);
-    const gate = readFileSync('app/exequatur/layout.tsx', 'utf8');
+  it('el único layout de la vertical paga sigue siendo app/exequatur/(protegido)/layout.tsx', () => {
+    expect(existsSync('app/exequatur/(protegido)/layout.tsx')).toBe(true);
+    const gate = readFileSync('app/exequatur/(protegido)/layout.tsx', 'utf8');
     expect(gate).toMatch(/resolveExequaturAccess/);
   });
 
   it('diagnóstico y plan no llaman a buscarArticuloExacto ni fabrican citas', () => {
-    const diagnostico = readFileSync('app/exequatur/diagnostico/page.tsx', 'utf8');
-    const plan = readFileSync('app/exequatur/plan/page.tsx', 'utf8');
+    const diagnostico = readFileSync('app/exequatur/(protegido)/diagnostico/page.tsx', 'utf8');
+    const plan = readFileSync('app/exequatur/(protegido)/plan/page.tsx', 'utf8');
     expect(diagnostico).not.toMatch(/buscarArticuloExacto/);
     expect(plan).not.toMatch(/buscarArticuloExacto/);
     expect(diagnostico).not.toMatch(/use client/);
@@ -91,7 +91,7 @@ describe('Regresión Slice 3 — rutas nuevas heredan el gate, no crean uno prop
 
 describe('Regresión Slice 3B — persistencia no usa query-score ni service_role', () => {
   it('plan no toma autoridad de objetivos/aciertos/total', () => {
-    const plan = readFileSync('app/exequatur/plan/page.tsx', 'utf8');
+    const plan = readFileSync('app/exequatur/(protegido)/plan/page.tsx', 'utf8');
     expect(plan).not.toMatch(/parsearObjetivosQuery/);
     expect(plan).toMatch(/cargarIntentoPropio/);
     expect(plan).toMatch(/cargarUltimoIntentoPropio/);
@@ -100,7 +100,7 @@ describe('Regresión Slice 3B — persistencia no usa query-score ni service_rol
   });
 
   it('actions no redirige con score en query y exige sesión', () => {
-    const actions = readFileSync('app/exequatur/diagnostico/actions.ts', 'utf8');
+    const actions = readFileSync('app/exequatur/(protegido)/diagnostico/actions.ts', 'utf8');
     expect(actions).toMatch(/resolverSesionExequatur/);
     expect(actions).toMatch(/guardarIntento/);
     expect(actions).not.toMatch(/objetivos=/);

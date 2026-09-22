@@ -177,7 +177,7 @@ export const PAGINAS_PRODUCTO: Record<string, ConfigPaginaMarketing> = {
     metaDescription:
       'Maya Lex nace del ejercicio profesional real de Fredy Omar Pinel Flores, abogado y notario en Choluteca, Honduras — no de una idea genérica de chatbot legal.',
     propuesta:
-      'Maya Lex nace del ejercicio profesional real de Fredy Omar Pinel Flores, abogado y notario en Choluteca, Honduras. Cada herramienta responde a una necesidad concreta del ejercicio diario del derecho hondureño.',
+      'Maya Lex nace del ejercicio profesional real de Fredy Omar Pinel Flores, Abogado y Notario Público en Choluteca, Honduras, con más de 34 años de ejercicio activo y más de 24 años como docente e investigador en la Universidad Nacional Autónoma de Honduras (UNAH). Cada herramienta responde a una necesidad concreta del ejercicio diario del derecho hondureño.',
     funcionesTitulo: 'Los principios que gobiernan la plataforma',
     funciones: [
       { titulo: 'El criterio profesional primero', descripcion: 'La herramienta acompaña la investigación y el análisis; la decisión jurídica es siempre del abogado.' },

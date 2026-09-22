@@ -75,14 +75,14 @@ describe('Regresión Slice 1 — resolveExequaturAccess sin cambios tras Slice 2
 });
 
 describe('Regresión Slice 1 — las rutas nuevas de Slice 2 heredan el gate existente, no crean uno propio', () => {
-  it('no existe ningún layout.tsx nuevo bajo app/exequatur/modulos -- el único gate sigue siendo app/exequatur/layout.tsx', () => {
-    expect(existsSync('app/exequatur/modulos/layout.tsx')).toBe(false);
-    expect(existsSync('app/exequatur/modulos/[moduloSlug]/layout.tsx')).toBe(false);
-    expect(existsSync('app/exequatur/modulos/[moduloSlug]/[leccionSlug]/layout.tsx')).toBe(false);
+  it('no existe ningún layout.tsx nuevo bajo app/exequatur/(protegido)/modulos -- el único gate sigue siendo app/exequatur/(protegido)/layout.tsx', () => {
+    expect(existsSync('app/exequatur/(protegido)/modulos/layout.tsx')).toBe(false);
+    expect(existsSync('app/exequatur/(protegido)/modulos/[moduloSlug]/layout.tsx')).toBe(false);
+    expect(existsSync('app/exequatur/(protegido)/modulos/[moduloSlug]/[leccionSlug]/layout.tsx')).toBe(false);
   });
 
   it('la página de lección usa resolverReferenciaLegal -- nunca fabrica contenido legal localmente', () => {
-    const contenido = readFileSync('app/exequatur/modulos/[moduloSlug]/[leccionSlug]/page.tsx', 'utf8');
+    const contenido = readFileSync('app/exequatur/(protegido)/modulos/[moduloSlug]/[leccionSlug]/page.tsx', 'utf8');
     expect(contenido).toMatch(/resolverReferenciaLegal/);
   });
 });

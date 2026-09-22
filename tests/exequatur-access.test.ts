@@ -43,8 +43,8 @@ beforeEach(() => {
 //   academico + flag ON  -> DENY
 //   cualquiera + flag OFF/ausente/error -> DENY
 //   fallo al resolver el tier -> DENY
-// unauthenticated -> denied se resuelve en app/exequatur/layout.tsx, fuera
-// de esta función -- ver el describe de wiring más abajo (sin cambios).
+// unauthenticated -> se resuelve en app/exequatur/(protegido)/layout.tsx,
+// fuera de esta función -- ver el describe de wiring más abajo.
 describe('resolveExequaturAccess / hasExequaturAccess — matriz de autorización', () => {
   function esperarClasificacion(r: { authorization: ExequaturAuthorization; granted: boolean }, esperado: ExequaturAuthorization) {
     expect(r.authorization).toBe(esperado);
@@ -156,28 +156,33 @@ describe('resolveExequaturAccess / hasExequaturAccess — matriz de autorizació
   });
 });
 
-// El gate real vive en app/exequatur/layout.tsx (Server Component). Este
-// repo no tiene precedente de renderizar Server Components de página/layout
-// en la suite (tampoco existe un test directo de app/chat/page.tsx ni de
+// El gate real vive en app/exequatur/(protegido)/layout.tsx (Server
+// Component), reubicado a un route group para que app/exequatur/diagnostico-
+// demo (la demo pública) quede fuera de su alcance. Este repo no tiene
+// precedente de renderizar Server Components de página/layout en la suite
+// (tampoco existe un test directo de app/chat/page.tsx ni de
 // app/cuenta/page.tsx) -- la lógica de decisión que el layout consulta ya
 // está cubierta arriba al 100%. Esta prueba estructural confirma que el
-// layout real efectivamente usa esa función y el patrón de redirect ya
-// validado en /chat, sin necesitar un harness de renderizado de RSC nuevo
-// para esta slice.
-describe('app/exequatur/layout.tsx — wiring del gate server-side', () => {
-  it('el layout importa resolveExequaturAccess y redirige sin sesión, igual que /chat', async () => {
+// layout real efectivamente usa esa función. Sin sesión ya NO redirige a
+// /login: renderiza la Landing de oferta (OfertaExequatur) directamente,
+// igual que con sesión pero sin acceso concedido -- el visitante ve la
+// propuesta de valor antes de que se le pida iniciar sesión o pagar.
+describe('app/exequatur/(protegido)/layout.tsx — wiring del gate server-side', () => {
+  it('el layout importa resolveExequaturAccess y muestra la oferta sin sesión, sin redirect a /login', async () => {
     const { readFileSync } = await import('node:fs');
-    const contenido = readFileSync('app/exequatur/layout.tsx', 'utf8');
+    const contenido = readFileSync('app/exequatur/(protegido)/layout.tsx', 'utf8');
     expect(contenido).toMatch(/resolveExequaturAccess/);
-    expect(contenido).toMatch(/redirect\(['"]\/login\?next=\/exequatur['"]\)/);
     expect(contenido).toMatch(/auth\.getUser\(\)/);
-    // Sin URL derivada de request/params -- solo la cadena fija de arriba.
-    expect(contenido).not.toMatch(/redirect\(\s*(req|request|searchParams|params)/);
+    expect(contenido).toMatch(/if \(!user\)/);
+    expect(contenido).toMatch(/<OfertaExequatur eligibleTier=\{false\}\s*\/>/);
+    // Ya no existe ningún redirect a /login en este layout -- el visitante
+    // sin sesión ve la oferta, nunca un login desnudo sin contexto.
+    expect(contenido).not.toMatch(/redirect\(/);
   });
 
   it('el layout nunca renderiza {children} sin comprobar access.granted antes', async () => {
     const { readFileSync } = await import('node:fs');
-    const contenido = readFileSync('app/exequatur/layout.tsx', 'utf8');
+    const contenido = readFileSync('app/exequatur/(protegido)/layout.tsx', 'utf8');
     // lastIndexOf porque el docstring de cabecera menciona "{children}" en
     // prosa antes del código real -- el JSX que efectivamente lo renderiza
     // (return <>{children}</>) es la ÚLTIMA aparición literal en el archivo.

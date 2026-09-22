@@ -1,28 +1,30 @@
-import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@/lib/supabase-ssr';
 import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
 import { resolveExequaturAccess } from '@/lib/exequatur/access';
+import OfertaExequatur from '@/components/v2/exequatur/OfertaExequatur';
 
 /**
- * app/exequatur/layout.tsx — puerta server-side de la vertical Exequátur
- * (Slice 1).
+ * app/exequatur/(protegido)/layout.tsx — puerta server-side de la vertical
+ * Exequátur (Slice 1, reubicada a un route group).
+ *
+ * El route group (protegido) NO cambia ninguna URL -- /exequatur,
+ * /exequatur/plan, /exequatur/modulos y /exequatur/diagnostico (el
+ * diagnóstico real, persistido) siguen exactamente igual. Lo que cambia es
+ * que app/exequatur/diagnostico-demo (fuera de este grupo) ya NO hereda
+ * este gate: es la demo pública sin sesión ni suscripción.
  *
  * Reutiliza EXACTAMENTE la misma autoridad de sesión que /chat y /cuenta
  * (createSupabaseServerClient().auth.getUser()) -- sin login propio, sin
  * checkout propio, sin segundo sistema de identidad.
  *
- * Sin sesión: mismo patrón que /chat -- redirect a una ruta fija
- * ('/login?next=/exequatur'), nunca a un valor derivado de input del
- * cliente (sin riesgo de open redirect).
- *
- * Con sesión pero sin exequatur.access (tier no elegible, o
- * flag_exq_enabled apagado/no disponible): NO se redirige a ninguna
- * página ajena a esta ruta -- se sustituye {children} por un estado
- * mínimo de "todavía no disponible" dentro de /exequatur mismo. Esto
- * evita inventar un destino de redirect nuevo (fuera del alcance de esta
- * slice) y garantiza que el contenido real de Exequátur (page.tsx y
- * cualquier ruta hija futura) nunca se expone antes de autorizar.
+ * Sin sesión O con sesión pero sin exequatur.access (tier no elegible, o
+ * flag_exq_enabled apagado/no disponible): en vez de redirigir a /login se
+ * renderiza la Landing de oferta (OfertaExequatur) directamente dentro de
+ * /exequatur -- el visitante ve la propuesta de valor (autoridad
+ * institucional, ejes formativos, precio, demo gratuita) antes de que se le
+ * pida iniciar sesión o pagar. El login real sigue disponible desde ahí
+ * (CTA de suscripción) o desde la navegación general del sitio.
  *
  * Modo demo local (SOLO development, nunca producción): si faltan las
  * variables de Supabase o `auth.getUser()` falla (Supabase inalcanzable),
@@ -49,7 +51,7 @@ function BannerDemoLocal({ motivo }: { motivo: string }) {
   );
 }
 
-export default async function ExequaturLayout({
+export default async function ExequaturProtegidoLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -79,25 +81,14 @@ export default async function ExequaturLayout({
   }
 
   if (!user) {
-    redirect('/login?next=/exequatur');
+    return <OfertaExequatur eligibleTier={false} />;
   }
 
   const userIdentifier = buildUserIdentifierFromEmail(user.email ?? '');
   const access = await resolveExequaturAccess(userIdentifier, user.email);
 
   if (!access.granted) {
-    return (
-      <main className="min-h-screen bg-navy pt-12 pb-20 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-serif text-2xl font-bold text-gradient-maya mb-4">Exequátur</h1>
-          <p className="text-white/70">
-            {access.eligibleTier
-              ? 'Exequátur está activándose por grupos para el plan Premium. Tu plan ya califica -- vuelve pronto.'
-              : 'Exequátur es una función del plan Premium. Actualiza tu plan para acceder cuando esté disponible.'}
-          </p>
-        </div>
-      </main>
-    );
+    return <OfertaExequatur eligibleTier={access.eligibleTier} />;
   }
 
   return <>{children}</>;

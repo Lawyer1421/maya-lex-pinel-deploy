@@ -24,7 +24,7 @@ export default function SeccionExequatur() {
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/exequatur/diagnostico"
+                href="/exequatur/diagnostico-demo"
                 className="rounded-xl bg-jade-deep px-6 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
               >
                 Iniciar diagnóstico gratis

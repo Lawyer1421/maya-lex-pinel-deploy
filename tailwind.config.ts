@@ -20,20 +20,28 @@ const config: Config = {
           deep: '#17796A',
         },
         gold: {
-          DEFAULT: '#C9A84C',
-          light: '#E0BF6E',
-          dark: '#9A7B30',
+          // Oro institucional: c5a880 (tono champán, texto/bordes de reposo)
+          // y d4af37 (oro vivo, hover/énfasis) — pedidos explícitamente para
+          // la identidad Enterprise/Luxury Legal Tech.
+          DEFAULT: '#c5a880',
+          light: '#d4af37',
+          dark: '#9c8560',
         },
         navy: {
           DEFAULT: '#0D1B3E',
           light: '#1A2F5A',
           medium: '#243E73',
         },
-        // MAYA LEX V2 — "Biblioteca jurídica premium" (MAYALEX_V2_DESIGN_SYSTEM.md)
+        // MAYA LEX V2 — "Enterprise / Luxury Legal Tech" (rediseño Exequátur +
+        // identidad institucional). Base azul noche profundo con acentos en
+        // oro institucional — reemplaza el negro puro anterior. Los alias
+        // obsidian.* se conservan (mismas clases ya usadas en todo V2:
+        // bg-obsidian, border-obsidian-medium, etc.) para que el rebrand
+        // se propague sin tocar cada componente.
         obsidian: {
-          DEFAULT: '#08070B',
-          light: '#121019',
-          medium: '#1B1826',
+          DEFAULT: '#060d1a',
+          light: '#0d1830',
+          medium: '#16233f',
         },
         ivory: {
           DEFAULT: '#F6F2E9',
