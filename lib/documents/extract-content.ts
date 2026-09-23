@@ -7,6 +7,7 @@
  * — la lógica de parseo es idéntica, solo cambia de dónde viene el buffer.
  */
 import mammoth from 'mammoth';
+import { PDFParse } from 'pdf-parse';
 
 export const MAX_EXTRACTED_CHARS = 20_000;
 
@@ -19,15 +20,14 @@ export async function extraerTextoDeBuffer(buffer: Buffer, ext: string): Promise
     const result = await mammoth.extractRawText({ buffer });
     rawText = result.value;
   } else if (ext === '.pdf') {
-    // Importar la lib directamente evita que Next.js falle al intentar
-    // leer el archivo de test que pdf-parse busca al cargar el módulo principal.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse/lib/pdf-parse.js') as (
-      buf: Buffer
-    ) => Promise<{ text: string; numpages: number }>;
-
-    const data = await pdfParse(buffer);
-    rawText = data.text ?? '';
+    // API de pdf-parse v2 (la v1 exponía una función; v2 expone la clase PDFParse).
+    const parser = new PDFParse({ data: buffer });
+    try {
+      const data = await parser.getText();
+      rawText = data.text ?? '';
+    } finally {
+      await parser.destroy();
+    }
   }
 
   // Limpiar espacios excesivos comunes en PDFs
