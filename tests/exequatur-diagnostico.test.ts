@@ -64,7 +64,7 @@ describe('evaluarDiagnostico', () => {
     const r = evaluarDiagnostico({});
     expect(r.sinRespuesta).toHaveLength(r.total);
     expect(r.objetivosPendientes).toEqual([...idsObjetivosCurriculo()]);
-    expect(r.leccionesRecomendadas.length).toBe(3);
+    expect(r.leccionesRecomendadas.length).toBe(11);
   });
 
   it('opción desconocida o incorrecta no puntúa', () => {

@@ -48,3 +48,29 @@ export interface Curriculum {
   titulo: string;
   modulos: Module[];
 }
+
+/** Un ítem verificable del checklist administrativo -- mismo contrato que un objetivo de aprendizaje: siempre ancla a una referencia real. */
+export interface VigenciaChecklistItem {
+  id: string;
+  descripcion: string;
+  referencia: CanonicalLegalReference;
+}
+
+/**
+ * Ficha de vigencia (Módulo 0): estado administrativo de la ruta hacia el
+ * Exequátur -- requisitos y checklist ante la Contraloría del Notariado --
+ * separado del currículo pedagógico porque no es "aprenda esto", es "verifique
+ * esto". `fechaValidacion` es la fecha en que un humano confirmó manualmente
+ * que el checklist sigue vigente contra el corpus real (no un timestamp de
+ * build). `advertencia` se muestra en UI cuando `vigente=false` o cuando
+ * fechaValidacion supera el umbral de revalidación que decida el producto --
+ * este archivo no calcula esa lógica, solo declara el dato.
+ */
+export interface VigenciaSheet {
+  id: string;
+  titulo: string;
+  checklist: VigenciaChecklistItem[];
+  fechaValidacion: string;
+  vigente: boolean;
+  advertencia: string | null;
+}

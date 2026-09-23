@@ -14,7 +14,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import mammoth from 'mammoth';
 import {
   DOCUMENT_FORMAT_ERROR,
   DOCUMENT_SIZE_ERROR,
@@ -23,8 +22,7 @@ import {
   isAllowedDocumentExtension,
 } from '@/lib/documents/upload-rules';
 import { resolveDocumentAnalysisAccess } from '@/lib/paypal/document-analysis';
-
-const MAX_CHARS = 20_000;
+import { extraerTextoDeBuffer, truncarTexto } from '@/lib/documents/extract-content';
 
 export async function POST(req: NextRequest) {
   const access = await resolveDocumentAnalysisAccess(req);
@@ -78,32 +76,8 @@ export async function POST(req: NextRequest) {
   const ext = extensionOfFilename(filename);
 
   try {
-    let rawText = '';
-
-    if (ext === '.txt') {
-      rawText = buffer.toString('utf-8');
-
-    } else if (ext === '.docx') {
-      const result = await mammoth.extractRawText({ buffer });
-      rawText = result.value;
-
-    } else if (ext === '.pdf') {
-      // Importar la lib directamente evita que Next.js falle al intentar
-      // leer el archivo de test que pdf-parse busca al cargar el módulo principal.
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require('pdf-parse/lib/pdf-parse.js') as (
-        buf: Buffer
-      ) => Promise<{ text: string; numpages: number }>;
-
-      const data = await pdfParse(buffer);
-      rawText = data.text ?? '';
-    }
-
-    // Limpiar espacios excesivos comunes en PDFs
-    rawText = rawText.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-
-    const truncated = rawText.length > MAX_CHARS;
-    const text = truncated ? rawText.slice(0, MAX_CHARS) : rawText;
+    const rawText = await extraerTextoDeBuffer(buffer, ext);
+    const { text, truncated } = truncarTexto(rawText);
 
     return NextResponse.json({
       text,
