@@ -9,7 +9,31 @@
 
 export const MAX_DOCUMENT_BYTES = 4 * 1024 * 1024;
 
+/**
+ * Documentos pesados (> MAX_DOCUMENT_BYTES): suben directo a Supabase Storage
+ * desde el cliente (signed upload URL), nunca pasan por el body de una
+ * función serverless de Vercel -- evita el límite de 4.5 MB de Vercel.
+ * 20 MB cubre PDFs escaneados típicos sin acercarse al límite de Storage.
+ */
+export const MAX_DOCUMENT_BYTES_DIRECT = 20 * 1024 * 1024;
+
+export const DOCUMENT_SIZE_ERROR_DIRECT =
+  'El archivo supera el tamaño máximo (20 MB). Use PDF, DOCX o TXT de hasta 20 MB.';
+
+/** Bucket privado de Supabase Storage para subida directa temporal (ver supabase/migrations). */
+export const TEMP_DOCS_BUCKET = 'documentos-temporales';
+
 export const ALLOWED_DOCUMENT_EXTENSIONS = ['.txt', '.pdf', '.docx'] as const;
+
+const MIME_BY_EXTENSION: Record<string, string> = {
+  '.txt': 'text/plain',
+  '.pdf': 'application/pdf',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
+
+export function mimeForExtension(ext: string): string {
+  return MIME_BY_EXTENSION[ext] ?? 'application/octet-stream';
+}
 
 export const DOCUMENT_AUTH_ERROR =
   'Inicie sesión para analizar documentos.';

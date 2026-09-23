@@ -8,7 +8,10 @@ import {
   DOCUMENT_PLAN_ERROR,
   DOCUMENT_QUOTA_ERROR,
   DOCUMENT_SIZE_ERROR,
+  DOCUMENT_SIZE_ERROR_DIRECT,
   MAX_DOCUMENT_BYTES,
+  MAX_DOCUMENT_BYTES_DIRECT,
+  TEMP_DOCS_BUCKET,
   documentAttachAllowed,
   isAllowedDocumentExtension,
 } from '@/lib/documents/upload-rules';
@@ -21,6 +24,60 @@ async function getAuthHeader(): Promise<Record<string, string>> {
   } catch {
     return {};
   }
+}
+
+/**
+ * Documentos pesados (> MAX_DOCUMENT_BYTES): sube directo a Supabase Storage
+ * con una signed upload URL (nunca pasa por el body de una función
+ * serverless de Vercel), y luego pide la extracción server-to-server.
+ * Lanza un Error con el mensaje ya listo para mostrar si algo falla.
+ */
+async function extractViaDirectUpload(
+  file: File,
+  authHeader: Record<string, string>,
+  onStage?: (stage: string) => void,
+): Promise<string> {
+  onStage?.(`Preparando subida de ${file.name}...`);
+  const urlRes = await fetch('/api/documents/upload-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader },
+    body: JSON.stringify({ filename: file.name, size: file.size }),
+  });
+  const urlData = await urlRes.json() as { path?: string; token?: string; error?: string; code?: string };
+  if (!urlRes.ok || !urlData.path || !urlData.token) {
+    throw new Error(urlData.error ?? 'No se pudo preparar la subida.');
+  }
+
+  onStage?.(`Subiendo ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)...`);
+  const supabase = createSupabaseBrowserClient();
+  const { error: uploadError } = await supabase.storage
+    .from(TEMP_DOCS_BUCKET)
+    .uploadToSignedUrl(urlData.path, urlData.token, file);
+  if (uploadError) {
+    throw new Error('No se pudo subir el archivo. Intente de nuevo.');
+  }
+
+  onStage?.(`Extrayendo texto de ${file.name}...`);
+  const extractRes = await fetch('/api/documents/extract', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader },
+    body: JSON.stringify({ path: urlData.path, filename: file.name }),
+  });
+  const extractData = await extractRes.json() as { text?: string; error?: string; code?: string };
+  if (!extractRes.ok) {
+    const message =
+      extractData.error ??
+      (extractData.code === 'AUTH_REQUIRED'
+        ? DOCUMENT_AUTH_ERROR
+        : extractData.code === 'QUOTA_EXCEEDED'
+        ? DOCUMENT_QUOTA_ERROR
+        : extractData.code === 'PLAN_REQUIRED'
+        ? DOCUMENT_PLAN_ERROR
+        : 'Error al extraer texto del documento.');
+    throw new Error(message);
+  }
+
+  return extractData.text ?? '';
 }
 
 // ── Tipos exportados ────────────────────────────────────────────────────────
@@ -108,6 +165,7 @@ export default function PromptInput({
   const [showAttachHint, setShowAttachHint] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [extractStage, setExtractStage] = useState<string | null>(null);
   const [webSearch, setWebSearch] = useState(false);
   const [modelOverride, setModelOverride] = useState<ModelId>('default');
   const [isListening, setIsListening] = useState(false);
@@ -175,6 +233,7 @@ export default function PromptInput({
       setMenuOpen(false);
       setExtractError(null);
       setIsExtracting(true);
+      setExtractStage(null);
 
       const authHeader = await getAuthHeader();
       const failures: string[] = [];
@@ -185,39 +244,48 @@ export default function PromptInput({
             failures.push(`${file.name}: ${DOCUMENT_FORMAT_ERROR}`);
             continue;
           }
-          if (file.size > MAX_DOCUMENT_BYTES) {
-            failures.push(`${file.name}: ${DOCUMENT_SIZE_ERROR}`);
+          if (file.size > MAX_DOCUMENT_BYTES_DIRECT) {
+            failures.push(`${file.name}: ${DOCUMENT_SIZE_ERROR_DIRECT}`);
             continue;
           }
 
-          const fd = new FormData();
-          fd.append('file', file);
-          const res = await fetch('/api/extract-text', {
-            method: 'POST',
-            headers: authHeader,
-            body: fd,
-          });
-          const data = await res.json() as { text?: string; error?: string; code?: string };
-          if (!res.ok) {
-            const message =
-              data.error ??
-              (data.code === 'AUTH_REQUIRED'
-                ? DOCUMENT_AUTH_ERROR
-                : data.code === 'QUOTA_EXCEEDED'
-                ? DOCUMENT_QUOTA_ERROR
-                : data.code === 'PLAN_REQUIRED'
-                ? DOCUMENT_PLAN_ERROR
-                : 'Error al extraer texto del documento.');
-            failures.push(`${file.name}: ${message}`);
-            continue;
+          let text: string;
+          if (file.size > MAX_DOCUMENT_BYTES) {
+            // Documento pesado -- sube directo a Storage, evita el límite de
+            // body de Vercel (ver extractViaDirectUpload).
+            text = await extractViaDirectUpload(file, authHeader, setExtractStage);
+          } else {
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await fetch('/api/extract-text', {
+              method: 'POST',
+              headers: authHeader,
+              body: fd,
+            });
+            const data = await res.json() as { text?: string; error?: string; code?: string };
+            if (!res.ok) {
+              const message =
+                data.error ??
+                (data.code === 'AUTH_REQUIRED'
+                  ? DOCUMENT_AUTH_ERROR
+                  : data.code === 'QUOTA_EXCEEDED'
+                  ? DOCUMENT_QUOTA_ERROR
+                  : data.code === 'PLAN_REQUIRED'
+                  ? DOCUMENT_PLAN_ERROR
+                  : 'Error al extraer texto del documento.');
+              failures.push(`${file.name}: ${message}`);
+              continue;
+            }
+            text = data.text ?? '';
           }
           setAttachments((prev) => [
             ...prev,
-            { id: `att-${Date.now()}-${Math.random()}`, filename: file.name, text: data.text ?? '' },
+            { id: `att-${Date.now()}-${Math.random()}`, filename: file.name, text },
           ]);
         } catch (err) {
           console.error('[PromptInput] Extracción fallida:', file.name, err);
-          failures.push(`${file.name}: Error al extraer texto del documento.`);
+          const message = err instanceof Error && err.message ? err.message : 'Error al extraer texto del documento.';
+          failures.push(`${file.name}: ${message}`);
         }
       }
 
@@ -225,6 +293,7 @@ export default function PromptInput({
         setExtractError(failures.join(' · '));
       }
       setIsExtracting(false);
+      setExtractStage(null);
       e.target.value = '';
     },
     []
@@ -312,7 +381,7 @@ export default function PromptInput({
               <svg className="w-3 h-3 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
-              Extrayendo texto...
+              {extractStage ?? 'Extrayendo texto...'}
             </div>
           )}
         </div>
