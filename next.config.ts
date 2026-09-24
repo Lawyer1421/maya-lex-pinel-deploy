@@ -1,7 +1,29 @@
 import type { NextConfig } from 'next';
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import { ALIAS_REDIRECTS } from './lib/seo/rutas-publicas';
+
+function bakeCommitSha(): void {
+  const fromEnv = [
+    process.env.APP_COMMIT_SHA,
+    process.env.VERCEL_GIT_COMMIT_SHA,
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA,
+  ].find((s) => typeof s === 'string' && s.trim().length > 0);
+  if (fromEnv) {
+    process.env.APP_COMMIT_SHA = fromEnv.trim();
+    return;
+  }
+  try {
+    const sha = execSync('git rev-parse HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (sha) process.env.APP_COMMIT_SHA = sha;
+  } catch {
+    // Sin .git (algunos deploys CLI). /api/version cae a "unknown".
+  }
+}
 
 /**
  * Carga manualmente .env.local y lo inyecta en process.env.
@@ -32,6 +54,7 @@ function loadEnvLocal() {
 
 // Cargar antes de que Next.js procese el config
 loadEnvLocal();
+bakeCommitSha();
 
 // serverRuntimeConfig fue eliminado en Next.js 15+.
 // Las env vars de servidor se leen directamente desde process.env en las API routes.
