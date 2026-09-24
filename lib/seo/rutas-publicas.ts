@@ -23,6 +23,8 @@ export const RUTAS_MARKETING_PUBLICAS: readonly string[] = [
   '/seguridad',
   '/fundador',
   '/recursos',
+  '/privacidad',
+  '/terminos',
   '/login',
   '/soluciones/abogados',
   '/soluciones/notarios',

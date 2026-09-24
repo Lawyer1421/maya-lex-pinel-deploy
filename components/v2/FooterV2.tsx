@@ -40,6 +40,8 @@ export default function FooterV2() {
             <li><Link href="/seguridad" className={enlaceFooter}>Seguridad y privacidad</Link></li>
             <li><Link href="/fundador" className={enlaceFooter}>El fundador</Link></li>
             <li><Link href="/recursos" className={enlaceFooter}>Recursos</Link></li>
+            <li><Link href="/privacidad" className={enlaceFooter}>Política de privacidad</Link></li>
+            <li><Link href="/terminos" className={enlaceFooter}>Términos y condiciones</Link></li>
           </ul>
         </div>
       </div>
