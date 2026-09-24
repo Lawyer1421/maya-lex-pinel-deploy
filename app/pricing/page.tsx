@@ -52,16 +52,17 @@ export default function PricingPageV2() {
         <section className="mx-auto max-w-4xl px-4 pb-2 sm:px-6">
           <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-jade/25 bg-obsidian-light px-6 py-5 text-center sm:flex-row sm:text-left">
             <div>
-              <p className="font-serif text-lg font-semibold text-ivory">¿Se gradúa este año?</p>
+              <p className="font-serif text-lg font-semibold text-ivory">Plan Notarial — Preparación para el Exequátur</p>
               <p className="mt-1 text-sm text-ivory-dim">
-                Prepare su Exequátur con diagnóstico de colocación y plan de estudio personalizado.
+                Incluido en el Plan Profesional (USD 15/mes): diagnóstico de colocación, simulador de examen y plan
+                de estudio personalizado para el Exequátur de Notario ante la Corte Suprema de Justicia.
               </p>
             </div>
             <Link
               href="/exequatur"
               className="shrink-0 rounded-xl bg-jade-deep px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-jade/20 transition hover:bg-jade-dark focus-visible:ring-2 focus-visible:ring-jade focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
             >
-              Ver Exequátur →
+              Ver Plan Notarial →
             </Link>
           </div>
         </section>
