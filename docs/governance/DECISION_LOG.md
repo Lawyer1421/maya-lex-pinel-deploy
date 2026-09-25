@@ -7,6 +7,87 @@ y bajo qué condiciones, independiente de la memoria de cualquier sesión de tra
 
 ---
 
+## 2026-09-24 — Levantamiento parcial del NO-GO de anonimización (13-sep)
+
+**Contexto**: el 13-sep el fundador emitió un NO-GO sobre mezclar documentos
+anonimizados con norma oficial de Gaceta en `biblioteca_vectores` — decisión
+comunicada en canal externo con el auditor de seguridad, sin entrada previa en
+este archivo (se deja constancia aquí por primera vez). Origen: hallazgo de
+auditoría sobre `v_biblio_posible_anon_erronea` (24,549 filas con marcadores de
+anonimización `[Cliente_Anónimo]`, `[Teléfono_Oculto]`, `[Expediente_Anonimizado]`
+en `tipo_fuente IN ('ley','normativo_codigo','codigo_base')`).
+
+**Resolución del fundador (2026-09-24)**:
+
+- Los números de identidad y RTN que aparecen en escrituras, poderes e
+  hipotecas no constituyen riesgo de privacidad adicional: son datos ya
+  públicos en el Registro de la Propiedad y el Registro Mercantil de
+  Honduras, consultables por cualquier persona. No ameritan cuarentena.
+- Las filas con los tres placeholders de anonimización (`[Cliente_Anónimo]`,
+  `[Teléfono_Oculto]`, `[Expediente_Anonimizado]`) son una anonimización
+  estratégica intencional — funcionan como plantilla para que el usuario
+  sustituya sus propios datos al redactar un documento — no una fuga de
+  datos. Se autoriza su disponibilidad sin restricción adicional.
+- Se identifica que `v_biblio_posible_anon_erronea` nunca cubrió
+  `tipo_fuente = 'instrumento'` (42,378 filas — escrituras, poderes y otros
+  instrumentos notariales) — categoría no examinada por la auditoría
+  original.
+
+**Verificación técnica previa a esta resolución (Claude, 2026-09-24, solo
+lectura contra `thgrhueckkjdutjvcufp`, sin exponer texto ni nombres)**:
+
+- De las 42,378 filas de `tipo_fuente = 'instrumento'`: 34,201 ya tienen
+  placeholder de anonimización (cubiertas por la resolución de arriba);
+  8,177 no.
+- De esas 8,177, 217 filas coinciden con patrones de comparecencia,
+  otorgante, gerente general o apoderado sin ningún placeholder conocido —
+  el único bolsón con riesgo real de nombres de parte sin redactar.
+- Ninguna de las 217 menciona una institución financiera hondureña conocida
+  ni una forma societaria (S.A., S. de R.L.) por nombre.
+- Clasificación de las 217 por patrón (metodología basada en regex, no en
+  NER — no sustituye revisión humana puntual):
+  - 5 usan una convención de placeholder alterna (guiones bajos, XXXX, etc.)
+    → falso positivo.
+  - De las 212 restantes: 156 no contienen ninguna secuencia de texto con
+    mayúscula tipo nombre propio → probable falso positivo (mención
+    genérica de "compareciente" sin parte identificada). De las 56 que sí
+    la contienen, 15 corresponden a nombres de instituciones/lugares/meses
+    conocidos (Registro Público, Tegucigalpa, Código Civil, etc.) → también
+    falso positivo.
+  - **41 filas** quedan como el bolsón de mayor probabilidad de contener un
+    nombre real de parte/otorgante sin redactar.
+
+**Alcance de esta liberación**: se autoriza sin restricción adicional el uso
+de (a) las 24,549 filas originales de `ley`/`normativo_codigo`/`codigo_base`
+con placeholder, (b) las 34,201 filas de `instrumento` con placeholder, y (c)
+176 de las 217 filas de `instrumento` sin placeholder, clasificadas como
+falso positivo. Las **41 filas restantes** quedan fuera de esta autorización.
+
+**Disposición de las 41 filas (fundador, 2026-09-24)**: exclusión puntual y
+reversible, no eliminación. Migración
+`supabase/migrations/20260924210000_revision_pendiente_instrumentos.sql`
+aplicada a producción (`thgrhueckkjdutjvcufp`, `schema_migrations`
+`20260925055249`):
+
+- Columna `biblioteca_vectores.revision_pendiente` (default `false`); las 41
+  filas quedan marcadas `true`.
+- RPC `buscar_biblioteca_v2` (única función de búsqueda semántica) excluye
+  `revision_pendiente = true` a nivel de motor SQL. La ruta de búsqueda
+  exacta por artículo no requería cambio: las 41 filas tienen `fuente_tipo`
+  NULL, nunca pasan su filtro (`fuente_tipo='codigo'`).
+- El fundador recibió la lista de los 41 `id` (sin contenido) para revisión
+  privada. Cualquier fila confirmada como falso positivo se reintegra con
+  `UPDATE ... SET revision_pendiente = false WHERE id = '<id>'` — sin nueva
+  migración, sin tocar la función.
+- Ningún dato se movió ni se borró. Ninguna de las 217 candidatas originales
+  mencionaba institución financiera hondureña conocida ni forma societaria
+  (S.A., S. de R.L.) por nombre.
+
+**Con esta disposición queda resuelto el incidente y levantado el bloqueo
+del corpus** para todo el universo excepto las 41 filas en revisión privada.
+
+---
+
 ## 2026-08-XX — Bloqueo de producción original
 
 **Resolución**: Maya Lex V2 (`mayalexhn.com`) declarado PRODUCTION — PROTECTED / LOCKED.
