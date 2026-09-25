@@ -79,6 +79,7 @@ export async function obtenerArticuloPorNumero(numero: string): Promise<Articulo
         .eq('materia', MATERIA)
         .eq('es_norma_vigente', true)
         .eq('num_articulo', numero)
+        .eq('revision_pendiente', false)
         .limit(1)
         .maybeSingle();
 

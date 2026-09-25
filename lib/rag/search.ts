@@ -468,7 +468,8 @@ async function consultarPorVigencia(
     .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia, metadata')
     .eq('num_articulo', numero)
     .eq('fuente_tipo', 'codigo')
-    .eq('es_norma_vigente', esNormaVigente);
+    .eq('es_norma_vigente', esNormaVigente)
+    .eq('revision_pendiente', false);
 
   // Filtro de materia: solo optimiza la consulta a la DB (menos filas a
   // traer) — la aceptación real la decide identidadDocumentalCoincide() en

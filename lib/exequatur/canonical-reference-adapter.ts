@@ -119,7 +119,8 @@ async function consultarFilasPorVigencia(numero: string, esNormaVigente: boolean
     .select('id, contenido, num_articulo, fuente, fuente_tipo, jurisdiccion, es_norma_vigente, materia, metadata')
     .eq('num_articulo', numero)
     .eq('fuente_tipo', 'codigo')
-    .eq('es_norma_vigente', esNormaVigente);
+    .eq('es_norma_vigente', esNormaVigente)
+    .eq('revision_pendiente', false);
   if (error || !data) return [];
   return data as FilaExactaDB[];
 }

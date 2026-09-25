@@ -86,6 +86,55 @@ aplicada a producción (`thgrhueckkjdutjvcufp`, `schema_migrations`
 **Con esta disposición queda resuelto el incidente y levantado el bloqueo
 del corpus** para todo el universo excepto las 41 filas en revisión privada.
 
+**Corrección post-aplicación (2026-09-25, hallazgo del auditor DevOps)**:
+el nombre del archivo de migración en el repo
+(`20260924210000_revision_pendiente_instrumentos.sql`) no coincidía con el
+timestamp real asignado por Supabase en `schema_migrations`
+(`20260925055249`) — la migración se había aplicado vía `apply_migration`
+antes de fijar el nombre final del archivo. Renombrado a
+`supabase/migrations/20260925055249_revision_pendiente_instrumentos.sql`
+para que coincidan exactamente. No se reaplicó nada.
+
+El auditor también pidió confirmar por escrito si alguna otra ruta de
+lectura consulta `biblioteca_vectores` directamente sin filtrar por
+`revision_pendiente`, más allá de `buscar_biblioteca_v2`. Inventario
+completo de las 4 rutas señaladas:
+
+- **Páginas SEO** (`lib/seo/articulos-vigentes.ts` →
+  `obtenerArticuloPorNumero`, usada por `/leyes/[articulo]`,
+  `/consultas/[slug]` y el contenido del sitemap): **sí consultaba
+  directamente sin el filtro.** Solo quedaba a salvo por coincidencia —
+  filtra `coleccion='mayalex_normativos'`, y las 41 filas en revisión están
+  en `coleccion='mayalex_instrumentos'`. Corregido: se agregó
+  `.eq('revision_pendiente', false)`.
+- **Exequátur — currículo** (`lib/exequatur/curriculum/curriculum.ts`): no
+  consulta la tabla directamente — es contenido estático versionado en el
+  repo (referencias `{instrumento, artículo}`). No aplica.
+- **Exequátur — adaptador de referencias canónicas**
+  (`lib/exequatur/canonical-reference-adapter.ts` →
+  `consultarFilasPorVigencia`): **sí consultaba directamente sin el
+  filtro.** A salvo solo por coincidencia — filtra `fuente_tipo='codigo'`,
+  y las 41 filas tienen `fuente_tipo` NULL. Corregido: se agregó
+  `.eq('revision_pendiente', false)`.
+- **Self-learning** (`lib/self-learning/*`): no consulta
+  `biblioteca_vectores` en absoluto — usa tablas propias separadas
+  (`documentos_aprendizaje`, `vectores_conocimiento`) vía su propio RPC
+  `buscar_conocimiento_comunidad`. No aplica.
+
+Adicionalmente, `lib/rag/search.ts` → `consultarPorVigencia` (la ruta de
+búsqueda exacta por artículo del chat principal, no mencionada por nombre
+por el auditor pero con el mismo patrón) tenía la misma exposición
+estructural — a salvo hoy solo por el mismo filtro `fuente_tipo='codigo'`.
+Corregida en el mismo commit por consistencia.
+
+**Conclusión**: la protección real hoy no depende de una sola función — se
+aplicó el mismo filtro `revision_pendiente=false` en las 3 rutas de
+consulta directa que existen (`lib/rag/search.ts`,
+`lib/exequatur/canonical-reference-adapter.ts`,
+`lib/seo/articulos-vigentes.ts`), además del RPC `buscar_biblioteca_v2`.
+`npm run typecheck` y la suite de tests de RAG/Exequátur (89 tests)
+pasan sin cambios de comportamiento para ninguna fila fuera de las 41.
+
 ---
 
 ## 2026-08-XX — Bloqueo de producción original

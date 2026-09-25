@@ -1,5 +1,12 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- 20260924210000_revision_pendiente_instrumentos.sql
+-- 20260925055249_revision_pendiente_instrumentos.sql
+--
+-- NOTA (2026-09-25, hallazgo del auditor DevOps): el nombre de archivo
+-- original en el repo (20260924210000_...) no coincidía con el timestamp
+-- real que Supabase asignó en schema_migrations (20260925055249) porque la
+-- migración se aplicó vía apply_migration antes de fijar el nombre final del
+-- archivo versionado. Renombrado aquí para que ambos coincidan exactamente
+-- -- sin volver a aplicar nada, la migración ya está en producción.
 --
 -- Disposición preventiva de 41 filas de tipo_fuente='instrumento' (escrituras,
 -- poderes) identificadas como el único bolsón de riesgo real tras clasificar
