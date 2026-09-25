@@ -48,6 +48,9 @@
  *     --instrumento "Decreto N-AAAA" \
  *     [--dry-run]              (default: true)
  *     [--execute <salida.sql>] (genera embeddings + .sql local; NO inserta)
+ *     [--accept-spaced-dash-heading]
+ *         (default: false; opt-in para Gaceta/TSC `ARTÍCULO N. -` y
+ *          `ARTÍCULO N-` + cuerpo en mayúscula. NO cambia vigencia.)
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -92,6 +95,10 @@ export interface OpcionesCLI {
   jurisdiccion: string;
   dryRun: boolean;
   execute: string | null; // ruta de salida .sql, o null si no se pidió --execute
+  // Opt-in (default false): aceptar encabezados Gaceta/TSC con guion
+  // espaciado (`ARTÍCULO 38. -`) o pegado sin punto (`ARTÍCULO 158-`).
+  // No altera es_norma_vigente ni el resto del contrato fail-closed.
+  acceptSpacedDashHeading: boolean;
 }
 
 export function parsearArgs(argv: string[]): OpcionesCLI {
@@ -132,6 +139,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
     jurisdiccion,
     dryRun,
     execute: executeOut,
+    acceptSpacedDashHeading: has('--accept-spaced-dash-heading'),
   };
 }
 
@@ -156,6 +164,17 @@ export function extraerTexto(rutaInput: string): string {
 // que es la función que decide aceptar/rechazar cada candidato aquí, no
 // una copia local del criterio.
 const PATRON_CANDIDATO = /art[ií]culos?\s*(\d+[a-z]?)\s*(?:\.-|\.\s+|\s+)/gi;
+
+// Opt-in (`--accept-spaced-dash-heading`): el default deja el guion de
+// `ARTÍCULO 38. -` como "siguiente caracter", y `tieneEncabezadoArticulo`
+// lo rechaza (el guion no es letra mayúscula). `ARTÍCULO 158-` sin punto
+// ni siquiera entra como candidato. Este patrón consume el guion como
+// terminador: `N. -` / `N.-` (punto + espacios opcionales + guion) y el
+// `N-` pegado sin punto. El cuerpo en mayúscula se exige aparte — no se
+// pone un lookahead `[A-Z]` aquí porque esta regex lleva flag `i` y ese
+// lookahead quedaría anulado (mismo BUG #2 de tieneEncabezadoArticulo).
+const PATRON_CANDIDATO_SPACED_DASH =
+  /art[ií]culos?\s*(\d+[a-z]?)(?:\s*\.\s*-|-|\s*\.\s+|\s+)/gi;
 
 export interface ChunkCandidato {
   numArticulo: string;
@@ -221,13 +240,55 @@ export interface OpcionesSegmentacion {
   // propia fuente sigue esta convención, tras verificarlo contra su propio
   // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
   exigirOrtografiaSinTilde?: boolean;
+  // Opt-in (default false). Gaceta/TSC: `ARTÍCULO N. -` (punto + espacios
+  // + guion) y, de forma estrecha, `ARTÍCULO N-` pegado sin punto cuando
+  // el cuerpo abre en mayúscula. No se activa en el extractor genérico
+  // salvo `--accept-spaced-dash-heading`. No toca vigencia fail-closed.
+  acceptSpacedDashHeading?: boolean;
+}
+
+function esInicioDeCuerpoEncabezado(siguiente: string | undefined): boolean {
+  if (!siguiente) return false;
+  if (/[0-9"«]/.test(siguiente)) return true;
+  return siguiente === siguiente.toUpperCase() && siguiente !== siguiente.toLowerCase();
+}
+
+// Validador LOCAL del flag opt-in. No se relaja tieneEncabezadoArticulo
+// (producción / búsqueda exacta sigue igual). Dos formas, la segunda más
+// estrecha a propósito:
+//   A) `ARTÍCULO N. -` / `Artículo N. -` — punto + espacios opcionales +
+//      guion; el cuerpo se exige igual que en producción (mayúscula /
+//      dígito / comilla).
+//   B) `ARTÍCULO N-` pegado, sin punto — solo si tras el guion (y espacios)
+//      hay una palabra de cuerpo (≥2 letras, la primera mayúscula). Así
+//      no se aceptan sufijos bis ("artículo 5-A", "123-B") como encabezado.
+export function tieneEncabezadoGuionEspaciado(contenido: string, numero: string): boolean {
+  if (!numero) return false;
+  const conPunto = new RegExp(`art[ií]culo\\s*${numero}\\s*\\.\\s*-\\s*`, 'i');
+  const mPunto = conPunto.exec(contenido);
+  if (mPunto) {
+    return esInicioDeCuerpoEncabezado(contenido[mPunto.index + mPunto[0].length]);
+  }
+  const pegado = new RegExp(`art[ií]culo\\s*${numero}-`, 'i');
+  const mPegado = pegado.exec(contenido);
+  if (!mPegado) return false;
+  let i = mPegado.index + mPegado[0].length;
+  while (i < contenido.length && /\s/.test(contenido[i]!)) i += 1;
+  const ch = contenido[i];
+  const siguiente = contenido[i + 1];
+  if (!ch || !siguiente) return false;
+  if (!esInicioDeCuerpoEncabezado(ch)) return false;
+  return /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(siguiente);
 }
 
 export function segmentarGenerico(
   textoLimpio: string,
   opciones: OpcionesSegmentacion = {},
 ): ChunkCandidato[] {
-  const coincidencias = [...textoLimpio.matchAll(PATRON_CANDIDATO)];
+  const fuentePatron = opciones.acceptSpacedDashHeading ? PATRON_CANDIDATO_SPACED_DASH : PATRON_CANDIDATO;
+  // Copia: los /g del módulo no deben compartir lastIndex entre llamadas.
+  const patron = new RegExp(fuentePatron.source, fuentePatron.flags);
+  const coincidencias = [...textoLimpio.matchAll(patron)];
 
   const esOrtografiaDeEncabezado = (matchTexto: string): boolean =>
     !opciones.exigirOrtografiaSinTilde || (/^A/.test(matchTexto) && !/[íÍ]/.test(matchTexto));
@@ -237,12 +298,16 @@ export function segmentarGenerico(
     const numArticulo = m[1];
     const largoMatch = m[0].length;
     const ventana = textoLimpio.slice(inicio, inicio + VENTANA_ENCABEZADO);
-    // Única fuente de verdad para "¿es un encabezado real?" -- la misma
-    // función que ya filtra en producción, no un criterio local distinto.
-    // Se evalúa contra una ventana corta, NUNCA contra el texto completo
-    // hasta el siguiente match (ver hallazgo arriba). Se exige además la
+    // Fuente de verdad para "¿es un encabezado real?":
+    // tieneEncabezadoArticulo (producción) OR, si el caller pidió el
+    // opt-in Gaceta, el validador local de `N. -` / `N-`. Se evalúa
+    // contra una ventana corta, NUNCA contra el texto completo hasta el
+    // siguiente match (ver hallazgo arriba). Se exige además la
     // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
-    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    const aceptado = esOrtografiaDeEncabezado(m[0]) && (
+      tieneEncabezadoArticulo(ventana, numArticulo) ||
+      (opciones.acceptSpacedDashHeading === true && tieneEncabezadoGuionEspaciado(ventana, numArticulo))
+    );
     return { inicio, numArticulo, aceptado, largoMatch };
   });
 
@@ -644,7 +709,13 @@ async function main() {
 
   const textoCrudo = extraerTexto(opts.input);
   const textoLimpio = limpiarRuidoBasico(textoCrudo);
-  const candidatos = segmentarGenerico(textoLimpio);
+  if (opts.acceptSpacedDashHeading) {
+    console.log('Opt-in: --accept-spaced-dash-heading ON (ARTÍCULO N. - / ARTÍCULO N- + mayúscula). Vigencia fail-closed no cambia.');
+  }
+
+  const candidatos = segmentarGenerico(textoLimpio, {
+    acceptSpacedDashHeading: opts.acceptSpacedDashHeading,
+  });
 
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
