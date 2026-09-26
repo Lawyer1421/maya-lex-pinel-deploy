@@ -87,11 +87,23 @@ export function reportarEstadoCredenciales(): Record<'LANGFUSE_PUBLIC_KEY' | 'LA
   };
 }
 
+/** Ventana real [inicio,fin] en epoch-ms de una operación ya ocurrida -- nunca un instante fabricado post-hoc. */
+export interface VentanaTiempo {
+  inicio: number;
+  fin: number;
+}
+
 /**
  * Datos de una consulta ya completada, listos para trazar. Deliberadamente
  * SIN campos de contenido (pregunta, fragmentos, respuesta) -- ver nota de
  * privacidad arriba. `userHash` debe venir ya hasheado por el caller
  * (hashUsuario de lib/analytics/logger.ts), nunca el identificador crudo.
+ *
+ * Corrección P1 (auditoría independiente, 2026-09-26): las ventanas de
+ * tiempo son epoch-ms REALES capturados en los puntos exactos de
+ * app/api/chat/route.ts donde cada operación ocurre -- no se reconstruyen ni
+ * se cierran retroactivamente aquí. `requestStartAt`/`finalizeAt` anclan el
+ * trace raíz a la duración real de principio a fin de la request.
  */
 export interface DatosTrazaConsulta {
   consultaId: string;
@@ -109,11 +121,22 @@ export interface DatosTrazaConsulta {
   webSearchResultsUsed: boolean;
   inputTokens: number;
   outputTokens: number;
-  latencyMs: number;
-  classificationLatencyMs?: number;
-  retrievalLatencyMs?: number;
+  /** epoch-ms real del inicio de la request (mismo valor que `inicioMs` en route.ts). */
+  requestStartAt: number;
+  /** epoch-ms real de finalización (éxito o error) -- ancla el fin del trace raíz. */
+  finalizeAt: number;
+  /** undefined cuando el router no corrió (ruta='D' sin usarRouter) -- nunca se inventa una ventana. */
+  classificationWindow?: VentanaTiempo;
+  retrievalWindow: VentanaTiempo;
+  citationValidationWindow: VentanaTiempo;
+  /** undefined cuando el LLM nunca se invocó (aclaración/abstención) -- nunca se inventa una ventana. */
+  llmGenerationWindow?: VentanaTiempo;
   success: boolean;
   errorType?: string;
+}
+
+function duracionMs(v: VentanaTiempo): number {
+  return v.fin - v.inicio;
 }
 
 /**
@@ -130,6 +153,16 @@ export interface DatosTrazaConsulta {
  * lib/rag/search.ts directamente -- decisión deliberada de no tocar ese
  * archivo en esta implementación mínima; `rerank_used` y `retrieval_strategy`
  * quedan como metadata del span rag.retrieve en su lugar.
+ *
+ * TIMING REAL (corrección P1, 2026-09-26): `startTime`/`endTime` de cada
+ * span/generation se fijan en la CREACIÓN a partir de las ventanas reales
+ * recibidas -- verificado contra los tipos de langfuse@3.39.2
+ * (CreateSpanBody/CreateGenerationBody heredan startTime/endTime de
+ * OptionalObservationBody, y FixTypes los expone como `Date`, no string).
+ * Ya no se usa `.end()` para cerrar de forma instantánea/retroactiva -- las
+ * duraciones visibles en Langfuse ahora corresponden a la duración real de
+ * cada operación. Además, cada span lleva su `_latency_ms` explícito en
+ * metadata como redundancia inequívoca, legible aunque no se use la UI.
  */
 export function registrarTrazaConsulta(data: DatosTrazaConsulta): Promise<void> {
   const client = getClient();
@@ -141,62 +174,98 @@ export function registrarTrazaConsulta(data: DatosTrazaConsulta): Promise<void> 
         id: data.consultaId,
         name: 'mayalex.query',
         userId: data.userHash,
+        // TraceBody usa `timestamp` (un punto), no startTime/endTime como
+        // span/generation -- verificado contra el schema real del SDK.
+        timestamp: new Date(data.requestStartAt),
         tags: [data.mode, data.tier, data.provider],
         metadata: {
           mode: data.mode,
           subscription_tier: data.tier,
           success: data.success,
+          total_latency_ms: data.finalizeAt - data.requestStartAt,
         },
       });
 
-      if (data.classificationLatencyMs !== undefined) {
+      if (data.classificationWindow) {
         trace.span({
           name: 'query.classification',
-          metadata: { ruta: data.ruta },
-          endTime: new Date(),
-        }).end();
+          startTime: new Date(data.classificationWindow.inicio),
+          endTime: new Date(data.classificationWindow.fin),
+          metadata: {
+            ruta: data.ruta,
+            classification_latency_ms: duracionMs(data.classificationWindow),
+          },
+        });
       }
 
       trace.span({
         name: 'rag.retrieve',
+        startTime: new Date(data.retrievalWindow.inicio),
+        endTime: new Date(data.retrievalWindow.fin),
         metadata: {
           retrieval_strategy: data.retrievalStrategy,
           retrieved_document_count: data.retrievedDocumentCount,
           rerank_used: data.rerankUsed,
+          retrieval_latency_ms: duracionMs(data.retrievalWindow),
         },
-      }).end();
+      });
 
+      // legal.web_search corre EN PARALELO con rag.retrieve (mismo
+      // Promise.all en route.ts) -- comparte la misma ventana real porque no
+      // existe una medición aislada de solo-Tavily sin tocar ese bloque; es
+      // honesto (ambas SÍ ocurren dentro de esa ventana), no una duración
+      // inventada.
       if (data.webSearchRequested) {
         trace.span({
           name: 'legal.web_search',
+          startTime: new Date(data.retrievalWindow.inicio),
+          endTime: new Date(data.retrievalWindow.fin),
           metadata: { results_used: data.webSearchResultsUsed },
-        }).end();
+        });
       }
 
-      trace.generation({
-        name: 'llm.generation',
-        model: data.model,
-        metadata: { provider: data.provider },
-        usage: {
-          input: data.inputTokens,
-          output: data.outputTokens,
-          unit: 'TOKENS',
-        },
-      }).end();
+      if (data.llmGenerationWindow) {
+        trace.generation({
+          name: 'llm.generation',
+          model: data.model,
+          startTime: new Date(data.llmGenerationWindow.inicio),
+          endTime: new Date(data.llmGenerationWindow.fin),
+          metadata: {
+            provider: data.provider,
+            llm_generation_latency_ms: duracionMs(data.llmGenerationWindow),
+          },
+          usage: {
+            input: data.inputTokens,
+            output: data.outputTokens,
+            unit: 'TOKENS',
+          },
+        });
+      }
 
       trace.span({
         name: 'citation.validation',
-        metadata: { citation_count: data.citationCount },
-      }).end();
+        startTime: new Date(data.citationValidationWindow.inicio),
+        endTime: new Date(data.citationValidationWindow.fin),
+        metadata: {
+          citation_count: data.citationCount,
+          citation_latency_ms: duracionMs(data.citationValidationWindow),
+        },
+      });
 
+      // response.finalize es un punto real, no un intervalo con duración
+      // propia (enqueue del evento SSE 'done'/'error' es prácticamente
+      // instantáneo) -- start=end=finalizeAt es una representación honesta
+      // de un instante, no una duración fabricada.
       trace.span({
         name: 'response.finalize',
+        startTime: new Date(data.finalizeAt),
+        endTime: new Date(data.finalizeAt),
         metadata: {
           success: data.success,
           error_type: data.errorType ?? null,
-          latency_ms: data.latencyMs,
+          total_latency_ms: data.finalizeAt - data.requestStartAt,
         },
-      }).end();
+      });
 
       await client.flushAsync();
     } catch (err) {

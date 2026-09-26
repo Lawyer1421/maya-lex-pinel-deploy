@@ -293,9 +293,16 @@ export async function POST(req: NextRequest) {
     ultimaPregunta.length > 10
   );
 
+  // Observabilidad (Langfuse, fail-open) -- ventana real [inicio,fin] de la
+  // clasificación del router, medida ESTRECHAMENTE alrededor de la única
+  // llamada síncrona real (clasificarConsulta), no una aproximación por
+  // resta de timestamps distantes. undefined cuando el router no corre
+  // (usarRouter=false) -- no se inventa una ventana para algo que no ocurrió.
+  const tClasifInicio = Date.now();
   const ruta = usarRouter
     ? clasificarConsulta(ultimaPregunta as string, mode)
     : 'D';
+  const ventanaClasificacion = usarRouter ? { inicio: tClasifInicio, fin: Date.now() } : undefined;
 
   // 3c. Recuperar contexto RAG (A/B/C/D) y búsqueda web (Tavily) EN PARALELO.
   // Antes eran dos awaits secuenciales (RAG completo, luego Tavily) que sumaban
@@ -306,9 +313,10 @@ export async function POST(req: NextRequest) {
 
   interface RagOut { texto: string; fragmentos: FragmentoRAG[]; rerankUsado: boolean }
 
-  // Observabilidad (Langfuse, fail-open) -- timing real de la clasificación
-  // del router, capturado aquí sin alterar el flujo existente.
-  const tClasificacionMs = usarRouter ? Date.now() - inicioMs : undefined;
+  // Observabilidad (Langfuse, fail-open) -- ventana real [inicio,fin] del
+  // bloque de recuperación (RAG + web search en paralelo, Promise.all). El
+  // "fin" real se fija más abajo, justo tras el await de Promise.all -- no
+  // se cierra retroactivamente ni de forma instantánea.
   const tRetrievalInicio = Date.now();
 
   const ragPromise: Promise<RagOut> = (async () => {
@@ -390,9 +398,14 @@ export async function POST(req: NextRequest) {
   })();
 
   const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  const ventanaRetrieval = { inicio: tRetrievalInicio, fin: Date.now() };
   const contextoRAG = ragData.texto;
+  // Observabilidad: construirCitas() es una función pura y aislada -- medirla
+  // sin cambiar su lógica ni su firma (Fase 2, "citation.validation: solo
+  // medir si puede aislarse correctamente sin cambiar lógica").
+  const tCitasInicio = Date.now();
   const citas = construirCitas(ragData.fragmentos);
-  const tRetrievalLatencyMs = Date.now() - tRetrievalInicio;
+  const ventanaCitas = { inicio: tCitasInicio, fin: Date.now() };
   // Métrica honesta de "se usaron resultados web reales": el contexto web solo
   // es no-vacío cuando Tavily devolvió resultados relevantes (ver webPromise
   // arriba) -- el aviso de fallo (AVISO_BUSQUEDA_FALLIDA) también puebla
@@ -402,9 +415,11 @@ export async function POST(req: NextRequest) {
   // Observabilidad (Langfuse, fail-open): arma y envía la traza de esta
   // consulta con los datos ya disponibles en este punto. No incluye
   // pregunta/fragmentos/respuesta -- ver lib/observability/langfuse.ts.
+  // `ventanaLlm` se pasa explícitamente en cada call site porque solo ahí se
+  // conoce el [inicio,fin] real de la llamada a Anthropic/OpenRouter.
   function trazarConsulta(args: {
     modelo: string; proveedor: string; tokensInput: number; tokensOutput: number;
-    exito: boolean; errorType?: string;
+    exito: boolean; errorType?: string; ventanaLlm?: { inicio: number; fin: number };
   }) {
     after(() => registrarTrazaConsulta({
       consultaId: consultaId,
@@ -422,9 +437,12 @@ export async function POST(req: NextRequest) {
       webSearchResultsUsed,
       inputTokens: args.tokensInput,
       outputTokens: args.tokensOutput,
-      latencyMs: Date.now() - inicioMs,
-      classificationLatencyMs: tClasificacionMs,
-      retrievalLatencyMs: tRetrievalLatencyMs,
+      requestStartAt: inicioMs,
+      finalizeAt: Date.now(),
+      classificationWindow: ventanaClasificacion,
+      retrievalWindow: ventanaRetrieval,
+      citationValidationWindow: ventanaCitas,
+      llmGenerationWindow: args.ventanaLlm,
       success: args.exito,
       errorType: args.errorType,
     }));
@@ -472,6 +490,11 @@ export async function POST(req: NextRequest) {
   // 4. Streaming Response
   const stream = new ReadableStream({
     async start(controller) {
+      // Observabilidad: ventana real de la llamada al LLM. Declarada en este
+      // scope externo (no dentro de cada rama) para que el bloque catch de
+      // más abajo también pueda leerla -- queda undefined si el error ocurrió
+      // antes de invocar al proveedor (nunca se inventa una ventana).
+      let tLlmInicio: number | undefined;
       try {
         // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
         // Aplica cuando: (a) modo análisis + query ambigua [usarRouter=true, ruta=D]
@@ -535,6 +558,10 @@ export async function POST(req: NextRequest) {
             })),
           ];
 
+          // Observabilidad: ventana real de la generación -- inicio justo
+          // antes de invocar al proveedor, fin en onDone (todos los tokens
+          // del streaming ya recibidos).
+          tLlmInicio = Date.now();
           await streamOpenRouter(modelOR, messagesOR, {
             onToken: (token) => {
               controller.enqueue(sseEvent({ type: 'text', text: token }));
@@ -558,7 +585,11 @@ export async function POST(req: NextRequest) {
                 web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                 tier_usuario: rateLimitResult.tier, exito: true,
               }));
-              trazarConsulta({ modelo: modelOR, proveedor: 'openrouter', tokensInput: inputTokens, tokensOutput: outputTokens, exito: true });
+              trazarConsulta({
+                modelo: modelOR, proveedor: 'openrouter', tokensInput: inputTokens, tokensOutput: outputTokens,
+                exito: true,
+                ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
+              });
             },
             onError: (message) => {
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -586,6 +617,10 @@ export async function POST(req: NextRequest) {
             });
           }
 
+          // Observabilidad: ventana real de la generación -- inicio justo
+          // antes de invocar a Anthropic, fin en message_stop (streaming
+          // completo). El punto exacto que pidió el auditor.
+          tLlmInicio = Date.now();
           const claudeStream = await getAnthropicClient().messages.create(params);
           let inputTokens  = 0;
           let outputTokens = 0;
@@ -636,6 +671,7 @@ export async function POST(req: NextRequest) {
                 trazarConsulta({
                   modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
                   tokensInput: inputTokens, tokensOutput: outputTokens, exito: true,
+                  ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
                 });
                 break;
             }
@@ -654,7 +690,11 @@ export async function POST(req: NextRequest) {
           else                           errorMessage = `Error del servicio: ${error.message}`;
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
-        trazarConsulta({ modelo: config.model, proveedor: PROVEEDOR_LLM, tokensInput: 0, tokensOutput: 0, exito: false, errorType });
+        trazarConsulta({
+          modelo: config.model, proveedor: PROVEEDOR_LLM, tokensInput: 0, tokensOutput: 0,
+          exito: false, errorType,
+          ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
+        });
       } finally {
         controller.close();
       }

@@ -48,7 +48,11 @@ const datosBase = {
   webSearchResultsUsed: false,
   inputTokens: 120,
   outputTokens: 340,
-  latencyMs: 850,
+  requestStartAt: 1_700_000_000_000,
+  finalizeAt: 1_700_000_000_850,
+  retrievalWindow: { inicio: 1_700_000_000_050, fin: 1_700_000_000_400 },
+  citationValidationWindow: { inicio: 1_700_000_000_820, fin: 1_700_000_000_825 },
+  llmGenerationWindow: { inicio: 1_700_000_000_410, fin: 1_700_000_000_810 },
   success: true,
 } as const;
 
@@ -168,12 +172,19 @@ describe('registrarTrazaConsulta() — FAIL-OPEN: nunca lanza, nunca bloquea', (
   });
 
   it('cuando SÍ está configurado y el SDK funciona, construye el trace raíz y los spans reales (no inventados)', async () => {
+    interface CuerpoObservacion {
+      name: string;
+      startTime?: Date;
+      endTime?: Date;
+      metadata?: Record<string, unknown>;
+      model?: string;
+    }
     const spanClient = { end: vi.fn().mockReturnThis() };
     const genClient = { end: vi.fn().mockReturnThis() };
     const traceMock = vi.fn();
     const traceClient = {
-      span: vi.fn((_body: { name: string }) => spanClient),
-      generation: vi.fn((_body: { name: string }) => genClient),
+      span: vi.fn((_body: CuerpoObservacion) => spanClient),
+      generation: vi.fn((_body: CuerpoObservacion) => genClient),
     };
     const flushAsyncMock = vi.fn().mockResolvedValue(undefined);
     traceMock.mockReturnValue(traceClient);
@@ -190,17 +201,19 @@ describe('registrarTrazaConsulta() — FAIL-OPEN: nunca lanza, nunca bloquea', (
     const { registrarTrazaConsulta } = await import('@/lib/observability/langfuse');
     await registrarTrazaConsulta({
       ...datosBase,
-      classificationLatencyMs: 5,
+      classificationWindow: { inicio: 1_700_000_000_000, fin: 1_700_000_000_005 },
       webSearchRequested: true,
       webSearchResultsUsed: true,
     });
 
     // Trace raíz correcto: id = consultaId (correlación preservada, test 6),
-    // userId = hash ya anonimizado (nunca el correo/id crudo).
+    // userId = hash ya anonimizado (nunca el correo/id crudo), timestamp =
+    // inicio real de la request (no un valor por defecto de "ahora").
     expect(traceMock).toHaveBeenCalledWith(expect.objectContaining({
       id: datosBase.consultaId,
       name: 'mayalex.query',
       userId: datosBase.userHash,
+      timestamp: new Date(datosBase.requestStartAt),
     }));
 
     const nombresSpans = traceClient.span.mock.calls.map((c) => c[0].name);
@@ -210,10 +223,78 @@ describe('registrarTrazaConsulta() — FAIL-OPEN: nunca lanza, nunca bloquea', (
         'citation.validation', 'response.finalize',
       ]),
     );
-    expect(traceClient.generation).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'llm.generation', model: datosBase.model }),
+
+    // Corrección P1 (2026-09-26): cada span lleva startTime/endTime REALES
+    // (no un instante único fabricado post-hoc) -- se verifica exactamente
+    // contra las ventanas pasadas, no solo que el span exista.
+    const spanPorNombre = (nombre: string): CuerpoObservacion => {
+      const encontrado = traceClient.span.mock.calls.find((c) => c[0].name === nombre)?.[0];
+      if (!encontrado) throw new Error(`span "${nombre}" no fue creado`);
+      return encontrado;
+    };
+
+    const spanClasificacion = spanPorNombre('query.classification');
+    expect(spanClasificacion.startTime).toEqual(new Date(1_700_000_000_000));
+    expect(spanClasificacion.endTime).toEqual(new Date(1_700_000_000_005));
+    expect(spanClasificacion.metadata!.classification_latency_ms).toBe(5);
+
+    const spanRetrieval = spanPorNombre('rag.retrieve');
+    expect(spanRetrieval.startTime).toEqual(new Date(datosBase.retrievalWindow.inicio));
+    expect(spanRetrieval.endTime).toEqual(new Date(datosBase.retrievalWindow.fin));
+    expect(spanRetrieval.metadata!.retrieval_latency_ms).toBe(
+      datosBase.retrievalWindow.fin - datosBase.retrievalWindow.inicio,
     );
+
+    const spanCitas = spanPorNombre('citation.validation');
+    expect(spanCitas.startTime).toEqual(new Date(datosBase.citationValidationWindow.inicio));
+    expect(spanCitas.endTime).toEqual(new Date(datosBase.citationValidationWindow.fin));
+
+    expect(traceClient.generation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'llm.generation',
+        model: datosBase.model,
+        startTime: new Date(datosBase.llmGenerationWindow.inicio),
+        endTime: new Date(datosBase.llmGenerationWindow.fin),
+      }),
+    );
+    const genCall = traceClient.generation.mock.calls[0][0];
+    expect(genCall.metadata!.llm_generation_latency_ms).toBe(
+      datosBase.llmGenerationWindow.fin - datosBase.llmGenerationWindow.inicio,
+    );
+
+    // Ningún span usó .end() -- las ventanas ya vienen fijadas en la creación.
+    expect(spanClient.end).not.toHaveBeenCalled();
+    expect(genClient.end).not.toHaveBeenCalled();
+
     expect(flushAsyncMock).toHaveBeenCalled();
+  });
+
+  it('omite query.classification y llm.generation cuando no ocurrieron (router no corrió / abstención sin LLM)', async () => {
+    const spanClient = { end: vi.fn().mockReturnThis() };
+    const genClient = { end: vi.fn().mockReturnThis() };
+    const traceClient = {
+      span: vi.fn((_body: { name: string }) => spanClient),
+      generation: vi.fn((_body: { name: string }) => genClient),
+    };
+    vi.doMock('langfuse', () => ({
+      Langfuse: vi.fn().mockImplementation(() => ({
+        trace: vi.fn(() => traceClient),
+        flushAsync: vi.fn().mockResolvedValue(undefined),
+      })),
+    }));
+    process.env.LANGFUSE_ENABLED = 'true';
+    process.env.LANGFUSE_PUBLIC_KEY = 'pk-test';
+    process.env.LANGFUSE_SECRET_KEY = 'sk-test';
+    process.env.LANGFUSE_BASE_URL = 'https://cloud.langfuse.com';
+
+    const { registrarTrazaConsulta } = await import('@/lib/observability/langfuse');
+    // classificationWindow y llmGenerationWindow omitidos deliberadamente --
+    // simula RUTA_D (sin router) + abstención de corpus (sin LLM invocado).
+    await registrarTrazaConsulta({ ...datosBase, webSearchRequested: false });
+
+    const nombresSpans = traceClient.span.mock.calls.map((c) => c[0].name);
+    expect(nombresSpans).not.toContain('query.classification');
+    expect(traceClient.generation).not.toHaveBeenCalled();
   });
 
   it('omite el span legal.web_search cuando no se solicitó búsqueda web (no inventa pasos)', async () => {
