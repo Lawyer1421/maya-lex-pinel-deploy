@@ -61,6 +61,7 @@ import {
 } from '@/lib/websearch/tavily';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
+import { registrarTrazaConsulta } from '@/lib/observability/langfuse';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -303,16 +304,21 @@ export async function POST(req: NextRequest) {
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; rerankUsado: boolean }
+
+  // Observabilidad (Langfuse, fail-open) -- timing real de la clasificación
+  // del router, capturado aquí sin alterar el flujo existente.
+  const tClasificacionMs = usarRouter ? Date.now() - inicioMs : undefined;
+  const tRetrievalInicio = Date.now();
 
   const ragPromise: Promise<RagOut> = (async () => {
-    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
+    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [], rerankUsado: false };
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
-    if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
+    if (!coleccionPrincipal) return { texto: '', fragmentos: [], rerankUsado: false };
 
     // Rerank Cohere detrás de `flag_rerank` (Decisión C). OFF por default →
     // corte por similitud pgvector. Se resuelve una vez por request y solo
@@ -338,7 +344,7 @@ export async function POST(req: NextRequest) {
       }
       fragmentos.push(...ragProc.fragmentos);
     }
-    return { texto: contextoRAG, fragmentos };
+    return { texto: contextoRAG, fragmentos, rerankUsado: rerankHabilitado };
   })();
 
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
@@ -386,6 +392,43 @@ export async function POST(req: NextRequest) {
   const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
   const contextoRAG = ragData.texto;
   const citas = construirCitas(ragData.fragmentos);
+  const tRetrievalLatencyMs = Date.now() - tRetrievalInicio;
+  // Métrica honesta de "se usaron resultados web reales": el contexto web solo
+  // es no-vacío cuando Tavily devolvió resultados relevantes (ver webPromise
+  // arriba) -- el aviso de fallo (AVISO_BUSQUEDA_FALLIDA) también puebla
+  // contextoWeb pero no es "uso" real de resultados de búsqueda.
+  const webSearchResultsUsed = webSearch && Boolean(contextoWeb) && contextoWeb !== AVISO_BUSQUEDA_FALLIDA;
+
+  // Observabilidad (Langfuse, fail-open): arma y envía la traza de esta
+  // consulta con los datos ya disponibles en este punto. No incluye
+  // pregunta/fragmentos/respuesta -- ver lib/observability/langfuse.ts.
+  function trazarConsulta(args: {
+    modelo: string; proveedor: string; tokensInput: number; tokensOutput: number;
+    exito: boolean; errorType?: string;
+  }) {
+    after(() => registrarTrazaConsulta({
+      consultaId: consultaId,
+      userHash: hashUsuario(userIdentifier),
+      mode,
+      tier: rateLimitResult.tier,
+      provider: args.proveedor,
+      model: args.modelo,
+      ruta,
+      retrievalStrategy: ruta,
+      retrievedDocumentCount: ragData.fragmentos.length,
+      citationCount: citas.length,
+      rerankUsed: ragData.rerankUsado,
+      webSearchRequested: webSearch,
+      webSearchResultsUsed,
+      inputTokens: args.tokensInput,
+      outputTokens: args.tokensOutput,
+      latencyMs: Date.now() - inicioMs,
+      classificationLatencyMs: tClasificacionMs,
+      retrievalLatencyMs: tRetrievalLatencyMs,
+      success: args.exito,
+      errorType: args.errorType,
+    }));
+  }
 
   // 3d. FAIL-CLOSED (WAR ROOM FINAL): decisión determinista, ANTES de invocar
   // al LLM. Si la consulta exige evidencia verificable del corpus y la
@@ -451,6 +494,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          trazarConsulta({ modelo: 'aclaracion', proveedor: 'sistema', tokensInput: 0, tokensOutput: 0, exito: true });
           return;
         }
 
@@ -475,6 +519,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          trazarConsulta({ modelo: 'abstencion_corpus', proveedor: 'sistema', tokensInput: 0, tokensOutput: 0, exito: true });
           return;
         }
 
@@ -513,6 +558,7 @@ export async function POST(req: NextRequest) {
                 web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                 tier_usuario: rateLimitResult.tier, exito: true,
               }));
+              trazarConsulta({ modelo: modelOR, proveedor: 'openrouter', tokensInput: inputTokens, tokensOutput: outputTokens, exito: true });
             },
             onError: (message) => {
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -587,6 +633,10 @@ export async function POST(req: NextRequest) {
                   web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                   tier_usuario: rateLimitResult.tier, exito: true,
                 }));
+                trazarConsulta({
+                  modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
+                  tokensInput: inputTokens, tokensOutput: outputTokens, exito: true,
+                });
                 break;
             }
           }
@@ -595,13 +645,16 @@ export async function POST(req: NextRequest) {
         console.error('[Maya Lex] Error streaming:', error);
 
         let errorMessage = 'Error interno del servidor';
+        let errorType = 'unknown';
         if (error instanceof Anthropic.APIError) {
+          errorType = `anthropic_${error.status ?? 'error'}`;
           if (error.status === 401)      errorMessage = 'API Key inválida. Contacta al administrador.';
           else if (error.status === 429) errorMessage = 'Servicio temporalmente saturado. Intenta en unos segundos.';
           else if (error.status === 529) errorMessage = 'Servicio de IA en mantenimiento. Intenta en unos minutos.';
           else                           errorMessage = `Error del servicio: ${error.message}`;
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
+        trazarConsulta({ modelo: config.model, proveedor: PROVEEDOR_LLM, tokensInput: 0, tokensOutput: 0, exito: false, errorType });
       } finally {
         controller.close();
       }

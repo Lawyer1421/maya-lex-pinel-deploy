@@ -20,6 +20,7 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.45.0",
     "@xenova/transformers": "^2.17.2",
+    "langfuse": "^3.39.2",
     "mammoth": "^1.12.0",
     "next": "^16.2.6",
     "pdf-parse": "^2.4.5",
