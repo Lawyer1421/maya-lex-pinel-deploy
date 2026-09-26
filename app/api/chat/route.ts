@@ -311,12 +311,15 @@ export async function POST(req: NextRequest) {
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; rerankUsado: boolean }
+  interface VentanaTiempo { inicio: number; fin: number }
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; rerankUsado: boolean; ventanaRag?: VentanaTiempo }
+  interface WebOut { texto: string; ventanaWeb?: VentanaTiempo }
 
-  // Observabilidad (Langfuse, fail-open) -- ventana real [inicio,fin] del
-  // bloque de recuperación (RAG + web search en paralelo, Promise.all). El
-  // "fin" real se fija más abajo, justo tras el await de Promise.all -- no
-  // se cierra retroactivamente ni de forma instantánea.
+  // Observabilidad (Langfuse, fail-open) -- ventana del bloque paralelo
+  // completo (Promise.all), medida aparte de las ventanas individuales de
+  // RAG y web search más abajo. Representa el wall-clock real de esperar a
+  // ambas operaciones, NUNCA se hace pasar por la duración de ninguna de
+  // las dos por separado (corrección P1, revisión 2/2, 2026-09-26).
   const tRetrievalInicio = Date.now();
 
   const ragPromise: Promise<RagOut> = (async () => {
@@ -327,6 +330,11 @@ export async function POST(req: NextRequest) {
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
     if (!coleccionPrincipal) return { texto: '', fragmentos: [], rerankUsado: false };
+
+    // Ventana propia de RAG -- inicia AQUÍ, solo cuando RAG realmente va a
+    // ejecutar (después de los dos early-return de arriba, que no cuentan
+    // como "RAG ejecutado"). No se inventa ventana para un RAG que no corrió.
+    const tRagInicio = Date.now();
 
     // Rerank Cohere detrás de `flag_rerank` (Decisión C). OFF por default →
     // corte por similitud pgvector. Se resuelve una vez por request y solo
@@ -352,12 +360,19 @@ export async function POST(req: NextRequest) {
       }
       fragmentos.push(...ragProc.fragmentos);
     }
-    return { texto: contextoRAG, fragmentos, rerankUsado: rerankHabilitado };
+    return {
+      texto: contextoRAG, fragmentos, rerankUsado: rerankHabilitado,
+      ventanaRag: { inicio: tRagInicio, fin: Date.now() },
+    };
   })();
 
-  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
-  const webPromise: Promise<string> = (async () => {
-    if (!webSearch) return '';
+  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece
+  // intacto. Ventana propia de Tavily, independiente de RAG y del bloque
+  // paralelo combinado -- ninguna lógica existente se vuelve secuencial,
+  // solo se mide alrededor de la misma llamada que ya se hacía.
+  const webPromise: Promise<WebOut> = (async () => {
+    if (!webSearch) return { texto: '' };
+    const tWebInicio = Date.now();
     const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
     try {
       const resultadosWeb = await buscarWeb(queryBusqueda, {
@@ -365,6 +380,7 @@ export async function POST(req: NextRequest) {
         timeoutMs:     3500,
         umbralScore:   0.3,
       });
+      const ventanaWeb = { inicio: tWebInicio, fin: Date.now() };
 
       if (resultadosWeb.length > 0) {
         console.log(
@@ -373,14 +389,14 @@ export async function POST(req: NextRequest) {
           ` | mode=${mode} | ruta=${ruta}`
         );
         // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
-        return '\n\n' + formatearContextoWeb(resultadosWeb);
+        return { texto: '\n\n' + formatearContextoWeb(resultadosWeb), ventanaWeb };
       }
       // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
       console.log(
         `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
         ` | query="${queryBusqueda.slice(0, 55)}..."`
       );
-      return '';
+      return { texto: '', ventanaWeb };
     } catch (err) {
       const msg       = err instanceof Error ? err.message : String(err);
       const isTimeout = err instanceof Error && err.name === 'AbortError';
@@ -393,12 +409,13 @@ export async function POST(req: NextRequest) {
 
       // Notificar al modelo para que informe al usuario de forma discreta —
       // solo si había intención de búsqueda (la clave existe pero falló)
-      return isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      return { texto: isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA, ventanaWeb: { inicio: tWebInicio, fin: Date.now() } };
     }
   })();
 
-  const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
-  const ventanaRetrieval = { inicio: tRetrievalInicio, fin: Date.now() };
+  const [ragData, webData] = await Promise.all([ragPromise, webPromise]);
+  const ventanaRetrievalParalelo = { inicio: tRetrievalInicio, fin: Date.now() };
+  const contextoWeb = webData.texto;
   const contextoRAG = ragData.texto;
   // Observabilidad: construirCitas() es una función pura y aislada -- medirla
   // sin cambiar su lógica ni su firma (Fase 2, "citation.validation: solo
@@ -440,7 +457,9 @@ export async function POST(req: NextRequest) {
       requestStartAt: inicioMs,
       finalizeAt: Date.now(),
       classificationWindow: ventanaClasificacion,
-      retrievalWindow: ventanaRetrieval,
+      retrievalParallelWindow: ventanaRetrievalParalelo,
+      ragWindow: ragData.ventanaRag,
+      webSearchWindow: webData.ventanaWeb,
       citationValidationWindow: ventanaCitas,
       llmGenerationWindow: args.ventanaLlm,
       success: args.exito,

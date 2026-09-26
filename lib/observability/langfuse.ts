@@ -99,11 +99,21 @@ export interface VentanaTiempo {
  * privacidad arriba. `userHash` debe venir ya hasheado por el caller
  * (hashUsuario de lib/analytics/logger.ts), nunca el identificador crudo.
  *
- * Corrección P1 (auditoría independiente, 2026-09-26): las ventanas de
- * tiempo son epoch-ms REALES capturados en los puntos exactos de
+ * Corrección P1 (auditoría independiente, 2026-09-26, revisión 1/2): las
+ * ventanas de tiempo son epoch-ms REALES capturados en los puntos exactos de
  * app/api/chat/route.ts donde cada operación ocurre -- no se reconstruyen ni
  * se cierran retroactivamente aquí. `requestStartAt`/`finalizeAt` anclan el
  * trace raíz a la duración real de principio a fin de la request.
+ *
+ * Corrección P1 (revisión 2/2, mismo día): RAG y búsqueda web corren en
+ * paralelo dentro de un único `Promise.all` (route.ts) -- antes ambos spans
+ * compartían la ventana del bloque combinado, haciendo pasar el wall-clock
+ * conjunto por la duración individual de cada uno. Ahora `ragWindow` y
+ * `webSearchWindow` son ventanas INDEPENDIENTES medidas dentro de cada
+ * promesa (nunca se volvieron secuenciales), y `retrievalParallelWindow`
+ * representa el wall-clock real de esperar a ambas -- se reporta solo como
+ * metadata del trace raíz (`retrieval_parallel_latency_ms`), nunca como la
+ * duración de un span individual.
  */
 export interface DatosTrazaConsulta {
   consultaId: string;
@@ -127,7 +137,12 @@ export interface DatosTrazaConsulta {
   finalizeAt: number;
   /** undefined cuando el router no corrió (ruta='D' sin usarRouter) -- nunca se inventa una ventana. */
   classificationWindow?: VentanaTiempo;
-  retrievalWindow: VentanaTiempo;
+  /** Wall-clock del bloque Promise.all([ragPromise, webPromise]) completo -- SOLO metadata del trace, nunca span individual. */
+  retrievalParallelWindow: VentanaTiempo;
+  /** undefined cuando RAG no ejecutó realmente (ruta='D', sin router, o sin colección) -- nunca se inventa una ventana. */
+  ragWindow?: VentanaTiempo;
+  /** undefined cuando webSearch=false -- nunca se inventa una ventana. */
+  webSearchWindow?: VentanaTiempo;
   citationValidationWindow: VentanaTiempo;
   /** undefined cuando el LLM nunca se invocó (aclaración/abstención) -- nunca se inventa una ventana. */
   llmGenerationWindow?: VentanaTiempo;
@@ -183,6 +198,11 @@ export function registrarTrazaConsulta(data: DatosTrazaConsulta): Promise<void> 
           subscription_tier: data.tier,
           success: data.success,
           total_latency_ms: data.finalizeAt - data.requestStartAt,
+          // Wall-clock del bloque Promise.all([ragPromise, webPromise])
+          // completo -- SOLO informativo a nivel trace. Nunca representa la
+          // duración individual de rag.retrieve ni de legal.web_search, que
+          // tienen sus propias ventanas medidas por separado más abajo.
+          retrieval_parallel_latency_ms: duracionMs(data.retrievalParallelWindow),
         },
       });
 
@@ -198,29 +218,38 @@ export function registrarTrazaConsulta(data: DatosTrazaConsulta): Promise<void> 
         });
       }
 
-      trace.span({
-        name: 'rag.retrieve',
-        startTime: new Date(data.retrievalWindow.inicio),
-        endTime: new Date(data.retrievalWindow.fin),
-        metadata: {
-          retrieval_strategy: data.retrievalStrategy,
-          retrieved_document_count: data.retrievedDocumentCount,
-          rerank_used: data.rerankUsed,
-          retrieval_latency_ms: duracionMs(data.retrievalWindow),
-        },
-      });
+      // rag.retrieve: ventana PROPIA de la ejecución real de RAG (medida
+      // dentro de ragPromise, route.ts) -- independiente de legal.web_search
+      // aunque ambas corran en el mismo Promise.all. undefined cuando RAG no
+      // ejecutó (ruta='D', sin router, o sin colección para la ruta) -- no
+      // se crea el span ni se inventa una ventana cero.
+      if (data.ragWindow) {
+        trace.span({
+          name: 'rag.retrieve',
+          startTime: new Date(data.ragWindow.inicio),
+          endTime: new Date(data.ragWindow.fin),
+          metadata: {
+            retrieval_strategy: data.retrievalStrategy,
+            retrieved_document_count: data.retrievedDocumentCount,
+            rerank_used: data.rerankUsed,
+            rag_latency_ms: duracionMs(data.ragWindow),
+          },
+        });
+      }
 
-      // legal.web_search corre EN PARALELO con rag.retrieve (mismo
-      // Promise.all en route.ts) -- comparte la misma ventana real porque no
-      // existe una medición aislada de solo-Tavily sin tocar ese bloque; es
-      // honesto (ambas SÍ ocurren dentro de esa ventana), no una duración
-      // inventada.
-      if (data.webSearchRequested) {
+      // legal.web_search: ventana PROPIA de la llamada a Tavily (medida
+      // dentro de webPromise, route.ts) -- independiente de rag.retrieve.
+      // Solo existe si webSearch=true Y la promesa llegó a ejecutar la
+      // llamada real (ventana siempre presente en ese caso, ver route.ts).
+      if (data.webSearchRequested && data.webSearchWindow) {
         trace.span({
           name: 'legal.web_search',
-          startTime: new Date(data.retrievalWindow.inicio),
-          endTime: new Date(data.retrievalWindow.fin),
-          metadata: { results_used: data.webSearchResultsUsed },
+          startTime: new Date(data.webSearchWindow.inicio),
+          endTime: new Date(data.webSearchWindow.fin),
+          metadata: {
+            results_used: data.webSearchResultsUsed,
+            web_search_latency_ms: duracionMs(data.webSearchWindow),
+          },
         });
       }
 
