@@ -253,8 +253,8 @@ describe('reportarEstadoCredenciales() — nunca expone valores reales (Fase J.7
   });
 
   it('reporta PRESENT sin incluir el valor real de la credencial', async () => {
-    process.env.LANGFUSE_PUBLIC_KEY = 'pk-lf-super-secreto-no-debe-aparecer';
-    process.env.LANGFUSE_SECRET_KEY = 'sk-lf-super-secreto-no-debe-aparecer';
+    process.env.LANGFUSE_PUBLIC_KEY = 'TEST_PUBLIC_KEY_SENTINEL_DO_NOT_EXPOSE';
+    process.env.LANGFUSE_SECRET_KEY = 'TEST_SECRET_KEY_SENTINEL_DO_NOT_EXPOSE';
     process.env.LANGFUSE_BASE_URL = 'https://cloud.langfuse.com';
     const { reportarEstadoCredenciales } = await import('@/lib/observability/langfuse');
     const reporte = reportarEstadoCredenciales();
@@ -265,7 +265,7 @@ describe('reportarEstadoCredenciales() — nunca expone valores reales (Fase J.7
       LANGFUSE_BASE_URL: 'PRESENT',
     });
     const serializado = JSON.stringify(reporte);
-    expect(serializado).not.toContain('super-secreto');
+    expect(serializado).not.toContain('SENTINEL_DO_NOT_EXPOSE');
   });
 });
 
