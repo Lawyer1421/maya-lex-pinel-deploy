@@ -78,7 +78,8 @@ function mockDependenciasComunes() {
 }
 
 async function mockBuscarRAG(resultado: {
-  fragmentos: unknown[]; articulos_encontrados: string[]; backend: 'supabase'; ambiguo?: boolean;
+  fragmentos: unknown[]; articulos_encontrados: string[]; backend: 'supabase' | 'disabled'; ambiguo?: boolean;
+  error?: string; outcome?: Record<string, unknown>;
 }) {
   vi.doMock('@/lib/rag/search', async () => {
     const actual = await vi.importActual<typeof import('@/lib/rag/search')>('@/lib/rag/search');
@@ -226,5 +227,102 @@ describe('POST /api/chat — fail-closed de evidencia de corpus (WAR ROOM FINAL,
       expect(textoCompleto).not.toMatch(re);
     }
     expect(textoCompleto).toContain('No se recuperaron fragmentos verificables del corpus');
+  });
+});
+
+/**
+ * Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md. CASE 4/5 de la directiva:
+ * cuando el propio sistema no pudo consultar las fuentes (configuración o
+ * fallo de infraestructura), el mensaje al usuario debe ser explícitamente
+ * distinto de "no se encontró la norma" -- nunca debe sonar a que el derecho
+ * no existe cuando en realidad MayaLex no pudo ni intentarlo de forma
+ * confiable. CASE 2/3 (cubiertas arriba) conservan el mensaje histórico sin
+ * cambio.
+ */
+describe('POST /api/chat — Fase 1D: CASE 4/5 (fallo de sistema != evidencia cero)', () => {
+  it('CASE 4. outcome.state=CONFIGURATION_ERROR -> mensaje distinto de la abstención genérica, código=CONFIGURATION_ERROR', async () => {
+    mockDependenciasComunes();
+    await mockBuscarRAG({
+      fragmentos: [], articulos_encontrados: [], backend: 'disabled',
+      outcome: { state: 'CONFIGURATION_ERROR', evidenceCount: 0, exactAttempted: false, semanticAttempted: false, degraded: false, errorCategory: 'CONFIGURATION', errorCode: 'RAG_DISABLED' },
+    });
+    const { POST } = await import('@/app/api/chat/route');
+
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Explica las medidas cautelares personales aplicables en el proceso penal hondureño.' }],
+      mode: 'analisis_penal',
+    }));
+    const eventos = await leerSSE(res);
+    const doneEvt = eventos.find((e) => e.type === 'done');
+    const textoCompleto = eventos.filter((e) => e.type === 'text').map((e) => e.text).join('');
+
+    expect(textoCompleto).toContain('No fue posible consultar temporalmente la biblioteca jurídica');
+    expect(textoCompleto).not.toContain('No se recuperaron fragmentos verificables del corpus');
+    expect(doneEvt.codigo).toBe('CONFIGURATION_ERROR');
+    expect(anthropicCreateMock).not.toHaveBeenCalled();
+  });
+
+  it('CASE 5. outcome.state=RETRIEVAL_ERROR -> mensaje distinto de la abstención genérica, código=RETRIEVAL_ERROR', async () => {
+    mockDependenciasComunes();
+    await mockBuscarRAG({
+      fragmentos: [], articulos_encontrados: [], backend: 'supabase', error: 'Supabase RAG error: connection timeout',
+      outcome: { state: 'RETRIEVAL_ERROR', evidenceCount: 0, exactAttempted: false, semanticAttempted: true, degraded: false, errorCategory: 'DATABASE', errorCode: 'DATABASE_RETRIEVAL_FAILED' },
+    });
+    const { POST } = await import('@/app/api/chat/route');
+
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Explica las medidas cautelares personales aplicables en el proceso penal hondureño.' }],
+      mode: 'analisis_penal',
+    }));
+    const eventos = await leerSSE(res);
+    const doneEvt = eventos.find((e) => e.type === 'done');
+    const textoCompleto = eventos.filter((e) => e.type === 'text').map((e) => e.text).join('');
+
+    expect(textoCompleto).toContain('No fue posible completar la consulta de las fuentes jurídicas');
+    expect(textoCompleto).not.toContain('No se recuperaron fragmentos verificables del corpus');
+    // El mensaje de error crudo de Supabase NUNCA llega al usuario.
+    expect(textoCompleto).not.toContain('connection timeout');
+    expect(doneEvt.codigo).toBe('RETRIEVAL_ERROR');
+    expect(anthropicCreateMock).not.toHaveBeenCalled();
+  });
+
+  it('CASE 2 sigue igual: outcome.state=NO_VERIFIED_EVIDENCE -> mensaje histórico sin cambio (regresión)', async () => {
+    mockDependenciasComunes();
+    await mockBuscarRAG({
+      fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+      outcome: { state: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, exactAttempted: true, semanticAttempted: false, degraded: false },
+    });
+    const { POST } = await import('@/app/api/chat/route');
+
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Cita el artículo 9999 del Código Procesal Penal de Honduras' }],
+      mode: 'analisis_penal',
+    }));
+    const eventos = await leerSSE(res);
+    const doneEvt = eventos.find((e) => e.type === 'done');
+    const textoCompleto = eventos.filter((e) => e.type === 'text').map((e) => e.text).join('');
+
+    expect(textoCompleto).toContain('No se recuperaron fragmentos verificables del corpus');
+    expect(doneEvt.codigo).toBe('CORPUS_EVIDENCE_NOT_FOUND');
+  });
+
+  it('I/J. sala_ia y sala_penal con consulta ordinaria (sin "según el corpus") -> NOT_REQUIRED, LLM invocado sin abstención', async () => {
+    mockDependenciasComunes();
+    // buscarRAG NUNCA debería llamarse para modos sala (usarRouter=false) --
+    // se mockea igual, pero el propio test falla si SÍ se invoca de forma
+    // inesperada, porque devolvería fragmentos:[] y dispararía abstención.
+    await mockBuscarRAG({ fragmentos: [], articulos_encontrados: [], backend: 'disabled' });
+    const { POST } = await import('@/app/api/chat/route');
+
+    for (const mode of ['sala_ia', 'sala_penal'] as const) {
+      const res = await POST(fakeReq({
+        messages: [{ role: 'user', content: 'Hola, ¿me puedes explicar en términos generales qué es una audiencia?' }],
+        mode,
+      }));
+      const eventos = await leerSSE(res);
+      const doneEvt = eventos.find((e) => e.type === 'done');
+      expect(doneEvt.codigo).toBeUndefined();
+    }
+    expect(anthropicCreateMock).toHaveBeenCalledTimes(2);
   });
 });

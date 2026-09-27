@@ -39,6 +39,61 @@ export interface ResultadoRAG {
   error?: string;
   /** true cuando la búsqueda exacta encontró el mismo número de artículo en más de un instrumento/materia — no se citó nada para no adivinar. */
   ambiguo?: boolean;
+  /**
+   * Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md. Campo opcional y
+   * aditivo: todo consumidor que ya existía antes de esta fase e ignora
+   * `outcome` sigue funcionando exactamente igual (no se retira ni se
+   * redefine ningún campo existente de ResultadoRAG).
+   */
+  outcome?: RetrievalOutcome;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RETRIEVAL OUTCOME — Fase 1D (primer cambio de comportamiento autorizado)
+// ─────────────────────────────────────────────────────────────────────────────
+// Invariante central (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md §0/§2):
+// NO_VERIFIED_EVIDENCE != RETRIEVAL_FAILED. Antes de esta fase, ambos casos
+// colapsaban al mismo `fragmentos: []` sin ninguna forma de distinguirlos
+// para el gate fail-closed de route.ts. Ver lib/legal-retrieval/retrieval-outcome.ts
+// para la lógica de construcción/clasificación -- este archivo solo declara
+// la forma.
+
+/** "¿Qué pasó con la ejecución del retrieval?" -- nunca "¿qué es este material?" (eso es evidence-engine.ts). */
+export type RetrievalExecutionState =
+  | 'NOT_REQUIRED'
+  | 'EXACT_SUCCESS'
+  | 'SEMANTIC_SUCCESS'
+  | 'OFFICIAL_FALLBACK_REQUIRED'
+  | 'NO_VERIFIED_EVIDENCE'
+  | 'CONFIGURATION_ERROR'
+  | 'RETRIEVAL_ERROR';
+
+export type RetrievalErrorCategory =
+  | 'CONFIGURATION'
+  | 'EMBEDDING'
+  | 'DATABASE'
+  | 'NETWORK'
+  | 'UNKNOWN';
+
+export interface RetrievalOutcome {
+  state: RetrievalExecutionState;
+  evidenceCount: number;
+  exactAttempted: boolean;
+  semanticAttempted: boolean;
+  /**
+   * true solo cuando una degradación de un componente OPCIONAL (ej. rerank
+   * Cohere) fue detectada de forma segura. Fase 1D no instrumenta
+   * semantic-retriever.ts/rerank.ts (fuera del alcance de archivos
+   * autorizados de esta fase) -- por diseño, este campo permanece `false`
+   * hoy incluso cuando el rerank sí degrada internamente (ya lo hacía antes
+   * de esta fase, de forma resiliente -- ver rag-rerank.test.ts). Detectarlo
+   * seguirá siendo `false` mientras no se autorice instrumentar esos
+   * archivos; no es un bug de esta fase, es un límite de alcance explícito.
+   */
+  degraded: boolean;
+  errorCategory?: RetrievalErrorCategory;
+  /** Código seguro para telemetría -- nunca texto de query, documentos, URLs con secretos ni PII. */
+  errorCode?: string;
 }
 
 export type VerificationStatus = 'VERIFIED' | 'UNVERIFIED' | 'QUARANTINED';
