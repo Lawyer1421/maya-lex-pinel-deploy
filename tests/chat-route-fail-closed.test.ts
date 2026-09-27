@@ -27,7 +27,7 @@ function fakeClaudeStream(text: string) {
 
 let anthropicCreateMock: (...args: unknown[]) => Promise<unknown>;
 
-function mockDependenciasComunes() {
+function mockDependenciasComunes(flagsHabilitados: string[] = []) {
   vi.doMock('next/server', async () => {
     const actual = await vi.importActual<typeof import('next/server')>('next/server');
     // after() requiere contexto de request real de Next.js — fuera de eso
@@ -45,9 +45,12 @@ function mockDependenciasComunes() {
     buildUserIdentifierFromEmail: (e: string) => `email:${e.trim().toLowerCase()}`,
   }));
 
-  // flag_rerank OFF por default (Decisión C) — el chat corta por similitud pgvector.
+  // flag_rerank OFF por default (Decisión C) — el chat corta por similitud
+  // pgvector. Fase 1E.2: `flagsHabilitados` permite que un test específico
+  // active flag_official_source_fallback sin afectar el default OFF de todos
+  // los demás tests (y de Production/Preview reales -- ver lib/flags.ts).
   vi.doMock('@/lib/flags', () => ({
-    isFlagEnabledForUser: vi.fn().mockResolvedValue(false),
+    isFlagEnabledForUser: vi.fn().mockImplementation(async (flagName: string) => flagsHabilitados.includes(flagName)),
   }));
 
   vi.doMock('@/lib/analytics/logger', () => ({
@@ -124,6 +127,7 @@ beforeEach(() => {
 
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
+  vi.unstubAllGlobals();
 });
 
 describe('POST /api/chat — fail-closed de evidencia de corpus (WAR ROOM FINAL, Tarea 1)', () => {
@@ -324,5 +328,82 @@ describe('POST /api/chat — Fase 1D: CASE 4/5 (fallo de sistema != evidencia ce
       expect(doneEvt.codigo).toBeUndefined();
     }
     expect(anthropicCreateMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+/**
+ * Fase 1E.2 — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md / directiva "OFFICIAL
+ * FALLBACK RUNTIME WIRING". Tests A/B del matrix de la directiva, a nivel de
+ * ruta completa (POST real) -- la decisión pura ya está cubierta
+ * exhaustivamente en tests/official-fallback-orchestrator.test.ts (C-L).
+ * Aquí solo se prueba que route.ts efectivamente respeta el flag y usa el
+ * mensaje/código correctos end-to-end.
+ */
+describe('POST /api/chat — Fase 1E.2: wiring de fallback oficial (tests A/B)', () => {
+  const FORM_PAGE_HTML = `<html><body>
+    <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="VS1" />
+    <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="G1" />
+    <input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="EV1" />
+  </body></html>`;
+  const RESULTS_HTML_CON_FILAS = `<table id="ContentPlaceHolder1_dgvDocumentos">
+    <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+    <tr><td>9144</td><td>Código Penal Decreto 130-2017</td><td>18/1/2018</td><td><a href="Anexos/uuidCodigoPenal.pdf">Previsualizar</a></td></tr>
+  </table>`;
+
+  function htmlResponse(body: string, status = 200, headers: Record<string, string> = { 'content-type': 'text/html' }) {
+    return new Response(body, { status, headers });
+  }
+
+  it('A. flag OFF + OFFICIAL_FALLBACK_REQUIRED -> abstención actual preservada, CERO llamada de red externa', async () => {
+    mockDependenciasComunes(); // sin flags habilitados -- default real de Production/Preview
+    await mockBuscarRAG({
+      fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+      outcome: { state: 'OFFICIAL_FALLBACK_REQUIRED', evidenceCount: 0, exactAttempted: false, semanticAttempted: true, degraded: false },
+    });
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Explícame los presupuestos para imponer una medida cautelar penal en Honduras.' }],
+      mode: 'analisis_penal',
+    }));
+    const eventos = await leerSSE(res);
+    const doneEvt = eventos.find((e) => e.type === 'done');
+    const textoCompleto = eventos.filter((e) => e.type === 'text').map((e) => e.text).join('');
+
+    expect(textoCompleto).toContain('No se recuperaron fragmentos verificables del corpus');
+    expect(doneEvt.codigo).toBe('CORPUS_EVIDENCE_NOT_FOUND');
+    expect(anthropicCreateMock).not.toHaveBeenCalled();
+    // Invariante central del test A: con el flag apagado, CEDIJ nunca se
+    // consulta -- cero peticiones de red, sin importar el estado de retrieval.
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('B. flag ON + OFFICIAL_FALLBACK_REQUIRED + CEDIJ SUCCESS -> metadata oficial reconocida, mensaje distinto', async () => {
+    mockDependenciasComunes(['flag_official_source_fallback']);
+    await mockBuscarRAG({
+      fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+      outcome: { state: 'OFFICIAL_FALLBACK_REQUIRED', evidenceCount: 0, exactAttempted: false, semanticAttempted: true, degraded: false },
+    });
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML))
+      .mockResolvedValueOnce(htmlResponse(RESULTS_HTML_CON_FILAS)));
+
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Explícame los presupuestos para imponer una medida cautelar penal en Honduras.' }],
+      mode: 'analisis_penal',
+    }));
+    const eventos = await leerSSE(res);
+    const doneEvt = eventos.find((e) => e.type === 'done');
+    const textoCompleto = eventos.filter((e) => e.type === 'text').map((e) => e.text).join('');
+
+    expect(textoCompleto).toContain('MayaLex localizó una fuente oficial relacionada en CEDIJ');
+    expect(textoCompleto).toContain('Código Penal Decreto 130-2017');
+    expect(textoCompleto).not.toContain('No se recuperaron fragmentos verificables del corpus');
+    expect(textoCompleto).not.toContain('NORMA VIGENTE HONDURAS');
+    expect(doneEvt.codigo).toBe('OFFICIAL_SOURCE_FOUND_METADATA_ONLY');
+    expect(anthropicCreateMock).not.toHaveBeenCalled();
   });
 });
