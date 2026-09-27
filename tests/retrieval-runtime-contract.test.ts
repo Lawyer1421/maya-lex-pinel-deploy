@@ -60,10 +60,15 @@ describe('[CONTRACT A] RAG_BACKEND ausente + credenciales Supabase presentes', (
 
 // ─────────────────────────────────────────────────────────────────────────────
 // B — RAG_BACKEND=disabled explícito
-// Contrato: NOT_REQUIRED si la ruta no exige evidencia; si la exige, el
-// contrato pide CONFIGURATION_ERROR *solo si fue accidental* -- pero hoy no
-// existe forma de distinguir "disabled intencional" de "disabled accidental"
-// una vez que el valor ya es 'disabled'. PARCIAL.
+// FIXED IN RETRIEVAL V3 PHASE 1D
+// OLD: este shape era IDÉNTICO al de "cero evidencia genuina" -- ResultadoRAG
+//      no tenía ningún campo que distinguiera "esto fue una decisión de
+//      configuración" de "el corpus no tenía nada" (GAP §3.1 del contrato).
+// NEW: buscarRAG() ahora adjunta `outcome.state === 'CONFIGURATION_ERROR'`
+//      siempre que backend='disabled' -- buscarRAG no decide si ESE caller
+//      exigía evidencia (eso sigue siendo responsabilidad de route.ts, ver
+//      MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md §5A de la directiva de Fase 1D),
+//      pero ya no colapsa silenciosamente con "cero evidencia genuina".
 // ─────────────────────────────────────────────────────────────────────────────
 describe('[CONTRACT B] RAG_BACKEND=disabled explícito', () => {
   it('getBackend() respeta disabled explícito sin importar si hay credenciales', async () => {
@@ -75,22 +80,27 @@ describe('[CONTRACT B] RAG_BACKEND=disabled explícito', () => {
     expect(getBackend()).toBe('disabled');
 
     const resultado = await buscarRAG('¿Qué dice el artículo 173 del Código Penal?', 5, 'mayalex_normativos');
-    // GAP (contrato §3.1): este shape es IDÉNTICO al de "cero evidencia
-    // genuina" -- no hay ningún campo que distinga "esto fue una decisión de
-    // configuración" de "el corpus no tenía nada".
-    expect(resultado).toEqual({ fragmentos: [], articulos_encontrados: [], backend: 'disabled' });
+    expect(resultado.fragmentos).toEqual([]);
+    expect(resultado.articulos_encontrados).toEqual([]);
+    expect(resultado.backend).toBe('disabled');
+    expect(resultado.outcome?.state).toBe('CONFIGURATION_ERROR');
+    expect(resultado.outcome?.errorCategory).toBe('CONFIGURATION');
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // C — Supabase RPC responde con error
-// Contrato: RETRIEVAL_ERROR, nunca colapsado silenciosamente con zero-results.
-// GAP CONFIRMADO: el campo `error` sí existe en ResultadoRAG, pero
-// app/api/chat/route.ts no lo lee para bifurcar el gate fail-closed -- ver
-// MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md §3.3.
+// FIXED IN RETRIEVAL V3 PHASE 1D
+// OLD: el campo `error` existía en ResultadoRAG, pero nada distinguía este
+//      caso de un cero-resultados genuino (mismo shape que F) -- la
+//      distinción dependía enteramente de que un consumidor leyera `.error`.
+// NEW: buscarRAG() clasifica el error (classifyRetrievalError, por el
+//      prefijo estable "Supabase RAG error:") y adjunta
+//      outcome.state='RETRIEVAL_ERROR' + errorCategory='DATABASE'. route.ts
+//      ahora sí puede bifurcar por outcome.state en vez de ignorar `.error`.
 // ─────────────────────────────────────────────────────────────────────────────
 describe('[CONTRACT C] Supabase RPC error (no zero-results genuino)', () => {
-  it('buscarRAG captura el error de la RPC y lo expone en .error, pero con el mismo fragmentos:[] que un cero-resultados legítimo', async () => {
+  it('buscarRAG captura el error de la RPC y lo clasifica como RETRIEVAL_ERROR/DATABASE, distinguible de F', async () => {
     process.env.RAG_BACKEND = 'supabase';
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
@@ -105,22 +115,23 @@ describe('[CONTRACT C] Supabase RPC error (no zero-results genuino)', () => {
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.backend).toBe('supabase');
-    // La señal SÍ existe hoy...
     expect(resultado.error).toContain('connection timeout');
-    // ...pero tiene el mismo shape de "cero fragmentos" que el escenario F
-    // (cero resultados genuinos, sin ningún error). Este test documenta que
-    // la distinción depende enteramente de que un consumidor lea `.error`
-    // -- y hoy, `route.ts` no lo hace (ver contrato §0 y §3.3).
+    expect(resultado.outcome?.state).toBe('RETRIEVAL_ERROR');
+    expect(resultado.outcome?.errorCategory).toBe('DATABASE');
+    expect(resultado.outcome?.errorCode).toBe('DATABASE_RETRIEVAL_FAILED');
+    // errorCode es seguro para telemetría -- nunca el mensaje crudo.
+    expect(resultado.outcome?.errorCode).not.toContain('connection timeout');
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // D — HF timeout (fallo de embedding)
-// Contrato: RETRIEVAL_ERROR si el exact resolver no aplica. Mismo GAP que C:
-// se captura, pero termina con el mismo shape que zero-results.
+// FIXED IN RETRIEVAL V3 PHASE 1D
+// OLD: mismo GAP que C -- se capturaba pero terminaba indistinguible de F.
+// NEW: outcome.state='RETRIEVAL_ERROR' + errorCategory='EMBEDDING'.
 // ─────────────────────────────────────────────────────────────────────────────
 describe('[CONTRACT D] Fallo de embedding (HF timeout/error)', () => {
-  it('buscarRAG captura el fallo de embedQuery() y degrada con el mismo shape que C', async () => {
+  it('buscarRAG captura el fallo de embedQuery() y lo clasifica como RETRIEVAL_ERROR/EMBEDDING', async () => {
     process.env.RAG_BACKEND = 'supabase';
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
@@ -135,7 +146,9 @@ describe('[CONTRACT D] Fallo de embedding (HF timeout/error)', () => {
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.error).toContain('timeout');
-    // Mismo GAP que C: indistinguible de F para el gate de route.ts.
+    expect(resultado.outcome?.state).toBe('RETRIEVAL_ERROR');
+    expect(resultado.outcome?.errorCategory).toBe('EMBEDDING');
+    expect(resultado.outcome?.errorCode).toBe('EMBEDDING_UNAVAILABLE');
   });
 });
 
@@ -177,13 +190,17 @@ describe('[CONTRACT E] Artículo exacto inexistente', () => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // F — Cero resultados semánticos (sin número de artículo)
-// Contrato de diseño: OFFICIAL_FALLBACK_REQUIRED (futuro). Comportamiento
-// HOY: idéntico shape que "cero evidencia genuina" siempre tuvo -- no hay
-// regresión, simplemente no existe todavía la oportunidad de fallback
-// oficial que el diseño propone en §4 del contrato.
+// FIXED IN RETRIEVAL V3 PHASE 1D
+// OLD: shape idéntico a "cero evidencia genuina" siempre tuvo -- no había
+//      ningún estado que representara "el retrieval SÍ corrió bien, solo no
+//      encontró nada" como algo distinto de un error.
+// NEW: outcome.state='OFFICIAL_FALLBACK_REQUIRED' -- todavía NO implementa
+//      ningún adapter externo (eso es Fase 1E), pero ya es un estado interno
+//      explícito y distinguible de RETRIEVAL_ERROR (C/D) y de
+//      NO_VERIFIED_EVIDENCE (E, artículo exacto inexistente).
 // ─────────────────────────────────────────────────────────────────────────────
 describe('[CONTRACT F] Cero resultados semánticos genuinos', () => {
-  it('RPC responde sin error y sin filas -> fragmentos:[] sin .error (distinto de C/D)', async () => {
+  it('RPC responde sin error y sin filas -> OFFICIAL_FALLBACK_REQUIRED, sin .error (distinto de C/D)', async () => {
     process.env.RAG_BACKEND = 'supabase';
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
@@ -196,6 +213,8 @@ describe('[CONTRACT F] Cero resultados semánticos genuinos', () => {
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.error).toBeUndefined();
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+    expect(resultado.outcome?.semanticAttempted).toBe(true);
   });
 });
 

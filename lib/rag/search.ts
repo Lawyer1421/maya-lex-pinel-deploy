@@ -46,6 +46,14 @@ export type { FragmentoRAG, ResultadoRAG };
 export { hashFragmento, contieneArtefactoAnonimizacion, esRegistroNoVigenteExcluido, seleccionarFinal };
 export { FUENTES_DOCTRINALES, formatearContextoRAG, requiereEvidenciaCorpus, CORPUS_EVIDENCE_NOT_FOUND, MENSAJE_ABSTENCION_CORPUS };
 
+// Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md. buscarRAG() construye un
+// RetrievalOutcome en cada camino de retorno (ver más abajo); esta lógica de
+// construcción/clasificación vive en retrieval-outcome.ts, no inline aquí,
+// para que sea unitariamente testeable sin mockear Supabase/HF.
+import { buildRetrievalOutcome, classifyRetrievalError, safeErrorCode } from '@/lib/legal-retrieval/retrieval-outcome';
+export { buildRetrievalOutcome, classifyRetrievalError, safeErrorCode };
+export type { RetrievalOutcome, RetrievalExecutionState, RetrievalErrorCategory } from '@/lib/legal-retrieval/types';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // RECUPERACIÓN DETERMINISTA POR ARTÍCULO EXACTO — Retrieval v3, Fase 1A
 // ─────────────────────────────────────────────────────────────────────────────
@@ -223,8 +231,26 @@ export async function buscarRAG(
   const backend = getBackend();
 
   if (backend === 'disabled') {
-    return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
+    // Fase 1D: buscarRAG no sabe si ESTE caller exige evidencia -- esa es
+    // una decisión de ruta/modo que vive en route.ts (§5A de la directiva:
+    // "Do NOT decide route-level requirement inside low-level semantic
+    // code"). Se reporta CONFIGURATION_ERROR siempre que no hubo retrieval
+    // por configuración; quien no lo necesitaba simplemente nunca llega a
+    // invocar buscarRAG en el flujo actual (ver app/api/chat/route.ts,
+    // ragPromise: los modos sin router activo retornan antes de este punto).
+    return {
+      fragmentos: [], articulos_encontrados: [], backend: 'disabled',
+      outcome: buildRetrievalOutcome('CONFIGURATION_ERROR', {
+        errorCategory: 'CONFIGURATION', errorCode: safeErrorCode('CONFIGURATION'),
+      }),
+    };
   }
+
+  // exactoIntentado: true en cuanto se detecta un número de artículo y se
+  // entra a la ruta determinista, incluso si termina fallando y degradando a
+  // semántica (catch de abajo) -- el outcome final debe reflejar que SÍ se
+  // intentó, no solo si tuvo éxito.
+  let exactoIntentado = false;
 
   // Recuperación exacta por artículo — prioridad sobre la semántica.
   // No requiere HF_API_TOKEN (no genera embedding), así que sigue
@@ -236,17 +262,26 @@ export async function buscarRAG(
   if (backend === 'supabase') {
     const deteccion = detectarArticuloExacto(consulta);
     if (deteccion) {
+      exactoIntentado = true;
       try {
         const materiaEfectiva = deteccion.materiaDetectada ?? materia ?? null;
         const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
         if (exacto.ambiguo) {
-          return { fragmentos: [], articulos_encontrados: [], backend: 'supabase', ambiguo: true };
+          // Regla K (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md): ambigüedad ->
+          // NO_VERIFIED_EVIDENCE, NUNCA contaminación semántica.
+          return {
+            fragmentos: [], articulos_encontrados: [], backend: 'supabase', ambiguo: true,
+            outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
+          };
         }
         if (exacto.fragmentos.length > 0) {
           return {
             fragmentos: exacto.fragmentos,
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
+            outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
+              evidenceCount: exacto.fragmentos.length, exactAttempted: true,
+            }),
           };
         }
         // Sin candidato exacto válido. Si el usuario identificó la materia
@@ -259,7 +294,12 @@ export async function buscarRAG(
         // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
         // permite el fallback semántico — comportamiento previo, ya validado.
         if (deteccion.materiaDetectada || deteccion.instrumento) {
-          return { fragmentos: [], articulos_encontrados: [], backend: 'supabase' };
+          // Regla C: instrumento/artículo explícito sin candidato válido ->
+          // NO_VERIFIED_EVIDENCE (ej. Art. 9999 CPP), NUNCA RETRIEVAL_ERROR.
+          return {
+            fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+            outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
+          };
         }
       } catch (error) {
         console.warn(
@@ -282,7 +322,14 @@ export async function buscarRAG(
       '[RAG] RAG_BACKEND=python con PYTHON_RAG_URL=localhost en Vercel — RAG deshabilitado. ' +
       'Configura RAG_BACKEND=disabled (o supabase) en las env vars de Vercel.'
     );
-    return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
+    // Regla H: configuración inválida/no viable para el entorno ->
+    // CONFIGURATION_ERROR, igual que backend='disabled' arriba.
+    return {
+      fragmentos: [], articulos_encontrados: [], backend: 'disabled',
+      outcome: buildRetrievalOutcome('CONFIGURATION_ERROR', {
+        errorCategory: 'CONFIGURATION', errorCode: safeErrorCode('CONFIGURATION'), exactAttempted: exactoIntentado,
+      }),
+    };
   }
 
   // Búsqueda semántica: si no vino un filtro de materia explícito (route.ts
@@ -296,23 +343,64 @@ export async function buscarRAG(
 
   try {
     if (backend === 'python') {
-      return await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      const resultado = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
+      // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
+      return {
+        ...resultado,
+        outcome: buildRetrievalOutcome(
+          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+        ),
+      };
     }
     if (backend === 'supabase') {
-      return await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false);
+      const resultado = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false);
+      // Regla L: un fallo de Cohere (opcional) ya degrada de forma
+      // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin
+      // lanzar) desde antes de esta fase -- buscarEnSupabase nunca ve ese
+      // error, así que este camino nunca lo convierte en RETRIEVAL_ERROR.
+      // `degraded` permanece false (ver types.ts: no instrumentado en esta
+      // fase, límite de alcance explícito, no un bug).
+      return {
+        ...resultado,
+        outcome: buildRetrievalOutcome(
+          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+        ),
+      };
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error(`[RAG] Error backend ${backend}:`, msg);
+    // Reglas F/G: un fallo real de infraestructura (HF, Supabase, red) NUNCA
+    // se convierte silenciosamente en "no hay evidencia" -- RETRIEVAL_ERROR
+    // explícito, categorizado de forma segura (sin exponer el mensaje crudo
+    // en errorCode/errorCategory; `error` de ResultadoRAG se conserva tal
+    // cual para compatibilidad interna, no para telemetría nueva).
+    const categoria = classifyRetrievalError(msg, backend);
     // Degradación elegante — continuar sin RAG
     return {
       fragmentos: [],
       articulos_encontrados: [],
       backend,
       error: msg,
+      outcome: buildRetrievalOutcome('RETRIEVAL_ERROR', {
+        errorCategory: categoria, errorCode: safeErrorCode(categoria),
+        exactAttempted: exactoIntentado, semanticAttempted: true,
+      }),
     };
   }
 
-  return { fragmentos: [], articulos_encontrados: [], backend: 'disabled' };
+  // Inalcanzable en la práctica: `backend` en este punto solo puede ser
+  // 'python' o 'supabase' (BackendRAG solo tiene 3 valores y 'disabled' ya
+  // retornó arriba), y ambos ifs del try retornan siempre. Se conserva por
+  // completitud de tipos, con un outcome neutro documentado como tal.
+  return {
+    fragmentos: [], articulos_encontrados: [], backend: 'disabled',
+    outcome: buildRetrievalOutcome('CONFIGURATION_ERROR', {
+      errorCategory: 'UNKNOWN', errorCode: safeErrorCode('UNKNOWN'), exactAttempted: exactoIntentado,
+    }),
+  };
 }
 
