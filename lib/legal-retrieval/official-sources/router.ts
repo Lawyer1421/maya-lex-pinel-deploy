@@ -46,13 +46,12 @@ export async function routeOfficialSourceQuery(query: OfficialSourceQuery): Prom
     return [{
       status: 'UNSUPPORTED_QUERY',
       evidence: [],
-      // Sin adapter real disponible para este tipo -- se usa el único id
-      // conocido hoy solo como placeholder de tipo; el status ya comunica
-      // que ningún adapter respondió. (Limitación conocida: con un solo
-      // OfficialSourceId definido en types.ts, este campo no puede señalar
-      // "ninguna fuente" de forma más precisa sin ampliar el tipo -- se
-      // documenta aquí en vez de inventar un id ficticio.)
-      sourceId: 'CEDIJ_LEGISLACION',
+      // Fase 1E.1: sourceId ausente a propósito -- ningún adapter fue
+      // siquiera invocado para este tipo, así que no hay ninguna fuente que
+      // atribuir. Ver types.ts (OfficialSourceResult.sourceId) para la
+      // corrección de proveniencia: antes se rellenaba con
+      // 'CEDIJ_LEGISLACION' como placeholder, lo cual sugería falsamente
+      // que CEDIJ había sido consultado.
       errorCode: 'NO_ADAPTER_FOR_KIND',
     }];
   }

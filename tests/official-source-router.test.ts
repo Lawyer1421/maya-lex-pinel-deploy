@@ -138,7 +138,7 @@ describe('cedijLegislacionAdapter.supports()', () => {
 describe('cedijLegislacionAdapter.search() — SUCCESS con provenance completa', () => {
   it('GET+POST simulado, evidencia con todos los campos de proveniencia exigidos', async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML))
+      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML, 200, { 'content-type': 'text/html; charset=utf-8', 'set-cookie': 'ASP.NET_SessionId=abc123; path=/; HttpOnly; SameSite=Lax' }))
       .mockResolvedValueOnce(htmlResponse(RESULTS_HTML_CON_FILAS));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -165,6 +165,15 @@ describe('cedijLegislacionAdapter.search() — SUCCESS con provenance completa',
     expect(segundaLlamada[1].method).toBe('POST');
     expect(segundaLlamada[1].body).toContain('VS123ABC');
     expect(segundaLlamada[1].body).toContain('EV456DEF');
+    // Regresión Fase 1E.1: verificado EN VIVO contra el sitio real que el
+    // <select> por defecto tiene value="Seleccione" (no cadena vacía) --
+    // enviar '' hace que __EVENTVALIDATION rechace el postback con un 500.
+    expect(segundaLlamada[1].body).toContain('ddlTipoDocumento=Seleccione');
+    expect(segundaLlamada[1].body).toContain('ddlMateria=Seleccione');
+    // Regresión Fase 1E.1: verificado EN VIVO que sin reenviar la cookie de
+    // sesión del GET, el sitio responde 500 al POST aunque los tokens sean
+    // correctos.
+    expect(segundaLlamada[1].headers.Cookie).toBe('ASP.NET_SessionId=abc123');
   });
 
   it('NO_RESULTS cuando la tabla de resultados no tiene filas de datos', async () => {
@@ -212,6 +221,145 @@ describe('cedijLegislacionAdapter.search() — SUCCESS con provenance completa',
   });
 });
 
+/**
+ * Fase 1E.1 §5 — resiliencia del parser ante variaciones de formato de LA
+ * MISMA tabla de resultados (nunca una tabla distinta). Cada test aísla una
+ * sola variación para que una regresión futura señale exactamente cuál.
+ */
+describe('cedijLegislacionAdapter — resiliencia del parser (Fase 1E.1)', () => {
+  async function buscarConHtmlDeResultados(resultsHtml: string) {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML))
+      .mockResolvedValueOnce(htmlResponse(resultsHtml)));
+    return cedijLegislacionAdapter.search({ searchText: 'x', kind: 'LEGISLATION' });
+  }
+
+  it('atributos de <tr>/<td> en orden distinto y clases CSS adicionales no rompen el parseo', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr class="header-row" style="font-weight:bold;"><th>ID</th><th>Nombre Documento</th><th>Fecha Publicación</th><th>&nbsp;</th></tr>
+      <tr class="fila-extra otra-clase" data-row="1">
+        <td class="esconderColumna nueva-clase">100</td>
+        <td class="col-titulo nueva-clase" style="width:500px;">Código Civil de Honduras</td>
+        <td style="width:150px;" class="col-fecha">1/2/1906</td>
+        <td valign="middle" align="center"><a target="_blank" class="btn btn-info extra" href="Anexos/uuid-1Codigo%20Civil.pdf">Previsualizar</a></td>
+      </tr>
+    </table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence[0].documentTitle).toBe('Código Civil de Honduras');
+    expect(resultado.evidence[0].publicationDate).toBe('1/2/1906');
+  });
+
+  it('espacios en blanco y saltos de línea adicionales dentro de las celdas no rompen el parseo', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre Documento</th><th>Fecha</th><th></th></tr>
+      <tr>
+        <td>
+          200
+        </td>
+        <td>
+
+          Código de Familia
+
+        </td>
+        <td>
+          3/4/1984
+        </td>
+        <td>
+          <a
+            href="Anexos/uuid-2Codigo%20Familia.pdf"
+          >Previsualizar</a>
+        </td>
+      </tr>
+    </table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence[0].documentTitle).toBe('Código de Familia');
+  });
+
+  it('entidades HTML nombradas y numéricas (decimal y hex) se decodifican correctamente', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+      <tr><td>300</td><td>C&oacute;digo Tributario &amp; Reglamento N&#250;mero 1 &#x41;</td><td>5/6/2016</td><td><a href="Anexos/uuid-3X.pdf">Previsualizar</a></td></tr>
+    </table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence[0].documentTitle).toBe('Código Tributario & Reglamento Número 1 A');
+  });
+
+  it('fecha de publicación vacía no rompe el parseo -- publicationDate queda undefined', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+      <tr><td>400</td><td>Reglamento Sin Fecha Registrada</td><td></td><td><a href="Anexos/uuid-4X.pdf">Previsualizar</a></td></tr>
+    </table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence[0].publicationDate).toBeUndefined();
+  });
+
+  it('una columna adicional al final de la fila no rompe el parseo (título/fecha siguen en su posición)', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Autor</th><th></th></tr>
+      <tr><td>500</td><td>Ley de Ejemplo con Columna Nueva</td><td>7/8/2020</td><td>CEDIJ</td><td><a href="Anexos/uuid-5X.pdf">Previsualizar</a></td></tr>
+    </table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence[0].documentTitle).toBe('Ley de Ejemplo con Columna Nueva');
+    expect(resultado.evidence[0].publicationDate).toBe('7/8/2020');
+  });
+
+  it('markup de paginación fuera de la tabla dgvDocumentos no se confunde con filas de resultado', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+      <tr><td>600</td><td>Decreto de Prueba</td><td>1/1/2020</td><td><a href="Anexos/uuid-6X.pdf">Previsualizar</a></td></tr>
+    </table>
+    <table id="paginador"><tr><td><a href="?page=1">1</a></td><td><a href="?page=2">2</a></td></tr></table>`;
+    const resultado = await buscarConHtmlDeResultados(html);
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence).toHaveLength(1);
+    expect(resultado.evidence[0].documentTitle).toBe('Decreto de Prueba');
+  });
+});
+
+/**
+ * Fase 1E.1 §8 — un href inesperadamente absoluto y fuera del host oficial
+ * NUNCA debe convertirse en sourceUrl. `new URL(href, base)` resuelve URLs
+ * absolutas ignorando la base -- este test prueba explícitamente que el
+ * adapter valida el host resultante antes de aceptar la fila como evidencia.
+ */
+describe('cedijLegislacionAdapter — validación de host del sourceUrl (Fase 1E.1 §8)', () => {
+  it('descarta silenciosamente (NO_RESULTS) una fila cuyo href resuelve a un host no confiable', async () => {
+    const htmlMalicioso = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+      <tr><td>700</td><td>Documento Sospechoso</td><td>1/1/2020</td><td><a href="https://attacker.example.com/malware.pdf">Previsualizar</a></td></tr>
+    </table>`;
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML))
+      .mockResolvedValueOnce(htmlResponse(htmlMalicioso)));
+
+    const resultado = await cedijLegislacionAdapter.search({ searchText: 'x', kind: 'LEGISLATION' });
+    expect(resultado.status).toBe('NO_RESULTS');
+    expect(resultado.evidence).toEqual([]);
+  });
+
+  it('una fila legítima junto a una maliciosa: solo la legítima entra a evidence', async () => {
+    const html = `<table id="ContentPlaceHolder1_dgvDocumentos">
+      <tr><th>ID</th><th>Nombre</th><th>Fecha</th><th></th></tr>
+      <tr><td>700</td><td>Documento Sospechoso</td><td>1/1/2020</td><td><a href="https://attacker.example.com/malware.pdf">Previsualizar</a></td></tr>
+      <tr><td>701</td><td>Documento Legítimo</td><td>2/2/2020</td><td><a href="Anexos/uuid-legitX.pdf">Previsualizar</a></td></tr>
+    </table>`;
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(htmlResponse(FORM_PAGE_HTML))
+      .mockResolvedValueOnce(htmlResponse(html)));
+
+    const resultado = await cedijLegislacionAdapter.search({ searchText: 'x', kind: 'LEGISLATION' });
+    expect(resultado.status).toBe('SUCCESS');
+    expect(resultado.evidence).toHaveLength(1);
+    expect(resultado.evidence[0].documentTitle).toBe('Documento Legítimo');
+    expect(new URL(resultado.evidence[0].sourceUrl).hostname).toBe('legislacion.poderjudicial.gob.hn');
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // router — selección determinista, sin adapter para tipos no implementados
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,6 +382,9 @@ describe('routeOfficialSourceQuery', () => {
     const [resultado] = await routeOfficialSourceQuery({ searchText: 'x', kind: 'JURISPRUDENCE' });
     expect(resultado.status).toBe('UNSUPPORTED_QUERY');
     expect(resultado.errorCode).toBe('NO_ADAPTER_FOR_KIND');
+    // Fase 1E.1: sourceId debe estar AUSENTE -- ningún adapter fue invocado,
+    // por lo que atribuir esto a CEDIJ_LEGISLACION sería proveniencia falsa.
+    expect(resultado.sourceId).toBeUndefined();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

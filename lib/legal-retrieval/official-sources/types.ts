@@ -75,7 +75,16 @@ export interface OfficialSourceEvidence {
 export interface OfficialSourceResult {
   status: OfficialSourceResultStatus;
   evidence: OfficialSourceEvidence[];
-  sourceId: OfficialSourceId;
+  /**
+   * Fase 1E.1: opcional a propósito. Cuando NINGÚN adapter existe para
+   * `query.kind` (status='UNSUPPORTED_QUERY' emitido por el router, no por
+   * un adapter real), no hay ninguna fuente que haya intentado nada -- el
+   * router antes rellenaba esto con 'CEDIJ_LEGISLACION' como placeholder,
+   * lo cual es proveniencia falsa (sugiere que CEDIJ fue consultado cuando
+   * ni siquiera se le llamó). `undefined` representa la ausencia real de
+   * fuente. Todo adapter real SIEMPRE lo setea a su propio id.
+   */
+  sourceId?: OfficialSourceId;
   /** Código seguro -- nunca el mensaje crudo de red/HTML, nunca la URL con detalles internos. */
   errorCode?: string;
 }
