@@ -8,11 +8,15 @@
  * fase es solo extracción del resolver determinista (ver exact-resolver.ts),
  * sin cambio de comportamiento. No sobrearquitecturar.
  *
- * FragmentoRAG es la definición canónica, movida 1:1 desde lib/rag/search.ts
- * (Fase 1A.1 -- ruptura de dependencia circular: exact-resolver.ts la
+ * FragmentoRAG y ResultadoRAG son definiciones canónicas, movidas 1:1 desde
+ * lib/rag/search.ts. FragmentoRAG se movió en Fase 1A.1 (exact-resolver.ts la
  * necesitaba y antes la importaba de vuelta desde search.ts, cerrando un
- * ciclo). Mismo shape exacto, ningún campo agregado/quitado/renombrado.
- * search.ts re-exporta este tipo para mantener la superficie pública histórica.
+ * ciclo). ResultadoRAG se mueve aquí en Fase 1B por la misma razón exacta:
+ * semantic-retriever.ts (buscarEnSupabase) la devuelve como tipo de retorno,
+ * y search.ts no puede ser el origen de un tipo que legal-retrieval/* necesita
+ * sin reabrir el ciclo que Fase 1A.1 cerró. Mismo shape exacto en ambos casos,
+ * ningún campo agregado/quitado/renombrado. search.ts re-exporta ambos tipos
+ * para mantener la superficie pública histórica.
  */
 
 export interface FragmentoRAG {
@@ -26,6 +30,15 @@ export interface FragmentoRAG {
   es_norma_vigente?: boolean | null;
   /** SHA-256(contenido+num_articulo+fuente) truncado a 8 hex — integridad verificable sin columna DB nueva (P0-4). */
   hash?: string;
+}
+
+export interface ResultadoRAG {
+  fragmentos: FragmentoRAG[];
+  articulos_encontrados: string[];
+  backend: 'python' | 'supabase' | 'disabled';
+  error?: string;
+  /** true cuando la búsqueda exacta encontró el mismo número de artículo en más de un instrumento/materia — no se citó nada para no adivinar. */
+  ambiguo?: boolean;
 }
 
 export type VerificationStatus = 'VERIFIED' | 'UNVERIFIED' | 'QUARANTINED';
