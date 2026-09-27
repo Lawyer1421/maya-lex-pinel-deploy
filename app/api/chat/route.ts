@@ -48,9 +48,13 @@ import {
   requiereEvidenciaCorpus,
   CORPUS_EVIDENCE_NOT_FOUND,
   MENSAJE_ABSTENCION_CORPUS,
-  FUENTES_DOCTRINALES,
   type FragmentoRAG,
 } from '@/lib/rag/search';
+// Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
+// (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
+// para que los consumidores actuales (tests que importan desde
+// '@/app/api/chat/route') no requieran ningún cambio de import.
+import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
@@ -157,43 +161,12 @@ const MODOS_CON_ROUTER: AnyMode[] = [
 ];
 
 // ── Citas estructuradas para trazabilidad en UI (P0-4) ──────────────────────
-// Solo fragmentos marcados es_norma_vigente=true califican como "cita" —
-// doctrina/jurisprudencia comparada se usa como contexto para el modelo pero
-// nunca se presenta al usuario como fundamento normativo verificable.
-export interface Cita {
-  articulo: string | null;
-  texto: string;
-  fuente: string;
-  vigente: boolean;
-  hash: string;
-}
-
-// Blindaje explícito (auditoría CLO 2026-09-02): FUENTES_DOCTRINALES vive en
-// lib/rag/search.ts (una sola fuente de verdad, compartida también por
-// formatearContextoRAG() — ver comentario junto a su definición allí para el
-// detalle completo del hallazgo). Aquí se usa para excluir esas fuentes del
-// array de citas formales de la UI, independiente del campo es_norma_vigente.
-
-export function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
-  const vistos = new Set<string>();
-  const citas: Cita[] = [];
-  for (const f of fragmentos) {
-    if (FUENTES_DOCTRINALES.has(f.fuente)) continue;
-    if (f.es_norma_vigente !== true) continue;
-    const clave = `${f.num_articulo ?? ''}|${f.fuente}`;
-    if (vistos.has(clave)) continue;
-    vistos.add(clave);
-    citas.push({
-      articulo: f.num_articulo,
-      texto: f.contenido.length > 600 ? `${f.contenido.slice(0, 600)}…` : f.contenido,
-      fuente: f.fuente,
-      vigente: true,
-      hash: f.hash ?? '',
-    });
-    if (citas.length >= 5) break;
-  }
-  return citas;
-}
+// Movido a lib/legal-retrieval/evidence-engine.ts (Fase 1C, extracción 1:1,
+// sin cambio de comportamiento -- ver MAYALEX_RETRIEVAL_V3_ARCHITECTURE.md).
+// Re-exportado (import arriba) para que los consumidores actuales (tests que
+// importan `construirCitas`/`Cita` desde '@/app/api/chat/route') no
+// requieran ningún cambio de import.
+export { construirCitas, type Cita };
 
 // ── Encoder SSE ────────────────────────────────────────────────────────────
 
