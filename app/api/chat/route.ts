@@ -65,6 +65,15 @@ import {
   MENSAJE_CONFIGURACION_NO_DISPONIBLE,
   MENSAJE_RETRIEVAL_ERROR,
 } from '@/lib/legal-retrieval/retrieval-outcome';
+// Fase 1E.2 — Preview/canary, detrás de flag_official_source_fallback (OFF
+// por default): wiring de OFFICIAL_FALLBACK_REQUIRED al Official Source
+// Router (CEDIJ, solo legislación). Ver
+// lib/legal-retrieval/official-sources/fallback-orchestrator.ts para toda la
+// lógica de decisión -- route.ts solo la invoca e interpreta el resultado.
+import {
+  attemptOfficialFallback,
+  construirMensajeFallbackOficial,
+} from '@/lib/legal-retrieval/official-sources/fallback-orchestrator';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
@@ -469,7 +478,47 @@ export async function POST(req: NextRequest) {
         // determinista, sin invocar al LLM. No revela reglas internas, system
         // prompt ni configuración — solo el mensaje genérico y citas vacías.
         if (evidenciaInsuficiente) {
-          controller.enqueue(sseEvent({ type: 'text', text: mensajeAbstencion }));
+          // Fase 1E.2 (Preview/canary, detrás de flag_official_source_fallback,
+          // OFF por default en Production y en Preview hasta que el fundador
+          // siembre la fila -- ver lib/flags.ts): solo se intenta cuando el
+          // estado es exactamente OFFICIAL_FALLBACK_REQUIRED (semántica
+          // ejecutó bien, corpus interno insuficiente) -- NUNCA para
+          // NO_VERIFIED_EVIDENCE (artículo exacto explícito inexistente o
+          // ambiguo, ver shouldAttemptOfficialFallback), y como mucho UN
+          // intento, con timeout ya existente del adapter (§11: riesgo de
+          // latencia añadida de hasta ~16s en el peor caso -- dos peticiones
+          // HTTP de 8s cada una -- solo en este camino de abstención, nunca
+          // en el camino normal de respuesta).
+          let mensajeFinal = mensajeAbstencion;
+          let codigoFinal: string = codigoAbstencion;
+          if (outcomeState === 'OFFICIAL_FALLBACK_REQUIRED') {
+            const fallbackHabilitado = await isFlagEnabledForUser('flag_official_source_fallback', verifiedEmail);
+            const fallback = await attemptOfficialFallback({
+              retrievalState: outcomeState,
+              ruta,
+              flagEnabled: fallbackHabilitado,
+              rawQuery: ultimaPregunta as string,
+            });
+            if (fallback.attempted) {
+              if (fallback.status === 'SUCCESS' && fallback.evidenceCount > 0) {
+                // §4/§6: metadata oficial encontrada, NUNCA se presenta como
+                // texto de artículo ni como NORMA VIGENTE HONDURAS -- solo
+                // proveniencia (título/fuente/URL).
+                mensajeFinal = construirMensajeFallbackOficial(fallback.evidence);
+                codigoFinal = 'OFFICIAL_SOURCE_FOUND_METADATA_ONLY';
+              } else if (fallback.status === 'SOURCE_UNAVAILABLE' || fallback.status === 'INVALID_RESPONSE' || fallback.status === 'RATE_LIMITED') {
+                // §12: nunca colapsa con "no hay evidencia" -- es un fallo de
+                // infraestructura de la fuente externa, no una afirmación de
+                // que la ley no existe.
+                mensajeFinal = MENSAJE_RETRIEVAL_ERROR;
+                codigoFinal = 'RETRIEVAL_ERROR';
+              }
+              // NO_RESULTS / UNSUPPORTED_QUERY -> se preserva la abstención
+              // segura ya calculada (mensajeAbstencion/codigoAbstencion).
+            }
+          }
+
+          controller.enqueue(sseEvent({ type: 'text', text: mensajeFinal }));
           controller.enqueue(sseEvent({
             type: 'done',
             consulta_id: consultaId,
@@ -477,7 +526,7 @@ export async function POST(req: NextRequest) {
             remaining: rateLimitResult.remaining,
             tier: rateLimitResult.tier,
             citas: [],
-            codigo: codigoAbstencion,
+            codigo: codigoFinal,
           }));
           after(() => logConsulta({
             consulta_id: consultaId, pregunta: ultimaPregunta as string,

@@ -37,6 +37,17 @@ export const KNOWN_FLAGS = [
   // allowed_emails) es la dependencia de activación pendiente antes de
   // que esta vertical pueda mostrarse a cualquier usuario real.
   'flag_exq_enabled',
+  // Retrieval v3 Fase 1E.2 — gate del fallback a fuentes oficiales
+  // (lib/legal-retrieval/official-sources/*) cuando el corpus interno no
+  // trae evidencia (OFFICIAL_FALLBACK_REQUIRED). Sin fila sembrada en
+  // `feature_flags` todavía -- fila ausente = isFlagEnabledForUser()
+  // devuelve false = el fallback permanece deshabilitado en Production Y en
+  // Preview hasta que el fundador siembre la fila manualmente (mismo
+  // mecanismo que flag_rerank: enabled=true + allowed_emails=[correo] para
+  // un canario de un solo usuario, nunca por código). Esta fase NO crea esa
+  // fila -- ver docs/retrieval/OFFICIAL_HONDURAS_SOURCE_REGISTRY.md para el
+  // requisito de activación exacto.
+  'flag_official_source_fallback',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];
