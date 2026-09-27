@@ -99,6 +99,13 @@ es un snapshot, no una garantía permanente.
 - **Fragilidad conocida (encontrada y corregida en esta fase):** (1) el POST requiere reenviar la cookie `ASP.NET_SessionId` del GET inicial; (2) los `<select>` de filtro deben enviarse con su valor real por defecto (`"Seleccione"`), nunca cadena vacía -- ambos, si se omiten, producen `HTTP 500` por rechazo de `__EVENTVALIDATION`/sesión, no un error de la aplicación de MayaLex. Ambos ya corregidos en el adapter y cubiertos por tests de regresión.
 - **Enlaces PDF confirmados en vivo:** sí -- sonda `HEAD` real contra un PDF devuelto por la búsqueda: `HTTP 200`, `Content-Type: application/pdf`, mismo host oficial. No se descargó el archivo completo.
 
+**Segunda verificación independiente (Fase 1E.1B, estabilidad temporal):**
+- **Fecha/hora:** 2026-09-27T15:49:29Z (~10 minutos después de la corrida de Fase 1E.1, proceso `npx tsx` nuevo -- sin reutilizar caché, cookie, VIEWSTATE ni EVENTVALIDATION de la corrida anterior; el adapter obtiene todo de nuevo en cada invocación).
+- **Resultado:** idéntico en estructura a la primera corrida -- "Codigo Penal" → `SUCCESS` (10 documentos), "Codigo Civil" → `SUCCESS` (1 documento, mismo título "Código Civil (mayo 2018)"), consulta sin sentido → `NO_RESULTS`, sonda PDF → `HTTP 200` / `application/pdf`.
+- **Estabilidad estructural confirmada:** GET exitoso, cookie de sesión nueva emitida y aceptada, VIEWSTATE/EVENTVALIDATION frescos extraídos y aceptados por el servidor, POST aceptado (sin 500), tabla de resultados reconocida por el parser, enlaces PDF válidos.
+- **Ninguna fragilidad nueva encontrada** en esta segunda corrida -- los dos fixes de Fase 1E.1 (cookie de sesión, valor `"Seleccione"` de los `<select>`) siguen siendo suficientes y necesarios.
+- **Ningún cambio de código requerido.**
+
 ### A.3 Sistema de Indexación Jurisprudencial (SIJ) — `sij.poderjudicial.gob.hn`
 
 - **Clasificación:** `DISCOVERY_ONLY` (por ahora — ver nota).
