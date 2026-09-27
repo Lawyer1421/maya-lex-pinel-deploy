@@ -6,6 +6,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { buildAuthCallbackUrl } from '@/lib/auth/redirect';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { performGoogleSignIn, performMagicLinkSignIn } from '@/lib/auth/login-actions';
+
+const MENSAJE_ERROR_GENERICO = 'No se pudo completar el inicio de sesión. Intente de nuevo.';
 
 /**
  * Hotfix mínimo (hotfix/google-login-visible): agrega "Continuar con
@@ -13,10 +16,18 @@ import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
  * pestaña de contraseña, sin dependencias de entitlements/profiles/
  * migraciones. El único flujo que ya funcionaba (enlace mágico) se
  * mantiene sin cambios de comportamiento.
+ *
+ * enviandoEmail/enviandoGoogle son estados independientes (antes un solo
+ * `estado` compartido hacía que ambos botones mostraran "cargando" a la
+ * vez, y una excepción sin try/catch dejaba la UI congelada para siempre
+ * — MAGIC_LINK_STALL, 2026-09-27). La llamada real a Supabase vive en
+ * lib/auth/login-actions.ts, con timeout y manejo de errores centralizado.
  */
 export default function LoginPage() {
   const [email, setEmail] = useState('');
-  const [estado, setEstado] = useState<'idle' | 'enviando' | 'enviado' | 'error'>('idle');
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
+  const [enviandoGoogle, setEnviandoGoogle] = useState(false);
+  const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState('');
 
   function nextDestino(): string {
@@ -25,37 +36,35 @@ export default function LoginPage() {
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
-    setEstado('enviando');
+    if (!email.trim() || enviandoEmail) return;
+    setEnviandoEmail(true);
     setError('');
-
-    const supabase = createSupabaseBrowserClient();
-    const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
-    const { error: authError } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: callbackUrl },
-    });
-
-    if (authError) { setError(authError.message); setEstado('error'); }
-    else setEstado('enviado');
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
+      const resultado = await performMagicLinkSignIn(supabase, email.trim(), callbackUrl);
+      if (resultado.ok) setEnviado(true);
+      else setError(resultado.message ?? MENSAJE_ERROR_GENERICO);
+    } finally {
+      setEnviandoEmail(false);
+    }
   }
 
   async function handleGoogle() {
-    if (estado === 'enviando') return; // evita doble envío si ya hay una acción en curso
+    if (enviandoGoogle) return; // evita doble envío del mismo botón
     setError('');
-    setEstado('enviando');
-    const supabase = createSupabaseBrowserClient();
-    const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: callbackUrl },
-    });
-    if (authError) {
-      setError(authError.message);
-      setEstado('error');
+    setEnviandoGoogle(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const callbackUrl = buildAuthCallbackUrl(window.location.origin, nextDestino());
+      const resultado = await performGoogleSignIn(supabase, callbackUrl);
+      if (!resultado.ok) setError(resultado.message ?? MENSAJE_ERROR_GENERICO);
+      // Si resultado.ok, el navegador ya está redirigiendo a Google — el
+      // finally de abajo igual limpia el estado por si la redirección no
+      // se completa (p.ej. el usuario cancela).
+    } finally {
+      setEnviandoGoogle(false);
     }
-    // Si no hay error, el navegador redirige a Google — no hace falta
-    // volver a 'idle' aquí.
   }
 
   return (
@@ -73,13 +82,13 @@ export default function LoginPage() {
         </div>
 
         <div className="glass-card p-7">
-          {estado === 'enviado' ? (
+          {enviado ? (
             <div className="text-center py-4">
               <h2 className="font-semibold text-white mb-2">Revise su correo</h2>
               <p className="text-white/50 text-sm leading-relaxed">
                 Enviamos un enlace de acceso a <span className="text-jade">{email}</span>.
               </p>
-              <button onClick={() => setEstado('idle')} className="mt-5 text-jade text-sm hover:underline">
+              <button onClick={() => setEnviado(false)} className="mt-5 text-jade text-sm hover:underline">
                 Usar otro correo
               </button>
             </div>
@@ -89,7 +98,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleGoogle}
-                disabled={estado === 'enviando'}
+                disabled={enviandoGoogle}
                 aria-label="Continuar con Google"
                 className="w-full flex items-center justify-center gap-3 bg-white text-navy font-semibold text-sm rounded-xl py-3 mb-5 hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
@@ -99,7 +108,7 @@ export default function LoginPage() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                {estado === 'enviando' ? 'Redirigiendo…' : 'Continuar con Google'}
+                {enviandoGoogle ? 'Redirigiendo…' : 'Continuar con Google'}
               </button>
 
               <div className="flex items-center gap-3 mb-5">
@@ -124,10 +133,10 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  disabled={estado === 'enviando' || !email.trim()}
+                  disabled={enviandoEmail || !email.trim()}
                   className="w-full btn-jade text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {estado === 'enviando' ? 'Enviando...' : 'Enviarme un enlace de acceso'}
+                  {enviandoEmail ? 'Enviando...' : 'Enviarme un enlace de acceso'}
                 </button>
 
                 <p className="text-white/30 text-xs text-center">
