@@ -1,4 +1,4 @@
-# Registro de Fuentes Oficiales Hondureñas — Retrieval v3 Fase 1E
+# Registro de Fuentes Oficiales Hondureñas — Retrieval v3 Fase 1E / 1E.1
 
 **Naturaleza de este documento:** investigación de campo, no memoria ni
 suposición. Cada afirmación de "reachable"/"unreachable"/"estructura real"
@@ -7,6 +7,40 @@ de solo lectura, sin autenticación, sin scraping masivo, sin escritura) —
 nunca de conocimiento general no verificado. Donde no se pudo verificar algo
 en vivo, se dice explícitamente "no verificado en esta sesión", nunca se
 completa el hueco con una suposición.
+
+**Actualización Fase 1E.1 (misma fecha de investigación):** distinción
+introducida entre dos niveles de verificación:
+- `MANUAL_BROWSER_VERIFIED` — confirmado navegando manualmente (Fase 1E).
+- `ADAPTER_LIVE_VERIFIED` — confirmado ejecutando el CÓDIGO REAL del
+  adapter (`cedijLegislacionAdapter`) contra el sitio en vivo, vía
+  `scripts/verify-cedij-adapter.ts` (Fase 1E.1).
+
+CEDIJ Legislación pasa de `MANUAL_BROWSER_VERIFIED` a **`ADAPTER_LIVE_VERIFIED`**
+en esta fase: 2/2 consultas sintéticas ("Codigo Penal", "Codigo Civil")
+devolvieron `SUCCESS` con evidencia real (10 y 1 resultados respectivamente),
+una consulta sin sentido devolvió `NO_RESULTS` correctamente, y una sonda
+HEAD contra un PDF real confirmó `HTTP 200` + `Content-Type: application/pdf`
+en el host oficial. Ver detalle completo en la sección A.2 actualizada.
+
+**Fragilidad real descubierta durante la verificación en vivo (no visible
+solo navegando manualmente):** la primera ejecución del adapter contra el
+sitio real FALLÓ con `HTTP 500` en el POST, pese a que el parseo de
+`__VIEWSTATE`/`__EVENTVALIDATION` era correcto. Diagnóstico en vivo (con
+`node -e` ad-hoc, nunca contra producción de MayaLex) encontró dos causas
+independientes, ambas corregidas en el código del adapter:
+1. El POST debe reenviar la cookie `ASP.NET_SessionId` emitida por el GET
+   inicial -- sin ella, el servidor responde 500 ("sesión no encontrada")
+   aunque los tokens VIEWSTATE sean válidos.
+2. El valor por defecto real de los `<select>` (`ddlTipoDocumento`,
+   `ddlMateria`) es el texto literal `"Seleccione"`, NO una cadena vacía --
+   `__EVENTVALIDATION` (mecanismo anti-tampering de ASP.NET) rechaza
+   cualquier valor de `<select>` que no coincida con uno de sus `<option>`
+   renderizados, y también producía 500.
+
+Este hallazgo es la razón exacta por la que Fase 1E.1 exige verificación de
+código real, no solo confirmación manual por navegador: la interacción
+manual (clic real en el botón, con todo el contexto de sesión/cookies del
+navegador) ocultaba ambos problemas por completo.
 
 Fecha de la investigación: 2026-09-27 (fecha del sistema en el momento de
 las pruebas). Las páginas gubernamentales cambian sin aviso — este registro
@@ -36,9 +70,9 @@ es un snapshot, no una garantía permanente.
 - **robots.txt:** no existe (`/robots.txt` redirige a la página de inicio, sin archivo real) — sin restricción máquina-legible encontrada.
 - **Autenticación:** ninguna para las páginas públicas navegadas.
 
-### A.2 Biblioteca Judicial Electrónica (CEDIJ) — `legislacion.poderjudicial.gob.hn` ✅ VERIFICADO EN PROFUNDIDAD
+### A.2 Biblioteca Judicial Electrónica (CEDIJ) — `legislacion.poderjudicial.gob.hn` ✅ ADAPTER_LIVE_VERIFIED
 
-- **Clasificación:** `PRIMARY_OFFICIAL`
+- **Clasificación:** `PRIMARY_OFFICIAL` — **`ADAPTER_LIVE_VERIFIED`** (Fase 1E.1; era `MANUAL_BROWSER_VERIFIED` en Fase 1E)
 - **Tipo de contenido:** `LEGISLATION` (Códigos, Leyes, Reglamentos, Otros Instrumentos)
 - **URL base:** `https://legislacion.poderjudicial.gob.hn/sistemalegislacion/inicio.aspx`
 - **Descripción propia del sitio:** "creación de la Biblioteca Judicial Electrónica... donde se han incluido Códigos, Leyes, Reglamentos y Otros Instrumentos obtenidos del diario oficial La Gaceta, por el Centro Electrónico de Documentación e Información Judicial (CEDIJ) a partir del año 2009 a la fecha."
@@ -56,6 +90,14 @@ es un snapshot, no una garantía permanente.
 - **Confiabilidad de la fuente:** alta — es la fuente primaria que el propio corpus de MayaLex ya cita en sus comentarios de código (`lib/rag/search.ts` referencia "fuente Poder Judicial" para el Código Civil).
 - **¿Puede consultarse automáticamente?** Sí, con las dos peticiones (GET + POST) descritas — implementado en `lib/legal-retrieval/official-sources/adapters/cedij-legislacion.ts`.
 - **¿Es apropiado técnicamente automatizarlo?** Sí — sin robots.txt restrictivo, sin autenticación, volumen de peticiones bajo (una búsqueda por consulta con evidencia insuficiente, no un crawl).
+
+**Verificación en vivo desde código real (Fase 1E.1, `scripts/verify-cedij-adapter.ts`):**
+- **Fecha de verificación:** 2026-09-27 (misma sesión).
+- **Consultas ejecutadas:** 2 sintéticas ("Codigo Penal", "Codigo Civil") + 1 sin sentido (control de `NO_RESULTS`).
+- **Resultado:** "Codigo Penal" → `SUCCESS`, 10 documentos reales (incluyendo el Código Penal consolidado a julio 2026). "Codigo Civil" → `SUCCESS`, 1 documento ("Código Civil (mayo 2018)"). Consulta sin sentido → `NO_RESULTS` limpio.
+- **Disponibilidad de la fuente en el momento de la prueba:** activa, tiempos de respuesta normales (sub-segundo).
+- **Fragilidad conocida (encontrada y corregida en esta fase):** (1) el POST requiere reenviar la cookie `ASP.NET_SessionId` del GET inicial; (2) los `<select>` de filtro deben enviarse con su valor real por defecto (`"Seleccione"`), nunca cadena vacía -- ambos, si se omiten, producen `HTTP 500` por rechazo de `__EVENTVALIDATION`/sesión, no un error de la aplicación de MayaLex. Ambos ya corregidos en el adapter y cubiertos por tests de regresión.
+- **Enlaces PDF confirmados en vivo:** sí -- sonda `HEAD` real contra un PDF devuelto por la búsqueda: `HTTP 200`, `Content-Type: application/pdf`, mismo host oficial. No se descargó el archivo completo.
 
 ### A.3 Sistema de Indexación Jurisprudencial (SIJ) — `sij.poderjudicial.gob.hn`
 
@@ -120,7 +162,7 @@ No se investigaron otros repositorios adicionales en esta sesión por límite de
 | Fuente | Dominio | Clasificación | Tipo | Verificado en vivo | Adapter implementado |
 |---|---|---|---|---|---|
 | Portal Poder Judicial | www.poderjudicial.gob.hn | DISCOVERY_ONLY | MIXED | Sí | No |
-| **CEDIJ Biblioteca Judicial** | legislacion.poderjudicial.gob.hn | **PRIMARY_OFFICIAL** | LEGISLATION | **Sí, en profundidad** | **Sí — `cedij-legislacion.ts`** |
+| **CEDIJ Biblioteca Judicial** | legislacion.poderjudicial.gob.hn | **PRIMARY_OFFICIAL — ADAPTER_LIVE_VERIFIED** | LEGISLATION | **Sí — código real, 2/2 consultas SUCCESS + PDF probado** | **Sí — `cedij-legislacion.ts`** |
 | SIJ Jurisprudencial | sij.poderjudicial.gob.hn | DISCOVERY_ONLY | JURISPRUDENCE | Inalcanzable (2 intentos) | No |
 | Justicia Abierta / SEJE | sejeinfo.poderjudicial.gob.hn | SECONDARY_OFFICIAL | MIXED/ADMINISTRATIVE | Sí | No (fuera de alcance de esta fase) |
 | Tribunal Superior de Cuentas | www.tsc.gob.hn | UNSUITABLE_FOR_AUTOMATION | ADMINISTRATIVE | Sí | No |

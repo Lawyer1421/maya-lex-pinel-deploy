@@ -58,27 +58,86 @@ interface FilaResultado {
   hrefRelativo: string;
 }
 
+/**
+ * Fase 1E.1 — parser endurecido contra variaciones de formato del MISMO
+ * table de resultados (§5 de la directiva): orden de atributos, espacios en
+ * blanco/saltos de línea extra, clases CSS adicionales, entidades HTML,
+ * fecha vacía, columnas adicionales. NO se amplía a parsear una estructura
+ * de tabla distinta -- sigue siendo específico de `dgvDocumentos`.
+ *
+ * Estrategia: (1) aislar solo la tabla `dgvDocumentos` para que nada fuera
+ * de ella interfiera; (2) partir en bloques `<tr ...>...</tr>` tolerando
+ * atributos y saltos de línea; (3) descartar la fila de encabezado
+ * (contiene `<th`); (4) extraer TODAS las celdas `<td ...>...</td>` de la
+ * fila, sin asumir su `class`/`style` exactos; (5) el enlace PDF se busca en
+ * TODA la fila (no en una celda fija), tolerante a columnas adicionales
+ * antes o después. Deliberadamente NO usa un parser DOM/HTML de terceros --
+ * ninguno está presente en las dependencias del proyecto hoy (verificado:
+ * sin cheerio/jsdom/parse5/htmlparser2 en package.json/node_modules), y
+ * agregar uno sería una dependencia nueva no autorizada en esta fase.
+ */
 function parsearFilasResultado(html: string): FilaResultado[] {
+  const tablaMatch = html.match(/<table[^>]*id="[^"]*dgvDocumentos"[^>]*>([\s\S]*?)<\/table>/i);
+  if (!tablaMatch) return [];
+  const tablaHtml = tablaMatch[1];
+
   const filas: FilaResultado[] = [];
-  const filaRe = /<tr>\s*<td class="esconderColumna">[^<]*<\/td><td[^>]*>([^<]*)<\/td><td[^>]*>([^<]*)<\/td><td[^>]*>\s*<a[^>]*href="([^"]*)"/g;
-  let m: RegExpExecArray | null;
-  while ((m = filaRe.exec(html)) !== null) {
-    filas.push({ titulo: decodeHtmlEntities(m[1].trim()), fecha: m[2].trim(), hrefRelativo: m[3] });
+  const filaRe = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  let filaMatch: RegExpExecArray | null;
+
+  while ((filaMatch = filaRe.exec(tablaHtml)) !== null) {
+    const filaHtml = filaMatch[1];
+    if (/<th[\s>]/i.test(filaHtml)) continue; // fila de encabezado, no es un documento
+
+    const celdas: string[] = [];
+    const celdaRe = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+    let celdaMatch: RegExpExecArray | null;
+    while ((celdaMatch = celdaRe.exec(filaHtml)) !== null) {
+      celdas.push(celdaMatch[1]);
+    }
+    // Columnas esperadas: [0]=ID interno, [1]=Nombre Documento, [2]=Fecha
+    // Publicación, [3..]=acciones (enlace Previsualizar). Si el sitio agrega
+    // una columna al final, [1]/[2] siguen siendo correctas -- solo se
+    // rompería si insertaran una columna ANTES de estas dos, lo cual sería
+    // un rediseño real de la tabla (fuera de "misma tabla", ver docstring).
+    if (celdas.length < 3) continue;
+
+    const enlacePdf = /href="([^"]*\.pdf[^"]*)"/i.exec(filaHtml);
+    if (!enlacePdf) continue; // fila sin documento adjunto -- no es evidencia utilizable
+
+    filas.push({
+      titulo: decodeHtmlEntities(stripTags(celdas[1]).trim()),
+      fecha: decodeHtmlEntities(stripTags(celdas[2]).trim()),
+      hrefRelativo: enlacePdf[1],
+    });
   }
   return filas;
 }
 
+function stripTags(html: string): string {
+  return html.replace(/<[^>]*>/g, '');
+}
+
+const ENTIDADES_NOMBRADAS: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  oacute: 'ó', iacute: 'í', aacute: 'á', eacute: 'é', uacute: 'ú',
+  Oacute: 'Ó', Iacute: 'Í', Aacute: 'Á', Eacute: 'É', Uacute: 'Ú',
+  ntilde: 'ñ', Ntilde: 'Ñ', uuml: 'ü', Uuml: 'Ü',
+};
+
+/**
+ * Decodifica entidades HTML nombradas y numéricas (decimales `&#243;` y
+ * hexadecimales `&#xF3;`) -- no depende de una tabla fija de casos
+ * observados, cubre cualquier entidad numérica válida.
+ */
 function decodeHtmlEntities(texto: string): string {
-  return texto
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&#243;|&oacute;/g, 'ó')
-    .replace(/&#237;|&iacute;/g, 'í')
-    .replace(/&#225;|&aacute;/g, 'á')
-    .replace(/&#233;|&eacute;/g, 'é')
-    .replace(/&#250;|&uacute;/g, 'ú')
-    .replace(/&#241;|&ntilde;/g, 'ñ');
+  return texto.replace(/&(#x[0-9a-f]+|#\d+|[a-zA-Z]+);/gi, (entidad, cuerpo: string) => {
+    if (cuerpo[0] === '#') {
+      const codigo = cuerpo[1]?.toLowerCase() === 'x' ? parseInt(cuerpo.slice(2), 16) : parseInt(cuerpo.slice(1), 10);
+      return Number.isFinite(codigo) ? String.fromCodePoint(codigo) : entidad;
+    }
+    return ENTIDADES_NOMBRADAS[cuerpo] ?? entidad;
+  });
 }
 
 export const cedijLegislacionAdapter: OfficialSourceAdapter = {
@@ -104,6 +163,10 @@ export const cedijLegislacionAdapter: OfficialSourceAdapter = {
         acceptedContentTypePrefixes: ['text/html'],
       });
 
+      // __VIEWSTATEGENERATOR se trata como opcional (§6 de la directiva
+      // 1E.1): el sitio podría omitirlo en una versión futura sin que eso
+      // invalide la búsqueda -- solo __VIEWSTATE y __EVENTVALIDATION son
+      // estrictamente necesarios, verificado en vivo.
       const viewState = extractHiddenValue(pagina.body, '__VIEWSTATE');
       const viewStateGenerator = extractHiddenValue(pagina.body, '__VIEWSTATEGENERATOR');
       const eventValidation = extractHiddenValue(pagina.body, '__EVENTVALIDATION');
@@ -111,22 +174,40 @@ export const cedijLegislacionAdapter: OfficialSourceAdapter = {
         return { status: 'INVALID_RESPONSE', evidence: [], sourceId: 'CEDIJ_LEGISLACION', errorCode: 'MISSING_FORM_TOKENS' };
       }
 
+      // Verificado en vivo (Fase 1E.1): el POST DEBE reenviar la cookie de
+      // sesión emitida por el GET (ASP.NET_SessionId) -- sin ella el sitio
+      // responde 500 "sesión no encontrada" aunque los tokens sean
+      // correctos. Es la sesión anónima propia del servidor, no una
+      // credencial de usuario.
+      const cookieSesion = pagina.setCookie?.split(';')[0];
+
+      // Verificado en vivo (Fase 1E.1): el valor real del <option> por
+      // defecto de ambos <select> es el TEXTO "Seleccione", NO una cadena
+      // vacía -- __EVENTVALIDATION rechaza cualquier valor de <select> que
+      // no coincida exactamente con uno de sus <option> renderizados
+      // (mecanismo anti-tampering de ASP.NET), lo que también producía un
+      // 500 antes de este fix.
+      const VALOR_SELECT_SIN_FILTRO = 'Seleccione';
+
       // Paso 2: POST simulando el submit real del botón "Buscar" (verificado
       // en vivo: name=ctl00$ContentPlaceHolder1$btnAdjuntar, value=Buscar).
       const body = new URLSearchParams({
         __VIEWSTATE: viewState,
-        __VIEWSTATEGENERATOR: viewStateGenerator,
+        ...(viewStateGenerator ? { __VIEWSTATEGENERATOR: viewStateGenerator } : {}),
         __EVENTVALIDATION: eventValidation,
         'ctl00$ContentPlaceHolder1$txtNombreDocumento': query.searchText,
-        'ctl00$ContentPlaceHolder1$ddlTipoDocumento': '',
-        'ctl00$ContentPlaceHolder1$ddlMateria': '',
+        'ctl00$ContentPlaceHolder1$ddlTipoDocumento': VALOR_SELECT_SIN_FILTRO,
+        'ctl00$ContentPlaceHolder1$ddlMateria': VALOR_SELECT_SIN_FILTRO,
         'ctl00$ContentPlaceHolder1$btnAdjuntar': 'Buscar',
       }).toString();
 
       const resultados = await safeFetchOfficialHost(SEARCH_URL, {
         method: 'POST',
         body,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(cookieSesion ? { Cookie: cookieSesion } : {}),
+        },
         allowedHosts: ALLOWED_HOSTS,
         acceptedContentTypePrefixes: ['text/html'],
       });
@@ -134,22 +215,41 @@ export const cedijLegislacionAdapter: OfficialSourceAdapter = {
       const filas = parsearFilasResultado(resultados.body);
       const ahora = new Date().toISOString();
 
-      const evidence: OfficialSourceEvidence[] = filas.map((fila) => ({
-        sourceId: 'CEDIJ_LEGISLACION',
-        sourceName: SOURCE_NAME,
-        sourceUrl: new URL(fila.hrefRelativo, BASE_URL).toString(),
-        documentTitle: fila.titulo,
-        documentType: 'LEGISLATION',
-        jurisdiction: 'HN',
-        publicationDate: fila.fecha || undefined,
-        documentNumber: extraerNumeroDecreto(fila.titulo),
-        articleNumber: query.articleNumber,
-        retrievedAt: ahora,
-        // El propio CEDIJ es la fuente que consolida/publica el texto -- se
-        // clasifica SOURCE_CONFIRMED (el sitio lo presenta como el
-        // documento oficial), nunca "verificado" por MayaLex (ver types.ts).
-        verificationStatus: 'SOURCE_CONFIRMED',
-      }));
+      // Fase 1E.1 (§8): un href malformado o inesperadamente absoluto en la
+      // respuesta (ej. `href="https://evil.example.com/x.pdf"`) NUNCA debe
+      // convertirse en un sourceUrl aceptado solo porque `new URL(href, BASE_URL)`
+      // resuelve URLs absolutas ignorando la base. Cada fila se valida
+      // explícitamente contra ALLOWED_HOSTS antes de entrar a la evidencia --
+      // una fila que no resuelve al host oficial se descarta, nunca se
+      // propaga como si fuera un documento de CEDIJ.
+      const evidence: OfficialSourceEvidence[] = [];
+      for (const fila of filas) {
+        let sourceUrl: string;
+        try {
+          sourceUrl = new URL(fila.hrefRelativo, BASE_URL).toString();
+        } catch {
+          continue; // href irreconocible como URL -- se descarta, no se adivina
+        }
+        if (!ALLOWED_HOSTS.includes(new URL(sourceUrl).hostname.toLowerCase() as (typeof ALLOWED_HOSTS)[number])) {
+          continue; // fuera del host oficial -- descartada, nunca reportada como evidencia
+        }
+        evidence.push({
+          sourceId: 'CEDIJ_LEGISLACION',
+          sourceName: SOURCE_NAME,
+          sourceUrl,
+          documentTitle: fila.titulo,
+          documentType: 'LEGISLATION',
+          jurisdiction: 'HN',
+          publicationDate: fila.fecha || undefined,
+          documentNumber: extraerNumeroDecreto(fila.titulo),
+          articleNumber: query.articleNumber,
+          retrievedAt: ahora,
+          // El propio CEDIJ es la fuente que consolida/publica el texto -- se
+          // clasifica SOURCE_CONFIRMED (el sitio lo presenta como el
+          // documento oficial), nunca "verificado" por MayaLex (ver types.ts).
+          verificationStatus: 'SOURCE_CONFIRMED',
+        });
+      }
 
       return {
         status: evidence.length > 0 ? 'SUCCESS' : 'NO_RESULTS',

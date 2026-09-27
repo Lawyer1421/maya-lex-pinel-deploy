@@ -90,7 +90,7 @@ async function readBodyCapped(response: Response, maxBytes: number): Promise<str
  * Content-Type. Nunca lanza un error crudo de red/HTML hacia el caller sin
  * clasificar -- siempre SafeFetchError con un código seguro.
  */
-export async function safeFetchOfficialHost(url: string, opts: SafeFetchOptions): Promise<{ body: string; finalUrl: string }> {
+export async function safeFetchOfficialHost(url: string, opts: SafeFetchOptions): Promise<{ body: string; finalUrl: string; setCookie: string | null }> {
   assertAllowlisted(url, opts.allowedHosts, 'HOST_NOT_ALLOWLISTED');
 
   let currentUrl = url;
@@ -136,7 +136,15 @@ export async function safeFetchOfficialHost(url: string, opts: SafeFetchOptions)
     }
 
     const body = await readBodyCapped(response, opts.maxBytes ?? DEFAULT_MAX_BYTES);
-    return { body, finalUrl: currentUrl };
+    // Fase 1E.1: expuesto para que un adapter stateful (ej. un formulario
+    // ASP.NET WebForms cuyo GET inicial ata __VIEWSTATE a una sesión de
+    // servidor) pueda reenviar la cookie de sesión en su siguiente petición
+    // -- verificado en vivo que sin esto el sitio de CEDIJ responde 500 al
+    // POST (sesión no encontrada), aun con __VIEWSTATE/__EVENTVALIDATION
+    // correctos. No es un mecanismo de autenticación -- es la sesión anónima
+    // que el propio servidor emite en cada GET.
+    const setCookie = response.headers.get('set-cookie');
+    return { body, finalUrl: currentUrl, setCookie };
   }
 
   throw new SafeFetchError('TOO_MANY_REDIRECTS', `Más de ${MAX_REDIRECTS} redirecciones`);
