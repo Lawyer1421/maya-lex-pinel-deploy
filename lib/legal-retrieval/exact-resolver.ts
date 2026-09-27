@@ -10,14 +10,16 @@
  * ya existente y verificado, no introduce ninguna lógica nueva.
  *
  * `contieneArtefactoAnonimizacion`, `hashFragmento` y el tipo `FragmentoRAG`
- * siguen viviendo en lib/rag/search.ts (los usa también la ruta semántica,
- * fuera del alcance de esta fase) -- se importan de ahí. lib/rag/search.ts
- * re-exporta todo lo de este archivo para mantener compatibilidad exacta con
- * los consumidores actuales (route.ts, tests) sin requerirles ningún cambio.
+ * viven en ./primitives y ./types respectivamente (Fase 1A.1 -- antes se
+ * importaban desde lib/rag/search.ts, lo que cerraba un ciclo search.ts ->
+ * exact-resolver.ts -> search.ts; este módulo NUNCA debe importar de
+ * lib/rag/search.ts). lib/rag/search.ts re-exporta todo lo de este archivo
+ * para mantener compatibilidad exacta con los consumidores actuales
+ * (route.ts, tests) sin requerirles ningún cambio.
  */
 
-import type { FragmentoRAG } from '@/lib/rag/search';
-import { contieneArtefactoAnonimizacion, hashFragmento } from '@/lib/rag/search';
+import type { FragmentoRAG } from './types';
+import { contieneArtefactoAnonimizacion, hashFragmento } from './primitives';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // RECUPERACIÓN DETERMINISTA POR ARTÍCULO EXACTO
