@@ -4,6 +4,44 @@
 **Fase:** Retrieval V3 — 1E.3C.3 (solo diagnóstico / lectura — sin mutaciones)
 **SHA de partida:** `880597fc18718a6ac3041fd6c555cc84c88519d4`
 
+## 0. Addendum de ejecución — Fase 1E.3C.4 (autorizada, 2026-09-27)
+
+Con autorización explícita del fundador, la reparación propuesta en §12 se
+ejecutó parcialmente usando el Vercel CLI ya autenticado (no el tool MCP
+`edit_project_env`/`create_project_env`, confirmado roto en esta sesión —
+mismo patrón de fallo que `create_deployment`):
+
+- `NEXT_PUBLIC_SUPABASE_URL` (Preview): `vercel env rm` + `vercel env add`
+  con el valor actual de `https://aicakncgtuiiuomflkqj.supabase.co`
+  (obtenido vía `get_project_url`, Staging), sin trailing newline
+  (`printf '%s'`, no `echo`). Nueva fila: `LnsSai6xvcYKCWYw`.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Preview): mismo procedimiento, con el
+  anon key legado de Staging (público por diseño de Supabase), usando
+  `--type config` (el CLI exige elegir explícitamente entre `secret` y
+  `config` para cualquier variable `NEXT_PUBLIC_*` que "parezca" una
+  credencial — se eligió `config` porque un anon key está pensado para
+  exponerse al navegador, igual que su configuración original). Nueva
+  fila: `MHX5era63ZS4z6Ca`.
+- `SUPABASE_SERVICE_ROLE_KEY` (Preview): **sin tocar, intencionalmente**
+  — ninguna herramienta disponible en esta sesión puede obtener el valor
+  actual de ese secreto en Staging (Supabase MCP nunca lo expone), y no
+  se solicitó al fundador que lo pegara en el chat. El síntoma
+  diagnosticado ("Invalid API key") es específico del flujo de
+  `anon key` del navegador, no del `service_role`.
+- Redeploy: `vercel redeploy maya-lex-pinel-deploy-mjwbosaiq-...vercel.app
+  --target preview` — reconstruyó el mismo commit (`67aa98f`) con las
+  variables nuevas. Nuevo deployment: `dpl_3c8JoQ52Hs1rzBppygmr76dteAQb`,
+  `READY`, mismo alias de rama estable, SSO confirmado aún activo (`302`
+  a `vercel.com/sso-api`).
+- Producción verificada intacta: mismas filas de env (`1uGjdK4DjbKuceMw`,
+  `DiIpYaLmtGrzru5a`, `pJHFiCD00pM899kz`) sin cambios de `updatedAt`;
+  ningún deployment nuevo de `target=production` — el más reciente sigue
+  siendo de `main`, de antes de esta sesión.
+- No verificado todavía: si "Invalid API key" efectivamente desapareció
+  en un login real — requiere que el fundador lo pruebe desde su propia
+  sesión de Vercel (Fase 1E.3C.1, Opción A), ya que este agente sigue sin
+  poder pasar la barrera SSO para probarlo directamente.
+
 ## 1. Estado del deployment de Retrieval-v3
 
 | | |
