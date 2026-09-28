@@ -68,6 +68,74 @@ export function detectarMateriaDesdeTexto(query: string): string | null {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// EG-1 — MATERIA AMPLIADA, SOLO PARA EL FILTRO SEMÁNTICO
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Defecto probado (MISSION M1, 2026-09-28): fuera de penal/civil, ninguna
+// consulta recibía ningún filtro de materia en la búsqueda semántica
+// (lib/rag/search.ts: `materiaSemantica` quedaba `undefined`), así que un
+// fragmento de materia totalmente ajena podía colar por similitud pura y
+// contar como SEMANTIC_SUCCESS -- bloqueando tanto la abstención fail-closed
+// como el fallback oficial. Caso real documentado:
+// docs/observability/RETRIEVAL_V3_GOLDEN_CASE_SRL_HONDURAS.md ("¿Cuáles son
+// los requisitos para constituir una Sociedad de Responsabilidad Limitada en
+// Honduras?" recuperó "Ley sobre Justicia Constitucional").
+//
+// Deliberadamente separado de `detectarMateriaDesdeTexto`, nunca usado por la
+// ruta de artículo exacto (`detectarArticuloExacto`/`buscarArticuloExacto`):
+// ahí la materia es solo una optimización de consulta a la DB -- la
+// aceptación real la decide `identidadDocumentalCoincide()` por identidad de
+// instrumento, nunca por materia (ver comentario junto a `consultarPorVigencia`
+// en lib/rag/search.ts). Pasarle a esa ruta un valor que no existe todavía en
+// el corpus bloquearía candidatos ya confirmados por identidad de instrumento
+// en cuanto se ingiera contenido real. La búsqueda semántica, en cambio, NO
+// tiene ningún chequeo de identidad por fragmento -- es exactamente la vía
+// donde ocurrió la contaminación documentada arriba.
+//
+// Mismo patrón exacto de keyword regex que RE_MATERIA_PENAL/RE_MATERIA_CIVIL,
+// ya aceptado en este archivo -- no es una ontología jurídica nueva, solo más
+// cobertura de materias ya presentes en la taxonomía real de
+// biblioteca_vectores (ver auditoría de corpus, Fase AR-0). Materias sin
+// cobertura aquí (laboral, tributario, familia, agrario) permanecen sin
+// filtro semántico, exactamente igual que antes de esta fase -- no es una
+// regresión, es un gap conocido y documentado, no resuelto en EG-1.
+const RE_MATERIA_MERCANTIL =
+  /\b(mercantil|comerciantes?|sociedad(?:es)?\s+(?:mercantil(?:es)?|an[oó]nima|de\s+responsabilidad\s+limitada|en\s+comandita|colectiva)|c[oó]digo\s+de\s+comercio|actos?\s+de\s+comercio|raz[oó]n\s+social|s\.?\s?de\s?r\.?\s?l\.?\b|s\.?\s?a\.?\s+de\s+c\.?v\.?)/i;
+const RE_MATERIA_NOTARIAL =
+  /\b(notarial|notario|escritura\s+p[uú]blica|protocolo\s+notarial|c[oó]digo\s+del?\s+notariado)\b/i;
+const RE_MATERIA_CONSTITUCIONAL =
+  /\b(constituci[oó]n(?:al)?|ley\s+(?:sobre|de)\s+justicia\s+constitucional|amparo|habeas\s+corpus|inconstitucionalidad)\b/i;
+
+/**
+ * Sentinel deliberado: hoy NO existe ningún valor de `materia` en
+ * biblioteca_vectores dedicado a derecho mercantil (verificado, auditoría de
+ * corpus 2026-09-28 -- el Código de Comercio, cuando se ingiera a producción,
+ * usa materia='10_LEYES_REGLAMENTOS', una categoría genérica compartida con
+ * muchas otras normas no mercantiles, ver scripts/ingesta-comercio.ts).
+ * Filtrar la búsqueda semántica a este sentinel garantiza CERO falsos
+ * positivos por contaminación de materia hoy (ningún fragmento existente
+ * puede coincidir) a costa de cero recall semántico mercantil hasta que
+ * exista una materia real dedicada -- consciente y documentado, no oculto.
+ * Revisar/retirar este sentinel cuando se autorice una ingesta mercantil real
+ * con su propio valor de materia.
+ */
+export const MATERIA_MERCANTIL_SIN_CORPUS = '__MERCANTIL_SIN_CORPUS_DEDICADO__';
+
+/**
+ * Úsese SOLO para `materiaSemantica` en lib/rag/search.ts::buscarRAG -- ver
+ * bloque de comentario arriba para el porqué de la separación de
+ * `detectarMateriaDesdeTexto`.
+ */
+export function detectarMateriaSemanticaAmpliada(query: string): string | null {
+  const base = detectarMateriaDesdeTexto(query);
+  if (base) return base;
+  if (RE_MATERIA_MERCANTIL.test(query)) return MATERIA_MERCANTIL_SIN_CORPUS;
+  if (RE_MATERIA_NOTARIAL.test(query)) return '03_NOTARIAL';
+  if (RE_MATERIA_CONSTITUCIONAL.test(query)) return '07_CONSTITUCIONAL';
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // IDENTIDAD ESTRICTA DEL INSTRUMENTO
 // ─────────────────────────────────────────────────────────────────────────────
 //
