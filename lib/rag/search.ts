@@ -65,6 +65,7 @@ export type { RetrievalOutcome, RetrievalExecutionState, RetrievalErrorCategory 
 // de import -- misma API pública, mismo comportamiento.
 import {
   detectarMateriaDesdeTexto,
+  detectarMateriaSemanticaAmpliada,
   detectarInstrumentoDesdeTexto,
   detectarArticuloExacto,
   identidadDocumentalCoincide,
@@ -79,6 +80,7 @@ import {
 
 export {
   detectarMateriaDesdeTexto,
+  detectarMateriaSemanticaAmpliada,
   detectarInstrumentoDesdeTexto,
   detectarArticuloExacto,
   identidadDocumentalCoincide,
@@ -339,7 +341,12 @@ export async function buscarRAG(
   // arbitraje (ej. Art. 353, procesos extranjeros) solo porque puntuaba alto
   // — el filtro de materia en la RPC lo excluye a nivel de base de datos,
   // no por heurística posterior.
-  const materiaSemantica = materia ?? detectarMateriaDesdeTexto(consulta) ?? undefined;
+  //
+  // EG-1 (2026-09-28): se usa la detección AMPLIADA aquí (mercantil/notarial/
+  // constitucional además de penal/civil) -- nunca en la ruta de artículo
+  // exacto de arriba, que sigue usando la detección original sin tocar (ver
+  // comentario de detectarMateriaSemanticaAmpliada en exact-resolver.ts).
+  const materiaSemantica = materia ?? detectarMateriaSemanticaAmpliada(consulta) ?? undefined;
 
   try {
     if (backend === 'python') {
