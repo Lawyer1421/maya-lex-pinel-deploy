@@ -295,13 +295,18 @@ export const CLAUDE_CONFIG = {
     systemPrompt: SALA_IA_SYSTEM_PROMPT,
   },
   analisis: {
-    model: 'claude-opus-4-8' as const,
+    // Fase CI-2A (2026-09-28): Opus retirado de todos los modos de MayaLex
+    // por decisión de producto/costo del fundador — ver
+    // docs/cost/MAYALEX_AI_UNIT_ECONOMICS.md. Sonnet 5 soporta el mismo
+    // `thinking: {type:'adaptive'}` que ya se usaba (verificado contra
+    // docs oficiales de Anthropic, Fase CI-2A) -- sin cambio de forma.
+    model: 'claude-sonnet-5' as const,
     max_tokens: 4000,
     thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: MAYA_LEX_SYSTEM_PROMPT,
   },
   documento: {
-    model: 'claude-opus-4-8' as const,
+    model: 'claude-sonnet-5' as const,
     max_tokens: 8000,
     thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: MAYA_LEX_DOCUMENTO_PROMPT,
@@ -386,26 +391,28 @@ export const CLAUDE_CONFIG_PENAL = {
   },
 
   /**
-   * ANÁLISIS PENAL — Opus 4.7 | Adaptive thinking | Análisis jurídico profundo
-   * Activa Motor de Análisis Penal (10 capas): Hechos → Teoría del delito →
-   * Garantías → Prueba → Jurisprudencia → Motor de Riesgo
+   * ANÁLISIS PENAL — Sonnet 5 (Fase CI-2A, Opus retirado) | Adaptive thinking
+   * | Análisis jurídico profundo. Activa Motor de Análisis Penal (10 capas):
+   * Hechos → Teoría del delito → Garantías → Prueba → Jurisprudencia →
+   * Motor de Riesgo
    */
   analisis_penal: {
-    model: 'claude-opus-4-8' as const,
+    model: 'claude-sonnet-5' as const,
     max_tokens: 6000,
     thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: FULL_MAYA_PENAL_PROMPT,
   },
 
   /**
-   * ESCRITOS PENALES — Opus 4.8 | 10 000 tokens | Generación de documentos
-   * Requerimientos, excepciones, recursos, hábeas corpus, apelaciones.
-   * Mismo núcleo penal que analisis_penal + ANEXO_ESCRITOS_PENALES (estructura
-   * formal de escrito, petitorio, checklist) — antes compartía el prompt de
-   * analisis_penal sin diferenciación de formato de salida.
+   * ESCRITOS PENALES — Sonnet 5 (Fase CI-2A, Opus retirado) | 10 000 tokens |
+   * Generación de documentos. Requerimientos, excepciones, recursos, hábeas
+   * corpus, apelaciones. Mismo núcleo penal que analisis_penal +
+   * ANEXO_ESCRITOS_PENALES (estructura formal de escrito, petitorio,
+   * checklist) — antes compartía el prompt de analisis_penal sin
+   * diferenciación de formato de salida.
    */
   escritos_penales: {
-    model: 'claude-opus-4-8' as const,
+    model: 'claude-sonnet-5' as const,
     max_tokens: 10000,
     thinking: { type: 'adaptive' as const, display: 'summarized' as const },
     systemPrompt: FULL_MAYA_PENAL_ESCRITOS_PROMPT,

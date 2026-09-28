@@ -61,6 +61,7 @@ import {
 } from '@/lib/websearch/tavily';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
+import { registrarTrazaConsulta } from '@/lib/observability/langfuse';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -91,10 +92,13 @@ interface ChatRequest {
   modelOverride?: string | null;
 }
 
-// Modelos permitidos como override (lista blanca — previene inyección)
-const VALID_MODEL_OVERRIDES = new Set([
-  'claude-opus-4-8',
-  'claude-sonnet-4-6',
+// Modelos permitidos como override (lista blanca — previene inyección).
+// Fase CI-2A (2026-09-28): Opus retirado de MayaLex por decisión de
+// producto/costo del fundador -- ningún override, por muy antiguo o
+// inyectado, puede resolver a un modelo Opus. Un valor no listado aquí cae
+// a `config.model` (safeModelOverride ?? config.model), nunca lanza.
+export const VALID_MODEL_OVERRIDES = new Set([
+  'claude-sonnet-5',
   'claude-haiku-4-5',
 ]);
 
@@ -292,9 +296,16 @@ export async function POST(req: NextRequest) {
     ultimaPregunta.length > 10
   );
 
+  // Observabilidad (Langfuse, fail-open) -- ventana real [inicio,fin] de la
+  // clasificación del router, medida ESTRECHAMENTE alrededor de la única
+  // llamada síncrona real (clasificarConsulta), no una aproximación por
+  // resta de timestamps distantes. undefined cuando el router no corre
+  // (usarRouter=false) -- no se inventa una ventana para algo que no ocurrió.
+  const tClasifInicio = Date.now();
   const ruta = usarRouter
     ? clasificarConsulta(ultimaPregunta as string, mode)
     : 'D';
+  const ventanaClasificacion = usarRouter ? { inicio: tClasifInicio, fin: Date.now() } : undefined;
 
   // 3c. Recuperar contexto RAG (A/B/C/D) y búsqueda web (Tavily) EN PARALELO.
   // Antes eran dos awaits secuenciales (RAG completo, luego Tavily) que sumaban
@@ -303,16 +314,30 @@ export async function POST(req: NextRequest) {
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
+  interface VentanaTiempo { inicio: number; fin: number }
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; rerankUsado: boolean; ventanaRag?: VentanaTiempo }
+  interface WebOut { texto: string; ventanaWeb?: VentanaTiempo }
+
+  // Observabilidad (Langfuse, fail-open) -- ventana del bloque paralelo
+  // completo (Promise.all), medida aparte de las ventanas individuales de
+  // RAG y web search más abajo. Representa el wall-clock real de esperar a
+  // ambas operaciones, NUNCA se hace pasar por la duración de ninguna de
+  // las dos por separado (corrección P1, revisión 2/2, 2026-09-26).
+  const tRetrievalInicio = Date.now();
 
   const ragPromise: Promise<RagOut> = (async () => {
-    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
+    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [], rerankUsado: false };
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
-    if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
+    if (!coleccionPrincipal) return { texto: '', fragmentos: [], rerankUsado: false };
+
+    // Ventana propia de RAG -- inicia AQUÍ, solo cuando RAG realmente va a
+    // ejecutar (después de los dos early-return de arriba, que no cuentan
+    // como "RAG ejecutado"). No se inventa ventana para un RAG que no corrió.
+    const tRagInicio = Date.now();
 
     // Rerank Cohere detrás de `flag_rerank` (Decisión C). OFF por default →
     // corte por similitud pgvector. Se resuelve una vez por request y solo
@@ -338,12 +363,19 @@ export async function POST(req: NextRequest) {
       }
       fragmentos.push(...ragProc.fragmentos);
     }
-    return { texto: contextoRAG, fragmentos };
+    return {
+      texto: contextoRAG, fragmentos, rerankUsado: rerankHabilitado,
+      ventanaRag: { inicio: tRagInicio, fin: Date.now() },
+    };
   })();
 
-  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
-  const webPromise: Promise<string> = (async () => {
-    if (!webSearch) return '';
+  // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece
+  // intacto. Ventana propia de Tavily, independiente de RAG y del bloque
+  // paralelo combinado -- ninguna lógica existente se vuelve secuencial,
+  // solo se mide alrededor de la misma llamada que ya se hacía.
+  const webPromise: Promise<WebOut> = (async () => {
+    if (!webSearch) return { texto: '' };
+    const tWebInicio = Date.now();
     const queryBusqueda = extraerQueryParaBusqueda(ultimaPregunta);
     try {
       const resultadosWeb = await buscarWeb(queryBusqueda, {
@@ -351,6 +383,7 @@ export async function POST(req: NextRequest) {
         timeoutMs:     3500,
         umbralScore:   0.3,
       });
+      const ventanaWeb = { inicio: tWebInicio, fin: Date.now() };
 
       if (resultadosWeb.length > 0) {
         console.log(
@@ -359,14 +392,14 @@ export async function POST(req: NextRequest) {
           ` | mode=${mode} | ruta=${ruta}`
         );
         // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
-        return '\n\n' + formatearContextoWeb(resultadosWeb);
+        return { texto: '\n\n' + formatearContextoWeb(resultadosWeb), ventanaWeb };
       }
       // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
       console.log(
         `[WebSearch] Tavily 0 resultados relevantes — RAG local` +
         ` | query="${queryBusqueda.slice(0, 55)}..."`
       );
-      return '';
+      return { texto: '', ventanaWeb };
     } catch (err) {
       const msg       = err instanceof Error ? err.message : String(err);
       const isTimeout = err instanceof Error && err.name === 'AbortError';
@@ -379,13 +412,63 @@ export async function POST(req: NextRequest) {
 
       // Notificar al modelo para que informe al usuario de forma discreta —
       // solo si había intención de búsqueda (la clave existe pero falló)
-      return isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA;
+      return { texto: isNoKey ? '' : AVISO_BUSQUEDA_FALLIDA, ventanaWeb: { inicio: tWebInicio, fin: Date.now() } };
     }
   })();
 
-  const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  const [ragData, webData] = await Promise.all([ragPromise, webPromise]);
+  const ventanaRetrievalParalelo = { inicio: tRetrievalInicio, fin: Date.now() };
+  const contextoWeb = webData.texto;
   const contextoRAG = ragData.texto;
+  // Observabilidad: construirCitas() es una función pura y aislada -- medirla
+  // sin cambiar su lógica ni su firma (Fase 2, "citation.validation: solo
+  // medir si puede aislarse correctamente sin cambiar lógica").
+  const tCitasInicio = Date.now();
   const citas = construirCitas(ragData.fragmentos);
+  const ventanaCitas = { inicio: tCitasInicio, fin: Date.now() };
+  // Métrica honesta de "se usaron resultados web reales": el contexto web solo
+  // es no-vacío cuando Tavily devolvió resultados relevantes (ver webPromise
+  // arriba) -- el aviso de fallo (AVISO_BUSQUEDA_FALLIDA) también puebla
+  // contextoWeb pero no es "uso" real de resultados de búsqueda.
+  const webSearchResultsUsed = webSearch && Boolean(contextoWeb) && contextoWeb !== AVISO_BUSQUEDA_FALLIDA;
+
+  // Observabilidad (Langfuse, fail-open): arma y envía la traza de esta
+  // consulta con los datos ya disponibles en este punto. No incluye
+  // pregunta/fragmentos/respuesta -- ver lib/observability/langfuse.ts.
+  // `ventanaLlm` se pasa explícitamente en cada call site porque solo ahí se
+  // conoce el [inicio,fin] real de la llamada a Anthropic/OpenRouter.
+  function trazarConsulta(args: {
+    modelo: string; proveedor: string; tokensInput: number; tokensOutput: number;
+    exito: boolean; errorType?: string; ventanaLlm?: { inicio: number; fin: number };
+  }) {
+    after(() => registrarTrazaConsulta({
+      consultaId: consultaId,
+      userHash: hashUsuario(userIdentifier),
+      mode,
+      tier: rateLimitResult.tier,
+      provider: args.proveedor,
+      model: args.modelo,
+      ruta,
+      retrievalStrategy: ruta,
+      retrievedDocumentCount: ragData.fragmentos.length,
+      citationCount: citas.length,
+      rerankUsed: ragData.rerankUsado,
+      webSearchRequested: webSearch,
+      webSearchResultsUsed,
+      inputTokens: args.tokensInput,
+      outputTokens: args.tokensOutput,
+      requestStartAt: inicioMs,
+      finalizeAt: Date.now(),
+      classificationWindow: ventanaClasificacion,
+      retrievalParallelWindow: ventanaRetrievalParalelo,
+      ragWindow: ragData.ventanaRag,
+      webSearchWindow: webData.ventanaWeb,
+      citationValidationWindow: ventanaCitas,
+      llmGenerationWindow: args.ventanaLlm,
+      success: args.exito,
+      errorType: args.errorType,
+    }));
+  }
 
   // 3d. FAIL-CLOSED (WAR ROOM FINAL): decisión determinista, ANTES de invocar
   // al LLM. Si la consulta exige evidencia verificable del corpus y la
@@ -429,6 +512,11 @@ export async function POST(req: NextRequest) {
   // 4. Streaming Response
   const stream = new ReadableStream({
     async start(controller) {
+      // Observabilidad: ventana real de la llamada al LLM. Declarada en este
+      // scope externo (no dentro de cada rama) para que el bloque catch de
+      // más abajo también pueda leerla -- queda undefined si el error ocurrió
+      // antes de invocar al proveedor (nunca se inventa una ventana).
+      let tLlmInicio: number | undefined;
       try {
         // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
         // Aplica cuando: (a) modo análisis + query ambigua [usarRouter=true, ruta=D]
@@ -451,6 +539,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          trazarConsulta({ modelo: 'aclaracion', proveedor: 'sistema', tokensInput: 0, tokensOutput: 0, exito: true });
           return;
         }
 
@@ -475,6 +564,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          trazarConsulta({ modelo: 'abstencion_corpus', proveedor: 'sistema', tokensInput: 0, tokensOutput: 0, exito: true });
           return;
         }
 
@@ -490,6 +580,10 @@ export async function POST(req: NextRequest) {
             })),
           ];
 
+          // Observabilidad: ventana real de la generación -- inicio justo
+          // antes de invocar al proveedor, fin en onDone (todos los tokens
+          // del streaming ya recibidos).
+          tLlmInicio = Date.now();
           await streamOpenRouter(modelOR, messagesOR, {
             onToken: (token) => {
               controller.enqueue(sseEvent({ type: 'text', text: token }));
@@ -513,6 +607,11 @@ export async function POST(req: NextRequest) {
                 web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                 tier_usuario: rateLimitResult.tier, exito: true,
               }));
+              trazarConsulta({
+                modelo: modelOR, proveedor: 'openrouter', tokensInput: inputTokens, tokensOutput: outputTokens,
+                exito: true,
+                ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
+              });
             },
             onError: (message) => {
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -530,7 +629,9 @@ export async function POST(req: NextRequest) {
           };
 
           if (config.thinking) {
-            // @ts-expect-error — thinking es soportado en claude-opus-4-8
+            // @ts-expect-error — thinking:{type:'adaptive'} es soportado por
+            // claude-sonnet-5 (verificado contra docs oficiales de Anthropic,
+            // Fase CI-2A); el SDK instalado aún no tipa este campo.
             params.thinking = config.thinking;
           }
 
@@ -540,6 +641,10 @@ export async function POST(req: NextRequest) {
             });
           }
 
+          // Observabilidad: ventana real de la generación -- inicio justo
+          // antes de invocar a Anthropic, fin en message_stop (streaming
+          // completo). El punto exacto que pidió el auditor.
+          tLlmInicio = Date.now();
           const claudeStream = await getAnthropicClient().messages.create(params);
           let inputTokens  = 0;
           let outputTokens = 0;
@@ -587,6 +692,11 @@ export async function POST(req: NextRequest) {
                   web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
                   tier_usuario: rateLimitResult.tier, exito: true,
                 }));
+                trazarConsulta({
+                  modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
+                  tokensInput: inputTokens, tokensOutput: outputTokens, exito: true,
+                  ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
+                });
                 break;
             }
           }
@@ -595,13 +705,20 @@ export async function POST(req: NextRequest) {
         console.error('[Maya Lex] Error streaming:', error);
 
         let errorMessage = 'Error interno del servidor';
+        let errorType = 'unknown';
         if (error instanceof Anthropic.APIError) {
+          errorType = `anthropic_${error.status ?? 'error'}`;
           if (error.status === 401)      errorMessage = 'API Key inválida. Contacta al administrador.';
           else if (error.status === 429) errorMessage = 'Servicio temporalmente saturado. Intenta en unos segundos.';
           else if (error.status === 529) errorMessage = 'Servicio de IA en mantenimiento. Intenta en unos minutos.';
           else                           errorMessage = `Error del servicio: ${error.message}`;
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
+        trazarConsulta({
+          modelo: config.model, proveedor: PROVEEDOR_LLM, tokensInput: 0, tokensOutput: 0,
+          exito: false, errorType,
+          ventanaLlm: tLlmInicio !== undefined ? { inicio: tLlmInicio, fin: Date.now() } : undefined,
+        });
       } finally {
         controller.close();
       }
