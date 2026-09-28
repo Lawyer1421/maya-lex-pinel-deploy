@@ -107,6 +107,23 @@ function limpiarRuidoBasico(texto: string): string {
   return texto
     .replace(/\r\n/g, '\n')
     .replace(/\f/g, '\n')
+    // Artefacto de OCR de ESTE escaneo en particular (2026-09-25, PDF
+    // "Codigo-del-Comercio.pdf" recibido de Fredy): cada encabezado trae
+    // "Articulo º N" (glifo espurio entre la palabra y el número) en vez de
+    // "Articulo N" -- rompe PATRON_CANDIDATO/tieneEncabezadoArticulo en el
+    // 100% de los casos (verificado: 85/85 candidatos rechazados antes de
+    // este fix). No es el mismo glifo aislado que ya se documentó para el
+    // art.100 en la corrida de 2026-09-05 -- ahí era un caso puntual; aquí
+    // es sistemático en todo el documento, consistente con ser un
+    // escaneo/OCR distinto del usado en esa corrida original.
+    //
+    // Dos variantes Unicode del mismo glifo visual conviven en el propio
+    // documento (verificado por búsqueda directa, Fase CC-1): "º" U+00BA
+    // (ordinal masculino, 1698 de 1705 encabezados) y "°" U+00B0 (grado, 7
+    // encabezados: arts. 30, 39, 51, 100, 135, 326, 1002 -- no solo el 100,
+    // como se creía originalmente). Ambas se normalizan aquí con el mismo
+    // reemplazo; sin la segunda, los 7 quedarían como brechas aisladas.
+    .replace(/(art[ií]culos?)\s*[º°]\s*(\d)/gi, '$1 $2')
     .replace(/^[ \t]*\d{1,4}[ \t]*$/gm, '')
     .replace(/\n{3,}/g, '\n\n');
 }
