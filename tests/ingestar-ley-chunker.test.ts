@@ -308,7 +308,7 @@ describe('alcance del fix -- no toca otras fuentes', () => {
       { encoding: 'utf8', cwd: process.cwd() },
     ).trim();
     const archivos = salida.split('\n').map((f) => f.trim()).sort();
-    expect(archivos).toEqual(['scripts/ingesta-comercio.ts', 'scripts/ingestar-ley.ts']);
+    expect(archivos).toEqual(['scripts/ingesta-comercio.ts', 'scripts/ingesta-decreto-284-2013.ts', 'scripts/ingestar-ley.ts']);
   });
 });
 
