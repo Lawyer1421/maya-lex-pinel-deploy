@@ -197,12 +197,12 @@ function vectorLiteral(v: number[]): string {
   return `'[${v.map((x) => x.toFixed(6)).join(',')}]'::vector(384)`;
 }
 
-function generarSQL(registros: Array<RegistroGenerico & { embedding: number[] }>, stagingTable: string): string {
+function generarSQL(registros: Array<RegistroGenerico & { embedding: number[] }>, stagingTable: string, excluidosCount: number): string {
   let sql = `-- Generado por scripts/ingesta-comercio.ts -- NO editar a mano.\n`;
   sql += `-- ${registros.length} filas. NO ejecutado por este script -- revisar y ejecutar por el canal MCP\n`;
   sql += `-- de Supabase ya autenticado, igual que todas las ingestas anteriores de esta sesión.\n`;
-  sql += `-- Excluye deliberadamente 19 números de artículo ambiguos (ver DECISION_LOG /\n`;
-  sql += `-- reporte al Auditor 2026-09-05) -- brecha de numeración pendiente, no un error.\n\n`;
+  sql += `-- Excluye deliberadamente ${excluidosCount} número(s) de artículo ambiguo(s) (ver DECISION_LOG /\n`;
+  sql += `-- reporte al Auditor) -- brecha de numeración pendiente, no un error.\n\n`;
   sql += `DROP TABLE IF EXISTS ${stagingTable};\n`;
   sql += `CREATE TABLE ${stagingTable} (\n`;
   sql += `  id text PRIMARY KEY,\n  coleccion text,\n  materia text,\n  contenido text,\n`;
@@ -335,7 +335,7 @@ async function main() {
   }
 
   const stagingTable = 'stg_codigo_comercio_1950';
-  const sql = generarSQL(conEmbeddings, stagingTable);
+  const sql = generarSQL(conEmbeddings, stagingTable, excluidos.length);
   validarSQLNoDestructivo(sql, stagingTable);
   mkdirSync(dirname(opts.execute!), { recursive: true });
   writeFileSync(opts.execute!, sql, 'utf8');
