@@ -92,10 +92,13 @@ interface ChatRequest {
   modelOverride?: string | null;
 }
 
-// Modelos permitidos como override (lista blanca — previene inyección)
-const VALID_MODEL_OVERRIDES = new Set([
-  'claude-opus-4-8',
-  'claude-sonnet-4-6',
+// Modelos permitidos como override (lista blanca — previene inyección).
+// Fase CI-2A (2026-09-28): Opus retirado de MayaLex por decisión de
+// producto/costo del fundador -- ningún override, por muy antiguo o
+// inyectado, puede resolver a un modelo Opus. Un valor no listado aquí cae
+// a `config.model` (safeModelOverride ?? config.model), nunca lanza.
+export const VALID_MODEL_OVERRIDES = new Set([
+  'claude-sonnet-5',
   'claude-haiku-4-5',
 ]);
 
@@ -626,7 +629,9 @@ export async function POST(req: NextRequest) {
           };
 
           if (config.thinking) {
-            // @ts-expect-error — thinking es soportado en claude-opus-4-8
+            // @ts-expect-error — thinking:{type:'adaptive'} es soportado por
+            // claude-sonnet-5 (verificado contra docs oficiales de Anthropic,
+            // Fase CI-2A); el SDK instalado aún no tipa este campo.
             params.thinking = config.thinking;
           }
 
