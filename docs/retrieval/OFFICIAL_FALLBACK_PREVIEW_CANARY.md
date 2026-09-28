@@ -11,6 +11,38 @@ encontraron dos bloqueadores reales, documentados abajo (§Bloqueadores), que
 deben resolverse (o al menos reconocerse explícitamente) antes de escribir el
 flag.
 
+## Addendum de ejecución — Fase 1E.3C.8 (2026-09-27, autorizado)
+
+Ambos bloqueadores de este precheck quedaron resueltos en fases
+posteriores: `feature_flags` se sembró con RLS+FORCE RLS+política
+`service_only` (Fase 1E.3B), y Preview Auth quedó verificado end-to-end con
+la identidad real del fundador (Fases 1E.3C–1E.3C.7). Con autorización
+explícita del fundador, se insertó la fila `flag_official_source_fallback`
+con `enabled=true` y `allowed_emails` conteniendo exactamente un correo —
+el del fundador, ya conocido por Supabase Auth y por el propio sistema de
+sesión, no repetido en este documento — exclusivamente contra Staging
+(`aicakncgtuiiuomflkqj`); Production (`thgrhueckkjdutjvcufp`) nunca fue
+referenciada. Validado inmediatamente después: la fila existe con esa
+allowlist de un solo correo (canario de un solo usuario, normalizado
+`trim().toLowerCase()` igual que `lib/flags.ts`/`getVerifiedEmail`), y las
+otras 6 filas de `feature_flags` permanecen `enabled=false`, sin tocar.
+
+**Rollback inmediato (preferido — no destructivo):**
+
+```sql
+UPDATE public.feature_flags SET enabled = false WHERE flag_name = 'flag_official_source_fallback';
+```
+
+**Rollback alternativo (solo si se requiere eliminar el registro por completo):**
+
+```sql
+DELETE FROM public.feature_flags WHERE flag_name = 'flag_official_source_fallback';
+```
+
+`READY_FOR_CANARY_FLAG_WRITE` de este documento queda superado por esta
+ejecución — el resto del archivo abajo es el registro histórico del
+precheck original, no el estado actual.
+
 ---
 
 ## 1. Estado del deployment de Preview
