@@ -2,10 +2,11 @@
  * lib/legal-reasoning/types.ts
  *
  * LR-K1 (CaseFact/MissingFact provenance) + LR-K2 (Citation Trust I:
- * identity/provenance only). See docs/architecture/LR-1_LEGAL_REASONING.md
- * for the full canonical design, invariants, and everything NOT implemented
- * here (TemporalLegalState, Authority, Jurisprudence, NormativeRule,
- * Subsumption, Conclusions — design-only in this phase).
+ * identity/provenance only) + LR-K3 (LegalProposition/NormativeRule) +
+ * LR-K4 (generic Subsumption contract). See
+ * docs/architecture/LR-1_LEGAL_REASONING.md for the full canonical design,
+ * invariants, and everything still NOT implemented (TemporalLegalState,
+ * Authority, Jurisprudence, Conclusion traceability — design-only).
  *
  * SHADOW / STRUCTURAL ONLY: nothing in this module is imported by
  * app/api/chat/route.ts, any system prompt, or any response-formatting
@@ -210,4 +211,113 @@ export interface NormativeRule {
   verificationStatus: LegalVerificationStatus;
   // Deliberately NO caseFacts, NO subsumption fields, NO conclusion, NO
   // strategy, NO jurisprudential treatment -- all out of scope for LR-K3.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K4 — GENERIC SUBSUMPTION CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Answers structurally: "given NormativeRule R, how do supplied CaseFacts map
+// against its elements and exceptions?" It NEVER answers whether R legally
+// applies, is current, outranks a competing rule, or supports a final
+// conclusion -- those are later layers (Authority/Temporal engine, LR-K5+),
+// not this one. SUBSUMPTION != LEGAL APPLICABILITY (invariant XII).
+//
+// New constitutional invariants for this phase:
+//   X.    NO ELEMENT ASSESSMENT WITHOUT TRACE.
+//   XI.   NO MISSING FACT MAY BE SILENTLY ASSUMED.
+//   XII.  SUBSUMPTION != LEGAL APPLICABILITY.
+//   XIII. UNKNOWN != UNSATISFIED.
+//   XIV.  AN EXCEPTION MUST BE ANALYZED SEPARATELY FROM THE MAIN RULE.
+//
+// Generic-first (binding, §6 of the LR-K4 directive): ONE contract, usable
+// by civil, penal, mercantil, notarial, administrativo, constitucional,
+// laboral, tributario or any future matter. There is no PenalSubsumption or
+// CivilSubsumption parent type -- MAYA_PENAL_MODULES's six-layer method
+// remains a future matter-specific adapter OVER this generic contract, never
+// the other way around.
+//
+// This module does NOT call an LLM, does NOT use embeddings or semantic
+// similarity, and does NOT implement automatic fact-to-element mapping --
+// see validators.ts for the deterministic, structural-only validation that
+// is this phase's entire objective. Fixtures instantiate assessments
+// manually; nothing here decides "fact F1 satisfies element E1" on its own.
+
+/**
+ * SATISFIED requires an affirmative factual trace (invariant X).
+ * UNSATISFIED requires a factual trace showing non-fulfillment or
+ * contradiction -- it is NEVER the default for "no fact was supplied"
+ * (invariant XIII: UNKNOWN != UNSATISFIED). UNKNOWN is the only honest
+ * status when the factual record is insufficient to decide either way; it
+ * must never be represented as UNSATISFIED, and never masquerades as
+ * resolved.
+ */
+export type ElementAssessmentStatus = 'SATISFIED' | 'UNSATISFIED' | 'UNKNOWN';
+
+export interface RuleElementAssessment {
+  /** Must reference a RuleElement.id belonging to the NormativeRule this Subsumption targets -- never an orphan id. */
+  elementId: string;
+  status: ElementAssessmentStatus;
+  /** Required (non-empty) when status is SATISFIED -- invariant X. Every id must be a CaseFact explicitly declared in this Subsumption's caseFactIds, never borrowed from elsewhere. */
+  supportingFactIds: string[];
+  /** Required (non-empty) when status is UNSATISFIED -- an affirmative factual basis, never inferred from mere absence of support. */
+  contradictingFactIds: string[];
+  /** Optional even when status is UNKNOWN -- a gap may be noted without yet being linked to a specific MissingFact. */
+  missingFactIds: string[];
+  reasoningNote?: string;
+}
+
+/**
+ * Deliberately separate from ElementAssessmentStatus: an exception is a
+ * distinct legal question ("does the exception apply?"), never a fourth
+ * element folded into the main rule's checklist (invariant XIV).
+ */
+export type ExceptionAssessmentStatus = 'APPLIES' | 'DOES_NOT_APPLY' | 'UNKNOWN';
+
+export interface RuleExceptionAssessment {
+  /** Must reference a RuleException.id belonging to the NormativeRule this Subsumption targets. */
+  exceptionId: string;
+  status: ExceptionAssessmentStatus;
+  /** Required (non-empty) when status is APPLIES. */
+  supportingFactIds: string[];
+  /** Required (non-empty) when status is DOES_NOT_APPLY. */
+  contradictingFactIds: string[];
+  missingFactIds: string[];
+}
+
+/**
+ * COMPLETE/INCOMPLETE/BLOCKED describe STRUCTURAL completeness of the
+ * mapping only -- never a legal verdict. See validarSubsumption /
+ * derivarAnalysisStatusSubsuncion for the exact, enforced derivation:
+ *   COMPLETE   -- every required element AND every exception is resolved
+ *                 (not UNKNOWN).
+ *   BLOCKED    -- at least one exception is UNKNOWN. An unresolved
+ *                 exception is treated as more fundamental than an
+ *                 unresolved element: if the rule might not even operate,
+ *                 "incomplete" understates the gap.
+ *   INCOMPLETE -- no exception is UNKNOWN, but at least one required
+ *                 element is UNKNOWN.
+ * COMPLETE never means: claim succeeds, offense established, contract
+ * valid, plaintiff wins, defendant liable, or any right exists. It means
+ * only that this shadow layer's structural bookkeeping is finished.
+ */
+export type SubsumptionAnalysisStatus = 'COMPLETE' | 'INCOMPLETE' | 'BLOCKED';
+
+export interface Subsumption {
+  id: string;
+  /** Must equal the NormativeRule.id this Subsumption was built against. */
+  ruleId: string;
+  /** The full declared fact set for this analysis -- every fact any assessment references must appear here (and be a real CaseFact) or be rejected as orphaned. */
+  caseFactIds: string[];
+  missingFactIds: string[];
+  /** Must cover every REQUIRED RuleElement of the referenced rule -- see validarSubsumption. Optional elements may be omitted. */
+  elementAssessments: RuleElementAssessment[];
+  /** Must cover every RuleException of the referenced rule, with no exception -- unlike elements, no exception is ever "optional" to assess (invariant XIV). */
+  exceptionAssessments: RuleExceptionAssessment[];
+  analysisStatus: SubsumptionAnalysisStatus;
+  /** Required-element ids whose assessment is UNKNOWN or missing -- derived, cross-checked by the validator, never asserted freely. */
+  unresolvedElementIds: string[];
+  // Deliberately NO finalConclusion, legalConclusion, proceduralConclusion,
+  // strategicAssessment, recommendedAction, probability, or
+  // confidenceScore -- all out of scope for LR-K4.
 }

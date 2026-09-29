@@ -1,10 +1,11 @@
 # LR-1 — MayaLex Legal Reasoning Architecture (Canonical)
 
 **Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact), LR-K2
-(Citation Trust I), and LR-K3 (LegalProposition/NormativeRule) are
-implemented as shadow/structural types — see `lib/legal-reasoning/`. Nothing
-in this document is wired into `app/api/chat/route.ts`, any system prompt,
-or any user-facing response. No behavior changes through LR-K3.
+(Citation Trust I), LR-K3 (LegalProposition/NormativeRule), and LR-K4
+(generic Subsumption contract) are implemented as shadow/structural types —
+see `lib/legal-reasoning/`. Nothing in this document is wired into
+`app/api/chat/route.ts`, any system prompt, or any user-facing response. No
+behavior changes through LR-K4.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -40,7 +41,7 @@ These are binding on every future LR phase, not just this one.
   only carry `verificationState: 'VERIFIED'` when it is backed by an
   identifiable, hashed piece of retrieved evidence. See §6.
 - **IV. No case conclusion without a fact → rule trace.** A `Subsumption`
-  (§8, design only) must be able to point to the specific `CaseFact`s and
+  (§8, implemented) must be able to point to the specific `CaseFact`s and
   `NormativeRule`s it used. A conclusion that can't produce this trace isn't
   a conclusion the kernel can vouch for.
 - **V. No uncertainty may masquerade as verification.** `PARTIAL`,
@@ -71,6 +72,20 @@ These are binding on every future LR phase, not just this one.
   present, enums valid, sources non-empty. It does not prove that any
   retrieval actually happened, or that a `hash`'s presence means real
   evidence is bound to it. See §6.3 and §7.1.
+- **X. No element assessment without trace.** A `RuleElementAssessment`
+  marked `SATISFIED` must cite at least one `CaseFact`; marked `UNSATISFIED`
+  it must cite at least one contradicting fact. See §8.
+- **XI. No missing fact may be silently assumed.** A `MissingFact` never
+  converts into a `CaseFact`, and no code path in `lib/legal-reasoning/`
+  fills a gap on the reasoner's behalf. See §8.
+- **XII. Subsumption != legal applicability.** Mapping facts against a
+  rule's elements says nothing about whether that rule is the one that
+  legally controls, is current, or outranks a competing rule. See §8.2.
+- **XIII. Unknown != unsatisfied.** The absence of a fact is never
+  represented as an affirmative failure of an element — see §8.
+- **XIV. An exception must be analyzed separately from the main rule.** A
+  `RuleExceptionAssessment` is never folded into `elementAssessments`, and
+  no exception belonging to a rule may go unassessed. See §8.1.
 
 ### Intent/depth exceptions
 
@@ -96,7 +111,8 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | LegalProposition/NormativeRule validators | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K3) |
 | Automatic article→rule extraction | **Not implemented, not this phase or any future one implied by LR-K3** |
-| `Subsumption` | Design only — §8 |
+| `RuleElementAssessment`, `RuleExceptionAssessment`, `Subsumption` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K4) |
+| Subsumption validators (`validarSubsumption` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K4) |
 | Conclusion types (`LEGAL`/`PROCEDURAL`/`STRATEGIC`) | Design only — §9 |
 | Citation/reasoning trace | Design only — §10 |
 | Citation Trust II (proposition support) | **Not started, not this phase** — §6.3 |
@@ -427,28 +443,112 @@ dolo/culpa) is the closest existing prose analogue — a future phase would
 formalize that specific, already-working checklist as the first real
 `NormativeRule` instances, not invent new legal content.
 
-## 8. Subsumption (design only) — generic core, not penal-first
+## 8. Subsumption — generic core, not penal-first
+
+**Implemented in LR-K4** (`lib/legal-reasoning/types.ts`,
+`lib/legal-reasoning/validators.ts`). Answers, structurally only: *given
+`NormativeRule` R, how do the supplied `CaseFact`s map against its elements
+and exceptions?* It never decides whether R legally applies, is current,
+outranks a competing rule, or supports a final conclusion — those remain
+later layers (§8.2, invariant XII).
 
 ```ts
+type ElementAssessmentStatus = 'SATISFIED' | 'UNSATISFIED' | 'UNKNOWN';
+
+interface RuleElementAssessment {
+  elementId: string;
+  status: ElementAssessmentStatus;
+  supportingFactIds: string[];    // non-empty required when SATISFIED (invariant X)
+  contradictingFactIds: string[]; // non-empty required when UNSATISFIED (invariant XIII)
+  missingFactIds: string[];       // optional even when UNKNOWN
+  reasoningNote?: string;
+}
+
+type ExceptionAssessmentStatus = 'APPLIES' | 'DOES_NOT_APPLY' | 'UNKNOWN';
+
+interface RuleExceptionAssessment {
+  exceptionId: string;
+  status: ExceptionAssessmentStatus;
+  supportingFactIds: string[];
+  contradictingFactIds: string[];
+  missingFactIds: string[];
+}
+
+type SubsumptionAnalysisStatus = 'COMPLETE' | 'INCOMPLETE' | 'BLOCKED';
+
 interface Subsumption {
-  rule: NormativeRule;
-  caseFacts: CaseFact[];
-  requiredElements: string[];
-  satisfiedElements: string[];
-  unsatisfiedElements: string[];
-  missingElements: string[];   // insufficient facts to evaluate -- never "assumed satisfied"
-  exceptions: string[];
-  legalConsequence: string;
+  id: string;
+  ruleId: string;
+  caseFactIds: string[];
+  missingFactIds: string[];
+  elementAssessments: RuleElementAssessment[];
+  exceptionAssessments: RuleExceptionAssessment[];
+  analysisStatus: SubsumptionAnalysisStatus;
+  unresolvedElementIds: string[];
 }
 ```
 
-The penal six-layer method (`MAYA_PENAL_MODULES`) will become a
-**matter-specific adapter over this generic contract**, once implemented —
-not the other way around. Civil, notarial, and labor subsumption must fit
-the same generic shape; there is no penal-first parent type that other
-matters extend or work around. This corrects the implicit penal-centrism of
-treating the six-layer engine as the template — it's a well-built *instance*
-of the pattern, not the pattern itself.
+### 8.1 Coverage, exceptions, and fact-reference discipline
+
+`validarSubsumption` enforces, deterministically:
+
+- Every **required** `RuleElement` on the referenced rule has exactly one
+  assessment — a required element cannot silently disappear.
+- **Every** `RuleException` on the rule has exactly one assessment, with no
+  "optional" exceptions — invariant XIV. An exception is never merged into
+  `elementAssessments`.
+- Every fact id any assessment cites must be a real `CaseFact`/`MissingFact`
+  **and** be explicitly declared in that `Subsumption`'s own `caseFactIds`/
+  `missingFactIds` — a fact that exists elsewhere in the system but wasn't
+  declared as part of this analysis cannot be "borrowed."
+- `SATISFIED` requires a non-empty `supportingFactIds` (invariant X);
+  `UNSATISFIED` requires a non-empty `contradictingFactIds` — the absence of
+  a fact is never itself treated as an affirmative failure (invariant XIII,
+  `UNKNOWN != UNSATISFIED`).
+
+### 8.2 `analysisStatus` is derived, never declared freely
+
+`derivarAnalysisStatusSubsuncion` computes the only value `analysisStatus`
+may legally hold, and `validarSubsumption` rejects any mismatch:
+
+- **`BLOCKED`** — at least one exception assessment is `UNKNOWN`. Treated as
+  more fundamental than an unresolved element: if the exception might
+  apply, the rule might not even operate, so "incomplete" would understate
+  the gap.
+- **`INCOMPLETE`** — no exception is `UNKNOWN`, but at least one required
+  element is.
+- **`COMPLETE`** — every required element and every exception is resolved
+  (not `UNKNOWN`).
+
+**None of these three values is a legal verdict.** `COMPLETE` means only
+that this shadow layer's bookkeeping is structurally finished — it never
+means a claim succeeds, an offense is established, a contract is valid, or
+any right exists. No `Subsumption` field expresses a final conclusion,
+procedural recommendation, strategic assessment, or confidence score; those
+remain out of scope (§9, design only).
+
+### 8.3 Generic-first, proven with two golden fixtures
+
+The penal six-layer method (`MAYA_PENAL_MODULES`) remains a **matter-specific
+adapter over this generic contract**, not the other way around — there is
+no `PenalSubsumption` or `CivilSubsumption` parent type.
+`tests/legal-reasoning-subsumption.test.ts` proves this with two independent
+synthetic fixtures sharing the identical `Subsumption`/`NormativeRule`
+shape: a civil-style rule (elements A/B/C, exception Z) and a penal-style
+rule (conduct/objective-circumstance/subjective-element, no exceptions) —
+neither fixture declares a legal outcome, guilt, liability, or a procedural
+recommendation.
+
+### 8.4 Recorded limitation (not fixed in LR-K4)
+
+`NormativeRule.verificationStatus === 'VERIFIED'` is, today, shape-level
+contract state only — `validarNormativeRule` (§7) does not require a
+verified `CitationTrustRecord` the way `validarLegalProposition` does.
+Subsumption validation in this phase **never reads or depends on**
+`NormativeRule.verificationStatus` for exactly this reason — mapping facts
+against elements is deliberately independent of whether the rule's own
+source evidence has been confirmed. Closing that gap belongs to a future
+Citation Trust / NormativeRule reconciliation, not to LR-K4.
 
 ## 9. Conclusions (design only)
 

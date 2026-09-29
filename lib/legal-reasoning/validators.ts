@@ -1,11 +1,11 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 — deterministic validators. Fail closed: a malformed or
- * incomplete structure is reported as invalid, never silently accepted or
- * repaired. No LLM extraction integration here (per directive, "no LLM
- * extraction integration yet unless strictly required for testing" -- it
- * isn't; these validators operate on already-constructed objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 — deterministic validators. Fail closed: a
+ * malformed or incomplete structure is reported as invalid, never silently
+ * accepted or repaired. No LLM extraction integration here (per directive,
+ * "no LLM extraction integration yet unless strictly required for testing"
+ * -- it isn't; these validators operate on already-constructed objects).
  */
 
 import type {
@@ -22,6 +22,12 @@ import type {
   RuleType,
   RuleElement,
   RuleException,
+  Subsumption,
+  RuleElementAssessment,
+  RuleExceptionAssessment,
+  ElementAssessmentStatus,
+  ExceptionAssessmentStatus,
+  SubsumptionAnalysisStatus,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -283,6 +289,301 @@ export function validarNormativeRule(r: NormativeRule): ResultadoValidacion {
   const estado = r.verificationStatus as unknown;
   if (!estado || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estado as LegalVerificationStatus)) {
     errores.push(`NormativeRule.verificationStatus inválido o ausente: ${String(estado)}`);
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K4 — GENERIC SUBSUMPTION CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// DEUDA REGISTRADA (hallazgo de Cursor, Mission LR-K4 §16): estos
+// validadores NUNCA leen `NormativeRule.verificationStatus`. A propósito --
+// `validarNormativeRule` (arriba) exige forma válida, NO exige un
+// CitationTrustRecord verificado (a diferencia de `validarLegalProposition`,
+// que sí lo exige para VERIFIED). Por lo tanto
+// `NormativeRule.verificationStatus === 'VERIFIED'` hoy representa solo
+// estado de CONTRATO a nivel de forma -- nunca prueba de evidencia
+// recuperada, soporte de proposición, autoridad o vigencia. Esta capa de
+// Subsumption NO corrige esa brecha (fuera de alcance de LR-K4, ver
+// directiva §16) -- solo la documenta y nunca depende de ella para decidir
+// nada aquí.
+//
+// Invariante XII (Subsumption != legal applicability): estos validadores
+// NUNCA deciden si una regla es la que legalmente controla, si está vigente,
+// si es especial o general, ni ninguna cuestión de autoridad/temporalidad --
+// solo si el MAPEO estructural entre hechos y elementos es coherente.
+
+const ESTADOS_ELEMENTO_VALIDOS: ReadonlySet<ElementAssessmentStatus> = new Set([
+  'SATISFIED', 'UNSATISFIED', 'UNKNOWN',
+]);
+
+const ESTADOS_EXCEPCION_VALIDOS: ReadonlySet<ExceptionAssessmentStatus> = new Set([
+  'APPLIES', 'DOES_NOT_APPLY', 'UNKNOWN',
+]);
+
+const ESTADOS_ANALISIS_VALIDOS: ReadonlySet<SubsumptionAnalysisStatus> = new Set([
+  'COMPLETE', 'INCOMPLETE', 'BLOCKED',
+]);
+
+/**
+ * Deriva el `analysisStatus` correcto a partir de las evaluaciones reales --
+ * nunca se confía en el valor que el propio objeto declara sin contrastarlo
+ * (ver validarSubsumption). BLOCKED gana sobre INCOMPLETE: una excepción sin
+ * resolver es más fundamental que un elemento sin resolver, porque si la
+ * excepción pudiera aplicar, la regla entera podría no operar -- "incomplete"
+ * subestimaría ese vacío.
+ */
+export function derivarAnalysisStatusSubsuncion(
+  rule: NormativeRule,
+  elementAssessments: RuleElementAssessment[],
+  exceptionAssessments: RuleExceptionAssessment[],
+): SubsumptionAnalysisStatus {
+  const excepcionDesconocida = exceptionAssessments.some((a) => a.status === 'UNKNOWN');
+  if (excepcionDesconocida) return 'BLOCKED';
+
+  const porElementoId = new Map(elementAssessments.map((a) => [a.elementId, a]));
+  const algunRequeridoSinResolver = rule.elements
+    .filter((e) => e.required)
+    .some((e) => {
+      const a = porElementoId.get(e.id);
+      return !a || a.status === 'UNKNOWN';
+    });
+  if (algunRequeridoSinResolver) return 'INCOMPLETE';
+
+  return 'COMPLETE';
+}
+
+/**
+ * Ids de elementos REQUERIDOS cuya evaluación es UNKNOWN o está ausente --
+ * lo que `Subsumption.unresolvedElementIds` debe contener exactamente
+ * (como conjunto, sin importar el orden).
+ */
+export function derivarElementosNoResueltos(
+  rule: NormativeRule,
+  elementAssessments: RuleElementAssessment[],
+): string[] {
+  const porElementoId = new Map(elementAssessments.map((a) => [a.elementId, a]));
+  return rule.elements
+    .filter((e) => e.required)
+    .filter((e) => {
+      const a = porElementoId.get(e.id);
+      return !a || a.status === 'UNKNOWN';
+    })
+    .map((e) => e.id);
+}
+
+function mismoConjunto(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sa = new Set(a);
+  return b.every((x) => sa.has(x));
+}
+
+/**
+ * Valida un RuleElementAssessment de forma aislada -- no incluye la
+ * verificación de pertenencia al NormativeRule ni de duplicados, que
+ * requieren el contexto completo (ver validarSubsumption).
+ */
+function validarRuleElementAssessment(
+  a: RuleElementAssessment,
+  indice: number,
+  idsCaseFactValidos: (id: string) => boolean,
+  idsMissingFactValidos: (id: string) => boolean,
+): string[] {
+  const errores: string[] = [];
+  const prefijo = `elementAssessments[${indice}]`;
+  if (!a || typeof a !== 'object') return [`${prefijo} ausente o no es un objeto`];
+  if (!a.elementId) errores.push(`${prefijo} sin elementId`);
+
+  const estado = a.status as unknown;
+  if (!estado || !ESTADOS_ELEMENTO_VALIDOS.has(estado as ElementAssessmentStatus)) {
+    errores.push(`${prefijo}.status inválido o ausente: ${String(estado)}`);
+  }
+
+  if (!Array.isArray(a.supportingFactIds)) errores.push(`${prefijo}.supportingFactIds debe ser un arreglo`);
+  if (!Array.isArray(a.contradictingFactIds)) errores.push(`${prefijo}.contradictingFactIds debe ser un arreglo`);
+  if (!Array.isArray(a.missingFactIds)) errores.push(`${prefijo}.missingFactIds debe ser un arreglo`);
+
+  for (const id of a.supportingFactIds ?? []) {
+    if (!idsCaseFactValidos(id)) errores.push(`${prefijo}.supportingFactIds referencia un CaseFact no declarado o inexistente: ${id}`);
+  }
+  for (const id of a.contradictingFactIds ?? []) {
+    if (!idsCaseFactValidos(id)) errores.push(`${prefijo}.contradictingFactIds referencia un CaseFact no declarado o inexistente: ${id}`);
+  }
+  for (const id of a.missingFactIds ?? []) {
+    if (!idsMissingFactValidos(id)) errores.push(`${prefijo}.missingFactIds referencia un MissingFact no declarado o inexistente: ${id}`);
+  }
+
+  // Invariante X: ningún assessment sin traza.
+  if (a.status === 'SATISFIED' && (a.supportingFactIds ?? []).length === 0) {
+    errores.push(`${prefijo}: status="SATISFIED" exige al menos un supportingFactId -- invariante X, no hay evaluación sin traza`);
+  }
+  // Invariante XIII: UNSATISFIED != UNKNOWN -- exige base fáctica afirmativa, nunca "no hay dato".
+  if (a.status === 'UNSATISFIED' && (a.contradictingFactIds ?? []).length === 0) {
+    errores.push(`${prefijo}: status="UNSATISFIED" exige al menos un contradictingFactId -- invariante XIII, la falta de información nunca equivale a "no satisfecho"`);
+  }
+
+  return errores;
+}
+
+function validarRuleExceptionAssessment(
+  a: RuleExceptionAssessment,
+  indice: number,
+  idsCaseFactValidos: (id: string) => boolean,
+  idsMissingFactValidos: (id: string) => boolean,
+): string[] {
+  const errores: string[] = [];
+  const prefijo = `exceptionAssessments[${indice}]`;
+  if (!a || typeof a !== 'object') return [`${prefijo} ausente o no es un objeto`];
+  if (!a.exceptionId) errores.push(`${prefijo} sin exceptionId`);
+
+  const estado = a.status as unknown;
+  if (!estado || !ESTADOS_EXCEPCION_VALIDOS.has(estado as ExceptionAssessmentStatus)) {
+    errores.push(`${prefijo}.status inválido o ausente: ${String(estado)}`);
+  }
+
+  if (!Array.isArray(a.supportingFactIds)) errores.push(`${prefijo}.supportingFactIds debe ser un arreglo`);
+  if (!Array.isArray(a.contradictingFactIds)) errores.push(`${prefijo}.contradictingFactIds debe ser un arreglo`);
+  if (!Array.isArray(a.missingFactIds)) errores.push(`${prefijo}.missingFactIds debe ser un arreglo`);
+
+  for (const id of a.supportingFactIds ?? []) {
+    if (!idsCaseFactValidos(id)) errores.push(`${prefijo}.supportingFactIds referencia un CaseFact no declarado o inexistente: ${id}`);
+  }
+  for (const id of a.contradictingFactIds ?? []) {
+    if (!idsCaseFactValidos(id)) errores.push(`${prefijo}.contradictingFactIds referencia un CaseFact no declarado o inexistente: ${id}`);
+  }
+  for (const id of a.missingFactIds ?? []) {
+    if (!idsMissingFactValidos(id)) errores.push(`${prefijo}.missingFactIds referencia un MissingFact no declarado o inexistente: ${id}`);
+  }
+
+  if (a.status === 'APPLIES' && (a.supportingFactIds ?? []).length === 0) {
+    errores.push(`${prefijo}: status="APPLIES" exige al menos un supportingFactId`);
+  }
+  if (a.status === 'DOES_NOT_APPLY' && (a.contradictingFactIds ?? []).length === 0) {
+    errores.push(`${prefijo}: status="DOES_NOT_APPLY" exige al menos un contradictingFactId`);
+  }
+
+  return errores;
+}
+
+/**
+ * Valida un Subsumption completo contra la NormativeRule que referencia y
+ * los conjuntos reales de CaseFact/MissingFact suministrados. Fail-closed:
+ * cualquier id huérfano, elemento requerido omitido, excepción sin evaluar,
+ * o inconsistencia entre analysisStatus/unresolvedElementIds y las
+ * evaluaciones reales invalida el registro completo.
+ *
+ * `caseFacts`/`missingFacts` son los objetos REALES suministrados a esta
+ * llamada -- un id solo se considera válido si (a) existe como CaseFact o
+ * MissingFact real Y (b) fue declarado explícitamente en
+ * `subsumption.caseFactIds`/`missingFactIds`. Un id que exista en algún
+ * lugar del sistema pero no haya sido declarado como parte de ESTE análisis
+ * se rechaza igual -- "no debe poder tomarse prestado" un hecho no incluido.
+ */
+export function validarSubsumption(
+  subsumption: Subsumption,
+  rule: NormativeRule,
+  caseFacts: CaseFact[],
+  missingFacts: MissingFact[],
+): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!subsumption || typeof subsumption !== 'object') return fail(['Subsumption ausente o no es un objeto']);
+  if (!subsumption.id) errores.push('Subsumption sin id');
+  if (subsumption.ruleId !== rule.id) {
+    errores.push(`Subsumption.ruleId ("${subsumption.ruleId}") no coincide con NormativeRule.id ("${rule.id}")`);
+  }
+
+  const idsCaseFactReales = new Set(caseFacts.map((f) => f.id));
+  const idsMissingFactReales = new Set(missingFacts.map((m) => m.id));
+
+  if (!Array.isArray(subsumption.caseFactIds)) errores.push('Subsumption.caseFactIds debe ser un arreglo');
+  if (!Array.isArray(subsumption.missingFactIds)) errores.push('Subsumption.missingFactIds debe ser un arreglo');
+
+  const idsCaseFactDeclarados = new Set(Array.isArray(subsumption.caseFactIds) ? subsumption.caseFactIds : []);
+  const idsMissingFactDeclarados = new Set(Array.isArray(subsumption.missingFactIds) ? subsumption.missingFactIds : []);
+
+  for (const id of idsCaseFactDeclarados) {
+    if (!idsCaseFactReales.has(id)) errores.push(`Subsumption.caseFactIds contiene un id que no existe en caseFacts: ${id}`);
+  }
+  for (const id of idsMissingFactDeclarados) {
+    if (!idsMissingFactReales.has(id)) errores.push(`Subsumption.missingFactIds contiene un id que no existe en missingFacts: ${id}`);
+  }
+
+  const esCaseFactValido = (id: string) => idsCaseFactReales.has(id) && idsCaseFactDeclarados.has(id);
+  const esMissingFactValido = (id: string) => idsMissingFactReales.has(id) && idsMissingFactDeclarados.has(id);
+
+  const elementosPorId = new Map(rule.elements.map((e) => [e.id, e]));
+  const excepcionesPorId = new Map(rule.exceptions.map((ex) => [ex.id, ex]));
+
+  // ── ELEMENT ASSESSMENTS ──
+  if (!Array.isArray(subsumption.elementAssessments)) {
+    errores.push('Subsumption.elementAssessments debe ser un arreglo');
+  } else {
+    const idsVistos = new Set<string>();
+    subsumption.elementAssessments.forEach((a, i) => {
+      errores.push(...validarRuleElementAssessment(a, i, esCaseFactValido, esMissingFactValido));
+      if (a?.elementId) {
+        if (!elementosPorId.has(a.elementId)) {
+          errores.push(`elementAssessments[${i}].elementId "${a.elementId}" no pertenece a NormativeRule "${rule.id}"`);
+        }
+        if (idsVistos.has(a.elementId)) {
+          errores.push(`elementAssessments[${i}]: evaluación duplicada para elementId "${a.elementId}" -- invariante X, un solo trace por elemento`);
+        }
+        idsVistos.add(a.elementId);
+      }
+    });
+
+    // Cobertura obligatoria: ningún elemento REQUERIDO puede faltar.
+    for (const el of rule.elements) {
+      if (el.required && !idsVistos.has(el.id)) {
+        errores.push(`RuleElement requerido "${el.id}" no tiene ninguna evaluación en Subsumption -- ningún elemento requerido puede desaparecer en silencio`);
+      }
+    }
+  }
+
+  // ── EXCEPTION ASSESSMENTS ──
+  if (!Array.isArray(subsumption.exceptionAssessments)) {
+    errores.push('Subsumption.exceptionAssessments debe ser un arreglo');
+  } else {
+    const idsVistos = new Set<string>();
+    subsumption.exceptionAssessments.forEach((a, i) => {
+      errores.push(...validarRuleExceptionAssessment(a, i, esCaseFactValido, esMissingFactValido));
+      if (a?.exceptionId) {
+        if (!excepcionesPorId.has(a.exceptionId)) {
+          errores.push(`exceptionAssessments[${i}].exceptionId "${a.exceptionId}" no pertenece a NormativeRule "${rule.id}"`);
+        }
+        if (idsVistos.has(a.exceptionId)) {
+          errores.push(`exceptionAssessments[${i}]: evaluación duplicada para exceptionId "${a.exceptionId}"`);
+        }
+        idsVistos.add(a.exceptionId);
+      }
+    });
+
+    // Invariante XIV: NINGUNA excepción de la regla puede quedar sin evaluar.
+    for (const ex of rule.exceptions) {
+      if (!idsVistos.has(ex.id)) {
+        errores.push(`RuleException "${ex.id}" no tiene ninguna evaluación en Subsumption -- invariante XIV, ninguna excepción puede desaparecer en silencio`);
+      }
+    }
+  }
+
+  // ── ANALYSIS STATUS / UNRESOLVED ELEMENTS (derivados, no declarados libremente) ──
+  if (Array.isArray(subsumption.elementAssessments) && Array.isArray(subsumption.exceptionAssessments)) {
+    const estadoDerivado = derivarAnalysisStatusSubsuncion(rule, subsumption.elementAssessments, subsumption.exceptionAssessments);
+    const estadoDeclarado = subsumption.analysisStatus as unknown;
+    if (!estadoDeclarado || !ESTADOS_ANALISIS_VALIDOS.has(estadoDeclarado as SubsumptionAnalysisStatus)) {
+      errores.push(`Subsumption.analysisStatus inválido o ausente: ${String(estadoDeclarado)}`);
+    } else if (estadoDeclarado !== estadoDerivado) {
+      errores.push(`Subsumption.analysisStatus="${String(estadoDeclarado)}" no coincide con el estado derivado de las evaluaciones ("${estadoDerivado}") -- COMPLETE/INCOMPLETE/BLOCKED nunca se declaran libremente`);
+    }
+
+    const noResueltosDerivados = derivarElementosNoResueltos(rule, subsumption.elementAssessments);
+    if (!Array.isArray(subsumption.unresolvedElementIds)) {
+      errores.push('Subsumption.unresolvedElementIds debe ser un arreglo');
+    } else if (!mismoConjunto(subsumption.unresolvedElementIds, noResueltosDerivados)) {
+      errores.push(`Subsumption.unresolvedElementIds no coincide con los elementos requeridos sin resolver (esperado: [${noResueltosDerivados.join(', ')}])`);
+    }
   }
 
   return errores.length === 0 ? ok() : fail(errores);
