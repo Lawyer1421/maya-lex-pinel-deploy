@@ -490,9 +490,15 @@ describe('LR-K4 — Boundaries: what Subsumption deliberately does not contain',
     }
   });
 
-  it('38. ninguna lógica de similitud semántica -- no existe import de embeddings/rerank', () => {
+  it('38. ninguna lógica de similitud semántica USADA -- no existe import de embeddings/rerank', () => {
+    // No se busca la ausencia total de la palabra: desde LR-K6 este archivo
+    // discute por nombre, en prosa, el invariante "similitud semántica !=
+    // soporte de proposición" precisamente para prohibirlo -- se busca la
+    // ausencia de USO real (import o llamada a una función de
+    // embeddings/similitud/reranking).
     const contenidoValidators = readFileSync(join(process.cwd(), 'lib/legal-reasoning/validators.ts'), 'utf8');
-    expect(contenidoValidators).not.toMatch(/embed|rerank|cosine|similarity/i);
+    expect(contenidoValidators).not.toMatch(/from ['"].*\/(embed|rerank)['"]/i);
+    expect(contenidoValidators).not.toMatch(/\bembedQuery\(|\brerankearFragmentos\(|\bcosineSimilarity\(/);
   });
 });
 

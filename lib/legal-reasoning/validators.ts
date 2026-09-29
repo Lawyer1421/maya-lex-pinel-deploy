@@ -1,12 +1,12 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 — deterministic validators. Fail
- * closed: a malformed or incomplete structure is reported as invalid, never
- * silently accepted or repaired. No LLM extraction integration here (per
- * directive, "no LLM extraction integration yet unless strictly required
- * for testing" -- it isn't; these validators operate on already-constructed
- * objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 — deterministic validators.
+ * Fail closed: a malformed or incomplete structure is reported as invalid,
+ * never silently accepted or repaired. No LLM extraction integration here
+ * (per directive, "no LLM extraction integration yet unless strictly
+ * required for testing" -- it isn't; these validators operate on
+ * already-constructed objects).
  */
 
 import type {
@@ -38,6 +38,11 @@ import type {
   FactCompletenessStatus,
   RuleVerificationSummary,
   EngineNotYetImplementedStatus,
+  PropositionClaim,
+  PropositionSupportStatus,
+  PropositionSupportRecord,
+  EvidenceLocator,
+  IdentifiedCitationTrustRecord,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -936,4 +941,202 @@ export function validarConclusionTrace(
   }
 
   return errores.length === 0 ? ok() : fail(errores);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K6 — CITATION TRUST II: PROPOSITION SUPPORT CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Responde "¿la evidencia recuperada realmente respalda la LegalProposition
+// que se le atribuye?" -- NUNCA "¿es correcta esta interpretación legal?",
+// "¿es esta la regla que controla?", ni "¿esta fuente está vigente?".
+// Invariante XXIV (similitud semántica != soporte de proposición): este
+// módulo NUNCA usa embeddings, similitud vectorial ni score de reranker como
+// prueba de soporte -- la clasificación de cada PropositionClaim en
+// supportedClaims/unsupportedClaims/contradictoryClaims la decide quien
+// construye el registro (un fixture hoy, una fase futura autorizada más
+// adelante), nunca este validador. Este validador solo audita que esa
+// clasificación YA DECIDIDA sea internamente coherente -- misma disciplina
+// que Subsumption en LR-K4.
+
+const ESTADOS_SOPORTE_VALIDOS: ReadonlySet<PropositionSupportStatus> = new Set([
+  'SUPPORTED', 'PARTIALLY_SUPPORTED', 'CONTRADICTED', 'NOT_SUPPORTED', 'UNRESOLVED',
+]);
+
+/**
+ * Deriva el único `status` que un PropositionSupportRecord puede declarar,
+ * dado cómo se clasificaron los claims de la proposición. Prioridad:
+ * CONTRADICTED (invariante XXVI, nunca se opaca por nada, ni por un claim
+ * sin clasificar) > UNRESOLVED (algún claim de la proposición no fue
+ * clasificado en ninguno de los tres arreglos) > SUPPORTED (todos los claims
+ * están en supportedClaims) > PARTIALLY_SUPPORTED (algunos sí, ninguna
+ * contradicción, no todos) > NOT_SUPPORTED (todos clasificados, ninguno
+ * soportado, ninguna contradicción).
+ *
+ * Una proposición sin ningún PropositionClaim asociado deriva UNRESOLVED --
+ * nunca SUPPORTED por vacuidad.
+ */
+export function derivarPropositionSupportStatus(
+  idsClaimsDeLaProposicion: string[],
+  supportedClaims: string[],
+  unsupportedClaims: string[],
+  contradictoryClaims: string[],
+): PropositionSupportStatus {
+  if (idsClaimsDeLaProposicion.length === 0) return 'UNRESOLVED';
+  if (contradictoryClaims.length > 0) return 'CONTRADICTED';
+
+  const clasificados = new Set([...supportedClaims, ...unsupportedClaims]);
+  const sinClasificar = idsClaimsDeLaProposicion.filter((id) => !clasificados.has(id));
+  if (sinClasificar.length > 0) return 'UNRESOLVED';
+
+  if (supportedClaims.length === idsClaimsDeLaProposicion.length) return 'SUPPORTED';
+  if (supportedClaims.length > 0) return 'PARTIALLY_SUPPORTED';
+  return 'NOT_SUPPORTED';
+}
+
+function validarEvidenceLocator(
+  loc: EvidenceLocator,
+  indice: number,
+  idsCitacionDeclaradas: Set<string>,
+  idsCitacionReales: Set<string>,
+): string[] {
+  const errores: string[] = [];
+  const prefijo = `evidenceLocators[${indice}]`;
+  if (!loc || typeof loc !== 'object') return [`${prefijo} ausente o no es un objeto`];
+  if (!loc.citationTrustRecordId) {
+    errores.push(`${prefijo} sin citationTrustRecordId`);
+    return errores;
+  }
+  if (!idsCitacionReales.has(loc.citationTrustRecordId)) {
+    errores.push(`${prefijo}.citationTrustRecordId "${loc.citationTrustRecordId}" no existe en el contexto de CitationTrustRecord suministrado`);
+  } else if (!idsCitacionDeclaradas.has(loc.citationTrustRecordId)) {
+    errores.push(`${prefijo}.citationTrustRecordId "${loc.citationTrustRecordId}" no está declarado en citationTrustRecordIds de este registro -- no se puede tomar prestada una citación no declarada`);
+  }
+  return errores;
+}
+
+/**
+ * Valida un PropositionSupportRecord completo. Fail-closed: cualquier id
+ * huérfano (proposición, citación, claim), clasificación de claim en más de
+ * un arreglo, status declarado libremente en vez de derivado, o SUPPORTED/
+ * PARTIALLY_SUPPORTED/CONTRADICTED sin al menos un EvidenceLocator resoluble
+ * invalida el registro completo.
+ *
+ * Invariante XXIII (identidad de fuente != soporte de proposición): que
+ * `citations` contenga registros VERIFIED con hash no exime de construir la
+ * clasificación de claims explícitamente -- este validador nunca infiere
+ * status a partir de CitationTrustRecord.verificationState/hash por sí
+ * solos, solo de lo que supportedClaims/unsupportedClaims/contradictoryClaims
+ * ya declaran.
+ */
+export function validarPropositionSupportRecord(
+  record: PropositionSupportRecord,
+  propositions: LegalProposition[],
+  citations: IdentifiedCitationTrustRecord[],
+  claims: PropositionClaim[],
+): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!record || typeof record !== 'object') return fail(['PropositionSupportRecord ausente o no es un objeto']);
+  if (!record.id) errores.push('PropositionSupportRecord sin id');
+
+  const propuestaExiste = propositions.some((p) => p.id === record.propositionId);
+  if (!record.propositionId || !propuestaExiste) {
+    errores.push(`PropositionSupportRecord.propositionId no existe en el contexto de LegalProposition suministrado: ${String(record.propositionId)}`);
+  }
+
+  const idsCitacionReales = new Set(citations.map((c) => c.id));
+  const idsCitacionDeclaradas = new Set(Array.isArray(record.citationTrustRecordIds) ? record.citationTrustRecordIds : []);
+  if (!Array.isArray(record.citationTrustRecordIds)) {
+    errores.push('PropositionSupportRecord.citationTrustRecordIds debe ser un arreglo');
+  } else {
+    for (const id of record.citationTrustRecordIds) {
+      if (!idsCitacionReales.has(id)) {
+        errores.push(`PropositionSupportRecord.citationTrustRecordIds contiene un id que no existe en el contexto de CitationTrustRecord suministrado: ${id}`);
+      }
+    }
+  }
+
+  const estado = record.status as unknown;
+  if (!estado || !ESTADOS_SOPORTE_VALIDOS.has(estado as PropositionSupportStatus)) {
+    errores.push(`PropositionSupportRecord.status inválido o ausente: ${String(estado)}`);
+  }
+
+  const claimsDeLaProposicion = claims.filter((c) => c.propositionId === record.propositionId);
+  const idsClaimsValidos = new Set(claimsDeLaProposicion.map((c) => c.id));
+
+  const arreglosClaim: Array<{ nombre: string; valores: string[] }> = [
+    { nombre: 'supportedClaims', valores: Array.isArray(record.supportedClaims) ? record.supportedClaims : [] },
+    { nombre: 'unsupportedClaims', valores: Array.isArray(record.unsupportedClaims) ? record.unsupportedClaims : [] },
+    { nombre: 'contradictoryClaims', valores: Array.isArray(record.contradictoryClaims) ? record.contradictoryClaims : [] },
+  ];
+  for (const campo of ['supportedClaims', 'unsupportedClaims', 'contradictoryClaims'] as const) {
+    if (!Array.isArray(record[campo])) errores.push(`PropositionSupportRecord.${campo} debe ser un arreglo`);
+  }
+  for (const { nombre, valores } of arreglosClaim) {
+    for (const id of valores) {
+      if (!idsClaimsValidos.has(id)) {
+        errores.push(`PropositionSupportRecord.${nombre} referencia un claim que no pertenece a la proposición "${record.propositionId}": ${id}`);
+      }
+    }
+  }
+
+  // Ningún claim puede clasificarse en más de uno de los tres arreglos --
+  // una contradicción y un soporte simultáneos para el mismo claim es una
+  // inconsistencia del propio registro, no un estado legítimo.
+  const conteoPorClaim = new Map<string, number>();
+  for (const { valores } of arreglosClaim) {
+    for (const id of valores) conteoPorClaim.set(id, (conteoPorClaim.get(id) ?? 0) + 1);
+  }
+  for (const [id, conteo] of conteoPorClaim) {
+    if (conteo > 1) errores.push(`El claim "${id}" aparece en más de uno de supportedClaims/unsupportedClaims/contradictoryClaims -- clasificación ambigua`);
+  }
+
+  // ── EVIDENCE LOCATORS ──
+  if (!Array.isArray(record.evidenceLocators)) {
+    errores.push('PropositionSupportRecord.evidenceLocators debe ser un arreglo');
+  } else {
+    record.evidenceLocators.forEach((loc, i) => {
+      errores.push(...validarEvidenceLocator(loc, i, idsCitacionDeclaradas, idsCitacionReales));
+    });
+  }
+
+  // ── STATUS (derivado, nunca declarado libremente) ──
+  const estadoDerivado = derivarPropositionSupportStatus(
+    [...idsClaimsValidos],
+    arreglosClaim[0].valores,
+    arreglosClaim[1].valores,
+    arreglosClaim[2].valores,
+  );
+  if (ESTADOS_SOPORTE_VALIDOS.has(estado as PropositionSupportStatus) && estado !== estadoDerivado) {
+    errores.push(`PropositionSupportRecord.status="${String(estado)}" no coincide con el estado derivado de la clasificación de claims ("${estadoDerivado}") -- invariante XXV/XXVI/XXVII, ningún estado se declara libremente`);
+  }
+
+  // Invariante: SUPPORTED/PARTIALLY_SUPPORTED/CONTRADICTED exigen al menos
+  // un EvidenceLocator resoluble -- el soporte nunca se afirma sin una
+  // relación resoluble a evidencia real.
+  const exigeEvidencia = estado === 'SUPPORTED' || estado === 'PARTIALLY_SUPPORTED' || estado === 'CONTRADICTED';
+  if (exigeEvidencia && Array.isArray(record.evidenceLocators) && record.evidenceLocators.length === 0) {
+    errores.push(`PropositionSupportRecord.status="${String(estado)}" exige al menos un EvidenceLocator -- el soporte nunca se afirma sin evidencia resoluble`);
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+/**
+ * Invariante XXII (ninguna proposición legal verificada sin evidencia de
+ * soporte): ambas condiciones son necesarias, ninguna es suficiente por sí
+ * sola. `esProposicionConFuenteVerificada` (LR-K2/K3, sin tocar) confirma
+ * identidad/proveniencia de fuente -- esta función además exige un
+ * PropositionSupportRecord propio con status SUPPORTED antes de considerar
+ * la proposición completamente respaldada. No reabre ni modifica
+ * validarLegalProposition.
+ */
+export function esProposicionCompletamenteRespaldada(
+  proposicion: LegalProposition,
+  registrosSoporte: PropositionSupportRecord[],
+): boolean {
+  if (!esProposicionConFuenteVerificada(proposicion)) return false;
+  return registrosSoporte.some(
+    (r) => r.propositionId === proposicion.id && r.status === 'SUPPORTED',
+  );
 }

@@ -2,11 +2,11 @@
 
 **Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact), LR-K2
 (Citation Trust I), LR-K3 (LegalProposition/NormativeRule), LR-K4 (generic
-Subsumption contract), and LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
-only) are implemented as shadow/structural types — see
-`lib/legal-reasoning/`. Nothing in this document is wired into
-`app/api/chat/route.ts`, any system prompt, or any user-facing response. No
-behavior changes through LR-K5.
+Subsumption contract), LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
+only), and LR-K6 (Citation Trust II: proposition-support contract) are
+implemented as shadow/structural types — see `lib/legal-reasoning/`. Nothing
+in this document is wired into `app/api/chat/route.ts`, any system prompt,
+or any user-facing response. No behavior changes through LR-K6.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -107,6 +107,39 @@ These are binding on every future LR phase, not just this one.
   `SUPPORTED` `ConclusionTrace` says nothing about legal applicability,
   vigencia, or authority — those remain permanently `NOT_EVALUATED` fields
   until later layers exist. See §9.2.
+- **XXI. Traceability does not cure a false premise.** A `ConclusionTrace`
+  can be perfectly traced to a `Subsumption`, `NormativeRule`, and
+  `CitationTrustRecord` that are all structurally valid, while the
+  `LegalProposition` at the root of the chain is a wrong reading of its own
+  source. Nothing before LR-K6 could catch that — traceability alone is not
+  evidence of correctness. See §6.4.
+- **XXII. No verified legal proposition without supporting evidence.** A
+  `LegalProposition` is never treated as fully backed merely because its
+  source exists, its citation is identity-verified, or its hash is present —
+  full backing additionally requires a `PropositionSupportRecord` with
+  `status: 'SUPPORTED'`. See §6.4, `esProposicionCompletamenteRespaldada`.
+- **XXIII. Source identity != proposition support.** Citation Trust I
+  (§6.1–6.2) answers whether a citation's identity and provenance are real.
+  It never answers whether the evidence actually supports the proposition
+  attributed to it — that is Citation Trust II's question alone. See §6.4.
+- **XXIV. Semantic similarity != proposition support.** A high vector
+  similarity or reranker score means "possibly related," never "supports
+  this proposition." `validarPropositionSupportRecord` never reads or
+  derives from any similarity/embedding score. See §6.4.
+- **XXV. Partial support must not masquerade as full support.** A
+  `PropositionSupportRecord` can only declare `SUPPORTED` when every claim
+  belonging to the proposition is in `supportedClaims` — one unaddressed
+  claim forces `PARTIALLY_SUPPORTED` or worse, never rounded up. See §6.4.
+- **XXVI. Contradictory evidence must not be silently ignored.** Any claim
+  placed in `contradictoryClaims` forces the record's derived `status` to
+  `CONTRADICTED` — the single highest-priority outcome, never downgraded to
+  `PARTIAL`/`UNRESOLVED` or hidden behind a `SUPPORTED` claim elsewhere in
+  the same record. See §6.4.
+- **XXVII. No support status may be upgraded by model expectation.**
+  `status` is always derived from, and cross-checked against, the record's
+  own `supportedClaims`/`unsupportedClaims`/`contradictoryClaims` — never
+  declared freely, never inferred from how confident a citation looks. See
+  §6.4.
 
 ### Intent/depth exceptions
 
@@ -137,6 +170,8 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | `ConclusionTrace`, `ConclusionBlocker`, `ConclusionUncertainty` (`LEGAL_CONCLUSION`) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K5) |
 | ConclusionTrace validators (`validarConclusionTrace` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K5) |
 | `PROCEDURAL_CONCLUSION` / `STRATEGIC_ASSESSMENT` reasoning | Type exists, explicitly rejected by the validator — future layers, §9 |
+| `PropositionClaim`, `EvidenceLocator`, `PropositionSupportRecord` (Citation Trust II) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K6) |
+| Proposition-support validators (`validarPropositionSupportRecord` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K6) |
 | Ephemeral per-query reasoning trace (CaseFact→RuleElement→NormativeRule→LegalSource→Conclusion chain) | Design only — §10 |
 | Citation Trust II (proposition support) | **Not started, not this phase** — §6.3 |
 
@@ -353,14 +388,16 @@ silently promoted to `VERIFIED` without that evidence actually showing up.
 existing metadata-only discipline) can never masquerade as a verified
 primary authority regardless of how confident the retrieved text looks.
 
-### 6.3 Citation Trust II — explicitly deferred
+### 6.3 Citation Trust II — implemented in LR-K6
 
-A future `LR-K6` phase will answer: *"Does the retrieved source actually
-support the legal proposition MayaLex attributes to it?"* — proposition
-support, not identity. This is a distinct, harder problem (it requires
-reasoning about the text's content, not just confirming the citation
-resolves to a real document) and **LR-K2 does not attempt it.** Nothing in
-this phase should be read as solving or approximating proposition support.
+Answers: *"Does the retrieved source actually support the legal proposition
+MayaLex attributes to it?"* — proposition support, not identity. This is a
+distinct, harder problem than LR-K2's (it requires comparing evidence
+content against a claim, not just confirming a citation resolves to a real
+document) — **LR-K2 never attempted it**, and this section previously
+deferred it to "a future LR-K6 phase." It's implemented now
+(`lib/legal-reasoning/types.ts`, `lib/legal-reasoning/validators.ts`) —
+see §6.4.
 
 **6.3.1 Structural validation != evidence binding (invariant IX).** A
 `CitationTrustRecord`, `LegalProposition`, or `NormativeRule` that passes
@@ -374,6 +411,98 @@ retrieval integration in this kernel). A future phase that constructs these
 objects from real retrieval output is responsible for actually binding
 `hash` to genuine evidence; this layer only checks that *if* a `VERIFIED`
 claim is made, the required fields accompanying it are present.
+
+### 6.4 Proposition support contract (LR-K6)
+
+Propositions are decomposed into explicit claim units **by the caller** — a
+fixture today, an authorized extraction phase later — never inferred by
+this module. `PropositionClaim` links back to `LegalProposition` by
+`propositionId`, the same non-nesting pattern `Subsumption` uses for
+`ruleId`, so LR-K3's already-reviewed type is never reopened.
+
+```ts
+type PropositionSupportStatus = 'SUPPORTED' | 'PARTIALLY_SUPPORTED' | 'CONTRADICTED' | 'NOT_SUPPORTED' | 'UNRESOLVED';
+
+interface PropositionClaim { id: string; propositionId: string; text: string; }
+
+interface EvidenceLocator {
+  citationTrustRecordId: string;
+  fragmentId?: string; page?: number; textRange?: string; hash?: string;
+}
+
+interface PropositionSupportRecord {
+  id: string;
+  propositionId: string;
+  citationTrustRecordIds: string[];
+  status: PropositionSupportStatus;
+  supportedClaims: string[];
+  unsupportedClaims: string[];
+  contradictoryClaims: string[];    // a claim conflicting with even one source goes here, never in supportedClaims
+  evidenceLocators: EvidenceLocator[];
+  notes?: string;
+}
+```
+
+**Status is derived, never declared freely** (same discipline as §8.2/§9.1),
+in strict priority order: **`CONTRADICTED`** (any claim in
+`contradictoryClaims` — invariant XXVI, this outranks everything, including
+an unclassified claim elsewhere) → **`UNRESOLVED`** (any claim belonging to
+the proposition isn't classified into any of the three arrays, or the
+proposition has zero claims at all) → **`SUPPORTED`** (every claim is in
+`supportedClaims`) → **`PARTIALLY_SUPPORTED`** (some but not all) →
+**`NOT_SUPPORTED`** (all claims classified, none supported, no
+contradiction). `SUPPORTED`/`PARTIALLY_SUPPORTED`/`CONTRADICTED` all require
+at least one `EvidenceLocator` resolving to a citation declared in the
+record's own `citationTrustRecordIds` — support is never asserted without a
+resolvable relation to real evidence, and never "borrowed" from a citation
+the record didn't declare.
+
+**Conflicting sources** (§17 of the LR-K6 directive: one source supports a
+claim, another contradicts it) are represented by placing that claim in
+`contradictoryClaims` — contradiction wins at the claim level exactly as it
+wins at the record level. No dedicated conflict state was added, kept
+minimal per instruction.
+
+**Recorded debt:** `CitationTrustRecord` (LR-K2) has no `id` field of its
+own — modeled as a value object, like `Cita` in `evidence-engine.ts`.
+`IdentifiedCitationTrustRecord { id, record }` assigns an id externally so
+LR-K6 can reference specific citations, without reopening or modifying
+`CitationTrustRecord` itself. Retire this wrapper only if a future phase
+gives `CitationTrustRecord` its own id for a substantive reason.
+
+**Relation to `LegalProposition` (invariant XXII):**
+
+```ts
+function esProposicionCompletamenteRespaldada(p: LegalProposition, records: PropositionSupportRecord[]): boolean {
+  if (!esProposicionConFuenteVerificada(p)) return false;       // LR-K2/K3, unmodified
+  return records.some(r => r.propositionId === p.id && r.status === 'SUPPORTED');
+}
+```
+
+Both conditions are necessary; neither is sufficient alone. This is
+additive — `validarLegalProposition` and `esProposicionConFuenteVerificada`
+(§7) are not modified.
+
+**Relation to `NormativeRule` (§18 of the directive):** `PropositionSupport
+= SUPPORTED` never implies a `NormativeRule` built from that proposition is
+legally correct — source support and reasoning correctness remain separate
+axes, restated from invariant VIII.
+
+**Relation to `ConclusionTrace` (§19 of the directive, not wired now):** a
+future runtime integration must prevent a `SUPPORTED` `LEGAL_CONCLUSION`
+from relying on a `LegalProposition` whose support is `CONTRADICTED`,
+`NOT_SUPPORTED`, or `UNRESOLVED`, unless the conclusion is explicitly
+downgraded or blocked. `ConclusionTrace` (§9) is not modified in this phase
+to enforce this — it is documented here as a requirement for whichever
+future phase wires LR-K6 into LR-K5's validation path.
+
+**Boundaries (invariants XXIII/XXIV):** semantic similarity, vector scores,
+and reranker output are never read or derived from anywhere in this
+contract — `validarPropositionSupportRecord` only audits a
+claim-to-evidence classification the caller already decided, the same
+"fixtures instantiate explicit assessments manually" discipline as LR-K4's
+`Subsumption`. No LLM call, no embedding call, no Authority or Temporal
+decision, no `NormativeRule` legal-correctness claim.
 
 ## 7. Legal proposition and normative rule
 

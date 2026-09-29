@@ -4,10 +4,11 @@
  * LR-K1 (CaseFact/MissingFact provenance) + LR-K2 (Citation Trust I:
  * identity/provenance only) + LR-K3 (LegalProposition/NormativeRule) +
  * LR-K4 (generic Subsumption contract) + LR-K5 (Conclusion Traceability,
- * LEGAL_CONCLUSION only). See docs/architecture/LR-1_LEGAL_REASONING.md for
- * the full canonical design, invariants, and everything still NOT
- * implemented (TemporalLegalState, Authority, Jurisprudence, Citation Trust
- * II, PROCEDURAL_CONCLUSION/STRATEGIC_ASSESSMENT reasoning — design-only).
+ * LEGAL_CONCLUSION only) + LR-K6 (Citation Trust II: proposition-support
+ * contract). See docs/architecture/LR-1_LEGAL_REASONING.md for the full
+ * canonical design, invariants, and everything still NOT implemented
+ * (TemporalLegalState, Authority, Jurisprudence,
+ * PROCEDURAL_CONCLUSION/STRATEGIC_ASSESSMENT reasoning — design-only).
  *
  * SHADOW / STRUCTURAL ONLY: nothing in this module is imported by
  * app/api/chat/route.ts, any system prompt, or any response-formatting
@@ -427,4 +428,118 @@ export interface ConclusionTrace {
   notes?: string;
   // Deliberately NO confidenceScore, probability, winningChance,
   // successRate, or recommendedAction -- all out of scope for LR-K5.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K6 — CITATION TRUST II: PROPOSITION SUPPORT CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Citation Trust I (LR-K2) answers "is this citation's identity/provenance
+// real?" This layer answers a different, harder question: "does the
+// retrieved evidence actually support the LegalProposition attributed to
+// it?" SOURCE IDENTITY != PROPOSITION SUPPORT != LEGAL CORRECTNESS -- a
+// CitationTrustRecord can be fully VERIFIED (real document, confirmed
+// version, hashed content) while the evidence it points to says nothing
+// resembling the proposition, or even contradicts it. Neither this layer
+// nor LR-K2 evaluates whether the proposition's underlying legal
+// interpretation is ultimately correct, current, or controlling -- that
+// remains a future Authority/Temporal layer's question.
+//
+// New constitutional invariants for this phase:
+//   XXI.   TRACEABILITY DOES NOT CURE A FALSE PREMISE.
+//   XXII.  NO VERIFIED LEGAL PROPOSITION WITHOUT SUPPORTING EVIDENCE.
+//   XXIII. SOURCE IDENTITY != PROPOSITION SUPPORT.
+//   XXIV.  SEMANTIC SIMILARITY != PROPOSITION SUPPORT.
+//   XXV.   PARTIAL SUPPORT MUST NOT MASQUERADE AS FULL SUPPORT.
+//   XXVI.  CONTRADICTORY EVIDENCE MUST NOT BE SILENTLY IGNORED.
+//   XXVII. NO SUPPORT STATUS MAY BE UPGRADED BY MODEL EXPECTATION.
+//
+// This module does NOT call an LLM, does NOT use embeddings/vector
+// similarity/reranker scores as evidence of support, and does NOT attempt
+// natural-language claim extraction -- propositions are decomposed into
+// explicit PropositionClaim units BY THE CALLER (a fixture, and eventually
+// a future authorized extraction phase), never inferred here. This module
+// only checks whether an ALREADY-DECIDED claim-to-evidence classification is
+// internally consistent -- the same "fixtures instantiate explicit
+// assessments manually" discipline as LR-K4's Subsumption.
+
+/**
+ * Deliberately does NOT nest inside LegalProposition (LR-K3 is not
+ * reopened) -- links back via propositionId, the same pattern Subsumption
+ * uses for ruleId. A proposition's full claim set is discovered by filtering
+ * on this field, never by a field LegalProposition itself carries.
+ */
+export interface PropositionClaim {
+  id: string;
+  propositionId: string;
+  text: string;
+}
+
+/**
+ * RECORDED DEBT (new in LR-K6, not fixed -- same discipline as the
+ * `instrumento: string | null` debt recorded in LR-K3): `CitationTrustRecord`
+ * (LR-K2) has no `id` field of its own -- it was modeled as a value object,
+ * the same way `Cita` in evidence-engine.ts is addressed by array position
+ * or its own `hash`, never a stable id. LR-K6 needs to reference specific
+ * citations from `PropositionSupportRecord.citationTrustRecordIds` and
+ * `EvidenceLocator.citationTrustRecordId`, so this wrapper assigns an id
+ * EXTERNALLY, without modifying `CitationTrustRecord` itself or reopening
+ * LR-K2. If a future phase gives `CitationTrustRecord` its own id, this
+ * wrapper becomes redundant and can be retired then -- not now, as an
+ * incidental side effect of LR-K6.
+ */
+export interface IdentifiedCitationTrustRecord {
+  id: string;
+  record: CitationTrustRecord;
+}
+
+/**
+ * SUPPORTED/PARTIALLY_SUPPORTED/CONTRADICTED/NOT_SUPPORTED/UNRESOLVED --
+ * never a confidence score, percentage, or probability (invariant XXIV's
+ * sibling concern: a number invites exactly the "looks precise, isn't"
+ * mistake this whole kernel exists to avoid). CONTRADICTED is never
+ * downgraded to PARTIAL/UNRESOLVED when the evidence explicitly conflicts
+ * (invariant XXVI) -- it is the single highest-priority derived state.
+ */
+export type PropositionSupportStatus =
+  | 'SUPPORTED' | 'PARTIALLY_SUPPORTED' | 'CONTRADICTED' | 'NOT_SUPPORTED' | 'UNRESOLVED';
+
+/**
+ * Where support for a claim actually comes from -- no field is required
+ * beyond `citationTrustRecordId` (a locator may legitimately be coarse,
+ * e.g. only a fragmentId, never all of page/textRange/hash at once), but at
+ * least one EvidenceLocator must exist for SUPPORTED/PARTIALLY_SUPPORTED/
+ * CONTRADICTED (see validarPropositionSupportRecord) -- support is never
+ * asserted without a resolvable relation to a real CitationTrustRecord.
+ */
+export interface EvidenceLocator {
+  citationTrustRecordId: string;
+  fragmentId?: string;
+  page?: number;
+  textRange?: string;
+  hash?: string;
+}
+
+export interface PropositionSupportRecord {
+  id: string;
+  /** Must exist in the supplied LegalProposition context -- no orphan proposition ids. */
+  propositionId: string;
+  /** Must all exist in the supplied CitationTrustRecord context -- no orphan citation ids. */
+  citationTrustRecordIds: string[];
+  status: PropositionSupportStatus;
+  /** Claim ids (from PropositionClaim, filtered to this propositionId) the evidence directly backs. */
+  supportedClaims: string[];
+  /** Claim ids the evidence was checked against but does not address -- never conflated with "not yet checked." */
+  unsupportedClaims: string[];
+  /**
+   * Claim ids the evidence AFFIRMATIVELY conflicts with. A claim conflicting
+   * with even one source belongs here, never in supportedClaims, even if a
+   * different referenced source would otherwise have supported it --
+   * conflicting sources are represented as a per-claim contradiction, not a
+   * dedicated new status (kept minimal per directive §17).
+   */
+  contradictoryClaims: string[];
+  evidenceLocators: EvidenceLocator[];
+  notes?: string;
+  // Deliberately NO confidenceScore, probability, or percentage anywhere.
 }
