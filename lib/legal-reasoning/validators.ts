@@ -1,12 +1,12 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 — deterministic validators.
- * Fail closed: a malformed or incomplete structure is reported as invalid,
- * never silently accepted or repaired. No LLM extraction integration here
- * (per directive, "no LLM extraction integration yet unless strictly
- * required for testing" -- it isn't; these validators operate on
- * already-constructed objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 — deterministic
+ * validators. Fail closed: a malformed or incomplete structure is reported
+ * as invalid, never silently accepted or repaired. No LLM extraction
+ * integration here (per directive, "no LLM extraction integration yet
+ * unless strictly required for testing" -- it isn't; these validators
+ * operate on already-constructed objects).
  */
 
 import type {
@@ -43,6 +43,11 @@ import type {
   PropositionSupportRecord,
   EvidenceLocator,
   IdentifiedCitationTrustRecord,
+  EvidenceSpan,
+  SupportAdjudication,
+  SupportAdjudicationStatus,
+  AdjudicationOrigin,
+  AggregatedPropositionSupport,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -1122,21 +1127,252 @@ export function validarPropositionSupportRecord(
   return errores.length === 0 ? ok() : fail(errores);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K6.1 — EVIDENCE BINDING + CONFLICT-AWARE AGGREGATION
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Corrige un hallazgo real de Cursor: la versión anterior de
+// esProposicionCompletamenteRespaldada usaba `.some(status === 'SUPPORTED')`
+// -- un solo PropositionSupportRecord SUPPORTED bastaba para devolver true,
+// sin importar que OTRO registro para la MISMA proposición dijera
+// CONTRADICTED. Invariante XXIX: un registro de soporte nunca puede borrar
+// uno contradictorio. La corrección agrega TODOS los registros/adjudicaciones
+// de la proposición a nivel de CLAIM REQUERIDO (invariante XXXIII) antes de
+// decidir, y preserva explícitamente tanto los claims soportados como los
+// contradictorios en el resultado (invariante XXXII) -- nunca solo un
+// veredicto final que descarte la evidencia contraria.
+
+function claimsDeLaProposicion(propositionId: string, claims: PropositionClaim[]): PropositionClaim[] {
+  return claims.filter((c) => c.propositionId === propositionId);
+}
+
+/**
+ * Núcleo compartido de agregación: dado, para cada claim de la proposición,
+ * qué conjuntos de ids ya se determinaron como contradichos/soportados/no
+ * soportados, deriva el AggregatedPropositionSupport completo -- MISMA
+ * lógica para PropositionSupportRecord[] (agregarSoportePorProposicion) y
+ * SupportAdjudication[] (agregarAdjudicacionesPorProposicion), para que
+ * ambas vías nunca diverjan en sus reglas de prioridad.
+ *
+ * Prioridad: contradicción en un claim REQUERIDO > claim requerido sin
+ * clasificar > cobertura de requeridos. La contradicción en un claim NO
+ * requerido se preserva en `contraryClaimIds` (invariante XXXII, nunca se
+ * descarta) pero no por sí sola fuerza CONTRADICTED -- solo los requeridos
+ * determinan el status de la proposición (invariante XXXIII).
+ */
+function derivarAgregado(
+  propositionId: string,
+  todosLosClaims: PropositionClaim[],
+  contradictorios: Set<string>,
+  soportados: Set<string>,
+  noSoportados: Set<string>,
+): AggregatedPropositionSupport {
+  const idsRequeridos = todosLosClaims.filter((c) => c.required).map((c) => c.id);
+  const idsTodos = todosLosClaims.map((c) => c.id);
+  const unresolvedClaimIds = idsTodos.filter(
+    (id) => !contradictorios.has(id) && !soportados.has(id) && !noSoportados.has(id),
+  );
+
+  let status: PropositionSupportStatus;
+  const contradictoriosRequeridos = idsRequeridos.filter((id) => contradictorios.has(id));
+  const requeridosSinClasificar = idsRequeridos.filter(
+    (id) => !contradictorios.has(id) && !soportados.has(id) && !noSoportados.has(id),
+  );
+
+  if (idsRequeridos.length === 0) {
+    status = 'UNRESOLVED'; // sin claims requeridos declarados, no hay nada que agregar de forma responsable
+  } else if (contradictoriosRequeridos.length > 0) {
+    status = 'CONTRADICTED'; // invariante XXIX/XXVI: un solo requerido contradicho basta, sin importar cuántos otros estén soportados
+  } else if (requeridosSinClasificar.length > 0) {
+    status = 'UNRESOLVED';
+  } else {
+    const requeridosSoportados = idsRequeridos.filter((id) => soportados.has(id));
+    if (requeridosSoportados.length === idsRequeridos.length) status = 'SUPPORTED';
+    else if (requeridosSoportados.length > 0) status = 'PARTIALLY_SUPPORTED';
+    else status = 'NOT_SUPPORTED';
+  }
+
+  return {
+    propositionId,
+    status,
+    requiredClaimIds: idsRequeridos,
+    supportingClaimIds: [...soportados],
+    // TODOS los contradictorios, requeridos o no -- nunca se descartan (invariante XXXII).
+    contraryClaimIds: [...contradictorios],
+    unresolvedClaimIds,
+    notSupportedClaimIds: [...noSoportados],
+  };
+}
+
+/**
+ * Agrega, a nivel de CLAIM REQUERIDO, todos los PropositionSupportRecord de
+ * una misma proposición -- nunca decide con un solo registro aislado
+ * (invariante XXIX). Si un claim aparece como contradictoryClaims en
+ * CUALQUIER registro, ese claim queda contradicho sin importar que otro
+ * registro lo liste en supportedClaims.
+ */
+export function agregarSoportePorProposicion(
+  propositionId: string,
+  registros: PropositionSupportRecord[],
+  claims: PropositionClaim[],
+): AggregatedPropositionSupport {
+  const todosLosClaims = claimsDeLaProposicion(propositionId, claims);
+  const registrosDeProposicion = registros.filter((r) => r.propositionId === propositionId);
+
+  const contradictorios = new Set<string>();
+  for (const r of registrosDeProposicion) {
+    for (const id of r.contradictoryClaims) contradictorios.add(id);
+  }
+  const soportados = new Set<string>();
+  for (const r of registrosDeProposicion) {
+    for (const id of r.supportedClaims) if (!contradictorios.has(id)) soportados.add(id);
+  }
+  const noSoportados = new Set<string>();
+  for (const r of registrosDeProposicion) {
+    for (const id of r.unsupportedClaims) if (!contradictorios.has(id) && !soportados.has(id)) noSoportados.add(id);
+  }
+
+  return derivarAgregado(propositionId, todosLosClaims, contradictorios, soportados, noSoportados);
+}
+
+const ESTADOS_ADJUDICACION_VALIDOS: ReadonlySet<SupportAdjudicationStatus> = new Set([
+  'SUPPORTS', 'PARTIALLY_SUPPORTS', 'CONTRADICTS', 'DOES_NOT_SUPPORT', 'UNRESOLVED',
+]);
+
+const ORIGENES_ADJUDICACION_VALIDOS: ReadonlySet<AdjudicationOrigin> = new Set([
+  'HUMAN', 'EXACT_TEXT_RULE', 'EXTERNAL_REASONER',
+]);
+
+/**
+ * Valida un SupportAdjudication aislado -- el átomo que LR-K6A no tenía:
+ * un claim, una evidencia, una procedencia explícita, un estado. Invariante
+ * XXVIII: ninguna adjudicación existe sin evidenceSpan Y origin, sin
+ * importar el status (incluso UNRESOLVED debe declarar de dónde vino el
+ * intento y a qué evidencia se refería, aunque esa evidencia resultara
+ * insuficiente). Nunca valida `evidenceRole` como algo distinto de
+ * 'UNKNOWN' o ausente por sí solo -- este validador no clasifica evidencia
+ * (invariante XXXVI), solo confirma que la forma del objeto es coherente.
+ */
+export function validarSupportAdjudication(
+  adjudicacion: SupportAdjudication,
+  propositions: LegalProposition[],
+  claims: PropositionClaim[],
+  citations: IdentifiedCitationTrustRecord[],
+): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!adjudicacion || typeof adjudicacion !== 'object') return fail(['SupportAdjudication ausente o no es un objeto']);
+  if (!adjudicacion.id) errores.push('SupportAdjudication sin id');
+
+  const propuestaExiste = propositions.some((p) => p.id === adjudicacion.propositionId);
+  if (!adjudicacion.propositionId || !propuestaExiste) {
+    errores.push(`SupportAdjudication.propositionId no existe en el contexto suministrado: ${String(adjudicacion.propositionId)}`);
+  }
+
+  const claimValido = claims.some((c) => c.id === adjudicacion.claimId && c.propositionId === adjudicacion.propositionId);
+  if (!adjudicacion.claimId || !claimValido) {
+    errores.push(`SupportAdjudication.claimId no pertenece a la proposición referenciada o no existe: ${String(adjudicacion.claimId)}`);
+  }
+
+  // Invariante XXVIII: evidenceSpan y origin son obligatorios siempre, sin excepción por status.
+  if (!adjudicacion.evidenceSpan || typeof adjudicacion.evidenceSpan !== 'object') {
+    errores.push('SupportAdjudication.evidenceSpan ausente -- invariante XXVIII, ninguna adjudicación existe sin evidencia referenciada');
+  } else if (!adjudicacion.evidenceSpan.citationTrustRecordId) {
+    errores.push('SupportAdjudication.evidenceSpan.citationTrustRecordId ausente -- invariante XXVIII');
+  } else if (!citations.some((c) => c.id === adjudicacion.evidenceSpan.citationTrustRecordId)) {
+    errores.push(`SupportAdjudication.evidenceSpan.citationTrustRecordId "${adjudicacion.evidenceSpan.citationTrustRecordId}" no existe en el contexto de CitationTrustRecord suministrado`);
+  }
+
+  const origen = adjudicacion.origin as unknown;
+  if (!origen || !ORIGENES_ADJUDICACION_VALIDOS.has(origen as AdjudicationOrigin)) {
+    errores.push(`SupportAdjudication.origin inválido o ausente: ${String(origen)} -- invariante XXVIII, ninguna adjudicación sin procedencia explícita`);
+  }
+
+  const estado = adjudicacion.status as unknown;
+  if (!estado || !ESTADOS_ADJUDICACION_VALIDOS.has(estado as SupportAdjudicationStatus)) {
+    errores.push(`SupportAdjudication.status inválido o ausente: ${String(estado)}`);
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+/**
+ * Agregación conflict-aware a través de TODAS las SupportAdjudication de una
+ * proposición, a nivel de claim REQUERIDO (invariante XXXIII) -- CONTRADICTS
+ * en cualquier adjudicación para un claim requerido gana sobre cualquier
+ * SUPPORTS del mismo claim (invariante XXIX aplicada a nivel atómico).
+ * DOES_NOT_SUPPORT != UNRESOLVED (invariante XXXIV): un claim examinado y
+ * no respaldado cae en notSupportedClaimIds; un claim sin ninguna
+ * adjudicación, o solo con adjudicaciones UNRESOLVED, cae en
+ * unresolvedClaimIds -- nunca se confunden.
+ */
+export function agregarAdjudicacionesPorProposicion(
+  propositionId: string,
+  adjudicaciones: SupportAdjudication[],
+  claims: PropositionClaim[],
+): AggregatedPropositionSupport {
+  const todosLosClaims = claimsDeLaProposicion(propositionId, claims);
+
+  const porClaim = new Map<string, SupportAdjudicationStatus[]>();
+  for (const a of adjudicaciones) {
+    if (a.propositionId !== propositionId) continue;
+    const lista = porClaim.get(a.claimId) ?? [];
+    lista.push(a.status);
+    porClaim.set(a.claimId, lista);
+  }
+
+  const contradictorios = new Set<string>();
+  const soportados = new Set<string>();
+  const noSoportados = new Set<string>();
+  for (const c of todosLosClaims) {
+    const estados = porClaim.get(c.id) ?? [];
+    if (estados.includes('CONTRADICTS')) { contradictorios.add(c.id); continue; }
+    if (estados.includes('SUPPORTS')) { soportados.add(c.id); continue; }
+    // Invariante XXXIV: DOES_NOT_SUPPORT es examen real sin respaldo, nunca
+    // lo mismo que UNRESOLVED (evidencia insuficiente para decidir).
+    if (estados.includes('PARTIALLY_SUPPORTS') || estados.includes('DOES_NOT_SUPPORT')) { noSoportados.add(c.id); continue; }
+    // Sin adjudicación, o solo UNRESOLVED -> queda en unresolvedClaimIds
+    // (derivarAgregado). Invariante XXXV: ausencia de recuperación de
+    // soporte nunca se convierte aquí en notSupportedClaimIds -- eso
+    // afirmaría "no existe tal respaldo", que este módulo nunca puede saber.
+  }
+
+  return derivarAgregado(propositionId, todosLosClaims, contradictorios, soportados, noSoportados);
+}
+
 /**
  * Invariante XXII (ninguna proposición legal verificada sin evidencia de
- * soporte): ambas condiciones son necesarias, ninguna es suficiente por sí
- * sola. `esProposicionConFuenteVerificada` (LR-K2/K3, sin tocar) confirma
- * identidad/proveniencia de fuente -- esta función además exige un
- * PropositionSupportRecord propio con status SUPPORTED antes de considerar
- * la proposición completamente respaldada. No reabre ni modifica
- * validarLegalProposition.
+ * soporte) + invariante XXIX (un registro de soporte no puede borrar uno
+ * contradictorio) + invariante XXVIII (soporte exige evidencia enlazada):
+ * FAIL-CLOSED por construcción. `esProposicionConFuenteVerificada`
+ * (LR-K2/K3, sin tocar) confirma identidad/proveniencia de fuente; esta
+ * función además exige, a través de `agregarAdjudicacionesPorProposicion`
+ * (que opera sobre SupportAdjudication, cada una ya validada por
+ * validarSupportAdjudication como evidence-bound con procedencia explícita):
+ *
+ *   - al menos un claim REQUERIDO existe para la proposición;
+ *   - CADA claim requerido tiene una adjudicación SUPPORTS explícita
+ *     (evidence-bound, con origin);
+ *   - NINGÚN claim requerido tiene una adjudicación CONTRADICTS;
+ *   - NINGÚN claim requerido queda sin clasificar (UNRESOLVED).
+ *
+ * Devuelve true SOLO cuando el agregado deriva exactamente 'SUPPORTED'.
+ * Nunca reabre ni modifica validarLegalProposition.
+ *
+ * CAMBIO DE FIRMA (Mission LR-K6.1, versión reconciliada): ahora opera sobre
+ * SupportAdjudication[] (evidence-bound) en vez de PropositionSupportRecord[]
+ * (clasificación plana sin evidencia individual enlazada) -- el nivel de
+ * rigor que la directiva exige explícitamente ("every required claim has
+ * explicit SUPPORTS adjudication... every required claim is evidence-bound").
+ * Corrección autorizada explícitamente por esta misión, no una reapertura no
+ * autorizada de LR-K6A.
  */
 export function esProposicionCompletamenteRespaldada(
   proposicion: LegalProposition,
-  registrosSoporte: PropositionSupportRecord[],
+  claims: PropositionClaim[],
+  adjudicaciones: SupportAdjudication[],
 ): boolean {
   if (!esProposicionConFuenteVerificada(proposicion)) return false;
-  return registrosSoporte.some(
-    (r) => r.propositionId === proposicion.id && r.status === 'SUPPORTED',
-  );
+  const agregado = agregarAdjudicacionesPorProposicion(proposicion.id, adjudicaciones, claims);
+  if (agregado.requiredClaimIds.length === 0) return false;
+  return agregado.status === 'SUPPORTED';
 }

@@ -14,7 +14,6 @@ import * as validadoresLegales from '@/lib/legal-reasoning/validators';
 import {
   validarPropositionSupportRecord,
   derivarPropositionSupportStatus,
-  esProposicionCompletamenteRespaldada,
 } from '@/lib/legal-reasoning/validators';
 
 /**
@@ -39,9 +38,9 @@ function propuesta(overrides: Partial<LegalProposition> = {}): LegalProposition 
 }
 
 const CLAIMS_P1: PropositionClaim[] = [
-  { id: 'CLAIM-A', propositionId: 'P1', text: 'A is required.' },
-  { id: 'CLAIM-B', propositionId: 'P1', text: 'B is required.' },
-  { id: 'CLAIM-C', propositionId: 'P1', text: 'C is required.' },
+  { id: 'CLAIM-A', propositionId: 'P1', text: 'A is required.', required: true },
+  { id: 'CLAIM-B', propositionId: 'P1', text: 'B is required.', required: true },
+  { id: 'CLAIM-C', propositionId: 'P1', text: 'C is required.', required: true },
 ];
 
 function citaVerificada(overrides: Partial<CitationTrustRecord> = {}): CitationTrustRecord {
@@ -171,7 +170,7 @@ describe('LR-K6 — Partial support (fixture §22: "Para que proceda Y deberán 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('LR-K6 — Contradiction (fixture §23: source "Se prohíbe Y." vs. proposition "Y is permitted.")', () => {
   const propuestaY: LegalProposition = { ...propuesta(), id: 'P-Y', proposition: 'Y is permitted.' };
-  const claimY: PropositionClaim = { id: 'CLAIM-Y-PERMITTED', propositionId: 'P-Y', text: 'Y is permitted.' };
+  const claimY: PropositionClaim = { id: 'CLAIM-Y-PERMITTED', propositionId: 'P-Y', text: 'Y is permitted.', required: true };
   const citaProhibicion: IdentifiedCitationTrustRecord = {
     id: 'CIT-PROHIBICION',
     record: citaVerificada({ proposition: 'Se prohíbe Y.' }),
@@ -217,7 +216,7 @@ describe('LR-K6 — Contradiction (fixture §23: source "Se prohíbe Y." vs. pro
 // ─────────────────────────────────────────────────────────────────────────────
 describe('LR-K6 — Not supported (fixture §24: source discusses competence only; proposition claims a 30-day deadline)', () => {
   const propuestaPlazo: LegalProposition = { ...propuesta(), id: 'P-PLAZO', proposition: 'Article X establishes a 30-day filing deadline.' };
-  const claimPlazo: PropositionClaim = { id: 'CLAIM-30D', propositionId: 'P-PLAZO', text: '30-day filing deadline.' };
+  const claimPlazo: PropositionClaim = { id: 'CLAIM-30D', propositionId: 'P-PLAZO', text: '30-day filing deadline.', required: true };
   const citaCompetencia: IdentifiedCitationTrustRecord = {
     id: 'CIT-COMPETENCIA',
     record: citaVerificada({ proposition: 'Este artículo establece la competencia de la autoridad.' }),
@@ -287,8 +286,12 @@ describe('LR-K6 — Unresolved (fixture §25: incomplete fragment "Para que proc
     const resultado = validarPropositionSupportRecord(r, [propuesta()], [citaIncompleta], CLAIMS_P1);
     expect(resultado.valido).toBe(false);
 
-    const propuestaSinRespaldo = propuesta({ id: 'P-UNRES' });
-    expect(esProposicionCompletamenteRespaldada(propuestaSinRespaldo, [{ ...r, propositionId: 'P-UNRES' }])).toBe(false);
+    // esProposicionCompletamenteRespaldada ahora opera sobre SupportAdjudication
+    // (LR-K6.1) -- este archivo (LR-K6A) prueba la ruta basada en
+    // PropositionSupportRecord vía agregarSoportePorProposicion directamente.
+    expect(
+      validadoresLegales.agregarSoportePorProposicion('P-UNRES', [{ ...r, propositionId: 'P-UNRES' }], []).status,
+    ).toBe('UNRESOLVED');
   });
 });
 
@@ -373,11 +376,13 @@ describe('LR-K6 — Boundaries', () => {
 
   it('27. sin afirmación de corrección legal de NormativeRule -- esAutoritativaVerificada/validarNormativeRule no se tocan', () => {
     expect(typeof validadoresLegales.validarNormativeRule).toBe('function');
-    // esProposicionCompletamenteRespaldada exige SUPPORTED, pero documentado
-    // explícitamente como "no implica interpretación correcta" (invariante XXI).
-    const p = propuesta({ verificationStatus: 'VERIFIED', citationTrust: [citaVerificada()] });
+    // agregarSoportePorProposicion (ruta LR-K6A) exige SUPPORTED, pero
+    // documentado explícitamente como "no implica interpretación correcta"
+    // (invariante XXI) -- esProposicionCompletamenteRespaldada en sí ahora
+    // opera sobre SupportAdjudication (LR-K6.1, ver
+    // tests/legal-reasoning-evidence-binding.test.ts para su regresión).
     const respaldo = registroBase();
-    expect(esProposicionCompletamenteRespaldada(p, [respaldo])).toBe(true);
+    expect(validadoresLegales.agregarSoportePorProposicion('P1', [respaldo], CLAIMS_P1).status).toBe('SUPPORTED');
     // Esto NUNCA implica que NormativeRule (no referenciado aquí en absoluto) sea legalmente correcto.
   });
 

@@ -4,9 +4,12 @@
  * LR-K1 (CaseFact/MissingFact provenance) + LR-K2 (Citation Trust I:
  * identity/provenance only) + LR-K3 (LegalProposition/NormativeRule) +
  * LR-K4 (generic Subsumption contract) + LR-K5 (Conclusion Traceability,
- * LEGAL_CONCLUSION only) + LR-K6 (Citation Trust II: proposition-support
- * contract). See docs/architecture/LR-1_LEGAL_REASONING.md for the full
- * canonical design, invariants, and everything still NOT implemented
+ * LEGAL_CONCLUSION only) + LR-K6A (Citation Trust II: proposition-support
+ * classification contract) + LR-K6.1 (evidence-binding/provenance +
+ * conflict-aware aggregation). Semantic adjudication RUNTIME (a model or
+ * rule actually reading evidence text and deciding entailment) is still NOT
+ * implemented -- see docs/architecture/LR-1_LEGAL_REASONING.md §6 for the
+ * full canonical design, invariants, and everything still NOT implemented
  * (TemporalLegalState, Authority, Jurisprudence,
  * PROCEDURAL_CONCLUSION/STRATEGIC_ASSESSMENT reasoning — design-only).
  *
@@ -468,11 +471,20 @@ export interface ConclusionTrace {
  * reopened) -- links back via propositionId, the same pattern Subsumption
  * uses for ruleId. A proposition's full claim set is discovered by filtering
  * on this field, never by a field LegalProposition itself carries.
+ *
+ * `required` (LR-K6.1): mirrors `RuleElement.required` (LR-K3) -- a compound
+ * proposition ("Y requires A, B and C") decomposes into claims that must ALL
+ * be independently supported for the proposition itself to count as fully
+ * supported (invariant XXXIII: partial support exists at claim level, never
+ * as a shortcut to whole-proposition validation). A claim marked
+ * `required: false` may exist for context without blocking full support if
+ * left unaddressed.
  */
 export interface PropositionClaim {
   id: string;
   propositionId: string;
   text: string;
+  required: boolean;
 }
 
 /**
@@ -542,4 +554,135 @@ export interface PropositionSupportRecord {
   evidenceLocators: EvidenceLocator[];
   notes?: string;
   // Deliberately NO confidenceScore, probability, or percentage anywhere.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K6.1 — EVIDENCE BINDING + CONFLICT-AWARE AGGREGATION
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// LR-K6A (above) validates that a CALLER-PROVIDED claim classification
+// (supportedClaims/unsupportedClaims/contradictoryClaims) is internally
+// coherent. It never required that classification to be traceable to one
+// SPECIFIC, atomic, provenance-tagged decision, and its original
+// `esProposicionCompletamenteRespaldada` could let a single SUPPORTED record
+// outvote a CONTRADICTED one for the same proposition (a real defect,
+// corrected here). LR-K6.1 closes both gaps: `SupportAdjudication` is the
+// atomic unit -- one claim, one evidence span, one explicit origin, one
+// status, individually auditable -- and aggregation is conflict-aware and
+// fail-closed by construction.
+//
+// New constitutional invariants for this phase:
+//   XXVIII. NO SUPPORT CLAIM WITHOUT AN EVIDENCE SPAN AND ADJUDICATION ORIGIN.
+//   XXIX.   ONE SUPPORTING RECORD MUST NOT ERASE A CONTRADICTORY RECORD.
+//   XXX.    STRUCTURAL VALIDATION != SUPPORT ADJUDICATION.
+//   XXXI.   SUPPORT ADJUDICATION != LEGAL CORRECTNESS.
+//   XXXII.  SUPPORTING AND CONTRARY EVIDENCE MUST BOTH REMAIN AVAILABLE TO
+//           LATER REASONING (no confirmation-bias discarding).
+//   XXXIII. PARTIAL SUPPORT EXISTS AT CLAIM LEVEL, NOT AS WHOLE-PROPOSITION
+//           VALIDATION.
+//   XXXIV.  NOT_SUPPORTED != UNRESOLVED.
+//   XXXV.   ABSENCE OF RETRIEVED SUPPORT != EVIDENCE OF ABSENCE.
+//   XXXVI.  EVIDENCE ROLE MUST REMAIN EXTENSIBLE BUT MUST NOT BE
+//           SEMANTICALLY CLASSIFIED IN K6.1.
+//
+// This module does NOT call an LLM, does NOT read or fetch source text at
+// runtime, and does NOT infer textual entailment automatically --
+// `EXTERNAL_REASONER` is a provenance LABEL a future authorized phase may
+// populate, never something this phase invokes. Nothing here claims to have
+// "read the legal text and proved semantic entailment" -- it only requires
+// that whoever DID make that call (a human, an exact-text rule, or later a
+// model) left an explicit, auditable trace of what evidence and what
+// provenance backs it. K6.1 detects and preserves EVIDENCE conflict
+// (records/adjudications disagree); it never resolves LEGAL conflict
+// (hierarchy, temporal change, speciality, jurisdiction, later precedent,
+// legislative reform, distinguishable facts) -- that remains Authority/
+// Temporal/ApplicableRule, none of which exist yet.
+
+/**
+ * Design-only classification of WHAT KIND of evidence a span is (invariant
+ * XXXVI: the field must remain extensible, but nothing in K6.1 may assign
+ * it automatically). `UNKNOWN` is the only value this phase ever sets --
+ * present so a future phase can populate real roles without EvidenceSpan
+ * needing to change shape, not because this phase classifies anything.
+ */
+export type EvidenceRole =
+  | 'HOLDING' | 'RATIO' | 'OBITER' | 'PARTY_ARGUMENT' | 'DISSENT' | 'FACTUAL_FINDING'
+  | 'PROCEDURAL_HISTORY' | 'STATUTORY_TEXT' | 'DOCTRINE' | 'UNKNOWN';
+
+/**
+ * A more precise locator than `EvidenceLocator` (LR-K6A) -- adds
+ * character-offset precision and an optional literal quote, both still
+ * fully optional beyond `citationTrustRecordId` (a span may legitimately be
+ * coarse). Never invents a span: `quotedText`, when present, is provenance
+ * data asserted by whoever constructs the `SupportAdjudication` -- never
+ * semantic proof, and this module does not verify it against any retrieved
+ * source (no runtime source retrieval in this phase, per directive §4).
+ * `evidenceRole`, if present, must default to `'UNKNOWN'` when the caller
+ * has no real classification -- never a specific role invented to sound
+ * more precise than what's actually known.
+ */
+export interface EvidenceSpan {
+  citationTrustRecordId: string;
+  fragmentId?: string;
+  page?: number;
+  startOffset?: number;
+  endOffset?: number;
+  quotedText?: string;
+  hash?: string;
+  evidenceRole?: EvidenceRole;
+}
+
+export type SupportAdjudicationStatus =
+  | 'SUPPORTS' | 'PARTIALLY_SUPPORTS' | 'CONTRADICTS' | 'DOES_NOT_SUPPORT' | 'UNRESOLVED';
+
+/**
+ * A provenance LABEL only -- naming who/what made this specific
+ * claim-to-evidence call. `EXTERNAL_REASONER` never means an LLM was
+ * actually invoked in this phase (invariant XXX/XXXI); it exists so a
+ * future authorized phase has somewhere to record that provenance without
+ * this type needing to change. No provider- or vendor-specific value is
+ * introduced, by design.
+ */
+export type AdjudicationOrigin = 'HUMAN' | 'EXACT_TEXT_RULE' | 'EXTERNAL_REASONER';
+
+/**
+ * The atomic unit LR-K6A's flat `supportedClaims`/`unsupportedClaims`/
+ * `contradictoryClaims` arrays lacked: one claim, one evidence span, one
+ * explicit origin, one status -- individually auditable. Distinguishes
+ * `DOES_NOT_SUPPORT` (evidence was examined and found not to address the
+ * claim) from `UNRESOLVED` (the evidence/adjudication itself is
+ * insufficient to decide either way) -- invariant XXXIV, these are never
+ * collapsed into each other. `UNRESOLVED` is also the correct status for
+ * "no supporting authority was found in the corpus consulted" — that
+ * absence of retrieval is never itself represented as
+ * `DOES_NOT_SUPPORT`/`NOT_SUPPORTED`, which would silently assert "no such
+ * authority exists" (invariant XXXV).
+ */
+export interface SupportAdjudication {
+  id: string;
+  propositionId: string;
+  claimId: string;
+  evidenceSpan: EvidenceSpan;
+  status: SupportAdjudicationStatus;
+  origin: AdjudicationOrigin;
+  rationale?: string;
+}
+
+/**
+ * Result of aggregating every `SupportAdjudication` (or, for
+ * `agregarSoportePorProposicion`, every `PropositionSupportRecord`) for one
+ * proposition. Deliberately carries BOTH `supportingClaimIds` and
+ * `contraryClaimIds` explicitly, never just a final `status` -- invariant
+ * XXXII: supporting and contrary evidence must both remain available to
+ * later reasoning, never discarded because a conflict was already detected.
+ * No confidence score anywhere.
+ */
+export interface AggregatedPropositionSupport {
+  propositionId: string;
+  status: PropositionSupportStatus;
+  requiredClaimIds: string[];
+  supportingClaimIds: string[];
+  contraryClaimIds: string[];
+  unresolvedClaimIds: string[];
+  notSupportedClaimIds: string[];
 }

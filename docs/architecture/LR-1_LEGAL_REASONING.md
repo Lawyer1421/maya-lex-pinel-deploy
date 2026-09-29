@@ -3,10 +3,16 @@
 **Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact), LR-K2
 (Citation Trust I), LR-K3 (LegalProposition/NormativeRule), LR-K4 (generic
 Subsumption contract), LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
-only), and LR-K6 (Citation Trust II: proposition-support contract) are
-implemented as shadow/structural types — see `lib/legal-reasoning/`. Nothing
-in this document is wired into `app/api/chat/route.ts`, any system prompt,
-or any user-facing response. No behavior changes through LR-K6.
+only), LR-K6A (Citation Trust II: proposition-support *classification*
+contract), and LR-K6.1 (evidence-binding/provenance + conflict-aware
+aggregation, correcting a real gap LR-K6A left open) are implemented as
+shadow/structural types — see `lib/legal-reasoning/`. **Citation Trust II is
+not "not started"** — §6 below previously said so in three places after
+LR-K6A landed; corrected in this revision. What *is* still not implemented:
+semantic adjudication *runtime* — a model or automated rule actually reading
+evidence text and deciding entailment. Nothing in this document is wired
+into `app/api/chat/route.ts`, any system prompt, or any user-facing
+response. No behavior changes through LR-K6.1.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -140,6 +146,47 @@ These are binding on every future LR phase, not just this one.
   own `supportedClaims`/`unsupportedClaims`/`contradictoryClaims` — never
   declared freely, never inferred from how confident a citation looks. See
   §6.4.
+- **XXVIII. No support claim without an evidence span and adjudication
+  origin.** A `SupportAdjudication` never exists without both a resolvable
+  `EvidenceSpan` and an explicit `AdjudicationOrigin` — regardless of its
+  `status`, even `UNRESOLVED`. See §6.5.
+- **XXIX. One supporting record must not erase a contradictory record.**
+  Aggregating multiple `PropositionSupportRecord`s (or `SupportAdjudication`s)
+  for the same proposition/claim, a `CONTRADICTS`/`CONTRADICTED` signal
+  always outranks a `SUPPORTS`/`SUPPORTED` one for the same claim, no matter
+  which record was consulted first. This is the correction LR-K6.1 makes to
+  `esProposicionCompletamenteRespaldada` — see §6.5.
+- **XXX. Structural validation != support adjudication.** Passing
+  `validarSupportAdjudication` proves an adjudication is internally
+  coherent — real proposition, real claim, real citation, explicit origin.
+  It never proves the adjudication's own content (e.g. `quotedText`) is an
+  accurate reading of the source. See §6.5.
+- **XXXI. Support adjudication != legal correctness.** Even a fully
+  evidence-bound, conflict-free `SUPPORTED` aggregate says nothing about
+  whether the underlying legal claim is ultimately correct, current, or
+  controlling — that remains outside this kernel entirely. See §6.5.
+- **XXXII. Supporting and contrary evidence must both remain available to
+  later reasoning.** `AggregatedPropositionSupport` always carries
+  `supportingClaimIds` AND `contraryClaimIds` explicitly — a detected
+  conflict is never allowed to make the supporting side disappear, and vice
+  versa. No confirmation-bias discarding. See §6.5.
+- **XXXIII. Partial support exists at claim level, not as whole-proposition
+  validation.** A compound proposition is never treated as supported merely
+  because *some* of its required claims are — every derivation is scoped to
+  `required: true` claims individually, never rounded up. See §6.5.
+- **XXXIV. `NOT_SUPPORTED` != `UNRESOLVED`.** `DOES_NOT_SUPPORT` means
+  evidence was examined and found not to address the claim.  `UNRESOLVED`
+  means the evidence/adjudication itself is insufficient to decide. These
+  are never collapsed into each other. See §6.5.
+- **XXXV. Absence of retrieved support != evidence of absence.** "No
+  authority was found in the corpus consulted" is never represented as "no
+  such authority exists" — a claim with zero adjudications (or only
+  `UNRESOLVED` ones) is `UNRESOLVED`, never `NOT_SUPPORTED`. See §6.5.
+- **XXXVI. Evidence role must remain extensible but must not be
+  semantically classified in K6.1.** `EvidenceSpan.evidenceRole` exists so a
+  future phase can record what kind of evidence a span is (holding, ratio,
+  obiter, etc.) without a shape change — this phase never assigns it a
+  value other than `'UNKNOWN'` or leaves it absent. See §6.5.
 
 ### Intent/depth exceptions
 
@@ -170,10 +217,12 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | `ConclusionTrace`, `ConclusionBlocker`, `ConclusionUncertainty` (`LEGAL_CONCLUSION`) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K5) |
 | ConclusionTrace validators (`validarConclusionTrace` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K5) |
 | `PROCEDURAL_CONCLUSION` / `STRATEGIC_ASSESSMENT` reasoning | Type exists, explicitly rejected by the validator — future layers, §9 |
-| `PropositionClaim`, `EvidenceLocator`, `PropositionSupportRecord` (Citation Trust II) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K6) |
-| Proposition-support validators (`validarPropositionSupportRecord` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K6) |
+| `PropositionClaim`, `EvidenceLocator`, `PropositionSupportRecord` (Citation Trust II classification) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K6A) |
+| Proposition-support validators (`validarPropositionSupportRecord` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K6A) |
+| `EvidenceSpan`, `SupportAdjudication` (Citation Trust II evidence binding) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K6.1) |
+| Evidence-binding validators + conflict-aware aggregation (`validarSupportAdjudication`, `agregarSoportePorProposicion`, `agregarAdjudicacionesPorProposicion`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K6.1) |
+| Semantic adjudication runtime (a model/rule actually reading evidence text and deciding entailment) | **Not started, not this phase** — §6.5 |
 | Ephemeral per-query reasoning trace (CaseFact→RuleElement→NormativeRule→LegalSource→Conclusion chain) | Design only — §10 |
-| Citation Trust II (proposition support) | **Not started, not this phase** — §6.3 |
 
 ## 3. Case fact / legal source separation
 
@@ -326,7 +375,7 @@ it is — that mechanism is not touched, weakened, or superseded by this
 document; `Authority.legalRole` generalizes the same judgment it already
 encodes, it doesn't replace the code that enforces it.
 
-## 6. Citation Trust I (implemented) vs. Citation Trust II (not started)
+## 6. Citation Trust I and II (both implemented — classification + evidence binding)
 
 ### 6.1 Scope of LR-K2
 
@@ -334,8 +383,8 @@ Citation Trust I answers exactly one question: **"Is this citation's
 identity and provenance real?"** — does the cited instrument/article exist,
 is the document version known, is there hashable evidence behind it. It
 does **not** answer "does the source actually support the proposition
-MayaLex attributes to it" — that is a different, harder question, deferred
-to Citation Trust II.
+MayaLex attributes to it" — that is Citation Trust II's question
+(§6.3–§6.5, implemented, not deferred).
 
 ```ts
 type CitationVerificationState = 'VERIFIED' | 'PARTIAL' | 'UNRESOLVED' | 'DISCOVERY_ONLY';
@@ -388,7 +437,7 @@ silently promoted to `VERIFIED` without that evidence actually showing up.
 existing metadata-only discipline) can never masquerade as a verified
 primary authority regardless of how confident the retrieved text looks.
 
-### 6.3 Citation Trust II — implemented in LR-K6
+### 6.3 Citation Trust II — implemented (LR-K6A + LR-K6.1)
 
 Answers: *"Does the retrieved source actually support the legal proposition
 MayaLex attributes to it?"* — proposition support, not identity. This is a
@@ -412,7 +461,12 @@ objects from real retrieval output is responsible for actually binding
 `hash` to genuine evidence; this layer only checks that *if* a `VERIFIED`
 claim is made, the required fields accompanying it are present.
 
-### 6.4 Proposition support contract (LR-K6)
+### 6.4 Proposition support classification contract (LR-K6A)
+
+**LR-K6A validates that a caller-provided claim classification is internally
+coherent. It does not, by itself, bind that classification to individually
+auditable evidence, and its original `esProposicionCompletamenteRespaldada`
+had a real defect — see §6.5, which corrects both.**
 
 Propositions are decomposed into explicit claim units **by the caller** — a
 fixture today, an authorized extraction phase later — never inferred by
@@ -466,35 +520,22 @@ minimal per instruction.
 **Recorded debt:** `CitationTrustRecord` (LR-K2) has no `id` field of its
 own — modeled as a value object, like `Cita` in `evidence-engine.ts`.
 `IdentifiedCitationTrustRecord { id, record }` assigns an id externally so
-LR-K6 can reference specific citations, without reopening or modifying
-`CitationTrustRecord` itself. Retire this wrapper only if a future phase
-gives `CitationTrustRecord` its own id for a substantive reason.
+LR-K6A/K6.1 can reference specific citations, without reopening or
+modifying `CitationTrustRecord` itself. Retire this wrapper only if a future
+phase gives `CitationTrustRecord` its own id for a substantive reason.
 
-**Relation to `LegalProposition` (invariant XXII):**
+**Relation to `NormativeRule` (§18 of the LR-K6.1 directive):**
+`PropositionSupport = SUPPORTED` never implies a `NormativeRule` built from
+that proposition is legally correct — source support and reasoning
+correctness remain separate axes, restated from invariant VIII.
 
-```ts
-function esProposicionCompletamenteRespaldada(p: LegalProposition, records: PropositionSupportRecord[]): boolean {
-  if (!esProposicionConFuenteVerificada(p)) return false;       // LR-K2/K3, unmodified
-  return records.some(r => r.propositionId === p.id && r.status === 'SUPPORTED');
-}
-```
-
-Both conditions are necessary; neither is sufficient alone. This is
-additive — `validarLegalProposition` and `esProposicionConFuenteVerificada`
-(§7) are not modified.
-
-**Relation to `NormativeRule` (§18 of the directive):** `PropositionSupport
-= SUPPORTED` never implies a `NormativeRule` built from that proposition is
-legally correct — source support and reasoning correctness remain separate
-axes, restated from invariant VIII.
-
-**Relation to `ConclusionTrace` (§19 of the directive, not wired now):** a
-future runtime integration must prevent a `SUPPORTED` `LEGAL_CONCLUSION`
-from relying on a `LegalProposition` whose support is `CONTRADICTED`,
-`NOT_SUPPORTED`, or `UNRESOLVED`, unless the conclusion is explicitly
-downgraded or blocked. `ConclusionTrace` (§9) is not modified in this phase
-to enforce this — it is documented here as a requirement for whichever
-future phase wires LR-K6 into LR-K5's validation path.
+**Relation to `ConclusionTrace` (§19 of the LR-K6.1 directive, not wired
+now):** a future runtime integration must prevent a `SUPPORTED`
+`LEGAL_CONCLUSION` from relying on a `LegalProposition` whose support is
+`CONTRADICTED`, `NOT_SUPPORTED`, or `UNRESOLVED`, unless the conclusion is
+explicitly downgraded or blocked. `ConclusionTrace` (§9) is not modified in
+this phase to enforce this — documented here as a requirement for whichever
+future phase wires Citation Trust II into LR-K5's validation path.
 
 **Boundaries (invariants XXIII/XXIV):** semantic similarity, vector scores,
 and reranker output are never read or derived from anywhere in this
@@ -503,6 +544,122 @@ claim-to-evidence classification the caller already decided, the same
 "fixtures instantiate explicit assessments manually" discipline as LR-K4's
 `Subsumption`. No LLM call, no embedding call, no Authority or Temporal
 decision, no `NormativeRule` legal-correctness claim.
+
+### 6.5 Evidence binding + conflict-aware aggregation (LR-K6.1)
+
+**Corrects a real defect Cursor found:** the original
+`esProposicionCompletamenteRespaldada` used `.some(status === 'SUPPORTED')`
+— a single `SUPPORTED` `PropositionSupportRecord` was enough to return
+`true`, even when *another* record for the same proposition said
+`CONTRADICTED`. Fixed here, and made stricter: it now requires
+evidence-bound `SupportAdjudication`s, not merely a flat claim
+classification.
+
+```ts
+interface PropositionClaim { id: string; propositionId: string; text: string; required: boolean; }
+
+type EvidenceRole = 'HOLDING' | 'RATIO' | 'OBITER' | 'PARTY_ARGUMENT' | 'DISSENT'
+                   | 'FACTUAL_FINDING' | 'PROCEDURAL_HISTORY' | 'STATUTORY_TEXT' | 'DOCTRINE' | 'UNKNOWN';
+
+interface EvidenceSpan {
+  citationTrustRecordId: string;
+  fragmentId?: string; page?: number;
+  startOffset?: number; endOffset?: number;
+  quotedText?: string; hash?: string;
+  evidenceRole?: EvidenceRole;   // invariant XXXVI: never auto-classified, 'UNKNOWN' or absent only in this phase
+}
+
+type SupportAdjudicationStatus = 'SUPPORTS' | 'PARTIALLY_SUPPORTS' | 'CONTRADICTS' | 'DOES_NOT_SUPPORT' | 'UNRESOLVED';
+type AdjudicationOrigin = 'HUMAN' | 'EXACT_TEXT_RULE' | 'EXTERNAL_REASONER';   // provenance label only -- no model call in this phase
+
+interface SupportAdjudication {
+  id: string; propositionId: string; claimId: string;
+  evidenceSpan: EvidenceSpan;            // required, always -- invariant XXVIII
+  status: SupportAdjudicationStatus;
+  origin: AdjudicationOrigin;            // required, always -- invariant XXVIII
+  rationale?: string;
+}
+
+interface AggregatedPropositionSupport {
+  propositionId: string;
+  status: PropositionSupportStatus;
+  requiredClaimIds: string[];
+  supportingClaimIds: string[];    // never emptied just because contraryClaimIds is non-empty -- invariant XXXII
+  contraryClaimIds: string[];      // never emptied just because supportingClaimIds is non-empty
+  unresolvedClaimIds: string[];
+  notSupportedClaimIds: string[];
+}
+```
+
+**Aggregation is required-claim-scoped** (invariant XXXIII): a claim marked
+`required: false` can be contradicted or unaddressed without blocking full
+support; only `required: true` claims drive `status`. Priority order,
+identical for `agregarSoportePorProposicion` (over `PropositionSupportRecord[]`)
+and `agregarAdjudicacionesPorProposicion` (over `SupportAdjudication[]`):
+a contradicted *required* claim → `CONTRADICTED` (invariant XXIX/XXVI,
+outranks everything) → any required claim left unclassified → `UNRESOLVED`
+→ every required claim supported → `SUPPORTED` → some but not all →
+`PARTIALLY_SUPPORTED` → none supported, all examined → `NOT_SUPPORTED`.
+Both functions return the full `AggregatedPropositionSupport`, never a bare
+status string — `contraryClaimIds` and `supportingClaimIds` are always both
+present in the result, regardless of which one determined the final
+`status` (invariant XXXII: no confirmation-bias discarding).
+
+**`DOES_NOT_SUPPORT` != `UNRESOLVED`** (invariant XXXIV): a claim with an
+adjudication that explicitly examined the evidence and found no support
+lands in `notSupportedClaimIds`. A claim with *no* adjudication at all, or
+only `UNRESOLVED` ones, lands in `unresolvedClaimIds` — **never**
+`notSupportedClaimIds`. This is also the negative-evidence principle
+(invariant XXXV): "no supporting authority was found in the corpus
+consulted" is `UNRESOLVED`, never `NOT_SUPPORTED` — the system must never
+manufacture "no such authority exists" out of a retrieval gap.
+
+**Corrected helper:**
+
+```ts
+function esProposicionCompletamenteRespaldada(
+  proposicion: LegalProposition,
+  claims: PropositionClaim[],
+  adjudicaciones: SupportAdjudication[],
+): boolean {
+  if (!esProposicionConFuenteVerificada(proposicion)) return false;   // LR-K2/K3, unmodified
+  const agregado = agregarAdjudicacionesPorProposicion(proposicion.id, adjudicaciones, claims);
+  if (agregado.requiredClaimIds.length === 0) return false;
+  return agregado.status === 'SUPPORTED';
+}
+```
+
+Returns `true` only when every required claim has an explicit, evidence-bound
+`SUPPORTS` adjudication (each already checked by `validarSupportAdjudication`
+against real `citations`), none is `CONTRADICTS`, and none is left
+unresolved — fail-closed by construction, not by a patched-on special case.
+**Signature change from LR-K6A's original** (`PropositionSupportRecord[]` →
+`claims` + `SupportAdjudication[]`): authorized explicitly by this mission
+to fix the reported defect properly, not an unauthorized reopening.
+
+**Structural validation != support adjudication** (invariant XXX):
+`validarSupportAdjudication` confirms an adjudication references a real
+proposition, claim, and citation, and carries an explicit origin — it never
+verifies that `quotedText` is an accurate reading of the source, and never
+calls out to fetch or OCR anything. **Support adjudication != legal
+correctness** (invariant XXXI): even a fully evidence-bound, conflict-free
+`SUPPORTED` aggregate says nothing about whether the claim is ultimately
+correct, current, or controlling.
+
+**EvidenceConflict != LegalConflict:** an `EvidenceConflict` is what this
+phase detects — records or adjudications disagree about the same claim. A
+`LegalConflict` is why authorities might legitimately conflict: hierarchy,
+temporal change, speciality, jurisdiction, later precedent, legislative
+reform, or distinguishable facts. **K6.1 detects and preserves
+`EvidenceConflict`; it never resolves `LegalConflict`** — that remains
+Authority/Temporal/`ApplicableRule`, none of which exist yet.
+
+**Future chain compatibility:** nothing in this design blocks `LegalProposition
+→ RequiredClaims → EvidenceSpan → SupportAdjudication → ConflictAggregation
+→ Authority → TemporalValidity → ApplicableRule → LegalInference →
+Conclusion` from being built out later. **K6.1 stops at
+ConflictAggregation** — the four steps after it remain entirely unbuilt and
+unimplied.
 
 ## 7. Legal proposition and normative rule
 
