@@ -15,6 +15,13 @@ import type {
   MissingFact,
   CitationTrustRecord,
   CitationVerificationState,
+  LegalProposition,
+  PropositionType,
+  LegalVerificationStatus,
+  NormativeRule,
+  RuleType,
+  RuleElement,
+  RuleException,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -143,4 +150,140 @@ export function esTransicionPromocionIndebida(
 ): boolean {
   if (estadoActual === estadoPropuesto) return false;
   return estadoPropuesto === 'VERIFIED';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K3 — LEGAL PROPOSITION + NORMATIVE RULE
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Invariante VIII (source verification != legal correctness) e invariante IX
+// (valid structure != verified evidence): estos validadores NUNCA evalúan si
+// una proposición es jurídicamente correcta, ni si una fuente fue realmente
+// recuperada en tiempo de ejecución -- solo si la FORMA del objeto es
+// coherente consigo misma. Ver docs/architecture/LR-1_LEGAL_REASONING.md.
+
+const TIPOS_PROPOSICION_VALIDOS: ReadonlySet<PropositionType> = new Set([
+  'TEXTUAL', 'PARAPHRASED', 'INTERPRETIVE',
+]);
+
+const ESTADOS_VERIFICACION_LEGAL_VALIDOS: ReadonlySet<LegalVerificationStatus> = new Set([
+  'VERIFIED', 'PARTIAL', 'UNRESOLVED',
+]);
+
+/**
+ * "No rule may exist without source traceability" se aplica igual a la
+ * proposición: una proposición atribuida a ninguna fuente no es una
+ * proposición legal, es una afirmación suelta. `sources` debe ser un
+ * arreglo no vacío SIEMPRE, independientemente de verificationStatus --
+ * UNRESOLVED describe si la fuente reclamada pudo confirmarse, nunca si
+ * se reclamó alguna fuente en absoluto.
+ *
+ * VERIFIED exige, además de fuentes declaradas, al menos un registro de
+ * CitationTrust propio ya confirmado (esAutoritativaVerificada) -- fuente
+ * declarada sin evidencia de identidad confirmada no basta para VERIFIED
+ * (invariante IX: estructura válida != evidencia verificada).
+ */
+export function validarLegalProposition(p: LegalProposition): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!p || typeof p !== 'object') return fail(['LegalProposition ausente o no es un objeto']);
+  if (!p.id) errores.push('LegalProposition sin id');
+  if (!p.proposition || p.proposition.trim().length === 0) errores.push('LegalProposition sin proposition');
+
+  if (!Array.isArray(p.sources) || p.sources.length === 0) {
+    errores.push('LegalProposition sin sources -- ninguna proposición legal puede existir sin trazabilidad a una fuente');
+  }
+
+  const tipo = p.propositionType as unknown;
+  if (!tipo || !TIPOS_PROPOSICION_VALIDOS.has(tipo as PropositionType)) {
+    errores.push(`LegalProposition.propositionType inválido o ausente: ${String(tipo)}`);
+  }
+
+  const estado = p.verificationStatus as unknown;
+  if (!estado || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estado as LegalVerificationStatus)) {
+    errores.push(`LegalProposition.verificationStatus inválido o ausente: ${String(estado)}`);
+  }
+
+  if (p.verificationStatus === 'VERIFIED') {
+    const citas = Array.isArray(p.citationTrust) ? p.citationTrust : [];
+    const tieneCitaVerificada = citas.some((c) => esAutoritativaVerificada(c));
+    if (!tieneCitaVerificada) {
+      errores.push('LegalProposition.verificationStatus="VERIFIED" exige al menos un CitationTrustRecord propio ya verificado -- invariante IX');
+    }
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+/** true solo si la proposición está en un estado que la capa de respuesta puede tratar como soporte de fuente confirmado -- nunca implica corrección de la interpretación (invariante VIII). */
+export function esProposicionConFuenteVerificada(p: LegalProposition): boolean {
+  return p.verificationStatus === 'VERIFIED' && validarLegalProposition(p).valido;
+}
+
+const TIPOS_REGLA_VALIDOS: ReadonlySet<RuleType> = new Set([
+  'DEFINITION', 'REQUIREMENT', 'PROHIBITION', 'PERMISSION', 'OBLIGATION',
+  'PRESUMPTION', 'EXCEPTION', 'DEADLINE', 'COMPETENCE', 'PROCEDURAL_RULE', 'LEGAL_CONSEQUENCE',
+]);
+
+function validarRuleElement(e: RuleElement, indice: number): string[] {
+  const errores: string[] = [];
+  if (!e || typeof e !== 'object') return [`elements[${indice}] ausente o no es un objeto`];
+  if (!e.id) errores.push(`elements[${indice}] sin id`);
+  if (!e.description || e.description.trim().length === 0) errores.push(`elements[${indice}] sin description`);
+  if (typeof e.required !== 'boolean') errores.push(`elements[${indice}].required debe ser boolean`);
+  return errores;
+}
+
+function validarRuleException(ex: RuleException, indice: number): string[] {
+  const errores: string[] = [];
+  if (!ex || typeof ex !== 'object') return [`exceptions[${indice}] ausente o no es un objeto`];
+  if (!ex.id) errores.push(`exceptions[${indice}] sin id`);
+  if (!ex.description || ex.description.trim().length === 0) errores.push(`exceptions[${indice}] sin description`);
+  return errores;
+}
+
+/**
+ * Contrato explícito para `elements` vacío (requerido por la directiva,
+ * "rule with empty elements behaves according to explicit contract"): un
+ * arreglo vacío NUNCA es un error estructural por sí solo -- algunos
+ * ruleType (DEFINITION, DEADLINE, COMPETENCE) no necesitan una lista de
+ * elementos para ser una regla válida en esta capa. Esta función no
+ * inventa un mínimo por tipo; eso pertenece a una fase futura con
+ * fundamento real en el corpus, no a una regla arbitraria aquí.
+ */
+export function validarNormativeRule(r: NormativeRule): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!r || typeof r !== 'object') return fail(['NormativeRule ausente o no es un objeto']);
+  if (!r.id) errores.push('NormativeRule sin id');
+
+  if (!Array.isArray(r.sources) || r.sources.length === 0) {
+    errores.push('NormativeRule sin sources -- ninguna regla normativa puede existir sin trazabilidad a una fuente');
+  }
+
+  if (!Array.isArray(r.propositionIds)) {
+    errores.push('NormativeRule.propositionIds debe ser un arreglo (puede ser vacío, nunca ausente)');
+  }
+
+  const tipo = r.ruleType as unknown;
+  if (!tipo || !TIPOS_REGLA_VALIDOS.has(tipo as RuleType)) {
+    errores.push(`NormativeRule.ruleType inválido o ausente: ${String(tipo)}`);
+  }
+
+  if (!Array.isArray(r.elements)) {
+    errores.push('NormativeRule.elements debe ser un arreglo (puede ser vacío -- ver contrato explícito, no error por sí solo)');
+  } else {
+    r.elements.forEach((e, i) => errores.push(...validarRuleElement(e, i)));
+  }
+
+  if (!Array.isArray(r.exceptions)) {
+    errores.push('NormativeRule.exceptions debe ser un arreglo (puede ser vacío, nunca ausente)');
+  } else {
+    r.exceptions.forEach((ex, i) => errores.push(...validarRuleException(ex, i)));
+  }
+
+  const estado = r.verificationStatus as unknown;
+  if (!estado || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estado as LegalVerificationStatus)) {
+    errores.push(`NormativeRule.verificationStatus inválido o ausente: ${String(estado)}`);
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
 }

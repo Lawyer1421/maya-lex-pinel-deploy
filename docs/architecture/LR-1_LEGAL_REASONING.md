@@ -1,10 +1,10 @@
 # LR-1 — MayaLex Legal Reasoning Architecture (Canonical)
 
-**Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact) and LR-K2
-(Citation Trust I) are implemented as shadow/structural types — see
-`lib/legal-reasoning/`. Nothing in this document is wired into
-`app/api/chat/route.ts`, any system prompt, or any user-facing response.
-No behavior changes with this mission.
+**Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact), LR-K2
+(Citation Trust I), and LR-K3 (LegalProposition/NormativeRule) are
+implemented as shadow/structural types — see `lib/legal-reasoning/`. Nothing
+in this document is wired into `app/api/chat/route.ts`, any system prompt,
+or any user-facing response. No behavior changes through LR-K3.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -58,6 +58,19 @@ These are binding on every future LR phase, not just this one.
   Sala de lo Constitucional is not `GENERAL_ERGA_OMNES` merely because of
   which chamber issued it. Legal effect depends on what the decision itself
   says and on verified legal basis for that effect — see §5.
+- **VIII. Source verification != legal correctness.** A `LegalProposition`
+  or `NormativeRule` marked `VERIFIED` means its *source is traceable and
+  its citation identity is confirmed* (LR-K2). It never means the
+  proposition's reading of that source is legally correct — a `PARAPHRASED`
+  or `INTERPRETIVE` proposition can carry a fully verified source and still
+  be a mistaken interpretation of it. Nothing in LR-K1–K3 evaluates legal
+  correctness; that is not this layer's question to answer. See §6.2.
+- **IX. Valid structure != verified evidence.** A `NormativeRule` or
+  `LegalProposition` that passes structural validation (`validarNormativeRule`,
+  `validarLegalProposition`) only proves internal shape consistency — ids
+  present, enums valid, sources non-empty. It does not prove that any
+  retrieval actually happened, or that a `hash`'s presence means real
+  evidence is bound to it. See §6.3 and §7.1.
 
 ### Intent/depth exceptions
 
@@ -79,7 +92,10 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | `TemporalLegalState` | Design only — §4 |
 | `Authority` / `AuthorityRelationship` | Design only — §5 |
 | `Jurisprudence` | Design only — §5 |
-| `NormativeRule` | Design only — §7 |
+| `LegalProposition` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
+| `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
+| LegalProposition/NormativeRule validators | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K3) |
+| Automatic article→rule extraction | **Not implemented, not this phase or any future one implied by LR-K3** |
 | `Subsumption` | Design only — §8 |
 | Conclusion types (`LEGAL`/`PROCEDURAL`/`STRATEGIC`) | Design only — §9 |
 | Citation/reasoning trace | Design only — §10 |
@@ -276,6 +292,16 @@ This extends `Cita` (`lib/legal-retrieval/evidence-engine.ts`) conceptually
 kernel; nothing in `evidence-engine.ts` or the response pipeline consumes
 it yet.
 
+**Recorded typed debt (Mission LR-K3, Cursor finding):**
+`CitationTrustRecord.instrumento` is typed `string | null`, not
+`InstrumentoNormalizado | null` (`lib/rag/search.ts`) — the stricter typing
+that LR-K3's `CanonicalLegalReference`-based types (`LegalProposition.sources`,
+`NormativeRule.sources`) now use. Left unchanged deliberately: it has no
+runtime consumer yet, and reopening an already-reviewed, gated-`PASS` LR-K2
+artifact for an incidental type tightening (rather than a substantive
+reason) was judged higher-risk than the debt itself. Tighten it the next
+time LR-K2 is revised for a reason that actually requires it.
+
 ### 6.2 Binding rule
 
 **No verified citation without verified evidence** (invariant III): a
@@ -297,25 +323,105 @@ reasoning about the text's content, not just confirming the citation
 resolves to a real document) and **LR-K2 does not attempt it.** Nothing in
 this phase should be read as solving or approximating proposition support.
 
-## 7. Normative rule (design only)
+**6.3.1 Structural validation != evidence binding (invariant IX).** A
+`CitationTrustRecord`, `LegalProposition`, or `NormativeRule` that passes
+its validator only proves the object is internally coherent — required
+fields present, enums valid, `VERIFIED` states carry a `hash` and a
+confirmed `versionStatus`. **The presence of a `hash` alone is never treated
+as proof that evidence was actually retrieved at runtime** — these
+validators operate purely on already-constructed objects and have no
+retrieval dependency (by design, per LR-K3 §11: no LLM calls, no runtime
+retrieval integration in this kernel). A future phase that constructs these
+objects from real retrieval output is responsible for actually binding
+`hash` to genuine evidence; this layer only checks that *if* a `VERIFIED`
+claim is made, the required fields accompanying it are present.
+
+## 7. Legal proposition and normative rule
+
+**Implemented in LR-K3** (`lib/legal-reasoning/types.ts`,
+`lib/legal-reasoning/validators.ts`) — this section is no longer design-only
+for these two types. `Subsumption` (§8), `Conclusion` (§9), and the
+reasoning trace (§10) remain design-only.
+
+### 7.1 Three distinct epistemic objects (binding, restated from §3)
+
+`CaseFact != LegalProposition != NormativeRule != Conclusion`. A
+`CanonicalLegalReference` is a **locator** (instrumento + articulo) — it is
+not automatically a rule. **`ARTICLE != NORMATIVE RULE`**: one article can
+contain multiple rules (a requirement, its consequence, and an exception can
+all sit in the same article, or across several); one rule can depend on
+multiple sources (a definition elsewhere, an exception in a different
+article, even a different instrument). There is no `1 article = 1 rule`
+assumption anywhere in these types.
 
 ```ts
-interface NormativeRule {
+type LegalVerificationStatus = 'VERIFIED' | 'PARTIAL' | 'UNRESOLVED';
+type PropositionType = 'TEXTUAL' | 'PARAPHRASED' | 'INTERPRETIVE';
+
+interface LegalProposition {
   id: string;
-  source: CanonicalLegalReference;
   proposition: string;
-
-  ruleType: 'DEFINITION' | 'REQUIREMENT' | 'PROHIBITION' | 'PERMISSION' | 'OBLIGATION'
-          | 'PRESUMPTION' | 'EXCEPTION' | 'DEADLINE' | 'COMPETENCE' | 'PROCEDURAL_RULE' | 'LEGAL_CONSEQUENCE';
-
-  elements: string[];
-  exceptions: string[];
-  temporalState: TemporalLegalState;
-  evidence: CitationTrustRecord[];
+  sources: CanonicalLegalReference[];       // never empty
+  citationTrust: CitationTrustRecord[];     // LR-K2 records for the sources above
+  propositionType: PropositionType;
+  verificationStatus: LegalVerificationStatus;
+  notes?: string;
 }
 ```
 
-Not implemented this phase. `MAYA_PENAL_MODULES`'s Capa 2 (tipicidad
+`VERIFIED` requires both a non-empty `sources` array and at least one
+`citationTrust` entry independently confirmed as verified (LR-K2's
+`esAutoritativaVerificada`) — a proposition cannot claim `VERIFIED` on the
+strength of its own say-so. Per invariant VIII, `VERIFIED` here means
+*source support is confirmed* — never that a `PARAPHRASED` or
+`INTERPRETIVE` reading of that source is the *correct* one.
+
+```ts
+type RuleType = 'DEFINITION' | 'REQUIREMENT' | 'PROHIBITION' | 'PERMISSION' | 'OBLIGATION'
+              | 'PRESUMPTION' | 'EXCEPTION' | 'DEADLINE' | 'COMPETENCE' | 'PROCEDURAL_RULE' | 'LEGAL_CONSEQUENCE';
+
+interface RuleElement {
+  id: string;
+  description: string;
+  required: boolean;
+  // No satisfied/unsatisfied/missing -- that's Subsumption (§8, LR-K4).
+}
+
+interface RuleException {
+  id: string;
+  description: string;
+  source?: CanonicalLegalReference;   // an exception may cite a different provision entirely
+  propositionId?: string;
+}
+
+interface NormativeRule {
+  id: string;
+  propositionIds: string[];           // never inline proposition text
+  sources: CanonicalLegalReference[]; // never empty; may span multiple instruments
+  ruleType: RuleType;
+  elements: RuleElement[];            // may be empty -- see contract below
+  exceptions: RuleException[];        // never merged into elements
+  verificationStatus: LegalVerificationStatus;
+}
+```
+
+**Empty-`elements` contract:** an empty array is never rejected as a
+structural error by itself. `DEFINITION`, `DEADLINE`, and `COMPETENCE` rules
+in particular may have no element checklist and still be perfectly valid at
+this layer — the validator does not invent a minimum element count per
+`ruleType`; that judgment requires real corpus grounding a future phase
+would supply, not an arbitrary rule here.
+
+**Exceptions are never folded into `elements`.** `RuleException` is its own
+type, with its own optional source — an exception qualifying a rule from a
+*different* article (the canonical case: "Art. X applies, salvo lo
+dispuesto en el artículo Z") remains a separate, auditable object pointing
+at `Art. Z`, never a fifth line item indistinguishable from `elements A/B/C`.
+
+**Not implemented, not implied by LR-K3:** automatic article→rule
+extraction, any LLM call, `Subsumption`, `ApplicableRule`, `Authority`
+evaluation, temporal qualification, conclusions, jurisprudence, or strategic
+analysis. `MAYA_PENAL_MODULES`'s Capa 2 (tipicidad
 elements: verbo rector, sujeto activo/pasivo, bien jurídico, resultado,
 dolo/culpa) is the closest existing prose analogue — a future phase would
 formalize that specific, already-working checklist as the first real
