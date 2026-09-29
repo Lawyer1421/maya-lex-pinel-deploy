@@ -1,12 +1,12 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 — deterministic
- * validators. Fail closed: a malformed or incomplete structure is reported
- * as invalid, never silently accepted or repaired. No LLM extraction
- * integration here (per directive, "no LLM extraction integration yet
- * unless strictly required for testing" -- it isn't; these validators
- * operate on already-constructed objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 / LR-K7 —
+ * deterministic validators. Fail closed: a malformed or incomplete structure
+ * is reported as invalid, never silently accepted or repaired. No LLM
+ * extraction integration here (per directive, "no LLM extraction
+ * integration yet unless strictly required for testing" -- it isn't; these
+ * validators operate on already-constructed objects).
  */
 
 import type {
@@ -48,6 +48,15 @@ import type {
   SupportAdjudicationStatus,
   AdjudicationOrigin,
   AggregatedPropositionSupport,
+  Authority,
+  AuthoritySourceType,
+  LegalRoleType,
+  AuthorityRelationship,
+  AuthorityRelationType,
+  TemporalLegalState,
+  TemporalLegalStatus,
+  AmendmentEvent,
+  AmendmentEventType,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -1375,4 +1384,211 @@ export function esProposicionCompletamenteRespaldada(
   const agregado = agregarAdjudicacionesPorProposicion(proposicion.id, adjudicaciones, claims);
   if (agregado.requiredClaimIds.length === 0) return false;
   return agregado.status === 'SUPPORTED';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K7 — AUTHORITY + TEMPORAL QUALIFICATION
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Responde "¿qué peso legal tiene esta fuente y cómo se relaciona con otras?"
+// (Authority/AuthorityRelationship) y "¿está vigente esta disposición?"
+// (TemporalLegalState/AmendmentEvent) -- NUNCA "¿es esta la regla que
+// legalmente controla el caso?" (eso sigue siendo ApplicableRule, sin
+// construir). Invariante XXXVII: sin jerarquía numérica en ningún lugar de
+// este módulo -- la jerarquía cruzada se representa solo con
+// AuthorityRelationship explícitas y evidenciadas. Invariante XLI: ninguna
+// relación se infiere por expectativa del modelo -- no existe aquí ninguna
+// función "ganadora automática" para lex specialis/lex posterior/supremacía
+// constitucional, solo relaciones auditables con su propio
+// verificationStatus.
+
+const TIPOS_FUENTE_VALIDOS: ReadonlySet<AuthoritySourceType> = new Set([
+  'CONSTITUTION', 'TREATY', 'STATUTE', 'REGULATION', 'JURISPRUDENCE',
+  'INSTITUTIONAL_COMMENTARY', 'ACADEMIC_DOCTRINE', 'PRACTICE_TEMPLATE', 'OTHER',
+]);
+
+const ROLES_LEGALES_VALIDOS: ReadonlySet<LegalRoleType> = new Set([
+  'PRIMARY_BINDING', 'INTERPRETIVE', 'PERSUASIVE', 'PRACTICE_GUIDANCE', 'DISCOVERY_ONLY',
+]);
+
+const FUENTES_DOCTRINALES: ReadonlySet<AuthoritySourceType> = new Set([
+  'ACADEMIC_DOCTRINE', 'INSTITUTIONAL_COMMENTARY',
+]);
+
+/**
+ * Invariante XLIV: `legalRole` nunca se deriva de `sourceType` -- esta
+ * función NO existe en ninguna forma que mapee automáticamente
+ * sourceType→legalRole; `validarAuthority` solo audita que la combinación
+ * declarada sea internamente coherente (invariante XLIII: doctrina nunca
+ * PRIMARY_BINDING), nunca la completa ni la infiere por sí sola.
+ */
+export function validarAuthority(a: Authority): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!a || typeof a !== 'object') return fail(['Authority ausente o no es un objeto']);
+
+  const tipo = a.sourceType as unknown;
+  if (!tipo || !TIPOS_FUENTE_VALIDOS.has(tipo as AuthoritySourceType)) {
+    errores.push(`Authority.sourceType inválido o ausente: ${String(tipo)}`);
+  }
+
+  const rol = a.legalRole as unknown;
+  if (!rol || !ROLES_LEGALES_VALIDOS.has(rol as LegalRoleType)) {
+    errores.push(`Authority.legalRole inválido o ausente: ${String(rol)}`);
+  }
+
+  if (FUENTES_DOCTRINALES.has(a.sourceType) && a.legalRole === 'PRIMARY_BINDING') {
+    errores.push('Authority.sourceType doctrinal (ACADEMIC_DOCTRINE/INSTITUTIONAL_COMMENTARY) no puede declarar legalRole="PRIMARY_BINDING" -- invariante XLIII, ver §5.3 de la arquitectura');
+  }
+
+  if (!a.jurisdiction || a.jurisdiction.trim().length === 0) errores.push('Authority sin jurisdiction');
+
+  if (!a.provenance || typeof a.provenance !== 'object') {
+    errores.push('Authority sin provenance -- ninguna fuente de autoridad puede existir sin locator trazable');
+  } else if (!a.provenance.instrumento || !a.provenance.articulo) {
+    errores.push('Authority.provenance debe declarar instrumento y articulo');
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+const RELACIONES_AUTORIDAD_VALIDAS: ReadonlySet<AuthorityRelationType> = new Set([
+  'CONSTITUTIONAL_SUPREMACY', 'SPECIAL_OVER_GENERAL', 'LATER_OVER_EARLIER',
+  'AMENDS', 'REPEALS', 'INTERPRETS', 'APPLIES', 'DISTINGUISHES', 'CITES', 'UNKNOWN',
+]);
+
+/**
+ * Invariante XLII (ninguna relación VERIFIED sin evidencia, la misma
+ * disciplina que invariante III para CitationTrustRecord): `verificationStatus
+ * === 'VERIFIED'` exige `evidence` no vacío. `UNKNOWN` es un valor legítimo y
+ * estable para `relation` -- nunca se rechaza ni se "sube" a otra relación
+ * automáticamente (invariante XLI).
+ */
+export function validarAuthorityRelationship(r: AuthorityRelationship): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!r || typeof r !== 'object') return fail(['AuthorityRelationship ausente o no es un objeto']);
+
+  if (!r.source || !r.source.instrumento || !r.source.articulo) {
+    errores.push('AuthorityRelationship.source debe declarar instrumento y articulo');
+  }
+  if (!r.target || !r.target.instrumento || !r.target.articulo) {
+    errores.push('AuthorityRelationship.target debe declarar instrumento y articulo');
+  }
+
+  const relacion = r.relation as unknown;
+  if (!relacion || !RELACIONES_AUTORIDAD_VALIDAS.has(relacion as AuthorityRelationType)) {
+    errores.push(`AuthorityRelationship.relation inválido o ausente: ${String(relacion)}`);
+  }
+
+  const estado = r.verificationStatus as unknown;
+  if (!estado || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estado as LegalVerificationStatus)) {
+    errores.push(`AuthorityRelationship.verificationStatus inválido o ausente: ${String(estado)}`);
+  }
+
+  if (!Array.isArray(r.evidence)) {
+    errores.push('AuthorityRelationship.evidence debe ser un arreglo (puede ser vacío, nunca ausente)');
+  } else if (r.verificationStatus === 'VERIFIED' && r.evidence.length === 0) {
+    errores.push('AuthorityRelationship.verificationStatus="VERIFIED" exige evidence no vacío -- invariante XLII, ninguna relación se verifica sin evidencia');
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+const TIPOS_EVENTO_ENMIENDA_VALIDOS: ReadonlySet<AmendmentEventType> = new Set([
+  'REFORMA', 'DEROGACION', 'SUSTITUCION', 'RESTAURACION', 'OTHER',
+]);
+
+/**
+ * Igual disciplina que `validarAuthorityRelationship`: VERIFIED exige
+ * evidence no vacío (invariante XLII). `provenance` es opcional -- un evento
+ * puede conocerse solo por `instrument`/`gacetaRef` en esta capa sombra.
+ */
+function validarAmendmentEvent(e: AmendmentEvent, indice: number): string[] {
+  const errores: string[] = [];
+  const prefijo = `amendmentEvents[${indice}]`;
+  if (!e || typeof e !== 'object') return [`${prefijo} ausente o no es un objeto`];
+
+  const tipo = e.type as unknown;
+  if (!tipo || !TIPOS_EVENTO_ENMIENDA_VALIDOS.has(tipo as AmendmentEventType)) {
+    errores.push(`${prefijo}.type inválido o ausente: ${String(tipo)}`);
+  }
+  if (!e.instrument || e.instrument.trim().length === 0) errores.push(`${prefijo} sin instrument`);
+  if (!e.affectedProvision || e.affectedProvision.trim().length === 0) errores.push(`${prefijo} sin affectedProvision`);
+
+  const estado = e.verificationStatus as unknown;
+  if (!estado || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estado as LegalVerificationStatus)) {
+    errores.push(`${prefijo}.verificationStatus inválido o ausente: ${String(estado)}`);
+  }
+
+  if (!Array.isArray(e.evidence)) {
+    errores.push(`${prefijo}.evidence debe ser un arreglo (puede ser vacío, nunca ausente)`);
+  } else if (e.verificationStatus === 'VERIFIED' && e.evidence.length === 0) {
+    errores.push(`${prefijo}.verificationStatus="VERIFIED" exige evidence no vacío -- invariante XLII`);
+  }
+
+  return errores;
+}
+
+const ESTADOS_TEMPORALES_VALIDOS: ReadonlySet<TemporalLegalStatus> = new Set([
+  'VIGENTE', 'DEROGADO', 'PARCIALMENTE_VIGENTE', 'SUSPENDIDO', 'UNKNOWN',
+]);
+
+/**
+ * Invariante XL (REFORMADO es un evento, no un estado terminal): esta
+ * función NUNCA rechaza legalStatus="VIGENTE" (o "PARCIALMENTE_VIGENTE")
+ * solo porque existan eventos REFORMA -- un artículo reformado sigue vigente
+ * en su forma enmendada. Invariante contrario, simétrico: legalStatus=
+ * "DEROGADO" exige al menos un AmendmentEvent tipo DEROGACION con
+ * verificationStatus="VERIFIED" y evidence no vacío -- la derogación nunca
+ * es una declaración desnuda (mismo principio que invariante III/XLII
+ * aplicado aquí). `legalStatus` y `verificationStatus` se validan de forma
+ * independiente -- ninguno se deriva del otro (ver architecture doc §4);
+ * en particular, esta función NUNCA acepta una señal legado
+ * `es_norma_vigente` como entrada -- ese puente, si alguna vez existe, pasa
+ * obligatoriamente por `derivarVerificationStatusDesdeSenalLegado` (nunca
+ * más que PARTIAL) y nunca por aquí (invariante XXXVIII).
+ */
+export function validarTemporalLegalState(state: TemporalLegalState): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!state || typeof state !== 'object') return fail(['TemporalLegalState ausente o no es un objeto']);
+
+  const estadoLegal = state.legalStatus as unknown;
+  if (!estadoLegal || !ESTADOS_TEMPORALES_VALIDOS.has(estadoLegal as TemporalLegalStatus)) {
+    errores.push(`TemporalLegalState.legalStatus inválido o ausente: ${String(estadoLegal)}`);
+  }
+
+  const estadoVerificacion = state.verificationStatus as unknown;
+  if (!estadoVerificacion || !ESTADOS_VERIFICACION_LEGAL_VALIDOS.has(estadoVerificacion as LegalVerificationStatus)) {
+    errores.push(`TemporalLegalState.verificationStatus inválido o ausente: ${String(estadoVerificacion)}`);
+  }
+
+  if (!Array.isArray(state.amendmentEvents)) {
+    errores.push('TemporalLegalState.amendmentEvents debe ser un arreglo (puede ser vacío, nunca ausente)');
+  } else {
+    state.amendmentEvents.forEach((e, i) => errores.push(...validarAmendmentEvent(e, i)));
+
+    if (estadoLegal === 'DEROGADO') {
+      const derogacionVerificada = state.amendmentEvents.some(
+        (e) => e.type === 'DEROGACION' && e.verificationStatus === 'VERIFIED' && Array.isArray(e.evidence) && e.evidence.length > 0,
+      );
+      if (!derogacionVerificada) {
+        errores.push('TemporalLegalState.legalStatus="DEROGADO" exige al menos un AmendmentEvent type="DEROGACION" con verificationStatus="VERIFIED" y evidence no vacío -- la derogación nunca es una declaración desnuda');
+      }
+    }
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+/**
+ * Invariante XXXVIII: el único puente permitido entre la señal legado
+ * `es_norma_vigente` (metadato de ingesta en `biblioteca_vectores`, sin
+ * proceso de confirmación independiente detrás) y un
+ * `LegalVerificationStatus` -- y ese puente NUNCA puede alcanzar 'VERIFIED',
+ * sin importar el valor booleano de entrada. `true` sugiere que existe una
+ * señal legado (soporta PARTIAL como máximo); `false` no aporta ninguna
+ * señal en absoluto (UNRESOLVED). Ningún otro lugar de este módulo lee ni
+ * acepta este booleano como entrada.
+ */
+export function derivarVerificationStatusDesdeSenalLegado(esNormaVigente: boolean): LegalVerificationStatus {
+  return esNormaVigente ? 'PARTIAL' : 'UNRESOLVED';
 }

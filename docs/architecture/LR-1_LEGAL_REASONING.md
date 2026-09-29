@@ -4,15 +4,20 @@
 (Citation Trust I), LR-K3 (LegalProposition/NormativeRule), LR-K4 (generic
 Subsumption contract), LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
 only), LR-K6A (Citation Trust II: proposition-support *classification*
-contract), and LR-K6.1 (evidence-binding/provenance + conflict-aware
-aggregation, correcting a real gap LR-K6A left open) are implemented as
-shadow/structural types — see `lib/legal-reasoning/`. **Citation Trust II is
-not "not started"** — §6 below previously said so in three places after
-LR-K6A landed; corrected in this revision. What *is* still not implemented:
-semantic adjudication *runtime* — a model or automated rule actually reading
-evidence text and deciding entailment. Nothing in this document is wired
-into `app/api/chat/route.ts`, any system prompt, or any user-facing
-response. No behavior changes through LR-K6.1.
+contract), LR-K6.1 (evidence-binding/provenance + conflict-aware
+aggregation, correcting a real gap LR-K6A left open), and LR-K7
+(Authority/AuthorityRelationship + TemporalLegalState/AmendmentEvent
+qualification contracts) are implemented as shadow/structural types — see
+`lib/legal-reasoning/`. **Citation Trust II is not "not started"** — §6
+below previously said so in three places after LR-K6A landed; corrected in
+that revision. What *is* still not implemented: semantic adjudication
+*runtime* (a model or automated rule actually reading evidence text and
+deciding entailment), `Jurisprudence` (§5.2, still design-only), and
+`ApplicableRule` (still unbuilt — Authority/Temporal qualification answers
+"what weight does this source carry" and "is it in force," never "is this
+the rule that legally controls"). Nothing in this document is wired into
+`app/api/chat/route.ts`, any system prompt, or any user-facing response. No
+behavior changes through LR-K7.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -187,6 +192,39 @@ These are binding on every future LR phase, not just this one.
   future phase can record what kind of evidence a span is (holding, ratio,
   obiter, etc.) without a shape change — this phase never assigns it a
   value other than `'UNKNOWN'` or leaves it absent. See §6.5.
+- **XXXVII. No numeric authority hierarchy.** `Authority` never carries a
+  numeric ranking field — cross-type hierarchy is represented only through
+  explicit, evidenced `AuthorityRelationship` records. See §5.1.
+- **XXXVIII. Legacy vigencia signal != `VERIFIED`.** `es_norma_vigente=true`
+  in `biblioteca_vectores` is legacy ingestion metadata with no independent
+  confirmation behind it — it can support `PARTIAL` at best, via
+  `derivarVerificationStatusDesdeSenalLegado`, which can never return
+  `VERIFIED` regardless of the boolean's value. See §4.
+- **XXXIX. Lifecycle state != legal vigencia** (restates invariant VI for
+  this phase). The ingestion pipeline's own internal review-stage labels
+  are not referenced, read, or wired anywhere in `Authority`/
+  `TemporalLegalState`. See §4.
+- **XL. `REFORMADO` is an event, not a terminal status.** An `AmendmentEvent`
+  of type `REFORMA` never forces `TemporalLegalState.legalStatus` away from
+  `VIGENTE` — only an evidence-verified `DEROGACION` event may justify
+  `legalStatus: "DEROGADO"`. See §4.
+- **XLI. No relationship may be invented from model expectation.**
+  `CONSTITUTIONAL_SUPREMACY`, `SPECIAL_OVER_GENERAL`, and `LATER_OVER_EARLIER`
+  are relationships to represent with evidence, never automatic winner
+  functions — no `derivePrevailingAuthority` or equivalent exists anywhere
+  in this module. See §5.1.
+- **XLII. No relationship or amendment event verified without evidence.**
+  Mirrors invariant III: `AuthorityRelationship.verificationStatus` and
+  `AmendmentEvent.verificationStatus` may only be `'VERIFIED'` when
+  `evidence` is non-empty. See §4, §5.1.
+- **XLIII. Doctrine is never `PRIMARY_BINDING`.** `Authority.sourceType`
+  `'ACADEMIC_DOCTRINE'`/`'INSTITUTIONAL_COMMENTARY'` may never carry
+  `legalRole: 'PRIMARY_BINDING'` — enforced by `validarAuthority`, restating
+  §5.3. See §5.3.
+- **XLIV. No legal effect from source-type label alone.** Nothing derives,
+  defaults, or infers `Authority.legalRole` from `Authority.sourceType` — a
+  `JURISPRUDENCE` source is not automatically `PRIMARY_BINDING` (or any
+  other role) merely because of its `sourceType`. See §5.1.
 
 ### Intent/depth exceptions
 
@@ -205,9 +243,11 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | Case-fact validators (fail-closed) | **Implemented** — `lib/legal-reasoning/validators.ts` |
 | `CitationTrustRecord` (identity/provenance only) | **Implemented** — `lib/legal-reasoning/types.ts` |
 | Citation Trust I validators | **Implemented** — `lib/legal-reasoning/validators.ts` |
-| `TemporalLegalState` | Design only — §4 |
-| `Authority` / `AuthorityRelationship` | Design only — §5 |
-| `Jurisprudence` | Design only — §5 |
+| `TemporalLegalState`, `AmendmentEvent` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K7) — §4 |
+| `Authority`, `AuthorityRelationship` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K7) — §5.1 |
+| Authority/Temporal validators (`validarAuthority`, `validarAuthorityRelationship`, `validarTemporalLegalState`, `derivarVerificationStatusDesdeSenalLegado`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K7) |
+| `Jurisprudence` | Design only — §5.2, not this phase |
+| `ApplicableRule` | Design only — not started, not implied by LR-K7 |
 | `LegalProposition` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | LegalProposition/NormativeRule validators | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K3) |
@@ -243,14 +283,17 @@ is removed — a case fact's origin is always about the client's matter
 so." A proposition read from a source is a `LegalProposition`, not a
 `CaseFact`.
 
-## 4. Temporal model (binding)
+## 4. Temporal model (binding, implemented LR-K7)
 
 Legal status and verification confidence are **two different axes** and
 must never be mixed into one field. `es_norma_vigente=true` in
 `biblioteca_vectores` **does not automatically mean `VERIFIED`** — it is,
 today, legacy ingestion metadata with no independent confirmation step
 behind it. It can support `PARTIAL` at best until a real verification
-process exists.
+process exists — the single, explicit translation of that legacy boolean
+into a `LegalVerificationStatus` is `derivarVerificationStatusDesdeSenalLegado`
+(`lib/legal-reasoning/validators.ts`), which can never return `VERIFIED`
+regardless of the boolean's value (invariant XXXVIII).
 
 ```ts
 interface TemporalLegalState {
@@ -268,7 +311,8 @@ interface AmendmentEvent {
   date?: string;
   gacetaRef?: string;
   affectedProvision: string;   // e.g. "Art. 380 Código de Comercio"
-  source: string;
+  evidence: string[];          // pointers to the source text/decree -- may be empty ONLY when not VERIFIED (invariant XLII)
+  provenance?: CanonicalLegalReference; // optional structured locator, when the amending instrument itself resolves to one
   verificationStatus: 'VERIFIED' | 'PARTIAL' | 'UNRESOLVED';
 }
 ```
@@ -282,19 +326,25 @@ repealed, which is exactly backwards. This directly generalizes what CC-2
 already discovered by hand for Decreto 284-2013 Art. 37 (repeals Arts.
 380–383 of the Código de Comercio) vs. Art. 13/14 (amends other articles,
 does not repeal them) — that distinction is precisely `legalStatus` vs.
-`amendmentEvents[].type`.
+`amendmentEvents[].type` (invariant XL). Symmetrically, `legalStatus:
+"DEROGADO"` is never a bare declaration: `validarTemporalLegalState`
+(`lib/legal-reasoning/validators.ts`) requires at least one `AmendmentEvent`
+with `type: "DEROGACION"`, `verificationStatus: "VERIFIED"`, and non-empty
+`evidence` before accepting it.
 
-`V0`–`V5` remains entirely separate (invariant VI) and is not wired here.
+The ingestion pipeline's own internal review-stage labels (invariant VI)
+remain entirely separate and are not referenced anywhere in this module
+(invariant XXXIX).
 
-## 5. Authority and jurisprudence models (binding)
+## 5. Authority and jurisprudence models (binding; Authority implemented LR-K7, Jurisprudence design-only)
 
-### 5.1 Authority — no numeric hierarchy
+### 5.1 Authority — no numeric hierarchy (implemented LR-K7)
 
-A single `authorityLevel: number` was proposed in the earlier draft and is
+A single numeric ranking field was proposed in the earlier draft and is
 **removed**. A numeric field invites exactly the mistake the Control Plane
 flagged: comparing jurisprudence and a regulation on the same scale as if
-"level 3 beats level 5" were a legal argument. Cross-type hierarchy is
-represented by explicit, evidenced relationships instead:
+"level 3 beats level 5" were a legal argument (invariant XXXVII). Cross-type
+hierarchy is represented by explicit, evidenced relationships instead:
 
 ```ts
 interface Authority {
@@ -311,20 +361,31 @@ interface AuthorityRelationship {
   relation: 'CONSTITUTIONAL_SUPREMACY' | 'SPECIAL_OVER_GENERAL' | 'LATER_OVER_EARLIER'
           | 'AMENDS' | 'REPEALS' | 'INTERPRETS' | 'APPLIES' | 'DISTINGUISHES' | 'CITES' | 'UNKNOWN';
   verificationStatus: 'VERIFIED' | 'PARTIAL' | 'UNRESOLVED';
-  evidence: string[]; // pointers to the source text/decree establishing the relation
+  evidence: string[]; // pointers to the source text/decree establishing the relation -- may be empty ONLY when not VERIFIED (invariant XLII)
 }
 ```
 
-**No relationship may be invented from model expectation alone.**
-`CONSTITUTIONAL_SUPREMACY` must be asserted from verified Honduran
+**No relationship may be invented from model expectation alone** (invariant
+XLI). `CONSTITUTIONAL_SUPREMACY` must be asserted from verified Honduran
 constitutional text (Arts. 16/18/64/320, already named in
 `MAYA_LEX_SYSTEM_PROMPT`) before being marked `VERIFIED` — never assumed
 because "constitutions always win." Likewise, *lex specialis* and *lex
 posterior* are not blind automatic tie-breaker functions: they produce an
 `AuthorityRelationship` with a `verificationStatus`, which can legitimately
 be `UNRESOLVED` when the specialty/timing itself is contested or unclear.
+There is no `derivePrevailingAuthority` or equivalent anywhere in
+`lib/legal-reasoning/` — `validarAuthorityRelationship` only audits
+structural coherence (enum membership, evidence required for `VERIFIED`),
+never decides a winner.
 
-### 5.2 Jurisprudence — effect is never assumed from the court label
+**No legal effect from source-type label alone** (invariant XLIV):
+`validarAuthority` never derives, defaults, or infers `legalRole` from
+`sourceType` — a `JURISPRUDENCE` source is not automatically
+`PRIMARY_BINDING` (or any other role) merely because of its `sourceType`;
+`legalRole` is always independently declared by the caller and only
+structurally validated.
+
+### 5.2 Jurisprudence — effect is never assumed from the court label (design only, not LR-K7)
 
 ```ts
 interface Jurisprudence {
@@ -365,15 +426,31 @@ explicit reasoning over; it never auto-becomes `SUPPORTS` or
 similarity != legal analogy," restated from M1.5 and now corrected per the
 binding jurisprudence amendment.
 
-### 5.3 Doctrine
+### 5.3 Doctrine (enforced in code, LR-K7)
 
 Doctrine (`ACADEMIC_DOCTRINE`, `INSTITUTIONAL_COMMENTARY`) remains
 `DISCOVERY_ONLY` today, with `PERSUASIVE` reserved for a future phase that
-explicitly authorizes it. **Never `PRIMARY_BINDING`.** This preserves
+explicitly authorizes it. **Never `PRIMARY_BINDING`** (invariant XLIII) —
+`validarAuthority` rejects any `Authority` with a doctrinal `sourceType` and
+`legalRole: "PRIMARY_BINDING"`, not just as prose. This preserves
 `FUENTES_DOCTRINALES` (`lib/legal-retrieval/evidence-engine.ts`) exactly as
 it is — that mechanism is not touched, weakened, or superseded by this
 document; `Authority.legalRole` generalizes the same judgment it already
 encodes, it doesn't replace the code that enforces it.
+
+### 5.4 Authority/Temporal qualification != ApplicableRule (LR-K7)
+
+Neither `Authority`/`AuthorityRelationship` nor `TemporalLegalState`
+decides, or may be used to decide, whether a `NormativeRule` is the one
+that legally controls a case, is current, or outranks a competing rule for
+a specific `Subsumption`/`ConclusionTrace` — that remains `ApplicableRule`,
+entirely unbuilt and unimplied by this phase. LR-K7 answers "what weight
+does this source carry" and "is this provision in force," never "does this
+rule apply here." Nothing in `lib/legal-reasoning/` wires `Authority` or
+`TemporalLegalState` into `Subsumption`, `ConclusionTrace`,
+`ConclusionUncertainty.authorityStatus`, or
+`ConclusionUncertainty.temporalStatus` — those two fields remain hard-locked
+to `'NOT_EVALUATED'` (§9.1, invariant XX), unchanged by this phase.
 
 ## 6. Citation Trust I and II (both implemented — classification + evidence binding)
 

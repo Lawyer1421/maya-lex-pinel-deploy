@@ -6,11 +6,13 @@
  * LR-K4 (generic Subsumption contract) + LR-K5 (Conclusion Traceability,
  * LEGAL_CONCLUSION only) + LR-K6A (Citation Trust II: proposition-support
  * classification contract) + LR-K6.1 (evidence-binding/provenance +
- * conflict-aware aggregation). Semantic adjudication RUNTIME (a model or
- * rule actually reading evidence text and deciding entailment) is still NOT
- * implemented -- see docs/architecture/LR-1_LEGAL_REASONING.md §6 for the
+ * conflict-aware aggregation) + LR-K7 (Authority/AuthorityRelationship +
+ * TemporalLegalState/AmendmentEvent qualification contracts). Semantic
+ * adjudication RUNTIME (a model or rule actually reading evidence text and
+ * deciding entailment), Jurisprudence, and ApplicableRule are still NOT
+ * implemented -- see docs/architecture/LR-1_LEGAL_REASONING.md §4-6 for the
  * full canonical design, invariants, and everything still NOT implemented
- * (TemporalLegalState, Authority, Jurisprudence,
+ * (Jurisprudence, ApplicableRule,
  * PROCEDURAL_CONCLUSION/STRATEGIC_ASSESSMENT reasoning — design-only).
  *
  * SHADOW / STRUCTURAL ONLY: nothing in this module is imported by
@@ -685,4 +687,168 @@ export interface AggregatedPropositionSupport {
   contraryClaimIds: string[];
   unresolvedClaimIds: string[];
   notSupportedClaimIds: string[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K7 — AUTHORITY + TEMPORAL QUALIFICATION
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Answers two questions neither LR-K1-K6.1 attempts: "what KIND of legal
+// weight does a source carry, and how does it relate to other sources?"
+// (Authority/AuthorityRelationship) and "is this provision currently in
+// force?" (TemporalLegalState/AmendmentEvent). Neither answers, and neither
+// may be used to answer, whether a NormativeRule is the one that legally
+// controls a case (that remains ApplicableRule, unbuilt) -- AUTHORITY/
+// TEMPORAL QUALIFICATION != APPLICABLE RULE.
+//
+// New constitutional invariants for this phase:
+//   XXXVII. NO NUMERIC AUTHORITY HIERARCHY. A single numeric ranking field on
+//           `Authority` was proposed in an earlier draft and stays removed --
+//           it invites comparing a regulation and a court ruling on one
+//           scale, as if "level 3 beats level 5" were a legal argument.
+//           Cross-type hierarchy is represented only by explicit, evidenced
+//           AuthorityRelationship records.
+//   XXXVIII. LEGACY VIGENCIA SIGNAL != VERIFIED. `es_norma_vigente=true` in
+//           `biblioteca_vectores` is legacy ingestion metadata with no
+//           independent confirmation behind it -- it can support PARTIAL at
+//           best, never VERIFIED, regardless of its boolean value. See
+//           `derivarVerificationStatusDesdeSenalLegado`.
+//   XXXIX.  LIFECYCLE STATE != LEGAL VIGENCIA (restates invariant VI for this
+//           phase). The ingestion pipeline's own internal review-stage
+//           labels (see architecture doc §4, invariant VI) are not
+//           referenced, read, or wired anywhere in this module --
+//           TemporalLegalState.legalStatus is an entirely separate axis from
+//           how far a document has moved through MayaLex's own ingestion
+//           pipeline.
+//   XL.     REFORMADO IS AN EVENT, NOT A TERMINAL STATUS. An AmendmentEvent
+//           of type REFORMA never forces TemporalLegalState.legalStatus away
+//           from VIGENTE -- a reformed article is still in force in its
+//           amended form. Only an evidence-backed DEROGACION event may
+//           justify legalStatus="DEROGADO" (see validarTemporalLegalState).
+//   XLI.    NO RELATIONSHIP MAY BE INVENTED FROM MODEL EXPECTATION.
+//           CONSTITUTIONAL_SUPREMACY, SPECIAL_OVER_GENERAL, and
+//           LATER_OVER_EARLIER are relationships to represent with evidence,
+//           never automatic winner functions -- there is no
+//           `derivePrevailingAuthority` or equivalent anywhere in this
+//           module. An AuthorityRelationship can be legitimately
+//           verificationStatus="UNRESOLVED" when the specialty/timing/
+//           supremacy itself is contested, and "lex specialis"/"lex
+//           posterior" never resolve automatically to a winner.
+//   XLII.   NO RELATIONSHIP VERIFIED WITHOUT EVIDENCE. Mirrors invariant III
+//           for AuthorityRelationship/AmendmentEvent: verificationStatus may
+//           only be "VERIFIED" when `evidence` is non-empty.
+//   XLIII.  DOCTRINE IS NEVER PRIMARY_BINDING. `Authority.sourceType`
+//           "ACADEMIC_DOCTRINE"/"INSTITUTIONAL_COMMENTARY" may never carry
+//           `legalRole: "PRIMARY_BINDING"` -- restates §5.3 of the
+//           architecture doc, preserving `FUENTES_DOCTRINALES`
+//           (`lib/legal-retrieval/evidence-engine.ts`) exactly as it is.
+//   XLIV.   NO LEGAL EFFECT FROM SOURCE-TYPE LABEL ALONE. Nothing in this
+//           module derives, defaults, or infers `Authority.legalRole` from
+//           `Authority.sourceType` -- a JURISPRUDENCE source is not
+//           automatically PRIMARY_BINDING (or any other role) merely because
+//           of its sourceType; `legalRole` is always independently declared
+//           and only structurally validated, never derived.
+//
+// This module does NOT call an LLM, does NOT use embeddings or semantic
+// similarity, does NOT implement Jurisprudence (§5.2 of the architecture
+// doc, still design-only) or ApplicableRule, and does NOT wire into the
+// ingestion pipeline's lifecycle stages, PRC-1, or any runtime path.
+// Fixtures instantiate Authority/
+// AuthorityRelationship/TemporalLegalState/AmendmentEvent explicitly by
+// hand -- nothing here infers jurisdiction, source type, legal role, or
+// temporal status from retrieved text.
+
+/**
+ * What KIND of legal source this is -- never a ranking, just a category.
+ * See invariant XXXVII: no numeric hierarchy anywhere in this type.
+ */
+export type AuthoritySourceType =
+  | 'CONSTITUTION' | 'TREATY' | 'STATUTE' | 'REGULATION' | 'JURISPRUDENCE'
+  | 'INSTITUTIONAL_COMMENTARY' | 'ACADEMIC_DOCTRINE' | 'PRACTICE_TEMPLATE' | 'OTHER';
+
+/**
+ * What legal WEIGHT this source carries -- independently declared from
+ * `sourceType`, never derived from it (invariant XLIV). Doctrine
+ * (`ACADEMIC_DOCTRINE`/`INSTITUTIONAL_COMMENTARY`) may never be
+ * `PRIMARY_BINDING` (invariant XLIII, §5.3 of the architecture doc).
+ */
+export type LegalRoleType = 'PRIMARY_BINDING' | 'INTERPRETIVE' | 'PERSUASIVE' | 'PRACTICE_GUIDANCE' | 'DISCOVERY_ONLY';
+
+export interface Authority {
+  sourceType: AuthoritySourceType;
+  legalRole: LegalRoleType;
+  /** Free text -- 'HN' today, another jurisdiction's code later. Not validated against a fixed list in this phase. */
+  jurisdiction: string;
+  /** Reused from lib/exequatur/curriculum/types.ts, not reinvented -- same locator LR-K3's LegalProposition/NormativeRule already use. */
+  provenance: CanonicalLegalReference;
+}
+
+/**
+ * Cross-source hierarchy is represented ONLY through explicit, evidenced
+ * relationships like this one -- never a numeric field (invariant XXXVII).
+ * `CONSTITUTIONAL_SUPREMACY`/`SPECIAL_OVER_GENERAL`/`LATER_OVER_EARLIER` are
+ * relationships to assert with evidence, never automatic tie-breaker
+ * functions (invariant XLI) -- `UNKNOWN` is a legitimate, stable value here,
+ * the same discipline `PropositionSupportStatus`/`CitationVerificationState`
+ * already use for "not yet resolved," never something to auto-upgrade.
+ */
+export type AuthorityRelationType =
+  | 'CONSTITUTIONAL_SUPREMACY' | 'SPECIAL_OVER_GENERAL' | 'LATER_OVER_EARLIER'
+  | 'AMENDS' | 'REPEALS' | 'INTERPRETS' | 'APPLIES' | 'DISTINGUISHES' | 'CITES' | 'UNKNOWN';
+
+export interface AuthorityRelationship {
+  source: CanonicalLegalReference;
+  target: CanonicalLegalReference;
+  relation: AuthorityRelationType;
+  verificationStatus: LegalVerificationStatus;
+  /** Pointers to the source text/decree establishing the relation -- may be empty ONLY when verificationStatus is not VERIFIED (invariant XLII). */
+  evidence: string[];
+}
+
+/**
+ * VIGENTE/DEROGADO/PARCIALMENTE_VIGENTE/SUSPENDIDO/UNKNOWN -- and, binding
+ * (invariant XL): REFORMADO is deliberately NOT a value here. A reformed
+ * article is still VIGENTE (or PARCIALMENTE_VIGENTE) in its amended form;
+ * "reformado" describes a version relationship recorded in
+ * `amendmentEvents`, never a terminal legal-status value that would make
+ * every amended-but-current article look repealed.
+ */
+export type TemporalLegalStatus = 'VIGENTE' | 'DEROGADO' | 'PARCIALMENTE_VIGENTE' | 'SUSPENDIDO' | 'UNKNOWN';
+
+export type AmendmentEventType = 'REFORMA' | 'DEROGACION' | 'SUSTITUCION' | 'RESTAURACION' | 'OTHER';
+
+/**
+ * A single point-in-time change to a provision. `REFORMA` never implies
+ * `TemporalLegalState.legalStatus` becomes anything other than VIGENTE/
+ * PARCIALMENTE_VIGENTE by itself (invariant XL) -- an amendment event is a
+ * fact about history, not a status declaration.
+ */
+export interface AmendmentEvent {
+  type: AmendmentEventType;
+  /** e.g. "Decreto 284-2013". */
+  instrument: string;
+  date?: string;
+  gacetaRef?: string;
+  /** e.g. "Art. 380 Código de Comercio". */
+  affectedProvision: string;
+  /** Pointers to the source text/decree establishing this event -- may be empty ONLY when verificationStatus is not VERIFIED (invariant XLII). */
+  evidence: string[];
+  /** Optional structured locator, when the amending instrument itself resolves to one -- never required, since an event may be known only by `instrument`/`gacetaRef` at this shadow layer. */
+  provenance?: CanonicalLegalReference;
+  verificationStatus: LegalVerificationStatus;
+}
+
+/**
+ * `legalStatus` and `verificationStatus` are two different axes and must
+ * never be mixed into one field (see architecture doc §4) -- validated
+ * independently, never one derived from the other. `DEROGADO` may only be
+ * declared when backed by an evidence-verified `DEROGACION` amendment event
+ * (see `validarTemporalLegalState`) -- it is never a bare declaration.
+ */
+export interface TemporalLegalState {
+  legalStatus: TemporalLegalStatus;
+  verificationStatus: LegalVerificationStatus;
+  validFrom?: string;
+  validTo?: string;
+  amendmentEvents: AmendmentEvent[];
 }
