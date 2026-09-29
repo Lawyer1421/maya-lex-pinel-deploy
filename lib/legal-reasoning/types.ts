@@ -3,10 +3,11 @@
  *
  * LR-K1 (CaseFact/MissingFact provenance) + LR-K2 (Citation Trust I:
  * identity/provenance only) + LR-K3 (LegalProposition/NormativeRule) +
- * LR-K4 (generic Subsumption contract). See
- * docs/architecture/LR-1_LEGAL_REASONING.md for the full canonical design,
- * invariants, and everything still NOT implemented (TemporalLegalState,
- * Authority, Jurisprudence, Conclusion traceability — design-only).
+ * LR-K4 (generic Subsumption contract) + LR-K5 (Conclusion Traceability,
+ * LEGAL_CONCLUSION only). See docs/architecture/LR-1_LEGAL_REASONING.md for
+ * the full canonical design, invariants, and everything still NOT
+ * implemented (TemporalLegalState, Authority, Jurisprudence, Citation Trust
+ * II, PROCEDURAL_CONCLUSION/STRATEGIC_ASSESSMENT reasoning — design-only).
  *
  * SHADOW / STRUCTURAL ONLY: nothing in this module is imported by
  * app/api/chat/route.ts, any system prompt, or any response-formatting
@@ -320,4 +321,110 @@ export interface Subsumption {
   // Deliberately NO finalConclusion, legalConclusion, proceduralConclusion,
   // strategicAssessment, recommendedAction, probability, or
   // confidenceScore -- all out of scope for LR-K4.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K5 — CONCLUSION TRACEABILITY CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Moves "the model reached conclusion X" to "the system can show exactly why
+// X exists, what supports it, what limits it, and what remains unresolved."
+// A ConclusionTrace REFERENCES one or more Subsumption records -- it never
+// recreates element-level reasoning inside itself (§12 of the directive).
+//
+// New constitutional invariants for this phase:
+//   XV.   NO CONCLUSION WITHOUT TRACE.
+//   XVI.  A BLOCKED CONCLUSION IS A VALID RESULT.
+//   XVII. NO CONCLUSION MAY HIDE AN UNRESOLVED REQUIRED ELEMENT.
+//   XVIII.NO CONCLUSION MAY UPGRADE FACTUAL STATUS.
+//   XIX.  NO CONCLUSION MAY UPGRADE SOURCE OR RULE VERIFICATION STATUS.
+//   XX.   STRUCTURAL CONCLUSION COMPLETENESS != LEGAL CORRECTNESS.
+//
+// Only LEGAL_CONCLUSION receives full validator support in this phase.
+// PROCEDURAL_CONCLUSION and STRATEGIC_ASSESSMENT exist in the type system
+// (so a future phase doesn't need to redesign ConclusionType) but are NOT
+// populated, evaluated, or treated as implemented reasoning layers here --
+// validarConclusionTrace explicitly refuses to process them (see
+// validators.ts), rather than silently half-validating. This is intentional
+// design-for-future, not an oversight.
+
+export type ConclusionType = 'LEGAL_CONCLUSION' | 'PROCEDURAL_CONCLUSION' | 'STRATEGIC_ASSESSMENT';
+
+/**
+ * Structural completeness of the TRACE, never a legal outcome (invariant
+ * XX). SUPPORTED never means legally correct, prevailing, binding, current
+ * law, or that a court outcome is guaranteed -- only that every referenced
+ * Subsumption is itself COMPLETE and nothing is left unaccounted for.
+ * BLOCKED is a fully valid, final result in this contract (invariant XVI) --
+ * it is never something to "fix" by forcing SUPPORTED or hiding the
+ * blocker. Deliberately excludes WIN/LOSE/GUILTY/NOT_GUILTY/VALID/INVALID/
+ * LIABLE/NOT_LIABLE and any synonym of them.
+ */
+export type ConclusionStatus = 'SUPPORTED' | 'PARTIAL' | 'BLOCKED' | 'UNRESOLVED';
+
+export type ConclusionBlockerType =
+  | 'MISSING_FACT' | 'UNRESOLVED_ELEMENT' | 'UNRESOLVED_EXCEPTION' | 'INCOMPLETE_SUBSUMPTION'
+  // These two exist specifically BECAUSE the Authority and Temporal engines
+  // are not implemented yet -- not because this phase attempts to evaluate
+  // them. Do not repurpose them once those engines exist; they should be
+  // retired then, not redefined.
+  | 'AUTHORITY_NOT_EVALUATED' | 'TEMPORAL_STATUS_NOT_EVALUATED'
+  | 'OTHER';
+
+export interface ConclusionBlocker {
+  type: ConclusionBlockerType;
+  /** A CaseFact/MissingFact/RuleElement/RuleException id, when the blocker type has one -- validated against the referenced Subsumptions where applicable. */
+  referenceId?: string;
+  description: string;
+}
+
+/** Reused for factCompleteness: whole/partial/none of the required elements across the referenced Subsumptions are resolved. */
+export type FactCompletenessStatus = 'COMPLETE' | 'PARTIAL' | 'UNRESOLVED';
+
+/**
+ * Deliberately NOT the same literal as LegalVerificationStatus's 'VERIFIED'
+ * -- renamed to VERIFIED_SHAPE specifically so a ConclusionTrace can never
+ * read as claiming the underlying NormativeRule is legally correct or
+ * authoritative (invariant XIX). It only ever means the rule passed
+ * validarNormativeRule's shape check.
+ */
+export type RuleVerificationSummary = 'VERIFIED_SHAPE' | 'PARTIAL' | 'UNRESOLVED';
+
+/** Used for authorityStatus/temporalStatus -- NOT_EVALUATED is enforced as the only legal value in this phase (see validarConclusionTrace); PARTIAL/UNRESOLVED are reserved for whenever those engines actually exist. */
+export type EngineNotYetImplementedStatus = 'NOT_EVALUATED' | 'PARTIAL' | 'UNRESOLVED';
+
+export interface ConclusionUncertainty {
+  factCompleteness: FactCompletenessStatus;
+  ruleVerification: RuleVerificationSummary;
+  /** Mirrors SubsumptionAnalysisStatus -- the worst (most restrictive) analysisStatus among the referenced Subsumptions. */
+  subsumptionCompleteness: SubsumptionAnalysisStatus;
+  /** Always 'NOT_EVALUATED' in this phase -- see validarConclusionTrace. */
+  authorityStatus: EngineNotYetImplementedStatus;
+  /** Always 'NOT_EVALUATED' in this phase -- see validarConclusionTrace. */
+  temporalStatus: EngineNotYetImplementedStatus;
+}
+
+export interface ConclusionTrace {
+  id: string;
+  conclusionType: ConclusionType;
+  proposition: string;
+  status: ConclusionStatus;
+  /** Never empty for LEGAL_CONCLUSION (invariant XV) -- a conclusion with no Subsumption behind it is not a conclusion this contract can vouch for. */
+  subsumptionIds: string[];
+  /** Every id must both exist as a real NormativeRule AND be the ruleId of one of the referenced Subsumptions -- never a rule the trace merely mentions in passing. */
+  ruleIds: string[];
+  /** Must be traceable to a supportingFactIds entry inside one of the referenced Subsumptions' assessments -- never a fact introduced fresh at this layer. */
+  supportingFactIds: string[];
+  /** Same discipline as supportingFactIds, but for contradictingFactIds. */
+  contradictingFactIds: string[];
+  missingFactIds: string[];
+  /** Derived from, and cross-checked against, the referenced Subsumptions' own unresolvedElementIds -- no required element may disappear at this layer (invariant XVII). */
+  unresolvedElementIds: string[];
+  /** Same discipline as unresolvedElementIds, but derived from exceptionAssessments whose status is UNKNOWN. */
+  unresolvedExceptionIds: string[];
+  blockedBy: ConclusionBlocker[];
+  uncertainty: ConclusionUncertainty;
+  notes?: string;
+  // Deliberately NO confidenceScore, probability, winningChance,
+  // successRate, or recommendedAction -- all out of scope for LR-K5.
 }

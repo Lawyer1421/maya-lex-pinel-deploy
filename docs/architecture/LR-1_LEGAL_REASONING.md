@@ -1,11 +1,12 @@
 # LR-1 — MayaLex Legal Reasoning Architecture (Canonical)
 
 **Status:** LR-K0 architecture freeze. LR-K1 (CaseFact/MissingFact), LR-K2
-(Citation Trust I), LR-K3 (LegalProposition/NormativeRule), and LR-K4
-(generic Subsumption contract) are implemented as shadow/structural types —
-see `lib/legal-reasoning/`. Nothing in this document is wired into
+(Citation Trust I), LR-K3 (LegalProposition/NormativeRule), LR-K4 (generic
+Subsumption contract), and LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
+only) are implemented as shadow/structural types — see
+`lib/legal-reasoning/`. Nothing in this document is wired into
 `app/api/chat/route.ts`, any system prompt, or any user-facing response. No
-behavior changes through LR-K4.
+behavior changes through LR-K5.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -86,6 +87,26 @@ These are binding on every future LR phase, not just this one.
 - **XIV. An exception must be analyzed separately from the main rule.** A
   `RuleExceptionAssessment` is never folded into `elementAssessments`, and
   no exception belonging to a rule may go unassessed. See §8.1.
+- **XV. No conclusion without trace.** A `LEGAL_CONCLUSION`'s
+  `subsumptionIds` may never be empty. See §9.
+- **XVI. A blocked conclusion is a valid result.** `BLOCKED` is a final,
+  legitimate `ConclusionStatus` — never something to force into `SUPPORTED`
+  or hide. See §9.1.
+- **XVII. No conclusion may hide an unresolved required element.** A
+  `ConclusionTrace`'s `unresolvedElementIds`/`unresolvedExceptionIds` must
+  exactly match what its referenced `Subsumption`s actually leave
+  unresolved — never a cherry-picked subset. See §9.1.
+- **XVIII. No conclusion may upgrade factual status.** Referencing a
+  `CaseFact` in a `ConclusionTrace` never changes that fact's own `status`.
+  See §9.2.
+- **XIX. No conclusion may upgrade source or rule verification status.** A
+  `ConclusionTrace` reports `ruleVerification` as `'VERIFIED_SHAPE'`, never
+  the bare `'VERIFIED'` a `NormativeRule` carries — the rename itself is the
+  safeguard. See §9.1.
+- **XX. Structural conclusion completeness != legal correctness.** A
+  `SUPPORTED` `ConclusionTrace` says nothing about legal applicability,
+  vigencia, or authority — those remain permanently `NOT_EVALUATED` fields
+  until later layers exist. See §9.2.
 
 ### Intent/depth exceptions
 
@@ -113,8 +134,10 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | Automatic article→rule extraction | **Not implemented, not this phase or any future one implied by LR-K3** |
 | `RuleElementAssessment`, `RuleExceptionAssessment`, `Subsumption` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K4) |
 | Subsumption validators (`validarSubsumption` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K4) |
-| Conclusion types (`LEGAL`/`PROCEDURAL`/`STRATEGIC`) | Design only — §9 |
-| Citation/reasoning trace | Design only — §10 |
+| `ConclusionTrace`, `ConclusionBlocker`, `ConclusionUncertainty` (`LEGAL_CONCLUSION`) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K5) |
+| ConclusionTrace validators (`validarConclusionTrace` + derivations) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K5) |
+| `PROCEDURAL_CONCLUSION` / `STRATEGIC_ASSESSMENT` reasoning | Type exists, explicitly rejected by the validator — future layers, §9 |
+| Ephemeral per-query reasoning trace (CaseFact→RuleElement→NormativeRule→LegalSource→Conclusion chain) | Design only — §10 |
 | Citation Trust II (proposition support) | **Not started, not this phase** — §6.3 |
 
 ## 3. Case fact / legal source separation
@@ -356,8 +379,16 @@ claim is made, the required fields accompanying it are present.
 
 **Implemented in LR-K3** (`lib/legal-reasoning/types.ts`,
 `lib/legal-reasoning/validators.ts`) — this section is no longer design-only
-for these two types. `Subsumption` (§8), `Conclusion` (§9), and the
-reasoning trace (§10) remain design-only.
+for these two types. `Subsumption` (§8) is **also implemented**, as of
+LR-K4 — see §2's status table. `ConclusionTrace` (§9, LR-K5) is likewise
+implemented; only `Conclusion`'s `PROCEDURAL_CONCLUSION`/
+`STRATEGIC_ASSESSMENT` reasoning and the standalone reasoning trace (§10)
+remain design-only.
+<!-- Documentation-drift fix (Mission LR-K5 §25, Cursor finding): this
+paragraph previously said Subsumption "remain[ed] design-only" after LR-K4
+had already implemented it. Corrected here, on the LR-K5 branch only — the
+already-reviewed LR-K4 commit is not touched. -->
+
 
 ### 7.1 Three distinct epistemic objects (binding, restated from §3)
 
@@ -435,9 +466,13 @@ dispuesto en el artículo Z") remains a separate, auditable object pointing
 at `Art. Z`, never a fifth line item indistinguishable from `elements A/B/C`.
 
 **Not implemented, not implied by LR-K3:** automatic article→rule
-extraction, any LLM call, `Subsumption`, `ApplicableRule`, `Authority`
-evaluation, temporal qualification, conclusions, jurisprudence, or strategic
-analysis. `MAYA_PENAL_MODULES`'s Capa 2 (tipicidad
+extraction, any LLM call, `ApplicableRule`, `Authority`
+evaluation, temporal qualification, jurisprudence, or strategic
+analysis. (`Subsumption` and `ConclusionTrace` were out of scope for LR-K3
+specifically, but are now implemented — LR-K4 and LR-K5 respectively; see
+§8/§9, not left permanently unimplemented as this sentence's original
+LR-K3-era wording could be misread to suggest.)
+`MAYA_PENAL_MODULES`'s Capa 2 (tipicidad
 elements: verbo rector, sujeto activo/pasivo, bien jurídico, resultado,
 dolo/culpa) is the closest existing prose analogue — a future phase would
 formalize that specific, already-working checklist as the first real
@@ -550,23 +585,90 @@ against elements is deliberately independent of whether the rule's own
 source evidence has been confirmed. Closing that gap belongs to a future
 Citation Trust / NormativeRule reconciliation, not to LR-K4.
 
-## 9. Conclusions (design only)
+## 9. Conclusion traceability
 
-Three epistemically distinct conclusion types, never merged into one
-generic "answer":
+**`LEGAL_CONCLUSION` implemented in LR-K5** (`lib/legal-reasoning/types.ts`,
+`lib/legal-reasoning/validators.ts`). `PROCEDURAL_CONCLUSION` and
+`STRATEGIC_ASSESSMENT` exist in the `ConclusionType` union so a future phase
+doesn't need to redesign it, but are **explicitly rejected** by
+`validarConclusionTrace` in this phase — never half-validated, never
+populated by new logic.
 
 ```ts
-type Conclusion =
-  | { kind: 'LEGAL_CONCLUSION'; subsumptions: Subsumption[]; uncertainty: ReasoningUncertainty[]; blockedBy: MissingFact[] }
-  | { kind: 'PROCEDURAL_CONCLUSION'; mechanism: string; deadlines: AmendmentEvent[]; uncertainty: ReasoningUncertainty[] }
-  | { kind: 'STRATEGIC_ASSESSMENT'; options: string[]; risk: string; uncertainty: ReasoningUncertainty[] };
+type ConclusionType = 'LEGAL_CONCLUSION' | 'PROCEDURAL_CONCLUSION' | 'STRATEGIC_ASSESSMENT';
+type ConclusionStatus = 'SUPPORTED' | 'PARTIAL' | 'BLOCKED' | 'UNRESOLVED';
+
+interface ConclusionBlocker {
+  type: 'MISSING_FACT' | 'UNRESOLVED_ELEMENT' | 'UNRESOLVED_EXCEPTION' | 'INCOMPLETE_SUBSUMPTION'
+      | 'AUTHORITY_NOT_EVALUATED' | 'TEMPORAL_STATUS_NOT_EVALUATED' | 'OTHER';
+  referenceId?: string;
+  description: string;
+}
+
+interface ConclusionUncertainty {
+  factCompleteness: 'COMPLETE' | 'PARTIAL' | 'UNRESOLVED';
+  ruleVerification: 'VERIFIED_SHAPE' | 'PARTIAL' | 'UNRESOLVED';   // never the bare 'VERIFIED' literal -- see below
+  subsumptionCompleteness: SubsumptionAnalysisStatus;
+  authorityStatus: 'NOT_EVALUATED' | 'PARTIAL' | 'UNRESOLVED';     // always NOT_EVALUATED today
+  temporalStatus: 'NOT_EVALUATED' | 'PARTIAL' | 'UNRESOLVED';      // always NOT_EVALUATED today
+}
+
+interface ConclusionTrace {
+  id: string;
+  conclusionType: ConclusionType;
+  proposition: string;
+  status: ConclusionStatus;
+  subsumptionIds: string[];     // never empty for LEGAL_CONCLUSION -- invariant XV
+  ruleIds: string[];
+  supportingFactIds: string[];
+  contradictingFactIds: string[];
+  missingFactIds: string[];
+  unresolvedElementIds: string[];
+  unresolvedExceptionIds: string[];
+  blockedBy: ConclusionBlocker[];
+  uncertainty: ConclusionUncertainty;
+  notes?: string;
+}
 ```
 
-Every conclusion must be able to trace to the rules and facts it used
-(invariant IV), state its own uncertainty (§ M1.5 model, unchanged), and
-name what it's `blockedBy` when incomplete. **A `STRATEGIC_ASSESSMENT` must
-never be presented as if it were a `LEGAL_CONCLUSION`** — this is the typed
-form of the existing prompt discipline "nunca predicción judicial."
+### 9.1 Everything is derived, nothing is declared freely
+
+`validarConclusionTrace` cross-checks every one of `status`,
+`unresolvedElementIds`, `unresolvedExceptionIds`, and every field of
+`uncertainty` against what the referenced `Subsumption`/`NormativeRule`
+records actually contain — the same "declared value must equal derived
+value" discipline as §8.2. `ConclusionStatus` derivation ranks, in order:
+a detected **structural conflict** (the same `CaseFact` id used as support
+in one referenced `Subsumption`'s assessment and as contradiction in
+another — a purely mechanical signal, never semantic adversarial reasoning)
+→ `UNRESOLVED`; any referenced `Subsumption` `BLOCKED` → `BLOCKED`; any
+`INCOMPLETE` → `PARTIAL`; otherwise → `SUPPORTED`. `SUPPORTED` requires an
+empty `blockedBy`; every other status requires at least one explicit
+blocker — **`BLOCKED` is a fully valid, final result** (invariant XVI),
+never something to paper over by forcing `SUPPORTED` or omitting the
+blocker.
+
+`ruleVerification` never uses the bare `'VERIFIED'` literal that
+`NormativeRule.verificationStatus` itself has — it's renamed
+`'VERIFIED_SHAPE'` specifically so a `ConclusionTrace` can never be read as
+claiming the underlying rule is legally correct or authoritative (invariant
+XIX). `authorityStatus`/`temporalStatus` are hard-required to be
+`'NOT_EVALUATED'` — not derived, because nothing in this system can
+evaluate them yet; `validarConclusionTrace` rejects any other value
+outright.
+
+### 9.2 What ConclusionTrace never does
+
+It never mutates a referenced `CaseFact`'s `status` or a `NormativeRule`'s
+`verificationStatus` (invariant XVIII/XIX — validators are pure, read-only
+functions). It never introduces a fact-support role that wasn't already
+established inside a referenced `Subsumption`'s own assessments — "the
+trace references Subsumption, it never recreates it." And structural
+completeness is never legal correctness (invariant XX): a fully traced,
+internally consistent `SUPPORTED` conclusion says nothing about whether the
+underlying rule currently applies, is current law, or outranks a competing
+rule — that remains a future Authority/Temporal layer's question, tracked
+here only as the permanently-`NOT_EVALUATED` fields above.
 
 ## 10. Citation / reasoning trace (design only)
 

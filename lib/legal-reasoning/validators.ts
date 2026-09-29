@@ -1,11 +1,12 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 — deterministic validators. Fail closed: a
- * malformed or incomplete structure is reported as invalid, never silently
- * accepted or repaired. No LLM extraction integration here (per directive,
- * "no LLM extraction integration yet unless strictly required for testing"
- * -- it isn't; these validators operate on already-constructed objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 — deterministic validators. Fail
+ * closed: a malformed or incomplete structure is reported as invalid, never
+ * silently accepted or repaired. No LLM extraction integration here (per
+ * directive, "no LLM extraction integration yet unless strictly required
+ * for testing" -- it isn't; these validators operate on already-constructed
+ * objects).
  */
 
 import type {
@@ -28,6 +29,15 @@ import type {
   ElementAssessmentStatus,
   ExceptionAssessmentStatus,
   SubsumptionAnalysisStatus,
+  ConclusionTrace,
+  ConclusionType,
+  ConclusionStatus,
+  ConclusionBlocker,
+  ConclusionBlockerType,
+  ConclusionUncertainty,
+  FactCompletenessStatus,
+  RuleVerificationSummary,
+  EngineNotYetImplementedStatus,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -583,6 +593,345 @@ export function validarSubsumption(
       errores.push('Subsumption.unresolvedElementIds debe ser un arreglo');
     } else if (!mismoConjunto(subsumption.unresolvedElementIds, noResueltosDerivados)) {
       errores.push(`Subsumption.unresolvedElementIds no coincide con los elementos requeridos sin resolver (esperado: [${noResueltosDerivados.join(', ')}])`);
+    }
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K5 — CONCLUSION TRACEABILITY CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Solo LEGAL_CONCLUSION recibe soporte completo en esta fase (ver
+// validarConclusionTrace: rechaza explícitamente PROCEDURAL_CONCLUSION y
+// STRATEGIC_ASSESSMENT como "no implementado", nunca los valida a medias).
+// Invariante XX (completitud estructural != corrección legal): nada aquí
+// evalúa si la conclusión es correcta, vinculante, o vigente -- solo si su
+// trazabilidad hacia las Subsumption referenciadas es coherente.
+
+const TIPOS_CONCLUSION_VALIDOS: ReadonlySet<ConclusionType> = new Set([
+  'LEGAL_CONCLUSION', 'PROCEDURAL_CONCLUSION', 'STRATEGIC_ASSESSMENT',
+]);
+
+const ESTADOS_CONCLUSION_VALIDOS: ReadonlySet<ConclusionStatus> = new Set([
+  'SUPPORTED', 'PARTIAL', 'BLOCKED', 'UNRESOLVED',
+]);
+
+const TIPOS_BLOQUEADOR_VALIDOS: ReadonlySet<ConclusionBlockerType> = new Set([
+  'MISSING_FACT', 'UNRESOLVED_ELEMENT', 'UNRESOLVED_EXCEPTION', 'INCOMPLETE_SUBSUMPTION',
+  'AUTHORITY_NOT_EVALUATED', 'TEMPORAL_STATUS_NOT_EVALUATED', 'OTHER',
+]);
+
+function todosLosAssessments(subs: Subsumption[]): Array<RuleElementAssessment | RuleExceptionAssessment> {
+  return subs.flatMap((s) => [...s.elementAssessments, ...s.exceptionAssessments]);
+}
+
+/** Ids de CaseFact usados como SOPORTE en algún assessment de las Subsumption referenciadas -- el universo que ConclusionTrace.supportingFactIds puede citar. */
+function factsSoporteDeSubsunciones(subs: Subsumption[]): Set<string> {
+  return new Set(todosLosAssessments(subs).flatMap((a) => a.supportingFactIds));
+}
+
+/** Mismo principio para contradictingFactIds. */
+function factsContradiccionDeSubsunciones(subs: Subsumption[]): Set<string> {
+  return new Set(todosLosAssessments(subs).flatMap((a) => a.contradictingFactIds));
+}
+
+/** Universo declarado de MissingFact a través de las Subsumption referenciadas -- nunca inventado a nivel de ConclusionTrace. */
+function missingFactsDeSubsunciones(subs: Subsumption[]): Set<string> {
+  return new Set(subs.flatMap((s) => s.missingFactIds));
+}
+
+/** Unión de los elementos requeridos sin resolver de TODAS las Subsumption referenciadas -- ninguno puede desaparecer en la conclusión (invariante XVII). */
+function elementosNoResueltosDeSubsunciones(subs: Subsumption[]): string[] {
+  return [...new Set(subs.flatMap((s) => s.unresolvedElementIds))];
+}
+
+/** Mismo principio para excepciones -- derivado de exceptionAssessments con status UNKNOWN, ya que Subsumption no expone un campo `unresolvedExceptionIds` propio. */
+function excepcionesNoResueltasDeSubsunciones(subs: Subsumption[]): string[] {
+  return [...new Set(
+    subs.flatMap((s) => s.exceptionAssessments.filter((a) => a.status === 'UNKNOWN').map((a) => a.exceptionId)),
+  )];
+}
+
+/**
+ * Señal puramente MECÁNICA de conflicto estructural (§16 de la directiva):
+ * un mismo id de CaseFact usado como soporte en algún assessment Y como
+ * contradicción en otro, dentro del mismo conjunto de Subsumption
+ * referenciadas. No es razonamiento adversarial ni semántico -- solo
+ * detecta que la propia trazabilidad ya es internamente inconsistente. Una
+ * ConclusionTrace nunca puede ignorar esto en silencio (ver
+ * validarConclusionTrace).
+ */
+function detectarConflictoEstructural(subs: Subsumption[]): string[] {
+  const soporte = factsSoporteDeSubsunciones(subs);
+  const contradiccion = factsContradiccionDeSubsunciones(subs);
+  return [...soporte].filter((id) => contradiccion.has(id));
+}
+
+/**
+ * Deriva el único `status` que una ConclusionTrace puede declarar dado el
+ * conjunto de Subsumption que referencia -- nunca se acepta un valor
+ * distinto sin justificarlo (ver validarConclusionTrace). Prioridad:
+ * conflicto estructural > BLOCKED > PARTIAL > SUPPORTED -- un conflicto sin
+ * resolver es más fundamental que cualquiera de los otros tres estados.
+ */
+export function derivarConclusionStatus(subsumciones: Subsumption[]): ConclusionStatus {
+  if (detectarConflictoEstructural(subsumciones).length > 0) return 'UNRESOLVED';
+  if (subsumciones.some((s) => s.analysisStatus === 'BLOCKED')) return 'BLOCKED';
+  if (subsumciones.some((s) => s.analysisStatus === 'INCOMPLETE')) return 'PARTIAL';
+  return 'SUPPORTED';
+}
+
+function derivarFactCompleteness(subsumciones: Subsumption[]): FactCompletenessStatus {
+  const totalRequeridos = subsumciones.reduce((acc, s) => acc + s.elementAssessments.length, 0);
+  const noResueltos = elementosNoResueltosDeSubsunciones(subsumciones).length
+    + excepcionesNoResueltasDeSubsunciones(subsumciones).length;
+  if (noResueltos === 0) return 'COMPLETE';
+  if (noResueltos >= totalRequeridos && totalRequeridos > 0) return 'UNRESOLVED';
+  return 'PARTIAL';
+}
+
+/**
+ * Nunca devuelve el literal 'VERIFIED' de NormativeRule -- siempre
+ * 'VERIFIED_SHAPE', para que una ConclusionTrace jamás pueda leerse como si
+ * afirmara que la regla es legalmente correcta o vinculante (invariante
+ * XIX). Si las reglas referenciadas tienen estados mixtos, se reporta el
+ * más restrictivo (UNRESOLVED > PARTIAL > VERIFIED_SHAPE) -- nunca el mejor
+ * caso cuando existe uno peor.
+ */
+function derivarRuleVerification(reglas: NormativeRule[]): RuleVerificationSummary {
+  if (reglas.length === 0) return 'UNRESOLVED';
+  if (reglas.some((r) => r.verificationStatus === 'UNRESOLVED')) return 'UNRESOLVED';
+  if (reglas.some((r) => r.verificationStatus === 'PARTIAL')) return 'PARTIAL';
+  return 'VERIFIED_SHAPE';
+}
+
+function derivarSubsumptionCompleteness(subsumciones: Subsumption[]): SubsumptionAnalysisStatus {
+  if (subsumciones.some((s) => s.analysisStatus === 'BLOCKED')) return 'BLOCKED';
+  if (subsumciones.some((s) => s.analysisStatus === 'INCOMPLETE')) return 'INCOMPLETE';
+  return 'COMPLETE';
+}
+
+/**
+ * authorityStatus/temporalStatus son SIEMPRE 'NOT_EVALUATED' en esta fase --
+ * no derivados de nada, porque no existe ningún motor de Autoridad ni
+ * Temporalidad que pudiera evaluarlos (invariante XX). validarConclusionTrace
+ * rechaza cualquier otro valor declarado para estos dos campos.
+ */
+export function derivarConclusionUncertainty(
+  subsumciones: Subsumption[],
+  reglas: NormativeRule[],
+): ConclusionUncertainty {
+  return {
+    factCompleteness: derivarFactCompleteness(subsumciones),
+    ruleVerification: derivarRuleVerification(reglas),
+    subsumptionCompleteness: derivarSubsumptionCompleteness(subsumciones),
+    authorityStatus: 'NOT_EVALUATED',
+    temporalStatus: 'NOT_EVALUATED',
+  };
+}
+
+function validarConclusionBlocker(
+  b: ConclusionBlocker,
+  indice: number,
+  idsMissingFactValidos: Set<string>,
+  idsElementoNoResueltoValidos: Set<string>,
+  idsExcepcionNoResueltaValidos: Set<string>,
+): string[] {
+  const errores: string[] = [];
+  const prefijo = `blockedBy[${indice}]`;
+  if (!b || typeof b !== 'object') return [`${prefijo} ausente o no es un objeto`];
+  const tipo = b.type as unknown;
+  if (!tipo || !TIPOS_BLOQUEADOR_VALIDOS.has(tipo as ConclusionBlockerType)) {
+    errores.push(`${prefijo}.type inválido o ausente: ${String(tipo)}`);
+  }
+  if (!b.description || b.description.trim().length === 0) {
+    errores.push(`${prefijo} sin description`);
+  }
+  // Solo se valida referenceId contra un universo conocido para los tipos
+  // que tienen uno -- AUTHORITY_NOT_EVALUATED/TEMPORAL_STATUS_NOT_EVALUATED/
+  // OTHER no tienen un universo de ids que verificar en esta fase.
+  if (b.referenceId) {
+    if (b.type === 'MISSING_FACT' && !idsMissingFactValidos.has(b.referenceId)) {
+      errores.push(`${prefijo}.referenceId "${b.referenceId}" no es un MissingFact trazable a través de las Subsumption referenciadas`);
+    }
+    if (b.type === 'UNRESOLVED_ELEMENT' && !idsElementoNoResueltoValidos.has(b.referenceId)) {
+      errores.push(`${prefijo}.referenceId "${b.referenceId}" no es un elemento sin resolver de las Subsumption referenciadas`);
+    }
+    if (b.type === 'UNRESOLVED_EXCEPTION' && !idsExcepcionNoResueltaValidos.has(b.referenceId)) {
+      errores.push(`${prefijo}.referenceId "${b.referenceId}" no es una excepción sin resolver de las Subsumption referenciadas`);
+    }
+  }
+  return errores;
+}
+
+/**
+ * Valida una ConclusionTrace completa contra las Subsumption y NormativeRule
+ * que referencia. Fail-closed: cualquier id huérfano, trazabilidad rota,
+ * status/uncertainty declarado libremente en vez de derivado, o intento de
+ * ocultar un elemento/excepción sin resolver invalida el registro completo.
+ *
+ * Solo LEGAL_CONCLUSION recibe validación completa -- PROCEDURAL_CONCLUSION
+ * y STRATEGIC_ASSESSMENT se rechazan explícitamente como "no implementado en
+ * esta fase", nunca se validan a medias (§4 de la directiva LR-K5).
+ */
+export function validarConclusionTrace(
+  trace: ConclusionTrace,
+  subsumptions: Subsumption[],
+  rules: NormativeRule[],
+): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!trace || typeof trace !== 'object') return fail(['ConclusionTrace ausente o no es un objeto']);
+  if (!trace.id) errores.push('ConclusionTrace sin id');
+
+  const tipo = trace.conclusionType as unknown;
+  if (!tipo || !TIPOS_CONCLUSION_VALIDOS.has(tipo as ConclusionType)) {
+    return fail([...errores, `ConclusionTrace.conclusionType inválido o ausente: ${String(tipo)}`]);
+  }
+  if (trace.conclusionType !== 'LEGAL_CONCLUSION') {
+    return fail([
+      ...errores,
+      `ConclusionTrace.conclusionType="${trace.conclusionType}" no está implementado en LR-K5 -- ` +
+      'PROCEDURAL_CONCLUSION y STRATEGIC_ASSESSMENT son capas futuras, nunca se validan a medias en esta fase',
+    ]);
+  }
+
+  if (!trace.proposition || trace.proposition.trim().length === 0) errores.push('ConclusionTrace sin proposition');
+
+  // Invariante XV: ninguna LEGAL_CONCLUSION sin al menos una Subsumption.
+  if (!Array.isArray(trace.subsumptionIds) || trace.subsumptionIds.length === 0) {
+    errores.push('ConclusionTrace.subsumptionIds no puede estar vacío para LEGAL_CONCLUSION -- invariante XV, ninguna conclusión sin traza');
+  }
+
+  const subsPorId = new Map(subsumptions.map((s) => [s.id, s]));
+  const idsSubsumptionDeclarados = Array.isArray(trace.subsumptionIds) ? trace.subsumptionIds : [];
+  const subsReferenciadas: Subsumption[] = [];
+  for (const id of idsSubsumptionDeclarados) {
+    const s = subsPorId.get(id);
+    if (!s) {
+      errores.push(`ConclusionTrace.subsumptionIds contiene un id que no existe en el contexto suministrado: ${id}`);
+    } else {
+      subsReferenciadas.push(s);
+    }
+  }
+
+  const reglasPorId = new Map(rules.map((r) => [r.id, r]));
+  const idsRuleDeclarados = Array.isArray(trace.ruleIds) ? trace.ruleIds : [];
+  if (!Array.isArray(trace.ruleIds)) errores.push('ConclusionTrace.ruleIds debe ser un arreglo');
+  for (const id of idsRuleDeclarados) {
+    if (!reglasPorId.has(id)) {
+      errores.push(`ConclusionTrace.ruleIds contiene un id que no existe en el contexto suministrado: ${id}`);
+      continue;
+    }
+    if (!subsReferenciadas.some((s) => s.ruleId === id)) {
+      errores.push(`ConclusionTrace.ruleIds contiene "${id}", pero ninguna Subsumption referenciada usa esa regla`);
+    }
+  }
+
+  // Si no hay Subsumption válidas referenciadas, no tiene sentido seguir
+  // derivando -- ya se registró el error de fondo arriba.
+  if (subsReferenciadas.length === 0) {
+    return fail(errores.length ? errores : ['ConclusionTrace no referencia ninguna Subsumption válida']);
+  }
+
+  const reglasReferenciadas = idsRuleDeclarados
+    .map((id) => reglasPorId.get(id))
+    .filter((r): r is NormativeRule => Boolean(r));
+
+  const idsFactSoporte = factsSoporteDeSubsunciones(subsReferenciadas);
+  const idsFactContradiccion = factsContradiccionDeSubsunciones(subsReferenciadas);
+  const idsMissingFact = missingFactsDeSubsunciones(subsReferenciadas);
+  const idsElementoNoResuelto = new Set(elementosNoResueltosDeSubsunciones(subsReferenciadas));
+  const idsExcepcionNoResuelta = new Set(excepcionesNoResueltasDeSubsunciones(subsReferenciadas));
+
+  // Trazabilidad de hechos -- ConclusionTrace solo puede REFERENCIAR lo que
+  // ya está establecido dentro de las Subsumption citadas, nunca introducir
+  // un rol de hecho nuevo (§12: "REFERENCE Subsumption, not recreate it").
+  if (!Array.isArray(trace.supportingFactIds)) {
+    errores.push('ConclusionTrace.supportingFactIds debe ser un arreglo');
+  } else {
+    for (const id of trace.supportingFactIds) {
+      if (!idsFactSoporte.has(id)) errores.push(`ConclusionTrace.supportingFactIds referencia un hecho no trazable como soporte en las Subsumption referenciadas: ${id}`);
+    }
+  }
+  if (!Array.isArray(trace.contradictingFactIds)) {
+    errores.push('ConclusionTrace.contradictingFactIds debe ser un arreglo');
+  } else {
+    for (const id of trace.contradictingFactIds) {
+      if (!idsFactContradiccion.has(id)) errores.push(`ConclusionTrace.contradictingFactIds referencia un hecho no trazable como contradicción en las Subsumption referenciadas: ${id}`);
+    }
+  }
+  if (!Array.isArray(trace.missingFactIds)) {
+    errores.push('ConclusionTrace.missingFactIds debe ser un arreglo');
+  } else {
+    for (const id of trace.missingFactIds) {
+      if (!idsMissingFact.has(id)) errores.push(`ConclusionTrace.missingFactIds referencia un MissingFact no declarado en las Subsumption referenciadas: ${id}`);
+    }
+  }
+
+  // Invariante XVII: ningún elemento/excepción requerido sin resolver puede
+  // desaparecer -- unresolvedElementIds/unresolvedExceptionIds deben
+  // coincidir EXACTAMENTE con lo derivado, nunca un subconjunto elegido.
+  if (!Array.isArray(trace.unresolvedElementIds)) {
+    errores.push('ConclusionTrace.unresolvedElementIds debe ser un arreglo');
+  } else if (!mismoConjunto(trace.unresolvedElementIds, [...idsElementoNoResuelto])) {
+    errores.push(`ConclusionTrace.unresolvedElementIds no coincide con los elementos sin resolver de las Subsumption referenciadas (esperado: [${[...idsElementoNoResuelto].join(', ')}]) -- invariante XVII, ningún elemento requerido puede ocultarse`);
+  }
+  if (!Array.isArray(trace.unresolvedExceptionIds)) {
+    errores.push('ConclusionTrace.unresolvedExceptionIds debe ser un arreglo');
+  } else if (!mismoConjunto(trace.unresolvedExceptionIds, [...idsExcepcionNoResuelta])) {
+    errores.push(`ConclusionTrace.unresolvedExceptionIds no coincide con las excepciones sin resolver de las Subsumption referenciadas (esperado: [${[...idsExcepcionNoResuelta].join(', ')}])`);
+  }
+
+  // ── STATUS (derivado, nunca declarado libremente) ──
+  const estadoDerivado = derivarConclusionStatus(subsReferenciadas);
+  const estadoDeclarado = trace.status as unknown;
+  if (!estadoDeclarado || !ESTADOS_CONCLUSION_VALIDOS.has(estadoDeclarado as ConclusionStatus)) {
+    errores.push(`ConclusionTrace.status inválido o ausente: ${String(estadoDeclarado)}`);
+  } else if (estadoDeclarado !== estadoDerivado) {
+    errores.push(`ConclusionTrace.status="${String(estadoDeclarado)}" no coincide con el estado derivado de las Subsumption referenciadas ("${estadoDerivado}") -- invariante XVIII/XX, ningún estado se declara libremente`);
+  }
+
+  // ── BLOCKERS ──
+  // SUPPORTED exige blockedBy vacío; cualquier otro estado exige al menos un
+  // bloqueador explícito (invariante XVI: BLOCKED es un resultado válido,
+  // pero nunca uno silencioso).
+  if (!Array.isArray(trace.blockedBy)) {
+    errores.push('ConclusionTrace.blockedBy debe ser un arreglo');
+  } else {
+    trace.blockedBy.forEach((b, i) => {
+      errores.push(...validarConclusionBlocker(b, i, idsMissingFact, idsElementoNoResuelto, idsExcepcionNoResuelta));
+    });
+    if (estadoDeclarado === 'SUPPORTED' && trace.blockedBy.length > 0) {
+      errores.push('ConclusionTrace.status="SUPPORTED" no puede declarar ningún blockedBy -- un bloqueador presente contradice soporte estructural completo');
+    }
+    if (estadoDeclarado !== 'SUPPORTED' && ESTADOS_CONCLUSION_VALIDOS.has(estadoDeclarado as ConclusionStatus) && trace.blockedBy.length === 0) {
+      errores.push(`ConclusionTrace.status="${String(estadoDeclarado)}" exige al menos un blockedBy explícito -- invariante XVI, un bloqueo nunca es silencioso`);
+    }
+  }
+
+  // ── UNCERTAINTY (derivado, nunca declarado libremente) ──
+  if (!trace.uncertainty || typeof trace.uncertainty !== 'object') {
+    errores.push('ConclusionTrace.uncertainty ausente o no es un objeto');
+  } else {
+    const uncertaintyDerivado = derivarConclusionUncertainty(subsReferenciadas, reglasReferenciadas);
+    if (trace.uncertainty.factCompleteness !== uncertaintyDerivado.factCompleteness) {
+      errores.push(`ConclusionTrace.uncertainty.factCompleteness="${trace.uncertainty.factCompleteness}" no coincide con el derivado ("${uncertaintyDerivado.factCompleteness}")`);
+    }
+    if (trace.uncertainty.ruleVerification !== uncertaintyDerivado.ruleVerification) {
+      errores.push(`ConclusionTrace.uncertainty.ruleVerification="${trace.uncertainty.ruleVerification}" no coincide con el derivado ("${uncertaintyDerivado.ruleVerification}") -- invariante XIX, nunca se reporta mejor de lo que las reglas referenciadas realmente tienen`);
+    }
+    if (trace.uncertainty.subsumptionCompleteness !== uncertaintyDerivado.subsumptionCompleteness) {
+      errores.push(`ConclusionTrace.uncertainty.subsumptionCompleteness="${trace.uncertainty.subsumptionCompleteness}" no coincide con el derivado ("${uncertaintyDerivado.subsumptionCompleteness}")`);
+    }
+    // authorityStatus/temporalStatus: SIEMPRE 'NOT_EVALUATED' en esta fase --
+    // no se derivan de nada, se exige el literal exacto (invariante XX).
+    if (trace.uncertainty.authorityStatus !== 'NOT_EVALUATED') {
+      errores.push(`ConclusionTrace.uncertainty.authorityStatus debe ser "NOT_EVALUATED" en esta fase (no existe motor de Autoridad) -- se declaró "${String(trace.uncertainty.authorityStatus)}"`);
+    }
+    if (trace.uncertainty.temporalStatus !== 'NOT_EVALUATED') {
+      errores.push(`ConclusionTrace.uncertainty.temporalStatus debe ser "NOT_EVALUATED" en esta fase (no existe motor Temporal) -- se declaró "${String(trace.uncertainty.temporalStatus)}"`);
     }
   }
 
