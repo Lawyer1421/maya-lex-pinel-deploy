@@ -387,7 +387,7 @@ export const CLAUDE_CONFIG_PENAL = {
 
   /**
    * ANÁLISIS PENAL — Opus 4.7 | Adaptive thinking | Análisis jurídico profundo
-   * Activa Motor de Análisis Penal (10 capas): Hechos → Teoría del delito →
+   * Activa Motor de Análisis Penal (6 capas): Hechos → Teoría del delito →
    * Garantías → Prueba → Jurisprudencia → Motor de Riesgo
    */
   analisis_penal: {
