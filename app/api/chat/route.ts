@@ -396,10 +396,40 @@ export async function POST(req: NextRequest) {
   // encabezado) no trajo ningún fragmento válido, no se llama al modelo —
   // se abstiene en código. No aplica a conversación general que no exige
   // fundamentación documental (modos "sala", o rutas sin router).
+  //
+  // MISSION M1 follow-up (2026-09-28) — PROCEDURAL_PASS_CAN_MASK_PRIMARY_
+  // INSUFFICIENCY, probado: `ragData.fragmentos` es el array COMBINADO de la
+  // colección principal + la segunda pasada procedimental de ruta C civil
+  // (ver ragPromise arriba, "RUTA_C civil → segunda pasada con procedimental
+  // para completar el análisis"). Esa segunda pasada es una colección
+  // pequeña, complementaria, sin ningún chequeo de identidad ni garantía de
+  // filtro de materia para consultas cuya materia no se puede detectar -- si
+  // la colección PRINCIPAL correctamente resolvía OFFICIAL_FALLBACK_REQUIRED
+  // (cero evidencia real) pero la procedimental aportaba aunque fuera un solo
+  // fragmento irrelevante, el array combinado tenía longitud >=1 y todo el
+  // bloque de abstención/fallback oficial de abajo se saltaba -- el LLM
+  // respondía con ese fragmento marcado "[NORMA VIGENTE HONDURAS]" como si
+  // fuera evidencia real (ver tests/evidence-gate-procedural-masking.test.ts,
+  // caso dorado S. de R.L.). `ragResultado.outcome.evidenceCount` (ver
+  // lib/rag/search.ts) siempre refleja SOLO la colección principal, nunca la
+  // procedimental -- es la señal correcta para esta decisión. `fragmentos`
+  // (combinado) se sigue usando sin cambio para el contexto/citas cuando la
+  // colección principal SÍ tuvo éxito -- la procedimental sigue enriqueciendo
+  // una respuesta ya bien fundamentada, solo deja de poder crear evidencia
+  // por sí sola cuando la principal no encontró nada.
+  //
+  // Todo call site real de buscarRAG (lib/rag/search.ts) construye `outcome`
+  // sin excepción -- pero se conserva `ragData.fragmentos.length === 0` como
+  // fallback explícito para el caso (hoy solo posible en un mock de prueba
+  // incompleto, nunca en código real) de que `outcome` esté ausente, en vez
+  // de tratar esa ausencia como "cero evidencia" por defecto.
   const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
+  const evidenciaPrimariaInsuficiente = ragData.outcome
+    ? (ragData.outcome.evidenceCount ?? 0) === 0
+    : ragData.fragmentos.length === 0;
   const evidenciaInsuficiente =
     requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria) &&
-    ragData.fragmentos.length === 0;
+    evidenciaPrimariaInsuficiente;
 
   // Fase 1D (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md, invariante central:
   // NO_VERIFIED_EVIDENCE != RETRIEVAL_FAILED). CASE 2/3 (NO_VERIFIED_EVIDENCE
