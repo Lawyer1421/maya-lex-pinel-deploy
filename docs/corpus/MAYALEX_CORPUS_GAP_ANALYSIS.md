@@ -125,7 +125,6 @@ Multiple ingestion layers of CPC identified with varying num_articulo distributi
 Repeated `num_articulo` values within single source may indicate:
 - Legitimate chunking (paragraphs of multi-paragraph articles)
 - Segmentation variance between ingestion batches
-- Data quality issue (deduplication needed)
 
 **Status:** REQUIRES_FURTHER_AUDIT via H3 query (no content retrieval)
 
@@ -249,14 +248,14 @@ Orden de prioridades con salvaguardas ejecutivas:
    - Decisión ejecutiva: mantener NULL como corpus de demandas OR reclasificar + marcar fuente origen
 
 2. **Higiene: doc_* (17 documentos)**
-   - Confirmar si `doc_6cfb720b` = Código Penal duplicado (comparar contenido)
-   - Confirmar si triples (748/354) son duplicados (muestrear 5 filas c/u)
-   - Decisión ejecutiva: KEEP como corpus no-normativo (demandas) OR DELETE como duplicados
+   - Audit metadata of all doc_* sources (H2 query results)
+   - Determine if doc_* sources represent intentional non-normative corpus (demandas/análisis) or incomplete ingestion
+   - CLO decision: maintain as separate corpus OR reclassify to known instruments
 
 3. **Higiene: CPC capas múltiples**
-   - Confirmar que CPC_COMENTADO_ROMERO_2024 tiene `es_norma_vigente = false` (doctrina, no ley)
-   - Validar que max_occurrences=45 es chunking legítimo (leer 5 filas)
-   - Decisión ejecutiva: mantener Romero como doctrina referencial con disclaimer, NO como autoridad primaria
+   - Validate CPC_COMENTADO_ROMERO_2024 es_norma_vigente distribution (H3.3 query)
+   - Measure repeated num_articulo counts and max occurrences per layer (H3.4 query)
+   - CLO decision: designate Romero as reference/commentary (not primary law) in metadata
 
 4. **Higiene: Vigencia NULL en 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS**
    - Auditar muestra de 10 filas NULL en cada categoría

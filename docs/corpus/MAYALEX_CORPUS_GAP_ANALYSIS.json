@@ -6,8 +6,7 @@
     "analysis_type": "gap_analysis_provisional",
     "status": "PROVISIONAL — hygiene & identity queries pending, NO production writes/ingesta",
     "canonical_instruments": 13,
-    "instruments_found": 6,
-    "instruments_missing": 7,
+    "canonical_instruments_mapping_status": "UNRESOLVED (5-7 confirmed, 6-8 require H5 discovery)",
     "claims_not_yet_proven": 7,
     "next_phase": "Bloque 1: Hygiene / Identity Queries",
     "clo_approval_required": true
@@ -124,10 +123,11 @@
         "Reglamento del Código del Notariado (111)",
         "Código del Notariado de Honduras (94)"
       ],
-      "vigente_con_duplicados": [
-        "Codigo Procesal Civil (1,864 filas, 932 articulos_distintos)",
-        "CPC_COMENTADO_ROMERO_2024 (1,481 filas, 394 articulos_distintos)",
-        "CPC_TEXTO_BASE_D211-2006 (995 filas, 925 articulos_distintos)"
+      "cpc_layers_observed": [
+        "Codigo Procesal Civil (1,864 filas)",
+        "CPC_COMENTADO_ROMERO_2024 (1,481 filas)",
+        "CPC_TEXTO_BASE_D211-2006 (995 filas)",
+        "note: articulos_distintos counts require H3 measurement"
       ],
       "sin_clasificar": [
         "NULL (8,366 filas)",
@@ -299,8 +299,6 @@
     "queries": "H3.4 returns repeated article counts and max occurrences per CPC layer"
   },
   "canonical_instruments_mapping": {
-    "found": 6,
-    "missing": 7,
     "detailed": [
       {
         "canonical_id": "HN_CODIGO_CIVIL",
@@ -420,7 +418,7 @@
       "current": 14352,
       "target": 14352,
       "gap": 0,
-      "note": "All articles should be deduplicated before ingesting missing instruments"
+      "note": "All articles require H5 audit before any ingestion"
     },
     "rows_classified": {
       "current": 14352,
