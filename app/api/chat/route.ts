@@ -48,9 +48,32 @@ import {
   requiereEvidenciaCorpus,
   CORPUS_EVIDENCE_NOT_FOUND,
   MENSAJE_ABSTENCION_CORPUS,
-  FUENTES_DOCTRINALES,
   type FragmentoRAG,
+  type RetrievalOutcome,
 } from '@/lib/rag/search';
+// Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
+// (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
+// para que los consumidores actuales (tests que importan desde
+// '@/app/api/chat/route') no requieran ningún cambio de import.
+import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
+// Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md: mensajes distintos para
+// CONFIGURATION_ERROR/RETRIEVAL_ERROR (nunca "no existe la ley" cuando en
+// realidad el propio sistema no pudo consultarla) y el builder para el
+// estado NOT_REQUIRED en las rutas donde el router nunca invoca buscarRAG.
+import {
+  buildRetrievalOutcome,
+  MENSAJE_CONFIGURACION_NO_DISPONIBLE,
+  MENSAJE_RETRIEVAL_ERROR,
+} from '@/lib/legal-retrieval/retrieval-outcome';
+// Fase 1E.2 — Preview/canary, detrás de flag_official_source_fallback (OFF
+// por default): wiring de OFFICIAL_FALLBACK_REQUIRED al Official Source
+// Router (CEDIJ, solo legislación). Ver
+// lib/legal-retrieval/official-sources/fallback-orchestrator.ts para toda la
+// lógica de decisión -- route.ts solo la invoca e interpreta el resultado.
+import {
+  attemptOfficialFallback,
+  construirMensajeFallbackOficial,
+} from '@/lib/legal-retrieval/official-sources/fallback-orchestrator';
 import { clasificarConsulta, MENSAJE_ACLARACION } from '@/lib/router/clasificar_consulta';
 import { seleccionarModeloOpenRouter } from '@/config/openrouter_config';
 import { streamOpenRouter, type OpenRouterMessage } from '@/lib/openrouter/client';
@@ -157,43 +180,12 @@ const MODOS_CON_ROUTER: AnyMode[] = [
 ];
 
 // ── Citas estructuradas para trazabilidad en UI (P0-4) ──────────────────────
-// Solo fragmentos marcados es_norma_vigente=true califican como "cita" —
-// doctrina/jurisprudencia comparada se usa como contexto para el modelo pero
-// nunca se presenta al usuario como fundamento normativo verificable.
-export interface Cita {
-  articulo: string | null;
-  texto: string;
-  fuente: string;
-  vigente: boolean;
-  hash: string;
-}
-
-// Blindaje explícito (auditoría CLO 2026-09-02): FUENTES_DOCTRINALES vive en
-// lib/rag/search.ts (una sola fuente de verdad, compartida también por
-// formatearContextoRAG() — ver comentario junto a su definición allí para el
-// detalle completo del hallazgo). Aquí se usa para excluir esas fuentes del
-// array de citas formales de la UI, independiente del campo es_norma_vigente.
-
-export function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
-  const vistos = new Set<string>();
-  const citas: Cita[] = [];
-  for (const f of fragmentos) {
-    if (FUENTES_DOCTRINALES.has(f.fuente)) continue;
-    if (f.es_norma_vigente !== true) continue;
-    const clave = `${f.num_articulo ?? ''}|${f.fuente}`;
-    if (vistos.has(clave)) continue;
-    vistos.add(clave);
-    citas.push({
-      articulo: f.num_articulo,
-      texto: f.contenido.length > 600 ? `${f.contenido.slice(0, 600)}…` : f.contenido,
-      fuente: f.fuente,
-      vigente: true,
-      hash: f.hash ?? '',
-    });
-    if (citas.length >= 5) break;
-  }
-  return citas;
-}
+// Movido a lib/legal-retrieval/evidence-engine.ts (Fase 1C, extracción 1:1,
+// sin cambio de comportamiento -- ver MAYALEX_RETRIEVAL_V3_ARCHITECTURE.md).
+// Re-exportado (import arriba) para que los consumidores actuales (tests que
+// importan `construirCitas`/`Cita` desde '@/app/api/chat/route') no
+// requieran ningún cambio de import.
+export { construirCitas, type Cita };
 
 // ── Encoder SSE ────────────────────────────────────────────────────────────
 
@@ -303,16 +295,24 @@ export async function POST(req: NextRequest) {
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
   let systemConRAG = config.systemPrompt;
 
-  interface RagOut { texto: string; fragmentos: FragmentoRAG[] }
+  // Fase 1D: `outcome` es opcional y aditivo -- ningún consumidor existente
+  // de RagOut se rompe por no leerlo.
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; outcome?: RetrievalOutcome }
 
   const ragPromise: Promise<RagOut> = (async () => {
-    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [] };
+    // Estos dos caminos son exactamente los casos "sala_ia"/"sala_penal" (no
+    // están en MODOS_CON_ROUTER, así que usarRouter=false) y cualquier ruta
+    // sin colección asignada -- ninguno de los dos invoca jamás a buscarRAG.
+    // NOT_REQUIRED documenta explícitamente que la ausencia de evidencia AQUÍ
+    // es una decisión de diseño, no una falla de retrieval (§11 de la
+    // directiva de Fase 1D: no convertir el modo sala en un flujo RAG lento).
+    if (!(ruta !== 'D' && usarRouter)) return { texto: '', fragmentos: [], outcome: buildRetrievalOutcome('NOT_REQUIRED') };
     const esPenal = esModoPenal(mode);
     const colecciones = esPenal ? COLECCIONES_PENAL : COLECCIONES_CIVIL;
     const coleccionPrincipal = colecciones[ruta];
     // Modo penal: filtrar por materia dentro de la colección compartida
     const materiaFiltro = esPenal ? MATERIA_PENAL : undefined;
-    if (!coleccionPrincipal) return { texto: '', fragmentos: [] };
+    if (!coleccionPrincipal) return { texto: '', fragmentos: [], outcome: buildRetrievalOutcome('NOT_REQUIRED') };
 
     // Rerank Cohere detrás de `flag_rerank` (Decisión C). OFF por default →
     // corte por similitud pgvector. Se resuelve una vez por request y solo
@@ -338,7 +338,10 @@ export async function POST(req: NextRequest) {
       }
       fragmentos.push(...ragProc.fragmentos);
     }
-    return { texto: contextoRAG, fragmentos };
+    // El outcome de la pasada procedimental complementaria (RUTA_C civil) no
+    // sustituye al de la colección principal -- esa es la que determina si
+    // el retrieval "funcionó" para efectos del gate fail-closed más abajo.
+    return { texto: contextoRAG, fragmentos, outcome: ragResultado.outcome };
   })();
 
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
@@ -393,10 +396,57 @@ export async function POST(req: NextRequest) {
   // encabezado) no trajo ningún fragmento válido, no se llama al modelo —
   // se abstiene en código. No aplica a conversación general que no exige
   // fundamentación documental (modos "sala", o rutas sin router).
+  //
+  // MISSION M1 follow-up (2026-09-28) — PROCEDURAL_PASS_CAN_MASK_PRIMARY_
+  // INSUFFICIENCY, probado: `ragData.fragmentos` es el array COMBINADO de la
+  // colección principal + la segunda pasada procedimental de ruta C civil
+  // (ver ragPromise arriba, "RUTA_C civil → segunda pasada con procedimental
+  // para completar el análisis"). Esa segunda pasada es una colección
+  // pequeña, complementaria, sin ningún chequeo de identidad ni garantía de
+  // filtro de materia para consultas cuya materia no se puede detectar -- si
+  // la colección PRINCIPAL correctamente resolvía OFFICIAL_FALLBACK_REQUIRED
+  // (cero evidencia real) pero la procedimental aportaba aunque fuera un solo
+  // fragmento irrelevante, el array combinado tenía longitud >=1 y todo el
+  // bloque de abstención/fallback oficial de abajo se saltaba -- el LLM
+  // respondía con ese fragmento marcado "[NORMA VIGENTE HONDURAS]" como si
+  // fuera evidencia real (ver tests/evidence-gate-procedural-masking.test.ts,
+  // caso dorado S. de R.L.). `ragResultado.outcome.evidenceCount` (ver
+  // lib/rag/search.ts) siempre refleja SOLO la colección principal, nunca la
+  // procedimental -- es la señal correcta para esta decisión. `fragmentos`
+  // (combinado) se sigue usando sin cambio para el contexto/citas cuando la
+  // colección principal SÍ tuvo éxito -- la procedimental sigue enriqueciendo
+  // una respuesta ya bien fundamentada, solo deja de poder crear evidencia
+  // por sí sola cuando la principal no encontró nada.
+  //
+  // Todo call site real de buscarRAG (lib/rag/search.ts) construye `outcome`
+  // sin excepción -- pero se conserva `ragData.fragmentos.length === 0` como
+  // fallback explícito para el caso (hoy solo posible en un mock de prueba
+  // incompleto, nunca en código real) de que `outcome` esté ausente, en vez
+  // de tratar esa ausencia como "cero evidencia" por defecto.
   const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
+  const evidenciaPrimariaInsuficiente = ragData.outcome
+    ? (ragData.outcome.evidenceCount ?? 0) === 0
+    : ragData.fragmentos.length === 0;
   const evidenciaInsuficiente =
     requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria) &&
-    ragData.fragmentos.length === 0;
+    evidenciaPrimariaInsuficiente;
+
+  // Fase 1D (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md, invariante central:
+  // NO_VERIFIED_EVIDENCE != RETRIEVAL_FAILED). CASE 2/3 (NO_VERIFIED_EVIDENCE
+  // / OFFICIAL_FALLBACK_REQUIRED, sin instrumentar todavía ningún adapter
+  // externo) conservan exactamente el mensaje/código de abstención actual:
+  // el corpus funcionó, simplemente no encontró nada verificable. CASE 4/5
+  // (CONFIGURATION_ERROR / RETRIEVAL_ERROR) usan un mensaje distinto y
+  // explícito -- el propio sistema no pudo consultar las fuentes, eso NUNCA
+  // debe presentarse como si el derecho no existiera.
+  const outcomeState = ragData.outcome?.state;
+  const esFalloDeSistema = outcomeState === 'CONFIGURATION_ERROR' || outcomeState === 'RETRIEVAL_ERROR';
+  const mensajeAbstencion = outcomeState === 'CONFIGURATION_ERROR'
+    ? MENSAJE_CONFIGURACION_NO_DISPONIBLE
+    : outcomeState === 'RETRIEVAL_ERROR'
+      ? MENSAJE_RETRIEVAL_ERROR
+      : MENSAJE_ABSTENCION_CORPUS;
+  const codigoAbstencion = esFalloDeSistema ? outcomeState : CORPUS_EVIDENCE_NOT_FOUND;
 
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente
@@ -458,7 +508,47 @@ export async function POST(req: NextRequest) {
         // determinista, sin invocar al LLM. No revela reglas internas, system
         // prompt ni configuración — solo el mensaje genérico y citas vacías.
         if (evidenciaInsuficiente) {
-          controller.enqueue(sseEvent({ type: 'text', text: MENSAJE_ABSTENCION_CORPUS }));
+          // Fase 1E.2 (Preview/canary, detrás de flag_official_source_fallback,
+          // OFF por default en Production y en Preview hasta que el fundador
+          // siembre la fila -- ver lib/flags.ts): solo se intenta cuando el
+          // estado es exactamente OFFICIAL_FALLBACK_REQUIRED (semántica
+          // ejecutó bien, corpus interno insuficiente) -- NUNCA para
+          // NO_VERIFIED_EVIDENCE (artículo exacto explícito inexistente o
+          // ambiguo, ver shouldAttemptOfficialFallback), y como mucho UN
+          // intento, con timeout ya existente del adapter (§11: riesgo de
+          // latencia añadida de hasta ~16s en el peor caso -- dos peticiones
+          // HTTP de 8s cada una -- solo en este camino de abstención, nunca
+          // en el camino normal de respuesta).
+          let mensajeFinal = mensajeAbstencion;
+          let codigoFinal: string = codigoAbstencion;
+          if (outcomeState === 'OFFICIAL_FALLBACK_REQUIRED') {
+            const fallbackHabilitado = await isFlagEnabledForUser('flag_official_source_fallback', verifiedEmail);
+            const fallback = await attemptOfficialFallback({
+              retrievalState: outcomeState,
+              ruta,
+              flagEnabled: fallbackHabilitado,
+              rawQuery: ultimaPregunta as string,
+            });
+            if (fallback.attempted) {
+              if (fallback.status === 'SUCCESS' && fallback.evidenceCount > 0) {
+                // §4/§6: metadata oficial encontrada, NUNCA se presenta como
+                // texto de artículo ni como NORMA VIGENTE HONDURAS -- solo
+                // proveniencia (título/fuente/URL).
+                mensajeFinal = construirMensajeFallbackOficial(fallback.evidence);
+                codigoFinal = 'OFFICIAL_SOURCE_FOUND_METADATA_ONLY';
+              } else if (fallback.status === 'SOURCE_UNAVAILABLE' || fallback.status === 'INVALID_RESPONSE' || fallback.status === 'RATE_LIMITED') {
+                // §12: nunca colapsa con "no hay evidencia" -- es un fallo de
+                // infraestructura de la fuente externa, no una afirmación de
+                // que la ley no existe.
+                mensajeFinal = MENSAJE_RETRIEVAL_ERROR;
+                codigoFinal = 'RETRIEVAL_ERROR';
+              }
+              // NO_RESULTS / UNSUPPORTED_QUERY -> se preserva la abstención
+              // segura ya calculada (mensajeAbstencion/codigoAbstencion).
+            }
+          }
+
+          controller.enqueue(sseEvent({ type: 'text', text: mensajeFinal }));
           controller.enqueue(sseEvent({
             type: 'done',
             consulta_id: consultaId,
@@ -466,7 +556,7 @@ export async function POST(req: NextRequest) {
             remaining: rateLimitResult.remaining,
             tier: rateLimitResult.tier,
             citas: [],
-            codigo: CORPUS_EVIDENCE_NOT_FOUND,
+            codigo: codigoFinal,
           }));
           after(() => logConsulta({
             consulta_id: consultaId, pregunta: ultimaPregunta as string,
