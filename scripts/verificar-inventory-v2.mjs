@@ -116,6 +116,30 @@ try {
     }
   });
 
+  // Verificar por_lote_p0
+  console.log('\n por_lote_p0:');
+  Object.entries(calculatedMetrics.por_lote_p0).forEach(([lote, count]) => {
+    const jsonCount = jsonContent.por_lote_p0[lote] || 0;
+    if (count !== jsonCount) {
+      console.error(`  ✗ ${lote}: CSV=${count}, JSON=${jsonCount}`);
+      failed = true;
+    } else {
+      console.log(`  ✓ ${lote}: ${count}`);
+    }
+  });
+
+  // Verificar por_origen_hallazgo
+  console.log('\n por_origen_hallazgo:');
+  Object.entries(calculatedMetrics.por_origen_hallazgo).forEach(([origen, count]) => {
+    const jsonCount = jsonContent.por_origen_hallazgo[origen] || 0;
+    if (count !== jsonCount) {
+      console.error(`  ✗ ${origen}: CSV=${count}, JSON=${jsonCount}`);
+      failed = true;
+    } else {
+      console.log(`  ✓ ${origen}: ${count}`);
+    }
+  });
+
   if (failed) {
     console.error('\n❌ VERIFICACIÓN FALLIDA');
     process.exit(1);

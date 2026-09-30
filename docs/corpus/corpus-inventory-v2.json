@@ -22,8 +22,8 @@
     "P0_TRIBUNALES": 1
   },
   "por_origen_hallazgo": {
-    "script": 5,
-    "doc": 5,
+    "script": 3,
+    "doc": 8,
     "manifest": 2
   },
   "metadata_interna": [
@@ -50,7 +50,7 @@
     "feature/mayalex-official-corpus-p0 (branch)",
     "HUMAN_LEGAL_REVIEW_QUEUE (referenced but not found)"
   ],
-  "generado_en": "2026-09-29T22:35:00Z",
+  "generado_en": "2026-09-30T00:00:00Z",
   "reconciliation": {
     "cola_958_hallazgos": "HUMAN_LEGAL_REVIEW_QUEUE.jsonl contained 958 lines (hallazgos). File documented in DECISION_LOG.md:210-234, currently NOT_RECOVERED (external/uncommitted). Evidence: DECISION_LOG.md:212,234,324,396,616.",
     "human_legal_review_queue": "Referenced DECISION_LOG.md:210-706; file not in repo (external/uncommitted). Contains 958 triage records.",
