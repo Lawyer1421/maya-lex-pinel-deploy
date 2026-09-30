@@ -1,12 +1,12 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 / LR-K7 / LR-K8 —
- * deterministic validators. Fail closed: a malformed or incomplete structure
- * is reported as invalid, never silently accepted or repaired. No LLM
- * extraction integration here (per directive, "no LLM extraction
- * integration yet unless strictly required for testing" -- it isn't; these
- * validators operate on already-constructed objects).
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 / LR-K7 / LR-K8 /
+ * LR-K8.1 — deterministic validators. Fail closed: a malformed or
+ * incomplete structure is reported as invalid, never silently accepted or
+ * repaired. No LLM extraction integration here (per directive, "no LLM
+ * extraction integration yet unless strictly required for testing" -- it
+ * isn't; these validators operate on already-constructed objects).
  */
 
 import type {
@@ -1628,14 +1628,20 @@ function relacionUtilizable(rel: AuthorityRelationship | undefined, relationship
 /**
  * Deriva el único `qualificationStatus` que una RuleQualification puede
  * declarar. Prioridad: DEROGADO (temporal) o un blocker DISPLACING_RELATIONSHIP
- * utilizable > SUSPENDIDO/PARCIALMENTE_VIGENTE (temporal) o un blocker
- * LIMITING_RELATIONSHIP utilizable > verificationStatus="UNRESOLVED" o
- * legalStatus="UNKNOWN" o cualquier blocker *_RELATIONSHIP NO utilizable
- * (invariante XLVI/XLVII/XLVIII) > APPLICABLE (VIGENTE + VERIFIED + sin
+ * utilizable > SUSPENDIDO/PARCIALMENTE_VIGENTE (temporal), un blocker
+ * LIMITING_RELATIONSHIP utilizable, `authority.legalRole !== 'PRIMARY_BINDING'`
+ * (invariante LII, LR-K8.1), o `verificationStatus === 'PARTIAL'` (invariante
+ * LIII, LR-K8.1) > verificationStatus="UNRESOLVED" o legalStatus="UNKNOWN" o
+ * cualquier blocker *_RELATIONSHIP NO utilizable (invariante XLVI/XLVII/
+ * XLVIII) > APPLICABLE (VIGENTE + VERIFIED + authority PRIMARY_BINDING + sin
  * blockers). Invariante L: NUNCA lee `temporalState.amendmentEvents` -- un
- * evento REFORMA nunca decide esto por sí mismo.
+ * evento REFORMA nunca decide esto por sí mismo. LR-K8.1: `PARTIAL` deriva
+ * LIMITED (un hecho conocido y definido sobre la fuente/verificación, no una
+ * laguna evidentiaria) -- nunca se confunde con `UNRESOLVED`, que permanece
+ * sin cambios.
  */
 export function derivarRuleQualificationStatus(
+  authority: Authority,
   temporalState: TemporalLegalState,
   relationships: AuthorityRelationship[],
   blockers: RuleQualificationBlocker[],
@@ -1654,6 +1660,14 @@ export function derivarRuleQualificationStatus(
     temporalState.legalStatus === 'SUSPENDIDO'
     || temporalState.legalStatus === 'PARCIALMENTE_VIGENTE'
     || limitantesUtilizables.length > 0
+    // Invariante LII (LR-K8.1): un rol no PRIMARY_BINDING (INTERPRETIVE,
+    // PERSUASIVE, PRACTICE_GUIDANCE, DISCOVERY_ONLY) nunca sostiene
+    // APPLICABLE completo -- es un hecho conocido sobre la fuente, no una
+    // laguna, así que se representa LIMITED, nunca UNRESOLVED.
+    || authority.legalRole !== 'PRIMARY_BINDING'
+    // Invariante LIII (LR-K8.1): verificación temporal PARTIAL no basta para
+    // una aserción profesional de vigencia plena -- LIMITED, nunca APPLICABLE.
+    || temporalState.verificationStatus === 'PARTIAL'
   ) {
     return 'LIMITED';
   }
@@ -1678,7 +1692,8 @@ const ESTADOS_CALIFICACION_VALIDOS: ReadonlySet<RuleQualificationStatus> = new S
 ]);
 
 const TIPOS_BLOQUEADOR_CALIFICACION_VALIDOS: ReadonlySet<RuleQualificationBlockerType> = new Set([
-  'RULE_NOT_VIGENTE', 'TEMPORAL_VERIFICATION_UNRESOLVED', 'DISPLACING_RELATIONSHIP',
+  'RULE_NOT_VIGENTE', 'TEMPORAL_VERIFICATION_UNRESOLVED', 'TEMPORAL_VERIFICATION_PARTIAL',
+  'AUTHORITY_NOT_PRIMARY_BINDING', 'DISPLACING_RELATIONSHIP',
   'LIMITING_RELATIONSHIP', 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN', 'OTHER',
 ]);
 
@@ -1762,10 +1777,10 @@ export function validarRuleQualification(
   const estado = q.qualificationStatus as unknown;
   if (!estado || !ESTADOS_CALIFICACION_VALIDOS.has(estado as RuleQualificationStatus)) {
     errores.push(`RuleQualification.qualificationStatus inválido o ausente: ${String(estado)}`);
-  } else if (resultadoTemporal.valido && Array.isArray(q.relationships) && Array.isArray(q.blockers)) {
-    const estadoDerivado = derivarRuleQualificationStatus(q.temporalState, relacionesDeclaradas, q.blockers);
+  } else if (resultadoAutoridad.valido && resultadoTemporal.valido && Array.isArray(q.relationships) && Array.isArray(q.blockers)) {
+    const estadoDerivado = derivarRuleQualificationStatus(q.authority, q.temporalState, relacionesDeclaradas, q.blockers);
     if (estado !== estadoDerivado) {
-      errores.push(`RuleQualification.qualificationStatus="${String(estado)}" no coincide con el estado derivado ("${estadoDerivado}") -- invariante XLV/XLVI/XLVII/XLVIII, ningún estado se declara libremente`);
+      errores.push(`RuleQualification.qualificationStatus="${String(estado)}" no coincide con el estado derivado ("${estadoDerivado}") -- invariante XLV/XLVI/XLVII/XLVIII/LII/LIII, ningún estado se declara libremente`);
     }
   }
 

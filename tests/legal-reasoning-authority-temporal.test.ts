@@ -367,7 +367,7 @@ describe('LR-K7 — lifecycle state (V0-V5) cannot satisfy vigencia', () => {
 // AUTHORITY/TEMPORAL != APPLICABLE RULE (45-48)
 // ─────────────────────────────────────────────────────────────────────────────
 describe('LR-K7 — Authority/Temporal qualification != ApplicableRule', () => {
-  it('45. ApplicableRule no existe como valor en tiempo de ejecución (LR-K7 no lo implementa; LR-K8 lo agrega como alias de TIPO de RuleQualification, que no deja rastro en tiempo de ejecución -- ver docs/architecture/LR-1_LEGAL_REASONING.md §8)', () => {
+  it('45. ApplicableRule no existe como valor en tiempo de ejecución (LR-K7 no lo implementa; LR-K8 lo agrega como alias de TIPO de RuleQualification, que no deja rastro en tiempo de ejecución -- ver docs/architecture/LR-1_LEGAL_REASONING.md §12)', () => {
     expect((tiposLegales as Record<string, unknown>).ApplicableRule).toBeUndefined();
   });
 

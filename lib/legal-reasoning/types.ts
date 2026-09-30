@@ -926,16 +926,45 @@ export interface TemporalLegalState {
 
 export type RuleQualificationStatus = 'APPLICABLE' | 'LIMITED' | 'DISPLACED' | 'UNRESOLVED';
 
-/**
- * `relationship`, when present, must be one of the exact objects declared in
- * the owning `RuleQualification.relationships` (invariant XLIX) --
- * `DISPLACING_RELATIONSHIP`/`LIMITING_RELATIONSHIP` require it;
- * `RULE_NOT_VIGENTE`/`TEMPORAL_VERIFICATION_UNRESOLVED` describe a temporal
- * reason instead and never carry one.
- */
+// ── LR-K8.1 — QUALIFICATION HARDENING ──────────────────────────────────────
+//
+// Cursor found two real gaps in LR-K8's original derivation: (1) it never
+// read `Authority.legalRole` at all, so a rule backed only by an
+// `INTERPRETIVE`/`PERSUASIVE`/`PRACTICE_GUIDANCE`/`DISCOVERY_ONLY` authority
+// could derive `APPLICABLE` exactly as if it were `PRIMARY_BINDING`; (2) it
+// treated any `verificationStatus` other than `'UNRESOLVED'` as sufficient
+// for `APPLICABLE`, so `'PARTIAL'` temporal verification -- confirmed but
+// not to the standard needed for a professional assertion of vigencia --
+// slipped through as fully `APPLICABLE`. Both are fixed in
+// `derivarRuleQualificationStatus`, never by inventing a new hierarchy or
+// auto-promoting doctrine/jurisprudence to `PRIMARY_BINDING` (invariant
+// XLIII, unchanged).
+//
+// New constitutional invariants for this phase:
+//   LII.  AUTHORITY ELIGIBILITY FOR FULL APPLICABILITY. A `RuleQualification`
+//         whose `authority.legalRole` is not `'PRIMARY_BINDING'` can never
+//         derive `qualificationStatus: "APPLICABLE"` -- it derives
+//         `"LIMITED"` instead (never `"UNRESOLVED"`, since the authority's
+//         role is a known, definite fact, not an evidentiary gap), unless a
+//         `DISPLACED` condition already applies.
+//   LIII. TEMPORAL VERIFICATION SUFFICIENCY FOR FULL APPLICABILITY.
+//         `temporalState.verificationStatus === "PARTIAL"` can never derive
+//         `qualificationStatus: "APPLICABLE"` -- it derives `"LIMITED"`
+//         instead. `"UNRESOLVED"` is unchanged: it still derives
+//         `"UNRESOLVED"`, never upgraded to `"LIMITED"` or `"APPLICABLE"`.
+//         Only `verificationStatus === "VERIFIED"` supports `"APPLICABLE"`.
+//
+// `RULE_NOT_VIGENTE`, when present, describes a temporal-legalStatus reason.
+// `TEMPORAL_VERIFICATION_UNRESOLVED`/`TEMPORAL_VERIFICATION_PARTIAL` describe
+// a temporal-verificationStatus reason. `AUTHORITY_NOT_PRIMARY_BINDING`
+// describes an authority-role reason. None of these three carry a
+// `relationship` -- only the `*_RELATIONSHIP` types do (invariant XLIX,
+// unchanged).
 export type RuleQualificationBlockerType =
   | 'RULE_NOT_VIGENTE'
   | 'TEMPORAL_VERIFICATION_UNRESOLVED'
+  | 'TEMPORAL_VERIFICATION_PARTIAL'
+  | 'AUTHORITY_NOT_PRIMARY_BINDING'
   | 'DISPLACING_RELATIONSHIP'
   | 'LIMITING_RELATIONSHIP'
   | 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN'

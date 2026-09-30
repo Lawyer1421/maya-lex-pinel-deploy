@@ -260,6 +260,18 @@ These are binding on every future LR phase, not just this one.
   neither of those types is modified by LR-K8 to reference it —
   `ConclusionUncertainty.authorityStatus`/`temporalStatus` remain
   hard-locked to `'NOT_EVALUATED'` (§9.1), unwired by this phase. See §12.
+- **LII. Authority eligibility for full applicability (LR-K8.1).** A
+  `RuleQualification` whose `authority.legalRole` is not `'PRIMARY_BINDING'`
+  can never derive `qualificationStatus: "APPLICABLE"` — it derives
+  `"LIMITED"` instead, never `"UNRESOLVED"` (a non-primary role is a known,
+  definite fact about the source, not an evidentiary gap), unless a
+  `DISPLACED` condition already applies. See §12.
+- **LIII. Temporal verification sufficiency for full applicability
+  (LR-K8.1).** `temporalState.verificationStatus === "PARTIAL"` can never
+  derive `qualificationStatus: "APPLICABLE"` — it derives `"LIMITED"`
+  instead. `"UNRESOLVED"` is unchanged: it still derives `"UNRESOLVED"`,
+  never upgraded. Only `verificationStatus === "VERIFIED"` supports
+  `"APPLICABLE"`. See §12.
 
 ### Intent/depth exceptions
 
@@ -283,7 +295,7 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | Authority/Temporal validators (`validarAuthority`, `validarAuthorityRelationship`, `validarTemporalLegalState`, `derivarVerificationStatusDesdeSenalLegado`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K7) |
 | `Jurisprudence` | Design only — §5.2, not this phase |
 | `RuleQualification`, `ApplicableRule` (type alias) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K8) — §12 |
-| RuleQualification validators (`validarRuleQualification`, `derivarRuleQualificationStatus`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K8) |
+| RuleQualification validators (`validarRuleQualification`, `derivarRuleQualificationStatus`) | **Implemented, hardened** — `lib/legal-reasoning/validators.ts` (LR-K8, authority-eligibility + temporal-sufficiency fixes LR-K8.1) — §12 |
 | Automatic rule-selection / hierarchy-inference engine (a function that picks a "winning" rule from relation-type semantics alone) | **Not started, not implied by LR-K8** — §12 |
 | `LegalProposition` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
@@ -765,15 +777,23 @@ phase detects — records or adjudications disagree about the same claim. A
 `LegalConflict` is why authorities might legitimately conflict: hierarchy,
 temporal change, speciality, jurisdiction, later precedent, legislative
 reform, or distinguishable facts. **K6.1 detects and preserves
-`EvidenceConflict`; it never resolves `LegalConflict`** — that remains
-Authority/Temporal/`ApplicableRule`, none of which exist yet.
+`EvidenceConflict`; it never resolves `LegalConflict`** — resolving it (to
+the extent this kernel resolves anything, rather than mechanically
+aggregating already-classified evidence) is `Authority`/`TemporalLegalState`
+(§4, §5.1, implemented LR-K7) and `RuleQualification`/`ApplicableRule` (§12,
+implemented LR-K8/K8.1). Note that even LR-K8 never truly "resolves" a
+`LegalConflict` in the sense of inventing which side wins — it mechanically
+aggregates blockers the caller already classified (§12, invariant XLV); no
+part of this kernel independently adjudicates a genuine legal-hierarchy
+dispute.
 
-**Future chain compatibility:** nothing in this design blocks `LegalProposition
-→ RequiredClaims → EvidenceSpan → SupportAdjudication → ConflictAggregation
-→ Authority → TemporalValidity → ApplicableRule → LegalInference →
-Conclusion` from being built out later. **K6.1 stops at
-ConflictAggregation** — the four steps after it remain entirely unbuilt and
-unimplied.
+**Future chain compatibility:** the full chain `LegalProposition →
+RequiredClaims → EvidenceSpan → SupportAdjudication → ConflictAggregation →
+Authority → TemporalValidity → ApplicableRule → LegalInference →
+Conclusion` is now built through `ApplicableRule` (§12) — **`LegalInference`
+and the wiring of `RuleQualification` into `ConclusionTrace` remain entirely
+unbuilt and unimplied** (§9's `ConclusionUncertainty.authorityStatus`/
+`temporalStatus` stay hard-locked to `'NOT_EVALUATED'`, per invariant LI).
 
 ## 7. Legal proposition and normative rule
 
@@ -866,12 +886,15 @@ dispuesto en el artículo Z") remains a separate, auditable object pointing
 at `Art. Z`, never a fifth line item indistinguishable from `elements A/B/C`.
 
 **Not implemented, not implied by LR-K3:** automatic article→rule
-extraction, any LLM call, `ApplicableRule`, `Authority`
-evaluation, temporal qualification, jurisprudence, or strategic
-analysis. (`Subsumption` and `ConclusionTrace` were out of scope for LR-K3
+extraction, any LLM call, or jurisprudence/strategic analysis.
+(`Subsumption` and `ConclusionTrace` were out of scope for LR-K3
 specifically, but are now implemented — LR-K4 and LR-K5 respectively; see
 §8/§9, not left permanently unimplemented as this sentence's original
-LR-K3-era wording could be misread to suggest.)
+LR-K3-era wording could be misread to suggest. Likewise, `Authority`
+evaluation, temporal qualification, and `ApplicableRule` were out of scope
+for LR-K3, but are now implemented — LR-K7 and LR-K8/K8.1 respectively; see
+§4/§5.1/§12 — this list originally named them as still-unimplemented, which
+stopped being accurate once those phases landed.)
 `MAYA_PENAL_MODULES`'s Capa 2 (tipicidad
 elements: verbo rector, sujeto activo/pasivo, bien jurídico, resultado,
 dolo/culpa) is the closest existing prose analogue — a future phase would
@@ -1094,7 +1117,7 @@ layer is unchanged and authoritative). No V0–V5 redesign or wiring. No
 multi-provider routing. No jurisprudence mega-platform. No four separate
 products. No numeric confidence scores anywhere in this model.
 
-## 12. Rule qualification / ApplicableRule (implemented LR-K8)
+## 12. Rule qualification / ApplicableRule (implemented LR-K8, hardened LR-K8.1)
 
 Answers: *given what §4/§5 (LR-K7) already know about a source's weight and
 a provision's temporal status, is THIS `NormativeRule` qualified as
@@ -1110,7 +1133,8 @@ instantiate explicit assessments manually" discipline as `Subsumption`
 type RuleQualificationStatus = 'APPLICABLE' | 'LIMITED' | 'DISPLACED' | 'UNRESOLVED';
 
 type RuleQualificationBlockerType =
-  | 'RULE_NOT_VIGENTE' | 'TEMPORAL_VERIFICATION_UNRESOLVED'
+  | 'RULE_NOT_VIGENTE' | 'TEMPORAL_VERIFICATION_UNRESOLVED' | 'TEMPORAL_VERIFICATION_PARTIAL'
+  | 'AUTHORITY_NOT_PRIMARY_BINDING'
   | 'DISPLACING_RELATIONSHIP' | 'LIMITING_RELATIONSHIP'
   | 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN' | 'OTHER';
 
@@ -1148,15 +1172,35 @@ discipline as §8.2/§9.1/§6.4), by `derivarRuleQualificationStatus`, in
 strict priority order: `temporalState.legalStatus === 'DEROGADO'` or any
 `DISPLACING_RELATIONSHIP` blocker whose relationship is `VERIFIED` and not
 `relation: 'UNKNOWN'` → **`DISPLACED`** (invariant XLVI/XLVIII) →
-`legalStatus` in `{'SUSPENDIDO', 'PARCIALMENTE_VIGENTE'}` or any usable
-`LIMITING_RELATIONSHIP` blocker → **`LIMITED`** →
-`verificationStatus === 'UNRESOLVED'`, `legalStatus === 'UNKNOWN'`, or any
-`*_RELATIONSHIP` blocker whose relationship is *not* usable (unverified or
-`UNKNOWN`) → **`UNRESOLVED`** (invariant XLVII/XLVIII) → otherwise
-(`VIGENTE` + `VERIFIED` + no blockers) → **`APPLICABLE`**.
+`legalStatus` in `{'SUSPENDIDO', 'PARCIALMENTE_VIGENTE'}`, any usable
+`LIMITING_RELATIONSHIP` blocker, `authority.legalRole !== 'PRIMARY_BINDING'`
+(invariant LII, LR-K8.1), or `verificationStatus === 'PARTIAL'` (invariant
+LIII, LR-K8.1) → **`LIMITED`** → `verificationStatus === 'UNRESOLVED'`,
+`legalStatus === 'UNKNOWN'`, or any `*_RELATIONSHIP` blocker whose
+relationship is *not* usable (unverified or `UNKNOWN`) → **`UNRESOLVED`**
+(invariant XLVII/XLVIII) → otherwise (`VIGENTE` + `VERIFIED` +
+`PRIMARY_BINDING` + no blockers) → **`APPLICABLE`**.
 `derivarRuleQualificationStatus` never reads `temporalState.amendmentEvents`
 (invariant L, restates XL) — a `REFORMA` event never causes
 `DISPLACED`/`LIMITED` by itself.
+
+**LR-K8.1 hardening (Cursor findings, both fixed):** LR-K8's original
+derivation never read `Authority.legalRole` at all, so a rule backed only by
+an `INTERPRETIVE`/`PERSUASIVE`/`PRACTICE_GUIDANCE`/`DISCOVERY_ONLY` authority
+could derive `APPLICABLE` exactly as if it were `PRIMARY_BINDING` — fixed by
+invariant LII. It also treated any `verificationStatus` other than
+`'UNRESOLVED'` as sufficient for `APPLICABLE`, so `'PARTIAL'` temporal
+verification (confirmed, but not to the standard needed for a professional
+assertion of vigencia) slipped through as fully `APPLICABLE` — fixed by
+invariant LIII. Both map to `LIMITED`, never `UNRESOLVED`: a non-primary
+role or a partial-but-real verification is a known, definite fact about the
+source, not an evidentiary gap — `UNRESOLVED` remains reserved for genuine
+absence of information. Neither fix invents a new hierarchy or auto-promotes
+doctrine/jurisprudence to `PRIMARY_BINDING` (invariant XLIII is unchanged).
+**Signature change:** `derivarRuleQualificationStatus` now takes `authority`
+as its first parameter (previously `(temporalState, relationships,
+blockers)`, now `(authority, temporalState, relationships, blockers)`) —
+authorized by this mission as a correction, not an unauthorized reopening.
 
 **The relation TYPE never decides `DISPLACED` vs `LIMITED` by itself**
 (invariant XLV): the identical verified `SPECIAL_OVER_GENERAL` (or
@@ -1205,6 +1249,7 @@ by LR-K8.
 
 **No court-label inference:** `derivarRuleQualificationStatus` never reads
 `Authority.sourceType` — a `JURISPRUDENCE` authority attached to a
-`RuleQualification` has no special effect on `qualificationStatus`; only
-`temporalState` and classified relationship blockers do (restates invariant
-XLIV at this layer).
+`RuleQualification` has no special effect on `qualificationStatus` beyond
+what its explicitly-declared `legalRole` already determines (invariant LII);
+only `temporalState`, `authority.legalRole`, and classified relationship
+blockers do (restates invariant XLIV at this layer).
