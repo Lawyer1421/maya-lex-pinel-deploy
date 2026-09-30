@@ -28,6 +28,9 @@ Thumbs.db
 
 # Logs
 npm-debug.log*
+
+# Corpus gap analysis (local results, credentials never committed)
+docs/corpus/_local/
 yarn-debug.log*
 yarn-error.log*
 
