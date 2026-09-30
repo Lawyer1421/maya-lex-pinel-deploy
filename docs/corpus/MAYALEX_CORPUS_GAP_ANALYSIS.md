@@ -127,9 +127,9 @@ Repeated `num_articulo` values within single source may indicate:
 
 **Status:** REQUIRES_FURTHER_AUDIT via H3 query (no content retrieval)
 
-### No automatic deduplication recommended:
-- Repeated num_articulo is NOT confirmed as "corruption"
-- CLO must adjudicate via content sample before DELETE statements
+### Repeated num_articulo interpretation:
+- May represent legitimate chunking (paragraphs), segmentation variance, or data quality issue
+- CLO must adjudicate after H3 identity/repetition measurements
 
 ---
 
@@ -176,7 +176,7 @@ All unresolved statements classified as:
 
 **7. NULL fuente (8,366 = 9.9%) = intentional (demandas) or ingestion error?**
 - **Status:** UNRESOLVED
-- **Why:** Purpose not documented; requires content audit
+- **Why:** Purpose not documented; requires identity/metadata reconciliation
 - **Validation:** H1 query → NULL distribution by materia, coleccion, fuente_tipo
 
 ### Legal status model (SEMANTIC, not technical)

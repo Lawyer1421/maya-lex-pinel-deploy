@@ -279,7 +279,7 @@
         "id": 7,
         "claim": "NULL fuente (8,366 = 9.9%) is intentional (demandas/análisis) vs. ingestion error",
         "status": "UNRESOLVED",
-        "validation": "H1 query → NULL distribution by materia, coleccion, fuente_tipo; may require content sample",
+        "validation": "H1 query → NULL distribution by materia, coleccion, fuente_tipo; requires identity/metadata reconciliation",
         "note": "Purpose not documented; requires editorial determination"
       }
     ]
@@ -305,7 +305,6 @@
         "db_source": "Código Civil de Honduras",
         "filas": 2372,
         "status": "PRESENT",
-        "duplicates": 0
       },
       {
         "canonical_id": "HN_CODIGO_FAMILIA",
@@ -313,7 +312,6 @@
         "db_source": "Codigo de Familia",
         "filas": 373,
         "status": "PRESENT",
-        "duplicates": 0
       },
       {
         "canonical_id": "HN_CODIGO_NOTARIADO_D353_2005",
@@ -321,7 +319,6 @@
         "db_source": "Código del Notariado de Honduras",
         "filas": 94,
         "status": "PRESENT",
-        "duplicates": 0,
         "note": "Small volume; needs audit to confirm D353-2005"
       },
       {
@@ -339,7 +336,6 @@
         "db_source": "Código Procesal Penal de Honduras",
         "filas": 480,
         "status": "PRESENT",
-        "duplicates": 0
       },
       {
         "canonical_id": "HN_DECRETO_73_1950",
@@ -450,7 +446,7 @@
     "immediate": "Execute hygiene queries (see section XI)",
     "bloque_1": "Audit NULL, doc_*, CPC layers, vigencia NULL → CLO decision",
     "bloque_2": "Physical search Comercio (D.73-1950) + D.284-2013 reform",
-    "bloque_3": "Reconcile Notariado 94 vs 98 → ingest confirmed missing",
+    "bloque_3": "Reconcile the 94 num_articulo observed in production against the 98/108 accepted IDs from the historical manifest → ingest confirmed missing",
     "bloque_4": "After Bloque 3: Decretos + Tribunales + Kernel"
   }
 }
