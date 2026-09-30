@@ -6,7 +6,6 @@
     "analysis_type": "gap_analysis_provisional",
     "status": "PROVISIONAL — hygiene & identity queries pending, NO production writes/ingesta",
     "canonical_instruments": 13,
-    "canonical_instruments_mapping_status": "UNRESOLVED (5-7 confirmed, 6-8 require H5 discovery)",
     "claims_not_yet_proven": 7,
     "next_phase": "Bloque 1: Hygiene / Identity Queries",
     "clo_approval_required": true
@@ -401,39 +400,14 @@
       },
       {
         "canonical_id": "HN_RESOLUCION_PCSJ_17_2012",
-        "name": "Resolución PCSJ 17-2012",
-        "db_source": null,
-        "filas": "UNRESOLVED",
-        "status": "REQUIRES_FURTHER_AUDIT",
-        "validation": "H5 decree discovery query"
+        "name": "Resolución PCSJ 17-2012 / Reglamento del Código del Notariado",
+        "db_source": "Reglamento del Código del Notariado",
+        "filas": 111,
+        "articulos_distintos": 111,
+        "status": "OBSERVED",
+        "note": "Physical DB presence confirmed; canonical legal-identity mapping subject to H5 reconciliation"
       }
     ]
-  },
-  "coverage_matrix": {
-    "canonical_instruments": {
-      "present": "6 / 13 (46%)",
-      "missing": "7 / 13 (54%)"
-    },
-    "articles_normalized": {
-      "current": 14352,
-      "target": 14352,
-      "gap": 0,
-      "note": "All articles require H5 audit before any ingestion"
-    },
-    "rows_classified": {
-      "current": 14352,
-      "target": 84204,
-      "gap": 8366,
-      "pct_gap": 9.9,
-      "issue": "NULL fuente unclassified"
-    },
-    "vigencia_marked": {
-      "current": 9352,
-      "target": 84204,
-      "gap": 13366,
-      "pct_gap": 58.8,
-      "issue": "es_norma_vigente NULL in 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS"
-    }
   },
   "roadmap_clo": {
     "status": "PROVISIONAL — validation only, NO production writes/ingesta/comercio_merge",

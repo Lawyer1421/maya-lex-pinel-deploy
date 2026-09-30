@@ -29,10 +29,9 @@
 - **es_norma_vigente = false:** 9,090 (10.8%)
 - **es_norma_vigente = NULL:** 67,257 (79.9% — requires editorial audit)
 
-### Canonical instruments presence (preliminary)
-- **Confirmed present:** 6/13 instruments (based on TOP-B source matching)
-- **Unresolved:** Whether 7 missing instruments are truly absent or hidden in aliases/doc_* prefixed sources
-- **Action required:** H1–H5 hygiene queries to validate claims
+### Canonical instruments mapping
+- **Status:** PROVISIONAL — pending H5 identity reconciliation
+- **Next step:** Execute H5 decree/alias discovery query to resolve presence of 7 instruments
 
 ### CPC identity (UNRESOLVED)
 - Multiple ingestion layers observed: Codigo Procesal Civil, CPC_TEXTO_BASE_D211-2006, CPC_COMENTADO_ROMERO_2024
@@ -243,9 +242,8 @@ Orden de prioridades con salvaguardas ejecutivas:
 **Status:** Validación de claims; NO produce ingesta.
 
 1. **Higiene: Fuente NULL (8,366 filas)**
-   - Auditar muestra de 100 filas
-   - Clasificar: ¿demandas (mantengo NULL), ingesta incompleta (reclasificar), o ambas?
-   - Decisión ejecutiva: mantener NULL como corpus de demandas OR reclasificar + marcar fuente origen
+   - Execute H1 query: NULL distribution by materia, coleccion, fuente_tipo, vigencia
+   - CLO determines: maintain as intentional corpus OR reclassify to known instruments
 
 2. **Higiene: doc_* (17 documentos)**
    - Audit metadata of all doc_* sources (H2 query results)
@@ -257,10 +255,9 @@ Orden de prioridades con salvaguardas ejecutivas:
    - Measure repeated num_articulo counts and max occurrences per layer (H3.4 query)
    - CLO decision: designate Romero as reference/commentary (not primary law) in metadata
 
-4. **Higiene: Vigencia NULL en 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS**
-   - Auditar muestra de 10 filas NULL en cada categoría
-   - Determinar: ¿son vigentes, derogadas, o estado indeterminado?
-   - Decisión CLO: marcar definitivamente o mantener NULL con nota editorial
+4. **Higiene: Vigencia NULL distribution**
+   - Execute H1 query: NULL vigencia breakdown by materia
+   - CLO determines: mark definitively OR maintain NULL with editorial note
 
 ### Bloque 2: COMERCIO (Semana 2–3)
 **Status:** Ingesta solamente si higiene de Bloque 1 completa.
