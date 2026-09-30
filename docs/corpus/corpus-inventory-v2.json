@@ -1,0 +1,35 @@
+{
+  "queue_rows_total": 10,
+  "distinct_norm_ids": 10,
+  "instruments_total": 10,
+  "por_estado_vigencia": {
+    "VIGENTE": 4,
+    "DEROGADO": 1,
+    "REFORMADO": 2,
+    "UNKNOWN": 3
+  },
+  "por_lote_p0": {
+    "P0_FAMILIA": 1,
+    "P0_DEROGACION": 2,
+    "P0_REFORMAS": 1,
+    "P0_NINEZ": 2,
+    "P0_CPC": 1,
+    "P0_TRIBUNALES": 1,
+    "P0_COMERCIO": 1,
+    "UNASSIGNED": 1
+  },
+  "por_origen_hallazgo": {
+    "script": 5,
+    "doc": 5
+  },
+  "fuentes_barridas": [
+    "feature/mayalex-official-corpus-p0",
+    "scripts/ingesta-*.ts",
+    "docs/governance/fase1-triage/",
+    "supabase/migrations/",
+    "data/corpus-editorial-status.json",
+    "docs/governance/DECISION_LOG.md"
+  ],
+  "generado_en": "2026-09-29T00:00:00Z",
+  "nota": "VERSIÓN ESQUELETO — Aguardando resultado de agente Explore para completar con evidencia completa de todas las 7 fuentes"
+}
