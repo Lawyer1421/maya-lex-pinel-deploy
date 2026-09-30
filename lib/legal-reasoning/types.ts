@@ -954,6 +954,38 @@ export type RuleQualificationStatus = 'APPLICABLE' | 'LIMITED' | 'DISPLACED' | '
 //         `"UNRESOLVED"`, never upgraded to `"LIMITED"` or `"APPLICABLE"`.
 //         Only `verificationStatus === "VERIFIED"` supports `"APPLICABLE"`.
 //
+// LR-K8.1b (CLO decision, 2026-09-29, "Option A"): LII and LIII can BOTH
+// apply to the same `RuleQualification` at once -- e.g. a non-`PRIMARY_
+// BINDING` authority whose `TemporalLegalState.verificationStatus` is also
+// `'UNRESOLVED'`, or whose `legalStatus` is `'UNKNOWN'`. Two orderings were
+// possible and the CLO explicitly chose one:
+//   Option A (ADOPTED): non-primary `legalRole` OUTRANKS a temporal gap --
+//     `derivarRuleQualificationStatus` returns `"LIMITED"`, never
+//     `"UNRESOLVED"`, whenever `legalRole !== 'PRIMARY_BINDING'`, REGARDLESS
+//     of whatever the temporal axis separately says (short of `DEROGADO`,
+//     which still always wins as `"DISPLACED"`). Rationale: a definite,
+//     already-known fact about the source's weight (it is not primary-
+//     binding) is more informative than an unresolved evidentiary gap about
+//     vigencia -- reporting `"LIMITED"` tells the reader something true and
+//     complete; reporting `"UNRESOLVED"` would understate what is actually
+//     known.
+//   Option B (REJECTED): a temporal gap would outrank a known non-primary
+//     role, returning `"UNRESOLVED"` instead -- rejected because it would
+//     discard the definite authority-role fact in favor of a genuinely
+//     separate axis of uncertainty, and because it would make
+//     `"UNRESOLVED"` ambiguous between "we don't know the source's weight"
+//     (never true here) and "we don't know if it's in force" (the actual
+//     gap).
+// Consequence: `"UNRESOLVED"` can only ever be derived when
+// `authority.legalRole === 'PRIMARY_BINDING'` AND a temporal gap exists
+// (`verificationStatus === 'UNRESOLVED'` or `legalStatus === 'UNKNOWN'`) AND
+// no `DISPLACED`/other-`LIMITED` condition already applies. This was already
+// the actual behavior of `derivarRuleQualificationStatus` as shipped in
+// LR-K8.1 (the `LIMITED` branch, which checks `legalRole`, runs strictly
+// before the `UNRESOLVED` branch) -- this note makes that ordering an
+// explicit, binding contract rather than an implementation detail, and
+// tests/legal-reasoning-applicable-rule.test.ts locks it in by name.
+//
 // `RULE_NOT_VIGENTE`, when present, describes a temporal-legalStatus reason.
 // `TEMPORAL_VERIFICATION_UNRESOLVED`/`TEMPORAL_VERIFICATION_PARTIAL` describe
 // a temporal-verificationStatus reason. `AUTHORITY_NOT_PRIMARY_BINDING`

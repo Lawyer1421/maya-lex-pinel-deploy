@@ -265,7 +265,12 @@ These are binding on every future LR phase, not just this one.
   can never derive `qualificationStatus: "APPLICABLE"` — it derives
   `"LIMITED"` instead, never `"UNRESOLVED"` (a non-primary role is a known,
   definite fact about the source, not an evidentiary gap), unless a
-  `DISPLACED` condition already applies. See §12.
+  `DISPLACED` condition already applies. **"Option A" (CLO decision,
+  LR-K8.1b, 2026-09-29): this outranks a simultaneous temporal gap** — a
+  non-`PRIMARY_BINDING` role derives `"LIMITED"` even when
+  `verificationStatus` is also `"UNRESOLVED"` or `legalStatus` is also
+  `"UNKNOWN"`. `"UNRESOLVED"` can only be derived when `authority.legalRole
+  === 'PRIMARY_BINDING'`. See §12.
 - **LIII. Temporal verification sufficiency for full applicability
   (LR-K8.1).** `temporalState.verificationStatus === "PARTIAL"` can never
   derive `qualificationStatus: "APPLICABLE"` — it derives `"LIMITED"`
@@ -295,7 +300,7 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | Authority/Temporal validators (`validarAuthority`, `validarAuthorityRelationship`, `validarTemporalLegalState`, `derivarVerificationStatusDesdeSenalLegado`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K7) |
 | `Jurisprudence` | Design only — §5.2, not this phase |
 | `RuleQualification`, `ApplicableRule` (type alias) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K8) — §12 |
-| RuleQualification validators (`validarRuleQualification`, `derivarRuleQualificationStatus`) | **Implemented, hardened** — `lib/legal-reasoning/validators.ts` (LR-K8, authority-eligibility + temporal-sufficiency fixes LR-K8.1) — §12 |
+| RuleQualification validators (`validarRuleQualification`, `derivarRuleQualificationStatus`) | **Implemented, hardened** — `lib/legal-reasoning/validators.ts` (LR-K8, authority-eligibility + temporal-sufficiency fixes LR-K8.1, "Option A" priority contract locked in LR-K8.1b) — §12 |
 | Automatic rule-selection / hierarchy-inference engine (a function that picks a "winning" rule from relation-type semantics alone) | **Not started, not implied by LR-K8** — §12 |
 | `LegalProposition` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
@@ -1117,7 +1122,7 @@ layer is unchanged and authoritative). No V0–V5 redesign or wiring. No
 multi-provider routing. No jurisprudence mega-platform. No four separate
 products. No numeric confidence scores anywhere in this model.
 
-## 12. Rule qualification / ApplicableRule (implemented LR-K8, hardened LR-K8.1)
+## 12. Rule qualification / ApplicableRule (implemented LR-K8, hardened LR-K8.1, "Option A" priority locked LR-K8.1b)
 
 Answers: *given what §4/§5 (LR-K7) already know about a source's weight and
 a provision's temporal status, is THIS `NormativeRule` qualified as
@@ -1201,6 +1206,29 @@ doctrine/jurisprudence to `PRIMARY_BINDING` (invariant XLIII is unchanged).
 as its first parameter (previously `(temporalState, relationships,
 blockers)`, now `(authority, temporalState, relationships, blockers)`) —
 authorized by this mission as a correction, not an unauthorized reopening.
+
+**LR-K8.1b — "Option A" locked in (CLO decision, 2026-09-29):** invariants
+LII and LIII can both bear on the same `RuleQualification` — e.g. a
+non-`PRIMARY_BINDING` authority whose temporal state is *also*
+`verificationStatus: "UNRESOLVED"` or `legalStatus: "UNKNOWN"`. Two
+orderings were possible; the CLO explicitly adopted **Option A**: a
+non-primary `legalRole` outranks a simultaneous temporal gap, deriving
+`"LIMITED"` (never `"UNRESOLVED"`), regardless of what the temporal axis
+separately says (short of `DEROGADO`, which still always wins as
+`"DISPLACED"`). **Option B** (a temporal gap would outrank a known
+non-primary role, deriving `"UNRESOLVED"` instead) was considered and
+rejected — it would discard a definite, already-known fact about the
+source's weight in favor of a genuinely separate axis of uncertainty, and
+would make `"UNRESOLVED"` ambiguous between "we don't know the source's
+weight" (never actually true here) and "we don't know if it's in force"
+(the real gap). Consequence: `"UNRESOLVED"` can only ever be derived when
+`authority.legalRole === 'PRIMARY_BINDING'` **and** a genuine temporal gap
+exists. This was already `derivarRuleQualificationStatus`'s actual behavior
+as shipped in LR-K8.1 (its `LIMITED` branch runs strictly before its
+`UNRESOLVED` branch) — LR-K8.1b makes that ordering an explicit, binding
+contract rather than an implementation detail, with dedicated regression
+tests (`tests/legal-reasoning-applicable-rule.test.ts`, describe block
+"LR-K8.1b — Option A") locking it in by name.
 
 **The relation TYPE never decides `DISPLACED` vs `LIMITED` by itself**
 (invariant XLV): the identical verified `SPECIAL_OVER_GENERAL` (or

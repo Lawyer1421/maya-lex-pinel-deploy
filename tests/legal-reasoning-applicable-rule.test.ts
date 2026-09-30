@@ -257,6 +257,93 @@ describe('LR-K8.1 — PARTIAL temporal verification cannot qualify APPLICABLE (i
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// LR-K8.1b — OPTION A LOCKED IN: non-primary authority outranks temporal gaps
+// (CLO decision, 2026-09-29)
+// ─────────────────────────────────────────────────────────────────────────────
+describe('LR-K8.1b — Option A: authority ineligibility beats temporal UNRESOLVED/UNKNOWN', () => {
+  it('12o. INTERPRETIVE + temporal verificationStatus UNRESOLVED deriva LIMITED, nunca UNRESOLVED ni APPLICABLE', () => {
+    const temporal = temporalVigente({ verificationStatus: 'UNRESOLVED' });
+    const status = derivarRuleQualificationStatus(authority({ legalRole: 'INTERPRETIVE' }), temporal, [], []);
+    expect(status).toBe('LIMITED');
+    expect(status).not.toBe('UNRESOLVED');
+    expect(status).not.toBe('APPLICABLE');
+
+    const q = qualification({
+      authority: authority({ legalRole: 'INTERPRETIVE' }), temporalState: temporal,
+      qualificationStatus: 'APPLICABLE', blockers: [],
+    });
+    expect(validarRuleQualification(q, [REGLA]).valido).toBe(false);
+
+    const qCorrecta = qualification({
+      authority: authority({ legalRole: 'INTERPRETIVE' }), temporalState: temporal,
+      qualificationStatus: 'LIMITED',
+      blockers: [{ type: 'AUTHORITY_NOT_PRIMARY_BINDING', description: 'autoridad interpretativa, además vigencia sin confirmar' }],
+    });
+    expect(validarRuleQualification(qCorrecta, [REGLA]).valido).toBe(true);
+  });
+
+  it('12p. PERSUASIVE + legalStatus UNKNOWN deriva LIMITED, nunca UNRESOLVED ni APPLICABLE', () => {
+    const temporal = temporalVigente({ legalStatus: 'UNKNOWN' });
+    const status = derivarRuleQualificationStatus(authority({ legalRole: 'PERSUASIVE' }), temporal, [], []);
+    expect(status).toBe('LIMITED');
+    expect(status).not.toBe('UNRESOLVED');
+    expect(status).not.toBe('APPLICABLE');
+
+    const q = qualification({
+      authority: authority({ legalRole: 'PERSUASIVE' }), temporalState: temporal,
+      qualificationStatus: 'APPLICABLE', blockers: [],
+    });
+    expect(validarRuleQualification(q, [REGLA]).valido).toBe(false);
+  });
+
+  it('12q. DISCOVERY_ONLY + relación desplazante sin verificar deriva LIMITED (no APPLICABLE); DISPLACED solo si la relación fuera utilizable', () => {
+    const relSinVerificar = relacion({ verificationStatus: 'UNRESOLVED', evidence: [] });
+    const statusConRelacionSinVerificar = derivarRuleQualificationStatus(
+      authority({ legalRole: 'DISCOVERY_ONLY' }), temporalVigente(), [relSinVerificar], [
+        { type: 'DISPLACING_RELATIONSHIP', relationship: relSinVerificar, description: 'candidato desplazante sin verificar' },
+      ],
+    );
+    expect(statusConRelacionSinVerificar).toBe('LIMITED');
+    expect(statusConRelacionSinVerificar).not.toBe('APPLICABLE');
+    expect(statusConRelacionSinVerificar).not.toBe('DISPLACED');
+
+    // La MISMA relación, ahora VERIFIED y no UNKNOWN (utilizable), sí produce DISPLACED --
+    // documentando que DISPLACED requiere una relación utilizable per las reglas existentes,
+    // no simplemente su presencia.
+    const relVerificada = relacion({ verificationStatus: 'VERIFIED' });
+    const statusConRelacionVerificada = derivarRuleQualificationStatus(
+      authority({ legalRole: 'DISCOVERY_ONLY' }), temporalVigente(), [relVerificada], [
+        { type: 'DISPLACING_RELATIONSHIP', relationship: relVerificada, description: 'desplazante verificado' },
+      ],
+    );
+    expect(statusConRelacionVerificada).toBe('DISPLACED');
+  });
+
+  it('12r. PRIMARY_BINDING + verificationStatus UNRESOLVED permanece UNRESOLVED (única combinación que llega a UNRESOLVED)', () => {
+    const temporal = temporalVigente({ verificationStatus: 'UNRESOLVED' });
+    const status = derivarRuleQualificationStatus(authority({ legalRole: 'PRIMARY_BINDING' }), temporal, [], []);
+    expect(status).toBe('UNRESOLVED');
+  });
+
+  it('12s. PRIMARY_BINDING + VIGENTE + VERIFIED permanece APPLICABLE', () => {
+    const status = derivarRuleQualificationStatus(authority({ legalRole: 'PRIMARY_BINDING' }), temporalVigente(), [], []);
+    expect(status).toBe('APPLICABLE');
+  });
+
+  it('12t. DEROGADO sigue ganando sobre todo -- DISPLACED incluso con legalRole no primario y/o laguna temporal', () => {
+    const temporalDerogado = temporalVigente({
+      legalStatus: 'DEROGADO',
+      amendmentEvents: [{
+        type: 'DEROGACION', instrument: 'Decreto X', affectedProvision: 'Art. 1',
+        evidence: ['evidencia'], verificationStatus: 'VERIFIED',
+      }],
+    });
+    const status = derivarRuleQualificationStatus(authority({ legalRole: 'DISCOVERY_ONLY' }), temporalDerogado, [], []);
+    expect(status).toBe('DISPLACED');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // UNVERIFIED RELATIONSHIP CANNOT DECIDE DISPLACEMENT (13-18)
 // ─────────────────────────────────────────────────────────────────────────────
 describe('LR-K8 — unverified/UNKNOWN relationship cannot decide displacement (invariant XLVIII)', () => {

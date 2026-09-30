@@ -1639,6 +1639,16 @@ function relacionUtilizable(rel: AuthorityRelationship | undefined, relationship
  * LIMITED (un hecho conocido y definido sobre la fuente/verificación, no una
  * laguna evidentiaria) -- nunca se confunde con `UNRESOLVED`, que permanece
  * sin cambios.
+ *
+ * LR-K8.1b ("Option A", decisión CLO 2026-09-29): el bloque LIMITED se
+ * evalúa ANTES que el bloque UNRESOLVED a propósito -- un `legalRole` no
+ * primario SIEMPRE gana sobre una laguna temporal (`UNRESOLVED`/`UNKNOWN`)
+ * cuando ambos ocurren a la vez, salvo que ya aplique DISPLACED. `UNRESOLVED`
+ * solo puede derivarse cuando `authority.legalRole === 'PRIMARY_BINDING'` Y
+ * existe una laguna temporal genuina. La "Option B" (laguna temporal gana
+ * sobre rol no primario) fue considerada y rechazada explícitamente -- ver
+ * types.ts, sección "LR-K8.1 — QUALIFICATION HARDENING", para el
+ * razonamiento completo.
  */
 export function derivarRuleQualificationStatus(
   authority: Authority,
@@ -1663,7 +1673,10 @@ export function derivarRuleQualificationStatus(
     // Invariante LII (LR-K8.1): un rol no PRIMARY_BINDING (INTERPRETIVE,
     // PERSUASIVE, PRACTICE_GUIDANCE, DISCOVERY_ONLY) nunca sostiene
     // APPLICABLE completo -- es un hecho conocido sobre la fuente, no una
-    // laguna, así que se representa LIMITED, nunca UNRESOLVED.
+    // laguna, así que se representa LIMITED, nunca UNRESOLVED. "Option A"
+    // (LR-K8.1b, decisión CLO): este chequeo se evalúa aquí, ANTES del
+    // bloque UNRESOLVED de abajo, a propósito -- gana sobre cualquier laguna
+    // temporal simultánea (UNRESOLVED/UNKNOWN), nunca al revés.
     || authority.legalRole !== 'PRIMARY_BINDING'
     // Invariante LIII (LR-K8.1): verificación temporal PARTIAL no basta para
     // una aserción profesional de vigencia plena -- LIMITED, nunca APPLICABLE.
