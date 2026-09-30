@@ -1814,9 +1814,9 @@ Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit)
   2026-09-29 audit (C:\dev\mayalex-corpus, C:\Users\fredy)
 
 **Impact**:
-- 13 instruments canonicalized via surviving documentation (DECISION_LOG.md, triage
-  artifacts in docs/governance/fase1-triage/)
-- No data loss: all instrument metadata recovered from alternative sources
+- Las 958 líneas de triage del JSONL no se recuperaron. Lo reconstruido son los
+  13 instrumentos jurídicos a partir del DECISION_LOG.md y los dossiers
+  (docs/governance/fase1-triage/).
 - Corpus Inventory v2 complete and reproducible from CSV + DECISION_LOG evidence
 
 **Action**: Documented for historical record. Artifact remains NOT_RECOVERED but
