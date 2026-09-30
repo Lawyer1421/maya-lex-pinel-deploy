@@ -13,17 +13,19 @@
     "clo_approval_required": true
   },
   "summary": {
-    "total_rows_db": 22718,
-    "rows_classified": 14352,
-    "rows_unclassified_null": 8366,
-    "pct_unclassified": 36.8,
-    "duplicated_articles_total": 1396,
+    "total_rows_db": 84204,
+    "fuente_null": 8366,
+    "fuente_null_pct": 9.9,
+    "es_norma_vigente_true": 7857,
+    "es_norma_vigente_false": 9090,
+    "es_norma_vigente_null": 67257,
+    "es_norma_vigente_null_pct": 79.8,
     "rows_revision_pending": 41,
     "critical_gaps": [
-      "NULL fuente (8,366 rows — 36.8%)",
-      "7 instrumentos canónicos faltantes",
-      "CPC duplicados (932–1,481 rows)",
-      "Vigencia no marcada (60% de corpus)"
+      "fuente IS NULL: 8,366 (9.9%) — purpose unclear (intentional demandas corpus vs. incomplete ingestion)",
+      "es_norma_vigente = NULL: 67,257 (79.8%) — requires editorial audit",
+      "Canonical instruments presence: UNRESOLVED (5–7 confirmed, 6–8 require H5 discovery)",
+      "CPC identity/repetition: REQUIRES_FURTHER_AUDIT (direct measurement needed)"
     ]
   },
   "section_a_schema": {
@@ -223,72 +225,73 @@
       "note": "Rows with revision_pendiente = true require manual audit before RAG indexing"
     }
   },
-  "claims_not_yet_proven": {
-    "note": "The following assertions are based on observational evidence (sections A–D) but require validation before becoming Product Truth. They must NOT drive automated decisions without hygiene pass.",
+  "claim_status_model": {
+    "CONFIRMED": "Verified against production data",
+    "REFUTED": "Contradicted by production data",
+    "PARTIALLY_CONFIRMED": "Some evidence present but incomplete",
+    "REQUIRES_FURTHER_AUDIT": "Data available but requires direct measurement via H1–H5",
+    "UNRESOLVED": "Insufficient information to adjudicate"
+  },
+  "claims_pending_validation": {
+    "note": "All unresolved statements awaiting H1–H5 hygiene query results. NO automated decisions until audit complete.",
     "claims": [
       {
         "id": 1,
-        "claim": "doc_6cfb720b (635 rows) could be Código Penal duplicate",
-        "evidence": "635 rows = exactly Código Penal in DB",
-        "problem": "document name is opaque (UUID)",
-        "status": "NOT_PROVEN",
-        "validation_required": "Compare content hash / sample articles between doc_6cfb720b and Código Penal",
-        "action": "Hygiene query: SELECT fuente, num_articulo, LEFT(contenido, 50) for both sources"
+        "claim": "doc_6cfb720b (if exists) is Código Penal duplicate",
+        "status": "UNRESOLVED",
+        "validation": "H2 query → doc_* inventory metadata (materia, coleccion, fuente_tipo)",
+        "note": "Row count coincidence insufficient for identity confirmation"
       },
       {
         "id": 2,
-        "claim": "Triples of 748, 354 rows (doc_*) are duplicates",
-        "evidence": "doc_ad07e062, doc_c02b1028, doc_2a5252dd = 748 rows each",
-        "problem": "volume coincidence may be random",
-        "status": "NOT_PROVEN",
-        "validation_required": "Content validation across 3 doc_* sources",
-        "action": "Sample 5 rows from each; compare contenido field"
+        "claim": "Triples (748/354 rows) are unintended duplicates",
+        "status": "UNRESOLVED",
+        "validation": "H2 query → compare metadata of doc_ad07e062, doc_c02b1028, doc_2a5252dd",
+        "note": "Volume coincidence is suggestive but not conclusive"
       },
       {
         "id": 3,
-        "claim": "Notariado gap: DB (94) vs manifest (98) = 4 articles missing",
-        "evidence": "DB = 94 rows; expected = 98",
-        "problem": "Unknown if 4 differences are derogated, omitted, or never ingested",
-        "status": "NOT_PROVEN",
-        "validation_required": "List articles 1–98; LEFT JOIN against DB",
-        "action": "Generate list of expected 1–98 and identify missing by num_articulo"
+        "claim": "Notariado: exact count of missing articles (assumed 4, but unconfirmed)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H4 query → ordered num_articulo list vs historical manifest (must confirm manifest scope: 98? 108?)",
+        "note": "DO NOT assume missing count until sets are compared"
       },
       {
         "id": 4,
-        "claim": "es_norma_vigente = NULL does not mean invalid or absent",
-        "evidence": "03_NOTARIAL = 98.5% NULL; 09_AGRARIO = 100% NULL",
-        "problem": "NULL semantics undefined: could mean unmarked, indeterminate, mixed, or not applicable",
-        "status": "NOT_PROVEN",
-        "validation_required": "CLO editorial audit of NULL samples",
-        "action": "Audit 10-row sample per category; determine true status"
+        "claim": "Repeated num_articulo (max 45x in CPC layers) = legitimate chunking",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H3 query → measure distinct num_articulo + repetition distribution per CPC layer",
+        "note": "Segmentation variance vs. deduplication error not yet determined"
       },
       {
         "id": 5,
-        "claim": "Repetition of num_articulo (max 45x) is legitimate chunking, not deduplication error",
-        "evidence": "CPC_COMENTADO_ROMERO_2024 article repeated 45 times",
-        "problem": "Could be paragraphs (valid) or duplicate rows (invalid)",
-        "status": "NOT_PROVEN",
-        "validation_required": "Read 5 rows of repeated article; analyze contenido differences",
-        "action": "Sample same num_articulo from CPC_COMENTADO; compare body text"
+        "claim": "CPC_COMENTADO_ROMERO_2024 has es_norma_vigente = false (doctrina, not law)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H3.3 query → verify es_norma_vigente distribution for Romero",
+        "note": "Asserted in CLAUDE.md; needs DB validation"
       },
       {
         "id": 6,
-        "claim": "CPC_COMENTADO_ROMERO_2024 is never primary authority (doctrina, not norma)",
-        "evidence": "Romero = analysis/commentary, not statutory text",
-        "problem": "DB stores it as normalized source without doctrina tag",
-        "status": "AFFIRMED in CLAUDE.md but NOT_VALIDATED_IN_DB",
-        "validation_required": "Verify es_norma_vigente = false in CPC_COMENTADO_ROMERO_2024",
-        "action": "Query: SELECT DISTINCT es_norma_vigente FROM biblioteca_vectores WHERE fuente = 'CPC_COMENTADO_ROMERO_2024'"
+        "claim": "Missing decrees are truly absent (not under aliases in doc_* or metadata)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 query → search fuente/metadata for Decretos 31/2015, 35/2013, 73/96, 102/2018, 124/92, 73/1950, etc.",
+        "note": "TOP-B output was truncated; absence from TOP-10 does not confirm nonexistence"
       },
       {
         "id": 7,
-        "claim": "NULL fuente (8,366 = 36.8%) is either corpus de demandas OR ingesta incompleta",
-        "evidence": "8,366 rows with no fuente classification",
-        "problem": "Ratio between intentional (demandas) and error (incomplete ingesta) is unknown",
-        "status": "NOT_PROVEN",
-        "validation_required": "100-row sample audit; classify by type",
-        "action": "Manually review 100 rows with fuente=NULL; categorize (demanda, sentencia, ingesta_incomplete)"
+        "claim": "NULL fuente (8,366 = 9.9%) is intentional (demandas/análisis) vs. ingestion error",
+        "status": "UNRESOLVED",
+        "validation": "H1 query → NULL distribution by materia, coleccion, fuente_tipo; may require content sample",
+        "note": "Purpose not documented; requires editorial determination"
       }
+    ]
+  },
+  "semantic_warning": {
+    "es_norma_vigente_semantics": "Do NOT infer legal status from boolean alone",
+    "notes": [
+      "es_norma_vigente = true → Marked current; requires editorial confirmation",
+      "es_norma_vigente = false → Marked not-current; requires audit (derogated? superseded? archived?)",
+      "es_norma_vigente = NULL → Unmarked; status unknown; requires CLO determination"
     ]
   },
   "section_d_duplicates": {

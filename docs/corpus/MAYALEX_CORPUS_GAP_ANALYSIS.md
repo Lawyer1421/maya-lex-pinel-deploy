@@ -6,9 +6,15 @@
 **Fecha:** 2026-09-30  
 **Proyecto:** `thgrhueckkjdutjvcufp` (Maya Lex Pro)  
 **Tabla:** `public.biblioteca_vectores`  
-**Total filas en DB:** 22,718  
+**Total filas en DB (verificado):** 84,204  
 **Fuentes identificadas:** 24+ (incluyendo NULL)  
 **Revisión pendiente:** 41 rows  
+
+**Aggregates (verified from production):**
+- `fuente IS NULL`: 8,366 filas (9.9% del corpus)
+- `es_norma_vigente = true`: 7,857 filas
+- `es_norma_vigente = false`: 9,090 filas
+- `es_norma_vigente = NULL`: 67,257 filas (79.8% del corpus)
 
 **Próxima fase:** Hygiene / Identity Queries (ver sección VI)
 
@@ -16,25 +22,27 @@
 
 ## EXECUTIVE SUMMARY
 
-### Brecha crítica: NULL es la fuente mayoritaria
-- **8,366 filas (36.8%)** sin `fuente` asignada
-- Impacto: imposible correlacionar con los 13 instrumentos canónicos
-- Acción recomendada: clasificación de NULL antes de considerar cobertura completa
+### Corpus composition verified from production
+- **Total:** 84,204 rows (confirmed)
+- **fuente IS NULL:** 8,366 filas (9.9%)
+- **es_norma_vigente = true:** 7,857 (9.3%)
+- **es_norma_vigente = false:** 9,090 (10.8%)
+- **es_norma_vigente = NULL:** 67,257 (79.8% — requires editorial audit)
 
-### Duplicados significativos detectados
-- **CPC (Código Procesal Civil):** 932 artículos duplicados (max: 2x)
-- **CPC_COMENTADO_ROMERO_2024:** 394 artículos duplicados (max: 45x — outlier crítico)
-- **CPC_TEXTO_BASE_D211-2006:** 70 artículos duplicados (max: 4x)
-- Origen: múltiples ingesta de la misma norma con variantes de segmentación
+### Canonical instruments presence (preliminary)
+- **Confirmed present:** 6/13 instruments (based on TOP-B source matching)
+- **Unresolved:** Whether 7 missing instruments are truly absent or hidden in aliases/doc_* prefixed sources
+- **Action required:** H1–H5 hygiene queries to validate claims
 
-### Vigencia incompleta
-- Filas con `es_norma_vigente = NULL`: 53,357 (78.3% de civiles, notariales, agrarios)
-- Causa probable: ingesta sin marcado de estado — necesita auditoría editorial
+### CPC identity (UNRESOLVED)
+- Multiple ingestion layers observed: Codigo Procesal Civil, CPC_TEXTO_BASE_D211-2006, CPC_COMENTADO_ROMERO_2024
+- **Status of distinct article counts:** REQUIRES_FURTHER_AUDIT (direct measurement needed)
+- **Repeated num_articulo:** May be legitimate chunking (paragraphs) or segmentation variance — NOT adjudicated as "duplication"
 
-### Artículos distintos por fuente
-- Fuentes con `num_articulo = 0` (documentos no normalizados):
-  - `doc_*` prefixed: 10+ documentos (son estos el "corpus de demandas"?)
-  - Suposición: contenido sin segmentación por artículo (análisis, sentencias, triage)
+### Non-normative corpus (doc_* prefixed)
+- Approximately 10+ sources with fuente LIKE 'doc_%' identified
+- **Purpose unclear:** UNRESOLVED whether intentional non-normative corpus (demandas/análisis) or incomplete ingestion
+- **Action required:** Metadata audit via H2 query
 
 ---
 
@@ -62,77 +70,42 @@ revision_pendiente (boolean)        ← 41 rows flagged para revisión
 
 ## II. INVENTARIO FÍSICO POR FUENTE
 
-### Top 10 fuentes por volumen
+⚠️ **INCOMPLETE DATA** — Gap Analysis was based on partial TOP-B output from initial SQL Editor queries.
+Full inventory requires direct execution of H2 hygiene query.
 
-| Fuente | Filas | Artículos Distintos | Notas |
-|--------|-------|---------------------|-------|
-| NULL | 8,366 | N/A | **SIN CLASIFICAR** — mayor brecha |
-| Código Civil de Honduras | 2,372 | 2,372 | ✅ 1:1 con num_articulo |
-| Codigo Procesal Civil | 1,864 | 932 | ⚠️ 932 duplicados (max: 2x) |
-| CPC_COMENTADO_ROMERO_2024 | 1,481 | 394 | ⚠️ 394 duplicados (max: 45x) |
-| doc_b8285282 | 1,210 | 0 | ? Documento sin artículos |
-| CPC_TEXTO_BASE_D211-2006 | 995 | 925 | ⚠️ 70 duplicados (max: 4x) |
-| Codigo del Trabajo | 870 | 870 | ✅ 1:1 con num_articulo |
-| Codigo Penal | 635 | 635 | ✅ 1:1 con num_articulo |
-| Código Procesal Penal de Honduras | 480 | 480 | ✅ 1:1 con num_articulo |
-| Constitucion de la Republica de Honduras | 378 | 378 | ✅ 1:1 con num_articulo |
+### Verified from production aggregates:
+- **fuente IS NULL:** 8,366 filas
+- **Top source by volume:** Will be determined by H2 query execution
+- **doc_* prefixed sources:** Approximately 10+ identified; full inventory requires H2
 
-### Categorización
-
-**Normativa vigente (1:1 con articulos_distintos):**
-- Código Civil de Honduras: 2,372
-- Codigo del Trabajo: 870
-- Codigo Penal: 635
-- Código Procesal Penal de Honduras: 480
-- Constitucion de la Republica de Honduras: 378
-- Codigo de Familia: 373
-- Codigo Tributario: 215
-- Ley sobre Justicia Constitucional: 124
-- Reglamento del Código del Notariado: 111
-- Código del Notariado de Honduras: 94
-
-**Duplicados críticos (artículos_distintos < filas):**
-- Codigo Procesal Civil: 1,864 filas → 932 articulos_distintos (50% duplicación)
-- CPC_COMENTADO_ROMERO_2024: 1,481 filas → 394 articulos_distintos (73% duplicación)
-- CPC_TEXTO_BASE_D211-2006: 995 filas → 925 articulos_distintos (7% duplicación)
-
-**Sin clasificación:**
-- NULL: 8,366 filas (36.8% del corpus)
-- doc_* prefixed: 10+ documentos con articulos_distintos = 0
+### Key unresolved questions:
+- Actual distinct num_articulo count per source (esp. CPC layers)
+- Whether sources absent from TOP-B output are truly zero or truncated from view
+- Metadata/purpose of doc_* prefixed sources (non-normative corpus vs. incomplete ingestion?)
 
 ---
 
-## III. VIGENCIA POR MATERIA
+## III. VIGENCIA (es_norma_vigente) DISTRIBUTION
 
-### Desglose es_norma_vigente
+### Verified aggregate from production:
+- **es_norma_vigente = true:** 7,857 rows (9.3%)
+- **es_norma_vigente = false:** 9,090 rows (10.8%)
+- **es_norma_vigente = NULL:** 67,257 rows (79.8%)
 
-| Materia | Vigente (true) | Derogado (false) | No Marcado (NULL) | Total | % Marcado |
-|---------|---|---|---|---|---|
-| 00_CONSTITUCIONAL | 373 | 5 | 0 | 378 | 100% ✅ |
-| 01_PENAL | 1,104 | 3,369 | 0 | 4,473 | 100% ✅ |
-| 02_CIVIL | 4,860 | 380 | 7,982 | 13,222 | 39.6% ⚠️ |
-| 03_NOTARIAL | 204 | 7 | 13,578 | 13,789 | 1.5% ❌ |
-| 05_LABORAL | 870 | 0 | 0 | 870 | 100% ✅ |
-| 06_FAMILIA | 107 | 2,699 | 0 | 2,806 | 100% ✅ |
-| 07_CONSTITUCIONAL | 124 | 2,630 | 0 | 2,754 | 100% ✅ |
-| 08_TRIBUTARIO | 215 | 0 | 0 | 215 | 100% ✅ |
-| 09_AGRARIO | 0 | 0 | 12,351 | 12,351 | 0% ❌ |
-| 10_LEYES_REGLAMENTOS | 0 | 0 | 33,346 | 33,346 | 0% ❌ |
+### Important note on semantics:
+- `es_norma_vigente = false` **does NOT automatically mean "DEROGADO"** (repealed)
+- `es_norma_vigente = NULL` **does NOT mean invalid or absent**
+- Both require editorial interpretation to determine true legal status
+- Do NOT infer legal conclusions from boolean alone
 
-### Hallazgos
+### Distribution by materia:
+⚠️ **INCOMPLETE** — Gap Analysis section C.1 used truncated TOP-B output.
+Full distribution by materia requires direct execution of H1 hygiene query.
 
-**Bien marcado (100%):**
-- 00_CONSTITUCIONAL, 01_PENAL, 05_LABORAL, 06_FAMILIA, 07_CONSTITUCIONAL, 08_TRIBUTARIO
-
-**Parcialmente marcado:**
-- 02_CIVIL: 39.6% marcado (7,982 NULL = "incierto")
-
-**Sin marcar (NULL dominante):**
-- 03_NOTARIAL: 98.5% NULL
-- 09_AGRARIO: 100% NULL (12,351 rows)
-- 10_LEYES_REGLAMENTOS: 100% NULL (33,346 rows)
-
-⚠️ **Acción:** Auditoría editorial urgente en 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS antes de publicar en endpoints.
+### Key observation:
+67,257 rows (79.8%) have `es_norma_vigente = NULL` → requires CLO editorial audit to determine:
+- Are these legitimately unmarked, indeterminate, secondary reglations, or error?
+- Should they be marked definitively or remain NULL by design?
 
 ---
 
@@ -140,158 +113,125 @@ revision_pendiente (boolean)        ← 41 rows flagged para revisión
 
 **Total flagged: 41 rows** (`revision_pendiente = true`)
 
-Estos representan ~0.2% del corpus y están distribuidos en:
-- Potencial contenido contaminado (segmentación incorrecta, PII no removido, ambigüedad)
-- Requieren revisión manual antes de indexarse en RAG
+These rows represent 0.05% of corpus.
+Purpose: Editorial/content quality audit required before RAG indexing.
 
 ---
 
-## V. ANÁLISIS DE DUPLICADOS
+## V. REPEATED num_articulo ANALYSIS
 
-### Duplicados por fuente
+### Observation (UNRESOLVED):
+Multiple ingestion layers of CPC identified with varying num_articulo distributions.
+Repeated `num_articulo` values within single source may indicate:
+- Legitimate chunking (paragraphs of multi-paragraph articles)
+- Segmentation variance between ingestion batches
+- Data quality issue (deduplication needed)
 
-| Fuente | Artículos Duplicados | Max Occurrences | Severidad |
-|--------|---|---|---|
-| Codigo Procesal Civil | 932 | 2x | Alta: 50% del corpus de CPC es duplicado |
-| CPC_COMENTADO_ROMERO_2024 | 394 | **45x** | **Crítica**: artículos hasta 45 veces en tabla |
-| CPC_TEXTO_BASE_D211-2006 | 70 | 4x | Media: 7% del corpus |
-| doc_* (17 documentos) | 1 c/u | 2–66x | Baja: documentos sin normalización |
+**Status:** REQUIRES_FURTHER_AUDIT via H3 query (no content retrieval)
 
-### Interpretación
-
-**CPC_COMENTADO_ROMERO_2024 (max: 45x):** 
-- Un artículo del CPC aparece 45 veces en la tabla
-- Causa probable: ingestión de análisis línea-por-línea sin deduplicación
-- Impacto RAG: búsquedas retornan 45 resultados idénticos (ruido)
-
-**Codigo Procesal Civil (932 duplicados, max: 2x):**
-- Segmentación variable (secciones vs. artículos vs. subsecciones)
-- Ambigüedad normativa no resuelta
-
-**Recomendación:** 
-1. Ejecutar `DELETE` con GROUP BY (fuente, num_articulo) manteniendo `created_at` más reciente
-2. Verificar segmentación original en scripts de ingesta
-3. Implementar constraint UNIQUE en (fuente, num_articulo) post-deduplicación
+### No automatic deduplication recommended:
+- Repeated num_articulo is NOT confirmed as "corruption"
+- CLO must adjudicate via content sample before DELETE statements
 
 ---
 
-## VI. CLAIMS NOT YET PROVEN
+## VI. CLAIM STATUS MODEL
 
-Este análisis está basado en observación de secciones A–D (schema, inventario, vigencia, duplicados).  
-Las siguientes afirmaciones requieren validación adicional y NO deben tomarse como Product Truth:
+All unresolved statements classified as:
+- **CONFIRMED** — verified against production data
+- **REFUTED** — contradicted by production data
+- **PARTIALLY_CONFIRMED** — some evidence present but not complete
+- **REQUIRES_FURTHER_AUDIT** — data available but needs direct measurement
+- **UNRESOLVED** — insufficient information to adjudicate
 
-### Especulaciones pendientes de confirmación
+### Claims awaiting validation via H1–H5 queries
 
-**1. `doc_6cfb720b` (635 filas) podría corresponder al Código Penal**
-- **Evidencia:** 635 filas = exactamente Código Penal en DB (635 rows)
-- **Problema:** nombre del documento es opaco (UUID)
-- **Claim:** `doc_6cfb720b` = espejo duplicado del Código Penal
-- **Status:** NO PROBADO — requiere auditoría de contenido
-- **Acción:** Comparar sample de filas (hash de contenido, artículos)
+**1. `doc_6cfb720b` (635 rows) = Código Penal duplicate?**
+- **Status:** UNRESOLVED
+- **Why:** Row count coincidence does not confirm identity
+- **Validation:** H2 query → compare metadata, materia, coleccion, num_articulo range
 
-**2. Triples de 748, 354 filas (`doc_*` con mismo volumen) = duplicados**
-- **Evidencia:** doc_ad07e062, doc_c02b1028, doc_2a5252dd tienen 748 filas c/u
-- **Problema:** coincidencia de volumen podría ser aleatoria
-- **Claim:** son instancias de mismo corpus ingested 3 veces
-- **Status:** NO PROBADO — requiere validación de contenido
-- **Acción:** Muestrear `contenido` de cada doc_* para verificar redundancia
+**2. Triples (748, 354 filas) = unintended duplicates?**
+- **Status:** UNRESOLVED
+- **Why:** Volume coincidence is suggestive but not conclusive
+- **Validation:** H2 query → examine doc_ad07e062, doc_c02b1028, doc_2a5252dd metadata
 
-**3. Notariado: diferencia de 4 entre DB (94) y manifest (98)**
-- **Evidencia:** DB tiene 94 rows con fuente "Código del Notariado de Honduras"
-- **Manifest histórico:** inventario_v2.csv lista 98 artículos esperados
-- **Claim:** faltan 4 artículos específicos
-- **Status:** NO PROBADO — ¿son las 4 diferencias derogadas, omitidas o nunca ingested?
-- **Acción:** Listar artículos 1–98 esperados y hacer LEFT JOIN con DB
+**3. Notariado: 94 observed vs historical manifest (98 or 108?)**
+- **Status:** REQUIRES_FURTHER_AUDIT
+- **Why:** Actual accepted IDs in historical manifest not yet confirmed
+- **Validation:** H4 query → generate ordered num_articulo list; compare with manifest offline
 
-**4. `es_norma_vigente = NULL` ≠ norma inválida o ausente**
-- **Evidencia:** 03_NOTARIAL = 98.5% NULL; 09_AGRARIO = 100% NULL
-- **Problema:** NULL puede significar "no se marcó", "indefinido", "mixto", o "no aplicable"
-- **Claim:** estas categorías no están marcadas y no equivalen a "derogadas"
-- **Status:** NO PROBADO — requiere auditoría editorial por CLO
-- **Acción:** Auditar muestra de 10 filas NULL en 03_NOTARIAL y 09_AGRARIO
+**4. CPC identity / repeated num_articulo (max 45x) = chunking or error?**
+- **Status:** REQUIRES_FURTHER_AUDIT
+- **Why:** Legitimate segmentation variance vs. duplication error not yet determined
+- **Validation:** H3 query → measure distinct num_articulo + repetition distribution per layer
 
-**5. Repetición de `num_articulo` = sobresingmentación (no deduplicación automática)**
-- **Evidencia:** CPC_COMENTADO_ROMERO_2024 tiene artículo repetido 45 veces
-- **Problema:** 45 líneas de una ficha de comentario no son "duplicados" en sentido normativo
-- **Claim:** es chunking legítimo (párrafos = segments)
-- **Status:** NO PROBADO — requiere análisis de qué es cada fila
-- **Acción:** Inspeccionar 5 filas de artículo repetido en CPC_COMENTADO; ¿son párrafos o duplicados?
+**5. CPC_COMENTADO_ROMERO_2024 = doctrina (es_norma_vigente should = false)?**
+- **Status:** REQUIRES_FURTHER_AUDIT (asserted in CLAUDE.md, needs DB validation)
+- **Validation:** H3.3 query → verify es_norma_vigente distribution for Romero
 
-**6. CPC_COMENTADO_ROMERO_2024 nunca es "autoridad primaria"**
-- **Evidencia:** Romero es análisis, no texto de ley
-- **Problema:** está en DB como fuente normalizada
-- **Claim:** debe estar etiquetada como "doctrina/análisis", no "norma vigente"
-- **Status:** AFIRMADO EN CLAUDE.MD pero NO validado contra DB metadata
-- **Acción:** Verificar que `es_norma_vigente = false` en CPC_COMENTADO_ROMERO_2024
+**6. Missing Decrees (31/2015, 35/2013, 73/96, 102/2018, 124/92, 73/1950, etc.)**
+- **Status:** REQUIRES_FURTHER_AUDIT
+- **Why:** TOP-B output was truncated; sources may exist under different aliases
+- **Validation:** H5 query → search fuente/metadata for candidate matches (ILIKE, no legal adjudication)
 
-**7. NULL fuente (8,366 = 36.8%) = corpus de demandas OR ingesta incompleta**
-- **Evidencia:** 8,366 filas sin clasificación
-- **Problema:** desconocemos si es intencional (demandas) o error de ETL
-- **Claim:** son ambas cosas, ratio desconocido
-- **Status:** NO PROBADO — requiere auditoría de muestra
-- **Acción:** Muestrear 100 filas NULL; clasificar por tipo (demanda, sentencia, ingesta incompleta)
+**7. NULL fuente (8,366 = 9.9%) = intentional (demandas) or ingestion error?**
+- **Status:** UNRESOLVED
+- **Why:** Purpose not documented; requires content audit
+- **Validation:** H1 query → NULL distribution by materia, coleccion, fuente_tipo
 
-### Estados conceptuales (no operativos hasta hygiene pass)
+### Legal status model (SEMANTIC, not technical)
+
+⚠️ **IMPORTANT:** Do NOT infer legal status solely from es_norma_vigente boolean.
 
 ```
-PRESENTE        = existe fuente identificable en DB con articulos_distintos > 0
-PARCIAL         = existe, pero evidencia objetiva muestra hueco (ej: Notariado 94 vs 98)
-SIN_FUENTE_PROPIA = aparece jurídicamente relacionado pero no existe identidad confirmada
-NO_LISTADA      = está en DB pero no estaba en inventario canónico v2 (doc_* prefixed)
-IDENTITY_RECONCILIATION_REQUIRED = múltiples identidades o correspondencia ambigua (CPC)
-UNCLASSIFIED_PHYSICAL_CORPUS = filas que no pueden atribuirse con seguridad (NULL)
+es_norma_vigente = true   → Marked as current/valid; requires editorial confirmation
+es_norma_vigente = false  → Marked as not-current; requires audit (derogated? superseded? archived?)
+es_norma_vigente = NULL   → Unmarked; status unknown; requires CLO editorial determination
 ```
 
 ---
 
-## VII. CORRELACIÓN CON INVENTARIO CANÓNICO (13 instrumentos)
+## VII. CANONICAL INSTRUMENTS MAPPING (PROVISIONAL)
 
-### Mapeo verificado
+⚠️ **BASIS:** Initial TOP-B query output (truncated view; full inventory via H2 query).
 
-| Instrumento Canónico | Fuente en DB | Filas | Estado |
-|---|---|---|---|
-| HN_CODIGO_CIVIL | Código Civil de Honduras | 2,372 | ✅ Presente, sin duplicados |
-| HN_CODIGO_FAMILIA | Codigo de Familia | 373 | ✅ Presente, sin duplicados |
-| HN_CODIGO_NOTARIADO_D353_2005 | Código del Notariado de Honduras | 94 | ✅ Presente, pequeño volumen |
-| HN_CODIGO_COMERCIO_D73_1950 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_CPC_D211_2006 | CPC_TEXTO_BASE_D211-2006 | 995 | ✅ Presente, 70 duplicados |
-| HN_CPP_D9_99E | Código Procesal Penal de Honduras | 480 | ✅ Presente, sin duplicados |
-| HN_DECRETO_31_2015 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_DECRETO_35_2013 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_DECRETO_73_96 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_DECRETO_102_2018 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_DECRETO_124_92 | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_LEY_ORGANIZACION_TRIBUNALES | ? | 0 | ❌ **NO ENCONTRADO** |
-| HN_RESOLUCION_PCSJ_17_2012 | ? | 0 | ❌ **NO ENCONTRADO** |
+### Tentative mapping (REQUIRES_FURTHER_AUDIT)
 
-### Brechas identificadas
+**Likely present (based on TOP-B matches):**
+- HN_CODIGO_CIVIL → "Código Civil de Honduras"
+- HN_CODIGO_FAMILIA → "Codigo de Familia"
+- HN_CODIGO_NOTARIADO_D353_2005 → "Código del Notariado de Honduras"
+- HN_CPC_D211_2006 → "CPC_TEXTO_BASE_D211-2006" (also: Codigo Procesal Civil, CPC_COMENTADO_ROMERO_2024 as aliases/variants)
+- HN_CPP_D9_99E → "Código Procesal Penal de Honduras"
 
-**Presente (6/13 = 46%):**
-- Código Civil, Código Familia, Código Notariado, CPC (D211-2006), CPP (D9-99E)
-- Volumen total: ~3,314 filas de instrumentos canónicos
-
-**Ausente (7/13 = 54%):**
-- HN_CODIGO_COMERCIO_D73_1950 (Decreto 73-1950)
-- Todos los decretos: 31/2015, 35/2013, 73/96, 102/2018, 124/92
+**Unconfirmed absent (TOP-B truncation; may exist under different name):**
+- HN_CODIGO_COMERCIO_D73_1950
+- HN_DECRETO_31_2015, 35_2013, 73_96, 102_2018, 124_92
 - HN_LEY_ORGANIZACION_TRIBUNALES
 - HN_RESOLUCION_PCSJ_17_2012
 
-⚠️ **Acción urgente:** Iniciar ingesta de 7 instrumentos faltantes (prioridad: Decreto 73-1950 per CLAUDE.md).
+**How to resolve:** H5 query → search metadata for decree aliases and candidate names.
+
+### IMPORTANT CAVEAT:
+Absence from TOP-B output does NOT confirm nonexistence. Must execute H5 discovery before adjudicating presence/absence of any instrument.
 
 ---
 
-## VIII. VOLUMEN NO CLASIFICADO
+## VIII. UNCLASSIFIED PHYSICAL CORPUS
 
-### NULL fuente (8,366 rows = 36.8%)
+### NULL fuente (8,366 rows = 9.9% of total)
 
-Distribución probable por materia (necesita verificación):
-- Documentos sin clasificación inicial
-- Análisis/demandas/sentencias (corpus de aprendizaje auto-supervisado)
-- Fallback de ingesta incompleta
+Purpose UNRESOLVED: Could be
+- Intentional non-normative corpus (demandas, análisis, sentencias)
+- Incomplete ingestion (sources dropped or not assigned)
+- Composite/mixed sources pending classification
 
-**Impacto RAG:** 
-- 36.8% del corpus es invisible a búsquedas filtradas por fuente
-- Limitación en explicabilidad (usuarios no saben de qué instrumento viene la respuesta)
+**Distribution by metadata:** Requires H1 query execution
+
+**Impact:** 
+- 9.9% of corpus invisible to fuente-filtered searches
+- Affects explainability if used in RAG responses
 
 ---
 
@@ -341,17 +281,18 @@ Orden de prioridades con salvaguardas ejecutivas:
    - Marcar cada artículo: vigente (D.73-1950), reformado (D.284-2013), derogado
 
 ### Bloque 3: NOTARIADO (Semana 3–4)
-**Status:** Luego de Comercio; validación de diferencia 94 vs 98 primero.
+**Status:** Luego de Comercio; validación de identidad 94 vs historical manifest primero.
 
-1. **Reconciliación: DB 94 vs manifest 98**
-   - Listar artículos esperados 1–98 del inventario_v2.csv
-   - LEFT JOIN contra DB (fuente = "Código del Notariado")
-   - Identificar artículos 1–98 faltantes (candidatos: ¿derogados, nunca ingested?)
+1. **Reconciliación: DB 94 num_articulo vs historical accepted IDs**
+   - Execute H4 query → generate ordered list of 94 num_articulo observed in DB
+   - Compare against historical manifest (98? 108? confirm exact scope)
+   - Identify article IDs that are accepted in manifest but absent in DB (if any)
+   - **Do NOT assume count of missing articles until comparison complete**
 
-2. **NO reapertura de todo el Código**
-   - Ingestar SOLO 4 artículos faltantes confirmados
-   - Mantener los 94 existentes
-   - Evitar duplicación de trabajo
+2. **Ingestar SOLO artículos confirmados faltantes**
+   - NO reopening entire Código del Notariado
+   - Ingest ONLY article IDs confirmed missing by H4 reconciliation
+   - Preserve existing 94; avoid redundant ingestion
 
 ### Bloque 4: DECRETOS / TRIBUNALES / KERNEL (Semana 4+)
 **Status:** Solo después de Bloques 1–3 completos.
@@ -422,45 +363,40 @@ WHERE fuente = 'Código del Notariado de Honduras';
 
 ---
 
-## XII. MATRIZ DE COBERTURA RESUMIDA
+## XII. CORPUS COMPOSITION SUMMARY (VERIFIED)
 
-| Criterio | Actual | Target | Gap |
-|----------|--------|--------|-----|
-| Instrumentos canónicos presentes | 6/13 (46%) | 13/13 (100%) | **7 instrumentos** |
-| Artículos sin duplicar | 14,352 | 14,352+ | Deduplicar CPC |
-| Filas clasificadas (fuente NOT NULL) | 14,352 | 22,718 | **8,366 (36.8%)** |
-| Vigencia marcada (es_norma_vigente NOT NULL) | ~9,000 | 22,718 | **~13,700 (60%)** |
-| Revisión completada | 22,677 (99.8%) | 22,718 | 41 rows pending |
-
----
-
-## XIII. SIGUIENTES PASOS (Después de aprobación CLO)
-
-**Bloque 1 (Semanas 1–2, CLO-driven):**
-1. Ejecutar hygiene queries (sección XI)
-2. Auditar 100-row muestra de NULL fuente
-3. Auditar contenido de doc_* para deduplicación
-4. Validar CPC_COMENTADO_ROMERO_2024 como doctrina (no autoridad)
-5. Marcar vigencia en 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS
-
-**Bloque 2 (Semanas 2–3, Comercio):**
-6. Búsqueda física Decreto 73-1950 + D.284-2013
-7. Ingesta limpia Código Comercio
-
-**Bloque 3 (Semanas 3–4, Notariado):**
-8. Reconciliación 94 vs 98
-9. Ingesta de 4 artículos faltantes
-
-**Bloque 4 (Semanas 4+, Decretos/Tribunales):**
-10. Decretos: 31/2015, 35/2013, 73/96, 102/2018, 124/92
-11. Ley Organización Tribunales, Resolución PCSJ 17-2012
+| Metric | Verified Value | Status |
+|--------|---|---|
+| **Total rows in biblioteca_vectores** | 84,204 | ✅ Confirmed |
+| **fuente IS NULL** | 8,366 (9.9%) | ✅ Confirmed |
+| **es_norma_vigente = true** | 7,857 (9.3%) | ✅ Confirmed |
+| **es_norma_vigente = false** | 9,090 (10.8%) | ✅ Confirmed |
+| **es_norma_vigente = NULL** | 67,257 (79.8%) | ✅ Confirmed |
+| **revision_pendiente = true** | 41 | ✅ Confirmed |
+| **Canonical instruments present** | 5–7 (UNRESOLVED) | ⚠️ Requires H5 verification |
+| **doc_* prefixed sources** | ~10+ | ⏳ Full inventory via H2 |
+| **CPC identity layers** | 3 observed | ⏳ Distinct counts via H3 |
+| **Notariado num_articulo** | 94 observed | ⏳ vs manifest via H4 |
 
 ---
 
-**ESTADO:** Gap Analysis Provisional  
-**PRODUCCIÓN:** ❌ NO writes, ingesta, nor Comercio merge  
-**DOCUMENTACIÓN:** ✅ Este análisis es evidence committeado  
-**APROBACIÓN CLO:** Requerida antes de proceder a Bloque 1
+## XIII. NEXT PHASE: H1–H5 HYGIENE QUERIES
+
+Execute in SQL Editor:
+- H1: NULL fuente distribution
+- H2: doc_* inventory audit
+- H3: CPC layer identity (distinct num_articulo, repeated article analysis)
+- H4: Notariado reconciliation (ordered num_articulo list)
+- H5: Decree/alias discovery (metadata search only)
+
+Results → adjudicate claims in section VI → CLO decision.
+
+---
+
+**ESTADO:** Gap Analysis Provisional (evidence-based; unresolved claims clearly marked)
+**PRODUCCIÓN:** ❌ NO writes, ingesta, nor Comercio merge
+**DOCUMENTACIÓN:** ✅ Committed as evidence
+**APROBACIÓN CLO:** Required before Bloque 1 (based on H1–H5 findings)
 
 **Análisis generado:** 2026-09-30  
 **Ejecutor:** Claude + SQL Editor (thgrhueckkjdutjvcufp)  
