@@ -5,19 +5,21 @@
 Subsumption contract), LR-K5 (Conclusion Traceability, `LEGAL_CONCLUSION`
 only), LR-K6A (Citation Trust II: proposition-support *classification*
 contract), LR-K6.1 (evidence-binding/provenance + conflict-aware
-aggregation, correcting a real gap LR-K6A left open), and LR-K7
+aggregation, correcting a real gap LR-K6A left open), LR-K7
 (Authority/AuthorityRelationship + TemporalLegalState/AmendmentEvent
-qualification contracts) are implemented as shadow/structural types — see
-`lib/legal-reasoning/`. **Citation Trust II is not "not started"** — §6
-below previously said so in three places after LR-K6A landed; corrected in
-that revision. What *is* still not implemented: semantic adjudication
-*runtime* (a model or automated rule actually reading evidence text and
-deciding entailment), `Jurisprudence` (§5.2, still design-only), and
-`ApplicableRule` (still unbuilt — Authority/Temporal qualification answers
-"what weight does this source carry" and "is it in force," never "is this
-the rule that legally controls"). Nothing in this document is wired into
-`app/api/chat/route.ts`, any system prompt, or any user-facing response. No
-behavior changes through LR-K7.
+qualification contracts), and LR-K8 (`RuleQualification`/`ApplicableRule`:
+links a `NormativeRule` to its LR-K7 records and mechanically derives
+whether it is currently qualified as applicable) are implemented as
+shadow/structural types — see `lib/legal-reasoning/`. **Citation Trust II is
+not "not started"** — §6 below previously said so in three places after
+LR-K6A landed; corrected in that revision. What *is* still not implemented:
+semantic adjudication *runtime* (a model or automated rule actually reading
+evidence text and deciding entailment), `Jurisprudence` (§5.2, still
+design-only), and any automatic rule-selection/hierarchy-inference engine
+(LR-K8 mechanically aggregates already-classified blockers — it never infers
+which relationship displaces which rule; see §12). Nothing in this document
+is wired into `app/api/chat/route.ts`, any system prompt, or any
+user-facing response. No behavior changes through LR-K8.
 
 This is the single canonical source for MayaLex's legal-reasoning
 architecture. It supersedes the informal LR-1 design discussion that
@@ -225,6 +227,39 @@ These are binding on every future LR phase, not just this one.
   defaults, or infers `Authority.legalRole` from `Authority.sourceType` — a
   `JURISPRUDENCE` source is not automatically `PRIMARY_BINDING` (or any
   other role) merely because of its `sourceType`. See §5.1.
+- **XLV. No automatic winner engine.** `RuleQualification.qualificationStatus`
+  is derived mechanically from already-classified blockers — there is no
+  `resolverReglaAplicable` or equivalent that reads `AuthorityRelationType`
+  semantics and picks a winner among competing `NormativeRule` records.
+  Whether a verified `SPECIAL_OVER_GENERAL`/`LATER_OVER_EARLIER` relationship
+  displaces or merely limits a rule is the caller's explicit classification
+  (`DISPLACING_RELATIONSHIP` vs `LIMITING_RELATIONSHIP`), never inferred from
+  the relation type alone. See §12.
+- **XLVI. `DEROGADO` cannot become `APPLICABLE`.** A `RuleQualification`
+  whose `temporalState.legalStatus` is `"DEROGADO"` can never derive
+  `qualificationStatus: "APPLICABLE"`. See §12.
+- **XLVII. Temporal verification `UNRESOLVED` cannot become fully
+  `APPLICABLE`.** `temporalState.verificationStatus === "UNRESOLVED"` can
+  never derive `qualificationStatus: "APPLICABLE"`. See §12.
+- **XLVIII. Unverified or `UNKNOWN` relationship cannot decide displacement.**
+  A `RuleQualificationBlocker` of type `DISPLACING_RELATIONSHIP`/
+  `LIMITING_RELATIONSHIP` whose relationship is not `VERIFIED`, or whose
+  `relation` is `UNKNOWN`, can never produce `DISPLACED`/`LIMITED` — it falls
+  through to `UNRESOLVED`. See §12.
+- **XLIX. Constitutional/special/later relations qualify only when explicit
+  and verified.** Any relationship a blocker cites must be one of the exact
+  objects declared in `RuleQualification.relationships` — never a
+  relationship assumed to exist because a relation type "should" apply. See
+  §12.
+- **L. `REFORMADO` remains amendment history** (restates invariant XL at
+  this layer). `derivarRuleQualificationStatus` never reads
+  `temporalState.amendmentEvents` — a `REFORMA` event never causes
+  `DISPLACED`/`LIMITED` by itself. See §12.
+- **LI. Rule qualification != Subsumption != Legal Conclusion.**
+  `RuleQualification` never embeds a `Subsumption` or `ConclusionTrace`, and
+  neither of those types is modified by LR-K8 to reference it —
+  `ConclusionUncertainty.authorityStatus`/`temporalStatus` remain
+  hard-locked to `'NOT_EVALUATED'` (§9.1), unwired by this phase. See §12.
 
 ### Intent/depth exceptions
 
@@ -247,7 +282,9 @@ matter-scoped — there is no "penal is exempt" or "civil is exempt" carve-out.
 | `Authority`, `AuthorityRelationship` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K7) — §5.1 |
 | Authority/Temporal validators (`validarAuthority`, `validarAuthorityRelationship`, `validarTemporalLegalState`, `derivarVerificationStatusDesdeSenalLegado`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K7) |
 | `Jurisprudence` | Design only — §5.2, not this phase |
-| `ApplicableRule` | Design only — not started, not implied by LR-K7 |
+| `RuleQualification`, `ApplicableRule` (type alias) | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K8) — §12 |
+| RuleQualification validators (`validarRuleQualification`, `derivarRuleQualificationStatus`) | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K8) |
+| Automatic rule-selection / hierarchy-inference engine (a function that picks a "winning" rule from relation-type semantics alone) | **Not started, not implied by LR-K8** — §12 |
 | `LegalProposition` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | `NormativeRule`, `RuleElement`, `RuleException` | **Implemented** — `lib/legal-reasoning/types.ts` (LR-K3) |
 | LegalProposition/NormativeRule validators | **Implemented** — `lib/legal-reasoning/validators.ts` (LR-K3) |
@@ -1056,3 +1093,118 @@ prerequisite. No new corpus or retrieval architecture (EG-1's retrieval
 layer is unchanged and authoritative). No V0–V5 redesign or wiring. No
 multi-provider routing. No jurisprudence mega-platform. No four separate
 products. No numeric confidence scores anywhere in this model.
+
+## 12. Rule qualification / ApplicableRule (implemented LR-K8)
+
+Answers: *given what §4/§5 (LR-K7) already know about a source's weight and
+a provision's temporal status, is THIS `NormativeRule` qualified as
+applicable right now?* It never answers this by inventing a hierarchy — it
+links an already-verified `Authority`, an already-verified
+`TemporalLegalState`, and already-verified `AuthorityRelationship`s (all
+LR-K7, all unmodified) against one `NormativeRule`, and mechanically
+aggregates blockers the **caller** already classified — the same "fixtures
+instantiate explicit assessments manually" discipline as `Subsumption`
+(§8) and proposition-support classification (§6.4/§6.5).
+
+```ts
+type RuleQualificationStatus = 'APPLICABLE' | 'LIMITED' | 'DISPLACED' | 'UNRESOLVED';
+
+type RuleQualificationBlockerType =
+  | 'RULE_NOT_VIGENTE' | 'TEMPORAL_VERIFICATION_UNRESOLVED'
+  | 'DISPLACING_RELATIONSHIP' | 'LIMITING_RELATIONSHIP'
+  | 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN' | 'OTHER';
+
+interface RuleQualificationBlocker {
+  type: RuleQualificationBlockerType;
+  relationship?: AuthorityRelationship;   // required for the *_RELATIONSHIP types -- invariant XLIX
+  description: string;
+}
+
+interface RuleQualification {
+  id: string;
+  ruleId: string;                 // must equal a real NormativeRule.id
+  authority: Authority;
+  temporalState: TemporalLegalState;
+  relationships: AuthorityRelationship[];
+  qualificationStatus: RuleQualificationStatus;
+  blockers: RuleQualificationBlocker[];
+  notes?: string;
+}
+
+// Kept as an alias so either name resolves to the identical shape --
+// erased at compile time, so it leaves no runtime trace.
+type ApplicableRule = RuleQualification;
+```
+
+`Authority`/`TemporalLegalState`/`AuthorityRelationship` have no `id` field
+of their own (same recorded design as `CitationTrustRecord`, §6.1) —
+`RuleQualification` embeds them by value rather than by a manufactured id
+wrapper, since (unlike §6.4's `IdentifiedCitationTrustRecord`) nothing in
+this phase needs to cross-reference the same `Authority`/`TemporalLegalState`
+instance from multiple `RuleQualification` records.
+
+**`qualificationStatus` is derived, never declared freely** (same
+discipline as §8.2/§9.1/§6.4), by `derivarRuleQualificationStatus`, in
+strict priority order: `temporalState.legalStatus === 'DEROGADO'` or any
+`DISPLACING_RELATIONSHIP` blocker whose relationship is `VERIFIED` and not
+`relation: 'UNKNOWN'` → **`DISPLACED`** (invariant XLVI/XLVIII) →
+`legalStatus` in `{'SUSPENDIDO', 'PARCIALMENTE_VIGENTE'}` or any usable
+`LIMITING_RELATIONSHIP` blocker → **`LIMITED`** →
+`verificationStatus === 'UNRESOLVED'`, `legalStatus === 'UNKNOWN'`, or any
+`*_RELATIONSHIP` blocker whose relationship is *not* usable (unverified or
+`UNKNOWN`) → **`UNRESOLVED`** (invariant XLVII/XLVIII) → otherwise
+(`VIGENTE` + `VERIFIED` + no blockers) → **`APPLICABLE`**.
+`derivarRuleQualificationStatus` never reads `temporalState.amendmentEvents`
+(invariant L, restates XL) — a `REFORMA` event never causes
+`DISPLACED`/`LIMITED` by itself.
+
+**The relation TYPE never decides `DISPLACED` vs `LIMITED` by itself**
+(invariant XLV): the identical verified `SPECIAL_OVER_GENERAL` (or
+`LATER_OVER_EARLIER`, or `CONSTITUTIONAL_SUPREMACY`) relationship produces
+`DISPLACED` when the caller classifies it as a `DISPLACING_RELATIONSHIP`
+blocker, and `LIMITED` when classified as `LIMITING_RELATIONSHIP` — there is
+no `resolverReglaAplicable` or equivalent anywhere in
+`lib/legal-reasoning/validators.ts` that reads `AuthorityRelationType` and
+picks an outcome on its own. This is the concrete mechanism behind "no
+silent winner selection": the derivation is a mechanical aggregation of
+already-decided classifications, never a lex-specialis/lex-posterior
+resolution engine.
+
+**Unverified or `UNKNOWN` relationships cannot decide anything** (invariant
+XLVIII): `validarRuleQualification` rejects any `qualificationStatus` that
+doesn't match what `derivarRuleQualificationStatus` computes, so a
+`DISPLACING_RELATIONSHIP`/`LIMITING_RELATIONSHIP` blocker built on an
+unverified or `UNKNOWN` relationship can never make it into a declared
+`DISPLACED`/`LIMITED` result — the mismatch is rejected. A blocker may still
+*document* such a candidate relationship via
+`RELATIONSHIP_UNVERIFIED_OR_UNKNOWN`, which is valid precisely because it
+never claims to decide anything (it only explains why the result is
+`UNRESOLVED`).
+
+**No borrowing** (invariant XLIX, same discipline as
+`Subsumption.caseFactIds`, §8.1): any `relationship` a blocker cites must be
+one of the exact objects declared in the owning
+`RuleQualification.relationships` — `validarRuleQualification` rejects a
+blocker referencing a relationship that "exists" only conceptually (e.g.
+because a `CONSTITUTIONAL_SUPREMACY` relation "should" apply) but was never
+actually declared as part of this determination.
+
+**`APPLICABLE` requires an empty `blockers`; every other status requires at
+least one** — identical discipline to `ConclusionTrace`'s
+`SUPPORTED`/`blockedBy` rule (§9.1, invariant XVI): no qualification is ever
+silently downgraded or upgraded without an explicit, auditable reason.
+
+**Rule qualification != Subsumption != Legal Conclusion** (invariant LI):
+`RuleQualification` never embeds a `Subsumption` or `ConclusionTrace`, and
+neither of those types is modified by LR-K8 to reference it.
+`ConclusionUncertainty.authorityStatus`/`temporalStatus` (§9) remain
+hard-locked to `'NOT_EVALUATED'`, completely unwired by this phase — a
+future integration connecting `RuleQualification` into `ConclusionTrace`'s
+validation path is a distinct, separately-authorized decision, not implied
+by LR-K8.
+
+**No court-label inference:** `derivarRuleQualificationStatus` never reads
+`Authority.sourceType` — a `JURISPRUDENCE` authority attached to a
+`RuleQualification` has no special effect on `qualificationStatus`; only
+`temporalState` and classified relationship blockers do (restates invariant
+XLIV at this layer).

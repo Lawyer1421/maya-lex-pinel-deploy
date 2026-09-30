@@ -1,7 +1,7 @@
 /**
  * lib/legal-reasoning/validators.ts
  *
- * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 / LR-K7 —
+ * LR-K1 / LR-K2 / LR-K3 / LR-K4 / LR-K5 / LR-K6 / LR-K6.1 / LR-K7 / LR-K8 —
  * deterministic validators. Fail closed: a malformed or incomplete structure
  * is reported as invalid, never silently accepted or repaired. No LLM
  * extraction integration here (per directive, "no LLM extraction
@@ -57,6 +57,10 @@ import type {
   TemporalLegalStatus,
   AmendmentEvent,
   AmendmentEventType,
+  RuleQualification,
+  RuleQualificationStatus,
+  RuleQualificationBlocker,
+  RuleQualificationBlockerType,
 } from './types';
 
 export interface ResultadoValidacion {
@@ -1591,4 +1595,189 @@ export function validarTemporalLegalState(state: TemporalLegalState): ResultadoV
  */
 export function derivarVerificationStatusDesdeSenalLegado(esNormaVigente: boolean): LegalVerificationStatus {
   return esNormaVigente ? 'PARTIAL' : 'UNRESOLVED';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LR-K8 — RULE QUALIFICATION / APPLICABLE RULE CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Responde "¿está esta NormativeRule calificada como aplicable ahora mismo?"
+// enlazando UN Authority, UN TemporalLegalState y las AuthorityRelationship
+// que el propio llamador ya clasificó (invariante XLV: ninguna función aquí
+// "gana" automáticamente a partir del TIPO de relación -- SPECIAL_OVER_GENERAL
+// o LATER_OVER_EARLIER verificadas pueden producir DISPLACED o LIMITED según
+// cómo las clasificó el fixture, nunca según una tabla de decisión
+// hardcodeada). `qualificationStatus` se DERIVA mecánicamente (misma
+// disciplina "derivado, nunca declarado libremente" que Subsumption/
+// ConclusionTrace/PropositionSupportRecord) a partir de: legalStatus del
+// TemporalLegalState + qué blockers de tipo *_RELATIONSHIP el llamador ya
+// declaró y si esas relaciones son verificables (VERIFIED, relation!=UNKNOWN).
+
+function mismaRelacion(a: AuthorityRelationship, b: AuthorityRelationship): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** true solo si la relación referenciada por un blocker *_RELATIONSHIP existe tal cual en `relationships` Y es utilizable para decidir desplazamiento/limitación (invariante XLVIII: ni sin verificar ni UNKNOWN puede decidir). */
+function relacionUtilizable(rel: AuthorityRelationship | undefined, relationships: AuthorityRelationship[]): boolean {
+  if (!rel) return false;
+  const declarada = relationships.some((r) => mismaRelacion(r, rel));
+  if (!declarada) return false;
+  return rel.verificationStatus === 'VERIFIED' && rel.relation !== 'UNKNOWN';
+}
+
+/**
+ * Deriva el único `qualificationStatus` que una RuleQualification puede
+ * declarar. Prioridad: DEROGADO (temporal) o un blocker DISPLACING_RELATIONSHIP
+ * utilizable > SUSPENDIDO/PARCIALMENTE_VIGENTE (temporal) o un blocker
+ * LIMITING_RELATIONSHIP utilizable > verificationStatus="UNRESOLVED" o
+ * legalStatus="UNKNOWN" o cualquier blocker *_RELATIONSHIP NO utilizable
+ * (invariante XLVI/XLVII/XLVIII) > APPLICABLE (VIGENTE + VERIFIED + sin
+ * blockers). Invariante L: NUNCA lee `temporalState.amendmentEvents` -- un
+ * evento REFORMA nunca decide esto por sí mismo.
+ */
+export function derivarRuleQualificationStatus(
+  temporalState: TemporalLegalState,
+  relationships: AuthorityRelationship[],
+  blockers: RuleQualificationBlocker[],
+): RuleQualificationStatus {
+  const desplazantesUtilizables = blockers.filter(
+    (b) => b.type === 'DISPLACING_RELATIONSHIP' && relacionUtilizable(b.relationship, relationships),
+  );
+  if (temporalState.legalStatus === 'DEROGADO' || desplazantesUtilizables.length > 0) {
+    return 'DISPLACED';
+  }
+
+  const limitantesUtilizables = blockers.filter(
+    (b) => b.type === 'LIMITING_RELATIONSHIP' && relacionUtilizable(b.relationship, relationships),
+  );
+  if (
+    temporalState.legalStatus === 'SUSPENDIDO'
+    || temporalState.legalStatus === 'PARCIALMENTE_VIGENTE'
+    || limitantesUtilizables.length > 0
+  ) {
+    return 'LIMITED';
+  }
+
+  const relacionNoUtilizableDeclarada = blockers.some(
+    (b) => (b.type === 'DISPLACING_RELATIONSHIP' || b.type === 'LIMITING_RELATIONSHIP' || b.type === 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN')
+      && !relacionUtilizable(b.relationship, relationships),
+  );
+  if (
+    temporalState.verificationStatus === 'UNRESOLVED'
+    || temporalState.legalStatus === 'UNKNOWN'
+    || relacionNoUtilizableDeclarada
+  ) {
+    return 'UNRESOLVED';
+  }
+
+  return 'APPLICABLE';
+}
+
+const ESTADOS_CALIFICACION_VALIDOS: ReadonlySet<RuleQualificationStatus> = new Set([
+  'APPLICABLE', 'LIMITED', 'DISPLACED', 'UNRESOLVED',
+]);
+
+const TIPOS_BLOQUEADOR_CALIFICACION_VALIDOS: ReadonlySet<RuleQualificationBlockerType> = new Set([
+  'RULE_NOT_VIGENTE', 'TEMPORAL_VERIFICATION_UNRESOLVED', 'DISPLACING_RELATIONSHIP',
+  'LIMITING_RELATIONSHIP', 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN', 'OTHER',
+]);
+
+function validarRuleQualificationBlocker(
+  b: RuleQualificationBlocker,
+  indice: number,
+  relationships: AuthorityRelationship[],
+): string[] {
+  const errores: string[] = [];
+  const prefijo = `blockers[${indice}]`;
+  if (!b || typeof b !== 'object') return [`${prefijo} ausente o no es un objeto`];
+
+  const tipo = b.type as unknown;
+  if (!tipo || !TIPOS_BLOQUEADOR_CALIFICACION_VALIDOS.has(tipo as RuleQualificationBlockerType)) {
+    errores.push(`${prefijo}.type inválido o ausente: ${String(tipo)}`);
+  }
+  if (!b.description || b.description.trim().length === 0) errores.push(`${prefijo} sin description`);
+
+  const esTipoRelacional = b.type === 'DISPLACING_RELATIONSHIP' || b.type === 'LIMITING_RELATIONSHIP' || b.type === 'RELATIONSHIP_UNVERIFIED_OR_UNKNOWN';
+  if (esTipoRelacional) {
+    if (!b.relationship) {
+      errores.push(`${prefijo}: type="${b.type}" exige una relationship explícita -- invariante XLIX, ninguna relación se asume sin representarse`);
+    } else if (!relationships.some((r) => mismaRelacion(r, b.relationship as AuthorityRelationship))) {
+      errores.push(`${prefijo}.relationship no está declarada en RuleQualification.relationships -- no se puede tomar prestada una relación no declarada (invariante XLIX)`);
+    }
+  }
+
+  return errores;
+}
+
+/**
+ * Valida una RuleQualification completa contra el NormativeRule que
+ * referencia. Fail-closed: ruleId huérfano, Authority/TemporalLegalState/
+ * AuthorityRelationship internamente inválidos, blocker con relationship no
+ * declarada, o qualificationStatus declarado que no coincide con el
+ * derivado invalidan el registro completo -- nunca se acepta un status
+ * distinto del mecánicamente derivado (misma disciplina que Subsumption/
+ * ConclusionTrace/PropositionSupportRecord).
+ */
+export function validarRuleQualification(
+  q: RuleQualification,
+  rules: NormativeRule[],
+): ResultadoValidacion {
+  const errores: string[] = [];
+  if (!q || typeof q !== 'object') return fail(['RuleQualification ausente o no es un objeto']);
+  if (!q.id) errores.push('RuleQualification sin id');
+
+  const reglaExiste = rules.some((r) => r.id === q.ruleId);
+  if (!q.ruleId || !reglaExiste) {
+    errores.push(`RuleQualification.ruleId no existe en el contexto de NormativeRule suministrado: ${String(q.ruleId)}`);
+  }
+
+  const resultadoAutoridad = validarAuthority(q.authority);
+  if (!resultadoAutoridad.valido) {
+    errores.push(...resultadoAutoridad.errores.map((e) => `RuleQualification.authority: ${e}`));
+  }
+
+  const resultadoTemporal = validarTemporalLegalState(q.temporalState);
+  if (!resultadoTemporal.valido) {
+    errores.push(...resultadoTemporal.errores.map((e) => `RuleQualification.temporalState: ${e}`));
+  }
+
+  if (!Array.isArray(q.relationships)) {
+    errores.push('RuleQualification.relationships debe ser un arreglo (puede ser vacío, nunca ausente)');
+  } else {
+    q.relationships.forEach((r, i) => {
+      const resultado = validarAuthorityRelationship(r);
+      if (!resultado.valido) errores.push(...resultado.errores.map((e) => `RuleQualification.relationships[${i}]: ${e}`));
+    });
+  }
+
+  const relacionesDeclaradas = Array.isArray(q.relationships) ? q.relationships : [];
+
+  if (!Array.isArray(q.blockers)) {
+    errores.push('RuleQualification.blockers debe ser un arreglo (puede ser vacío, nunca ausente)');
+  } else {
+    q.blockers.forEach((b, i) => errores.push(...validarRuleQualificationBlocker(b, i, relacionesDeclaradas)));
+  }
+
+  // ── QUALIFICATION STATUS (derivado, nunca declarado libremente) ──
+  const estado = q.qualificationStatus as unknown;
+  if (!estado || !ESTADOS_CALIFICACION_VALIDOS.has(estado as RuleQualificationStatus)) {
+    errores.push(`RuleQualification.qualificationStatus inválido o ausente: ${String(estado)}`);
+  } else if (resultadoTemporal.valido && Array.isArray(q.relationships) && Array.isArray(q.blockers)) {
+    const estadoDerivado = derivarRuleQualificationStatus(q.temporalState, relacionesDeclaradas, q.blockers);
+    if (estado !== estadoDerivado) {
+      errores.push(`RuleQualification.qualificationStatus="${String(estado)}" no coincide con el estado derivado ("${estadoDerivado}") -- invariante XLV/XLVI/XLVII/XLVIII, ningún estado se declara libremente`);
+    }
+  }
+
+  // APPLICABLE exige blockers vacío; cualquier otro estado exige al menos un blocker explícito (mismo principio que ConclusionTrace, invariante XVI aplicada aquí).
+  if (Array.isArray(q.blockers)) {
+    if (estado === 'APPLICABLE' && q.blockers.length > 0) {
+      errores.push('RuleQualification.qualificationStatus="APPLICABLE" no puede declarar ningún blocker -- un bloqueador presente contradice aplicabilidad completa');
+    }
+    if (estado !== 'APPLICABLE' && ESTADOS_CALIFICACION_VALIDOS.has(estado as RuleQualificationStatus) && q.blockers.length === 0) {
+      errores.push(`RuleQualification.qualificationStatus="${String(estado)}" exige al menos un blocker explícito -- ningún bloqueo es silencioso`);
+    }
+  }
+
+  return errores.length === 0 ? ok() : fail(errores);
 }
