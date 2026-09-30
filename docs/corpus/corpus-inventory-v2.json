@@ -1,9 +1,9 @@
 {
-  "queue_rows_total": 15,
-  "distinct_norm_ids": 15,
-  "instruments_total": 15,
+  "queue_rows_total": 13,
+  "distinct_norm_ids": 13,
+  "instruments_total": 13,
   "por_estado_vigencia": {
-    "VIGENTE": 9,
+    "VIGENTE": 7,
     "DEROGADO": 1,
     "REFORMADO": 2,
     "MIXTO": 1,
@@ -19,39 +19,41 @@
     "P0_CPP": 1,
     "P0_NOTARIADO": 2,
     "P0_COMERCIO": 1,
-    "P0_TRIBUNALES": 1,
-    "METATABLE": 2
+    "P0_TRIBUNALES": 1
   },
   "por_origen_hallazgo": {
     "script": 5,
-    "doc": 7,
-    "manifest": 2,
-    "migration": 2
+    "doc": 5,
+    "manifest": 2
   },
-  "fuentes_barridas": [
-    "scripts/ingesta-*.ts (5 files: civil, cpp, notariado, d102-2018, comercio)",
-    "supabase/migrations/ (2 corpus-related SQL files)",
-    "data/corpus-editorial-status.json (798 article status records)",
-    "docs/governance/ (26 files: DECISION_LOG.md, triage JSONL, manifests, narratives)",
-    "feature/mayalex-official-corpus-p0 (git branch, no P0 artifacts exposed)",
-    "HUMAN_LEGAL_REVIEW_QUEUE (referenced in DECISION_LOG line 941, file not found in repo)",
-    "docs/corpus/ (NOT FOUND in HEAD or P0 branch)"
-  ],
-  "generado_en": "2026-09-29T22:25:00Z",
-  "audit_notes": {
-    "total_instruments_found": 13,
-    "metadata_tables": 2,
-    "sources_complete": 6,
-    "sources_incomplete": 1,
-    "orphaned_references": 1
-  },
-  "reconciliation": {
-    "v1_to_v2_delta": "Removed 3 placeholder rows, added 7 new instruments from Explore audit (Civil, CPP, Notariado manifest, Resolución PCSJ, Decreto 124-92, Editorial Status table, Revision Pendiente table)",
-    "hallazgos_previos_aligned": "All 10 instruments from v1 present in v2; 5 new instruments recovered from source audit",
-    "discrepancies": {
-      "HUMAN_LEGAL_REVIEW_QUEUE": "Referenced in DECISION_LOG:941 as source of triage initialization, not found in working directory (likely internal/not committed)",
-      "docs/corpus_directory": "Expected but not found in HEAD or feature/mayalex-official-corpus-p0",
-      "Codigo_Civil_scope": "Full article count unknown; script exists but ingestion scope undefined"
+  "metadata_interna": [
+    {
+      "norm_id": "HN_CORPUS_EDITORIAL_STATUS_TABLE",
+      "tipo": "tabla_db",
+      "descripcion": "corpus_editorial_status (Editorial State Inventory)",
+      "source": "supabase/migrations/20260728000000_corpus_editorial_status.sql",
+      "status": "NOT EXECUTED (optional future)"
+    },
+    {
+      "norm_id": "HN_REVISION_PENDIENTE_INSTRUMENTOS",
+      "tipo": "tabla_db",
+      "descripcion": "revision_pendiente_instrumentos (Flagged for Review)",
+      "source": "supabase/migrations/20260925055249_revision_pendiente_instrumentos.sql",
+      "status": "APPLIED TO PRODUCTION"
     }
+  ],
+  "fuentes_barridas": [
+    "scripts/ingesta-*.ts (5 files)",
+    "supabase/migrations/ (corpus-related)",
+    "data/corpus-editorial-status.json",
+    "docs/governance/ (26 files)",
+    "feature/mayalex-official-corpus-p0 (branch)",
+    "HUMAN_LEGAL_REVIEW_QUEUE (referenced but not found)"
+  ],
+  "generado_en": "2026-09-29T22:35:00Z",
+  "reconciliation": {
+    "cola_958_hallazgos": "docs/governance/DECISION_LOG.md:357-958 (no archivo separado, líneas del mismo doc)",
+    "human_legal_review_queue": "Referenced DECISION_LOG.md:210-706; file not in repo (external/uncommitted)",
+    "v1_to_v2_delta": "Removed 2 metadata tables from instrument count. 10 v1 instruments all present + 3 new (Civil, CPP, Notariado complex). Total: 13 juridical instruments."
   }
 }
