@@ -1,105 +1,66 @@
 -- GAP ANALYSIS QUERIES: 13 instrumentos canónicos vs DB
--- READ ONLY. No INSERT/UPDATE/DELETE.
--- Designed for manual execution in Supabase SQL Editor or psql.
+-- READ ONLY. Solo SELECT / WITH. Sin credenciales.
 -- Project: thgrhueckkjdutjvcufp (PRODUCTION)
 
--- Query 1: Total de filas y distribución de norm_ids
-SELECT
-  COUNT(*) as total_rows,
-  COUNT(DISTINCT norm_id) as distinct_norm_ids,
-  COUNT(DISTINCT materia) as distinct_materias
-FROM biblioteca_vectores;
+-- ══════════════════════════════════════════════════════════════════════════
+-- SECCIÓN A — CONFIRMACIÓN DE ESQUEMA REAL
+-- ══════════════════════════════════════════════════════════════════════════
 
--- Query 2: Distribución por instrumento canónico (top 15)
 SELECT
-  norm_id,
-  COUNT(*) as row_count,
-  COUNT(DISTINCT numero_articulo) as article_count,
-  COUNT(CASE WHEN es_norma_vigente = true THEN 1 END) as vigente_count,
-  COUNT(CASE WHEN es_norma_vigente = false THEN 1 END) as no_vigente_count,
-  COUNT(CASE WHEN es_norma_vigente IS NULL THEN 1 END) as vigencia_null_count,
-  COUNT(CASE WHEN revision_pendiente = true THEN 1 END) as revision_pendiente_count
+  column_name,
+  data_type
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'biblioteca_vectores'
+ORDER BY ordinal_position;
+
+-- ══════════════════════════════════════════════════════════════════════════
+-- SECCIÓN B — INVENTARIO FÍSICO REAL DEL CORPUS
+-- ══════════════════════════════════════════════════════════════════════════
+
+SELECT
+  fuente,
+  COUNT(*) AS filas,
+  COUNT(DISTINCT num_articulo) AS articulos_distintos
 FROM biblioteca_vectores
-GROUP BY norm_id
-ORDER BY row_count DESC
-LIMIT 15;
+GROUP BY fuente
+ORDER BY filas DESC;
 
--- Query 3: norm_ids NO mapeados a los 13 canónicos
--- Canonical norm_ids from corpus-inventory-v2.csv:
--- HN_CODIGO_CIVIL, HN_CODIGO_FAMILIA, HN_DECRETO_102_2018, HN_DECRETO_31_2015,
--- HN_DECRETO_73_96, HN_DECRETO_35_2013, HN_DECRETO_124_92, HN_CPC_D211_2006,
--- HN_CPP_D9_99E, HN_CODIGO_NOTARIADO_D353_2005, HN_RESOLUCION_PCSJ_17_2012,
--- HN_CODIGO_COMERCIO_D73_1950, HN_LEY_ORGANIZACION_TRIBUNALES
-SELECT DISTINCT norm_id, COUNT(*) as row_count
-FROM biblioteca_vectores
-WHERE norm_id NOT IN (
-  'HN_CODIGO_CIVIL',
-  'HN_CODIGO_FAMILIA',
-  'HN_DECRETO_102_2018',
-  'HN_DECRETO_31_2015',
-  'HN_DECRETO_73_96',
-  'HN_DECRETO_35_2013',
-  'HN_DECRETO_124_92',
-  'HN_CPC_D211_2006',
-  'HN_CPP_D9_99E',
-  'HN_CODIGO_NOTARIADO_D353_2005',
-  'HN_RESOLUCION_PCSJ_17_2012',
-  'HN_CODIGO_COMERCIO_D73_1950',
-  'HN_LEY_ORGANIZACION_TRIBUNALES'
-)
-GROUP BY norm_id
-ORDER BY norm_id;
+-- ══════════════════════════════════════════════════════════════════════════
+-- SECCIÓN C — AGREGADOS
+-- ══════════════════════════════════════════════════════════════════════════
 
--- Query 4: Cobertura de vigencia por instrumento canónico
 SELECT
-  norm_id,
+  materia,
   es_norma_vigente,
-  COUNT(*) as count
+  COUNT(*) AS filas
 FROM biblioteca_vectores
-WHERE norm_id IN (
-  'HN_CODIGO_CIVIL',
-  'HN_CODIGO_FAMILIA',
-  'HN_DECRETO_102_2018',
-  'HN_DECRETO_31_2015',
-  'HN_DECRETO_73_96',
-  'HN_DECRETO_35_2013',
-  'HN_DECRETO_124_92',
-  'HN_CPC_D211_2006',
-  'HN_CPP_D9_99E',
-  'HN_CODIGO_NOTARIADO_D353_2005',
-  'HN_RESOLUCION_PCSJ_17_2012',
-  'HN_CODIGO_COMERCIO_D73_1950',
-  'HN_LEY_ORGANIZACION_TRIBUNALES'
-)
-GROUP BY norm_id, es_norma_vigente
-ORDER BY norm_id, es_norma_vigente;
+GROUP BY materia, es_norma_vigente
+ORDER BY materia, es_norma_vigente;
 
--- Query 5: Revisar duplicados por instrumento (artículos repetidos)
-WITH dedup_check AS (
+SELECT
+  COUNT(*) AS revision_pendiente_total
+FROM biblioteca_vectores
+WHERE revision_pendiente = true;
+
+-- ══════════════════════════════════════════════════════════════════════════
+-- SECCIÓN D — ANÁLISIS DE DUPLICADOS (OPCIONAL)
+-- ══════════════════════════════════════════════════════════════════════════
+
+-- D.1: Detectar artículos duplicados por fuente
+WITH article_counts AS (
   SELECT
-    norm_id,
-    numero_articulo,
-    COUNT(*) as occurrences
+    fuente,
+    num_articulo,
+    COUNT(*) AS occurrences
   FROM biblioteca_vectores
-  WHERE norm_id IN (
-    'HN_CODIGO_CIVIL',
-    'HN_CODIGO_FAMILIA',
-    'HN_DECRETO_102_2018',
-    'HN_DECRETO_31_2015',
-    'HN_DECRETO_73_96',
-    'HN_DECRETO_35_2013',
-    'HN_DECRETO_124_92',
-    'HN_CPC_D211_2006',
-    'HN_CPP_D9_99E',
-    'HN_CODIGO_NOTARIADO_D353_2005',
-    'HN_RESOLUCION_PCSJ_17_2012',
-    'HN_CODIGO_COMERCIO_D73_1950',
-    'HN_LEY_ORGANIZACION_TRIBUNALES'
-  )
-  GROUP BY norm_id, numero_articulo
+  GROUP BY fuente, num_articulo
 )
-SELECT norm_id, COUNT(*) as duplicated_articles, MAX(occurrences) as max_occurrences
-FROM dedup_check
+SELECT
+  fuente,
+  COUNT(*) AS duplicated_articles,
+  MAX(occurrences) AS max_occurrences
+FROM article_counts
 WHERE occurrences > 1
-GROUP BY norm_id
-ORDER BY norm_id;
+GROUP BY fuente
+ORDER BY fuente;
