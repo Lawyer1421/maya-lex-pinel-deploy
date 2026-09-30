@@ -8,6 +8,7 @@ Identity lock: thgrhueckkjdutjvcufp únicamente.
 
 import os
 import json
+import subprocess
 from pathlib import Path
 from dotenv import load_dotenv
 import psycopg2
@@ -42,19 +43,74 @@ if project_ref != REQUIRED_PROJECT:
 print(f"✅ Identity confirmed: {project_ref}")
 
 # Connect to Supabase PostgreSQL
-try:
-    conn = psycopg2.connect(
-        host=f"{project_ref}.supabase.co",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password=os.getenv("SUPABASE_DB_PASSWORD", ""),
-        sslmode="require"
-    )
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-except Exception as e:
-    print(f"❌ Connection failed: {e}")
+# Try three methods in order: 1) ENV var password, 2) Supabase CLI, 3) pooler connection
+conn = None
+db_password = os.getenv("SUPABASE_DB_PASSWORD", "")
+
+# Method 1: Direct connection using password from .env.local
+if db_password:
+    try:
+        print("🔗 Intentando conexión directa con SUPABASE_DB_PASSWORD...")
+        conn = psycopg2.connect(
+            host=f"db.{project_ref}.supabase.co",  # PostgreSQL direct host, not HTTP
+            port=5432,
+            database="postgres",
+            user="postgres",
+            password=db_password,
+            sslmode="require",
+            connect_timeout=10
+        )
+        print("✅ Conectado vía credenciales DB")
+    except Exception as e:
+        print(f"⚠️  Falló conexión directa: {e}")
+        conn = None
+
+# Method 2: Try Supabase CLI if installed and authenticated
+if not conn:
+    try:
+        print("🔗 Intentando con Supabase CLI...")
+        # supabase db push logs in to default project; we need to specify the project
+        result = subprocess.run(
+            ["supabase", "db", "execute", "--", "SELECT 1"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            print("⚠️  Supabase CLI disponible pero no implementado en este script")
+            # supabase CLI returns results as strings; we'd need to parse them
+            # For now, fallback to pooler method
+        else:
+            print(f"⚠️  Supabase CLI no autenticado: {result.stderr[:100]}")
+    except Exception as e:
+        print(f"⚠️  Supabase CLI no disponible: {e}")
+
+# Method 3: Try pooler connection (uses port 6543)
+if not conn:
+    try:
+        print("🔗 Intentando conexión via pooler (puerto 6543)...")
+        conn = psycopg2.connect(
+            host=f"{project_ref}.pooler.supabase.com",  # Pooler endpoint
+            port=6543,
+            database="postgres",
+            user="postgres",
+            password=db_password,
+            sslmode="require",
+            connect_timeout=10
+        )
+        print("✅ Conectado vía pooler")
+    except Exception as e:
+        print(f"⚠️  Falló conexión pooler: {e}")
+        conn = None
+
+if not conn:
+    print("\n❌ No se pudo conectar. Soluciones:")
+    print("   1. Verifica SUPABASE_DB_PASSWORD en .env.local")
+    print("   2. O usa `supabase login && supabase link` en tu máquina")
+    print("   3. O ejecuta las queries manualmente en SQL Editor de Supabase")
     exit(1)
+
+cur = conn.cursor(cursor_factory=RealDictCursor)
 
 print("✅ Connected to thgrhueckkjdutjvcufp")
 
