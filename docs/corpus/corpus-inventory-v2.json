@@ -52,8 +52,8 @@
   ],
   "generado_en": "2026-09-29T22:35:00Z",
   "reconciliation": {
-    "cola_958_hallazgos": "docs/governance/DECISION_LOG.md:357-958 (no archivo separado, líneas del mismo doc)",
-    "human_legal_review_queue": "Referenced DECISION_LOG.md:210-706; file not in repo (external/uncommitted)",
-    "v1_to_v2_delta": "Removed 2 metadata tables from instrument count. 10 v1 instruments all present + 3 new (Civil, CPP, Notariado complex). Total: 13 juridical instruments."
+    "cola_958_hallazgos": "HUMAN_LEGAL_REVIEW_QUEUE.jsonl contained 958 lines (hallazgos). File documented in DECISION_LOG.md:210-234, currently NOT_RECOVERED (external/uncommitted). Evidence: DECISION_LOG.md:212,234,324,396,616.",
+    "human_legal_review_queue": "Referenced DECISION_LOG.md:210-706; file not in repo (external/uncommitted). Contains 958 triage records.",
+    "v1_to_v2_delta": "Removed 2 metadata tables from instrument count. 10 v1 instruments all present + 3 new (Civil, CPP, Notariado complex). Total: 13 juridical instruments. CPC evidence corrected to DECISION_LOG.md:934."
   }
 }
