@@ -289,10 +289,11 @@ Orden de prioridades con salvaguardas ejecutivas:
    - Identify article IDs that are accepted in manifest but absent in DB (if any)
    - **Do NOT assume count of missing articles until comparison complete**
 
-2. **Ingestar SOLO artículos confirmados faltantes**
+2. **Ingest ONLY articles confirmed missing by reconciliation**
    - NO reopening entire Código del Notariado
-   - Ingest ONLY article IDs confirmed missing by H4 reconciliation
+   - Ingest ONLY article IDs identified as missing by H4 vs. manifest comparison
    - Preserve existing 94; avoid redundant ingestion
+   - **Note:** Reglamento del Código del Notariado already observed: 111 filas in DB; may be separate instrument or consolidation
 
 ### Bloque 4: DECRETOS / TRIBUNALES / KERNEL (Semana 4+)
 **Status:** Solo después de Bloques 1–3 completos.
@@ -335,31 +336,13 @@ Proceeder a Bloque 1 (Hygiene/Identity) requiere aprobación CLO.
 
 ## XI. HYGIENE QUERIES (Próxima fase)
 
-Para validar claims en sección VI, ejecutar en SQL Editor:
+Execute in SQL Editor via [docs/corpus/hygiene-identity-queries.sql](docs/corpus/hygiene-identity-queries.sql):
 
-```sql
--- Validar doc_6cfb720b vs Codigo Penal
-SELECT COUNT(*), COUNT(DISTINCT num_articulo) FROM biblioteca_vectores 
-WHERE fuente = 'doc_6cfb720b';
--- Comparar: ¿exactamente 635 = Código Penal?
-
--- Muestrear contenido de doc_* vs Código Penal
-SELECT fuente, num_articulo, LEFT(contenido, 50) FROM biblioteca_vectores 
-WHERE fuente IN ('doc_6cfb720b', 'Codigo Penal') LIMIT 10;
-
--- Validar CPC_COMENTADO_ROMERO_2024 vigencia
-SELECT es_norma_vigente, COUNT(*) FROM biblioteca_vectores 
-WHERE fuente = 'CPC_COMENTADO_ROMERO_2024' GROUP BY es_norma_vigente;
-
--- Auditar NULL fuente por materia
-SELECT materia, COUNT(*) FROM biblioteca_vectores 
-WHERE fuente IS NULL GROUP BY materia ORDER BY COUNT DESC;
-
--- Reconciliación Notariado 94 vs 98
-SELECT COUNT(DISTINCT num_articulo) FROM biblioteca_vectores 
-WHERE fuente = 'Código del Notariado de Honduras';
--- Esperar 98; comparar con 94 actual
-```
+- **H1:** NULL fuente distribution (by materia, coleccion, fuente_tipo, vigencia, revision_pendiente)
+- **H2:** doc_* inventory (metadata, row/articulo counts)
+- **H3:** CPC layer identity (distinct num_articulo counts, repetition distribution, es_norma_vigente)
+- **H4:** Notariado reconciliation (ordered num_articulo list for comparison vs manifest)
+- **H5:** Decree/alias discovery (metadata search for missing instruments)
 
 ---
 

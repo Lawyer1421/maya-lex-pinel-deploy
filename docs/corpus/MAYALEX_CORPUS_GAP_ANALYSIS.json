@@ -19,8 +19,11 @@
     "es_norma_vigente_true": 7857,
     "es_norma_vigente_false": 9090,
     "es_norma_vigente_null": 67257,
-    "es_norma_vigente_null_pct": 79.8,
+    "es_norma_vigente_null_pct": 79.9,
+    "es_norma_vigente_false_pct": 10.8,
+    "es_norma_vigente_true_pct": 9.3,
     "rows_revision_pending": 41,
+    "revision_pending_pct": 0.05,
     "critical_gaps": [
       "fuente IS NULL: 8,366 (9.9%) — purpose unclear (intentional demandas corpus vs. incomplete ingestion)",
       "es_norma_vigente = NULL: 67,257 (79.8%) — requires editorial audit",
@@ -47,7 +50,7 @@
         "fuente": "NULL",
         "filas": 8366,
         "articulos_distintos": null,
-        "pct_total": 36.8,
+        "pct_total": 9.9,
         "status": "UNCLASSIFIED"
       },
       {
@@ -60,26 +63,23 @@
       {
         "fuente": "Codigo Procesal Civil",
         "filas": 1864,
-        "articulos_distintos": 932,
-        "duplicated": 932,
-        "max_occurrences": 2,
-        "status": "DUPLICATED"
+        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
+        "note": "H3 query needed to measure",
+        "status": "REQUIRES_MEASUREMENT"
       },
       {
         "fuente": "CPC_COMENTADO_ROMERO_2024",
         "filas": 1481,
-        "articulos_distintos": 394,
-        "duplicated": 394,
-        "max_occurrences": 45,
-        "status": "CRITICAL_DUPLICATES"
+        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
+        "note": "H3 query needed to measure; validate es_norma_vigente",
+        "status": "REQUIRES_MEASUREMENT"
       },
       {
         "fuente": "CPC_TEXTO_BASE_D211-2006",
         "filas": 995,
-        "articulos_distintos": 925,
-        "duplicated": 70,
-        "max_occurrences": 4,
-        "status": "DUPLICATED"
+        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
+        "note": "H3 query needed to measure",
+        "status": "REQUIRES_MEASUREMENT"
       },
       {
         "fuente": "Codigo del Trabajo",
@@ -140,7 +140,7 @@
     "by_materia": {
       "00_CONSTITUCIONAL": {
         "vigente": 373,
-        "derogado": 5,
+        "false": 5,
         "null": 0,
         "total": 378,
         "pct_marcado": 100,
@@ -148,7 +148,7 @@
       },
       "01_PENAL": {
         "vigente": 1104,
-        "derogado": 3369,
+        "false": 3369,
         "null": 0,
         "total": 4473,
         "pct_marcado": 100,
@@ -156,7 +156,7 @@
       },
       "02_CIVIL": {
         "vigente": 4860,
-        "derogado": 380,
+        "false": 380,
         "null": 7982,
         "total": 13222,
         "pct_marcado": 39.6,
@@ -164,7 +164,7 @@
       },
       "03_NOTARIAL": {
         "vigente": 204,
-        "derogado": 7,
+        "false": 7,
         "null": 13578,
         "total": 13789,
         "pct_marcado": 1.5,
@@ -172,7 +172,7 @@
       },
       "05_LABORAL": {
         "vigente": 870,
-        "derogado": 0,
+        "false": 0,
         "null": 0,
         "total": 870,
         "pct_marcado": 100,
@@ -180,7 +180,7 @@
       },
       "06_FAMILIA": {
         "vigente": 107,
-        "derogado": 2699,
+        "false": 2699,
         "null": 0,
         "total": 2806,
         "pct_marcado": 100,
@@ -188,7 +188,7 @@
       },
       "07_CONSTITUCIONAL": {
         "vigente": 124,
-        "derogado": 2630,
+        "false": 2630,
         "null": 0,
         "total": 2754,
         "pct_marcado": 100,
@@ -196,7 +196,7 @@
       },
       "08_TRIBUTARIO": {
         "vigente": 215,
-        "derogado": 0,
+        "false": 0,
         "null": 0,
         "total": 215,
         "pct_marcado": 100,
@@ -204,7 +204,7 @@
       },
       "09_AGRARIO": {
         "vigente": 0,
-        "derogado": 0,
+        "false": 0,
         "null": 12351,
         "total": 12351,
         "pct_marcado": 0,
@@ -212,7 +212,7 @@
       },
       "10_LEYES_REGLAMENTOS": {
         "vigente": 0,
-        "derogado": 0,
+        "false": 0,
         "null": 33346,
         "total": 33346,
         "pct_marcado": 0,
@@ -381,58 +381,66 @@
         "canonical_id": "HN_DECRETO_73_1950",
         "name": "Código de Comercio (Decreto 73-1950)",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING",
-        "priority": "URGENT (per CLAUDE.md)"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "priority": "URGENT (per CLAUDE.md)",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_DECRETO_31_2015",
         "name": "Decreto 31-2015",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_DECRETO_35_2013",
         "name": "Decreto 35-2013",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_DECRETO_73_96",
         "name": "Decreto 73-96",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_DECRETO_102_2018",
         "name": "Decreto 102-2018",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_DECRETO_124_92",
         "name": "Decreto 124-92",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_LEY_ORGANIZACION_TRIBUNALES",
         "name": "Ley de Organización de Tribunales",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       },
       {
         "canonical_id": "HN_RESOLUCION_PCSJ_17_2012",
         "name": "Resolución PCSJ 17-2012",
         "db_source": null,
-        "filas": 0,
-        "status": "MISSING"
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
       }
     ]
   },
@@ -449,14 +457,14 @@
     },
     "rows_classified": {
       "current": 14352,
-      "target": 22718,
+      "target": 84204,
       "gap": 8366,
-      "pct_gap": 36.8,
+      "pct_gap": 9.9,
       "issue": "NULL fuente unclassified"
     },
     "vigencia_marked": {
       "current": 9352,
-      "target": 22718,
+      "target": 84204,
       "gap": 13366,
       "pct_gap": 58.8,
       "issue": "es_norma_vigente NULL in 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS"
@@ -486,9 +494,9 @@
       "NO direct merge with historical; ingest de-novo"
     ],
     "bloque_3_notariado_weeks_3_4": [
-      "Reconcile DB (94) vs manifest (98): identify 4 missing articles",
-      "Ingest ONLY 4 confirmed missing articles",
-      "Keep 94 existing; avoid re-ingestion of entire code"
+      "Reconcile DB observed (94) num_articulo against historical manifest accepted IDs (98? 108? confirm scope)",
+      "Identify articles accepted in manifest but absent in DB (if any)",
+      "Ingest ONLY articles confirmed missing by reconciliation; avoid re-ingestion of entire code"
     ],
     "bloque_4_decretos_tribunales_weeks_4plus": [
       "Search physical identity of Decretos: 31/2015, 35/2013, 73/96, 102/2018, 124/92",
@@ -503,7 +511,7 @@
     "immediate": "Execute hygiene queries (see section XI)",
     "bloque_1": "Audit NULL, doc_*, CPC layers, vigencia NULL → CLO decision",
     "bloque_2": "Physical search Comercio (D.73-1950) + D.284-2013 reform",
-    "bloque_3": "Reconcile Notariado 94 vs 98 → ingest 4 missing",
+    "bloque_3": "Reconcile Notariado 94 vs 98 → ingest confirmed missing",
     "bloque_4": "After Bloque 3: Decretos + Tribunales + Kernel"
   }
 }
