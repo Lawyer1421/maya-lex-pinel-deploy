@@ -25,27 +25,23 @@ ORDER BY materia, coleccion, null_fuente_rows DESC;
 -- H2 — doc_* INVENTORY (Metadata only, no contenido)
 -- ══════════════════════════════════════════════════════════════════════════
 
-WITH doc_sources AS (
-  SELECT DISTINCT fuente
-  FROM biblioteca_vectores
-  WHERE fuente LIKE 'doc_%'
-)
 SELECT
-  doc_sources.fuente,
-  COUNT(*) AS row_count,
-  COUNT(DISTINCT num_articulo) AS distinct_num_articulo,
-  MIN(coleccion) AS coleccion_sample,
-  MIN(fuente_tipo) AS fuente_tipo_sample,
-  MIN(created_at)::date AS earliest_ingestion,
-  MAX(created_at)::date AS latest_ingestion,
+  fuente,
+  materia,
+  coleccion,
+  fuente_tipo,
+  COUNT(*) AS filas,
+  COUNT(DISTINCT num_articulo) AS articulos_distintos,
   COUNT(CASE WHEN es_norma_vigente = true THEN 1 END) AS vigente_count,
   COUNT(CASE WHEN es_norma_vigente = false THEN 1 END) AS false_count,
   COUNT(CASE WHEN es_norma_vigente IS NULL THEN 1 END) AS vigencia_null_count,
-  COUNT(CASE WHEN revision_pendiente = true THEN 1 END) AS revision_pending_count
-FROM doc_sources
-JOIN biblioteca_vectores bv ON bv.fuente = doc_sources.fuente
-GROUP BY doc_sources.fuente
-ORDER BY row_count DESC;
+  COUNT(CASE WHEN revision_pendiente = true THEN 1 END) AS revision_pending_count,
+  MIN(created_at)::date AS earliest_ingestion,
+  MAX(created_at)::date AS latest_ingestion
+FROM biblioteca_vectores
+WHERE fuente LIKE 'doc_%'
+GROUP BY fuente, materia, coleccion, fuente_tipo
+ORDER BY fuente, materia, coleccion, fuente_tipo;
 
 -- ══════════════════════════════════════════════════════════════════════════
 -- H3 — CPC LAYERS (Separate identity measurement, no merge, no deduplication)
@@ -94,21 +90,34 @@ WHERE fuente = 'CPC_COMENTADO_ROMERO_2024'
 GROUP BY 1;
 
 -- H3.4 — Repeated num_articulo count per CPC layer
-WITH cpc_layers AS (
-  SELECT 'Codigo Procesal Civil' AS layer, fuente FROM biblioteca_vectores WHERE fuente = 'Codigo Procesal Civil'
-  UNION ALL
-  SELECT 'CPC_TEXTO_BASE_D211-2006', fuente FROM biblioteca_vectores WHERE fuente = 'CPC_TEXTO_BASE_D211-2006'
-  UNION ALL
-  SELECT 'CPC_COMENTADO_ROMERO_2024', fuente FROM biblioteca_vectores WHERE fuente = 'CPC_COMENTADO_ROMERO_2024'
-),
-article_occurrence AS (
+WITH article_occurrence AS (
   SELECT
-    cpc_layers.layer,
-    bv.num_articulo,
+    'Codigo Procesal Civil' AS layer,
+    num_articulo,
     COUNT(*) AS occurrences
-  FROM cpc_layers
-  JOIN biblioteca_vectores bv ON bv.fuente = cpc_layers.fuente
-  GROUP BY cpc_layers.layer, bv.num_articulo
+  FROM biblioteca_vectores
+  WHERE fuente = 'Codigo Procesal Civil'
+  GROUP BY num_articulo
+
+  UNION ALL
+
+  SELECT
+    'CPC_TEXTO_BASE_D211-2006',
+    num_articulo,
+    COUNT(*)
+  FROM biblioteca_vectores
+  WHERE fuente = 'CPC_TEXTO_BASE_D211-2006'
+  GROUP BY num_articulo
+
+  UNION ALL
+
+  SELECT
+    'CPC_COMENTADO_ROMERO_2024',
+    num_articulo,
+    COUNT(*)
+  FROM biblioteca_vectores
+  WHERE fuente = 'CPC_COMENTADO_ROMERO_2024'
+  GROUP BY num_articulo
 )
 SELECT
   layer,

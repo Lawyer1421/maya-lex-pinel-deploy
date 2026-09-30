@@ -26,7 +26,7 @@
     "revision_pending_pct": 0.05,
     "critical_gaps": [
       "fuente IS NULL: 8,366 (9.9%) — purpose unclear (intentional demandas corpus vs. incomplete ingestion)",
-      "es_norma_vigente = NULL: 67,257 (79.8%) — requires editorial audit",
+      "es_norma_vigente = NULL: 67,257 (79.9%) — requires editorial audit",
       "Canonical instruments presence: UNRESOLVED (5–7 confirmed, 6–8 require H5 discovery)",
       "CPC identity/repetition: REQUIRES_FURTHER_AUDIT (direct measurement needed)"
     ]
@@ -56,30 +56,29 @@
       {
         "fuente": "Código Civil de Honduras",
         "filas": 2372,
-        "articulos_distintos": 2372,
-        "pct_total": 10.4,
-        "status": "OK"
+        "articulos_distintos": null,
+        "status": "OBSERVED"
       },
       {
         "fuente": "Codigo Procesal Civil",
         "filas": 1864,
-        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
-        "note": "H3 query needed to measure",
-        "status": "REQUIRES_MEASUREMENT"
+        "articulos_distintos": null,
+        "note": "H3 query required for direct measurement",
+        "status": "OBSERVED"
       },
       {
         "fuente": "CPC_COMENTADO_ROMERO_2024",
         "filas": 1481,
-        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
-        "note": "H3 query needed to measure; validate es_norma_vigente",
-        "status": "REQUIRES_MEASUREMENT"
+        "articulos_distintos": null,
+        "note": "H3 query required; validate es_norma_vigente",
+        "status": "OBSERVED"
       },
       {
         "fuente": "CPC_TEXTO_BASE_D211-2006",
         "filas": 995,
-        "articulos_distintos": "REQUIRES_FURTHER_AUDIT",
-        "note": "H3 query needed to measure",
-        "status": "REQUIRES_MEASUREMENT"
+        "articulos_distintos": null,
+        "note": "H3 query required for direct measurement",
+        "status": "OBSERVED"
       },
       {
         "fuente": "Codigo del Trabajo",
@@ -294,42 +293,10 @@
       "es_norma_vigente = NULL → Unmarked; status unknown; requires CLO determination"
     ]
   },
-  "section_d_duplicates": {
-    "total_duplicated_articles": 1396,
-    "sources_with_duplicates": [
-      {
-        "fuente": "Codigo Procesal Civil",
-        "duplicated_articles": 932,
-        "max_occurrences": 2,
-        "pct_duplicated": 50,
-        "severity": "HIGH"
-      },
-      {
-        "fuente": "CPC_COMENTADO_ROMERO_2024",
-        "duplicated_articles": 394,
-        "max_occurrences": 45,
-        "pct_duplicated": 73,
-        "severity": "CRITICAL"
-      },
-      {
-        "fuente": "CPC_TEXTO_BASE_D211-2006",
-        "duplicated_articles": 70,
-        "max_occurrences": 4,
-        "pct_duplicated": 7,
-        "severity": "MEDIUM"
-      },
-      {
-        "fuente": "doc_* (17 documents)",
-        "duplicated_articles": "1 each",
-        "max_occurrences": "2-66",
-        "severity": "LOW"
-      }
-    ],
-    "critical_findings": [
-      "CPC_COMENTADO_ROMERO_2024: max 45 occurrences of single article = systematic over-segmentation",
-      "Codigo Procesal Civil: 50% of corpus is duplicated (likely segmentation ambiguity)",
-      "Impact: RAG searches return 45 identical results for same article"
-    ]
+  "section_d_repeated_num_articulo": {
+    "note": "Repeated num_articulo within single source (requires H3 direct measurement)",
+    "status": "REQUIRES_FURTHER_AUDIT",
+    "queries": "H3.4 returns repeated article counts and max occurrences per CPC layer"
   },
   "canonical_instruments_mapping": {
     "found": 6,

@@ -14,7 +14,7 @@
 - `fuente IS NULL`: 8,366 filas (9.9% del corpus)
 - `es_norma_vigente = true`: 7,857 filas
 - `es_norma_vigente = false`: 9,090 filas
-- `es_norma_vigente = NULL`: 67,257 filas (79.8% del corpus)
+- `es_norma_vigente = NULL`: 67,257 filas (79.9% del corpus)
 
 **Próxima fase:** Hygiene / Identity Queries (ver sección VI)
 
@@ -27,7 +27,7 @@
 - **fuente IS NULL:** 8,366 filas (9.9%)
 - **es_norma_vigente = true:** 7,857 (9.3%)
 - **es_norma_vigente = false:** 9,090 (10.8%)
-- **es_norma_vigente = NULL:** 67,257 (79.8% — requires editorial audit)
+- **es_norma_vigente = NULL:** 67,257 (79.9% — requires editorial audit)
 
 ### Canonical instruments presence (preliminary)
 - **Confirmed present:** 6/13 instruments (based on TOP-B source matching)
@@ -90,7 +90,7 @@ Full inventory requires direct execution of H2 hygiene query.
 ### Verified aggregate from production:
 - **es_norma_vigente = true:** 7,857 rows (9.3%)
 - **es_norma_vigente = false:** 9,090 rows (10.8%)
-- **es_norma_vigente = NULL:** 67,257 rows (79.8%)
+- **es_norma_vigente = NULL:** 67,257 rows (79.9%)
 
 ### Important note on semantics:
 - `es_norma_vigente = false` **does NOT automatically mean "DEROGADO"** (repealed)
@@ -103,7 +103,7 @@ Full inventory requires direct execution of H2 hygiene query.
 Full distribution by materia requires direct execution of H1 hygiene query.
 
 ### Key observation:
-67,257 rows (79.8%) have `es_norma_vigente = NULL` → requires CLO editorial audit to determine:
+67,257 rows (79.9%) have `es_norma_vigente = NULL` → requires CLO editorial audit to determine:
 - Are these legitimately unmarked, indeterminate, secondary reglations, or error?
 - Should they be marked definitively or remain NULL by design?
 
@@ -156,10 +156,11 @@ All unresolved statements classified as:
 - **Why:** Volume coincidence is suggestive but not conclusive
 - **Validation:** H2 query → examine doc_ad07e062, doc_c02b1028, doc_2a5252dd metadata
 
-**3. Notariado: 94 observed vs historical manifest (98 or 108?)**
+**3. Notariado: Reconcile observed vs historical manifest**
 - **Status:** REQUIRES_FURTHER_AUDIT
-- **Why:** Actual accepted IDs in historical manifest not yet confirmed
-- **Validation:** H4 query → generate ordered num_articulo list; compare with manifest offline
+- **Observation:** 94 num_articulo observed in production; 111 rows (Reglamento del Código del Notariado also observed separately)
+- **Task:** H4 query → generate ordered list of 94 num_articulo; compare against 98/108 accepted IDs in historical manifest
+- **Note:** Do NOT assume missing count; reconciliation determines if any accepted IDs are absent from DB
 
 **4. CPC identity / repeated num_articulo (max 45x) = chunking or error?**
 - **Status:** REQUIRES_FURTHER_AUDIT
@@ -354,7 +355,7 @@ Execute in SQL Editor via [docs/corpus/hygiene-identity-queries.sql](docs/corpus
 | **fuente IS NULL** | 8,366 (9.9%) | ✅ Confirmed |
 | **es_norma_vigente = true** | 7,857 (9.3%) | ✅ Confirmed |
 | **es_norma_vigente = false** | 9,090 (10.8%) | ✅ Confirmed |
-| **es_norma_vigente = NULL** | 67,257 (79.8%) | ✅ Confirmed |
+| **es_norma_vigente = NULL** | 67,257 (79.9%) | ✅ Confirmed |
 | **revision_pendiente = true** | 41 | ✅ Confirmed |
 | **Canonical instruments present** | 5–7 (UNRESOLVED) | ⚠️ Requires H5 verification |
 | **doc_* prefixed sources** | ~10+ | ⏳ Full inventory via H2 |
