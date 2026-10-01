@@ -3,10 +3,13 @@
   "created_at": "2026-10-01T00:00:00+00:00",
   "project_ref": "thgrhueckkjdutjvcufp",
   "production_writes": 0,
-  "present_or_observed_entries": 11,
-  "legacy_layers": 2,
-  "absent_verified_targets": 7,
-  "editorial_reconciliation_targets": 1,
+  "inventory_entry_counts": {
+    "present_or_observed_nonlegacy": 15,
+    "legacy_layers": 2,
+    "inventory_entries_total": 17,
+    "absent_verified_targets": 7,
+    "editorial_reconciliation_subset": 1
+  },
   "instruments": [
     {"canonical_id": "HN_CODIGO_CIVIL", "name": "Código Civil de Honduras", "rows": 2372, "rows_status": "MEDIDO_PREVIO", "distinct_articles": null, "distinct_status": "NO_MEDIDO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
     {"canonical_id": "HN_CODIGO_FAMILIA", "name": "Codigo de Familia", "rows": 373, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 373, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
