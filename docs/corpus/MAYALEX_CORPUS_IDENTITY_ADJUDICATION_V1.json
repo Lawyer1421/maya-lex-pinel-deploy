@@ -5,9 +5,9 @@
   "production_writes": 0,
   "evidence_provenance": {
     "source": "production SQL Editor",
-    "queries": "docs/corpus/hygiene-identity-queries.sql",
-    "execution": "H1-H5 read-only queries",
-    "transaction_read_only": "on"
+    "execution_mode": "manual read-only SELECT queries supplied by Fredy",
+    "evidence_blocks": ["H1", "H2", "H3", "H4", "H5"],
+    "transaction_read_only": "NO_MEDIDO"
   },
   "h1_null_source": {
     "total_rows": 8366,

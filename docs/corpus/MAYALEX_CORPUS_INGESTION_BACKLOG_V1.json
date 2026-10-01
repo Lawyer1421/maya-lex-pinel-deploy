@@ -70,9 +70,8 @@
       "searched_fields": ["fuente", "metadata::text"],
       "candidate_matches": 0,
       "priority": "P1",
-      "priority_reason": "Commercial reform (relates to Decreto 73-1950)",
-      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION",
-      "caveat": "Coordinate source discovery with D.73-1950; represents reform to commercial code"
+      "priority_reason": "Verified absent target pending legal identity/source reconciliation",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
     },
     {
       "canonical_id": "HN_DECRETO_73_96",

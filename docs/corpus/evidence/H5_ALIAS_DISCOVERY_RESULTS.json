@@ -1,6 +1,6 @@
 {
   "query_label": "H5",
-  "query_name": "DECREE / ALIAS DISCOVERY (Metadata search only, no content)",
+  "query_name": "DECREE / ALIAS DISCOVERY — fuente + metadata::text",
   "source": "production SQL Editor",
   "project_ref": "thgrhueckkjdutjvcufp",
   "production_write": false,
