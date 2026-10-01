@@ -29,7 +29,7 @@ Existing gates (preserved):
 
 | Aspect | Value |
 |--------|-------|
-| Physical State | PHYSICAL_STATE_MEASURED |
+| Physical State | PHYSICAL_EVIDENCE_COMPLETE |
 | Legal Status | LEGAL_STATUS_UNRESOLVED |
 
 ### Known Evidence
@@ -38,12 +38,18 @@ Existing gates (preserved):
 - **Vigencia Distribution:** 87 es_norma_vigente=true, 7 es_norma_vigente=false
 - **Sequence:** 1–94 complete, no gaps
 - **Physical Status:** PRESENT_COMPLETE
+- **False Article Set:** [11, 27, 72, 73, 84, 87, 93]
+- **All 7 rows:** fuente_tipo=codigo, revision_pendiente=false, verificado=false
+- **Metadata Present:** fecha_verificacion, hash_texto_sha256, instrumento, metodo_extraccion, norm_id, tipo_instrumento, verificado
+- **Metadata Absent:** decreto, reforma, reformado_por, derogado_por, vigencia, estado, nota, fuente_oficial, url, archivo_src, fecha, fecha_detectada
+- **Same-Source Variant Check:** NOT_FOUND (each article appears only once)
+- **Cross-Source Observation:** D77-2006 contains articles 11,27 vigente=true; Reglamento contains same numeric identifiers
 
 ### Unknowns
 
-- Exact seven num_articulo values with es_norma_vigente=false
-- Metadata/source fields for those seven rows
-- Legal instrument causing reform, substitution, repeal, or other status change
+- Editorial reason for false status marking
+- Legal status cause (derogation, substitution, reform, or other)
+- Official reform/repeal history affecting articles 72, 73, 84, 87, 93
 
 ### Required Evidence
 

@@ -17,19 +17,25 @@
       "canonical_adjudication_id": "CA-01",
       "title": "NOTARIADO_FALSE_ROWS",
       "current_status": {
-        "physical_state": "PHYSICAL_STATE_MEASURED",
+        "physical_state": "PHYSICAL_EVIDENCE_COMPLETE",
         "legal_status": "LEGAL_STATUS_UNRESOLVED"
       },
       "known_evidence": [
         "Código del Notariado: 94 rows measured",
         "87 es_norma_vigente=true",
         "7 es_norma_vigente=false",
-        "physical sequence 1–94 complete, no gaps"
+        "physical sequence 1–94 complete, no gaps",
+        "False article set: [11, 27, 72, 73, 84, 87, 93]",
+        "All 7 have: fuente_tipo=codigo, revision_pendiente=false, verificado=false",
+        "Metadata keys present: fecha_verificacion, hash_texto_sha256, instrumento, metodo_extraccion, norm_id, tipo_instrumento, verificado",
+        "Metadata keys absent: decreto, reforma, reformado_por, derogado_por, vigencia, estado, nota, fuente_oficial, url, archivo_src, fecha, fecha_detectada",
+        "Same-source variant check (CA01.4): NOT_FOUND (each article appears only once)",
+        "Cross-source observation: D77-2006 contains articles 11,27 vigente=true; Reglamento contains same numeric identifiers"
       ],
       "unknowns": [
-        "exact seven num_articulo values with false status",
-        "metadata/source fields for those seven rows",
-        "legal instrument causing reform, substitution, repeal, or other status"
+        "Editorial reason for false status marking",
+        "Legal status cause (derogation, substitution, reform, or other)",
+        "Official reform/repeal history affecting articles 72, 73, 84, 87, 93"
       ],
       "required_evidence": [
         "exact seven num_articulo values of false rows",

@@ -1,0 +1,138 @@
+{
+  "canonical_adjudication_id": "CA-01",
+  "title": "NOTARIADO_FALSE_ROWS_PHYSICAL_EVIDENCE",
+  "evidence_type": "PRODUCTION_QUERY_RESULTS",
+  "created_at": "2026-10-01T00:00:00+00:00",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_writes": 0,
+  "source": "Código del Notariado de Honduras (Decreto 353-2005)",
+  "query_pack": "ca01-notariado-false-rows.sql",
+  "physical_evidence_status": "COMPLETE",
+  "legal_adjudication_status": "PENDING",
+  "false_article_set": [11, 27, 72, 73, 84, 87, 93],
+  "false_article_count": 7,
+  "measurements": {
+    "physical_rows": 7,
+    "distinct_articles": 7,
+    "all_in_same_source": true,
+    "source_fuente_type": "codigo",
+    "all_vigente_false": true,
+    "all_revision_pendiente_false": true
+  },
+  "metadata_fields_present": [
+    "fecha_verificacion",
+    "hash_texto_sha256",
+    "instrumento",
+    "metodo_extraccion",
+    "norm_id",
+    "tipo_instrumento",
+    "verificado"
+  ],
+  "metadata_fields_absent": [
+    "decreto",
+    "reforma",
+    "reformado_por",
+    "derogado_por",
+    "vigencia",
+    "estado",
+    "nota",
+    "fuente_oficial",
+    "url",
+    "archivo_src",
+    "fecha",
+    "fecha_detectada"
+  ],
+  "observed_common_values": {
+    "norm_id": "mayalex_normativos:codigo_notariado_2005",
+    "instrumento": "Decreto 353-2005",
+    "tipo_instrumento": "codigo",
+    "fecha_verificacion": null,
+    "verificado": false,
+    "es_norma_vigente": false,
+    "revision_pendiente": false
+  },
+  "same_source_variant_check": {
+    "query": "CA01.4",
+    "result": "NOT_FOUND",
+    "interpretation": "Each of the 7 articles appears only once in the same source. No parallel variants detected (no same article with different vigencia states).",
+    "adjudication_implication": "Single false row per article does NOT establish derogation, substitution, or amendment within the same source."
+  },
+  "cross_source_observation": {
+    "title": "CA01_CROSS_SOURCE_EXTENDED_OBSERVATION",
+    "note": "Separate from formal CA01.5 cross-source query. Captured from extended evidence gathering.",
+    "decree_77_2006_reformas": {
+      "status": "OBSERVED_IN_PRODUCTION",
+      "articles_matching_false_set": {
+        "11": {
+          "found": true,
+          "rows": 1,
+          "es_norma_vigente": true,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)",
+          "legal_interpretation": "UNRESOLVED"
+        },
+        "27": {
+          "found": true,
+          "rows": 1,
+          "es_norma_vigente": true,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)",
+          "legal_interpretation": "UNRESOLVED"
+        },
+        "72": {
+          "found": false,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)"
+        },
+        "73": {
+          "found": false,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)"
+        },
+        "84": {
+          "found": false,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)"
+        },
+        "87": {
+          "found": false,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)"
+        },
+        "93": {
+          "found": false,
+          "source": "Decreto 77-2006 (Reformas al Código del Notariado)"
+        }
+      }
+    },
+    "reglamento_pcsj_17_2012": {
+      "status": "CONTAINS_SAME_NUMERIC_IDENTIFIERS",
+      "articles_matching_false_set": [11, 27, 72, 73, 84, 87, 93],
+      "legal_interpretation": "UNRESOLVED",
+      "critical_distinction": "Article 11 of Reglamento is a separate legal provision from Article 11 of Código del Notariado. Same num_articulo does NOT establish legal identity, amendment, replacement, or derogation."
+    }
+  },
+  "critical_distinctions": {
+    "verificado_attribute": "verificado=false is a VERIFICATION ATTRIBUTE (content validation status), NOT a legal status indicator. Must remain logically separate from es_norma_vigente.",
+    "same_source_variant": "Each of the 7 articles appears only once (no parallel variants). Absence of parallel variant does NOT establish derogation.",
+    "cross_source_numeric_match": "Same num_articulo across different legal instruments does NOT establish legal identity, amendment, replacement, or derogation. Article 11 of Reglamento ≠ Article 11 of Código.",
+    "absence_of_metadata": "Absence of legal-status metadata fields (decreto, reforma, reformado_por, derogado_por, etc.) in the false rows does NOT establish legal status. Absence is simply absence; no inference applies."
+  },
+  "adjudication_status": {
+    "physical_identification": "RESOLVED",
+    "physical_evidence_complete": true,
+    "same_source_variant_found": false,
+    "metadata_legal_status_fields_present": false,
+    "editorial_reason_for_false": "UNRESOLVED",
+    "legal_status_cause": "UNRESOLVED",
+    "legal_adjudication": "PENDING"
+  },
+  "next_required_legal_evidence": [
+    "Verify official text of Decreto 77-2006 (Reformas al Código del Notariado)",
+    "Determine whether D77-2006 provisions expressly amend Articles 11 and/or 27 of Decreto 353-2005",
+    "Identify official reform/repeal history affecting Articles 72, 73, 84, 87, 93",
+    "Determine present legal text/status article-by-article",
+    "Preserve distinction between: original provision, modifying provision, current consolidated legal rule"
+  ],
+  "governance": {
+    "source_discovery_authorized": false,
+    "production_writes": 0,
+    "legal_inference_performed": false,
+    "derogado_classification_inferred": false,
+    "no_legal_conclusions": "Physical evidence captured. All legal/canonical adjudication deferred to CLO."
+  }
+}
