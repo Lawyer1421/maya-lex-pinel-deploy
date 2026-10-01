@@ -237,14 +237,30 @@ All following instruments are absent from production corpus (zero candidates in 
 
 ---
 
-## MEASUREMENT STATUS SUMMARY
+## MEASUREMENT STATUS LEGEND
 
-| Category | Count | Status |
-|----------|-------|--------|
-| MEDIDO (directly measured) | 17 | Rows/articles/sequences from H1–H5 |
-| MEDIDO_PREVIO (committed prior) | 11 | Row counts from prior version |
-| NO_MEDIDO (not measured) | 4 | Distinct articles for prior instruments |
-| ABSENT_VERIFIED (H5 searched) | 7 | Zero candidates in fuente + metadata |
+| Status | Meaning |
+|--------|---------|
+| MEDIDO | Exact value directly supported by H1–H5 evidence |
+| MEDIDO_PREVIO | Exact value supported by previously committed / verified corpus evidence |
+| NO_MEDIDO | Metric not directly measured; no value inferred |
+| ABSENT_VERIFIED | H5 returned zero candidates in both fuente and metadata::text |
+
+**Note:** These are metric-level evidence states and are not mutually exclusive inventory-entry categories. They must not be summed or used as a partition of the 17 inventory entries.
+
+---
+
+## INVENTORY ENTRY COUNTS
+
+| Category | Count |
+|----------|------:|
+| Present or observed non-legacy entries | 15 |
+| Legacy layers | 2 |
+| Inventory entries total | 17 |
+| Absent verified targets | 7 |
+| Editorial reconciliation subset | 1 |
+
+**Note:** editorial_reconciliation_subset is a cross-cutting subset of present/observed entries and is not additive to inventory_entries_total.
 
 ---
 
