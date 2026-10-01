@@ -304,14 +304,14 @@
         "name": "Código Civil de Honduras",
         "db_source": "Código Civil de Honduras",
         "filas": 2372,
-        "status": "PRESENT",
+        "status": "PRESENT"
       },
       {
         "canonical_id": "HN_CODIGO_FAMILIA",
         "name": "Código de Familia",
         "db_source": "Codigo de Familia",
         "filas": 373,
-        "status": "PRESENT",
+        "status": "PRESENT"
       },
       {
         "canonical_id": "HN_CODIGO_NOTARIADO_D353_2005",
@@ -335,7 +335,7 @@
         "name": "Código Procesal Penal (Decreto 9-99-E)",
         "db_source": "Código Procesal Penal de Honduras",
         "filas": 480,
-        "status": "PRESENT",
+        "status": "PRESENT"
       },
       {
         "canonical_id": "HN_DECRETO_73_1950",

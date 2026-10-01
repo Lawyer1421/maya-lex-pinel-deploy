@@ -208,7 +208,12 @@ es_norma_vigente = NULL   → Unmarked; status unknown; requires CLO editorial d
 - HN_CODIGO_COMERCIO_D73_1950
 - HN_DECRETO_31_2015, 35_2013, 73_96, 102_2018, 124_92
 - HN_LEY_ORGANIZACION_TRIBUNALES
-- HN_RESOLUCION_PCSJ_17_2012
+
+**Observed (physical DB presence confirmed, subject to reconciliation):**
+- HN_RESOLUCION_PCSJ_17_2012 → Reglamento del Código del Notariado
+  - DB state: 111 rows / 111 distinct num_articulo observed in production
+  - Physical presence: confirmed
+  - Canonical legal-identity equivalence: remains subject to H4 identity reconciliation
 
 **How to resolve:** H5 query → search metadata for decree aliases and candidate names.
 
@@ -290,7 +295,7 @@ Orden de prioridades con salvaguardas ejecutivas:
    - NO reopening entire Código del Notariado
    - Ingest ONLY article IDs identified as missing by H4 vs. manifest comparison
    - Preserve existing 94; avoid redundant ingestion
-   - **Note:** Reglamento del Código del Notariado already observed: 111 filas in DB; may be separate instrument or consolidation
+   - **Note:** Reglamento del Código del Notariado already observed: 111 rows / 111 distinct num_articulo in DB; may be separate instrument or consolidation
 
 ### Bloque 4: DECRETOS / TRIBUNALES / KERNEL (Semana 4+)
 **Status:** Solo después de Bloques 1–3 completos.
