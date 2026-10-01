@@ -274,7 +274,7 @@ RETRIEVAL_POLICY_ADJUDICATION
 
 | Item | Title | Status | Resolution Type | Blocking Inventory |
 |------|-------|--------|-----------------|-------------------|
-| CA-01 | Notariado False Rows | Physical Measured / Legal Unresolved | Legal Vigencia Adjudication | YES |
+| CA-01 | Notariado False Rows | Physical Evidence Complete / Legal Pending | Legal Vigencia Adjudication | YES |
 | CA-02 | Legacy NULL Equivalence | Identifiable Layer / Equivalence Unresolved | Corpus Identity Mapping | YES |
 | CA-03 | CPC Texto Base Temporal | Base Variant Present / Temporal Unresolved | Temporal Text Adjudication | YES |
 | CA-04 | D102-2018 Canonical | Physical Confirmed / Legal Unresolved | Legal Status Adjudication | YES |
