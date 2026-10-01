@@ -279,7 +279,7 @@ All following instruments are absent from production corpus (zero candidates in 
 
 | Gate | Status | Note |
 |------|--------|------|
-| Inventory Frozen | ❌ NO | DRAFT status only |
+| Inventory Frozen | ❌ NO | VERIFIED status only (not frozen pending CLO adjudication) |
 | Identity Sprint Closed | ❌ NO | Adjudication pending |
 | Ingestion Ready | ❌ NO | No source discovery authorized |
 | Production Ready | ❌ NO | No production writes authorized |

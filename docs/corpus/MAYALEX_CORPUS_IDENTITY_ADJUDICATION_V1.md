@@ -290,7 +290,7 @@ H1–H5 hygiene queries have been executed against production biblioteca_vectore
 | Gate | Status | Reason |
 |------|--------|--------|
 | IDENTITY_SPRINT_CLOSED | NO | Evidence captured; CLO adjudication pending |
-| MASTER_INVENTORY_FROZEN | NO | DRAFT_VERIFIED_BY_EVIDENCE status only |
+| MASTER_INVENTORY_FROZEN | NO | VERIFIED status only (not frozen pending CLO adjudication) |
 | SOURCE_DISCOVERY_AUTHORIZED | NO | Only H5 absence verification conducted; no new source search authorized |
 | PRODUCTION_INGESTION_AUTHORIZED | NO | Bloque 1 hygiene adjudication incomplete |
 
