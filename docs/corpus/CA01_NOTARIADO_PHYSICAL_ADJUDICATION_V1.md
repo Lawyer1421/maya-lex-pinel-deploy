@@ -67,13 +67,15 @@ All 7 rows share:
 
 ### Fields PRESENT in All 7 Rows
 
-- fecha_verificacion (NULL for all)
-- hash_texto_sha256
-- instrumento (Decreto 353-2005)
-- metodo_extraccion
-- norm_id (mayalex_normativos:codigo_notariado_2005)
-- tipo_instrumento (codigo)
-- verificado (FALSE for all)
+| Field | Value Status | Measured Value |
+|-------|--------------|-----------------|
+| fecha_verificacion | MEASURED | NULL |
+| hash_texto_sha256 | KEY_PRESENT, VALUES_NO_MEDIDO | — |
+| instrumento | MEASURED | Decreto 353-2005 |
+| metodo_extraccion | KEY_PRESENT, VALUES_NO_MEDIDO | — |
+| norm_id | MEASURED | mayalex_normativos:codigo_notariado_2005 |
+| tipo_instrumento | MEASURED | codigo |
+| verificado | MEASURED | FALSE |
 
 ### Fields ABSENT in All 7 Rows
 
@@ -100,7 +102,7 @@ All 7 rows share:
 
 **verificado=false** is a VERIFICATION ATTRIBUTE (content validation status), NOT a legal status indicator.
 
-**es_norma_vigente=false** is a legal/normative validity marker.
+**es_norma_vigente=false** is a database boolean field. Its cause is UNRESOLVED. The presence of this value does NOT by itself establish derogation, amendment, substitution, or current legal invalidity.
 
 These must remain **logically separate**. No legal conclusion may be drawn from either boolean alone.
 

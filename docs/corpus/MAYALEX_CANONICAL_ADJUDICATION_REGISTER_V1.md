@@ -53,9 +53,11 @@ Existing gates (preserved):
 
 ### Required Evidence
 
-1. Exact seven num_articulo values of false rows
-2. Metadata and source traceability for each false row
-3. Legal basis for vigence status (derogation, substitution, reform, or other)
+1. Official source proving legal effect of false status, if any
+2. Official text and history affecting Articles 11, 27, 72, 73, 84, 87, 93
+3. Verification of Decreto 77-2006 provision text (confirmed D77 may contain Articles 11, 27)
+4. Determination of relationship between D77-2006 and Articles 11 and 27 of Decreto 353-2005
+5. Current legal status article-by-article from official sources
 
 ### Resolution Type
 

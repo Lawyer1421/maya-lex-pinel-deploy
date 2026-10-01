@@ -20,13 +20,46 @@
     "all_revision_pendiente_false": true
   },
   "metadata_fields_present": [
-    "fecha_verificacion",
-    "hash_texto_sha256",
-    "instrumento",
-    "metodo_extraccion",
-    "norm_id",
-    "tipo_instrumento",
-    "verificado"
+    {
+      "key": "fecha_verificacion",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "MEASURED",
+      "value": null
+    },
+    {
+      "key": "hash_texto_sha256",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "NO_MEDIDO"
+    },
+    {
+      "key": "instrumento",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "MEASURED",
+      "value": "Decreto 353-2005"
+    },
+    {
+      "key": "metodo_extraccion",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "NO_MEDIDO"
+    },
+    {
+      "key": "norm_id",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "MEASURED",
+      "value": "mayalex_normativos:codigo_notariado_2005"
+    },
+    {
+      "key": "tipo_instrumento",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "MEASURED",
+      "value": "codigo"
+    },
+    {
+      "key": "verificado",
+      "key_presence": "MEASURED_PRESENT",
+      "value_status": "MEASURED",
+      "value": false
+    }
   ],
   "metadata_fields_absent": [
     "decreto",

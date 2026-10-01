@@ -38,9 +38,11 @@
         "Official reform/repeal history affecting articles 72, 73, 84, 87, 93"
       ],
       "required_evidence": [
-        "exact seven num_articulo values of false rows",
-        "metadata and source traceability for each false row",
-        "legal basis for vigence status (derogation, substitution, reform, other)"
+        "official source proving legal effect of false status, if any",
+        "official text and history affecting Articles 11, 27, 72, 73, 84, 87, 93",
+        "verification of Decreto 77-2006 provision text (confirmed D77 may contain Articles 11, 27)",
+        "determination of relationship between D77-2006 and Articles 11 and 27 of Decreto 353-2005",
+        "current legal status article-by-article from official sources"
       ],
       "resolution_type": "LEGAL_VIGENCIA_ADJUDICATION",
       "flags": {
