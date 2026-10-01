@@ -1,7 +1,7 @@
 # MAYALEX — CORPUS INGESTION BACKLOG V1
 ## Absence-Verified Targets for Source Discovery & Ingestion
 
-**Status:** DRAFT_VERIFIED_ABSENCES_ONLY  
+**Status:** VERIFIED_ABSENCES_ONLY  
 **Date:** 2026-10-01  
 **Project:** thgrhueckkjdutjvcufp (MayaLex Pro)  
 **Production Writes:** 0  
@@ -172,6 +172,6 @@ This ingestion backlog contains **only instruments with ABSENT_VERIFIED status f
 
 ---
 
-**INGESTION BACKLOG V1 STATUS:** DRAFT_VERIFIED_ABSENCES_ONLY  
+**INGESTION BACKLOG V1 STATUS:** VERIFIED_ABSENCES_ONLY  
 **Production Writes:** 0  
 **No source discovery authorized. No ingestion authorized.**
