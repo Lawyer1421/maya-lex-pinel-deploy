@@ -1,0 +1,43 @@
+{
+  "query_label": "H4",
+  "query_name": "NOTARIADO RECONCILIATION",
+  "source": "production SQL Editor",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_write": false,
+  "instruments": [
+    {
+      "canonical_id": "HN_CODIGO_NOTARIADO_D353_2005",
+      "db_source": "Código del Notariado de Honduras (Decreto 353-2005)",
+      "rows": 94,
+      "distinct_articles": 94,
+      "article_sequence": "1-94",
+      "missing_from_sequence": 0,
+      "out_of_range_articles": 0,
+      "repeated_articles": 0,
+      "vigente_true": 87,
+      "vigente_false": 7,
+      "vigente_null": 0,
+      "vigencia_status": "MEASURED",
+      "physical_status": "PRESENT_COMPLETE",
+      "measurement_status": "MEDIDO",
+      "caveat": "Do not claim legal status (derogation/supersession) for es_norma_vigente=false rows without separate evidence"
+    },
+    {
+      "canonical_id": "HN_RESOLUCION_PCSJ_17_2012",
+      "db_source": "Reglamento del Código del Notariado (Resolución PCSJ-17-2012)",
+      "rows": 111,
+      "distinct_articles": 111,
+      "article_sequence": "1-111",
+      "missing_from_sequence": 0,
+      "repeated_articles": 0,
+      "vigente_true": 111,
+      "vigente_false": 0,
+      "vigente_null": 0,
+      "vigencia_status": "MEASURED_ALL_TRUE",
+      "physical_status": "PRESENT_COMPLETE",
+      "measurement_status": "MEDIDO",
+      "caveat": "Separate regulatory instrument; no reingestion required for physical coverage"
+    }
+  ],
+  "reconciliation_note": "H4 measured ordered num_articulo from production. Prior narrative of '94 vs 98/108' was reconciliation-pending. Physical evidence now shows: 94 rows, sequence 1-94, complete, no gaps. Reglamento independently present: 111 rows, sequence 1-111, complete."
+}

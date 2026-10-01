@@ -1,0 +1,112 @@
+{
+  "status": "DRAFT_VERIFIED_ABSENCES_ONLY",
+  "created_at": "2026-10-01T00:00:00+00:00",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_writes": 0,
+  "note": "Contains ONLY instruments with ABSENT_VERIFIED status from H5. No source discovery authorized yet. Each instrument requires explicit authorization before ingestion can proceed.",
+  "priority_p0": [
+    {
+      "canonical_id": "HN_CODIGO_COMERCIO_D73_1950",
+      "instrument": "Código de Comercio (Decreto 73-1950)",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P0",
+      "priority_reason": "Critical commercial law foundation",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
+    },
+    {
+      "canonical_id": "HN_LEY_ORGANIZACION_TRIBUNALES",
+      "instrument": "Ley de Organización y Atribuciones de los Tribunales",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P0",
+      "priority_reason": "Procedural and jurisdictional foundation",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
+    }
+  ],
+  "priority_p1": [
+    {
+      "canonical_id": "HN_DECRETO_31_2015",
+      "instrument": "Decreto 31-2015",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P1",
+      "priority_reason": "Specialized decree",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
+    },
+    {
+      "canonical_id": "HN_DECRETO_35_2013",
+      "instrument": "Decreto 35-2013",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P1",
+      "priority_reason": "Specialized decree",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
+    },
+    {
+      "canonical_id": "HN_DECRETO_124_92",
+      "instrument": "Decreto 124-92",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P1",
+      "priority_reason": "Specialized decree",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION"
+    },
+    {
+      "canonical_id": "HN_DECRETO_284_2013",
+      "instrument": "Decreto 284-2013",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P1",
+      "priority_reason": "Commercial reform (relates to Decreto 73-1950)",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION",
+      "caveat": "Coordinate source discovery with D.73-1950; represents reform to commercial code"
+    },
+    {
+      "canonical_id": "HN_DECRETO_73_96",
+      "instrument": "Decreto 73-96",
+      "canonical_name": "Código de la Niñez y la Adolescencia",
+      "absence_status": "ABSENT_VERIFIED",
+      "evidence_ref": "H5",
+      "searched_fields": ["fuente", "metadata::text"],
+      "candidate_matches": 0,
+      "priority": "P1",
+      "priority_reason": "Family law foundation",
+      "next_action": "SOURCE_DISCOVERY_PENDING_AUTHORIZATION",
+      "caveat": "Preserve canonical legal name; do not treat decree number as orphan"
+    }
+  ],
+  "editorial_reconciliation_required": [
+    {
+      "canonical_id": "HN_DECRETO_102_2018",
+      "instrument": "Ley Especial de Adopciones de Honduras (Decreto 102-2018)",
+      "physical_status": "PRESENT",
+      "rows": 64,
+      "distinct_articles": 64,
+      "vigente_true": 64,
+      "evidence_ref": "H5",
+      "canonical_status": "UNRESOLVED_CANONICAL_STATUS",
+      "reason": "Physical presence confirmed by H5; prior inventory may have classified differently. Canonical legal status must be reconciled with CLO before Bloque 4.",
+      "next_action": "EDITORIAL_RECONCILIATION_WITH_CLO",
+      "caveat": "Do NOT add to ingestion backlog; physical presence already confirmed. No reingestion required for physical coverage."
+    }
+  ],
+  "state_gates": {
+    "SOURCE_DISCOVERY_AUTHORIZED": false,
+    "INGESTION_AUTHORIZED": false,
+    "IDENTITY_SPRINT_CLOSED": false,
+    "MASTER_INVENTORY_FROZEN": false
+  }
+}

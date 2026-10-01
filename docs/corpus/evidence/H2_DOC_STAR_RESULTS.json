@@ -1,0 +1,49 @@
+{
+  "query_label": "H2",
+  "query_name": "doc_* INVENTORY (Metadata only, no contenido)",
+  "source": "production SQL Editor",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_write": false,
+  "measurement_status": "MEDIDO",
+  "doc_star_total_rows": 65776,
+  "doc_star_physical_sources": 15506,
+  "num_articulo_status": "NULL_ACROSS_LAYER",
+  "articulos_distintos": 0,
+  "vigente_true": 0,
+  "vigencia_status": "MEASURED: true=0; false/null not explicitly separated but all non-true rows observed",
+  "collections": [
+    "mayalex_instrumentos",
+    "mayalex_normativos"
+  ],
+  "main_materias": [
+    "09_AGRARIO",
+    "10_LEYES_REGLAMENT",
+    "03_NOTARIAL"
+  ],
+  "metadata_keys_uniformly_present": [
+    "id_documento",
+    "instrumento_num",
+    "es_fragmento",
+    "fecha_detectada",
+    "articulo",
+    "coleccion",
+    "hash_chunk",
+    "id_chunk",
+    "id"
+  ],
+  "metadata_keys_not_present": [
+    "titulo",
+    "filename",
+    "url"
+  ],
+  "adjudication": {
+    "layer_type": "DOCUMENT_INSTRUMENT_LAYER",
+    "primary_identity_fields": [
+      "metadata.id_documento",
+      "metadata.instrumento_num"
+    ],
+    "safe_to_delete": false,
+    "safe_to_treat_as_articulated_norms": false,
+    "caveat": "15506 physical fuente=doc_* sources observed; do not claim distinct id_documento without direct measurement"
+  }
+}
