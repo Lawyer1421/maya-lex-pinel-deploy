@@ -26,14 +26,17 @@ This inventory is:
 | HN_CODIGO_FAMILIA | Codigo de Familia | 373 | 373 | MEDIDO_PREVIO | PRESENT |
 | HN_CODIGO_NOTARIADO_D353_2005 | Código del Notariado (D. 353-2005) | 94 | 94 | 87/7 | PRESENT_COMPLETE |
 | HN_RESOLUCION_PCSJ_17_2012 | Reglamento del Notariado | 111 | 111 | 111 | PRESENT_COMPLETE |
-| HN_CPC_D211_2006 | Código Procesal Civil (layers) | 2,859 | (see H3) | 2,859 | PRESENT |
+| HN_CPC_PRIMARY_NORMATIVO | Codigo Procesal Civil (normative) | 932 | 932 | 932 | PRESENT |
+| HN_CPC_PROCEDURAL_MIRROR | Codigo Procesal Civil (procedural) | 932 | 932 | 932 | PRESENT |
+| HN_CPC_TEXTO_BASE_D211_2006 | CPC Texto Base (D. 211-2006) | 995 | 916 | 995 | PRESENT |
+| HN_CPC_ROMERO_2024 | CPC Comentado Romero 2024 | 1,481 | 420 | NULL | PRESENT |
 | HN_CPP_D9_99E | Código Procesal Penal | 480 | 480 | MEDIDO_PREVIO | PRESENT |
 | HN_CODIGO_PENAL | Codigo Penal | 635 | 635 | MEDIDO_PREVIO | PRESENT |
 | HN_CODIGO_TRABAJO | Codigo del Trabajo | 870 | 870 | MEDIDO_PREVIO | PRESENT |
 | HN_CONSTITUCION | Constitucion de la Republica | 378 | 378 | MEDIDO_PREVIO | PRESENT |
 | HN_CODIGO_TRIBUTARIO | Codigo Tributario | 215 | 215 | MEDIDO_PREVIO | PRESENT |
 | HN_LEY_JUSTICIA_CONSTITUCIONAL | Ley sobre Justicia Constitucional | 124 | 124 | MEDIDO_PREVIO | PRESENT |
-| (legacy) | NULL fuente layer | 8,366 | 0 | FALSE | PRESENT |
+| (legacy) | NULL fuente layer | 8,366 | NO_MEDIDO | FALSE | PRESENT |
 | (legacy) | doc_* layer | 65,776 | 0 | FALSE/NULL | PRESENT |
 | HN_DECRETO_102_2018 | Ley Especial de Adopciones | 64 | 64 | 64 | PRESENT |
 | (absent) | Código de Comercio (D. 73-1950) | — | — | — | ABSENT_VERIFIED |
@@ -185,7 +188,7 @@ This inventory is:
 
 #### NULL fuente Layer
 - **Total Rows:** 8,366 (MEDIDO)
-- **Distinct Articles:** 0
+- **Distinct Articles:** NO_MEDIDO (metadata presence observed; article count not measured)
 - **Physical Status:** PRESENT
 - **Layer Type:** LEGACY_NULL_SOURCE_LAYER
 - **Identity Traceability:** Available in metadata

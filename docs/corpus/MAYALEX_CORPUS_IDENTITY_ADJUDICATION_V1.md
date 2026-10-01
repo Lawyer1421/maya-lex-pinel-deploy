@@ -26,12 +26,11 @@ H1–H5 hygiene queries have been executed against production biblioteca_vectore
 | Item | Value |
 |------|-------|
 | Project | thgrhueckkjdutjvcufp |
-| Source | production SQL Editor (SELECT/WITH only) |
-| Query Pack | docs/corpus/hygiene-identity-queries.sql |
-| Execution Authority | User (gap-analysis-local.py --production-mode) |
-| Connection Mode | Read-only (conn.set_session(readonly=True)) |
-| Transaction Read-Only | Verified: on |
-| Evidence Files | docs/corpus/evidence/H{1-5}_*.json |
+| Source | production SQL Editor |
+| Execution Mode | manual read-only SELECT queries supplied by Fredy |
+| Evidence Blocks | H1, H2, H3, H4, H5 |
+| Transaction Read-Only | NO_MEDIDO |
+| Production Writes | 0 |
 
 ---
 
