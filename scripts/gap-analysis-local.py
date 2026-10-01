@@ -311,8 +311,14 @@ try:
     cursor.execute("SHOW transaction_read_only;")
     result = cursor.fetchone()
 
-    if not result or result[0] != 'on':
-        print(f"[ERROR] transaction_read_only not enforced. Got: {result}")
+    read_only_value = (
+        result.get("transaction_read_only")
+        if result
+        else None
+    )
+
+    if read_only_value != "on":
+        print(f"[ERROR] transaction_read_only verification failed")
         cleanup()
         exit(1)
 
