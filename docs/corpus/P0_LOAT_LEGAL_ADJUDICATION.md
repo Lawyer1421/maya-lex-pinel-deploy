@@ -167,8 +167,8 @@ El texto histórico de cada artículo 194 a 217 no está reimpreso en la compila
 | Presencia física en `biblioteca_vectores` | `ABSENT_VERIFIED` (H5, 0 candidatos) |
 | Texto base dentro del repositorio | Ausente. La compilación TSC sigue siendo fuente de trabajo externa |
 | Conteo de artículos únicos del PDF TSC | `NO_MEDIDO` |
-| Mapa artículo-número: orgánico vivo vs. procesal desplazado | Pendiente de cotejo. La regla ya es canónica |
-| Títulos XIV a XVII (auxiliares, notarios, aranceles, abogados) | Fuera del art. 84. Su vigencia particular no se cierra en este pase |
+| Mapa artículo-número: orgánico vivo vs. procesal desplazado (arts. no cubiertos por E3) | Pendiente de cotejo. La regla ya es canónica |
+| **Títulos XIV a XVII (auxiliares, notarios, aranceles, abogados) - E4 EN PROGRESO** | Adjudicación preliminar documentada. Pendiente CLO dictamen y verificación alcance textual. |
 | Gaceta original de 1906 | `NO_MEDIDO` |
 | Adjudicación canónica completa | false |
 
@@ -188,7 +188,11 @@ El texto histórico de cada artículo 194 a 217 no está reimpreso en la compila
 | Interdicto de amparo | Figura posesoria civil | No | No |
 | Tribunales especiales | Ampliación extranormativa. Texto de 1906 intacto | No | No |
 | Arts. 194-217 | `DEROGADO_EXPRESO (Ministerio Público)`. Art. 84, Decreto 228-93, 13 de diciembre de 1993, La Gaceta 27,241 del 6 de enero de 1994 | No | No |
-| Estatus de fase | `PARTIALLY_ADJUDICATED_ORGANIC_CANON` | No | No |
+| Título XIV (Secretarios) | Materia orgánica VIGENTE (con remisiones); materia adjetiva DESPLAZADA por CPC; disciplina DESPLAZADA por D41-1980 (E4 preliminar) | No | No |
+| Título XV (Receptores) | `DESPLAZADO_EXPRESO` por CPC (Arts. 135 y ss.). D211-2006 derogación integral (E4 preliminar) | No | No |
+| Título XVI (Notarios) | `DEROGADO_EXPRESO`/`DESPLAZADO_TÁCITAMENTE` por D353-2005 (Código del Notariado). Régimen integral sustituido (E4 preliminar) | No | No |
+| Título XVII (Abogados) | Postulación DESPLAZADA por CPC (Arts. 79-83); Disciplina/Aranceles DESPLAZADOS por LOrgánica CAH; Honorarios VIGENTE (E4 preliminar) | No | No |
+| Estatus de fase | `PARTIALLY_ADJUDICATED_ORGANIC_CANON` (E4 en progreso) | No | No |
 
 ---
 
@@ -196,17 +200,68 @@ El texto histórico de cada artículo 194 a 217 no está reimpreso en la compila
 
 ```
 MERGE_AUTHORIZED             = false
+SOURCE_DISCOVERY_AUTHORIZED  = true (exclusivo para Títulos XIV-XVII de la LOAT)
 INGESTION_AUTHORIZED         = false
 production_writes            = 0
 canonical_adjudication_complete = false
 ```
 
-`SOURCE_DISCOVERY_AUTHORIZED` = false. La indagación del Decreto 228-93 quedó concluida con esta convalidación. No autoriza SQL de producción ni scripts de ingesta.
+E4-LOAT activa: investigación de impacto normativo sobre Títulos XIV a XVII (secretarios, receptores, notarios, abogados). La indagación del D228-93 quedó concluida. No autoriza SQL de producción ni scripts de ingesta.
 
 ---
 
-## 9. Cotejo que sigue abierto
+## 9. Fase E4-LOAT: Compulsa y Adjudicación Preliminar Títulos XIV a XVII
 
-1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada.
-2. Cotejar, en un pase distinto, la vigencia de los Títulos XIV a XVII. El art. 84 no los deroga.
+### 9.1 Título XIV: Secretarios y Empleados Subalternos (Arts. 218 y ss.)
+
+**Hipótesis Investigación:**
+- Deberes orgánicos subsistentes (fe pública judicial, custodia de expedientes) vs. desplazamiento adjetivo
+- Desplazamiento procedural por CPC (Arts. 921, 931 CPC) - fe pública y trámite de providencias
+- Desplazamiento disciplinario por Decreto 41 de 1980 (Carrera Judicial)
+
+**Adjudicación Preliminar:**
+- **Materia Orgánica:** `VIGENTE` (con remisiones a CPC + Decreto 41-1980)
+- **Materia Adjetiva:** `DESPLAZADA` por CPC arts. 921 y 931
+- **Régimen Disciplinario:** `DESPLAZADO` por Decreto 41-1980
+
+### 9.2 Título XV: Receptores (Arts. 229 y ss.)
+
+**Hipótesis Investigación:**
+- Actos de comunicación, notificaciones, emplazamientos, auxilio judicial en su totalidad por CPC
+- Desplazamiento total por CPC arts. 135 y ss.
+
+**Adjudicación Preliminar:**
+- **Status:** `DESPLAZADO_EXPRESO` por CPC (Arts. 135 y ss.)
+- **Fundamento:** D211-2006 arts. 921, 931 (derogación de Código de Procedimientos 1906 + reenvío integral)
+
+### 9.3 Título XVI: Notarios y Arancel Notarial (Arts. 233-236)
+
+**Hipótesis Investigación:**
+- Régimen notarial histórico de 1906 derogado/desplazado por legislación especial posterior
+- Código del Notariado (D353-2005) establece régimen moderno completo
+- Ley Orgánica del Colegio de Abogados regula aspectos estatutarios
+
+**Adjudicación Preliminar:**
+- **Status:** `DEROGADO_EXPRESO` / `DESPLAZADO_TÁCITAMENTE`
+- **Fundamento:** Código del Notariado D353-2005 (régimen integral posterior)
+- **Alcance:** Arts. 233-236 sustituidos en su totalidad por legislación notarial moderna
+
+### 9.4 Título XVII: Abogados y Procuradores
+
+**Hipótesis Investigación:**
+- Régimen de postulación procesal absorbido por CPC (Arts. 79-83 CPC)
+- Aranceles/ética disciplinaria regulados por Ley Orgánica del Colegio de Abogados de Honduras
+- Arancel de honorarios excluido expresamente (Art. 248 LOAT)
+
+**Adjudicación Preliminar:**
+- **Postulación Procesal:** `DESPLAZADA` por CPC (Arts. 79-83)
+- **Régimen Disciplinario/Aranceles:** `DESPLAZADO` por Ley Orgánica CAH
+- **Honorarios:** `VIGENTE` (explícitamente excluido de arancel por Art. 248)
+
+---
+
+## 10. Cotejo que sigue abierto
+
+1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada (otros que arts. 194-217).
+2. Verificar alcance textual de desplazamientos en Títulos XIV-XVII: confirmar derogación total vs. parcial.
 3. Numerar, si el CLO lo aporta después, los decretos de extorsión y de jurisdicción nacional. La regla de ampliación competencial ya está cerrada.
