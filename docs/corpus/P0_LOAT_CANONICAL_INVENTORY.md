@@ -126,7 +126,7 @@ El dictamen CLO los clasifica como reforma accesoria, no como la ley base. Este 
 ## 6. Compuertas
 
 ```
-SOURCE_DISCOVERY_AUTHORIZED  = true   (solo fuentes documentales de la LOAT)
+SOURCE_DISCOVERY_AUTHORIZED  = false  (indagación del Decreto 228-93 concluida)
 INGESTION_AUTHORIZED         = false
 MERGE_AUTHORIZED             = false
 production_writes            = 0
@@ -139,4 +139,4 @@ estatus                      = PARTIALLY_ADJUDICATED_ORGANIC_CANON
 
 1. Separar, sobre la compilación TSC, el articulado de 1906 de los decretos anexos y fijar el conteo único.
 2. Numerar qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada. La regla CLO ya está cerrada.
-3. Leer el art. 84 del Decreto 228-93 antes de cerrar los arts. 194 a 217.
+3. Arts. 194 a 217: cerrados y convalidados por el CLO como `DEROGADO_EXPRESO (Ministerio Público)` por el art. 84 del Decreto 228-93. El detalle está en la adjudicación.
