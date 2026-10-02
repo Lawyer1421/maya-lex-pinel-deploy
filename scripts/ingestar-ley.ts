@@ -48,6 +48,7 @@
  *     --instrumento "Decreto N-AAAA" \
  *     [--dry-run]              (default: true)
  *     [--execute <salida.sql>] (genera embeddings + .sql local; NO inserta)
+ *     [--reject-quoted-heading] (opt-in: rechaza encabezados citados « / " / “ + marco de reforma)
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -92,6 +93,11 @@ export interface OpcionesCLI {
   jurisdiccion: string;
   dryRun: boolean;
   execute: string | null; // ruta de salida .sql, o null si no se pidió --execute
+  // Opt-in (default false). Mapped from --reject-quoted-heading. See
+  // OpcionesSegmentacion.rejectQuotedSubstituteHeading — Propiedad D.82-2004
+  // Art.140 quotes Impuesto Tradición Art.2 with «; must NOT be the generic default.
+  // " / “ require reform framing so OCR U+201C on real Art.49 is not dropped.
+  rejectQuotedSubstituteHeading?: boolean;
 }
 
 export function parsearArgs(argv: string[]): OpcionesCLI {
@@ -110,6 +116,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
   const jurisdiccion = get('--jurisdiccion') ?? 'HN';
   const executeOut = get('--execute') ?? null;
   const dryRun = !executeOut; // --execute es lo único que saca del modo dry-run
+  const rejectQuotedSubstituteHeading = has('--reject-quoted-heading');
 
   if (!input) fallarDuro('falta --input <ruta.pdf|ruta.txt>');
   if (!coleccion) fallarDuro('falta --coleccion');
@@ -132,6 +139,7 @@ export function parsearArgs(argv: string[]): OpcionesCLI {
     jurisdiccion,
     dryRun,
     execute: executeOut,
+    rejectQuotedSubstituteHeading,
   };
 }
 
@@ -221,6 +229,41 @@ export interface OpcionesSegmentacion {
   // propia fuente sigue esta convención, tras verificarlo contra su propio
   // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
   exigirOrtografiaSinTilde?: boolean;
+  /**
+   * When true, reject candidates whose match is immediately preceded (ignoring
+   * whitespace) by an opening quotation used for substituted article text.
+   * Guillemet `«` is sufficient (Gaceta substitute quotation — Propiedad
+   * D.82-2004 Art.140 → Impuesto Tradición Art.2). ASCII `"` and U+201C `“`
+   * also reject, but only when reform-substitute framing (`deberá leerse así`
+   * / `Reformar el Artículo`) appears in the ~200 characters before the match.
+   * Bare U+201C without framing is an OCR column-edge artifact on this Gaceta
+   * (real Propiedad Art.49) and must not drop a genuine heading. Default false.
+   *
+   * Do NOT enable globally: other corpora are not audited for this signal.
+   */
+  rejectQuotedSubstituteHeading?: boolean;
+}
+
+const LOOKBEHIND_REFORMA_CHARS = 200;
+const RE_MARCO_REFORMA = /deber[aá]\s+leerse\s+as[ií]|reformar\s+el\s+art[ií]culo/i;
+
+/**
+ * True when the character immediately before `inicio` (skipping space/tab/CR/LF)
+ * is a substitute-article opening quote under the rules above. Does not invent
+ * or rewrite source text.
+ */
+export function precedidoPorComillaDeSustituto(texto: string, inicio: number): boolean {
+  if (inicio <= 0 || inicio > texto.length) return false;
+  let i = inicio - 1;
+  while (i >= 0 && /[ \t\r\n]/.test(texto[i]!)) i--;
+  if (i < 0) return false;
+  const prev = texto[i]!;
+  if (prev === '«') return true;
+  if (prev === '"' || prev === '\u201C') {
+    const lookbehind = texto.slice(Math.max(0, i - LOOKBEHIND_REFORMA_CHARS), i);
+    return RE_MARCO_REFORMA.test(lookbehind);
+  }
+  return false;
 }
 
 export function segmentarGenerico(
@@ -242,7 +285,10 @@ export function segmentarGenerico(
     // Se evalúa contra una ventana corta, NUNCA contra el texto completo
     // hasta el siguiente match (ver hallazgo arriba). Se exige además la
     // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
-    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    let aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    if (aceptado && opciones.rejectQuotedSubstituteHeading && precedidoPorComillaDeSustituto(textoLimpio, inicio)) {
+      aceptado = false;
+    }
     return { inicio, numArticulo, aceptado, largoMatch };
   });
 
@@ -644,7 +690,12 @@ async function main() {
 
   const textoCrudo = extraerTexto(opts.input);
   const textoLimpio = limpiarRuidoBasico(textoCrudo);
-  const candidatos = segmentarGenerico(textoLimpio);
+  const candidatos = segmentarGenerico(textoLimpio, {
+    rejectQuotedSubstituteHeading: opts.rejectQuotedSubstituteHeading === true,
+  });
+  if (opts.rejectQuotedSubstituteHeading) {
+    console.log('Filtro opt-in: rejectQuotedSubstituteHeading=true (--reject-quoted-heading)\n');
+  }
 
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
