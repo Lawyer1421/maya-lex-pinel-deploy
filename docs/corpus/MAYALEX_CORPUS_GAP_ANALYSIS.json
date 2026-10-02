@@ -1,0 +1,452 @@
+{
+  "metadata": {
+    "generated_date": "2026-09-30",
+    "project": "thgrhueckkjdutjvcufp",
+    "table": "public.biblioteca_vectores",
+    "analysis_type": "gap_analysis_provisional",
+    "status": "PROVISIONAL — hygiene & identity queries pending, NO production writes/ingesta",
+    "canonical_instruments": 13,
+    "claims_not_yet_proven": 7,
+    "next_phase": "Bloque 1: Hygiene / Identity Queries",
+    "clo_approval_required": true
+  },
+  "summary": {
+    "total_rows_db": 84204,
+    "fuente_null": 8366,
+    "fuente_null_pct": 9.9,
+    "es_norma_vigente_true": 7857,
+    "es_norma_vigente_false": 9090,
+    "es_norma_vigente_null": 67257,
+    "es_norma_vigente_null_pct": 79.9,
+    "es_norma_vigente_false_pct": 10.8,
+    "es_norma_vigente_true_pct": 9.3,
+    "rows_revision_pending": 41,
+    "revision_pending_pct": 0.05,
+    "critical_gaps": [
+      "fuente IS NULL: 8,366 (9.9%) — purpose unclear (intentional demandas corpus vs. incomplete ingestion)",
+      "es_norma_vigente = NULL: 67,257 (79.9%) — requires editorial audit",
+      "Canonical instruments presence: UNRESOLVED (5–7 confirmed, 6–8 require H5 discovery)",
+      "CPC identity/repetition: REQUIRES_FURTHER_AUDIT (direct measurement needed)"
+    ]
+  },
+  "section_a_schema": {
+    "confirmed": true,
+    "columns": 13,
+    "critical_columns": [
+      "fuente (text) — source of truth",
+      "num_articulo (text) — article identifier",
+      "materia (text) — subject category",
+      "es_norma_vigente (boolean) — status (needs audit)",
+      "revision_pendiente (boolean) — 41 flagged"
+    ],
+    "note": "No columns named norm_id or numero_articulo; real schema uses (fuente, num_articulo)"
+  },
+  "section_b_inventory": {
+    "total_sources": 24,
+    "top_sources": [
+      {
+        "fuente": "NULL",
+        "filas": 8366,
+        "articulos_distintos": null,
+        "pct_total": 9.9,
+        "status": "UNCLASSIFIED"
+      },
+      {
+        "fuente": "Código Civil de Honduras",
+        "filas": 2372,
+        "articulos_distintos": null,
+        "status": "OBSERVED"
+      },
+      {
+        "fuente": "Codigo Procesal Civil",
+        "filas": 1864,
+        "articulos_distintos": null,
+        "note": "H3 query required for direct measurement",
+        "status": "OBSERVED"
+      },
+      {
+        "fuente": "CPC_COMENTADO_ROMERO_2024",
+        "filas": 1481,
+        "articulos_distintos": null,
+        "note": "H3 query required; validate es_norma_vigente",
+        "status": "OBSERVED"
+      },
+      {
+        "fuente": "CPC_TEXTO_BASE_D211-2006",
+        "filas": 995,
+        "articulos_distintos": null,
+        "note": "H3 query required for direct measurement",
+        "status": "OBSERVED"
+      },
+      {
+        "fuente": "Codigo del Trabajo",
+        "filas": 870,
+        "articulos_distintos": 870,
+        "status": "OK"
+      },
+      {
+        "fuente": "Codigo Penal",
+        "filas": 635,
+        "articulos_distintos": 635,
+        "status": "OK"
+      },
+      {
+        "fuente": "Código Procesal Penal de Honduras",
+        "filas": 480,
+        "articulos_distintos": 480,
+        "status": "OK"
+      },
+      {
+        "fuente": "Constitucion de la Republica de Honduras",
+        "filas": 378,
+        "articulos_distintos": 378,
+        "status": "OK"
+      },
+      {
+        "fuente": "Codigo de Familia",
+        "filas": 373,
+        "articulos_distintos": 373,
+        "status": "OK"
+      }
+    ],
+    "normalized_sources": {
+      "vigente_sin_duplicados": [
+        "Código Civil de Honduras (2,372)",
+        "Codigo del Trabajo (870)",
+        "Codigo Penal (635)",
+        "Código Procesal Penal de Honduras (480)",
+        "Constitucion de la Republica de Honduras (378)",
+        "Codigo de Familia (373)",
+        "Codigo Tributario (215)",
+        "Ley sobre Justicia Constitucional (124)",
+        "Reglamento del Código del Notariado (111)",
+        "Código del Notariado de Honduras (94)"
+      ],
+      "cpc_layers_observed": [
+        "Codigo Procesal Civil (1,864 filas)",
+        "CPC_COMENTADO_ROMERO_2024 (1,481 filas)",
+        "CPC_TEXTO_BASE_D211-2006 (995 filas)",
+        "note: articulos_distintos counts require H3 measurement"
+      ],
+      "sin_clasificar": [
+        "NULL (8,366 filas)",
+        "doc_* prefixed (17+ documentos sin articulos_distintos)"
+      ]
+    }
+  },
+  "section_c_vigencia": {
+    "by_materia": {
+      "00_CONSTITUCIONAL": {
+        "vigente": 373,
+        "false": 5,
+        "null": 0,
+        "total": 378,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "01_PENAL": {
+        "vigente": 1104,
+        "false": 3369,
+        "null": 0,
+        "total": 4473,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "02_CIVIL": {
+        "vigente": 4860,
+        "false": 380,
+        "null": 7982,
+        "total": 13222,
+        "pct_marcado": 39.6,
+        "status": "PARTIAL"
+      },
+      "03_NOTARIAL": {
+        "vigente": 204,
+        "false": 7,
+        "null": 13578,
+        "total": 13789,
+        "pct_marcado": 1.5,
+        "status": "CRITICAL_NULL"
+      },
+      "05_LABORAL": {
+        "vigente": 870,
+        "false": 0,
+        "null": 0,
+        "total": 870,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "06_FAMILIA": {
+        "vigente": 107,
+        "false": 2699,
+        "null": 0,
+        "total": 2806,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "07_CONSTITUCIONAL": {
+        "vigente": 124,
+        "false": 2630,
+        "null": 0,
+        "total": 2754,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "08_TRIBUTARIO": {
+        "vigente": 215,
+        "false": 0,
+        "null": 0,
+        "total": 215,
+        "pct_marcado": 100,
+        "status": "OK"
+      },
+      "09_AGRARIO": {
+        "vigente": 0,
+        "false": 0,
+        "null": 12351,
+        "total": 12351,
+        "pct_marcado": 0,
+        "status": "CRITICAL_NULL"
+      },
+      "10_LEYES_REGLAMENTOS": {
+        "vigente": 0,
+        "false": 0,
+        "null": 33346,
+        "total": 33346,
+        "pct_marcado": 0,
+        "status": "CRITICAL_NULL"
+      }
+    },
+    "revision_pendiente": {
+      "total_flagged": 41,
+      "pct_total": 0.2,
+      "note": "Rows with revision_pendiente = true require manual audit before RAG indexing"
+    }
+  },
+  "claim_status_model": {
+    "CONFIRMED": "Verified against production data",
+    "REFUTED": "Contradicted by production data",
+    "PARTIALLY_CONFIRMED": "Some evidence present but incomplete",
+    "REQUIRES_FURTHER_AUDIT": "Data available but requires direct measurement via H1–H5",
+    "UNRESOLVED": "Insufficient information to adjudicate"
+  },
+  "claims_pending_validation": {
+    "note": "All unresolved statements awaiting H1–H5 hygiene query results. NO automated decisions until audit complete.",
+    "claims": [
+      {
+        "id": 1,
+        "claim": "doc_6cfb720b (if exists) is Código Penal duplicate",
+        "status": "UNRESOLVED",
+        "validation": "H2 query → doc_* inventory metadata (materia, coleccion, fuente_tipo)",
+        "note": "Row count coincidence insufficient for identity confirmation"
+      },
+      {
+        "id": 2,
+        "claim": "Triples (748/354 rows) are unintended duplicates",
+        "status": "UNRESOLVED",
+        "validation": "H2 query → compare metadata of doc_ad07e062, doc_c02b1028, doc_2a5252dd",
+        "note": "Volume coincidence is suggestive but not conclusive"
+      },
+      {
+        "id": 3,
+        "claim": "Notariado: exact count of missing articles (assumed 4, but unconfirmed)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H4 query → ordered num_articulo list vs historical manifest (must confirm manifest scope: 98? 108?)",
+        "note": "DO NOT assume missing count until sets are compared"
+      },
+      {
+        "id": 4,
+        "claim": "Repeated num_articulo (max 45x in CPC layers) = legitimate chunking",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H3 query → measure distinct num_articulo + repetition distribution per CPC layer",
+        "note": "Segmentation variance vs. deduplication error not yet determined"
+      },
+      {
+        "id": 5,
+        "claim": "CPC_COMENTADO_ROMERO_2024 has es_norma_vigente = false (doctrina, not law)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H3.3 query → verify es_norma_vigente distribution for Romero",
+        "note": "Asserted in CLAUDE.md; needs DB validation"
+      },
+      {
+        "id": 6,
+        "claim": "Missing decrees are truly absent (not under aliases in doc_* or metadata)",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 query → search fuente/metadata for Decretos 31/2015, 35/2013, 73/96, 102/2018, 124/92, 73/1950, etc.",
+        "note": "TOP-B output was truncated; absence from TOP-10 does not confirm nonexistence"
+      },
+      {
+        "id": 7,
+        "claim": "NULL fuente (8,366 = 9.9%) is intentional (demandas/análisis) vs. ingestion error",
+        "status": "UNRESOLVED",
+        "validation": "H1 query → NULL distribution by materia, coleccion, fuente_tipo; requires identity/metadata reconciliation",
+        "note": "Purpose not documented; requires editorial determination"
+      }
+    ]
+  },
+  "semantic_warning": {
+    "es_norma_vigente_semantics": "Do NOT infer legal status from boolean alone",
+    "notes": [
+      "es_norma_vigente = true → Marked current; requires editorial confirmation",
+      "es_norma_vigente = false → Marked not-current; requires audit (derogated? superseded? archived?)",
+      "es_norma_vigente = NULL → Unmarked; status unknown; requires CLO determination"
+    ]
+  },
+  "section_d_repeated_num_articulo": {
+    "note": "Repeated num_articulo within single source (requires H3 direct measurement)",
+    "status": "REQUIRES_FURTHER_AUDIT",
+    "queries": "H3.4 returns repeated article counts and max occurrences per CPC layer"
+  },
+  "canonical_instruments_mapping": {
+    "detailed": [
+      {
+        "canonical_id": "HN_CODIGO_CIVIL",
+        "name": "Código Civil de Honduras",
+        "db_source": "Código Civil de Honduras",
+        "filas": 2372,
+        "status": "PRESENT"
+      },
+      {
+        "canonical_id": "HN_CODIGO_FAMILIA",
+        "name": "Código de Familia",
+        "db_source": "Codigo de Familia",
+        "filas": 373,
+        "status": "PRESENT"
+      },
+      {
+        "canonical_id": "HN_CODIGO_NOTARIADO_D353_2005",
+        "name": "Código del Notariado de Honduras (Decreto 353-2005)",
+        "db_source": "Código del Notariado de Honduras",
+        "filas": 94,
+        "status": "PRESENT",
+        "note": "Small volume; needs audit to confirm D353-2005"
+      },
+      {
+        "canonical_id": "HN_CPC_D211_2006",
+        "name": "Código Procesal Civil (Decreto 211-2006)",
+        "db_source": "CPC_TEXTO_BASE_D211-2006",
+        "filas": 995,
+        "status": "PRESENT",
+        "duplicates": 70,
+        "note": "Also ingested as variants: Codigo Procesal Civil (1,864) and CPC_COMENTADO_ROMERO_2024 (1,481)"
+      },
+      {
+        "canonical_id": "HN_CPP_D9_99E",
+        "name": "Código Procesal Penal (Decreto 9-99-E)",
+        "db_source": "Código Procesal Penal de Honduras",
+        "filas": 480,
+        "status": "PRESENT"
+      },
+      {
+        "canonical_id": "HN_DECRETO_73_1950",
+        "name": "Código de Comercio (Decreto 73-1950)",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "priority": "URGENT (per CLAUDE.md)",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_DECRETO_31_2015",
+        "name": "Decreto 31-2015",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_DECRETO_35_2013",
+        "name": "Decreto 35-2013",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_DECRETO_73_96",
+        "name": "Decreto 73-96",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_DECRETO_102_2018",
+        "name": "Decreto 102-2018",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_DECRETO_124_92",
+        "name": "Decreto 124-92",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_LEY_ORGANIZACION_TRIBUNALES",
+        "name": "Ley de Organización de Tribunales",
+        "db_source": null,
+        "filas": "UNRESOLVED",
+        "status": "REQUIRES_FURTHER_AUDIT",
+        "validation": "H5 decree discovery query"
+      },
+      {
+        "canonical_id": "HN_RESOLUCION_PCSJ_17_2012",
+        "name": "Resolución PCSJ 17-2012 / Reglamento del Código del Notariado",
+        "db_source": "Reglamento del Código del Notariado",
+        "filas": 111,
+        "articulos_distintos": 111,
+        "status": "OBSERVED",
+        "note": "Physical DB presence confirmed; canonical legal-identity mapping subject to H5 reconciliation"
+      }
+    ]
+  },
+  "roadmap_clo": {
+    "status": "PROVISIONAL — validation only, NO production writes/ingesta/comercio_merge",
+    "executive_restrictions": {
+      "documentation_commit": "YES — this analysis is Evidence",
+      "production_writes": "NO — until Bloque 1 CLO-approved",
+      "ingestion": "NO — until Bloque 1 complete",
+      "comercio_merge": "NO — until Comercio source validated",
+      "hygiene_queries": "YES — proceed to next phase"
+    },
+    "bloque_1_hygiene_identity_weeks_1_2": [
+      "Audit NULL fuente (8,366): sample 100 rows → decide demandas or reclassify",
+      "Audit doc_* documents: confirm if duplicates or intentional non-normative corpus",
+      "Validate CPC_COMENTADO_ROMERO_2024: confirm es_norma_vigente=false (doctrina, not law)",
+      "Validate CPC max_occurrences=45: confirm chunking (paragraphs) vs duplicates",
+      "Mark vigencia in 03_NOTARIAL, 09_AGRARIO, 10_LEYES_REGLAMENTOS (audit sample)"
+    ],
+    "bloque_2_comercio_weeks_2_3": [
+      "Physical search: Decreto 73-1950 (Código de Comercio) from official source",
+      "Validate Decreto 284-2013 as Comercio reform",
+      "Create clean source 'Código de Comercio (D.73-1950, vigente per D.284-2013)'",
+      "Ingest articles 1–1662 with precise vigencia marking",
+      "NO direct merge with historical; ingest de-novo"
+    ],
+    "bloque_3_notariado_weeks_3_4": [
+      "Reconcile DB observed (94) num_articulo against historical manifest accepted IDs (98? 108? confirm scope)",
+      "Identify articles accepted in manifest but absent in DB (if any)",
+      "Ingest ONLY articles confirmed missing by reconciliation; avoid re-ingestion of entire code"
+    ],
+    "bloque_4_decretos_tribunales_weeks_4plus": [
+      "Search physical identity of Decretos: 31/2015, 35/2013, 73/96, 102/2018, 124/92",
+      "Avoid double-ingestion of variants",
+      "Ley Organización Tribunales: validate if simple or distributed",
+      "Resolución PCSJ 17-2012: confirm decree vs resolution vs both",
+      "Kernel / PRC-1: remain paused"
+    ]
+  },
+  "next_steps": {
+    "documentation": "Document committed as Evidence; awaiting CLO approval",
+    "immediate": "Execute hygiene queries (see section XI)",
+    "bloque_1": "Audit NULL, doc_*, CPC layers, vigencia NULL → CLO decision",
+    "bloque_2": "Physical search Comercio (D.73-1950) + D.284-2013 reform",
+    "bloque_3": "Reconcile the 94 num_articulo observed in production against the 98/108 accepted IDs from the historical manifest → ingest confirmed missing",
+    "bloque_4": "After Bloque 3: Decretos + Tribunales + Kernel"
+  }
+}

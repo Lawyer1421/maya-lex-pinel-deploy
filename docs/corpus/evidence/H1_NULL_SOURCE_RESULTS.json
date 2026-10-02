@@ -1,0 +1,139 @@
+{
+  "query_label": "H1",
+  "query_name": "fuente=NULL DISTRIBUTION",
+  "source": "production SQL Editor",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_write": false,
+  "measurement_status": "MEDIDO",
+  "total_null_fuente_rows": 8366,
+  "distribution": [
+    {
+      "materia": "07_CONSTITUCIONAL",
+      "coleccion": "mayalex_normativos",
+      "fuente_tipo": null,
+      "es_norma_vigente": false,
+      "revision_pendiente": false,
+      "rows": 2623,
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "materia": "01_PENAL",
+      "coleccion": "mayalex_normativos",
+      "fuente_tipo": "codigo",
+      "es_norma_vigente": false,
+      "revision_pendiente": false,
+      "rows": 2617,
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "materia": "06_FAMILIA",
+      "coleccion": "mayalex_normativos",
+      "fuente_tipo": null,
+      "es_norma_vigente": false,
+      "revision_pendiente": false,
+      "rows": 2369,
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "materia": "01_PENAL",
+      "coleccion": "mayalex_normativos",
+      "fuente_tipo": "sentencia",
+      "es_norma_vigente": false,
+      "revision_pendiente": false,
+      "rows": 719,
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "materia": "procedimental",
+      "coleccion": "mayalex_procedimental",
+      "es_norma_vigente": false,
+      "rows": 32,
+      "measurement_status": "MEDIDO",
+      "note": "residual procedural rows with etapa_nombre, etapa_numero, decreto, tipo_proceso, verificado"
+    },
+    {
+      "materia": "01_PENAL",
+      "coleccion": "mayalex_normativos",
+      "fuente_tipo": "doctrina",
+      "es_norma_vigente": false,
+      "revision_pendiente": false,
+      "rows": 6,
+      "measurement_status": "MEDIDO"
+    }
+  ],
+  "metadata_keys_all_8366": [
+    "archivo_src",
+    "materia",
+    "rag_version",
+    "sub_tipo"
+  ],
+  "metadata_keys_8334_rows": [
+    "articulo",
+    "fecha",
+    "id_chunk",
+    "seccion",
+    "tipo_fuente"
+  ],
+  "document_examples": {
+    "06_FAMILIA": [
+      {
+        "source": "doc_173e9cab.txt",
+        "rows": 373
+      }
+    ],
+    "01_PENAL_codigo_sentencia": [
+      {
+        "source": "doc_e1c4b6a7.txt",
+        "rows": 338,
+        "fuente_tipo": "sentencia"
+      },
+      {
+        "source": "doc_e1c4b6a7.txt",
+        "rows": 321,
+        "fuente_tipo": "codigo"
+      },
+      {
+        "source": "doc_7c4872b2.txt",
+        "rows": 309
+      },
+      {
+        "source": "doc_e5814ad3.txt",
+        "rows": 255
+      },
+      {
+        "source": "doc_6027f42f.txt",
+        "rows": 187
+      },
+      {
+        "source": "doc_a290f50e.txt",
+        "rows": 179
+      }
+    ],
+    "07_CONSTITUCIONAL": [
+      {
+        "source": "doc_4f80059b.txt",
+        "rows": 296
+      },
+      {
+        "source": "doc_d80470b7.txt",
+        "rows": 174
+      },
+      {
+        "source": "doc_617ccb39.txt",
+        "rows": 38
+      },
+      {
+        "source": "doc_e3c607cc.txt",
+        "rows": 37
+      }
+    ]
+  },
+  "adjudication": {
+    "layer_type": "LEGACY_NULL_SOURCE_LAYER",
+    "identity_traceability": "AVAILABLE_IN_METADATA",
+    "safe_to_delete": false,
+    "safe_to_reingest": false,
+    "canonical_equivalence": "UNRESOLVED",
+    "caveat": "Do not claim duplicate identity from row counts. Metadata traceability available but legal identity remains unresolved."
+  }
+}

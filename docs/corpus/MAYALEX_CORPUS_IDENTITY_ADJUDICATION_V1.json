@@ -1,0 +1,166 @@
+{
+  "status": "VERIFIED",
+  "created_at": "2026-10-01T13:23:10.193475+00:00",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_writes": 0,
+  "independent_audit": {
+    "reviewer": "Cursor",
+    "result": "PASS",
+    "audited_sha": "00b2fda120a5167b98043edb3210d8a0b26dd40f"
+  },
+  "evidence_provenance": {
+    "source": "production SQL Editor",
+    "execution_mode": "manual read-only SELECT queries supplied by Fredy",
+    "evidence_blocks": ["H1", "H2", "H3", "H4", "H5"],
+    "transaction_read_only": "NO_MEDIDO"
+  },
+  "h1_null_source": {
+    "total_rows": 8366,
+    "measurement_status": "MEDIDO",
+    "layer_type": "LEGACY_NULL_SOURCE_LAYER",
+    "identity_traceability": "AVAILABLE_IN_METADATA",
+    "safe_to_delete": false,
+    "safe_to_reingest": false,
+    "canonical_equivalence": "UNRESOLVED"
+  },
+  "h2_doc_star": {
+    "total_rows": 65776,
+    "physical_sources": 15506,
+    "measurement_status": "MEDIDO",
+    "layer_type": "DOCUMENT_INSTRUMENT_LAYER",
+    "primary_identity_fields": [
+      "metadata.id_documento",
+      "metadata.instrumento_num"
+    ],
+    "safe_to_delete": false
+  },
+  "h3_cpc": {
+    "layers": {
+      "codigo_procesal_civil_normative": {
+        "rows": 932,
+        "distinct_articles": 932,
+        "vigente_true": 932,
+        "role": "PRIMARY_NORMATIVE",
+        "measurement_status": "MEDIDO"
+      },
+      "codigo_procesal_civil_procedural": {
+        "rows": 932,
+        "distinct_articles": 932,
+        "vigente_true": 932,
+        "role": "PROCEDURAL_MIRROR",
+        "measurement_status": "MEDIDO"
+      },
+      "cpc_texto_base_d211_2006": {
+        "rows": 995,
+        "distinct_articles": 916,
+        "vigente_true": 995,
+        "role": "BASE_VARIANT",
+        "temporal_legal_role": "UNRESOLVED",
+        "measurement_status": "MEDIDO"
+      },
+      "cpc_comentado_romero_2024": {
+        "rows": 1481,
+        "distinct_articles": 420,
+        "vigente_null": 1481,
+        "role": "SECONDARY_COMMENTARY",
+        "measurement_status": "MEDIDO"
+      }
+    },
+    "repetition": {
+      "codigo_procesal_civil": {
+        "min": 2,
+        "max": 2,
+        "avg": 2.0
+      },
+      "romero": {
+        "repeated_articles": 394,
+        "max": 45,
+        "avg": 3.53
+      },
+      "texto_base": {
+        "repeated_articles": 70,
+        "max": 4,
+        "avg": 1.09
+      }
+    }
+  },
+  "h4_notariado": {
+    "codigo_del_notariado": {
+      "rows": 94,
+      "distinct_articles": 94,
+      "sequence": "1-94",
+      "vigente_true": 87,
+      "vigente_false": 7,
+      "physical_status": "PRESENT_COMPLETE",
+      "measurement_status": "MEDIDO"
+    },
+    "reglamento": {
+      "rows": 111,
+      "distinct_articles": 111,
+      "sequence": "1-111",
+      "vigente_true": 111,
+      "physical_status": "PRESENT_COMPLETE",
+      "measurement_status": "MEDIDO"
+    }
+  },
+  "h5_absence_verification": {
+    "absent_verified": [
+      "C\u00f3digo de Comercio (Decreto 73-1950)",
+      "Ley de Organizaci\u00f3n y Atribuciones de los Tribunales",
+      "Decreto 31-2015",
+      "Decreto 35-2013",
+      "Decreto 124-92",
+      "Decreto 284-2013",
+      "Decreto 73-96"
+    ],
+    "present_verified": [
+      {
+        "instrument": "Ley Especial de Adopciones de Honduras (Decreto 102-2018)",
+        "rows": 64,
+        "distinct_articles": 64,
+        "vigente_true": 64,
+        "physical_status": "PRESENT",
+        "canonical_status": "UNRESOLVED_CANONICAL_STATUS"
+      }
+    ]
+  },
+  "conflicts_with_prior_inventory": [
+    {
+      "item": "CPC measurements",
+      "prior": "Unresolved; distinct counts unknown",
+      "evidence": "932, 916, 420 distinct articles measured",
+      "resolution": "Measurements now direct"
+    },
+    {
+      "item": "Notariado 94 vs 98/108",
+      "prior": "Reconciliation pending",
+      "evidence": "Sequence 1-94 complete, no gaps",
+      "resolution": "Physical continuity confirmed"
+    },
+    {
+      "item": "Decreto 102-2018 status",
+      "prior": "Possibly derogated or secondary",
+      "evidence": "64 rows, vigente_true=64",
+      "resolution": "Canonical status UNRESOLVED; physical PRESENT"
+    },
+    {
+      "item": "Decreto 73-96 identity",
+      "prior": "Possibly orphan/unexplained",
+      "evidence": "Absence verified; corresponds to C\u00f3digo de la Ni\u00f1ez",
+      "resolution": "Preserve canonical name; absence VERIFIED"
+    }
+  ],
+  "unresolved_items": [
+    "Legal status of 7 es_norma_vigente=false Notariado rows",
+    "Canonical equivalence of H1 NULL layer (8,366 rows)",
+    "CPC_TEXTO_BASE temporal legal role",
+    "Decreto 102-2018 canonical status vs prior inventory",
+    "doc_* layer (65,776 rows) legal purpose"
+  ],
+  "state_gates": {
+    "IDENTITY_SPRINT_CLOSED": false,
+    "MASTER_INVENTORY_FROZEN": false,
+    "SOURCE_DISCOVERY_AUTHORIZED": false,
+    "PRODUCTION_INGESTION_AUTHORIZED": false
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "query_label": "H3",
+  "query_name": "CPC LAYERS (Separate identity measurement, no merge, no deduplication)",
+  "source": "production SQL Editor",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_write": false,
+  "layers": [
+    {
+      "layer_id": "H3.1",
+      "fuente": "Codigo Procesal Civil",
+      "coleccion": "mayalex_normativos",
+      "rows": 932,
+      "distinct_articles": 932,
+      "vigente_true": 932,
+      "vigente_false": 0,
+      "vigente_null": 0,
+      "fuente_tipo": "codigo",
+      "measurement_status": "MEDIDO",
+      "role": "PRIMARY_NORMATIVE"
+    },
+    {
+      "layer_id": "H3.1b",
+      "fuente": "Codigo Procesal Civil",
+      "coleccion": "mayalex_procedimental",
+      "rows": 932,
+      "distinct_articles": 932,
+      "vigente_true": 932,
+      "vigente_false": 0,
+      "vigente_null": 0,
+      "fuente_tipo": "codigo",
+      "measurement_status": "MEDIDO",
+      "role": "PROCEDURAL_MIRROR",
+      "caveat": "Same source appears in both normative and procedural collections"
+    },
+    {
+      "layer_id": "H3.2",
+      "fuente": "CPC_TEXTO_BASE_D211-2006",
+      "rows": 995,
+      "distinct_articles": 916,
+      "vigente_true": 995,
+      "vigente_false": 0,
+      "vigente_null": 0,
+      "measurement_status": "MEDIDO",
+      "role": "BASE_VARIANT",
+      "temporal_legal_role": "UNRESOLVED",
+      "caveat": "Do not characterize as pre-reform without separate evidence"
+    },
+    {
+      "layer_id": "H3.3",
+      "fuente": "CPC_COMENTADO_ROMERO_2024",
+      "rows": 1481,
+      "distinct_articles": 420,
+      "vigente_true": 0,
+      "vigente_false": 0,
+      "vigente_null": 1481,
+      "measurement_status": "MEDIDO",
+      "role": "SECONDARY_COMMENTARY",
+      "metadata_markers": {
+        "[VERIFICAR_CPC]": 1160,
+        "TÍTULO III — Las Partes": 112,
+        "TÍTULO II — Competencia": 106,
+        "TÍTULO I — Principios": 103
+      }
+    }
+  ],
+  "repetition_analysis": {
+    "Codigo_Procesal_Civil": {
+      "each_article_occurs": 2,
+      "occurrence_type": "across both collections (normative + procedural)",
+      "min_occurrences": 2,
+      "max_occurrences": 2,
+      "avg_occurrences": 2.0,
+      "measurement_status": "MEDIDO"
+    },
+    "CPC_COMENTADO_ROMERO_2024": {
+      "repeated_article_ids": 394,
+      "max_occurrences": 45,
+      "avg_occurrences": 3.53,
+      "measurement_status": "MEDIDO",
+      "caveat": "Repetition patterns consistent with segmentation/chunking but legal interpretation requires CLO adjudication"
+    },
+    "CPC_TEXTO_BASE_D211_2006": {
+      "repeated_article_ids": 70,
+      "max_occurrences": 4,
+      "avg_occurrences": 1.09,
+      "measurement_status": "MEDIDO"
+    }
+  },
+  "overlap_analysis": {
+    "measurement_status": "MEDIDO",
+    "primary_distinct_articles": 932,
+    "texto_base_distinct_articles": 916,
+    "romero_distinct_articles": 420,
+    "primary_intersect_texto_base": 916,
+    "primary_intersect_romero": 420,
+    "three_way_overlap": 417
+  }
+}

@@ -1800,3 +1800,25 @@ Smoke del rerank en vivo: lo corre el Auditor DevOps (consume tokens/rate-limit)
 
 **No autorizado**: apply a staging/prod, declarar VIGENTE o VERIFICADO.
 
+---
+
+## 2026-09-30 — HISTORICAL_EXTERNAL_ARTIFACT_NOT_RECOVERED: HUMAN_LEGAL_REVIEW_QUEUE.jsonl
+
+**Status**: Artifact documented but not recovered during Inventory v2 audit.
+
+**Evidence**:
+- Referenced in prior entries (lines 210-706) as source of Phase 1 triage initialization
+- Documented to contain 958 lines (hallazgos/findings): lines 212, 234, 324, 396, 616
+- Lines 357-958 described as "segunda pasada de investigación" (second pass investigation)
+- File location was external/uncommitted; not found in repo or user directories during
+  2026-09-29 audit (C:\dev\mayalex-corpus, C:\Users\fredy)
+
+**Impact**:
+- Las 958 líneas de triage del JSONL no se recuperaron. Lo reconstruido son los
+  13 instrumentos jurídicos a partir del DECISION_LOG.md y los dossiers
+  (docs/governance/fase1-triage/).
+- Corpus Inventory v2 complete and reproducible from CSV + DECISION_LOG evidence
+
+**Action**: Documented for historical record. Artifact remains NOT_RECOVERED but
+does not block Inventory v2 verification (exit 0, all aggregates verified).
+

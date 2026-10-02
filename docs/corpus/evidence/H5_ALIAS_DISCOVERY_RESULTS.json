@@ -1,0 +1,75 @@
+{
+  "query_label": "H5",
+  "query_name": "DECREE / ALIAS DISCOVERY — fuente + metadata::text",
+  "source": "production SQL Editor",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_write": false,
+  "search_scope": ["fuente", "metadata::text"],
+  "discovery_results": [
+    {
+      "canonical_id": "HN_CODIGO_COMERCIO_D73_1950",
+      "instrument": "Código de Comercio (Decreto 73-1950)",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_LEY_ORGANIZACION_TRIBUNALES",
+      "instrument": "Ley de Organización y Atribuciones de los Tribunales",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_DECRETO_31_2015",
+      "instrument": "Decreto 31-2015",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_DECRETO_35_2013",
+      "instrument": "Decreto 35-2013",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_DECRETO_124_92",
+      "instrument": "Decreto 124-92",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_DECRETO_284_2013",
+      "instrument": "Decreto 284-2013",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO"
+    },
+    {
+      "canonical_id": "HN_DECRETO_73_96",
+      "instrument": "Decreto 73-96",
+      "canonical_name": "Código de la Niñez y la Adolescencia",
+      "candidate_matches": 0,
+      "absence_status": "ABSENT_VERIFIED",
+      "measurement_status": "MEDIDO",
+      "caveat": "Decree 73-96 corresponds to Código de la Niñez y la Adolescencia; preserve canonical identity note; do not treat as orphan decree"
+    },
+    {
+      "canonical_id": "HN_DECRETO_102_2018",
+      "instrument": "Ley Especial de Adopciones de Honduras (Decreto 102-2018)",
+      "observed_db_source": "Ley Especial de Adopciones de Honduras (Decreto 102-2018)",
+      "rows": 64,
+      "distinct_articles": 64,
+      "vigente_true": 64,
+      "physical_status": "PRESENT",
+      "completeness_status": "NO_MEDIDO",
+      "canonical_status": "UNRESOLVED_CANONICAL_STATUS",
+      "measurement_status": "MEDIDO_PHYSICAL_PRESENCE_ONLY",
+      "caveat": "Physical DB presence confirmed. Do not assume PRESENT_COMPLETE without explicit measurement. Prior repo/inventory may characterize D102-2018 differently; canonical legal status remains UNRESOLVED. No reingestion required for physical coverage."
+    }
+  ],
+  "absence_search_note": "All searches using both fuente column and metadata::text field. Zero candidates indicates absence from both indexed fields. Does not preclude presence under unindexed names or pre-2020 archived formats."
+}

@@ -1,0 +1,279 @@
+{
+  "status": "PARTIAL_CLO_RECORDED",
+  "created_at": "2026-10-01T00:00:00+00:00",
+  "clo_recorded_at": "2026-10-01",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_writes": 0,
+  "governance": {
+    "physical_identity_baseline_verified": true,
+    "canonical_adjudication_complete": false,
+    "clo_partial": {
+      "closed": ["E1", "E3", "E4", "E7", "E8"],
+      "open": ["E2", "E5", "E6"]
+    },
+    "identity_sprint_closed": false,
+    "master_inventory_frozen": false,
+    "source_discovery_authorized": false,
+    "production_ingestion_authorized": false
+  },
+  "clo_adjudication": {
+    "date": "2026-10-01",
+    "recorded_as": "ACCEPTED_AS_STATED",
+    "decisions": [
+      {
+        "id": "E1",
+        "question": "Arts 11, 27 D.353-2005",
+        "decision": "B",
+        "text": "Desplazados por D.77-2006; regla CEDIJ/PR#48 última ocurrencia reforma.",
+        "status": "CLOSED",
+        "applies_to": "CA-01"
+      },
+      {
+        "id": "E2",
+        "question": "Arts 72, 73, 84, 87, 93 D.353-2005",
+        "decision": "C",
+        "text": "LEGAL_STATUS_UNRESOLVED.",
+        "status": "OPEN",
+        "applies_to": "CA-01"
+      },
+      {
+        "id": "E3",
+        "question": "es_norma_vigente=false",
+        "decision": "A",
+        "text": "Marca operativa; INGESTED≠VERIFIED≠VIGENTE.",
+        "status": "CLOSED",
+        "applies_to": "CA-01"
+      },
+      {
+        "id": "E4",
+        "question": "NULL 8366",
+        "decision": "C",
+        "text": "EXCLUIDA retrieval profesional; fail-closed.",
+        "status": "CLOSED",
+        "applies_to": "CA-02"
+      },
+      {
+        "id": "E5",
+        "question": "CPC_TEXTO_BASE_D211-2006",
+        "decision": "C",
+        "text": "UNRESOLVED.",
+        "status": "OPEN",
+        "applies_to": "CA-03"
+      },
+      {
+        "id": "E6",
+        "question": "D.102-2018",
+        "decision": "B",
+        "text": "Presencia física; canon/completez abierta.",
+        "status": "OPEN",
+        "applies_to": "CA-04"
+      },
+      {
+        "id": "E7",
+        "question": "doc_*",
+        "decision": "D",
+        "text": "EXCLUDED_BY_TYPE (nunca PRIMARY).",
+        "status": "CLOSED",
+        "applies_to": "CA-05"
+      },
+      {
+        "id": "E8",
+        "question": "Filas D.77-2006",
+        "decision": "A",
+        "text": "Candidato físico hasta Gaceta.",
+        "status": "CLOSED",
+        "applies_to": "CA-01"
+      }
+    ]
+  },
+  "note": "The VERIFIED Master Inventory establishes the physical/evidentiary corpus baseline. These five unresolved items are canonical/editorial/retrieval questions. They must NOT invalidate previously verified H1–H5 physical measurements. Do not reopen the Evidence Pack unless new evidence contradicts a measured fact.",
+  "canonical_adjudications": [
+    {
+      "canonical_adjudication_id": "CA-01",
+      "title": "NOTARIADO_FALSE_ROWS",
+      "current_status": {
+        "physical_state": "PHYSICAL_EVIDENCE_COMPLETE",
+        "legal_status": "PARTIAL",
+        "articles_11_27": "B_DISPLACED_BY_D77_2006",
+        "articles_72_73_84_87_93": "LEGAL_STATUS_UNRESOLVED",
+        "es_norma_vigente_false": "OPERATIVE_MARK",
+        "d77_2006_rows": "PHYSICAL_CANDIDATE_UNTIL_GACETA"
+      },
+      "clo_decisions": ["E1", "E2", "E3", "E8"],
+      "known_evidence": [
+        "Código del Notariado: 94 rows measured",
+        "87 es_norma_vigente=true",
+        "7 es_norma_vigente=false",
+        "physical sequence 1–94 complete, no gaps",
+        "False article set: [11, 27, 72, 73, 84, 87, 93]",
+        "All 7 have: fuente_tipo=codigo, revision_pendiente=false, verificado=false",
+        "Metadata keys present: fecha_verificacion, hash_texto_sha256, instrumento, metodo_extraccion, norm_id, tipo_instrumento, verificado",
+        "Metadata keys absent: decreto, reforma, reformado_por, derogado_por, vigencia, estado, nota, fuente_oficial, url, archivo_src, fecha, fecha_detectada",
+        "Same-source variant check (CA01.4): NOT_FOUND (each article appears only once)",
+        "Cross-source observation: D77-2006 contains articles 11,27 vigente=true; Reglamento contains same numeric identifiers"
+      ],
+      "unknowns": [
+        "LEGAL_STATUS_UNRESOLVED for articles 72, 73, 84, 87, 93 (E2=C)"
+      ],
+      "required_evidence": [
+        "Gaceta text for Decreto 77-2006 rows; E8 keeps them a physical candidate until that text (discovery not authorized)",
+        "Official reform/repeal history for articles 72, 73, 84, 87, 93"
+      ],
+      "resolution_type": "LEGAL_VIGENCIA_ADJUDICATION",
+      "flags": {
+        "production_write_required": false,
+        "source_discovery_required": true,
+        "sql_measurement_required": true,
+        "legal_review_required": true,
+        "technical_review_required": false,
+        "blocking_master_inventory_freeze": true,
+        "blocking_source_discovery_backlog": false
+      }
+    },
+    {
+      "canonical_adjudication_id": "CA-02",
+      "title": "LEGACY_NULL_CANONICAL_EQUIVALENCE",
+      "current_status": {
+        "layer_type": "IDENTIFIABLE_LEGACY_LAYER",
+        "canonical_equivalence": "CANONICAL_EQUIVALENCE_UNRESOLVED",
+        "retrieval_policy": "EXCLUDED_PROFESSIONAL_RETRIEVAL_FAIL_CLOSED"
+      },
+      "clo_decisions": ["E4"],
+      "known_evidence": [
+        "8,366 rows fuente IS NULL",
+        "metadata traceability available (archivo_src in all 8,366)",
+        "metadata.articulo present in 8,334 rows",
+        "all observed groups marked es_norma_vigente=false"
+      ],
+      "unknowns": [
+        "canonical instrument mapping for archivo_src values",
+        "material classification (statute vs. sentence vs. doctrine vs. procedural)",
+        "overlap patterns with currently named sources"
+      ],
+      "required_evidence": [
+        "mapping archivo_src → canonical instrument where possible",
+        "classification by material type",
+        "identification of overlap with current named sources",
+        "E4 excludes the layer from professional retrieval; it does not authorize deletion or a production write"
+      ],
+      "resolution_type": "CORPUS_IDENTITY_MAPPING",
+      "flags": {
+        "production_write_required": false,
+        "source_discovery_required": false,
+        "sql_measurement_required": true,
+        "legal_review_required": false,
+        "technical_review_required": true,
+        "blocking_master_inventory_freeze": true,
+        "blocking_source_discovery_backlog": false
+      }
+    },
+    {
+      "canonical_adjudication_id": "CA-03",
+      "title": "CPC_TEXTO_BASE_TEMPORAL_ROLE",
+      "current_status": {
+        "physical_presence": "BASE_VARIANT_PRESENT",
+        "temporal_role": "TEMPORAL_ROLE_UNRESOLVED"
+      },
+      "clo_decisions": ["E5"],
+      "known_evidence": [
+        "CPC_TEXTO_BASE_D211-2006: 995 rows",
+        "916 distinct article identifiers",
+        "all 916 overlap with main CPC article identifiers"
+      ],
+      "unknowns": [
+        "source provenance and edition/date",
+        "comparison against primary CPC (original vs. reforms)",
+        "whether differences reflect original text, reforms, segmentation, or editorial variant"
+      ],
+      "required_evidence": [
+        "source provenance documentation",
+        "edition/date metadata clarification",
+        "comparison against primary CPC text",
+        "temporal legal role determination"
+      ],
+      "resolution_type": "TEMPORAL_TEXT_ADJUDICATION",
+      "flags": {
+        "production_write_required": false,
+        "source_discovery_required": true,
+        "sql_measurement_required": false,
+        "legal_review_required": true,
+        "technical_review_required": false,
+        "blocking_master_inventory_freeze": true,
+        "blocking_source_discovery_backlog": false
+      }
+    },
+    {
+      "canonical_adjudication_id": "CA-04",
+      "title": "D102_2018_CANONICAL_STATUS",
+      "current_status": {
+        "physical_presence": "PHYSICAL_PRESENCE_CONFIRMED",
+        "canonical_legal_status": "CANONICAL_LEGAL_STATUS_UNRESOLVED",
+        "completeness_status": "NO_MEDIDO"
+      },
+      "clo_decisions": ["E6"],
+      "known_evidence": [
+        "Ley Especial de Adopciones de Honduras (Decreto 102-2018)",
+        "rows=64, distinct_articles=64, vigente_true=64",
+        "physical_status=PRESENT, completeness_status=NO_MEDIDO",
+        "prior repository/inventory may characterize legal status differently"
+      ],
+      "unknowns": [
+        "official primary legal source and decree identity",
+        "amendment/repeal history",
+        "current legal status",
+        "relationship with any later legislation"
+      ],
+      "required_evidence": [
+        "official primary legal source document",
+        "publication date and decree number verification",
+        "amendment and repeal history",
+        "relationship with subsequent legislation"
+      ],
+      "resolution_type": "LEGAL_STATUS_ADJUDICATION",
+      "flags": {
+        "production_write_required": false,
+        "source_discovery_required": true,
+        "sql_measurement_required": false,
+        "legal_review_required": true,
+        "technical_review_required": false,
+        "blocking_master_inventory_freeze": true,
+        "blocking_source_discovery_backlog": false
+      }
+    },
+    {
+      "canonical_adjudication_id": "CA-05",
+      "title": "DOC_STAR_RETRIEVAL_ROLE",
+      "current_status": {
+        "layer_type": "DOCUMENT_INSTRUMENT_LAYER_CONFIRMED",
+        "retrieval_role": "EXCLUDED_BY_TYPE",
+        "never_primary": true
+      },
+      "clo_decisions": ["E7"],
+      "known_evidence": [
+        "doc_* layer: 65,776 rows, 15,506 physical doc_* sources",
+        "num_articulo NULL across entire layer",
+        "metadata includes: id_documento, instrumento_num, es_fragmento, fecha_detectada, articulo, coleccion, hash_chunk, id_chunk, id",
+        "collections: mayalex_instrumentos, mayalex_normativos"
+      ],
+      "unknowns": [
+        "classification of representative document families by metadata",
+        "whether layer contains legal instruments, notarial instruments, procedural documents, expediente-like documents, or other material",
+        "classification of representative document families remains undescribed; retrieval policy is closed by E7"
+      ],
+      "required_evidence": [
+        "representative document family sampling and classification",
+        "determination of document types present"
+      ],
+      "resolution_type": "RETRIEVAL_POLICY_ADJUDICATION",
+      "flags": {
+        "production_write_required": false,
+        "source_discovery_required": false,
+        "sql_measurement_required": true,
+        "legal_review_required": false,
+        "technical_review_required": true,
+        "blocking_master_inventory_freeze": true,
+        "blocking_source_discovery_backlog": false
+      }
+    }
+  ]
+}

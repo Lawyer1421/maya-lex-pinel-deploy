@@ -1,0 +1,47 @@
+{
+  "status": "VERIFIED",
+  "created_at": "2026-10-01T00:00:00+00:00",
+  "project_ref": "thgrhueckkjdutjvcufp",
+  "production_writes": 0,
+  "independent_audit": {
+    "reviewer": "Cursor",
+    "result": "PASS",
+    "audited_sha": "00b2fda120a5167b98043edb3210d8a0b26dd40f"
+  },
+  "inventory_entry_counts": {
+    "present_or_observed_nonlegacy": 15,
+    "legacy_layers": 2,
+    "inventory_entries_total": 17,
+    "absent_verified_targets": 7,
+    "editorial_reconciliation_subset": 1
+  },
+  "instruments": [
+    {"canonical_id": "HN_CODIGO_CIVIL", "name": "Código Civil de Honduras", "rows": 2372, "rows_status": "MEDIDO_PREVIO", "distinct_articles": null, "distinct_status": "NO_MEDIDO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CODIGO_FAMILIA", "name": "Codigo de Familia", "rows": 373, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 373, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CODIGO_NOTARIADO_D353_2005", "name": "Código del Notariado (Decreto 353-2005)", "rows": 94, "rows_status": "MEDIDO", "distinct_articles": 94, "distinct_status": "MEDIDO", "vigencia_true": 87, "vigencia_false": 7, "vigencia_null": 0, "vigencia_status": "MEDIDO", "physical_status": "PRESENT_COMPLETE", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false, "evidence_refs": ["H4"], "caveat": "7 false rows: legal status unresolved"},
+    {"canonical_id": "HN_RESOLUCION_PCSJ_17_2012", "name": "Reglamento del Código del Notariado", "rows": 111, "rows_status": "MEDIDO", "distinct_articles": 111, "distinct_status": "MEDIDO", "vigencia_true": 111, "vigencia_false": 0, "vigencia_null": 0, "vigencia_status": "MEDIDO", "physical_status": "PRESENT_COMPLETE", "canonical_status": "REGULATORY_SEPARATE", "retrieval_role": "REGULATORY", "ingestion_required": false, "evidence_refs": ["H4"]},
+    {"canonical_id": "HN_CPC_PRIMARY_NORMATIVO", "name": "Codigo Procesal Civil (mayalex_normativos)", "rows": 932, "rows_status": "MEDIDO", "distinct_articles": 932, "distinct_status": "MEDIDO", "vigencia_true": 932, "vigencia_status": "MEDIDO", "physical_status": "PRESENT", "coleccion": "mayalex_normativos", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false, "evidence_refs": ["H3"]},
+    {"canonical_id": "HN_CPC_PROCEDURAL_MIRROR", "name": "Codigo Procesal Civil (mayalex_procedimental)", "rows": 932, "rows_status": "MEDIDO", "distinct_articles": 932, "distinct_status": "MEDIDO", "vigencia_true": 932, "vigencia_status": "MEDIDO", "physical_status": "PRESENT", "coleccion": "mayalex_procedimental", "retrieval_role": "PROCEDURAL_MIRROR", "ingestion_required": false, "evidence_refs": ["H3"], "caveat": "Mirror of primary; same source in both normative and procedural collections"},
+    {"canonical_id": "HN_CPC_TEXTO_BASE_D211_2006", "name": "CPC Texto Base (Decreto 211-2006)", "rows": 995, "rows_status": "MEDIDO", "distinct_articles": 916, "distinct_status": "MEDIDO", "vigencia_true": 995, "vigencia_status": "MEDIDO", "physical_status": "PRESENT", "retrieval_role": "BASE_VARIANT", "temporal_legal_role": "UNRESOLVED", "ingestion_required": false, "evidence_refs": ["H3"], "caveat": "Do not assume pre-reform without separate evidence"},
+    {"canonical_id": "HN_CPC_ROMERO_2024", "name": "CPC Comentado Romero 2024", "rows": 1481, "rows_status": "MEDIDO", "distinct_articles": 420, "distinct_status": "MEDIDO", "vigencia_null": 1481, "vigencia_status": "MEASURED_ALL_NULL", "physical_status": "PRESENT", "retrieval_role": "SECONDARY_COMMENTARY", "ingestion_required": false, "evidence_refs": ["H3"], "caveat": "Commentary/reference layer; legal status requires CLO adjudication"},
+    {"canonical_id": "HN_CPP_D9_99E", "name": "Código Procesal Penal de Honduras", "rows": 480, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 480, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CODIGO_PENAL", "name": "Codigo Penal", "rows": 635, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 635, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CODIGO_TRABAJO", "name": "Codigo del Trabajo", "rows": 870, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 870, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CONSTITUCION", "name": "Constitucion de la Republica de Honduras", "rows": 378, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 378, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_CODIGO_TRIBUTARIO", "name": "Codigo Tributario", "rows": 215, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 215, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "HN_LEY_JUSTICIA_CONSTITUCIONAL", "name": "Ley sobre Justicia Constitucional", "rows": 124, "rows_status": "MEDIDO_PREVIO", "distinct_articles": 124, "distinct_status": "MEDIDO_PREVIO", "vigencia_status": "MEDIDO_PREVIO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false},
+    {"canonical_id": "LEGACY_NULL_FUENTE", "name": "NULL fuente layer", "rows": 8366, "rows_status": "MEDIDO", "distinct_articles": null, "distinct_status": "NO_MEDIDO", "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "LEGACY", "ingestion_required": false, "evidence_refs": ["H1"], "caveat": "Metadata traceability available (articulo in 8334 rows); legal identity adjudication required"},
+    {"canonical_id": "LEGACY_DOC_STAR", "name": "doc_* layer", "rows": 65776, "rows_status": "MEDIDO", "physical_sources": 15506, "distinct_articles": 0, "physical_status": "PRESENT", "canonical_status": "UNRESOLVED", "retrieval_role": "LEGACY", "ingestion_required": false, "evidence_refs": ["H2"], "caveat": "Legal purpose (intentional non-norm or incomplete ingestion) unresolved"},
+    {"canonical_id": "HN_DECRETO_102_2018", "name": "Ley Especial de Adopciones de Honduras (Decreto 102-2018)", "rows": 64, "rows_status": "MEDIDO", "distinct_articles": 64, "distinct_status": "MEDIDO", "vigente_true": 64, "vigencia_status": "MEDIDO", "physical_status": "PRESENT", "completeness_status": "NO_MEDIDO", "canonical_status": "UNRESOLVED_CANONICAL_STATUS", "retrieval_role": "PRIMARY_NORMATIVE", "ingestion_required": false, "evidence_refs": ["H5"], "caveat": "Prior inventory may classify differently; physical presence confirmed but legal status pending CLO reconciliation"}
+  ],
+  "absent_verified_count": 7,
+  "absent_verified": [
+    "Código de Comercio (Decreto 73-1950)",
+    "Ley de Organización y Atribuciones de los Tribunales",
+    "Decreto 31-2015",
+    "Decreto 35-2013",
+    "Decreto 73-96 / Código de la Niñez y la Adolescencia",
+    "Decreto 124-92",
+    "Decreto 284-2013"
+  ]
+}
