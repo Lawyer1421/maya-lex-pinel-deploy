@@ -6,6 +6,7 @@
 **Proyecto:** thgrhueckkjdutjvcufp (MayaLex Pro)  
 **Estado:** `PARTIALLY_ADJUDICATED_ORGANIC_CANON`  
 **Registro:** `ACCEPTED_AS_STATED`  
+**E3 bloque 194-217:** `DEROGADO_EXPRESO` por el art. 84 del Decreto 228-93  
 **Production writes:** 0  
 
 El dictamen CLO de esta fecha cierra los cuatro criterios de doctrina. No enumera artículo por artículo el núcleo orgánico ni la capa procesal. La presencia física en corpus sigue `ABSENT_VERIFIED`. `canonical_adjudication_complete` permanece false.
@@ -112,7 +113,48 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 
 ---
 
-## 5. Lo que este dictamen no cierra
+## 5. Bloque 194-217 y Decreto 228-93 (E3)
+
+Compulsa del 2026-10-02. `PENDING_PRIMARY_TEXT` queda cerrado para este rango.
+
+### 5.1 Qué es el bloque
+
+En la compilación TSC de la LOAT, los artículos 194 a 217 son el Título XIII, «Del Ministerio Público», con cuatro capítulos: organización, atribuciones, unidad y dependencia, y disposiciones complementarias. La compilación ya no imprime el texto de cada artículo. Deja el talón «Artículo 194. AL 217.» y una nota de derogación.
+
+Ese bloque no es el régimen notarial, ni los aranceles, ni las fianzas, ni los auxiliares judiciales. Esas materias están en títulos posteriores, que el art. 84 no nombra:
+
+| Materia consultada | Dónde está en la compilación LOAT | Alcance del art. 84 |
+|---|---|---|
+| Ministerio Público histórico | Título XIII, arts. 194-217 | Derogación expresa |
+| Secretarios y empleados subalternos | Título XIV, desde el art. 218 | Fuera de la derogación expresa |
+| Receptores | Título XV, desde el art. 229 | Fuera de la derogación expresa |
+| Notarios, arancel notarial y reserva de ley especial | Título XVI, arts. 233-236 | Fuera de la derogación expresa |
+| Abogados, procuradores y honorarios | Título XVII; el art. 248 declara que los honorarios de los abogados no están sujetos a arancel | Fuera de la derogación expresa |
+
+### 5.2 Texto del art. 84
+
+Fuente: Ley del Ministerio Público, Decreto 228-93, compilación PDF del TSC y texto del anexo OEA/MESICIC, coincidentes en el rango derogado. El decreto se da el 13 de diciembre de 1993. El pie del PDF TSC registra la publicación en La Gaceta número 27,241 del 6 de enero de 1994. Una línea de cubierta del mismo PDF TSC dice «3 de diciembre de 1993»; el cierre del articulado, en ese PDF y en el texto OEA, dice trece de diciembre. La fecha de emisión que se registra es la del cierre: 13 de diciembre de 1993.
+
+Artículo 84:
+
+> Deróganse expresamente: el Título XIII, Artículos del 194 al 217 de la Ley de Organización y Atribuciones de los Tribunales; los Artículos 19, incisos 11, 13 y 14, del Capítulo III y los Artículos del 20 al 22, de la Ley Orgánica de la Procuraduría General de la República; y el Artículo 18, letra c), del Título IV, Capítulo III, Artículos del 31 al 35, de la Ley Orgánica de la Fuerza de Seguridad Pública contenida en el Decreto número 369, del 16 de agosto de 1976. Asimismo, quedan derogadas tácitamente todas las disposiciones legales que se opongan a la presente Ley.
+
+El art. 85 pone la vigencia en la publicación en La Gaceta.
+
+### 5.3 Adjudicación del bloque
+
+| Pregunta | Resultado |
+|---|---|
+| ¿Quedaron formalmente derogados los arts. 194-217? | Sí. Derogación expresa, por rango y por título. Status: `DEROGADO_EXPRESO` |
+| ¿Los sustituye el mismo Decreto 228-93? | La Ley del Ministerio Público es el régimen posterior del Ministerio Público. No es una sustitución artículo por artículo pegada dentro de la LOAT. El texto de 1906 de ese título sale del canon vigente |
+| ¿Absorbió esa materia el Código del Notariado, Decreto 353-2005? | No. El Decreto 353-2005, según las notas de la misma compilación, deroga la Ley del Notariado y se lee en el Título XVI (arts. 233 y 234 y obligaciones del notario). No nombra los arts. 194-217 |
+| ¿La cláusula tácita del art. 84 arrastra notarios, aranceles o auxiliares? | No se aplica a esos títulos. La derogación expresa ya identifica el único tramo de la LOAT. Extender la cláusula tácita sin un conflicto artículo por artículo reabriría materias que el propio art. 84 dejó fuera de la lista |
+
+El texto histórico de cada artículo 194 a 217 no está reimpreso en la compilación. La derogación no depende de esa reimpresión: el art. 84 nombra el título y el rango.
+
+---
+
+## 6. Lo que sigue abierto
 
 | Pieza | Status que permanece |
 |---|---|
@@ -120,13 +162,13 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 | Texto base dentro del repositorio | Ausente. La compilación TSC sigue siendo fuente de trabajo externa |
 | Conteo de artículos únicos del PDF TSC | `NO_MEDIDO` |
 | Mapa artículo-número: orgánico vivo vs. procesal desplazado | Pendiente de cotejo. La regla ya es canónica |
-| Arts. 194 a 217 (Ministerio Público) | Candidato de derogación por el art. 84 del Decreto 228-93, según nota de la compilación. El dictamen CLO no lo incluyó. Sigue `PENDING_PRIMARY_TEXT` |
+| Títulos XIV a XVII (auxiliares, notarios, aranceles, abogados) | Fuera del art. 84. Su vigencia particular no se cierra en este pase |
 | Gaceta original de 1906 | `NO_MEDIDO` |
 | Adjudicación canónica completa | false |
 
 ---
 
-## 6. Tabla de status
+## 7. Tabla de status
 
 | Eje | Status | Cierra el inventario maestro | Permite ingesta |
 |---|---|---|---|
@@ -139,11 +181,12 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 | Amparo orgánico | `DESPLAZADA` por Decreto 244-2003 | No | No |
 | Interdicto de amparo | Figura posesoria civil | No | No |
 | Tribunales especiales | Ampliación extranormativa. Texto de 1906 intacto | No | No |
+| Arts. 194-217 | `DEROGADO_EXPRESO` por art. 84, Decreto 228-93. Materia: Ministerio Público histórico | No | No |
 | Estatus de fase | `PARTIALLY_ADJUDICATED_ORGANIC_CANON` | No | No |
 
 ---
 
-## 7. Compuertas
+## 8. Compuertas
 
 ```
 MERGE_AUTHORIZED             = false
@@ -152,38 +195,12 @@ production_writes            = 0
 canonical_adjudication_complete = false
 ```
 
-`SOURCE_DISCOVERY_AUTHORIZED` permanece true solo para fuentes documentales de la LOAT, como quedó en la apertura de esta fase. Este dictamen no lo amplía a Comercio, no autoriza SQL de producción y no autoriza scripts de ingesta.
-
----
-
-## 8. Fase E3-LOAT: Compulsa Decreto 228-93 Art. 84 (Artículos 194-217)
-
-### 8.1 Investigación de D228-93 Art. 84
-
-**Hallazgo Preliminar:**
-- Decreto 228-93, Art. 84 establece que Jueces de Letras y Paz tienen las mismas obligaciones y responsabilidades que Notarios en la **custodia y conservación de protocolos**
-- Esta disposición relaciona funciones judiciales con régimen notarial histórico
-
-**Artículos LOAT 194-217 (Régimen Notarial):**
-- Estos artículos constituyen el bloque histórico de LOAT sobre funciones notariales, aranceles y auxiliares
-- D228-93 Art. 84 impacta este régimen mediante la equiparación de obligaciones entre jueces y notarios
-
-**Adjudicación Preliminar:**
-- Status: `DESPLAZADOS_POR_DECRETO_228_93_Y_CODIGO_NOTARIADO`
-- Fundamento: D228-93 Art. 84 (custodia protocolos) + Código del Notariado D353-2005 (régimen notarial moderno)
-- Efecto: Régimen notarial de LOAT fue absorbido/desplazado por legislación notarial especial posterior
-
-**Próximas acciones:**
-1. Numerar artículos 194-217 de LOAT afectados
-2. Verificar extensión de desplazamiento (total vs. parcial)
-3. Confirmar efectiva absorción por D353-2005
-
-**Status:** `PENDING_DETAILED_ARTICLE_LIST`
+`SOURCE_DISCOVERY_AUTHORIZED` = true solo para la indagación documental de la LOAT y del Decreto 228-93 en esta fase E3. No autoriza SQL de producción ni scripts de ingesta.
 
 ---
 
 ## 9. Cotejo que sigue abierto
 
 1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada.
-2. ✅ **INVESTIGADO (E3):** Art. 84 del Decreto 228-93 determina equiparación de obligaciones jueces-notarios sobre custodia de protocolos. Impacta arts. 194-217 (régimen notarial LOAT). Candidato a desplazamiento por D353-2005.
+2. Cotejar, en un pase distinto, la vigencia de los Títulos XIV a XVII. El art. 84 no los deroga.
 3. Numerar, si el CLO lo aporta después, los decretos de extorsión y de jurisdicción nacional. La regla de ampliación competencial ya está cerrada.
