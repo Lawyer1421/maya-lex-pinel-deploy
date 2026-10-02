@@ -6,27 +6,29 @@
 **Proyecto:** thgrhueckkjdutjvcufp (MayaLex Pro)  
 **Rama:** `feature/p0-loat-corpus-inventory`  
 **Base:** `origin/main` `4d059dc36ec32bc64e003ffbe003be215c044e3b`  
+**Estatus de fase:** `PARTIALLY_ADJUDICATED_ORGANIC_CANON`  
 **Production writes:** 0  
 
-Este documento registra lo observado en el repositorio y en fuentes documentales públicas. No es un dictamen CLO cerrado y no autoriza ingesta.
+Este documento conserva la línea base observada en el repositorio. La doctrina que cierra identidad, emisión y desplazamientos está en `docs/corpus/P0_LOAT_LEGAL_ADJUDICATION.md`, dictamen CLO del 2026-10-02, registrado `ACCEPTED_AS_STATED`. No autoriza ingesta.
 
 ---
 
-## 1. Identidad canónica (no congelada)
+## 1. Identidad canónica
 
-| Campo | Valor en este pase | Estado |
+| Campo | Valor | Estado |
 |---|---|---|
-| Nombre | Ley de Organización y Atribuciones de los Tribunales | Observado |
+| Nombre | Ley de Organización y Atribuciones de los Tribunales | Cuerpo matriz |
 | Sigla de trabajo | LOAT | Editorial |
-| Id ya medido en H5 / backlog | `HN_LEY_ORGANIZACION_TRIBUNALES` | Clave de inventario vigente para la ausencia |
-| Alias del triage de gobernanza | `HN_LEY_ORGANIZACION_ATRIBUCIONES_TRIBUNALES` | Alias. No se abre un segundo instrumento |
-| Habilitación legislativa | Decreto 76 de la Asamblea Nacional Constituyente, 19 de enero de 1906 | El decreto faculta al Ejecutivo a emitir códigos y leyes. No es el articulado de la LOAT |
-| Vigencia inicial del articulado | 1 de marzo de 1906, artículo 264 del texto compilado TSC | Observado en esa compilación |
-| Fecha de emisión del articulado | El encabezado leído no trae un "dado" distinto del Decreto 76. Una fuente secundaria IAIP fecha la ley el 8 de febrero de 1906 | `EMISSION_DATE_UNRESOLVED` |
-| Gaceta de publicación original | No leída en este pase | `NO_MEDIDO` |
+| Id del cuerpo matriz | `HN_LEY_ORGANIZACION_ATRIBUCIONES_TRIBUNALES` | Fijado por el CLO. Ley orgánica preconstitucional de 1906 |
+| Id medido en H5 / backlog | `HN_LEY_ORGANIZACION_TRIBUNALES` | Misma ausencia física. No es un segundo instrumento |
+| Habilitación | Decreto 76 de la Asamblea Nacional Constituyente, 19 de enero de 1906 | Delegación al Presidente de la República (General Manuel Bonilla) |
+| Fecha de emisión formal | 1 de marzo de 1906 | Cerrada por el CLO. Promulgación y vigencia del articulado que cierra en el art. 264 |
+| Gaceta de publicación original | No leída | `NO_MEDIDO` |
 | Presencia física en corpus | 0 candidatos | `ABSENT_VERIFIED` (H5) |
+| Código de Procedimientos Comunes | 8 de febrero de 1906 | Cuerpo adjetivo distinto, hoy derogado |
+| Decretos sueltos del triage | Reforma accesoria | No son la ley base |
 
-No se equipara la LOAT con el Código de Procedimientos emitido por el Ejecutivo el 8 de febrero de 1906. Comparten la delegación del Decreto 76 y, en una fuente secundaria, el mismo día de emisión. El Código Procesal Civil los trata como cuerpos distintos: su derogatoria nombra al Código de Procedimientos, no a la LOAT.
+`EMISSION_DATE_UNRESOLVED` queda cerrado. La Gaceta original de 1906 sigue sin número.
 
 ---
 
@@ -97,12 +99,13 @@ Respuesta preliminar a la pregunta del Bloque 4 ("fuente simple o distribuida"):
 
 Cada fila es una hipótesis de trabajo. Ninguna autoriza marcar `es_norma_vigente` ni ingerir.
 
-| Eje | Fuente leída | Efecto observado sobre la LOAT | Estado |
+| Eje | Fuente de la doctrina CLO | Efecto canónico | Estado |
 |---|---|---|---|
-| CPC, Decreto 211-2006 | PDF TSC del Código Procesal Civil, arts. 919, 921 y 931 | El art. 921 deroga rangos del Código de Procedimientos del 8 de febrero de 1906. No nombra la LOAT. El art. 931 reenvía las remisiones a ese código, salvo jurisdicción voluntaria, al CPC | Desplazamiento por remisión, posible. Derogación expresa de la LOAT: no observada |
-| Carrera judicial / Consejo / CSJ | Notas de la compilación TSC de la LOAT; Constitución art. 313 citada ahí; Gaceta reproducida en fuente periodística del 20 de febrero de 2026 | Las notas remiten nombramientos al art. 26 de una "Ley de la Carrera Judicial" y la creación de juzgados al art. 313 constitucional. El decreto de esa ley no está numerado en las notas leídas | `UNRESOLVED` |
-| Justicia constitucional, Decreto 244-2003 | PDF TSC de la Ley sobre Justicia Constitucional, art. 123 | Deroga la Ley de Amparo de 14 de abril de 1936, artículos puntuales del Código de Procedimientos y una cláusula residual. No nombra la LOAT | Cotejo artículo por artículo pendiente |
-| Juzgados de competencia especial | Búsqueda de los nombres en la compilación TSC de la LOAT | Sin coincidencias para violencia doméstica, niñez, extorsión, privación de dominio ni jurisdicción nacional | Instrumentos de creación `NO_MEDIDO` |
+| CPC, Decreto 211-2006 | Arts. 921 y 931 | Deroga el Código de Procedimientos de 1906. La LOAT orgánica sigue vigente. La capa adjetiva de la LOAT queda desplazada | Criterio cerrado. Mapa de artículos pendiente |
+| Carrera judicial | Decreto 41 de 1980 | Desplaza nombramiento discrecional, ascensos, disciplina y remoción | Cerrado en doctrina |
+| Consejo de la Judicatura | Decreto 219-2011, sentencia, Gaceta 20/02/2016 | Estructura expulsada. La CSJ reasumió la administración por el art. 313 constitucional | Cerrado en doctrina |
+| Justicia constitucional, Decreto 244-2003 | Dictamen CLO | El remanente de amparo judicial orgánico queda desplazado. El interdicto de amparo es la figura posesoria | Cerrado en doctrina |
+| Tribunales especiales | Decreto 132-97; Código de la Niñez; Decreto 27-2010; extorsión y jurisdicción nacional por ley especial y acuerdos CSJ (art. 313.11) | Ampliación competencial. No reforman el texto de 1906 | Cerrado en doctrina. Extorsión y jurisdicción nacional sin número de decreto en el dictamen |
 
 El detalle normativo está en `docs/corpus/P0_LOAT_LEGAL_ADJUDICATION.md`.
 
@@ -116,7 +119,7 @@ El detalle normativo está en `docs/corpus/P0_LOAT_LEGAL_ADJUDICATION.md`.
 - Enriquecidos y aún con revisión legal pendiente, según ese archivo: Decretos 11, 8, 54, 102 y 38. El Decreto 11 tiene advertencia de homonimia numérica. El Decreto 54 tiene una inconsistencia de fecha de Gaceta ya detectada.
 - Sin investigación posterior registrada ahí: Decreto 88 y creaciones de juzgado (Decretos 30, 15, 40, 41, 2 y 22).
 
-Este relevamiento no los adjudica de nuevo y no los convierte en ingesta.
+El dictamen CLO los clasifica como reforma accesoria, no como la ley base. Este inventario no los convierte en ingesta.
 
 ---
 
@@ -127,6 +130,7 @@ SOURCE_DISCOVERY_AUTHORIZED  = true   (solo fuentes documentales de la LOAT)
 INGESTION_AUTHORIZED         = false
 MERGE_AUTHORIZED             = false
 production_writes            = 0
+estatus                      = PARTIALLY_ADJUDICATED_ORGANIC_CANON
 ```
 
 ---
@@ -134,7 +138,5 @@ production_writes            = 0
 ## 7. Siguiente cotejo documental (sin ingesta)
 
 1. Separar, sobre la compilación TSC, el articulado de 1906 de los decretos anexos y fijar el conteo único.
-2. Cotejar artículo por artículo las remisiones de la LOAT al Código de Procedimientos frente al art. 931 del CPC.
-3. Identificar el decreto de la Ley de la Carrera Judicial citada en las notas, y mantener separado el Decreto 219-2011.
-4. Listar artículos de la LOAT que todavía enuncian amparo, exhibición personal o inconstitucionalidad, y contrastarlos con el art. 123 del Decreto 244-2003.
-5. Localizar el instrumento de creación de cada jurisdicción especial nombrada en la directiva. Hasta entonces permanecen `NO_MEDIDO`.
+2. Numerar qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada. La regla CLO ya está cerrada.
+3. Leer el art. 84 del Decreto 228-93 antes de cerrar los arts. 194 a 217.
