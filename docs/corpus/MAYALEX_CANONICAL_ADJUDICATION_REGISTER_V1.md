@@ -1,8 +1,9 @@
 # MAYALEX — CANONICAL ADJUDICATION REGISTER V1
 ## Unresolved Items from VERIFIED Corpus Identity
 
-**Status:** PREPARATION_READY  
+**Status:** PARTIAL_CLO_RECORDED  
 **Date:** 2026-10-01  
+**CLO recorded:** 2026-10-01  
 **Project:** thgrhueckkjdutjvcufp (MayaLex Pro)  
 **Production Writes:** 0  
 
@@ -11,7 +12,8 @@
 ## GOVERNANCE
 
 **Physical Identity Baseline:** VERIFIED (H1–H5 measurements confirmed)  
-**Canonical Adjudication Complete:** NO (5 items remain unresolved)
+**Canonical Adjudication Complete:** NO  
+**CLO partial:** closed E1, E3, E4, E7, E8; open E2, E5, E6
 
 Existing gates (preserved):
 - Identity Sprint Closed: ❌ NO
@@ -19,7 +21,26 @@ Existing gates (preserved):
 - Source Discovery Authorized: ❌ NO
 - Production Ingestion Authorized: ❌ NO
 
-**Critical Note:** The VERIFIED Master Inventory establishes the physical/evidentiary corpus baseline. These five unresolved items are canonical/editorial/retrieval questions. They must NOT invalidate previously verified H1–H5 physical measurements. Do not reopen the Evidence Pack unless new evidence contradicts a measured fact.
+**Critical Note:** The VERIFIED Master Inventory establishes the physical/evidentiary corpus baseline. CLO decisions below are recorded as stated on 2026-10-01. They must NOT invalidate previously verified H1–H5 physical measurements. Do not reopen the Evidence Pack unless new evidence contradicts a measured fact.
+
+---
+
+## CLO ADJUDICATION 2026-10-01
+
+Recorded as stated. `canonical_adjudication_complete` remains false.
+
+| ID | Decision | Text | Status |
+|----|----------|------|--------|
+| E1 | B | Arts 11 and 27 of D.353-2005 are displaced by D.77-2006; CEDIJ/PR#48 last-occurrence reform rule | CLOSED |
+| E2 | C | Arts 72, 73, 84, 87, 93 = LEGAL_STATUS_UNRESOLVED | OPEN |
+| E3 | A | es_norma_vigente=false is an operative mark; INGESTED≠VERIFIED≠VIGENTE | CLOSED |
+| E4 | C | NULL layer of 8366 rows is excluded from professional retrieval; fail-closed | CLOSED |
+| E5 | C | CPC_TEXTO_BASE_D211-2006 remains UNRESOLVED | OPEN |
+| E6 | B | D.102-2018 physical presence; canonical status and completeness remain open | OPEN |
+| E7 | D | doc_* = EXCLUDED_BY_TYPE; never PRIMARY | CLOSED |
+| E8 | A | D.77-2006 rows remain a physical candidate until Gaceta | CLOSED |
+
+E1 and E8 are both recorded. E1 is the legal disposition of articles 11 and 27. E8 keeps the observed D.77-2006 rows as a physical candidate until the Gaceta text. Source discovery stays unauthorized.
 
 ---
 
@@ -30,7 +51,11 @@ Existing gates (preserved):
 | Aspect | Value |
 |--------|-------|
 | Physical State | PHYSICAL_EVIDENCE_COMPLETE |
-| Legal Status | LEGAL_STATUS_UNRESOLVED |
+| Legal Status | PARTIAL |
+| Articles 11 and 27 | B — displaced by D.77-2006 (E1, CLOSED) |
+| Articles 72, 73, 84, 87, 93 | LEGAL_STATUS_UNRESOLVED (E2, OPEN) |
+| es_norma_vigente=false | Operative mark (E3, CLOSED) |
+| D.77-2006 rows | Physical candidate until Gaceta (E8, CLOSED) |
 
 ### Known Evidence
 
@@ -47,17 +72,12 @@ Existing gates (preserved):
 
 ### Unknowns
 
-- Editorial reason for false status marking
-- Legal status cause (derogation, substitution, reform, or other)
-- Official reform/repeal history affecting articles 72, 73, 84, 87, 93
+- LEGAL_STATUS_UNRESOLVED for articles 72, 73, 84, 87, 93 (E2=C)
 
 ### Required Evidence
 
-1. Official source proving legal effect of false status, if any
-2. Official text and history affecting Articles 11, 27, 72, 73, 84, 87, 93
-3. Verification of Decreto 77-2006 provision text (confirmed D77 may contain Articles 11, 27)
-4. Determination of relationship between D77-2006 and Articles 11 and 27 of Decreto 353-2005
-5. Current legal status article-by-article from official sources
+1. Gaceta text for the Decreto 77-2006 rows. E8 keeps those rows a physical candidate until that text. Discovery is not authorized.
+2. Official reform/repeal history for articles 72, 73, 84, 87, 93
 
 ### Resolution Type
 
@@ -85,6 +105,7 @@ LEGAL_VIGENCIA_ADJUDICATION
 |--------|-------|
 | Layer Type | IDENTIFIABLE_LEGACY_LAYER |
 | Canonical Equivalence | CANONICAL_EQUIVALENCE_UNRESOLVED |
+| Retrieval policy | EXCLUDED from professional retrieval; fail-closed (E4=C, CLOSED) |
 
 ### Known Evidence
 
@@ -104,7 +125,7 @@ LEGAL_VIGENCIA_ADJUDICATION
 1. Mapping archivo_src → canonical instrument where possible
 2. Classification by material type (statute/sentence/doctrine/procedural)
 3. Identification of overlap with current named sources
-4. Retention/deletion recommendation basis
+4. E4 excludes this layer from professional retrieval. It does not authorize deletion or a production write.
 
 ### Resolution Type
 
@@ -131,7 +152,7 @@ CORPUS_IDENTITY_MAPPING
 | Aspect | Value |
 |--------|-------|
 | Physical Presence | BASE_VARIANT_PRESENT |
-| Temporal Role | TEMPORAL_ROLE_UNRESOLVED |
+| Temporal Role | TEMPORAL_ROLE_UNRESOLVED (E5=C, OPEN) |
 
 ### Known Evidence
 
@@ -180,6 +201,7 @@ TEMPORAL_TEXT_ADJUDICATION
 |--------|-------|
 | Physical Presence | PHYSICAL_PRESENCE_CONFIRMED |
 | Canonical Legal Status | CANONICAL_LEGAL_STATUS_UNRESOLVED |
+| Completeness | NO_MEDIDO (E6=B, OPEN) |
 
 ### Known Evidence
 
@@ -230,7 +252,7 @@ LEGAL_STATUS_ADJUDICATION
 | Aspect | Value |
 |--------|-------|
 | Layer Type | DOCUMENT_INSTRUMENT_LAYER_CONFIRMED |
-| Retrieval Role | RETRIEVAL_ROLE_UNRESOLVED |
+| Retrieval Role | EXCLUDED_BY_TYPE; never PRIMARY (E7=D, CLOSED) |
 
 ### Known Evidence
 
@@ -244,13 +266,12 @@ LEGAL_STATUS_ADJUDICATION
 
 - Classification of representative document families by metadata
 - Document types present (legal instruments, notarial instruments, procedural documents, expediente-like, other)
-- Retrieval policy definition (PRIMARY, COMPLEMENTARY, CONTEXT_ONLY, EXCLUDED_BY_TYPE)
+- Classification of representative document families remains undescribed. The retrieval policy is closed by E7.
 
 ### Required Evidence
 
 1. Representative document family sampling and classification
 2. Determination of document types present in layer
-3. Definition of retrieval policy for use cases (PRIMARY, COMPLEMENTARY, CONTEXT_ONLY, EXCLUDED)
 
 ### Resolution Type
 
@@ -274,17 +295,17 @@ RETRIEVAL_POLICY_ADJUDICATION
 
 | Item | Title | Status | Resolution Type | Blocking Inventory |
 |------|-------|--------|-----------------|-------------------|
-| CA-01 | Notariado False Rows | Physical Evidence Complete / Legal Pending | Legal Vigencia Adjudication | YES |
-| CA-02 | Legacy NULL Equivalence | Identifiable Layer / Equivalence Unresolved | Corpus Identity Mapping | YES |
-| CA-03 | CPC Texto Base Temporal | Base Variant Present / Temporal Unresolved | Temporal Text Adjudication | YES |
-| CA-04 | D102-2018 Canonical | Physical Confirmed / Legal Unresolved | Legal Status Adjudication | YES |
-| CA-05 | doc_* Retrieval Role | Layer Confirmed / Retrieval Policy Unresolved | Retrieval Policy Adjudication | YES |
+| CA-01 | Notariado False Rows | Physical Evidence Complete / Legal Partial (11–27 closed; 72–93 open) | Legal Vigencia Adjudication | YES |
+| CA-02 | Legacy NULL Equivalence | Excluded from professional retrieval (E4) | Corpus Identity Mapping | YES |
+| CA-03 | CPC Texto Base Temporal | Base Variant Present / Temporal Unresolved (E5) | Temporal Text Adjudication | YES |
+| CA-04 | D102-2018 Canonical | Physical Confirmed / Canon Open (E6) | Legal Status Adjudication | YES |
+| CA-05 | doc_* Retrieval Role | EXCLUDED_BY_TYPE (E7) | Retrieval Policy Adjudication | YES |
 
 ---
 
 ## GOVERNANCE STATEMENT
 
-All five canonical adjudication items block Master Inventory freeze pending resolution, but do NOT invalidate the VERIFIED physical/evidentiary baseline established by H1–H5 measurements.
+E2, E5, and E6 remain open, so Master Inventory freeze stays blocked. Closed decisions E1, E3, E4, E7, and E8 do not invalidate the VERIFIED physical baseline established by H1–H5.
 
 These are CLO-level canonical, editorial, and retrieval policy questions, not corpus measurement disputes.
 
@@ -292,7 +313,10 @@ Do not reopen H1–H5 evidence pack unless new production evidence contradicts a
 
 ---
 
-**CANONICAL ADJUDICATION REGISTER V1 STATUS:** PREPARATION_READY  
+**CANONICAL ADJUDICATION REGISTER V1 STATUS:** PARTIAL_CLO_RECORDED  
+**Canonical Adjudication Complete:** NO  
+**CLO closed:** E1, E3, E4, E7, E8  
+**CLO open:** E2, E5, E6  
 **Production Writes:** 0  
 **Identity Sprint Closed:** NO  
 **Master Inventory Frozen:** NO  
