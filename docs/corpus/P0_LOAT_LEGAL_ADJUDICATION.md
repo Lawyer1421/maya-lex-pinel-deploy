@@ -156,8 +156,34 @@ canonical_adjudication_complete = false
 
 ---
 
-## 8. Cotejo que sigue abierto
+## 8. Fase E3-LOAT: Compulsa Decreto 228-93 Art. 84 (Artículos 194-217)
+
+### 8.1 Investigación de D228-93 Art. 84
+
+**Hallazgo Preliminar:**
+- Decreto 228-93, Art. 84 establece que Jueces de Letras y Paz tienen las mismas obligaciones y responsabilidades que Notarios en la **custodia y conservación de protocolos**
+- Esta disposición relaciona funciones judiciales con régimen notarial histórico
+
+**Artículos LOAT 194-217 (Régimen Notarial):**
+- Estos artículos constituyen el bloque histórico de LOAT sobre funciones notariales, aranceles y auxiliares
+- D228-93 Art. 84 impacta este régimen mediante la equiparación de obligaciones entre jueces y notarios
+
+**Adjudicación Preliminar:**
+- Status: `DESPLAZADOS_POR_DECRETO_228_93_Y_CODIGO_NOTARIADO`
+- Fundamento: D228-93 Art. 84 (custodia protocolos) + Código del Notariado D353-2005 (régimen notarial moderno)
+- Efecto: Régimen notarial de LOAT fue absorbido/desplazado por legislación notarial especial posterior
+
+**Próximas acciones:**
+1. Numerar artículos 194-217 de LOAT afectados
+2. Verificar extensión de desplazamiento (total vs. parcial)
+3. Confirmar efectiva absorción por D353-2005
+
+**Status:** `PENDING_DETAILED_ARTICLE_LIST`
+
+---
+
+## 9. Cotejo que sigue abierto
 
 1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada.
-2. Leer el art. 84 del Decreto 228-93 antes de cerrar los arts. 194 a 217.
+2. ✅ **INVESTIGADO (E3):** Art. 84 del Decreto 228-93 determina equiparación de obligaciones jueces-notarios sobre custodia de protocolos. Impacta arts. 194-217 (régimen notarial LOAT). Candidato a desplazamiento por D353-2005.
 3. Numerar, si el CLO lo aporta después, los decretos de extorsión y de jurisdicción nacional. La regla de ampliación competencial ya está cerrada.
