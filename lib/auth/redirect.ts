@@ -14,19 +14,23 @@ export function sanitizeNextPath(next: string | null | undefined): string {
 }
 
 /**
+ * Fallback SOLO si el origin del navegador no es una URL http(s).
+ * Nunca se usa NEXT_PUBLIC_APP_URL aquí: esa variable puede arrastrar
+ * un dominio residual de otro producto y romper Google OAuth.
+ */
+export const AUTH_CALLBACK_ORIGIN_FALLBACK = 'https://mayalexhn.com';
+
+/**
  * Construye la URL de callback usando el origin REAL de la solicitud
- * (Preview o producción). Antes forzaba mayalexhn.com para cualquier
- * host *.vercel.app — eso rompía la sesión en Preview porque el
- * magic link se emite contra Supabase Staging (env vars de Preview)
- * pero el canje del código terminaba corriendo contra Supabase
- * Producción en mayalexhn.com — proyectos distintos, el código nunca
- * es válido ahí. AUTH_CALLBACK_REDIRECT_MISMATCH.
+ * (`window.location.origin` en el cliente: localhost en local,
+ * https://mayalexhn.com en producción, Preview de Vercel en previews).
+ * AUTH_CALLBACK_REDIRECT_MISMATCH: no forzar mayalexhn.com en *.vercel.app.
  */
 export function buildAuthCallbackUrl(origin: string, nextPath: string): string {
-  const trimmed = origin?.trim();
+  const trimmed = origin?.trim().replace(/\/+$/, '');
   const baseOrigin = trimmed && /^https?:\/\//i.test(trimmed)
     ? trimmed
-    : (process.env.NEXT_PUBLIC_APP_URL ?? 'https://mayalexhn.com');
+    : AUTH_CALLBACK_ORIGIN_FALLBACK;
 
   const next = encodeURIComponent(sanitizeNextPath(nextPath));
   return `${baseOrigin}/auth/callback?next=${next}`;
