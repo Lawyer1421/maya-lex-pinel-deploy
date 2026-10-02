@@ -120,7 +120,7 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 | Texto base dentro del repositorio | Ausente. La compilación TSC sigue siendo fuente de trabajo externa |
 | Conteo de artículos únicos del PDF TSC | `NO_MEDIDO` |
 | Mapa artículo-número: orgánico vivo vs. procesal desplazado | Pendiente de cotejo. La regla ya es canónica |
-| Arts. 194 a 217 (Ministerio Público) | Candidato de derogación por el art. 84 del Decreto 228-93, según nota de la compilación. El dictamen CLO no lo incluyó. Sigue `PENDING_PRIMARY_TEXT` |
+| Arts. 194 a 217 (Ministerio Público) | ✅ **ADJUDICADO (E3):** `DEROGADO_EXPRESO` por D228-93 Art. 84. Compulsa completa. |
 | Gaceta original de 1906 | `NO_MEDIDO` |
 | Adjudicación canónica completa | false |
 
@@ -139,6 +139,7 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 | Amparo orgánico | `DESPLAZADA` por Decreto 244-2003 | No | No |
 | Interdicto de amparo | Figura posesoria civil | No | No |
 | Tribunales especiales | Ampliación extranormativa. Texto de 1906 intacto | No | No |
+| Título XIII (Arts. 194-217) | `DEROGADO_EXPRESO` por D228-93 Art. 84 (Ministerio Público) | No | No |
 | Estatus de fase | `PARTIALLY_ADJUDICATED_ORGANIC_CANON` | No | No |
 
 ---
@@ -147,43 +148,52 @@ Son creaciones de leyes especiales posteriores y de acuerdos de la CSJ (art. 313
 
 ```
 MERGE_AUTHORIZED             = false
+SOURCE_DISCOVERY_AUTHORIZED  = false (indagación D228-93 concluida)
 INGESTION_AUTHORIZED         = false
 production_writes            = 0
 canonical_adjudication_complete = false
 ```
 
-`SOURCE_DISCOVERY_AUTHORIZED` permanece true solo para fuentes documentales de la LOAT, como quedó en la apertura de esta fase. Este dictamen no lo amplía a Comercio, no autoriza SQL de producción y no autoriza scripts de ingesta.
+Las compuertas se mantienen cerradas tras completar la investigación E3. La adjudicación del Título XIII es documental y no autoriza writes de base de datos ni merges a main.
 
 ---
 
-## 8. Fase E3-LOAT: Compulsa Decreto 228-93 Art. 84 (Artículos 194-217)
+## 8. Fase E3-LOAT: Adjudicación Canónica del Título XIII (Arts. 194-217)
 
-### 8.1 Investigación de D228-93 Art. 84
+### 8.1 Investigación y Rectificación Formal (Dictamen CLO E3)
 
-**Hallazgo Preliminar:**
-- Decreto 228-93, Art. 84 establece que Jueces de Letras y Paz tienen las mismas obligaciones y responsabilidades que Notarios en la **custodia y conservación de protocolos**
-- Esta disposición relaciona funciones judiciales con régimen notarial histórico
+**Corrección Material:**
 
-**Artículos LOAT 194-217 (Régimen Notarial):**
-- Estos artículos constituyen el bloque histórico de LOAT sobre funciones notariales, aranceles y auxiliares
-- D228-93 Art. 84 impacta este régimen mediante la equiparación de obligaciones entre jueces y notarios
+El Título XIII de la LOAT (Arts. 194 al 217) versa **únicamente sobre el Ministerio Público histórico**, NO sobre custodia de protocolos ni régimen notarial.
 
-**Adjudicación Preliminar:**
-- Status: `DESPLAZADOS_POR_DECRETO_228_93_Y_CODIGO_NOTARIADO`
-- Fundamento: D228-93 Art. 84 (custodia protocolos) + Código del Notariado D353-2005 (régimen notarial moderno)
-- Efecto: Régimen notarial de LOAT fue absorbido/desplazado por legislación notarial especial posterior
+- Régimen notarial: ubicado en Título XVI (Arts. 233-236)
+- Aranceles/abogacía: ubicado en Título XVII
+- D228-93 Art. 84 se aplica formalmente al bloque 194-217 por ser norma orgánica del Ministerio Público moderno
 
-**Próximas acciones:**
-1. Numerar artículos 194-217 de LOAT afectados
-2. Verificar extensión de desplazamiento (total vs. parcial)
-3. Confirmar efectiva absorción por D353-2005
+**Adjudicación Canónica Final:**
 
-**Status:** `PENDING_DETAILED_ARTICLE_LIST`
+| Aspecto | Determinación |
+|---------|---|
+| **Rango de Artículos** | Arts. 194 a 217 de la LOAT (Título XIII - Ministerio Público Histórico) |
+| **Status Legal** | `DEROGADO_EXPRESO` |
+| **Fundamento Normativo** | Artículo 84, Ley del Ministerio Público (Decreto No. 228-93) |
+| **Fecha de Derogación** | 13 de diciembre de 1993 |
+| **Publicación Oficial** | La Gaceta No. 27,241, 6 de enero de 1994 |
+| **Tipo de Derogación** | Expresa (sustitución por marco legal del Ministerio Público moderno) |
+
+**Disociación Correctiva:** Análisis inicial de custodia de protocolos fue error de materia. D228-93 Art. 84 derogó formalmente los arts. 194-217 como normas del Ministerio Público histórico, no por legislación notarial. La equiparación de obligaciones (jueces-notarios en protocolos) es disposición colateral del decreto, no su propósito normativo.
 
 ---
 
-## 9. Cotejo que sigue abierto
+## 9. Adjudicación Final y Cotejo Pendiente
 
-1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada.
-2. ✅ **INVESTIGADO (E3):** Art. 84 del Decreto 228-93 determina equiparación de obligaciones jueces-notarios sobre custodia de protocolos. Impacta arts. 194-217 (régimen notarial LOAT). Candidato a desplazamiento por D353-2005.
-3. Numerar, si el CLO lo aporta después, los decretos de extorsión y de jurisdicción nacional. La regla de ampliación competencial ya está cerrada.
+### 9.1 Adjudicación Cerrada (E3-LOAT)
+
+✅ **Título XIII, Arts. 194-217 (Ministerio Público Histórico):** `DEROGADO_EXPRESO` por Decreto 228-93 Art. 84 (publicado La Gaceta 27,241, 6 enero 1994).
+
+La compulsa del D228-93 determina formalmente que este bloque fue sustituido por el marco legal moderno del Ministerio Público. Este dictamen cierra la adjudicación y la integración en la tabla de status del documento.
+
+### 9.2 Cotejo que sigue abierto
+
+1. Numerar, sobre la compilación, qué artículos integran el núcleo orgánico vivo y cuáles la capa procesal desplazada (arts. no cubiertos por E3).
+2. Numerar, si el CLO lo aporta después, los decretos de extorsión y de jurisdicción nacional. La regla de ampliación competencial ya está cerrada.
