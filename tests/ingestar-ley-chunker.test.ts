@@ -37,6 +37,12 @@ describe('parsearArgs', () => {
     expect(o.execute).toBeNull();
     expect(o.coleccion).toBe('mayalex_normativos');
     expect(o.materia).toBe('01_PENAL');
+    expect(o.acceptSpacedDashHeading).toBe(false);
+  });
+
+  it('--accept-spaced-dash-heading es opt-in (default false; no toma valor)', () => {
+    expect(parsearArgs(argsBase).acceptSpacedDashHeading).toBe(false);
+    expect(parsearArgs([...argsBase, '--accept-spaced-dash-heading']).acceptSpacedDashHeading).toBe(true);
   });
 
   it('--execute <ruta> saca del modo dry-run', () => {
@@ -106,6 +112,95 @@ describe('segmentarGenerico — reutiliza tieneEncabezadoArticulo real, no un cr
     const chunks = segmentarGenerico(texto);
     expect(chunks.length).toBeGreaterThan(0);
     expect(chunks.every((c) => c.aceptado === false)).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// Gaceta/TSC: `ARTÍCULO N. -` (punto + espacio + guion) y `ARTÍCULO N-`
+// sin punto. PATRON_CANDIDATO default deja el guion como "siguiente
+// caracter"; tieneEncabezadoArticulo lo rechaza. Opt-in via
+// --accept-spaced-dash-heading / acceptSpacedDashHeading (default false).
+// No se toca vigencia fail-closed. El sangrado a dos columnas de Gaceta
+// (Penal, Municipalidades, etc.) es un problema de remaster aparte.
+// ─────────────────────────────────────────────────────────────────────────
+describe('segmentarGenerico — acceptSpacedDashHeading (opt-in, default off)', () => {
+  it('default OFF: ARTÍCULO N. - no se acepta (el guion queda como siguiente caracter)', () => {
+    const texto =
+      'ARTÍCULO 38. - Primera disposición del reglamento.\n' +
+      'ARTÍCULO 80. - Segunda disposición del reglamento.';
+    const aceptados = segmentarGenerico(texto).filter((c) => c.aceptado);
+    expect(aceptados).toHaveLength(0);
+  });
+
+  it('default OFF: ARTÍCULO N- pegado sin punto no entra como encabezado', () => {
+    const texto = 'ARTÍCULO 158-Los titulares podrán autorizar la comunicación.';
+    const aceptados = segmentarGenerico(texto).filter((c) => c.aceptado);
+    expect(aceptados).toHaveLength(0);
+  });
+
+  it('flag ON: acepta ARTÍCULO N. - y Artículo N. - (punto + espacios + guion)', () => {
+    const texto =
+      'ARTÍCULO 38. - Primera disposición del reglamento.\n' +
+      'Artículo 80. - Segunda disposición del reglamento.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['38', '80']);
+    expect(aceptados[0]?.contenido).toContain('Primera disposición del reglamento.');
+    expect(aceptados[1]?.contenido).toContain('Segunda disposición del reglamento.');
+  });
+
+  it('flag ON: acepta ARTÍCULO 142. - (caso Propiedad Industrial / Derecho de Autor)', () => {
+    const texto =
+      'ARTÍCULO 142. - Derecho de comunicación pública.\n' +
+      'ARTÍCULO 158-Los titulares podrán autorizar.\n' +
+      'ARTÍCULO 159-Las sociedades de gestión colectiva.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['142', '158', '159']);
+  });
+
+  it('flag ON: acepta ARTÍCULO N- pegado, sin punto, solo si el cuerpo abre en mayúscula (palabra)', () => {
+    const texto =
+      'ARTÍCULO 158-Los titulares podrán autorizar la comunicación.\n' +
+      'ARTÍCULO 159-Las sociedades de gestión colectiva.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['158', '159']);
+  });
+
+  it('flag ON: rechaza "artículo N. - " con continuación en minúscula (no es encabezado)', () => {
+    const texto = 'Conforme al artículo 38. - no procede la excepción planteada.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados).toHaveLength(0);
+  });
+
+  it('flag ON: no acepta sufijo bis "artículo 5-A" como encabezado del 5 (forma pegada estrecha)', () => {
+    const texto = 'Conforme al artículo 5-A del reglamento, se aplicará la sanción.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados).toHaveLength(0);
+  });
+
+  it('flag ON: no rompe los formatos ya soportados (CPP ".-", Civil ". ", stub sin punto)', () => {
+    const cpp = segmentarGenerico(
+      'ARTICULO 1.- Primer artículo real.\nARTICULO 2.- Segundo artículo real.',
+      { acceptSpacedDashHeading: true },
+    ).filter((c) => c.aceptado);
+    expect(cpp.map((c) => c.numArticulo)).toEqual(['1', '2']);
+
+    const civil = segmentarGenerico(
+      'Artículo 1. La ley es una declaración de la voluntad soberana.\nArtículo 2. Otro texto real.',
+      { acceptSpacedDashHeading: true },
+    ).filter((c) => c.aceptado);
+    expect(civil.map((c) => c.numArticulo)).toEqual(['1', '2']);
+
+    const stub = segmentarGenerico(
+      'Artículo 21 Derogado\nArtículo 22 Derogado',
+      { acceptSpacedDashHeading: true },
+    ).filter((c) => c.aceptado);
+    expect(stub.map((c) => c.numArticulo)).toEqual(['21', '22']);
+  });
+
+  it('flag ON: ARTÍCULO N. - con cuerpo "A partir..." (una letra mayúscula + espacio) sí se acepta', () => {
+    const texto = 'ARTÍCULO 38. - A partir de la vigencia de este reglamento.';
+    const aceptados = segmentarGenerico(texto, { acceptSpacedDashHeading: true }).filter((c) => c.aceptado);
+    expect(aceptados.map((c) => c.numArticulo)).toEqual(['38']);
   });
 });
 
@@ -231,6 +326,7 @@ describe('construirRegistro', () => {
     jurisdiccion: 'HN',
     dryRun: true,
     execute: null,
+    acceptSpacedDashHeading: false,
   };
 
   it('construye un id estable a partir del prefijo y el numero de articulo', () => {
@@ -249,6 +345,15 @@ describe('construirRegistro', () => {
     expect(r.es_norma_vigente).toBe(false);
     expect(r.metadata.verificado).toBe(false);
     expect(r.metadata.fecha_verificacion).toBeNull();
+    expect(r.metadata.vigencia_state).toBe('NO_VERIFICADO');
+  });
+
+  it('FAIL-CLOSED se conserva con contenido de encabezado Gaceta ARTÍCULO N. - (el flag de ortografía no declara vigencia)', () => {
+    const r = construirRegistro(
+      { numArticulo: '38', contenido: 'ARTÍCULO 38. - Primera disposición del reglamento.', aceptado: true },
+      { ...opts, acceptSpacedDashHeading: true },
+    );
+    expect(r.es_norma_vigente).toBe(false);
     expect(r.metadata.vigencia_state).toBe('NO_VERIFICADO');
   });
 

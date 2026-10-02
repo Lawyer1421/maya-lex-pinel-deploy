@@ -29,6 +29,7 @@ const opts: OpcionesCLI = {
   jurisdiccion: 'HN',
   dryRun: true,
   execute: null,
+  acceptSpacedDashHeading: false,
 };
 
 function vectorReal(seed: number, dim = EMBED_DIMS): number[] {
