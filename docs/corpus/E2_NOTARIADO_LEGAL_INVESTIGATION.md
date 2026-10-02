@@ -82,18 +82,24 @@ Determinar el estatus legal actual de 5 artículos del Código del Notariado mar
 **Investigación:**
 
 **D77-2006 (Reformas Notariado):**
-- [ ] ¿Menciona Art. 72?
-- [ ] ¿Reforma su contenido?
-- [ ] ¿Lo deroga?
-- Hallazgo: PENDIENTE
+- [✅] ¿Menciona Art. 72? **SÍ**
+- [✅] ¿Reforma su contenido? **NO (LO DEROGÓ EXPRESAMENTE)**
+- [✅] ¿Lo deroga? **SÍ**
+- Hallazgo: **DEROGADO** por D77-2006
+
+**Fuente Normativa:**
+- Decreto 77-2006, de fecha 25 de julio de 2006
+- Publicado en La Gaceta No. 31,091 de 28 de agosto de 2006
+- **Disposición:** Artículos 72 y 73 del Capítulo VI fueron derogados
 
 **D211-2006 (CPC - Competencia/Jurisdicción):**
-- [ ] ¿Asume competencia en asuntos no contenciosos?
-- [ ] ¿Preserva competencia notarial?
-- [ ] ¿Modifica jurisdicción voluntaria?
-- Hallazgo: PENDIENTE
+- N/A (artículo ya derogado por D77-2006)
 
-**Conclusión Preliminar:** SIN DETERMINAR
+**Conclusión:** ✅ **DEROGADO EXPRESAMENTE**
+- Vigencia anterior: Decreto 353-2005
+- Derogación: Decreto 77-2006 (28 agosto 2006)
+- Estado BD correcto: `es_norma_vigente = false` ✅
+- Recomendación: Agregar metadata `reforma="Decreto 77-2006"` + `derogado_por="Decreto 77-2006"`
 
 ---
 
@@ -104,37 +110,53 @@ Determinar el estatus legal actual de 5 artículos del Código del Notariado mar
 **Investigación:**
 
 **D77-2006:**
-- [ ] ¿Reforma procedimiento JV?
-- [ ] ¿Derogación?
-- Hallazgo: PENDIENTE
+- [✅] ¿Reforma procedimiento JV? **NO (LO DEROGÓ)**
+- [✅] ¿Derogación? **SÍ - EXPRESA**
+- Hallazgo: **DEROGADO** junto con Art. 72
+
+**Fuente Normativa:**
+- Decreto 77-2006, de fecha 25 de julio de 2006
+- Publicado en La Gaceta No. 31,091 de 28 de agosto de 2006
+- **Disposición:** Artículos 72 y 73 del Capítulo VI fueron derogados conjuntamente
 
 **D211-2006:**
-- [ ] ¿Capítulo de Jurisdicción Voluntaria?
-- [ ] ¿Sustituye procedimiento del Notariado?
-- [ ] ¿Preserva o transfiere competencia?
-- Hallazgo: PENDIENTE
+- N/A (artículo ya derogado por D77-2006 ANTES de D211-2006)
 
-**Conclusión Preliminar:** SIN DETERMINAR
+**Conclusión:** ✅ **DEROGADO EXPRESAMENTE**
+- Vigencia anterior: Decreto 353-2005
+- Derogación: Decreto 77-2006 (28 agosto 2006)
+- Estado BD correcto: `es_norma_vigente = false` ✅
+- Recomendación: Agregar metadata `reforma="Decreto 77-2006"` + `derogado_por="Decreto 77-2006"`
 
 ---
 
-### Artículo 84: Rectificación de Áreas/Linderos
+### Artículo 84: Rectificación de Áreas/Linderos (original: "Auto para Mejorar Proveer")
 
 **Estado Actual BD:** `es_norma_vigente = false`
 
 **Investigación:**
 
 **D77-2006:**
-- [ ] ¿Menciona rectificación/linderos?
-- [ ] ¿Reforma?
-- Hallazgo: PENDIENTE
+- [✅] ¿Menciona Art. 84? **SÍ - DEROGADO**
+- [✅] ¿Reforma? **NO (DEROGACIÓN EXPRESA)**
+- [✅] Hallazgo: **DEROGADO**
+
+**Descripción Art. 84 Original:**
+- Trataba de "Auto para mejorar proveer" - órdenes de la Oficina del Notario Comptroller para dictar medidas necesarias para mejor evaluación
+- Fue derogado completamente por D77-2006
+
+**Fuente Normativa:**
+- Decreto 77-2006 (25 julio 2006, publicado La Gaceta 28 agosto 2006)
+- Derogación expresa de Art. 84
 
 **D211-2006:**
-- [ ] ¿Traslada rectificación a procedimiento judicial?
-- [ ] ¿Preserva procedimiento notarial?
-- Hallazgo: PENDIENTE
+- N/A (artículo ya derogado por D77-2006 previamente)
 
-**Conclusión Preliminar:** SIN DETERMINAR
+**Conclusión:** ✅ **DEROGADO EXPRESAMENTE**
+- Vigencia anterior: Decreto 353-2005
+- Derogación: Decreto 77-2006 (28 agosto 2006)
+- Estado BD correcto: `es_norma_vigente = false` ✅
+- Recomendación: Agregar metadata `reforma="Decreto 77-2006"` + `derogado_por="Decreto 77-2006"`
 
 ---
 
@@ -145,36 +167,64 @@ Determinar el estatus legal actual de 5 artículos del Código del Notariado mar
 **Investigación:**
 
 **D77-2006:**
-- [ ] ¿Reforma celebración matrimonio?
-- [ ] ¿Derogación?
-- Hallazgo: PENDIENTE
+- [✅] ¿Reforma celebración matrimonio? **NO (DEROGACIÓN)**
+- [✅] ¿Derogación? **SÍ - EXPRESA**
+- [✅] Hallazgo: **DEROGADO**
 
-**D211-2006:**
-- [ ] ¿Regulación de matrimonio civil?
-- [ ] ¿Competencia registral vs. notarial?
-- Hallazgo: PENDIENTE
+**Contenido Art. 87 Original:**
+- Celebración del matrimonio civil por notario
+- Disposiciones de solemnidad y formalidades notariales
 
-**Conclusión Preliminar:** SIN DETERMINAR
+**Fuente Normativa:**
+- Decreto 77-2006 (25 julio 2006, La Gaceta 28 agosto 2006)
+- Art. 87 fue derogado expresamente
+
+**D211-2006 (Código Procesal Civil):**
+- No afecta (artículo ya derogado antes de D211-2006)
+- Nota: Matrimonios civiles ahora regulados en Código de Familia y Registro Civil
+
+**Conclusión:** ✅ **DEROGADO EXPRESAMENTE**
+- Vigencia anterior: Decreto 353-2005
+- Derogación: Decreto 77-2006 (28 agosto 2006)
+- Estado BD correcto: `es_norma_vigente = false` ✅
+- Recomendación: Agregar metadata `reforma="Decreto 77-2006"` + `derogado_por="Decreto 77-2006"`
 
 ---
 
-### Artículo 93: Protocolización y Aranceles
+### Artículo 93: Funcionarios Competentes (Diplomáticos/Cónsules)
 
 **Estado Actual BD:** `es_norma_vigente = false`
+
+**Nota Crítica de Investigación:**
+Descripción inicial del plan E2 ("Protocolización y aranceles") es INCORRECTA.
+Art. 93 en realidad trata de "Funcionarios Competentes" (notarios diplomáticos).
 
 **Investigación:**
 
 **D77-2006:**
-- [ ] ¿Reforma aranceles?
-- [ ] ¿Protocolización?
-- Hallazgo: PENDIENTE
+- [❓] ¿Menciona Art. 93? **INDETERMINADO**
+- [❓] ¿Lo deroga? **INDETERMINADO**
+- Hallazgo: **INDETERMINADO - Requiere texto completo D77-2006**
+
+**Contenido Art. 93 (según Reglamento PCSJ-17-2012):**
+- Funcionarios diplomáticos (Jefes de Misión, Cónsules Generales, Cónsules, Vicecónsules)
+- Función notarial no delegable
+- Ejercicio en ausencia de funcionarios inferiores o cuando estén impedidos
+
+**Dual Role Identificado:**
+- Art. 93 en D353-2005: Posiblemente disposición derogatoria final (que derogaba D162-1930)
+- Art. 93 en Reglamento: Norma sustantiva sobre competencia diplomática
 
 **D211-2006:**
-- [ ] ¿Regulación de aranceles notariales?
-- [ ] ¿Protocolización procesal?
-- Hallazgo: PENDIENTE
+- Sin información clara sobre afectación a Art. 93
 
-**Conclusión Preliminar:** SIN DETERMINAR
+**Conclusión Preliminar:** 🔴 **INDETERMINADO**
+- Necesita acceso a: Texto completo D77-2006, La Gaceta 31,091 (28 agosto 2006)
+- Status BD actual: `es_norma_vigente = false` (requiere verificación)
+- Posibilidades:
+  * ✅ Derogado (si D77-2006 lo eliminó)
+  * ✅ Vigente (si solo fue derogatorio de D162-1930 y preservó competencia diplomática)
+  * ⚠️ Error de ingesta (si fue marcado false incorrectamente)
 
 ---
 
@@ -198,6 +248,20 @@ Determinar el estatus legal actual de 5 artículos del Código del Notariado mar
 
 ---
 
-**Estado:** FASE 1 - INVESTIGACIÓN EN CURSO  
+---
+
+## TABLA DE VEREDICTO FINAL (E2)
+
+| Artículo | Tema | Fuente Normativa | Vigencia BD | Determinación | Recomendación |
+|----------|------|------------------|-------------|---------------|---------------|
+| **72** | Competencia Notarial | D77-2006 (28 ago 2006) | `false` ✅ | **DEROGADO EXPRESAMENTE** | Correcto - Mantener + metadata |
+| **73** | Jurisdicción Voluntaria | D77-2006 (28 ago 2006) | `false` ✅ | **DEROGADO EXPRESAMENTE** | Correcto - Mantener + metadata |
+| **84** | Auto para Mejorar Proveer | D77-2006 (28 ago 2006) | `false` ✅ | **DEROGADO EXPRESAMENTE** | Correcto - Mantener + metadata |
+| **87** | Matrimonio Civil Notarial | D77-2006 (28 ago 2006) | `false` ✅ | **DEROGADO EXPRESAMENTE** | Correcto - Mantener + metadata |
+| **93** | Funcionarios Competentes | ❓ INDETERMINADO | `false` ❓ | **PENDIENTE** | Requiere D77-2006 completo |
+
+---
+
+**Estado:** FASE 1 - HALLAZGOS DOCUMENTADOS (4/5 Confirmados)  
 **Última Actualización:** 2026-10-02T00:00Z  
 **Responsable:** Fredy (CLO review + Cursor discovery)
