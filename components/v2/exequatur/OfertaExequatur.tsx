@@ -28,7 +28,7 @@ export default function OfertaExequatur({ eligibleTier = false }: { eligibleTier
   return (
     <main className="min-h-screen bg-obsidian px-4 pb-20 pt-16 text-ivory sm:px-6">
       <div className="mx-auto max-w-4xl text-center">
-        <span className="mode-badge border-gold/30 bg-gold/10 text-gold-light">Programa Premium · Plan Profesional</span>
+        <span className="mode-badge border-gold/30 bg-gold/10 text-gold-light">Programa Premium · Plan Premium</span>
         <h1 className="mt-6 font-serif text-3xl font-bold leading-tight text-ivory sm:text-4xl lg:text-5xl">
           Programa de Preparación para el Exequátur de Notario ante la Corte Suprema de Justicia
         </h1>
@@ -49,7 +49,7 @@ export default function OfertaExequatur({ eligibleTier = false }: { eligibleTier
         <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="font-serif text-xl font-bold text-ivory">Plan Notarial</p>
-            <p className="mt-1 text-sm text-ivory-muted">Facturado como Plan Profesional — 1000 consultas/día incluidas en toda la plataforma.</p>
+            <p className="mt-1 text-sm text-ivory-muted">Facturado como Plan Premium — 1000 consultas/día incluidas en toda la plataforma.</p>
           </div>
           <p className="flex items-baseline gap-1">
             <span className="font-serif text-4xl font-bold text-ivory">USD 15</span>

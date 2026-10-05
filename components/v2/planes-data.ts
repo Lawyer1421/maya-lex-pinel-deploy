@@ -68,7 +68,7 @@ export const PLANES_V2: PlanV2[] = [
   },
   {
     id: 'profesional',
-    nombre: 'Profesional',
+    nombre: 'Premium',
     precio: 'USD 15',
     periodo: '/mes',
     destacado: true,

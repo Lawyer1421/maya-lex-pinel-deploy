@@ -15,7 +15,7 @@ const PREGUNTAS_PRECIOS = [
   {
     pregunta: '¿Puedo pagar ahora mismo?',
     respuesta:
-      'Sí — los planes Académico y Profesional se activan de inmediato a través de PayPal. '
+      'Sí — los planes Académico y Premium se activan de inmediato a través de PayPal. '
       + 'Bufete y Universidad se coordinan directamente con nuestro equipo.',
   },
   {
@@ -45,7 +45,7 @@ export default function PricingPageV2() {
             Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
           </p>
           <p className="mx-auto mt-3 max-w-xl text-xs text-ivory-muted">
-            Las suscripciones Académico y Profesional se procesan de forma segura mediante PayPal y tienen renovación mensual automática.
+            Las suscripciones Académico y Premium se procesan de forma segura mediante PayPal y tienen renovación mensual automática.
           </p>
         </section>
 
@@ -54,7 +54,7 @@ export default function PricingPageV2() {
             <div>
               <p className="font-serif text-lg font-semibold text-ivory">Plan Notarial — Preparación para el Exequátur</p>
               <p className="mt-1 text-sm text-ivory-dim">
-                Incluido en el Plan Profesional (USD 15/mes): diagnóstico de colocación, simulador de examen y plan
+                Incluido en el Plan Premium (USD 15/mes): diagnóstico de colocación, simulador de examen y plan
                 de estudio personalizado para el Exequátur de Notario ante la Corte Suprema de Justicia.
               </p>
             </div>

@@ -48,7 +48,7 @@ describe('PLANES_V2 — qué planes invocan PayPal y con qué tier (Pruebas 1, 2
     expect(PLANES_V2.map((p) => [p.nombre, p.precio, p.periodo])).toEqual([
       ['Explorar', 'Gratis', ''],
       ['Académico', 'USD 9', '/mes'],
-      ['Profesional', 'USD 15', '/mes'],
+      ['Premium', 'USD 15', '/mes'],
       ['Bufete', 'Personalizado', ''],
       ['Universidad', 'Personalizado', ''],
     ]);
