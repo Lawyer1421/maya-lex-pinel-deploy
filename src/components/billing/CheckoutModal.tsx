@@ -24,7 +24,7 @@ export default function CheckoutModal({ open, onClose, plan }: CheckoutModalProp
     if (plan === 'academico') {
       return { label: 'Académico', amount: 222, currency: 'HNL' };
     }
-    return { label: 'Profesional', amount: 370, currency: 'HNL' };
+    return { label: 'Premium', amount: 370, currency: 'HNL' };
   }, [plan]);
 
   async function handleDirectCard() {

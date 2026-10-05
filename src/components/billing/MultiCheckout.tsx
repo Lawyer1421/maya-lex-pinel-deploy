@@ -16,7 +16,7 @@ export default function MultiCheckout({ plan }: MultiCheckoutProps) {
     if (plan === 'academico') {
       return { label: 'Académico', amount: 222, currency: 'HNL' };
     }
-    return { label: 'Profesional', amount: 370, currency: 'HNL' };
+    return { label: 'Premium', amount: 370, currency: 'HNL' };
   }, [plan]);
 
   async function handlePixelPay() {

@@ -546,7 +546,7 @@ export default function ChatInterface() {
               : usage.tier === 'academico'
               ? `${usage.remaining} consultas restantes hoy (Plan Académico)`
               : usage.tier === 'pro'
-              ? `${usage.remaining} consultas restantes hoy (Plan Profesional)`
+              ? `${usage.remaining} consultas restantes hoy (Plan Premium)`
               : usage.tier === 'admin'
               ? '✓ Acceso Admin'
               : ''}

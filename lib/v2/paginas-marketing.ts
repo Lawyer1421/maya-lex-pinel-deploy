@@ -259,7 +259,7 @@ export const PERFILES_SOLUCIONES: Record<string, ConfigPaginaMarketing> = {
     cobertura: { titulo: 'Cobertura y límites', puntos: LIMITES_COMUNES },
     cierreTitulo: 'Pruebe el formato de análisis profesional',
     ctaPrimario: { label: 'Probar gratis', href: '/chat' },
-    ctaSecundario: { label: 'Ver plan Profesional', href: '/pricing' },
+    ctaSecundario: { label: 'Ver plan Premium', href: '/pricing' },
   },
 
   notarios: {
