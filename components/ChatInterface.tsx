@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { ChatMode } from '@/lib/system-prompt';
 import MessageBubble from './MessageBubble';
 import PromptInput, { type Attachment, type SendPayload } from './PromptInput';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { createStreamTextBuffer } from '@/lib/chat/stream-text-buffer';
+import { filterSuggestions } from '@/lib/chat/suggestion-filter';
 
 /**
  * Token de sesión Supabase (si el usuario inició sesión).
@@ -97,14 +99,30 @@ export default function ChatInterface() {
   const [usage, setUsage] = useState<UsageInfo>({});
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [draftQuery, setDraftQuery] = useState('');
   const [feedbackMap, setFeedbackMap] = useState<Record<string, boolean>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const stickToBottomRef = useRef(true);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Auto-scroll al último mensaje
+  const visibleSuggestions = useMemo(
+    () => filterSuggestions(SUGGESTIONS, draftQuery),
+    [draftQuery],
+  );
+
+  const noteScrollPosition = useCallback(() => {
+    const el = transcriptRef.current;
+    if (!el) return;
+    stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  }, []);
+
+  // Sigue el último mensaje solo si el lector ya está al fondo.
+  // `auto` evita encolar animaciones suaves en cada fragmento del stream.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!stickToBottomRef.current) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   }, [messages]);
 
   // Tier del usuario al cargar — necesario para gatear adjuntos (H3)
@@ -181,6 +199,7 @@ export default function ChatInterface() {
       ];
 
       abortRef.current = new AbortController();
+      let textBuffer: ReturnType<typeof createStreamTextBuffer> | null = null;
 
       try {
         const authHeader = await getAuthHeader();
@@ -206,10 +225,25 @@ export default function ChatInterface() {
           return;
         }
 
-        // Procesar stream SSE
+        // Procesar stream SSE. Los fragmentos de texto se publican como
+        // mucho una vez por frame; el cierre del stream publica el texto completo.
         const reader = response.body!.getReader();
         const decoder = new TextDecoder();
-        let accumulated = '';
+        textBuffer = createStreamTextBuffer(
+          (content) => {
+            setIsThinking(false);
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantId ? { ...m, content } : m))
+            );
+          },
+          (flush) => {
+            if (typeof requestAnimationFrame === 'function') {
+              requestAnimationFrame(flush);
+            } else {
+              setTimeout(flush, 16);
+            }
+          },
+        );
 
         while (true) {
           const { done, value } = await reader.read();
@@ -231,13 +265,7 @@ export default function ChatInterface() {
                   break;
 
                 case 'text':
-                  setIsThinking(false);
-                  accumulated += event.text;
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantId ? { ...m, content: accumulated } : m
-                    )
-                  );
+                  textBuffer.push(typeof event.text === 'string' ? event.text : '');
                   break;
 
                 case 'done':
@@ -270,7 +298,9 @@ export default function ChatInterface() {
             }
           }
         }
+        textBuffer.flushSync();
       } catch (err: unknown) {
+        textBuffer?.flushSync();
         if (err instanceof Error && err.name === 'AbortError') {
           setMessages((prev) =>
             prev.map((m) =>
@@ -316,6 +346,7 @@ export default function ChatInterface() {
     setUsage({});
     setFeedbackMap({});
     setShowSuggestions(true);
+    setDraftQuery('');
   };
 
   // ── Placeholder según modo ──────────────────────────────────────────
@@ -345,19 +376,23 @@ export default function ChatInterface() {
         </div>
 
         {/* Selector de modo */}
-        <div className="flex items-center gap-1">
+        <div className="flex max-w-[9.5rem] flex-wrap items-center justify-end gap-1 sm:max-w-none" role="group" aria-label="Modo de consulta">
           {(Object.keys(MODE_LABELS) as ChatMode[]).map((m) => (
             <button
               key={m}
+              type="button"
               onClick={() => setMode(m)}
               title={MODE_LABELS[m].description}
+              aria-pressed={mode === m}
+              aria-label={MODE_LABELS[m].label}
               className={`text-xs px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 ${
                 mode === m
                   ? 'bg-jade text-white shadow-sm shadow-jade/30'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
-              {MODE_LABELS[m].icon} {MODE_LABELS[m].label}
+              <span aria-hidden="true">{MODE_LABELS[m].icon}</span>
+              <span className="hidden sm:inline"> {MODE_LABELS[m].label}</span>
             </button>
           ))}
         </div>
@@ -377,7 +412,12 @@ export default function ChatInterface() {
       </header>
 
       {/* ── Mensajes ─────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+      <div
+        ref={transcriptRef}
+        onScroll={noteScrollPosition}
+        className="flex-1 overflow-y-auto px-4 py-6 space-y-6"
+        aria-live="polite"
+      >
 
         {/* Pantalla inicial con sugerencias */}
         {showSuggestions && messages.length === 0 && (
@@ -407,16 +447,23 @@ export default function ChatInterface() {
               Consultas de ejemplo
             </p>
             <div className="grid gap-2">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => sendMessage(s)}
-                  className="text-left glass-card-hover p-3 text-sm text-white/70 hover:text-white transition-all duration-200"
-                >
-                  <span className="text-jade mr-2">→</span>
-                  {s}
-                </button>
-              ))}
+              {visibleSuggestions.length === 0 ? (
+                <p className="glass-card p-3 text-sm text-white/60" role="status">
+                  Ningún ejemplo coincide. Envíe la consulta del cuadro inferior para analizarla. Los ejemplos no buscan en el corpus.
+                </p>
+              ) : (
+                visibleSuggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => sendMessage(s)}
+                    className="text-left glass-card-hover p-3 text-sm text-white/70 hover:text-white transition-all duration-200"
+                  >
+                    <span className="text-jade mr-2" aria-hidden="true">→</span>
+                    {s}
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="mt-6 text-center">
@@ -470,20 +517,6 @@ export default function ChatInterface() {
           </div>
         ))}
 
-        {/* Indicador "pensando" antes de la primera palabra */}
-        {isThinking && messages[messages.length - 1]?.content === '' && (
-          <div className="flex justify-start">
-            <div className="glass-card px-4 py-3 max-w-xs">
-              <div className="flex items-center gap-2 text-jade text-sm">
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span>Analizando consulta jurídica...</span>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Error */}
         {error && (
           <div className="max-w-2xl mx-auto">
@@ -533,6 +566,7 @@ export default function ChatInterface() {
             onSend={sendMessage}
             isLoading={isLoading}
             onCancel={cancelGeneration}
+            onDraftChange={setDraftQuery}
             placeholder={placeholder}
             tier={usage.tier}
             canAttach={usage.canAttach}

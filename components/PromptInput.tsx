@@ -107,6 +107,8 @@ export interface PromptInputProps {
    * Si es undefined, se usa la sesión del cliente: autenticado = puede adjuntar.
    */
   canAttach?: boolean;
+  /** Borrador local del cuadro de consulta. No dispara búsqueda en el corpus. */
+  onDraftChange?: (value: string) => void;
 }
 
 // ── Modelos disponibles ─────────────────────────────────────────────────────
@@ -155,6 +157,7 @@ export default function PromptInput({
   onCancel,
   placeholder = 'Consulta jurídica en español o inglés...',
   canAttach: canAttachProp,
+  onDraftChange,
 }: PromptInputProps) {
   const [hasSession, setHasSession] = useState(false);
   const canAttach = documentAttachAllowed(canAttachProp, hasSession);
@@ -209,6 +212,11 @@ export default function PromptInput({
 
   // ── Enviar ───────────────────────────────────────────────────────────────
 
+  const updateText = useCallback((value: string) => {
+    setText(value);
+    onDraftChange?.(value);
+  }, [onDraftChange]);
+
   const handleSend = useCallback(() => {
     if ((!text.trim() && attachments.length === 0) || isLoading) return;
     onSend({
@@ -217,12 +225,12 @@ export default function PromptInput({
       webSearch,
       modelOverride: modelOverride === 'default' ? null : modelOverride,
     });
-    setText('');
+    updateText('');
     setAttachments([]);
     setWebSearch(false);
     setModelOverride('default');
     textareaRef.current?.focus();
-  }, [text, attachments, webSearch, modelOverride, isLoading, onSend]);
+  }, [text, attachments, webSearch, modelOverride, isLoading, onSend, updateText]);
 
   // ── Adjuntos ─────────────────────────────────────────────────────────────
 
@@ -329,7 +337,7 @@ export default function PromptInput({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((r: any) => r[0].transcript as string)
         .join('');
-      setText(transcript);
+      updateText(transcript);
     };
     recognition.onend = () => setIsListening(false);
     recognition.onerror = () => setIsListening(false);
@@ -338,7 +346,7 @@ export default function PromptInput({
     recognitionRef.current = recognition;
     setIsListening(true);
     setMenuOpen(false);
-  }, [isListening]);
+  }, [isListening, updateText]);
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -591,7 +599,8 @@ export default function PromptInput({
           <textarea
             ref={textareaRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            aria-label="Consulta jurídica"
+            onChange={(e) => updateText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -615,6 +624,7 @@ export default function PromptInput({
             onClick={onCancel}
             className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-600/80 hover:bg-red-600 flex items-center justify-center transition-colors"
             title="Cancelar generación"
+            aria-label="Cancelar generación"
           >
             <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
@@ -625,6 +635,7 @@ export default function PromptInput({
             onClick={handleSend}
             disabled={!canSend}
             title="Enviar (Enter)"
+            aria-label="Enviar consulta"
             className="flex-shrink-0 w-10 h-10 rounded-xl bg-jade hover:bg-jade-light disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg shadow-jade/20 hover:shadow-jade/40 active:scale-95"
           >
             <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
