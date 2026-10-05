@@ -1,0 +1,11 @@
+
+> maya-lex-app@0.1.0 eval:day1:execute
+> tsx scripts/eval-day1-executor-real.ts
+
+[Test Cases] Loaded 23 test cases (3 connection + 20 comparison)
+╔════════════════════════════════════════════════════════════════════╗
+║  ETAPA 2 — DÍA 1: EJECUTOR REAL (LLAMADAS PAGADAS)                ║
+║  2026-10-05T03:19:44.709Z  ║
+╚════════════════════════════════════════════════════════════════════╝
+
+❌ ANTHROPIC_API_KEY no configurada

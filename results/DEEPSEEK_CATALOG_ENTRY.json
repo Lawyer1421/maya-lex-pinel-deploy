@@ -1,0 +1,12 @@
+{
+  "source": "OpenRouter API Catalog (https://openrouter.ai/docs#models)",
+  "timestamp": "2026-10-05",
+  "model_id": "deepseek/deepseek-v3",
+  "model_name": "DeepSeek V3",
+  "pricing": {
+    "input": "$0.27 per 1M tokens",
+    "output": "$1.10 per 1M tokens"
+  },
+  "status": "active",
+  "verification": "Confirmed in OpenRouter public documentation"
+}

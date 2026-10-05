@@ -13,7 +13,9 @@
     "check:analytics": "tsx scripts/check-analytics.ts",
     "test": "vitest run",
     "migrate:paypal-state-machine": "tsx scripts/migrate-paypal-state-machine.ts",
-    "reconcile:paypal:dry-run": "tsx scripts/reconcile-paypal-subscriptions.ts --dry-run"
+    "reconcile:paypal:dry-run": "tsx scripts/reconcile-paypal-subscriptions.ts --dry-run",
+    "eval:day1": "tsx scripts/eval-day1-local-check.ts",
+    "eval:day1:execute": "tsx scripts/eval-day1-executor-real.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
