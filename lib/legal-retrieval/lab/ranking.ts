@@ -1,19 +1,17 @@
-import { tieneEncabezadoArticulo } from '../exact-resolver';
+import { tieneEncabezadoArticulo, type InstrumentoNormalizado } from '../exact-resolver';
 import { rolRecuperacion, type IntencionConsulta } from './clo-policy';
-import { evaluarRelevancia, type Relevancia } from './relevance';
-import type { InstrumentoNormalizado } from '../exact-resolver';
+import { evaluarRelevancia } from './relevance';
 import type {
   ClaveOrdenLegal,
   ComponentesRecuperacion,
   LabCandidate,
   RankedCandidate,
-  RolRecuperacion,
 } from './types';
 
 /**
- * Pesos de la puntuación de recuperación. Sólo desempatan dentro de un mismo
- * nivel legal. No son confianza, probabilidad ni autoridad, y nunca compensan
- * un nivel legal superior.
+ * Pesos de la puntuación de recuperación. Sólo desempatan cuando todos los
+ * campos del orden legal empatan. No son confianza, probabilidad, autoridad,
+ * validez ni suficiencia.
  */
 export const PESOS_RECUPERACION = {
   lexical: 1,
@@ -25,6 +23,7 @@ export const INVARIANTES_PUNTUACION_RECUPERACION = [
   'retrieval_order_score no es confianza jurídica',
   'retrieval_order_score no es probabilidad de corrección',
   'retrieval_order_score no es autoridad normativa',
+  'retrieval_order_score no es validez jurídica',
   'retrieval_order_score no satisface suficiencia legal',
   'retrieval_order_score no compensa un nivel legal superior',
 ] as const;
@@ -48,24 +47,22 @@ export interface ResultadoRanking {
   excluidosPorRol: LabCandidate[];
 }
 
+/**
+ * Orden legal, después de las exclusiones duras y de la compuerta de rol:
+ * identidad exacta, vigencia, relación verificada, jerarquía normativa,
+ * jurisdicción, materia y penalización de espejo. Rol y relevancia no entran
+ * aquí: el rol controla uso permitido, advertencias y suficiencia; la relevancia
+ * controla suficiencia. Ninguno produce ventaja numérica de ranking.
+ */
 const ORDEN_NIVELES: (keyof ClaveOrdenLegal)[] = [
-  'rol_gate',
-  'relevancia',
   'identidad_exacta',
   'vigencia',
   'relacion_verificada',
   'jerarquia_normativa',
-  'jurisdiccion_materia',
+  'jurisdiccion',
+  'materia',
   'penalizacion_espejo',
 ];
-
-const VALOR_RELEVANCIA: Record<Relevancia, number> = { PASS: 2, UNKNOWN: 1, FAIL: 0 };
-
-const VALOR_ROL: Record<Exclude<RolRecuperacion, 'EXCLUDED'>, number> = {
-  PRIMARY: 3,
-  SECONDARY: 2,
-  CONTEXT: 1,
-};
 
 function compararIds(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
@@ -94,6 +91,7 @@ function vigenciaInformativa(c: LabCandidate): RankedCandidate['vigencia_informa
   return 'UNKNOWN';
 }
 
+/** Vigencia sólo según el estado existente: TRUE > UNKNOWN > FALSE. Nunca se infiere. */
 function valorVigencia(c: LabCandidate): number {
   if (c.es_norma_vigente === true) return 1;
   if (c.es_norma_vigente === false) return -1;
@@ -123,10 +121,9 @@ function puntuacionRecuperacion(comp: ComponentesRecuperacion): number {
 }
 
 /**
- * Ordena por niveles legales. Orden: rol, identidad exacta, vigencia (sólo
- * estado existente), relación verificada (neutral: no hay capa), jerarquía
- * (neutral: no hay tabla adjudicada), jurisdicción y materia, penalización de
- * espejo. Sólo después puntúa la recuperación.
+ * Ordena por orden legal lexicográfico. La puntuación de recuperación sólo
+ * desempata cuando todo el orden legal empata. La compuerta de rol excluye EXCLUDED
+ * y no ordena. La relevancia se calcula y se adjunta, pero no ordena.
  */
 export function puntuarCandidatos(
   candidatos: readonly LabCandidate[],
@@ -150,18 +147,16 @@ export function puntuarCandidatos(
     base.push({
       ...c,
       rol_recuperacion: asignado.rol,
+      relevancia_clo: relevancia,
       capa_clo: asignado.capa,
       advertencia_clo: asignado.advertencia,
-      relevancia_clo: relevancia,
       legal_order_key: {
-        rol_gate: VALOR_ROL[asignado.rol],
-        relevancia: VALOR_RELEVANCIA[relevancia],
         identidad_exacta: c.exact_match ? 1 : 0,
         vigencia: valorVigencia(c),
         relacion_verificada: 0,
         jerarquia_normativa: 0,
-        jurisdiccion_materia:
-          (c.jurisdiccion === 'HN' ? 2 : 0) + (contexto.materia !== null && c.materia === contexto.materia ? 1 : 0),
+        jurisdiccion: c.jurisdiccion === 'HN' ? 1 : 0,
+        materia: contexto.materia !== null && c.materia === contexto.materia ? 1 : 0,
         penalizacion_espejo: 0,
       },
       retrieval_components: comp,

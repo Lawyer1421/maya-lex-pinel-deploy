@@ -79,24 +79,40 @@ Exige mención del CPC y un marcador textual explícito (`histórico`, `original
 
 ---
 
-## 6. Orden de ranking: HYBRID
+## 6. Orden de ranking: HYBRID (V4.0-A.3)
+
+Funciones separadas, sin ventaja numérica entre ellas:
+
+- **ROLE** = compuerta de uso permitido de la evidencia (`PRIMARY`, `SECONDARY`, `CONTEXT`, `EXCLUDED`). Controla uso permitido, advertencias y clasificación. No ordena.
+- **RELEVANCE** = compuerta de ajuste a la pregunta (`PASS`, `UNKNOWN`, `FAIL`). Es requisito de suficiencia. No ordena.
+- **LEGAL_ORDER** = orden lexicográfico, después de las exclusiones duras y de la compuerta de rol.
+- **RETRIEVAL_SCORE** = desempate final, sólo cuando todo el orden legal empata.
+- **SUFFICIENCY** = decisión independiente sobre la evidencia (sección 7).
 
 `LEGAL_CONFIDENCE_SCORE_ALLOWED = NO`.
 
-Las compuertas legales son lexicográficas. Ningún criterio inferior compensa un nivel superior.
+**Orden legal (lexicográfico, mayor es mejor):**
 
-0. Exclusiones duras y compuertas de rol: `fuente NULL`, containment H2 `doc_*`, D6b, FALSE normativo, E5 excluida en consulta normal, unidades de capas abiertas que no pueden ser PRIMARY.
-1. Rol (`PRIMARY` > `SECONDARY` > `CONTEXT`).
-2. Relevancia (`PASS` > `UNKNOWN` > `FAIL`).
-3. Identificador exacto más identidad de instrumento.
-4. Vigencia: `TRUE` > `UNKNOWN` > `FALSE`.
-5. Relación verificada: neutral (0). No existe capa de relaciones verificadas.
-6. Jerarquía normativa: neutral (0). No existe tabla adjudicada.
-7. Jurisdicción y materia.
-8. Penalización de espejo o duplicado (mismo `fuente` y `num_articulo`, texto distinto).
-9. Sólo si todo empata: `retrieval_order_score` (léxico, semántico y completitud de cita).
+1. Identidad exacta (`exact_match`).
+2. Vigencia, sólo según el estado existente: `TRUE` > `UNKNOWN` > `FALSE`.
+3. Relación verificada: neutral (0). No existe capa de relaciones verificadas.
+4. Jerarquía normativa: neutral (0). No existe tabla adjudicada por CLO.
+5. Jurisdicción (`HN`).
+6. Materia (coincidencia con la materia clasificada de la consulta).
+7. Penalización de espejo o duplicado (mismo `fuente` y `num_articulo`, texto distinto).
 
-**Invariantes de `retrieval_order_score`:** no es confianza, no es probabilidad de corrección, no es autoridad, no satisface suficiencia, no compensa un nivel superior, no altera rol, relevancia ni suficiencia. Está probado por las pruebas.
+**Desempate:** `retrieval_order_score` (léxico, semántico y completitud de cita). Sólo ordena cuando todo lo anterior empata.
+
+**Consecuencias verificadas por pruebas:**
+- PRIMARY no supera a SECONDARY, ni SECONDARY a CONTEXT, sólo por el rol.
+- Una relevancia `PASS` no supera numéricamente a una `UNKNOWN` por sí sola.
+- Jurisdicción y materia son campos separados; no hay compensación aritmética.
+
+**Invariantes de `retrieval_order_score`:** no es confianza, no es probabilidad de corrección, no es autoridad, no es validez, no satisface suficiencia, no compensa un nivel legal superior.
+
+**Consecuencia para revisión CLO:** con orden legal empatado, una unidad con relevancia `FAIL` puede quedar encima de una `PASS` si tiene más puntuación de recuperación. La relevancia controla la suficiencia, no el orden de presentación.
+
+**Estatus de jurisprudencia y doctrina:** `NON_NORMATIVE_STATUS_MODEL=PENDING`. `es_norma_vigente` no se usa para inferir validez precedencial ni autoridad doctrinal. Requiere un modelo de estatus específico por tipo de fuente.
 
 ---
 
@@ -144,6 +160,8 @@ Con las fixtures actuales ninguna consulta tiene soporte validado, así que el l
 ---
 
 ## 11. Límites de esta política
+
+- `NON_NORMATIVE_STATUS_MODEL=PENDING`.
 
 - No es esquema, ni migración, ni configuración de producción.
 - Las cadenas de identidad de capas abiertas son sintéticas en las fixtures.

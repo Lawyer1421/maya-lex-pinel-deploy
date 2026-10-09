@@ -68,13 +68,12 @@ export interface LabCandidate {
 }
 
 export interface ClaveOrdenLegal {
-  rol_gate: number;
-  relevancia: number;
   identidad_exacta: number;
   vigencia: number;
   relacion_verificada: number;
   jerarquia_normativa: number;
-  jurisdiccion_materia: number;
+  jurisdiccion: number;
+  materia: number;
   penalizacion_espejo: number;
 }
 

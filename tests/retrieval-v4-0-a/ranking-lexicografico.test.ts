@@ -38,7 +38,7 @@ function cand(id: string, o: Opciones = {}): LabCandidate {
 const ids = (r: RankedCandidate[]) => r.map((c) => c.id);
 
 describe('orden legal lexicográfico', () => {
-  it('un PRIMARY con puntuación de recuperación nula supera a un CONTEXT con puntuación máxima', () => {
+  it('la vigencia decide antes que la puntuación de recuperación, aunque el rol sea CONTEXT', () => {
     const { ranking } = puntuarCandidatos(
       [
         cand('ctx-alto', { tipo: 'sentencia', vigente: false, jurisdiccion: 'ES', lexical: 1, semantic: 1 }),
@@ -57,26 +57,82 @@ describe('orden legal lexicográfico', () => {
     expect(ranking[0].id).toBe('prim');
   });
 
-  it('una coincidencia léxica muy alta no promueve un CONTEXT a PRIMARY', () => {
+  it('una coincidencia léxica muy alta no cambia el rol de CONTEXT a PRIMARY', () => {
     const { ranking } = puntuarCandidatos(
       [cand('ctx', { tipo: 'instrumento', lexical: 1 }), cand('prim', { lexical: 0 })],
       CONTEXTO,
     );
-    expect(ranking[0].rol_recuperacion).toBe('PRIMARY');
-    expect(ranking[0].id).toBe('prim');
-    expect(ranking[1].rol_recuperacion).toBe('CONTEXT');
+    const ctx = ranking.find((c) => c.id === 'ctx')!;
+    expect(ctx.rol_recuperacion).toBe('CONTEXT');
+    expect(ranking.find((c) => c.id === 'prim')!.rol_recuperacion).toBe('PRIMARY');
   });
 
-  it('un SECONDARY no supera a un PRIMARY por puntuación numérica', () => {
+  it('PRIMARY no supera a SECONDARY sólo por su rol: con claves legales iguales decide la recuperación', () => {
+    const sec = cand('sec', { fuente: 'Ley Especial de Adopciones de Honduras (Decreto 102-2018) (FIXTURE)', tipo: 'instrumento', semantic: 1, lexical: 1 });
+    const prim = cand('prim', { semantic: 0, lexical: 0 });
+    const { ranking } = puntuarCandidatos([sec, prim], CONTEXTO);
+    expect(ranking.find((c) => c.id === 'sec')!.rol_recuperacion).toBe('SECONDARY');
+    expect(ranking[0].id).toBe('sec');
+    expect(compararOrdenLegal(ranking[0].legal_order_key, ranking[1].legal_order_key)).toBe(0);
+  });
+
+  it('SECONDARY no supera a CONTEXT sólo por su rol', () => {
+    const sec = cand('sec', { fuente: 'Ley Especial de Adopciones de Honduras (Decreto 102-2018) (FIXTURE)', tipo: 'instrumento', lexical: 0 });
+    const ctx = cand('ctx', { tipo: 'instrumento', lexical: 1 });
+    const { ranking } = puntuarCandidatos([sec, ctx], CONTEXTO);
+    expect(ranking.find((c) => c.id === 'sec')!.rol_recuperacion).toBe('SECONDARY');
+    expect(ranking[0].id).toBe('ctx');
+  });
+
+  it('la identidad exacta decide antes que la puntuación de recuperación', () => {
     const { ranking } = puntuarCandidatos(
-      [
-        cand('sec', { fuente: 'Ley Especial de Adopciones de Honduras (Decreto 102-2018) (FIXTURE)', tipo: 'instrumento', semantic: 1, lexical: 1 }),
-        cand('prim', { semantic: 0, lexical: 0 }),
-      ],
+      [cand('no-exacto', { lexical: 1, semantic: 1 }), cand('exacto', { exact: true, lexical: 0, semantic: 0 })],
       CONTEXTO,
     );
-    expect(ranking[0].id).toBe('prim');
-    expect(ranking[1].rol_recuperacion).toBe('SECONDARY');
+    expect(ranking[0].id).toBe('exacto');
+  });
+
+  it('la relevancia no ordena: una unidad PASS con puntuación baja queda debajo de una FAIL con puntuación alta si el orden legal empata', () => {
+    const ctx = { materia: null, intencion: { historicaCPC: false }, articulo: null, instrumento: 'CODIGO_PROCESAL_PENAL' as const };
+    const { ranking } = puntuarCandidatos(
+      [
+        cand('cpp-pass', { fuente: 'Código Procesal Penal (FIXTURE sintético)', lexical: 0.1 }),
+        cand('cc-fail', { fuente: 'Código Civil (FIXTURE sintético)', lexical: 0.9 }),
+      ],
+      ctx,
+    );
+    expect(ranking.find((c) => c.id === 'cpp-pass')!.relevancia_clo).toBe('PASS');
+    expect(ranking.find((c) => c.id === 'cc-fail')!.relevancia_clo).toBe('FAIL');
+    expect(ranking[0].id).toBe('cc-fail');
+  });
+
+  it('la clave legal no contiene relevancia ni rol como campos de orden', () => {
+    const { ranking } = puntuarCandidatos([cand('a')], CONTEXTO);
+    expect(Object.keys(ranking[0].legal_order_key)).not.toContain('rol_gate');
+    expect(Object.keys(ranking[0].legal_order_key)).not.toContain('relevancia');
+  });
+
+  it('jurisdicción y materia son campos lexicográficos separados, sin compensación aritmética', () => {
+    const keys = Object.keys(puntuarCandidatos([cand('a')], CONTEXTO).ranking[0].legal_order_key);
+    expect(keys).toContain('jurisdiccion');
+    expect(keys).toContain('materia');
+    expect(keys).not.toContain('jurisdiccion_materia');
+    const { ranking } = puntuarCandidatos(
+      [
+        cand('hn-sin-materia', { fuente: 'A', num: '1', jurisdiccion: 'HN', materia: null, lexical: 0 }),
+        cand('es-con-materia', { fuente: 'B', num: '2', jurisdiccion: 'ES', tipo: 'sentencia', materia: '01_PENAL', lexical: 1 }),
+      ],
+      { materia: '01_PENAL', intencion: { historicaCPC: false } },
+    );
+    expect(ranking[0].id).toBe('hn-sin-materia');
+  });
+
+  it('la puntuación de recuperación sólo rompe empates completos del orden legal', () => {
+    const { ranking } = puntuarCandidatos(
+      [cand('vig-falso-alto', { fuente: 'A', num: '1', vigente: false, tipo: 'sentencia', jurisdiccion: 'ES', lexical: 1 }), cand('vig-verdadero-bajo', { fuente: 'B', num: '2', vigente: true, tipo: 'sentencia', jurisdiccion: 'ES', lexical: 0 })],
+      CONTEXTO,
+    );
+    expect(ranking[0].id).toBe('vig-verdadero-bajo');
   });
 
   it('la penalización de espejo opera después de las compuertas legales', () => {

@@ -10,6 +10,7 @@ import {
   rolRecuperacion,
 } from '@/lib/legal-retrieval/lab/clo-policy';
 import { evaluarSuficiencia } from '@/lib/legal-retrieval/lab/sufficiency';
+import { puntuarCandidatos } from '@/lib/legal-retrieval/lab/ranking';
 import { evaluarRelevancia } from '@/lib/legal-retrieval/lab/relevance';
 import { motivoExclusionDura } from '@/lib/legal-retrieval/lab/hard-exclusions';
 import { recuperarLab } from '@/lib/legal-retrieval/lab/pipeline';
@@ -187,11 +188,11 @@ describe('E6 — D.102-2018 → SECONDARY', () => {
     expect(res.suficiencia.veredicto).toBe('ABSTAIN');
   });
 
-  it('PRIMARY con E6 acompañante: PRIMARY controla y E6 sólo complementa (Q22)', () => {
-    const res = recuperarLab(q('Q22'), LAB_CORPUS_V1, { k: 5 });
-    expect(res.ranking[0].id).toBe('lab-cpp-173');
-    expect(res.ranking[0].rol_recuperacion).toBe('PRIMARY');
+  it('PRIMARY con E6 acompañante (Q22): el rol de E6 no le da ventaja de orden, y no es la fuente de suficiencia', () => {
+    const res = recuperarLab({ ...q('Q22'), soporte_validado_ids: ['lab-102-5'] }, LAB_CORPUS_V1, { k: 5 });
+    expect(res.ranking.find((c) => c.id === 'lab-cpp-173')?.rol_recuperacion).toBe('PRIMARY');
     expect(res.ranking.find((c) => c.id === 'lab-102-5')?.rol_recuperacion).toBe('SECONDARY');
+    expect(res.suficiencia.veredicto).not.toBe('SUFFICIENT');
   });
 });
 
@@ -283,6 +284,15 @@ describe('VIGENCIA — política', () => {
   it('FALSE en jurisprudencia o doctrina no se excluye por vigencia (regla de producción preservada)', () => {
     const sentencia: LabRow = { id: 'f-4', contenido: 'Sentencia.', num_articulo: null, fuente: 'Tribunal (FIXTURE)', fuente_tipo: 'sentencia', jurisdiccion: 'ES', es_norma_vigente: false, materia: null };
     expect(motivoExclusionDura(sentencia, 'semantic')).toBeNull();
+  });
+
+  it('un artículo FALSE pedido por número se localiza por el canal exacto, pero queda como CONTEXT y no crea suficiencia', () => {
+    const derogado: LabRow = { id: 'f-6', contenido: 'ARTICULO 9.- Derogado.', num_articulo: '9', fuente: 'Código Penal (FIXTURE sintético)', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: false, materia: '01_PENAL' };
+    const cand = { ...candidatoDesdeFila(derogado), exact_match: true, retrieval_channel: ['exact' as const] };
+    expect(rolRecuperacion(derogado, SIN_HISTORIA).rol).toBe('CONTEXT');
+    const { ranking } = puntuarCandidatos([cand], { materia: null, intencion: SIN_HISTORIA });
+    expect(ranking[0].rol_recuperacion).toBe('CONTEXT');
+    expect(evaluarSuficiencia(ranking).veredicto).not.toBe('SUFFICIENT');
   });
 
   it('FALSE en el canal exacto conserva el comportamiento de producción (artículo derogado pedido por número)', () => {
