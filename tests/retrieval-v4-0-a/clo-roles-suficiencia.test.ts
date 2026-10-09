@@ -191,7 +191,8 @@ describe('E6 — D.102-2018 → SECONDARY', () => {
   it('PRIMARY con E6 acompañante (Q22): el rol de E6 no le da ventaja de orden, y no es la fuente de suficiencia', () => {
     const res = recuperarLab({ ...q('Q22'), soporte_validado_ids: ['lab-102-5'] }, LAB_CORPUS_V1, { k: 5 });
     expect(res.ranking.find((c) => c.id === 'lab-cpp-173')?.rol_recuperacion).toBe('PRIMARY');
-    expect(res.ranking.find((c) => c.id === 'lab-102-5')?.rol_recuperacion).toBe('SECONDARY');
+    expect(res.rawRanking.find((c) => c.id === 'lab-102-5')?.rol_recuperacion).toBe('SECONDARY');
+    expect(res.diagnosticos.find((d) => d.id === 'lab-102-5')?.razon).toBe('NOT_SELECTED_USEFULNESS');
     expect(res.suficiencia.veredicto).not.toBe('SUFFICIENT');
   });
 });

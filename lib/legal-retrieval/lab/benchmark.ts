@@ -48,9 +48,9 @@ export interface ResultadoBenchmarkA {
   llamadasRecuperacion: number;
 }
 
-function firma(res: ResultadoLab): string {
+function firma(res: ResultadoLab, k: number): string {
   return JSON.stringify(
-    res.ranking.map((c) => [c.id, c.retrieval_channel, c.rol_recuperacion, c.retrieval_order_score]),
+    res.rawRanking.slice(0, k).map((c) => [c.id, c.retrieval_channel, c.rol_recuperacion, c.retrieval_order_score]),
   );
 }
 
@@ -99,9 +99,9 @@ export function ejecutarBenchmarkA(
       llamadas++;
       const again = recuperarLab(q, corpus, { k, modo: MODO_DE_VARIANTE[variante] });
       llamadas++;
-      if (firma(res) !== firma(again)) reproducible = false;
+      if (firma(res, k) !== firma(again, k)) reproducible = false;
 
-      const top: RankedCandidate[] = res.ranking;
+      const top: RankedCandidate[] = res.rawRanking.slice(0, k);
       posiciones += top.length;
       if (top.length === 0) vacios++;
 

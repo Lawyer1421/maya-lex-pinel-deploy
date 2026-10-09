@@ -13,6 +13,12 @@ import { LexicalLabAdapter, type LexicalAdapter } from './lexical-lab';
 import { puntuarCandidatos, type EventoPenalizacion } from './ranking';
 import { buscarSemanticoFixture } from './semantic-fixture';
 import { evaluarSuficiencia, type ResultadoSuficiencia } from './sufficiency';
+import {
+  RAW_CANDIDATE_LIMIT_LAB,
+  seleccionarPaquete,
+  type DiagnosticoSeleccion,
+  type EvidenciaSeleccionada,
+} from './evidence-selection';
 import type {
   LabBenchmarkQuery,
   LabRow,
@@ -30,17 +36,27 @@ export interface TiemposLab {
   fusion: number;
   dedup: number;
   ranking: number;
+  seleccion: number;
   total: number;
 }
 
 export type MotivoExclusionLab = MotivoExclusion | 'ROL_EXCLUIDO_CLO';
 
+/**
+ * `rawRanking`: ranking bruto (hasta rawCandidateLimit). `ranking`: paquete de
+ * evidencia seleccionado (packet_k). La suficiencia se evalúa sobre el mismo
+ * conjunto que el paquete (`evidenciaSuficiencia` == `paqueteIds`).
+ */
 export interface ResultadoLab {
   ruta: RutaLab;
   estadoExacto: EstadoExactoLab;
   modo: ModoRecuperacion;
   intencion: IntencionConsulta;
-  ranking: RankedCandidate[];
+  rawRanking: RankedCandidate[];
+  ranking: EvidenciaSeleccionada[];
+  paqueteIds: string[];
+  evidenciaSuficiencia: string[];
+  diagnosticos: DiagnosticoSeleccion[];
   suficiencia: ResultadoSuficiencia;
   excluidos: { id: string; canal: RetrievalChannel; motivo: MotivoExclusionLab }[];
   eventosDedup: EventoDedup[];
@@ -49,7 +65,10 @@ export interface ResultadoLab {
 }
 
 export interface OpcionesLab {
+  /** packet_k: capacidad del paquete de evidencia. */
   k: number;
+  /** raw_candidate_limit: tamaño máximo del ranking bruto. Distinto de k. */
+  rawCandidateLimit?: number;
   modo?: ModoRecuperacion;
   lexico?: LexicalAdapter;
 }
@@ -69,6 +88,7 @@ export function recuperarLab(
 ): ResultadoLab {
   const modo = opciones.modo ?? 'HYBRID';
   const lexico = opciones.lexico ?? ADAPTADOR_LEXICO_POR_DEFECTO;
+  const rawLimite = opciones.rawCandidateLimit ?? RAW_CANDIDATE_LIMIT_LAB;
   const tTotal = performance.now();
   const intencion: IntencionConsulta = { historicaCPC: intencionHistoricaCPC(query.texto) };
   const contexto = {
@@ -80,23 +100,39 @@ export function recuperarLab(
   const soporteValidado = new Set(query.soporte_validado_ids ?? []);
   const filasPorId = new Map(corpus.map((f) => [f.id, f] as const));
   const excluidos: ResultadoLab['excluidos'] = [];
-  const tiempos: TiemposLab = { exacto: 0, lexico: 0, semantico: 0, fusion: 0, dedup: 0, ranking: 0, total: 0 };
+  const tiempos: TiemposLab = {
+    exacto: 0, lexico: 0, semantico: 0, fusion: 0, dedup: 0, ranking: 0, seleccion: 0, total: 0,
+  };
 
   const exacto = medir(() => resolverExactoLab(query.texto, corpus));
   tiempos.exacto = exacto.ms;
 
-  const resultadoSinRanking = (ruta: RutaLab, estado: EstadoExactoLab): ResultadoLab => {
+  const cerrar = (
+    ruta: RutaLab,
+    estado: EstadoExactoLab,
+    raw: RankedCandidate[],
+    eventosDedup: EventoDedup[],
+    eventosPenalizacion: EventoPenalizacion[],
+  ): ResultadoLab => {
+    const sel = medir(() => seleccionarPaquete(raw, opciones.k));
+    tiempos.seleccion = sel.ms;
+    const paqueteIds = sel.valor.paquete.map((c) => c.id);
+    const evidenciaSuficiencia = [...paqueteIds];
     tiempos.total = performance.now() - tTotal;
     return {
       ruta,
       estadoExacto: estado,
       modo,
       intencion,
-      ranking: [],
-      suficiencia: evaluarSuficiencia([]),
+      rawRanking: raw,
+      ranking: sel.valor.paquete,
+      paqueteIds,
+      evidenciaSuficiencia,
+      diagnosticos: sel.valor.diagnosticos,
+      suficiencia: evaluarSuficiencia(sel.valor.paquete, { soporteValidado }),
       excluidos,
-      eventosDedup: [],
-      eventosPenalizacion: [],
+      eventosDedup,
+      eventosPenalizacion,
       tiemposMs: tiempos,
     };
   };
@@ -111,24 +147,12 @@ export function recuperarLab(
     for (const c of rank.valor.excluidosPorRol) {
       excluidos.push({ id: c.id, canal: 'exact', motivo: 'ROL_EXCLUIDO_CLO' });
     }
-    if (rank.valor.ranking.length === 0) return resultadoSinRanking('ABSTAIN', exacto.valor.estado);
-    tiempos.total = performance.now() - tTotal;
-    return {
-      ruta: 'FAST_EXACT',
-      estadoExacto: exacto.valor.estado,
-      modo,
-      intencion,
-      ranking: rank.valor.ranking.slice(0, opciones.k),
-      suficiencia: evaluarSuficiencia(rank.valor.ranking, { soporteValidado }),
-      excluidos,
-      eventosDedup: [],
-      eventosPenalizacion: rank.valor.eventos,
-      tiemposMs: tiempos,
-    };
+    const raw = rank.valor.ranking.slice(0, rawLimite);
+    return cerrar(raw.length === 0 ? 'ABSTAIN' : 'FAST_EXACT', exacto.valor.estado, raw, [], rank.valor.eventos);
   }
 
   if (exacto.valor.estado === 'AMBIGUOUS' || exacto.valor.estado === 'ABSTAIN_INSTRUMENT_OR_MATERIA') {
-    return resultadoSinRanking('ABSTAIN', exacto.valor.estado);
+    return cerrar('ABSTAIN', exacto.valor.estado, [], [], []);
   }
 
   let hitsLexicos: ReturnType<LexicalAdapter['buscar']> = [];
@@ -177,8 +201,8 @@ export function recuperarLab(
     }
   }
 
-  const top = rank.valor.ranking.slice(0, opciones.k);
-  for (const c of top) {
+  const raw = rank.valor.ranking.slice(0, rawLimite);
+  for (const c of raw) {
     const fila = filasPorId.get(c.id);
     if (!fila) throw new Error(`Candidato ${c.id} fuera del corpus`);
     for (const canal of c.retrieval_channel) {
@@ -188,17 +212,5 @@ export function recuperarLab(
     }
   }
 
-  tiempos.total = performance.now() - tTotal;
-  return {
-    ruta: 'STANDARD_LAB',
-    estadoExacto: exacto.valor.estado,
-    modo,
-    intencion,
-    ranking: top,
-    suficiencia: evaluarSuficiencia(rank.valor.ranking, { soporteValidado }),
-    excluidos,
-    eventosDedup: dd.valor.eventos,
-    eventosPenalizacion: rank.valor.eventos,
-    tiemposMs: tiempos,
-  };
+  return cerrar('STANDARD_LAB', exacto.valor.estado, raw, dd.valor.eventos, rank.valor.eventos);
 }
