@@ -34,6 +34,16 @@ export function esRegistroNoVigenteExcluido(f: Pick<FragmentoRAG, 'es_norma_vige
 }
 
 /**
+ * Capa documental doc_* (E7, EXCLUDED_BY_TYPE; nunca PRIMARY). Replica el
+ * predicado canónico `fuente LIKE 'doc_%'` de
+ * docs/corpus/hygiene-identity-queries.sql: el `_` de LIKE es comodín de un
+ * carácter, así que equivale a prefijo 'doc' con al menos 4 caracteres.
+ */
+export function esFuenteDocumentalExcluida(fuente: string | null): boolean {
+  return fuente !== null && fuente.length >= 4 && fuente.startsWith('doc');
+}
+
+/**
  * Corte final del retrieval semántico — Etapa 2, detrás de `flag_rerank`
  * (Decisión C, DECISION_LOG 2026-09-07).
  *
@@ -184,7 +194,8 @@ export async function buscarEnSupabase(
   const candidatos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
     .filter((f) => !esRegistroNoVigenteExcluido(f))
-    .filter((f) => f.fuente !== null);
+    .filter((f) => f.fuente !== null)
+    .filter((f) => !esFuenteDocumentalExcluida(f.fuente));
 
   // Etapa 2 — reranking Cohere, ahora detrás de `flag_rerank` (Decisión C,
   // DECISION_LOG 2026-09-07). `rerankHabilitado` lo resuelve `/api/chat` una
