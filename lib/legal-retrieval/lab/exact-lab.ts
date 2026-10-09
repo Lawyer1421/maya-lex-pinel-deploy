@@ -19,7 +19,7 @@ export interface ResultadoExactoLab {
   fragmento: FragmentoRAG | null;
 }
 
-function aFilaExacta(fila: LabRow): FilaExactaDB {
+export function aFilaExacta(fila: LabRow): FilaExactaDB {
   return {
     id: fila.id,
     contenido: fila.contenido,

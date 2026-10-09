@@ -1,31 +1,38 @@
+import { identidadDocumentalCoincide } from '../exact-resolver';
 import { normalizarTexto } from './normalize';
+import { aFilaExacta } from './exact-lab';
 import type { LabRow, RolRecuperacion } from './types';
 
 /**
- * Decisión CLO vinculante (2026-10-09). Sólo laboratorio: no es esquema de
- * producción ni modifica el corpus. Cambiar un rol requiere una nueva
- * adjudicación CLO registrada.
+ * Decisión CLO vinculante (2026-10-09, versión final V4.0-A.2). Sólo
+ * laboratorio: no es esquema de producción ni modifica el corpus.
  */
 export const DECISION_CLO = {
   fecha: '2026-10-09',
+  version: 'V4.0-A.2',
   registro: 'docs/corpus/MAYALEX_CANONICAL_ADJUDICATION_REGISTER_V1.md',
   politica_ranking: 'HYBRID',
   confianza_juridica_numerica_permitida: false,
+  primary_solo_crea_suficiencia: false,
+  umbral_numerico_de_relevancia_adjudicado: false,
   regla_vinculante:
-    'Mientras E2, E5 o E6 permanezcan OPEN en el registro, ninguna unidad de esas capas puede ser PRIMARY ni satisfacer suficiencia por sí sola.',
+    'RETRIEVAL_ROLE ≠ RELEVANCE ≠ SUFFICIENCY. Ninguna unidad de E2, E5 o E6 puede ser PRIMARY ni satisfacer suficiencia por sí sola mientras esas capas estén OPEN.',
 } as const;
+
+/** E2 abierta: la excepción D6b del Notariado caduca al cerrar E2. */
+export const E2_ABIERTA = true;
 
 export type CapaAbierta = 'E2' | 'E5' | 'E6';
 
 export const ADVERTENCIA_E2 =
-  'estado legal no adjudicado; posible derogación por D.77-2006 pendiente de Gaceta 31,091';
+  'Estado legal no adjudicado; posible derogación por el Decreto 77-2006, pendiente de verificación con el texto oficial de La Gaceta.';
 export const ADVERTENCIA_E5 =
   'CPC_TEXTO_BASE_D211-2006: rol temporal no adjudicado; sólo contexto histórico con consulta explícita';
-export const ADVERTENCIA_E6 = 'estado canónico y completitud no medidos';
+export const ADVERTENCIA_E6 =
+  'Estado canónico y completitud permanecen no resueltos y no medidos.';
 
 export const ARTICULOS_NOTARIADO_E2 = ['72', '73', '84', '87', '93'] as const;
 
-const RE_CODIGO_NOTARIADO = /c[oó]digo\s+del\s+notariado/i;
 const MARCADORES_HISTORICOS = [
   'historico',
   'historica',
@@ -42,8 +49,8 @@ export interface IntencionConsulta {
 }
 
 /**
- * Intención histórica explícita: exige mención del CPC y un marcador textual
- * de tiempo o texto original. Nunca se infiere de similitud de embeddings.
+ * Intención histórica explícita: exige mención del CPC y un marcador textual.
+ * Nunca se infiere de similitud de embeddings.
  */
 export function intencionHistoricaCPC(textoConsulta: string): boolean {
   const n = normalizarTexto(textoConsulta);
@@ -54,14 +61,38 @@ export function intencionHistoricaCPC(textoConsulta: string): boolean {
 
 export type CamposRol = Pick<LabRow, 'fuente' | 'fuente_tipo' | 'jurisdiccion' | 'es_norma_vigente' | 'num_articulo'>;
 
-export function capaCLO(campos: CamposRol): CapaAbierta | null {
-  const fuente = campos.fuente ?? '';
-  if (RE_CODIGO_NOTARIADO.test(fuente) && (ARTICULOS_NOTARIADO_E2 as readonly string[]).includes(campos.num_articulo ?? '')) {
-    return 'E2';
+/**
+ * Identidad por instrumento (identidadDocumentalCoincide de producción) más
+ * número de artículo. El número solo nunca basta.
+ */
+export function esNotariadoE2(fila: CamposRol & { contenido?: string; id?: string; materia?: string | null }): boolean {
+  if (!ARTICULOS_NOTARIADO_E2.includes((fila.num_articulo ?? '') as (typeof ARTICULOS_NOTARIADO_E2)[number])) {
+    return false;
   }
+  const filaExacta = aFilaExacta({
+    id: fila.id ?? '',
+    contenido: fila.contenido ?? '',
+    num_articulo: fila.num_articulo,
+    fuente: fila.fuente,
+    fuente_tipo: fila.fuente_tipo,
+    jurisdiccion: fila.jurisdiccion,
+    es_norma_vigente: fila.es_norma_vigente,
+    materia: fila.materia ?? null,
+  });
+  return identidadDocumentalCoincide(filaExacta, 'CODIGO_NOTARIADO');
+}
+
+export function capaCLO(campos: CamposRol & { contenido?: string; id?: string; materia?: string | null }): CapaAbierta | null {
+  if (esNotariadoE2(campos)) return 'E2';
+  const fuente = campos.fuente ?? '';
   if (fuente.includes('CPC_TEXTO_BASE_D211-2006')) return 'E5';
   if (fuente.includes('Ley Especial de Adopciones de Honduras (Decreto 102-2018)')) return 'E6';
   return null;
+}
+
+/** Excepción de E2 a D6b: sólo mientras E2 esté abierta y la identidad coincida. */
+export function excepcionE2AD6b(campos: CamposRol & { contenido?: string; id?: string; materia?: string | null }): boolean {
+  return E2_ABIERTA && capaCLO(campos) === 'E2';
 }
 
 export interface RolAsignado {
@@ -71,11 +102,13 @@ export interface RolAsignado {
 }
 
 /**
- * Asigna rol a una unidad. PRIMARY exige estado existente y confiable
- * (código HN vigente y no perteneciente a una capa abierta). Todo lo demás
- * es CONTEXT, sin inferir autoridad a partir del texto.
+ * Asigna rol. PRIMARY requiere código HN, vigencia booleana TRUE y ninguna capa
+ * abierta. UNKNOWN nunca es PRIMARY. FALSE no llega aquí en consulta normal.
  */
-export function rolRecuperacion(campos: CamposRol, intencion: IntencionConsulta): RolAsignado {
+export function rolRecuperacion(
+  campos: CamposRol & { contenido?: string; id?: string; materia?: string | null },
+  intencion: IntencionConsulta,
+): RolAsignado {
   const capa = capaCLO(campos);
   if (capa === 'E5') {
     return intencion.historicaCPC

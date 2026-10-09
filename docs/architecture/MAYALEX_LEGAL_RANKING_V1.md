@@ -171,7 +171,9 @@ RankedCandidate {
 Implementación: `lib/legal-retrieval/lab/ranking.ts`, `clo-policy.ts`, `sufficiency.ts`. Sólo laboratorio; producción no lo usa. Política vinculante: `MAYALEX_RETRIEVAL_V4_CLO_POLICY_V1.md`.
 
 - **Corrección:** V4.0-A sumaba todos los componentes en un único compuesto. Ese modelo queda retirado. Las compuertas legales son lexicográficas. La aritmética ponderada sólo ordena dentro de un mismo nivel legal.
-- **Clave legal inspeccionable** (`legal_order_key`): `rol_gate`, `identidad_exacta`, `vigencia`, `relacion_verificada` (neutral, 0), `jerarquia_normativa` (neutral, 0), `jurisdiccion_materia`, `penalizacion_espejo`. El orden se compara en ese sentido y el primer nivel distinto decide.
+- **Clave legal inspeccionable** (`legal_order_key`): `rol_gate`, `relevancia`, `identidad_exacta`, `vigencia`, `relacion_verificada` (neutral, 0), `jerarquia_normativa` (neutral, 0), `jurisdiccion_materia`, `penalizacion_espejo`. El orden se compara en ese sentido y el primer nivel distinto decide.
+- **RETRIEVAL_ROLE ≠ RELEVANCE ≠ SUFFICIENCY.** La relevancia (`PASS`/`UNKNOWN`/`FAIL`) se decide por identidad determinista, nunca por puntuación. La suficiencia es una puerta aparte que exige PRIMARY con relevancia `PASS` y soporte validado explícito. Ver `MAYALEX_RETRIEVAL_V4_CLO_POLICY_V1.md`.
+- **Deduplicación:** la clave incluye hash, tipo, jurisdicción, vigencia y materia. Una diferencia de vigencia nunca colapsa.
 - **Puntuación de recuperación** (`retrieval_order_score`): sólo `lexical` (peso 1), `semantic` (peso 1) y `citation_completeness` (peso 0.2). No es confianza, probabilidad, autoridad ni suficiencia. No compensa niveles superiores.
 - **Vigencia informativa, no puntuada:** `vigencia_informativa` vale `TRUE`, `FALSE` o `UNKNOWN` según el booleano existente. Su posición dentro del nivel 3 sí es una decisión del laboratorio, no una puntuación.
 - **Penalización:** sólo aplica a candidatos que comparten `fuente` y `num_articulo` con uno de mayor orden y texto distinto. Actúa en el nivel 6, antes que la puntuación de recuperación.

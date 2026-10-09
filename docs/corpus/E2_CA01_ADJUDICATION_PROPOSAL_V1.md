@@ -6,6 +6,8 @@
 **Proyecto:** thgrhueckkjdutjvcufp (MayaLex Pro)  
 **Estatus:** LISTO PARA REVISIÓN CLO  
 
+> **Nota de procedencia (V4.0-A.2):** las referencias a "La Gaceta 31,091" en este documento son históricas, no están verificadas y no son autoritativas. No se usan en advertencias visibles al usuario. La verificación pendiente es con el texto oficial de La Gaceta.
+
 ---
 
 ## RESUMEN EJECUTIVO

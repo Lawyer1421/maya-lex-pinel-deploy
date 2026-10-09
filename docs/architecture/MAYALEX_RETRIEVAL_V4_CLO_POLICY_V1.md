@@ -1,92 +1,151 @@
-# MayaLex — Retrieval V4: política CLO versionada (V1)
+# MayaLex — Retrieval V4: política CLO versionada (V1, V4.0-A.2)
 
 - **Fecha de decisión:** 2026-10-09
-- **Autoridad:** CLO (decisión registrada en la conversación de control del 2026-10-09; no está en el repositorio como acta).
-- **Base de la rama:** `lab/retrieval-v4-0-a-hybrid`, sobre `main` = `99db5424b387889426388a79e29b5932c168e82f`.
-- **Alcance:** sólo laboratorio (`lib/legal-retrieval/lab/`). No es esquema de producción, no modifica corpus, no modifica `buscarRAG`, no modifica el RPC.
-- **Cambio de rol:** sólo mediante una nueva adjudicación CLO registrada.
+- **Autoridad:** CLO. Decisión registrada en la conversación de control; no existe acta en el repositorio.
+- **Alcance:** sólo laboratorio (`lib/legal-retrieval/lab/`). No es esquema de producción, no modifica corpus, `buscarRAG`, RPC ni `semantic-retriever` / `exact-resolver`.
+- **Cambio de regla:** sólo mediante una nueva adjudicación CLO registrada.
 
 ---
 
-## 1. Roles de recuperación
+## 1. Separación obligatoria
+
+`RETRIEVAL_ROLE ≠ RELEVANCE ≠ SUFFICIENCY`
+
+- **RETRIEVAL_ROLE** (`PRIMARY`, `SECONDARY`, `CONTEXT`, `EXCLUDED`): qué tipo de material es la unidad.
+- **RELEVANCE** (`PASS`, `UNKNOWN`, `FAIL`): si la unidad corresponde a la pregunta concreta. Se determina por identidad de instrumento, artículo o materia clasificada. La similitud léxica o semántica nunca produce `PASS`.
+- **SUFFICIENCY** (`SUFFICIENT`, `LIMITED`, `ABSTAIN`): si la evidencia permite una respuesta profesional.
+
+Una respuesta puede ser `SUFFICIENT` sólo si se cumplen **todas** estas condiciones:
+
+- **A.** Existe al menos una unidad `PRIMARY` verificada.
+- **B.** Esa unidad tiene relevancia `PASS` para la pregunta concreta.
+- **C.** Hay evidencia que respalda cada conclusión material. En el laboratorio, esa evidencia es un marcador de soporte validado por una persona. Nunca se infiere de puntuaciones.
+
+Si falta cualquiera: `LIMITED` o `ABSTAIN`. `PRIMARY` por sí solo no crea suficiencia. `CONTEXT`, `SECONDARY` y las capas E2/E5/E6 no se acumulan para fabricar `SUFFICIENT`.
+
+**No se adjudicó ningún umbral numérico de relevancia.** `LEXICAL_MIN_SCORE = 0.2` es una decisión del laboratorio que no ha sido ratificada por CLO.
+
+---
+
+## 2. Roles por capa
 
 | Capa | Unidades | Rol | Regla |
 |---|---|---|---|
-| E2 | Código del Notariado, arts. 72, 73, 84, 87, 93 | `CONTEXT` | Nunca PRIMARY. Nunca suficiente por sí sola. |
+| E2 | Código del Notariado, arts. 72, 73, 84, 87, 93 | `CONTEXT` | Nunca PRIMARY, SECONDARY ni SUFFICIENT. Excepción a D6b (sección 4). |
 | E5 | CPC_TEXTO_BASE_D211-2006 | `EXCLUDED` en consulta normal | `CONTEXT` sólo con intención histórica o de texto original explícita. |
-| E6 | Ley Especial de Adopciones de Honduras (Decreto 102-2018) | `SECONDARY` | Puede acompañar evidencia PRIMARY. Nunca suficiente por sí sola. |
-| Resto | Código HN vigente y confiable | `PRIMARY` | Requiere estado existente y confiable. |
-| Resto | Otros | `CONTEXT` | Sin inferir autoridad a partir del texto. |
+| E6 | Ley Especial de Adopciones de Honduras (Decreto 102-2018) | `SECONDARY` | Puede acompañar PRIMARY verificado. Nunca suficiente por sí solo. |
+| Resto | Código HN, vigencia `TRUE`, sin capa abierta | `PRIMARY` | Requiere estado existente y confiable. |
+| Resto | Otros, incluida vigencia `UNKNOWN` | `CONTEXT` | Nunca PRIMARY por inferencia. |
 
 **Advertencias obligatorias (texto literal):**
 
-- E2: `estado legal no adjudicado; posible derogación por D.77-2006 pendiente de Gaceta 31,091`
-- E5: `CPC_TEXTO_BASE_D211-2006: rol temporal no adjudicado; sólo contexto histórico con consulta explícita`
-- E6: `estado canónico y completitud no medidos`
+- **E2:** `Estado legal no adjudicado; posible derogación por el Decreto 77-2006, pendiente de verificación con el texto oficial de La Gaceta.`
+- **E5:** `CPC_TEXTO_BASE_D211-2006: rol temporal no adjudicado; sólo contexto histórico con consulta explícita`
+- **E6:** `Estado canónico y completitud permanecen no resueltos y no medidos.`
 
-**Procedencia de la advertencia E2:** la referencia "Gaceta 31,091" aparece en `docs/corpus/E2_CA01_ADJUDICATION_PROPOSAL_V1.md` (líneas 17–19). El registro CLO no contiene ese número. Se usa el texto de la decisión CLO tal como se recibió.
-
-**Regla vinculante:** mientras E2, E5 o E6 permanezcan `OPEN` en `docs/corpus/MAYALEX_CANONICAL_ADJUDICATION_REGISTER_V1.md`, ninguna unidad de esas capas puede ser `PRIMARY` ni satisfacer suficiencia por sí sola.
-
-**Intención histórica (E5):** exige mención del CPC y un marcador textual explícito (`histórico`, `original`, `anterior`, `temporal`, o frases equivalentes). No se infiere de similitud de embeddings.
+**Gaceta 31,091 (procedencia, no autoritativa):** el documento `docs/corpus/E2_CA01_ADJUDICATION_PROPOSAL_V1.md` (líneas 17–19) menciona "La Gaceta 31,091". Esa referencia es histórica, no está verificada y no es autoritativa. No aparece en ninguna advertencia visible al usuario ni en el código de la política.
 
 ---
 
-## 2. Política de ranking: HYBRID
+## 3. Intención histórica (E5)
 
-- `LEGAL_CONFIDENCE_SCORE_ALLOWED = NO`.
-- Las compuertas jurídicamente materiales son **lexicográficas**. Ningún criterio inferior compensa un nivel superior.
-- La aritmética ponderada sólo se usa en el nivel 7, dentro de un mismo nivel legal.
-
-**Orden de las compuertas:**
-
-0. Exclusiones duras y compuertas de rol: `fuente NULL`, containment H2 `doc_*`, `es_norma_vigente=false` en código HN (D6b), unidades de capas abiertas no pueden ser PRIMARY, E5 excluida salvo intención histórica explícita.
-1. Identificador exacto más identidad de instrumento.
-2. Vigencia, sólo con estado existente confiable. Orden: `TRUE` > `UNKNOWN` > `FALSE`. Esta jerarquía es decisión del laboratorio y requiere ratificación CLO.
-3. Relación verificada: neutral (0) mientras no exista capa de relaciones verificadas.
-4. Jerarquía normativa: neutral (0) mientras no exista tabla adjudicada por CLO.
-5. Jurisdicción y materia.
-6. Penalización de espejo o duplicado (mismo `fuente` y `num_articulo`, texto distinto).
-7. Sólo si todas las compuertas empatan: `retrieval_order_score`, que combina léxico, semántico y completitud de cita.
-
-**Invariantes de `retrieval_order_score`:** no es confianza jurídica, no es probabilidad de corrección, no es autoridad normativa, no satisface suficiencia legal, no compensa un nivel legal superior.
+Exige mención del CPC y un marcador textual explícito (`histórico`, `original`, `anterior`, `temporal`, o frases equivalentes). Nunca se infiere de similitud de embeddings.
 
 ---
 
-## 3. Puerta de suficiencia (sólo roles de evidencia)
+## 4. Excepción E2 a D6b
+
+- **Regla general:** `HN codigo + es_norma_vigente=false → EXCLUDED`.
+- **Excepción cerrada:** Código del Notariado, arts. 72, 73, 84, 87, 93, **sólo si la identidad documental del instrumento coincide** (`identidadDocumentalCoincide` con `CODIGO_NOTARIADO`, de producción). El número de artículo solo nunca basta.
+- Resultado: `CONTEXT`. Nunca `PRIMARY`, `SECONDARY` ni `SUFFICIENT`.
+- **Casos que no reciben la excepción:** el mismo número de artículo en otro instrumento; el Reglamento del Código del Notariado (identidad distinta, excluida por el lookbehind de producción); los artículos 11 y 27, que se rigen por E1 (texto original excluido, texto reformado por D.77-2006 como candidato operativo).
+- **Caducidad:** la excepción caduca automáticamente al cerrar E2 (`E2_ABIERTA`).
+
+---
+
+## 5. Política de vigencia
+
+| Valor | Política |
+|---|---|
+| `TRUE` | Elegible, sujeto a todas las demás compuertas. Es una marca operativa, no `VIGENTE_VERIFICADO`. |
+| `UNKNOWN` (null) | Restringido. Neutral. Nunca infiere validez verificada. Puede ser `CONTEXT` o `SECONDARY`. Nunca es el único soporte PRIMARY de una conclusión profesional. |
+| `FALSE` | Excluido de la recuperación profesional normal para material normativo (`codigo` o `instrumento`). |
+
+**Alcance de FALSE:** la regla aplica a material normativo. Jurisprudencia y doctrina con vigencia `FALSE` por diseño no se excluyen, como en producción. Pendiente de ratificación CLO.
+
+**Excepciones cerradas a FALSE:** E2 (`CONTEXT`, sección 4) y E5 (`CONTEXT`, sección 3). Ninguna excepción convierte FALSE o UNKNOWN en PRIMARY.
+
+**Canal exacto:** el canal exacto conserva el comportamiento de producción. Un artículo derogado pedido explícitamente por número se devuelve con su etiqueta y con rol `CONTEXT`. Esto es un punto abierto para CLO, porque la regla general excluye FALSE.
+
+---
+
+## 6. Orden de ranking: HYBRID
+
+`LEGAL_CONFIDENCE_SCORE_ALLOWED = NO`.
+
+Las compuertas legales son lexicográficas. Ningún criterio inferior compensa un nivel superior.
+
+0. Exclusiones duras y compuertas de rol: `fuente NULL`, containment H2 `doc_*`, D6b, FALSE normativo, E5 excluida en consulta normal, unidades de capas abiertas que no pueden ser PRIMARY.
+1. Rol (`PRIMARY` > `SECONDARY` > `CONTEXT`).
+2. Relevancia (`PASS` > `UNKNOWN` > `FAIL`).
+3. Identificador exacto más identidad de instrumento.
+4. Vigencia: `TRUE` > `UNKNOWN` > `FALSE`.
+5. Relación verificada: neutral (0). No existe capa de relaciones verificadas.
+6. Jerarquía normativa: neutral (0). No existe tabla adjudicada.
+7. Jurisdicción y materia.
+8. Penalización de espejo o duplicado (mismo `fuente` y `num_articulo`, texto distinto).
+9. Sólo si todo empata: `retrieval_order_score` (léxico, semántico y completitud de cita).
+
+**Invariantes de `retrieval_order_score`:** no es confianza, no es probabilidad de corrección, no es autoridad, no satisface suficiencia, no compensa un nivel superior, no altera rol, relevancia ni suficiencia. Está probado por las pruebas.
+
+---
+
+## 7. Puerta de suficiencia
 
 | Situación | Veredicto |
 |---|---|
-| Hay al menos un PRIMARY | `SUFFICIENT` |
-| Sólo CONTEXT o SECONDARY, todos de capas abiertas (E2/E5/E6) | `ABSTAIN` |
-| Sólo CONTEXT o SECONDARY, con alguna unidad fuera de capas abiertas | `LIMITED` |
-| Sin evidencia | `ABSTAIN` |
+| Sin candidatos | `ABSTAIN` (SIN_EVIDENCIA) |
+| Todos los candidatos con relevancia `FAIL` | `ABSTAIN` (SOLO_RELEVANCIA_FALLIDA) |
+| Sólo capas abiertas (E2/E5/E6) | `ABSTAIN` (SOLO_CAPAS_ABIERTAS) |
+| Sin PRIMARY con relevancia `PASS` | `LIMITED` (SIN_PRIMARY_RELEVANTE) |
+| PRIMARY con relevancia `PASS`, sin soporte validado | `LIMITED` (PRIMARY_PASS_SIN_SOPORTE_VALIDADO) |
+| PRIMARY con relevancia `PASS` y soporte validado | `SUFFICIENT` |
 
-Esta puerta no evalúa si la respuesta es jurídicamente correcta.
+Con las fixtures actuales ninguna consulta tiene soporte validado, así que el laboratorio **no produce `SUFFICIENT` en ningún caso real**. La única ruta a `SUFFICIENT` es el marcador explícito en las pruebas.
 
 ---
 
-## 4. Containment H2 `doc_*` (sin cambio de producción)
+## 8. Containment H2 `doc_*` (sin cambio de producción)
 
-- Política de producción vigente: `fuente LIKE 'doc_%'` (predicado canónico histórico, `docs/corpus/hygiene-identity-queries.sql:42`), aplicado en la ruta semántica antes de la selección final.
+- Política de producción: `fuente LIKE 'doc_%'` (predicado canónico histórico, `docs/corpus/hygiene-identity-queries.sql:42`), aplicado en la ruta semántica antes de la selección final.
 - **Procedencia (PR #61):** merge commit `99db5424b387889426388a79e29b5932c168e82f`, "Merge PR #61: contain H2 doc_* layer in semantic retrieval". Según el mensaje del merge: auditoría independiente `PASS_WITH_NOTES`, `auditor-green recommended`, `merge recommended`, 626 pruebas pasadas, typecheck pasado.
-- **Limitación conocida, pendiente:** `KNOWN_LIMITATION_SQL_PREFILTER_PENDING`. El RPC puede consumir posiciones del top-20 con filas `doc_*` antes de que la aplicación las excluya.
-- **Nota prospectiva de CLO:** si la doctrina llega a ser una capa de recuperación autorizada en el futuro, la pertenencia H2 debe refinarse para que la doctrina no se excluya por accidente. Esta nota no cambia el filtro de producción.
+- **Limitación conocida pendiente:** `KNOWN_LIMITATION_SQL_PREFILTER_PENDING`. El RPC puede consumir posiciones del top-20 con filas `doc_*` antes de que la aplicación las excluya.
+- **Nota prospectiva de CLO:** si la doctrina llega a ser una capa de recuperación autorizada, la pertenencia H2 debe refinarse para que la doctrina no se excluya por accidente. Esta nota no cambia el filtro de producción.
 
 ---
 
-## 5. Hallazgos abiertos para decisión CLO (no resueltos aquí)
+## 9. Correcciones de implementación registradas en V4.0-A.2
 
-1. **Suficiencia por léxico débil.** La puerta por rol cuenta cualquier PRIMARY que supere el umbral léxico de 0.2. En la consulta Q20 (texto base sintético) aparecen PRIMARY por coincidencias de 0.2 a 0.4 y la respuesta sale `SUFFICIENT`. La decisión CLO indica "evidencia-role sufficiency only", pero no define un mínimo de relevancia. Pendiente.
-2. **E2 con `es_norma_vigente=false`.** El registro CA-01 marca las 7 filas del Notariado (incluidos arts. 72–93) con `es_norma_vigente=false`. La regla D6b de producción las excluye en la ruta semántica antes de que se aplique el rol `CONTEXT`. En el laboratorio, E2 como `CONTEXT` sólo es alcanzable para filas no marcadas como falsas. Esto contradice la intención de la decisión E2. Requiere aclaración CLO.
-3. **Empates léxicos.** Las unidades con el mismo puntaje se ordenan alfabéticamente por id. No hay desempate por identidad de instrumento.
-4. **Orden de vigencia.** `TRUE > UNKNOWN > FALSE` es decisión del laboratorio y no está ratificada por CLO.
-5. **Identificadores de producción.** Los fragmentos de fixture usan cadenas sintéticas para E2, E5 y E6. Las cadenas reales de `fuente` en producción no están verificadas.
+- **Identidad de Notariado:** la versión anterior usaba un regex propio que no excluía el Reglamento del Código del Notariado. Ahora se usa la identidad documental de producción.
+- **Deduplicación:** la clave de duplicado era sólo el `hash` (contenido, número, fuente) y colapsaba filas con vigencia distinta, ocultando una diferencia jurídica. Ahora la clave incluye tipo, jurisdicción, vigencia y materia. Regresión cubierta en pruebas.
 
 ---
 
-## 6. Límites de esta política
+## 10. Hallazgos abiertos para decisión CLO
+
+1. **Alcance de FALSE:** aplicado a material normativo (`codigo`, `instrumento`); jurisprudencia y doctrina no se excluyen. Ratificar.
+2. **Canal exacto y FALSE:** el artículo derogado pedido explícitamente por número sigue devolviéndose con etiqueta, como en producción. Ratificar o cambiar.
+3. **Orden de vigencia** `TRUE > UNKNOWN > FALSE`: decisión del laboratorio, no ratificada.
+4. **Soporte validado:** no existe todavía un mecanismo de validación de soporte. Sin él, `SUFFICIENT` es inalcanzable en la práctica.
+5. **Identificadores de producción:** las cadenas de `fuente` para E2, E5 y E6 son sintéticas en las fixtures. Las cadenas reales no están verificadas.
+6. **Desempate léxico alfabético:** empates léxicos se ordenan por id.
+7. **Umbral léxico de 0.2:** no adjudicado por CLO. No se ajustó en esta fase.
+
+---
+
+## 11. Límites de esta política
 
 - No es esquema, ni migración, ni configuración de producción.
-- Las cadenas de identidad de las capas abiertas son sintéticas en las fixtures.
+- Las cadenas de identidad de capas abiertas son sintéticas en las fixtures.
 - Ningún resultado del benchmark prueba superioridad en producción: `SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY`.
+- No se adjudicó ningún umbral numérico de relevancia.

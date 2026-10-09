@@ -46,6 +46,7 @@ export interface LabBenchmarkQuery {
   distractores: string[];
   articulo_esperado?: string;
   abstencion_esperada: boolean;
+  soporte_validado_ids?: string[];
   semantic_hits: { id: string; score: number }[];
   validacion: 'PENDIENTE_VALIDACION_JURIDICA';
 }
@@ -68,6 +69,7 @@ export interface LabCandidate {
 
 export interface ClaveOrdenLegal {
   rol_gate: number;
+  relevancia: number;
   identidad_exacta: number;
   vigencia: number;
   relacion_verificada: number;
@@ -84,6 +86,7 @@ export interface ComponentesRecuperacion {
 
 export interface RankedCandidate extends LabCandidate {
   rol_recuperacion: RolRecuperacion;
+  relevancia_clo: 'PASS' | 'UNKNOWN' | 'FAIL';
   capa_clo: 'E2' | 'E5' | 'E6' | null;
   advertencia_clo: string | null;
   legal_order_key: ClaveOrdenLegal;

@@ -41,6 +41,17 @@ describe('deduplicación — política de fallo seguro', () => {
     expect(res.eventosDedup.some((e) => e.afectado.startsWith('lab-espejo') || e.conservado.startsWith('lab-espejo'))).toBe(false);
   });
 
+  it('regresión: mismo contenido, número y fuente con vigencia distinta NO se colapsan', () => {
+    const vigente = candidatoDesdeFila({ id: 'v-a', contenido: 'ARTICULO 4.- Igual.', num_articulo: '4', fuente: 'Fuente Fixture W', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: null });
+    const falso = { ...vigente, id: 'v-b', es_norma_vigente: false };
+    const { candidatos, eventos } = colapsarDuplicadosExactos([
+      { ...vigente, retrieval_channel: ['lexical'] },
+      { ...falso, retrieval_channel: ['lexical'] },
+    ]);
+    expect(candidatos).toHaveLength(2);
+    expect(eventos).toHaveLength(0);
+  });
+
   it('misma fuente y número con texto distinto NO se colapsa; se penaliza tras las compuertas legales', () => {
     const v1: LabRow = { id: 'x-1', contenido: 'ARTICULO 500.- Versión uno.', num_articulo: '500', fuente: 'Fuente Fixture Z', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: null };
     const v2: LabRow = { ...v1, id: 'x-2', contenido: 'ARTICULO 500.- Versión dos.' };

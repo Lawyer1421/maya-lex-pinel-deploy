@@ -1,5 +1,7 @@
 import { tieneEncabezadoArticulo } from '../exact-resolver';
 import { rolRecuperacion, type IntencionConsulta } from './clo-policy';
+import { evaluarRelevancia, type Relevancia } from './relevance';
+import type { InstrumentoNormalizado } from '../exact-resolver';
 import type {
   ClaveOrdenLegal,
   ComponentesRecuperacion,
@@ -36,6 +38,8 @@ export interface EventoPenalizacion {
 export interface ContextoRanking {
   materia: string | null;
   intencion: IntencionConsulta;
+  articulo?: string | null;
+  instrumento?: InstrumentoNormalizado | null;
 }
 
 export interface ResultadoRanking {
@@ -46,6 +50,7 @@ export interface ResultadoRanking {
 
 const ORDEN_NIVELES: (keyof ClaveOrdenLegal)[] = [
   'rol_gate',
+  'relevancia',
   'identidad_exacta',
   'vigencia',
   'relacion_verificada',
@@ -53,6 +58,8 @@ const ORDEN_NIVELES: (keyof ClaveOrdenLegal)[] = [
   'jurisdiccion_materia',
   'penalizacion_espejo',
 ];
+
+const VALOR_RELEVANCIA: Record<Relevancia, number> = { PASS: 2, UNKNOWN: 1, FAIL: 0 };
 
 const VALOR_ROL: Record<Exclude<RolRecuperacion, 'EXCLUDED'>, number> = {
   PRIMARY: 3,
@@ -135,13 +142,20 @@ export function puntuarCandidatos(
       continue;
     }
     const comp = componentesRecuperacion(c);
+    const relevancia = evaluarRelevancia(c, {
+      articulo: contexto.articulo ?? null,
+      instrumento: contexto.instrumento ?? null,
+      materia: contexto.materia,
+    });
     base.push({
       ...c,
       rol_recuperacion: asignado.rol,
       capa_clo: asignado.capa,
       advertencia_clo: asignado.advertencia,
+      relevancia_clo: relevancia,
       legal_order_key: {
         rol_gate: VALOR_ROL[asignado.rol],
+        relevancia: VALOR_RELEVANCIA[relevancia],
         identidad_exacta: c.exact_match ? 1 : 0,
         vigencia: valorVigencia(c),
         relacion_verificada: 0,

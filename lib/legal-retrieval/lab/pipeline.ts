@@ -1,5 +1,9 @@
 import { performance } from 'node:perf_hooks';
-import { detectarMateriaSemanticaAmpliada } from '../exact-resolver';
+import {
+  detectarArticuloExacto,
+  detectarInstrumentoDesdeTexto,
+  detectarMateriaSemanticaAmpliada,
+} from '../exact-resolver';
 import { colapsarDuplicadosExactos, type EventoDedup } from './dedup';
 import { resolverExactoLab, type EstadoExactoLab } from './exact-lab';
 import { intencionHistoricaCPC, type IntencionConsulta } from './clo-policy';
@@ -67,7 +71,13 @@ export function recuperarLab(
   const lexico = opciones.lexico ?? ADAPTADOR_LEXICO_POR_DEFECTO;
   const tTotal = performance.now();
   const intencion: IntencionConsulta = { historicaCPC: intencionHistoricaCPC(query.texto) };
-  const contexto = { materia: detectarMateriaSemanticaAmpliada(query.texto), intencion };
+  const contexto = {
+    materia: detectarMateriaSemanticaAmpliada(query.texto),
+    intencion,
+    articulo: detectarArticuloExacto(query.texto)?.numero ?? null,
+    instrumento: detectarInstrumentoDesdeTexto(query.texto),
+  };
+  const soporteValidado = new Set(query.soporte_validado_ids ?? []);
   const filasPorId = new Map(corpus.map((f) => [f.id, f] as const));
   const excluidos: ResultadoLab['excluidos'] = [];
   const tiempos: TiemposLab = { exacto: 0, lexico: 0, semantico: 0, fusion: 0, dedup: 0, ranking: 0, total: 0 };
@@ -109,7 +119,7 @@ export function recuperarLab(
       modo,
       intencion,
       ranking: rank.valor.ranking.slice(0, opciones.k),
-      suficiencia: evaluarSuficiencia(rank.valor.ranking),
+      suficiencia: evaluarSuficiencia(rank.valor.ranking, { soporteValidado }),
       excluidos,
       eventosDedup: [],
       eventosPenalizacion: rank.valor.eventos,
@@ -185,7 +195,7 @@ export function recuperarLab(
     modo,
     intencion,
     ranking: top,
-    suficiencia: evaluarSuficiencia(rank.valor.ranking),
+    suficiencia: evaluarSuficiencia(rank.valor.ranking, { soporteValidado }),
     excluidos,
     eventosDedup: dd.valor.eventos,
     eventosPenalizacion: rank.valor.eventos,
