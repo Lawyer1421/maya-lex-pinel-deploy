@@ -140,13 +140,15 @@ Cinco comprobaciones, cada una con un resultado registrado en el objeto de evide
 - Reglamento del Código del Notariado.
 - Material relacionado verificado.
 
+**Según la decisión CLO del 2026-10-09 (`MAYALEX_RETRIEVAL_V4_CLO_POLICY_V1.md`):**
+- Artículos 72, 73, 84, 87, 93 (E2, OPEN): sólo `CONTEXT`, con advertencia. Nunca PRIMARY ni suficientes por sí solos.
+- CPC_TEXTO_BASE_D211-2006 (E5, OPEN): `EXCLUDED` en consulta normal. `CONTEXT` sólo con intención histórica explícita.
+- D.102-2018 (E6, OPEN): `SECONDARY`. Puede acompañar PRIMARY verificado.
+
 **Excluido, sin excepciones:**
-- Conclusiones no resueltas de CA-01 (artículos 72, 73, 84, 87, 93, E2 OPEN).
-- Filas `doc_*`.
+- Filas `doc_*` (containment H2 en producción desde `99db542`).
 - Filas `fuente IS NULL` (CA-02).
-- Base CPC no resuelta (CA-03, E5 OPEN).
 - Comercio no verificado (ABSENT_VERIFIED).
-- Material D.102-2018 sin adjudicar (E6 OPEN).
 
 **Condición de entrada:** el registro CLO debe cerrar E2 (artículos 72, 73, 84, 87, 93, hoy OPEN) y E8 (filas D.77-2006 como candidato físico hasta tener el texto de Gaceta). Sin ambos cierres, CA-01 sigue en `PARTIAL` y el piloto no puede fundamentar conclusiones sobre esos artículos. Los artículos 11 y 27 están desplazados por D.77-2006 (E1, CLOSED) y no entran al piloto como vigentes.
 

@@ -44,6 +44,28 @@ describe('BENCHMARK A — calidad de recuperación (cada variante recupera por s
   });
 });
 
+describe('BENCHMARK A — anti-sobreajuste', () => {
+  it('declara la invariante de que el benchmark sintético no prueba superioridad en producción', () => {
+    const { invariante } = ejecutarBenchmarkA(LAB_QUERIES_V1, LAB_CORPUS_V1, 5);
+    expect(invariante).toBe('SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY');
+  });
+
+  it('reporta las tres variantes de forma independiente, sin campo de ganador', () => {
+    const resultado = ejecutarBenchmarkA(LAB_QUERIES_V1, LAB_CORPUS_V1, 5);
+    expect(resultado).not.toHaveProperty('ganador');
+    for (const m of resultado.metricas) {
+      expect(m).not.toHaveProperty('ganador');
+      expect(m.primera_posicion_relevante.total).toBeGreaterThan(0);
+    }
+  });
+
+  it('incluye casos adversariales explícitos (negativos de alta similitud, doc_*, E5, sin evidencia)', () => {
+    const { metricas } = ejecutarBenchmarkA(LAB_QUERIES_V1, LAB_CORPUS_V1, 5);
+    expect(metricas[0].consultas_adversariales).toBeGreaterThanOrEqual(5);
+  });
+
+});
+
 describe('BENCHMARK B — evidencia congelada una sola vez, mismo paquete para todas las variantes de modelo', () => {
   const variantesFalsas: VarianteModelo[] = [
     { nombre: 'modelo-x', generar: (p) => ({ citas: p.items.slice(0, 1).map((i) => i.id), abstencion: p.items.length === 0, afirmaciones: [{ texto: 'a', soporte: p.items[0]?.id ?? null }], tokens: null, latenciaMs: null, costoUsd: null }) },

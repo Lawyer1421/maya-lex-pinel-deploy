@@ -97,7 +97,7 @@ LLM: LLM_PROVIDER (default 'anthropic')                          route.ts:99
 |---|---|---|
 | `RETRIEVAL_WIDE_K = 25` implica 25 candidatos | La RPC aplica `LIMIT least(limite, 20)`. **El máximo efectivo por llamada es 20**, no 25 | `semantic-retriever.ts:125`; migración L110 |
 | Las filas `fuente IS NULL` se excluyen de la búsqueda | Ruta **exacta**: exclusión en SQL por `fuente_tipo='codigo'`. Ruta **semántica**: exclusión **después** de la RPC (`fuente !== null`), así que esas filas ocupan posiciones del embudo ancho | `search.ts:107`; `semantic-retriever.ts:187` |
-| La exclusión `doc_*` (E7) se aplica en retrieval | **No hay filtro por tipo `doc_*` en el código.** Sólo existe la lista de 41 IDs con `revision_pendiente=true`. La ruta semántica no filtra por `fuente_tipo`. Ver sección 4 | `grep` sobre `lib/`: sin coincidencias de `doc_` |
+| La exclusión `doc_*` (E7) se aplica en retrieval | **Corregido tras PR #61 (merge `99db542`).** La ruta semántica excluye `fuente LIKE 'doc_%'` antes de la selección final (`esFuenteDocumentalExcluida`). La ruta exacta lo excluye por identidad documental. El tope SQL de 20 sigue pendiente (`KNOWN_LIMITATION_SQL_PREFILTER_PENDING`) | `lib/legal-retrieval/semantic-retriever.ts`; `tests/rag-doc-star-containment.test.ts` |
 | La migración de 41 filas ya está en producción | Lo afirma el comentario de la migración (L9). **No verificado** en la base | migración L4-9 |
 | `flag_rerank` existe en producción | La migración crea la fila con `enabled=false`. Estado real en la base: NO VERIFICADO | migración 20260906 L26-28 |
 | El rerank Cohere funciona | Código presente; sin `COHERE_API_KEY` cae a `slice`. No hay evidencia de ejecución real | `rerank.ts:62-64` |
@@ -111,7 +111,7 @@ LLM: LLM_PROVIDER (default 'anthropic')                          route.ts:99
 |---|---|---|---|---|
 | `revision_pendiente = true` | SQL (`search.ts:109`) | SQL en RPC (migración L108) | Columna booleana | 41 IDs listados en la migración; tabla de lista no verificada en base |
 | `fuente IS NULL` (E4, 8.366 filas declaradas) | SQL implícita (`fuente_tipo='codigo'`) | **Post-RPC** (`semantic-retriever.ts:187`) | Filtro en código | El conteo 8.366 viene del registro CLO; no medido aquí |
-| `doc_*` (E7) | Implícita, sólo si no es `codigo` | **Ninguna** salvo `revision_pendiente` | — | **Parcial.** Registro declara `EXCLUDED_BY_TYPE`; el código no tiene ese filtro |
+| `doc_*` (E7) | Ruta semántica: `fuente LIKE 'doc_%'` tras la RPC (PR #61). Ruta exacta: identidad documental | Post-RPC en semántica; SQL no prefiltra | — | **Parcial.** El prefiltro SQL sigue pendiente. Registro declara `EXCLUDED_BY_TYPE` |
 | Anonimización sin limpiar | Post-filtro (`exact-resolver.ts:437`) | Post-filtro (`semantic-retriever.ts:185`) | `contieneArtefactoAnonimizacion` | Patrón regex, `primitives.ts:25` |
 | No vigente código HN (D6b) | Vía `es_norma_vigente=false` en SQL | Post-filtro (`semantic-retriever.ts:186`) | Función compartida | Verificado en código |
 

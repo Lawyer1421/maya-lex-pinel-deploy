@@ -1,16 +1,6 @@
 export type RetrievalChannel = 'exact' | 'lexical' | 'semantic';
 
-export const LAB_RANKING_WEIGHTS = {
-  exact: 10,
-  lexical: 1,
-  semantic: 1,
-  source_identity: 0.1,
-  jurisdiction: 0.1,
-  materia: 0.2,
-  duplicate_penalty: -0.5,
-} as const;
-
-export type RankingComponentKey = keyof typeof LAB_RANKING_WEIGHTS;
+export type RolRecuperacion = 'PRIMARY' | 'SECONDARY' | 'CONTEXT' | 'EXCLUDED';
 
 export interface LabRow {
   id: string;
@@ -40,7 +30,13 @@ export type CategoriaBenchmark =
   | 'sin_evidencia'
   | 'vocabulario_similar_no_relacionado'
   | 'excepcion_remision'
-  | 'estres_top_k_rpc';
+  | 'estres_top_k_rpc'
+  | 'clo_e2_contexto'
+  | 'clo_e5_normal_excluido'
+  | 'clo_e5_historico_explicito'
+  | 'clo_e6_secundario'
+  | 'clo_primary_con_e6'
+  | 'adversarial_semantico_negativo';
 
 export interface LabBenchmarkQuery {
   id: string;
@@ -70,10 +66,28 @@ export interface LabCandidate {
   exact_match: boolean;
 }
 
-export type RankingComponents = Record<RankingComponentKey, number>;
+export interface ClaveOrdenLegal {
+  rol_gate: number;
+  identidad_exacta: number;
+  vigencia: number;
+  relacion_verificada: number;
+  jerarquia_normativa: number;
+  jurisdiccion_materia: number;
+  penalizacion_espejo: number;
+}
+
+export interface ComponentesRecuperacion {
+  lexical: number;
+  semantic: number;
+  citation_completeness: number;
+}
 
 export interface RankedCandidate extends LabCandidate {
-  ranking_components: RankingComponents;
-  composite: number;
+  rol_recuperacion: RolRecuperacion;
+  capa_clo: 'E2' | 'E5' | 'E6' | null;
+  advertencia_clo: string | null;
+  legal_order_key: ClaveOrdenLegal;
+  retrieval_components: ComponentesRecuperacion;
+  retrieval_order_score: number;
   vigencia_informativa: 'TRUE' | 'FALSE' | 'UNKNOWN';
 }

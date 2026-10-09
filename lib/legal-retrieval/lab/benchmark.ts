@@ -13,10 +13,24 @@ const MODO_DE_VARIANTE: Record<VarianteRecuperacion, ModoRecuperacion> = {
   A3_HYBRID: 'HYBRID',
 };
 
+export const INVARIANTE_BENCHMARK_SINTETICO = 'SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY' as const;
+
+const CATEGORIAS_ADVERSARIALES = new Set([
+  'adversarial_semantico_negativo',
+  'clo_e5_normal_excluido',
+  'capa_doc_star',
+  'fuente_nula',
+  'no_vigente_hn',
+  'sin_evidencia',
+  'vocabulario_similar_no_relacionado',
+]);
+
 export interface MetricasRecuperacion {
   variante: VarianteRecuperacion;
   consultas: number;
+  consultas_adversariales: number;
   recall_fuentes_relevantes_at_k: { aciertos: number; total: number; valor: number | null };
+  primera_posicion_relevante: { aciertos: number; total: number; valor: number | null };
   exacto_articulo_hit_at_k: { aciertos: number; total: number; valor: number | null };
   tasa_duplicados_topk: number;
   pares_espejo_topk: number;
@@ -29,13 +43,14 @@ export interface MetricasRecuperacion {
 }
 
 export interface ResultadoBenchmarkA {
+  invariante: typeof INVARIANTE_BENCHMARK_SINTETICO;
   metricas: MetricasRecuperacion[];
   llamadasRecuperacion: number;
 }
 
 function firma(res: ResultadoLab): string {
   return JSON.stringify(
-    res.ranking.map((c) => [c.id, c.retrieval_channel, Number(c.composite.toFixed(6))]),
+    res.ranking.map((c) => [c.id, c.retrieval_channel, c.rol_recuperacion, c.retrieval_order_score]),
   );
 }
 
@@ -64,6 +79,9 @@ export function ejecutarBenchmarkA(
   for (const variante of variantes) {
     let aciertosRel = 0;
     let totalRel = 0;
+    let aciertosPrimera = 0;
+    let totalPrimera = 0;
+    let adversariales = 0;
     let aciertosArt = 0;
     let totalArt = 0;
     let duplicados = 0;
@@ -91,7 +109,10 @@ export function ejecutarBenchmarkA(
       if (q.relevantes.length > 0) {
         totalRel++;
         if (q.relevantes.some((r) => ids.has(r))) aciertosRel++;
+        totalPrimera++;
+        if (top.length > 0 && q.relevantes.includes(top[0].id)) aciertosPrimera++;
       }
+      if (CATEGORIAS_ADVERSARIALES.has(q.categoria)) adversariales++;
       if (q.articulo_esperado !== undefined) {
         totalArt++;
         if (top.some((c) => c.num_articulo === q.articulo_esperado)) aciertosArt++;
@@ -130,7 +151,9 @@ export function ejecutarBenchmarkA(
     metricas.push({
       variante,
       consultas: queries.length,
+      consultas_adversariales: adversariales,
       recall_fuentes_relevantes_at_k: { aciertos: aciertosRel, total: totalRel, valor: totalRel ? aciertosRel / totalRel : null },
+      primera_posicion_relevante: { aciertos: aciertosPrimera, total: totalPrimera, valor: totalPrimera ? aciertosPrimera / totalPrimera : null },
       exacto_articulo_hit_at_k: { aciertos: aciertosArt, total: totalArt, valor: totalArt ? aciertosArt / totalArt : null },
       tasa_duplicados_topk: posiciones ? duplicados / posiciones : 0,
       pares_espejo_topk: espejos,
@@ -151,7 +174,7 @@ export function ejecutarBenchmarkA(
     });
   }
 
-  return { metricas, llamadasRecuperacion: llamadas };
+  return { invariante: INVARIANTE_BENCHMARK_SINTETICO, metricas, llamadasRecuperacion: llamadas };
 }
 
 /* ─────────────────────────── BENCHMARK B — calidad de modelo ─────────────────────────── */

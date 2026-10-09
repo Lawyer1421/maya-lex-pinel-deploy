@@ -40,12 +40,14 @@ Un candidato se descarta si cumple cualquiera de estas condiciones. Todas existe
 | `revision_pendiente = true` | migración L108; `search.ts:109` | Existe |
 | Identidad documental no coincide con el instrumento pedido | `exact-resolver.ts:243-251, 442` | Existe (ruta exacta) |
 | Sin encabezado de artículo en ruta exacta | `exact-resolver.ts:439-441` | Existe |
-| Tipo `doc_*` (E7) | No existe filtro por tipo en ruta semántica | **Falta** |
+| Tipo `doc_*` (E7) | `fuente LIKE 'doc_%'` en ruta semántica (PR #61, `99db542`) | Existe. Prefiltro SQL pendiente |
 | Unidad sin `retrieval_role` válido | No existe el campo | Depende del modelo L1 |
 
 ---
 
 ## 4. Componentes de ordenación (en orden de prioridad)
+
+> **Reemplazado por la decisión CLO del 2026-10-09 (`MAYALEX_RETRIEVAL_V4_CLO_POLICY_V1.md`).** Las compuertas legales son los niveles 0–6 y el nivel 7 es el orden de recuperación, que combina léxico, semántico y completitud de cita. Los niveles 7 y 8 de esta sección no existen en el modelo vigente.
 
 Cada nivel se evalúa sólo si el anterior empata. Los niveles no se suman.
 
@@ -164,15 +166,15 @@ RankedCandidate {
 
 ---
 
-## 9. Implementación de laboratorio V4.0-A
+## 9. Implementación de laboratorio V4.0-A.1 (reemplaza la suma global de V4.0-A)
 
-Implementación: `lib/legal-retrieval/lab/ranking.ts` y `lib/legal-retrieval/lab/types.ts`. Sólo laboratorio; producción no lo usa.
+Implementación: `lib/legal-retrieval/lab/ranking.ts`, `clo-policy.ts`, `sufficiency.ts`. Sólo laboratorio; producción no lo usa. Política vinculante: `MAYALEX_RETRIEVAL_V4_CLO_POLICY_V1.md`.
 
-- **Componentes exactamente siete:** `exact`, `lexical`, `semantic`, `source_identity`, `jurisdiction`, `materia`, `duplicate_penalty`.
-- **Pesos explícitos** (`LAB_RANKING_WEIGHTS`): exact 10; lexical 1; semantic 1; source_identity 0.1; jurisdiction 0.1; materia 0.2; duplicate_penalty −0.5. El exacto domina porque su peso supera la suma de todos los demás componentes.
-- **Sin puntuación de confianza:** el compuesto es sólo la suma ponderada visible; no se expone como medida de certeza jurídica.
-- **Vigencia informativa, no puntuada:** `vigencia_informativa` vale `TRUE`, `FALSE` o `UNKNOWN` según el booleano existente. `null` nunca se convierte en confianza.
-- **Penalización:** sólo aplica a candidatos que comparten `fuente` y `num_articulo` con uno de mayor puntuación y texto distinto. Nunca por similitud de texto.
+- **Corrección:** V4.0-A sumaba todos los componentes en un único compuesto. Ese modelo queda retirado. Las compuertas legales son lexicográficas. La aritmética ponderada sólo ordena dentro de un mismo nivel legal.
+- **Clave legal inspeccionable** (`legal_order_key`): `rol_gate`, `identidad_exacta`, `vigencia`, `relacion_verificada` (neutral, 0), `jerarquia_normativa` (neutral, 0), `jurisdiccion_materia`, `penalizacion_espejo`. El orden se compara en ese sentido y el primer nivel distinto decide.
+- **Puntuación de recuperación** (`retrieval_order_score`): sólo `lexical` (peso 1), `semantic` (peso 1) y `citation_completeness` (peso 0.2). No es confianza, probabilidad, autoridad ni suficiencia. No compensa niveles superiores.
+- **Vigencia informativa, no puntuada:** `vigencia_informativa` vale `TRUE`, `FALSE` o `UNKNOWN` según el booleano existente. Su posición dentro del nivel 3 sí es una decisión del laboratorio, no una puntuación.
+- **Penalización:** sólo aplica a candidatos que comparten `fuente` y `num_articulo` con uno de mayor orden y texto distinto. Actúa en el nivel 6, antes que la puntuación de recuperación.
 - **Deduplicación fail-safe** (`DEDUP_FALSE_MERGE_POLICY = FAIL_SAFE`): colapsa únicamente duplicados con el mismo `hash`, que cubre contenido, número y fuente. Espejos con fuente distinta no se colapsan.
 - **Léxico lab:** señales deterministas (artículo exacto con encabezado real, cobertura de tokens, frases de dos palabras, fuente, decreto explícito, encabezado) con pesos explícitos. Umbral mínimo `LEXICAL_MIN_SCORE = 0.2`. No es FTS de PostgreSQL. La interfaz `LexicalAdapter` permite sustituirlo sin cambiar la fusión.
 - **D6b y exacto:** D6b se aplica a canales léxico y semántico. El canal exacto conserva el comportamiento de producción para artículos no vigentes pedidos explícitamente por número, con su etiqueta.

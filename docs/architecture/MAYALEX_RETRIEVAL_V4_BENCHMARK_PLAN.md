@@ -122,6 +122,8 @@ Implementación: `lib/legal-retrieval/lab/benchmark.ts`. Fixtures: `tests/retrie
 
 - **Benchmark A (calidad de recuperación):** A1 semántico-solo, A2 léxico-solo (`lexical-lab`), A3 híbrido. Cada variante recupera sus propios candidatos sobre el mismo corpus. No hay paquete congelado en A.
 - **Benchmark B (calidad de modelo):** recuperación una vez por consulta (A3), paquete con sha256, mismo paquete para todas las variantes. V4.0-A no realiza llamadas a modelos: costo, tokens y latencia quedan en `null`.
-- **Corpus y consultas sintéticos:** 17 consultas, 16 categorías. Las respuestas esperadas están `PENDIENTE_VALIDACION_JURIDICA`.
+- **Corpus y consultas sintéticos:** 23 consultas, 22 categorías, incluidos casos CLO (E2, E5, E6), casos adversariales de alta similitud negativa y casos de estrés del tope RPC. Las respuestas esperadas están `PENDIENTE_VALIDACION_JURIDICA`.
+- **Métricas:** además de recall y acierto de artículo, se reporta `primera_posicion_relevante` por variante, y el conteo de consultas adversariales. No hay campo de ganador.
+- **Invariante:** `SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY`. Se expone en el resultado del benchmark.
 - **Advertencia de interpretación:** el corpus y las consultas se diseñaron junto con el algoritmo. Un resultado perfecto de A3 en esta fixture no demuestra superioridad sobre producción; sólo verifica que el harness mide lo que dice medir.
 - **Límite declarado:** A1 emula el tope de 20 de la RPC. En Q17, 20 `doc_*` ocupan el tope y A1 pierde la fuente relevante; A3 la recupera por vía léxica. La limitación SQL sigue pendiente (`KNOWN_LIMITATION_SQL_PREFILTER_PENDING`).

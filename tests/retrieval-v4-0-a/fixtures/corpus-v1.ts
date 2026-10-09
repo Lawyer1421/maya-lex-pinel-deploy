@@ -8,6 +8,10 @@ import type { LabBenchmarkQuery, LabRow } from '@/lib/legal-retrieval/lab/types'
 
 const CPP = 'Código Procesal Penal (FIXTURE sintético)';
 const CC = 'Código Civil (FIXTURE sintético)';
+const CPC_NORMAL = 'Código Procesal Civil (FIXTURE sintético)';
+const CPC_TEXTO_BASE = 'CPC_TEXTO_BASE_D211-2006 (FIXTURE sintético)';
+const NOTARIADO = 'Código del Notariado (FIXTURE sintético)';
+const ADOPCIONES_102 = 'Ley Especial de Adopciones de Honduras (Decreto 102-2018) (FIXTURE sintético)';
 const ESPEJO_A = 'Espejo Procesal (FIXTURE A)';
 const ESPEJO_B = 'Espejo Procesal (FIXTURE B)';
 
@@ -44,6 +48,16 @@ export const LAB_CORPUS_V1: LabRow[] = [
   { id: 'lab-sent-1', contenido: 'Sentencia sintética sobre plazo de prueba de ejemplo.', num_articulo: null, fuente: 'Sentencia de Prueba (FIXTURE ES)', fuente_tipo: 'sentencia', jurisdiccion: 'ES', es_norma_vigente: false, materia: '01_PENAL' },
   { id: 'lab-merc-300', contenido: 'ARTICULO 300.- Plazo de entrega de mercancías sintético.', num_articulo: '300', fuente: 'Código de Comercio (FIXTURE sintético)', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '03_MERCANTIL' },
   { id: 'lab-dec-99', contenido: 'Decreto 99-2000 sintético: disposición de ejemplo sobre plazo de prueba.', num_articulo: null, fuente: 'Decreto 99-2000 (FIXTURE sintético)', fuente_tipo: 'instrumento', jurisdiccion: 'HN', es_norma_vigente: true, materia: null },
+  { id: 'lab-cpc-10', contenido: 'ARTICULO 10.- Texto procesal civil sintético de ejemplo, sin valor jurídico.', num_articulo: '10', fuente: CPC_NORMAL, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '02_CIVIL' },
+  { id: 'lab-cpt-10', contenido: 'ARTICULO 10.- Texto base sintético histórico, no es texto legal.', num_articulo: '10', fuente: CPC_TEXTO_BASE, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '02_CIVIL' },
+  { id: 'lab-cpt-11', contenido: 'ARTICULO 11.- Texto base sintético histórico adicional, no es texto legal.', num_articulo: '11', fuente: CPC_TEXTO_BASE, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '02_CIVIL' },
+  { id: 'lab-not-72', contenido: 'ARTICULO 72.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '72', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: '03_NOTARIAL' },
+  { id: 'lab-not-73', contenido: 'ARTICULO 73.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '73', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: '03_NOTARIAL' },
+  { id: 'lab-not-84', contenido: 'ARTICULO 84.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '84', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: '03_NOTARIAL' },
+  { id: 'lab-not-87', contenido: 'ARTICULO 87.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '87', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: '03_NOTARIAL' },
+  { id: 'lab-not-93', contenido: 'ARTICULO 93.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '93', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, materia: '03_NOTARIAL' },
+  { id: 'lab-not-100', contenido: 'ARTICULO 100.- Texto notarial sintético de prueba, no es texto legal.', num_articulo: '100', fuente: NOTARIADO, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '03_NOTARIAL' },
+  { id: 'lab-102-5', contenido: 'ARTICULO 5.- Disposición sintética de adopción, no es texto legal.', num_articulo: '5', fuente: ADOPCIONES_102, fuente_tipo: 'instrumento', jurisdiccion: 'HN', es_norma_vigente: true, materia: null },
   ...docBulk,
 ];
 
@@ -77,4 +91,10 @@ export const LAB_QUERIES_V1: LabBenchmarkQuery[] = [
     ],
     validacion: 'PENDIENTE_VALIDACION_JURIDICA',
   },
+  { id: 'Q18', categoria: 'clo_e2_contexto', texto: 'requisitos notariales sintéticos artículo 72', relevantes: ['lab-not-72'], distractores: [], articulo_esperado: '72', abstencion_esperada: true, semantic_hits: [{ id: 'lab-not-72', score: 0.8 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
+  { id: 'Q19', categoria: 'clo_e6_secundario', texto: 'requisitos notariales sintéticos decreto 102-2018', relevantes: ['lab-not-72', 'lab-102-5'], distractores: [], abstencion_esperada: true, semantic_hits: [{ id: 'lab-not-72', score: 0.8 }, { id: 'lab-102-5', score: 0.7 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
+  { id: 'Q20', categoria: 'clo_e5_normal_excluido', texto: 'texto base sintético de ejemplo', relevantes: [], distractores: ['lab-cpt-10', 'lab-cpt-11'], abstencion_esperada: true, semantic_hits: [{ id: 'lab-cpt-10', score: 0.95 }, { id: 'lab-cpt-11', score: 0.9 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
+  { id: 'Q21', categoria: 'clo_e5_historico_explicito', texto: 'texto original histórico del CPC_TEXTO_BASE_D211-2006 sintético', relevantes: ['lab-cpt-10'], distractores: [], abstencion_esperada: true, semantic_hits: [{ id: 'lab-cpt-10', score: 0.9 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
+  { id: 'Q22', categoria: 'clo_primary_con_e6', texto: 'plazo de prueba adopción', relevantes: ['lab-cpp-173', 'lab-102-5'], distractores: [], abstencion_esperada: false, semantic_hits: [{ id: 'lab-102-5', score: 0.95 }, { id: 'lab-cpp-173', score: 0.6 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
+  { id: 'Q23', categoria: 'adversarial_semantico_negativo', texto: 'plazo de notificación', relevantes: ['lab-cpp-180'], distractores: ['lab-merc-300'], abstencion_esperada: false, semantic_hits: [{ id: 'lab-merc-300', score: 0.99 }, { id: 'lab-cpp-180', score: 0.6 }], validacion: 'PENDIENTE_VALIDACION_JURIDICA' },
 ];
