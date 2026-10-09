@@ -1,0 +1,1134 @@
+{
+  "batch_id": "mayalex_normativos:ley_propiedad_82_2004__8fd84d0c3928",
+  "ingestion_version": "ingestar-ley.ts@fail-closed-p1",
+  "source_reference": "/workspace/out/ingesta-propiedad-d82-2004/propiedad-d82-2004.ocr.txt",
+  "source_hash": "8fd84d0c3928fc3a43710326d61311a067469a657d6778a48854a97485208eed",
+  "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+  "embedding_model": "Xenova/multilingual-e5-small (quantized:false)",
+  "embedding_dimension": 384,
+  "generated_at": "2026-09-16T03:57:23.915Z",
+  "sql_artifact_path": "/workspace/out/ingesta-propiedad-d82-2004/ingesta.sql",
+  "sql_artifact_hash": "b7a3379ed404e68eae9a6e898255352b5c4700dca8a66b0761fa8835a5bbf592",
+  "registros": [
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a2",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "2",
+      "content_hash": "8737c4a039900c90befe0f4a26443ec68d6c1df4f8d1d5b2fc7db7d2b7242238",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a3",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "3",
+      "content_hash": "cef93119fb5524951ed16b76917e24e17135eae3dbf2ffda8d64c0d43c4d34be",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a1",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "1",
+      "content_hash": "3793fb67b5494dba91543100048d8532712880ac63688bd99b536fbab8311e6a",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a4",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "4",
+      "content_hash": "d73442e7b81418ccbff624341a1d774c9e84d3332d7aeefc06278a6b0032da21",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a5",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "5",
+      "content_hash": "4f70646151696ebdcfba94758c3043640c0daa0081f792532f3866c690cdc9c9",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a6",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "6",
+      "content_hash": "d2dc5b07782349e969eb49a41d6ca166848b0de7a08e14a35b9697804159f697",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a10",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "10",
+      "content_hash": "3458d9854a5ca51be4b39017b3295adb1929af6adf062a865c327013d65d6eae",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a7",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "7",
+      "content_hash": "65b2ebdcea889696f40befee8485805eb61fc512db14583159ca4d6b877cbd06",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a8",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "8",
+      "content_hash": "ef3354da5d09795f1e502cf65b662e979f389fb1586ee1966fea67146738529e",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a11",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "11",
+      "content_hash": "ae3223be9db313cc5e90e0415ecf05a5ee905f0436f4417708ef8e349d7a14c7",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a9",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "9",
+      "content_hash": "0fc071ff72dc5dbfddec234d31c82464e3b5b64c1e344c726f0fe26947d6aabe",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a12",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "12",
+      "content_hash": "e18eaa9f66972d75000893e6884bd59354aa785dad31a1114fb28fbc5b18ecf5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a16",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "16",
+      "content_hash": "909fc8f313f19309d3fa0a68cdece04cbf4cef580e75cf94e3b7c735225cbc8b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a13",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "13",
+      "content_hash": "9e3a762671a412b5fbf0c7677beb741dc82d3c7103e93a76e4ef472567c4ec9a",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a17",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "17",
+      "content_hash": "783343f10cb2c03def828d393b1d80c0bcbd6132d1a16a3a64ce0adb7e5113d3",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a14",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "14",
+      "content_hash": "6644fd9b581281c6f762d9fb2f82baba99ba7b8b090631bf85106238c1a85131",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a15",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "15",
+      "content_hash": "b564e14fd63342fb59180b5b356d673b70d908aca5138ef445b79b8759e3e63d",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a21",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "21",
+      "content_hash": "4f3eb0645aa971b56963a143bce4d8576596d9ca40243991a4033dbf9cd184da",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a22",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "22",
+      "content_hash": "6d9121ddce005bb4b727d116bbea45f0851fa92bc035445695c0e91892755ed1",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a23",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "23",
+      "content_hash": "497d6d70b1b4c83e62db590202ebc981df00aa8a2a34d68dab81104841b49590",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a24",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "24",
+      "content_hash": "b354ee988746e41838b2c94029643e52c4db2a24be32e219bd58295ddd625768",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a19",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "19",
+      "content_hash": "669cdc1decd853359df97079215fe74e8d221cd551be912326d9953b2ac49ba0",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a20",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "20",
+      "content_hash": "da9fc6e2356808b9e4b7b3e957ec884ee72ddfea040ba5b57c5cfd97b3455e84",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a29",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "29",
+      "content_hash": "835837fdb9673859f381373997b84b4f0e5ad45c46fb744aa29ca20da3b1f464",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a30",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "30",
+      "content_hash": "74cb4282effc5922ac5d5f3a1d0855f4dcfe17a1f28b7a69124fad57419d48b1",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a25",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "25",
+      "content_hash": "bedf29ac9c41693f651a53063ca3b3afb2cd7812eaec42c621d38746604aea5f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a31",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "31",
+      "content_hash": "ce7b99ae95c3606b137f5999f082822b5bd90f14f64495caf7f067e45674347c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a26",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "26",
+      "content_hash": "2c7abcb6fe262b07530abb34a41c64f306d0b105bb25981d1bcc69b6889dd698",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a27",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "27",
+      "content_hash": "3a32fd243867185d7e5ca9e1ded2e6338249a32660220fdf4bfd1dea6f7196b4",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a28",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "28",
+      "content_hash": "77dbe08d091636e07f1e5fc1ae147d4eb9b1e028b6bd1be21b11efe7ad37941e",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a32",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "32",
+      "content_hash": "02cb8f09ed3453acf29ac94d8faa5c7720f21e5d51616ab5878e3a764d6bdb73",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a33",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "33",
+      "content_hash": "7f8461c3ae40b607b8e96a227807dbecfce11458cd5d40a21b453a2f6abbce83",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a34",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "34",
+      "content_hash": "277dd1abd63e0bf14e1d0fc9d5a285dbcf78291efdcbbdb84fbcb28767688c97",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a39",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "39",
+      "content_hash": "ecfc265b1a1216d0a627a83d70a6417971a031753e93548f48729c9a574216e7",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a40",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "40",
+      "content_hash": "ef9cb6a493cf5d4a370ee18921e41b9fd4688e59a9bfc317fdb4f733861b465b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a35",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "35",
+      "content_hash": "30ef86d226e687b3a6127e876cd7604d3260f8a7d5a4b728c0054f17400b1881",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a41",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "41",
+      "content_hash": "b48a4baf3f134fbe1f9a41d873fabb1d29c9e33a4ab8fdc13a68438ec39aa484",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a36",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "36",
+      "content_hash": "78d2c214de84defbc91a76d5e32c5d90d16f2cc18a8234d6863cfa0324365692",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a42",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "42",
+      "content_hash": "a32fd55bfbf38f908feb92570fd2711bee2ba1350a570350e202c6d048e9e5bb",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a37",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "37",
+      "content_hash": "a9fd7a50816486989b3e58d06b68cb24e029675c5d13986e176ee4668af47611",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a43",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "43",
+      "content_hash": "5a4845673531b7f5d06a760995e4d56e403316a961aba27131521ed7b06c70a5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a38",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "38",
+      "content_hash": "1aeab0a8ebd9b4c5ca7ee3845c0bd2176015fdd11365fb380dadddc038f68394",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a44",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "44",
+      "content_hash": "152e135ee1e59a834c304395b50f36080567067a62101f2f3ba957fe6b7173a5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a50",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "50",
+      "content_hash": "08d80e8912b5b0a6aeb30afb8ae80103b467db198eb621c715d26f6b2f775abe",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a45",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "45",
+      "content_hash": "733cf2657ebf770ed1a613427ba1a79188ffc55bd3f5263c32947db457ac4edb",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a51",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "51",
+      "content_hash": "3a1fa4785c054b7bc3012f5702bd667a9c32932cbf97a236b59d5caac3240705",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a52",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "52",
+      "content_hash": "c33f15aa2683778db51fa23bfdca5ac8ef3a0c04f5dd5c5678af126700ea2f8c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a53",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "53",
+      "content_hash": "77806f15b8f909761a3e75b479ae8e7e1f11dc2fd973c5775a9c32e7c92bca6c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a47",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "47",
+      "content_hash": "377f1eca199f20a8d07fb3f2c1c8188523df041d61f2a4df1406d37167e67044",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a48",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "48",
+      "content_hash": "a39b4500decc2517156882f03f97c7354620510aa493e321ebda135e9009b859",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a54",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "54",
+      "content_hash": "4635179faa70b355916e184ea5e5ecb93f36509cb966ebb3dfef179dfd57f19a",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a49",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "49",
+      "content_hash": "808c20da9eb73cdf526865bef197b7ccbff24463f411bd67e443c601dcd0482e",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a55",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "55",
+      "content_hash": "687fa269b93c48de7e11b1c137be5a7a5d68e8e3e9325cbb640426a1b790919f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a56",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "56",
+      "content_hash": "620bc16d95c19e5dc82fcc85cbc6efd82ad9861d457b438f8b58861f25957149",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a63",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "63",
+      "content_hash": "6caa2cc4d52dee47be0ccecfe6e8f84356e676a7a678e6eec69f29ae24a2f92b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a64",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "64",
+      "content_hash": "541ee870ce036c35a71ef925a73bc36aafae40f424ae0735c9d9069beb187fb7",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a57",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "57",
+      "content_hash": "c3aafccb9ee79692ec56aaaed8f3c98726be2aba84520a17379c30b71d78e965",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a58",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "58",
+      "content_hash": "ad4ea8566e656e1427ba7fd29ff272550d528111a3014cd59a27efeda3302214",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a59",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "59",
+      "content_hash": "d6e2c33b92f32edbf95a1cac9d2bc372bf4c705b28c7cf0990d82c184cfd8041",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a65",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "65",
+      "content_hash": "4112ec0185894f4dfa84fb3dc0bd32a0d17a5658bc93878e9b5413c3061d2912",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a60",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "60",
+      "content_hash": "82e383ac83fa379ee6ff9615b78f24c68951055355bfadfd879755c2d59dd6ea",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a66",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "66",
+      "content_hash": "f39f95cb569bb41b36d890c8ac483586535ad6f70a8db8bc81d8604996231c85",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a61",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "61",
+      "content_hash": "51873da1418673041df2e850529b2fed957dc5c32fdd9735cca179ed49350511",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a67",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "67",
+      "content_hash": "98f45ac3853c9b8378914eed8dd15680bdaf01a3415b76eadb15952002325431",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a62",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "62",
+      "content_hash": "b88d5e11f1b180d4dd27ff57afa3d268576455ee39c91eb385c6303888550df1",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a68",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "68",
+      "content_hash": "480185af262afbf500788b123bc35095f652d03479eed58d6277afa1b57e7f31",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a73",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "73",
+      "content_hash": "596127241bb893a1e2197441f2bc27ce4a610e075b3baec1c7c8228171a06981",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a69",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "69",
+      "content_hash": "e1ed050f7b2b86a9fba53463a4ee52d619c57514f3a93eaa5a055791b5af8950",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a70",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "70",
+      "content_hash": "cb2a41a8f67845294c22cb0dc506e717cd30765ae094b999b98fe7b19f557328",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a71",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "71",
+      "content_hash": "cdfd7ccb7b365efba32048d33a5762ba63ad841e7e4b666da2fbbb5132d733ee",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a72",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "72",
+      "content_hash": "2109c9197d29bfaeceaffcdba57192e226f9efa449114930ecfdef81279800a9",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a74",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "74",
+      "content_hash": "b44ded794a5a574321c6315151a1ac209db6502474082f2dfd803ab88a21d110",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a75",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "75",
+      "content_hash": "cc0ebc5f3e463e97664320e5713c251a09d5b4740e75c6fe784b8733a454957c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a79",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "79",
+      "content_hash": "c0884140d480a5d9c6316cf9b2bdf8ef070c5892417ab7d3dd2e62e4bcb044f5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a80",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "80",
+      "content_hash": "67b97f205a899dcb0eab78c810a656b8a6c0fb493e6952c75f54c260e65c7b86",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a76",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "76",
+      "content_hash": "edcd5245cbf7fa78ad214b61a55bfd123f0a226957916a40feb7646eb017dd17",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a81",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "81",
+      "content_hash": "9a82673a7727fa37d7b84a70605a64f34588736a2ccfce554548cc0e8c023b6f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a82",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "82",
+      "content_hash": "974385fdee52efd5478f7860b2583ac449ff1e9672bebbac78f578bd38441c8b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a77",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "77",
+      "content_hash": "a86757f9746235392d1d874c428594b62bdf66ddb72cb18c1507e0f80b938c07",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a78",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "78",
+      "content_hash": "a1fc18e9b84ddb1133555e9cee455c693523895f3023b22aa557a86e8e950219",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a87",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "87",
+      "content_hash": "dafbc29dd713e0dfcd8806134171dd210aa1e3110bcc4de4d7e11de7317d58c7",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a88",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "88",
+      "content_hash": "f08aac07446de946b6771514c5e6182d20baa9e85ab653a96b8b74fe05e3d53f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a89",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "89",
+      "content_hash": "32e1806e63ac8a59b8cda64e4070979e7b960159d0e4e9dd4c335725a7d4cfc2",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a83",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "83",
+      "content_hash": "41b313a7a18118ad97f5126833851ea48622c9be934e2a585746eeb6c8ea774c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a90",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "90",
+      "content_hash": "f9e4c72326365f74a0f366476c9e19fd2515cd4dc9454a46aa75e7b0463c6459",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a84",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "84",
+      "content_hash": "4f64d39ee2a9167c8afb64701cd0c9567cdbe253480b21d4b2f45130c13772e2",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a91",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "91",
+      "content_hash": "b12392e7dcc8df14923ace509e873fd5a88e486e2fcf4fb293cadf6a6fed2c56",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a85",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "85",
+      "content_hash": "82caf7e5d407de55f8a1787db77f4e3ce66f490db92a4b0e96c1b5e08171c555",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a86",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "86",
+      "content_hash": "01b933f65ba542c40a429d9b595a20057a5dc86303596583c7b34c9ee8390ced",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a100",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "100",
+      "content_hash": "174401804a91a6118ceea579ab20e4b912d6284158823f8cfd978de96043efac",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a92",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "92",
+      "content_hash": "fe3972f9fc2e1859767269514dea2ef982f302901a7046ab0f7c5e905030794c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a101",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "101",
+      "content_hash": "30896c9a5377f3a31690d065ef2a85d06d42359492f205ba84c8a05224688566",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a102",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "102",
+      "content_hash": "197366c28f964691a0f2db0bc7d41f5a803fc061cf9e7070f2594bdc24899e7a",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a93",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "93",
+      "content_hash": "5bcdec1d6fa6bb62a0f7e8d51ed47154e6940ee7ad4b63790a011ff3ada1dec6",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a94",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "94",
+      "content_hash": "e8b19b3896a1e886191f3e8721e05bcb8edbdc2e5d1a06eb4e7e31111a56c716",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a103",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "103",
+      "content_hash": "6a884d740ea6f330b9b4b41cbfbccf261d9b5ae1ed761b8659b1005eb9133239",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a95",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "95",
+      "content_hash": "16c7ebec5c3529998669d616d94fc1dece6e26724c3fea033488de1d1af41e74",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a104",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "104",
+      "content_hash": "cf407e29ba7621f1038cc23b1b69d2679114182297d2da1142fd0b715339e84b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a96",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "96",
+      "content_hash": "235d2e66983279a016018cdf9f884e8908e483521780b9c2d9c201fd821c4170",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a97",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "97",
+      "content_hash": "c6b04e2b2ff8337ae954167bf9925f5bc0c55729db0791fed57116016e4852f4",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a105",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "105",
+      "content_hash": "7a5f241bf30f86b796913996aadf74f25101149e52e954d3baf1f544ba848927",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a98",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "98",
+      "content_hash": "dae5155f5ec3890a472bdc0b27784e9567dfa0375d4eba199211af92ad6f3004",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a99",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "99",
+      "content_hash": "07ad72abb4bc583daf50d276cd84c8ffe62903bab8626f2b1f28a2af93551c5f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a106",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "106",
+      "content_hash": "5a3d3e5d336d7c1aa17c0a7986d17f73cd5e4d28b238f95fc0db92efc2ecab45",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a107",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "107",
+      "content_hash": "adc4009d3d322439e4ead9ec5d024ecf8dec3a3581fd16e718d4619d1575b97e",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a111",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "111",
+      "content_hash": "2ea89173347be6a696cee01b4e22441956035bf04000287dc67698c8e1eff4d5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a108",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "108",
+      "content_hash": "cd6092a999a4f5d1ae9e9b350a42ca989cf6b6aac8cecaa79ac60effa9880043",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a109",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "109",
+      "content_hash": "46ede052823568cfe4e72ac938e5b327befc54c5076a0daa238850f2fcc2d833",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a112",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "112",
+      "content_hash": "c46c0d10343b504383e69e046b8465259113d20c9d53705b95bba70c6008496b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a113",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "113",
+      "content_hash": "875bc4c07663153a007b8a1e19a62011f4b62e7030fea074766264ac092e24ec",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a110",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "110",
+      "content_hash": "fbea8e49073e2e61b44354532d0221ed792d6dadc91c4e35fe4a378d4b48337c",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a114",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "114",
+      "content_hash": "7918f1ad1d6ebff056174b8a12f010c39d45caf69dc5e94323fe52fb3278ddff",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a121",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "121",
+      "content_hash": "face7c3882039008dac4b5aad8d87a8e497df8dfce061e4775544a3b3180857e",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a122",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "122",
+      "content_hash": "74576744d63dcf9671e4452f611af27d6447b5f10c93b6a3a68048c841c055f4",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a115",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "115",
+      "content_hash": "7f8da42ec3c70059676af02d1f7b8fd6c99e0dc13a3fc7bad07a7e17dc18f6a3",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a123",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "123",
+      "content_hash": "deca3b13f5be0a02b1f082a8f5eeb40312639d3114b01146ebb51947a79e41f3",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a116",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "116",
+      "content_hash": "25ff32adb6355fb7cd52fbb9c812c5652e72d4492c574841e04763842f9495ef",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a117",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "117",
+      "content_hash": "505c6a1c66ecb31c53630dedbab1a410fc1cf71acc8b10607fa070881451874b",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a118",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "118",
+      "content_hash": "000ce0537465501f7edf1d45d94706e447fe64f913c1d8b9dc16a9c0a663e066",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a124",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "124",
+      "content_hash": "99a964953193c38f516d1590ca301f55d858e675ec4d85a665c701557d8700ba",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a119",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "119",
+      "content_hash": "d3495f07123ec0bc20abf1def73f427528ab93cc78b85a623b80ea1d4e41c8e5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a120",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "120",
+      "content_hash": "4b6a6e5fb015d69c9e5c76b67c196c99250d1a68d0b1ad8bbbb1acc8e6fcdf49",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a130",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "130",
+      "content_hash": "b3b715775a7144a085b0ecf4d57827ca463a45a9e7ff7179e380a717d1c68645",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a131",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "131",
+      "content_hash": "892a86eeaa4b3c5de0241b5c53ecc1b48cd342ea6dbd8706d572b76b16983f06",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a132",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "132",
+      "content_hash": "e3a9623956b987e11da33e6869ddd7f51ab0229a684c474dc5d4cab23079eb64",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a125",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "125",
+      "content_hash": "9c3e2f3b35b6fcb397c516bf16cc8783fa4af7432b304012e2ebbacd54d93662",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a133",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "133",
+      "content_hash": "bb6b96ff82e152597eba641451a50d84dc518a71eaba70d869e37deca76d65f2",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a126",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "126",
+      "content_hash": "021e142a8a3975817a7c9383c61eaf7456019eb6963392f276ca30ee45b277ff",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a127",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "127",
+      "content_hash": "8b4ea9febe979edc26e1bd025d73654c9952f9ccdcc0b595235c7d573818a1cb",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a128",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "128",
+      "content_hash": "a8898abcb7966b06ff1158df7d967e82787e630033c35de776e7ca5136d58030",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a134",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "134",
+      "content_hash": "2134da8382bb59551838597cba0935b9dd4cdb9fb0cd41fb08372bed7c48b400",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a129",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "129",
+      "content_hash": "c022f3b4b7916255e7d519780081fcf172c30ff5faf05594a38b11900dcbd529",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a140",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "140",
+      "content_hash": "d3fd546b3c961704eb5eef14b0849ec8877891d751f46907c92075dc24265ba5",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a141",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "141",
+      "content_hash": "2f40a5f34c291e1f9c1c64a9426b83342bd571c1336319ea8666faeb1dfb4422",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a142",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "142",
+      "content_hash": "4115ce13425b79d10c9f5f8d585e3f6f63764342972fdfbd7c23a81251e1315f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a135",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "135",
+      "content_hash": "39819d6d4bce680d3b96792c65450c51c70663304061c1676fb01d5ec59268d4",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a136",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "136",
+      "content_hash": "bb11cd87300f80e0e444b0769b9380f56aa9e45f3812f2ea773ca1e9e883d556",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a137",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "137",
+      "content_hash": "334101717e856bb6ea11579618f99e79e0ff36cf8ec057953be57f0e6e7089fe",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a138",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "138",
+      "content_hash": "a25c33d02d7b410de42c8457216ec09b2ed71a0a83f0f912aca63af4e38e5c95",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    },
+    {
+      "id": "mayalex_normativos:ley_propiedad_82_2004_a139",
+      "document_identifier": "mayalex_normativos:ley_propiedad_82_2004",
+      "provision_locator": "139",
+      "content_hash": "c50caade49c8950b91a81430df828a6a384196e9c0c4c537757aee84163f288f",
+      "verification_state": "NO_VERIFICADO",
+      "vigencia_state": "NO_VERIFICADO"
+    }
+  ]
+}
