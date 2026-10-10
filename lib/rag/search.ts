@@ -30,6 +30,7 @@
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
+import { intencionInstrumentoExplicita, cumpleIdentidadExplicita } from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: FUENTES_DOCTRINALES, formatearContextoRAG, requiereEvidenciaCorpus,
 // CORPUS_EVIDENCE_NOT_FOUND y MENSAJE_ABSTENCION_CORPUS se movieron a
 // evidence-engine.ts (extracción 1:1, sin cambio de comportamiento -- ver
@@ -348,9 +349,20 @@ export async function buscarRAG(
   // comentario de detectarMateriaSemanticaAmpliada en exact-resolver.ts).
   const materiaSemantica = materia ?? detectarMateriaSemanticaAmpliada(consulta) ?? undefined;
 
+  // P1: identidad instrumental explícita de la consulta (null = neutral, sin
+  // filtro). Con identidad, la materia nunca valida un candidato de otro
+  // instrumento; ver lib/legal-retrieval/instrument-gate.ts.
+  const identidadExplicita = intencionInstrumentoExplicita(consulta).identidad;
+
   try {
     if (backend === 'python') {
-      const resultado = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      const elegibles = bruto.fragmentos.filter((f) => cumpleIdentidadExplicita(f.fuente, identidadExplicita));
+      const resultado = {
+        ...bruto,
+        fragmentos: elegibles,
+        articulos_encontrados: [...new Set(elegibles.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+      };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
       return {
@@ -362,7 +374,7 @@ export async function buscarRAG(
       };
     }
     if (backend === 'supabase') {
-      const resultado = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false);
+      const resultado = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, identidadExplicita);
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin
       // lanzar) desde antes de esta fase -- buscarEnSupabase nunca ve ese

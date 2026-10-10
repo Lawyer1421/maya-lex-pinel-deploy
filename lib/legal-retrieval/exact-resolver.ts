@@ -175,8 +175,11 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_CIVIL', /c[oó]digo\s+civil\b/i],
   ['CODIGO_TRABAJO', /c[oó]digo\s+(?:del?\s+)?trabajo\b/i],
   ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
-  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b/i],
-  ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
+  // Alias P1 (intención instrumental explícita): "reglamento notarial" y
+  // "reglamento de la función notarial" son el Reglamento. "ley notarial" NO
+  // es alias de ningún instrumento: no se asimila al Código del Notariado.
+  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b|(?:de\s+la\s+)?(?:funci[oó]n\s+)?notarial\b)/i],
+  ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:(?:del?\s+)?notariado\b|notarial\b)/i],
   ['CODIGO_TRIBUTARIO', /c[oó]digo\s+tributario\b/i],
   ['CODIGO_COMERCIO', /c[oó]digo\s+de\s+comercio\b/i],
   // Se evalúa antes que CONSTITUCION por el mismo motivo que
@@ -248,6 +251,21 @@ export function identidadDocumentalCoincide(row: FilaExactaDB, instrumento: Inst
     : undefined;
   if (typeof metaDoc === 'string' && patron.test(metaDoc)) return true;
   return false;
+}
+
+/**
+ * Instrumento que declara una fuente real (sólo `fuente`, sin metadata), con
+ * los mismos patrones de identidadDocumentalCoincide. Null si la fuente no
+ * declara ninguno. Lo usa la ruta semántica, que no trae metadata por fila.
+ * El orden de RE_FUENTE_POR_INSTRUMENTO es el de declaración: los patrones
+ * están escritos para no solaparse (ver comentarios arriba).
+ */
+export function identidadDeFuente(fuente: string): InstrumentoNormalizado | null {
+  if (!fuente) return null;
+  for (const [instrumento, patron] of Object.entries(RE_FUENTE_POR_INSTRUMENTO) as [InstrumentoNormalizado, RegExp][]) {
+    if (patron.test(fuente)) return instrumento;
+  }
+  return null;
 }
 
 /** Detecta un número de artículo explícito y, si el texto lo indica, la materia y el instrumento exacto. */
