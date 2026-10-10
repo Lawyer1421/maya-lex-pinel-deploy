@@ -7,10 +7,18 @@ import type { LabRow } from '@/lib/legal-retrieval/lab/types';
  * Snapshot de evaluación v1. Fuente única: el lote formal del Notariado
  * versionado en el repositorio (commit ef6c151). Se verifica el sha256 del
  * archivo antes de usarlo; cualquier cambio lo invalida.
+ *
+ * El sha256 se calcula sobre el contenido normalizado a LF. Con core.autocrlf
+ * el checkout en Windows escribe CRLF, mientras el blob en git tiene LF; el
+ * hash de bytes crudos dependía de la plataforma. El contenido no cambia.
  */
 
 export const RUTA_ARTEFACTO = 'docs/governance/exequatur-ingesta-notariado-lote-formal.json';
-export const SHA256_ARTEFACTO = '48f445627fbe18d30e70546f86d0ed40618d631ef449409816d68103071679d1';
+export const SHA256_ARTEFACTO = '5b2870755310330038cb46a3ba7c7d9900c4e99e8b031e62e4bc1a43f33b7995';
+
+export function sha256Normalizado(bytes: Buffer): string {
+  return createHash('sha256').update(bytes.toString('utf8').replace(/\r\n/g, '\n')).digest('hex');
+}
 
 /**
  * Vigencia adjudicada en el registro CA-01 (MAYALEX_CANONICAL_ADJUDICATION_REGISTER_V1):
@@ -40,7 +48,7 @@ interface RegistroLote {
 
 export function cargarSnapshot(modo: ModoVigencia): { filas: RegistroSnapshot[]; sha256: string } {
   const bytes = readFileSync(join(process.cwd(), RUTA_ARTEFACTO));
-  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  const sha256 = sha256Normalizado(bytes);
   if (sha256 !== SHA256_ARTEFACTO) {
     throw new Error(`Snapshot invalidado: sha256 ${sha256} ≠ ${SHA256_ARTEFACTO}`);
   }

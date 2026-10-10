@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { cargarSnapshot, SHA256_ARTEFACTO, FALSOS_CA01_CODIGO } from './snapshot';
+import { cargarSnapshot, SHA256_ARTEFACTO, FALSOS_CA01_CODIGO, sha256Normalizado } from './snapshot';
 import { PREGUNTAS_V1, resolverOro } from './gold';
 import { ejecutarPregunta, seleccionarPoliticaSimulada, seleccionCongelada } from './variants';
 import { NOMBRE_PROXY, puntuarProxy } from './proxy';
@@ -213,9 +212,9 @@ describe('material de la capa de sombra y proxy', () => {
   });
 
   it('los archivos congelados de la capa de sombra no cambian respecto a la base', () => {
-    const sha = (f: string) => createHash('sha256').update(readFileSync(join(process.cwd(), f))).digest('hex');
+    const sha = (f: string) => sha256Normalizado(readFileSync(join(process.cwd(), f)));
     expect(sha('lib/legal-retrieval/lab/evidence-selection.ts')).toBe('9c2c548a4958e5f37c7e30bf1abf11586c10f5f8145f3d208027286e61261835');
-    expect(sha('lib/legal-retrieval/lab/shadow.ts')).toBe('e518bb4e3003b9ee1f813eb9b728d312ba33d2d494a6ed04a4d076da0a948bd9');
+    expect(sha('lib/legal-retrieval/lab/shadow.ts')).toBe('5ec53c469bd46786c37315c73aab41d9ab274f5c36de93e3a99f709066198f47');
   });
 
   it('código de producción no importa el paquete de evaluación', () => {

@@ -224,3 +224,15 @@ En V1 la abstención de D05 se contaba como correcta porque había material del 
 3. Confirmar identidad exacta como PASS para UNKNOWN en evaluación (§8.3-2).
 4. Revisar `rolRecuperacion` para el Reglamento (§7.1). Es el límite que impide SUFFICIENT en todo el Reglamento.
 5. Los timeouts PGlite de la suite completa son de carga; conviene revisar `hookTimeout` en `tests/sql`.
+
+---
+
+## 12. Nota de reproducibilidad (V1.1.1)
+
+- **Pins obsoletos heredados de V1.** El SHA256 del lote y el de `shadow.ts` se calcularon sobre bytes con CRLF (checkout Windows con `core.autocrlf=true`). El blob en git tiene LF, así que el hash dependía de la plataforma.
+- **El contenido no cambió.** El lote entró en `ef6c151` y `shadow.ts` en `a6e6abd`; ninguno cambió después. Normalizados a LF, los hashes coinciden con los blobs.
+- **Pins actualizados:** `SHA256_ARTEFACTO` → `5b2870755310330038cb46a3ba7c7d9900c4e99e8b031e62e4bc1a43f33b7995`; hash de `shadow.ts` → `5ec53c469bd46786c37315c73aab41d9ab274f5c36de93e3a99f709066198f47`. El pin de `evidence-selection.ts` (`9c2c548…`) no cambió.
+- **Cálculo del hash:** `sha256Normalizado` en `tests/retrieval-eval-v1/snapshot.ts`, con normalización CRLF→LF. Es necesario para que la validación pase tanto en checkout CRLF como LF.
+- **Resultados:** regenerar el harness reproduce todas las métricas, filas, transiciones y conteos de fuga. Sólo cambia el campo `sha256` del snapshot.
+- **Artefactos no reescritos.** `retrieval-challenge-v1-1.json` y `retrieval-challenge-v1.json` conservan `48f445…` como hash del checkout de autoría.
+- **Sin cambios de oro ni de evaluación.** Ningún resultado histórico de V1 fue modificado.
