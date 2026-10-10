@@ -1,0 +1,4621 @@
+{
+  "snapshot": {
+    "artefacto": "docs/governance/exequatur-ingesta-notariado-lote-formal.json",
+    "sha256": "48f445627fbe18d30e70546f86d0ed40618d631ef449409816d68103071679d1",
+    "filas": 202
+  },
+  "k": 5,
+  "oro": [
+    {
+      "id": "A01",
+      "categoria": "A_EXACTA",
+      "pregunta": "Qué dice el artículo 4 del Código del Notariado sobre cuándo y dónde se ejerce la función notarial",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "4"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a4"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a4"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A02",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 15 del código del notariado, idioma y estilo de los instrumentos públicos",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "15"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a15"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a15"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A03",
+      "categoria": "A_EXACTA",
+      "pregunta": "art. 35 Código del Notariado: qué es el protocolo",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "35"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a35"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a35"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A04",
+      "categoria": "A_EXACTA",
+      "pregunta": "Código del Notariado artículo 19, qué es la escritura matriz",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "19"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a19"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a19"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A05",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 42 del Código del Notariado sobre la seguridad jurídica de los actos",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "42"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a42"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a42"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A06",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 79 del Código del Notariado, sanciones aplicables",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "79"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a79"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a79"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A07",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 81 del Código del Notariado, faltas graves",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "81"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a81"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a81"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A08",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 91 del Código del Notariado, personas no autorizadas para el notariado",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "91"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a91"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a91"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A09",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 54 del Código del Notariado, trámites a instancia de parte",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "54"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a54"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a54"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "A10",
+      "categoria": "A_EXACTA",
+      "pregunta": "artículo 2 del Código del Notariado",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "2"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a2"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a2"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B01",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué significa que el notario tenga fe pública?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "5"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a5"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B02",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué requisitos debe cumplir alguien para ser notario en Honduras?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "7"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a7"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B03",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué documentos se consideran instrumentos públicos en materia notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "14"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a14"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B04",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué es una copia de una escritura matriz?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "28"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a28"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B05",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Quién tiene la custodia de los protocolos notariales?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "36"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a36"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B06",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿El notario puede certificar que una persona existe físicamente?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "22"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a22"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B07",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué órgano controla a los notarios y cómo se integra?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "74",
+        "75"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a74",
+        "mayalex_normativos:codigo_notariado_2005_a75"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B08",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Qué faltas leves puede cometer un notario?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "80"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a80"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B09",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "¿Pueden los jueces de paz ejercer la función notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "6"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a6"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a6"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "B10",
+      "categoria": "B_CONCEPTUAL",
+      "pregunta": "qué es el protocolo de un notario",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "35"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a35"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "C01",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "Un notario quiere permitir que terceros actúen dentro de su protocolo. ¿Puede hacerlo y hay excepciones?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "13"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a13"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "Excepción de mandamiento judicial o requerimiento de la Contraloría."
+    },
+    {
+      "id": "C02",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "El deber de custodia de los protocolos se relaciona con una obligación del artículo 12. ¿Cuál es el deber de custodia y qué numeral del 12 aplica?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "36",
+        "12"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a36",
+        "mayalex_normativos:codigo_notariado_2005_a12"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "Remisión explícita al numeral 9 del artículo 12."
+    },
+    {
+      "id": "C03",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Puede un notario ejercer la docencia a la vez que el notariado?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "78"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a78"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "Excepción \"excepto la docencia\"."
+    },
+    {
+      "id": "C04",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Qué sanción corresponde a un notario por una falta grave?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "79",
+        "81"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a79",
+        "mayalex_normativos:codigo_notariado_2005_a81"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "C05",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Cómo se trata la reincidencia de faltas en el régimen disciplinario notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "81",
+        "82"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a81",
+        "mayalex_normativos:codigo_notariado_2005_a82"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "C06",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Una copia puede omitir partes de la escritura matriz?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "31"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a31"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "C07",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "En una ejecución de garantía por venta pública, ¿el acreedor pierde el derecho a perseguir otros bienes del deudor?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "65"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a65"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "Excepción \"salvo el derecho del acreedor\"."
+    },
+    {
+      "id": "C08",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "En un asunto no contencioso ante notario, ¿qué normas aplican supletoriamente?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "53",
+        "56"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a53",
+        "mayalex_normativos:codigo_notariado_2005_a56"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "C09",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Responde el notario por requerir información a la autoridad competente?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "58"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a58"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "Cláusula \"sin perjuicio de su responsabilidad\"."
+    },
+    {
+      "id": "C10",
+      "categoria": "C_MULTI_REMISION_EXCEPCION",
+      "pregunta": "¿Prevalece la nulidad prevista en otras leyes sobre la nulidad de la ley notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "18"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a18"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D01",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Según el Reglamento del Código del Notariado, ¿cómo se ejerce la función notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "3"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a3"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a3"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D02",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "En el Código del Notariado, artículo 3, ¿qué es la función notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "3"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a3"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a3"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D03",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Reglamento del Código del Notariado: cuando un notario se imposibilita, ¿quién lo sustituye?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "6"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a6"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a6"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D04",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Código del Notariado artículo 6: ¿qué jueces pueden ejercer la función notarial?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "6"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a6"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a6"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D05",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Según el reglamento notarial, ¿qué presunción tienen las afirmaciones del notario?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "9"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a9"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a9"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D06",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Reglamento del Código del Notariado, artículo 12: ¿cómo debe ser el sello del notario?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "12"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a12"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a12"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D07",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Reglamento del Código del Notariado, artículo 10: ¿qué es la imparcialidad del notario?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "10"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a10"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a10"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D08",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Reglamento del Código del Notariado, artículo 11: ¿qué prohibiciones tiene el notario?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "11"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a11"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a11"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D09",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "¿Qué prohibiciones tiene el notario según el Código del Notariado?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "13"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a13"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a13"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "D10",
+      "categoria": "D_ADVERSARIAL",
+      "pregunta": "Reglamento del Código del Notariado, artículo 1: seguridad jurídica y función del notariado",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "REGLAMENTO_NOTARIADO",
+      "expected_articles": [
+        "1"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:reglamento_notariado_2012_a1"
+      ],
+      "forbidden_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a1"
+      ],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": ""
+    },
+    {
+      "id": "E01",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Cuál es el plazo de prescripción de la acción civil por daños en Honduras?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "E02",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Qué dice el artículo 173 del Código Procesal Penal sobre las medidas cautelares?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "E03",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Qué establece el artículo 150 del Código del Notariado?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "150"
+      ],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": "Artículo inexistente: el lote contiene los artículos 1 a 94 del Código; no hay artículo 150."
+    },
+    {
+      "id": "E04",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Qué requisitos exige el Código de Comercio para constituir una sociedad anónima?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "E05",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Qué plazo tiene una institución pública para responder una solicitud de información según la ley de acceso a la información?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "E06",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Cuáles son las causales de divorcio en el Código de Familia?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "E07",
+      "categoria": "E_EVIDENCIA_INSUFICIENTE",
+      "pregunta": "¿Qué obligaciones tienen los padres según la Ley Especial de Adopciones de 2018?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "F01",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿Cuál era el texto original del artículo 11 del Código del Notariado antes de la reforma?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "11"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a11"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "E1: texto original de los artículos 11 y 27 desplazado por D.77-2006. No hay intención histórica CPC, por lo que no aplica CONTEXT histórico."
+    },
+    {
+      "id": "F02",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿Sigue vigente el artículo 72 del Código del Notariado?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "72"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a72"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": true,
+      "expected_abstention": true,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "E2: CONTEXT únicamente. Estado legal no adjudicado."
+    },
+    {
+      "id": "F03",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿El artículo 27 del Código del Notariado está vigente?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "27"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a27"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "E1: artículo 27 desplazado por D.77-2006."
+    },
+    {
+      "id": "F04",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿Qué dice el artículo 84 del Código del Notariado?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "84"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a84"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": true,
+      "expected_abstention": true,
+      "legal_validation_status": "PENDING_LEGAL_VALIDATION",
+      "legal_gold": false,
+      "notes": "E2: CONTEXT únicamente. Estado legal no adjudicado."
+    },
+    {
+      "id": "F05",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿Cuál era el texto histórico del Código Procesal Civil sobre el plazo de apelación?",
+      "materia": "NINGUNA",
+      "expected_instrument": "NONE_IN_SNAPSHOT",
+      "expected_articles": [],
+      "acceptable_source_ids": [],
+      "forbidden_source_ids": [],
+      "expected_primary_required": false,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": true,
+      "legal_validation_status": "GOLD_SOURCE_INSUFFICIENT",
+      "legal_gold": false,
+      "notes": "Instrumento ausente del snapshot. Abstención técnica; la respuesta jurídica no está establecida."
+    },
+    {
+      "id": "F06",
+      "categoria": "F_HISTORICA_VIGENCIA_ROL",
+      "pregunta": "¿Qué dice el artículo 30 del Código del Notariado sobre las copias de escrituras matrices?",
+      "materia": "03_NOTARIAL",
+      "expected_instrument": "CODIGO_NOTARIADO",
+      "expected_articles": [
+        "30"
+      ],
+      "acceptable_source_ids": [
+        "mayalex_normativos:codigo_notariado_2005_a30"
+      ],
+      "forbidden_source_ids": [],
+      "expected_primary_required": true,
+      "expected_secondary_allowed": false,
+      "expected_context_allowed": false,
+      "expected_abstention": false,
+      "legal_validation_status": "TECHNICALLY_VERIFIED",
+      "legal_gold": false,
+      "notes": "Caso que depende de la vigencia del snapshot: PRIMARY sólo con vigencia adjudicada."
+    }
+  ],
+  "modos": [
+    {
+      "modo": "CA01",
+      "sha256": "48f445627fbe18d30e70546f86d0ed40618d631ef449409816d68103071679d1",
+      "preguntas": 53,
+      "global": {
+        "A_SEMANTICA_ACTUAL": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 31,
+            "total": 45,
+            "valor": 0.6889
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 40,
+            "total": 45,
+            "valor": 0.8889
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 22,
+            "total": 45,
+            "valor": 0.4889
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 33,
+            "total": 45,
+            "valor": 0.7333
+          },
+          "primary_pass_recall": {
+            "aciertos": 23,
+            "total": 41,
+            "valor": 0.561
+          },
+          "forbidden_source_leakage": 0,
+          "relevance_fail_leakage": 27,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.1321,
+          "evidence_packet_empty_rate": 0.1321,
+          "abstention_correctness": {
+            "aciertos": 40,
+            "total": 53,
+            "valor": 0.7547
+          },
+          "latencia_media_ms": {
+            "exacto": 0.029,
+            "semantico": 0.09,
+            "total": 0.12
+          },
+          "mrr": {
+            "aciertos": 26.15,
+            "total": 45,
+            "valor": 0.5811
+          }
+        },
+        "B_HIBRIDA_RAW": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 37,
+            "total": 45,
+            "valor": 0.8222
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 39,
+            "total": 45,
+            "valor": 0.8667
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 28,
+            "total": 45,
+            "valor": 0.6222
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 35,
+            "total": 45,
+            "valor": 0.7778
+          },
+          "primary_pass_recall": {
+            "aciertos": 26,
+            "total": 41,
+            "valor": 0.6341
+          },
+          "forbidden_source_leakage": 1,
+          "relevance_fail_leakage": 25,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.1321,
+          "evidence_packet_empty_rate": 0.1321,
+          "abstention_correctness": {
+            "aciertos": 40,
+            "total": 53,
+            "valor": 0.7547
+          },
+          "latencia_media_ms": {
+            "exacto": 0.012,
+            "lexico": 12.021,
+            "semantico": 0.042,
+            "fusion": 0.098,
+            "dedup": 0.017,
+            "ranking": 0.22,
+            "seleccion": 0.026,
+            "total": 12.603
+          },
+          "mrr": {
+            "aciertos": 30.75,
+            "total": 45,
+            "valor": 0.6833
+          }
+        },
+        "C_HIBRIDA_PAQUETE": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 39,
+            "total": 45,
+            "valor": 0.8667
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 39,
+            "total": 45,
+            "valor": 0.8667
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 29,
+            "total": 45,
+            "valor": 0.6444
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 36,
+            "total": 45,
+            "valor": 0.8
+          },
+          "primary_pass_recall": {
+            "aciertos": 26,
+            "total": 41,
+            "valor": 0.6341
+          },
+          "forbidden_source_leakage": 1,
+          "relevance_fail_leakage": 0,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.1887,
+          "evidence_packet_empty_rate": 0.1887,
+          "abstention_correctness": {
+            "aciertos": 40,
+            "total": 53,
+            "valor": 0.7547
+          },
+          "latencia_media_ms": {
+            "exacto": 0.012,
+            "lexico": 12.021,
+            "semantico": 0.042,
+            "fusion": 0.098,
+            "dedup": 0.017,
+            "ranking": 0.22,
+            "seleccion": 0.026,
+            "total": 12.603
+          },
+          "mrr": {
+            "aciertos": 31.6667,
+            "total": 45,
+            "valor": 0.7037
+          }
+        }
+      },
+      "porCategoria": {
+        "A_EXACTA": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "primary_pass_recall": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.085,
+              "semantico": 0.02,
+              "total": 0.105
+            },
+            "mrr": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "primary_pass_recall": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.041,
+              "lexico": 0,
+              "semantico": 0,
+              "fusion": 0,
+              "dedup": 0,
+              "ranking": 0.058,
+              "seleccion": 0.039,
+              "total": 0.218
+            },
+            "mrr": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "primary_pass_recall": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.041,
+              "lexico": 0,
+              "semantico": 0,
+              "fusion": 0,
+              "dedup": 0,
+              "ranking": 0.058,
+              "seleccion": 0.039,
+              "total": 0.218
+            },
+            "mrr": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            }
+          }
+        },
+        "B_CONCEPTUAL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "primary_pass_recall": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.004,
+              "semantico": 0.207,
+              "total": 0.211
+            },
+            "mrr": {
+              "aciertos": 4.7,
+              "total": 10,
+              "valor": 0.47
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 19.86,
+              "semantico": 0.082,
+              "fusion": 0.19,
+              "dedup": 0.038,
+              "ranking": 0.559,
+              "seleccion": 0.035,
+              "total": 21.071
+            },
+            "mrr": {
+              "aciertos": 6.1667,
+              "total": 10,
+              "valor": 0.6167
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 19.86,
+              "semantico": 0.082,
+              "fusion": 0.19,
+              "dedup": 0.038,
+              "ranking": 0.559,
+              "seleccion": 0.035,
+              "total": 21.071
+            },
+            "mrr": {
+              "aciertos": 6.1667,
+              "total": 10,
+              "valor": 0.6167
+            }
+          }
+        },
+        "C_MULTI_REMISION_EXCEPCION": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.006,
+              "semantico": 0.118,
+              "total": 0.124
+            },
+            "mrr": {
+              "aciertos": 4.1167,
+              "total": 10,
+              "valor": 0.4117
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "primary_pass_recall": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 4,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 21.276,
+              "semantico": 0.075,
+              "fusion": 0.153,
+              "dedup": 0.023,
+              "ranking": 0.307,
+              "seleccion": 0.024,
+              "total": 22.099
+            },
+            "mrr": {
+              "aciertos": 8.25,
+              "total": 10,
+              "valor": 0.825
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "primary_pass_recall": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 21.276,
+              "semantico": 0.075,
+              "fusion": 0.153,
+              "dedup": 0.023,
+              "ranking": 0.307,
+              "seleccion": 0.024,
+              "total": 22.099
+            },
+            "mrr": {
+              "aciertos": 8.25,
+              "total": 10,
+              "valor": 0.825
+            }
+          }
+        },
+        "D_ADVERSARIAL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "primary_pass_recall": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 7,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.4,
+            "evidence_packet_empty_rate": 0.4,
+            "abstention_correctness": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "latencia_media_ms": {
+              "exacto": 0.026,
+              "semantico": 0.044,
+              "total": 0.07
+            },
+            "mrr": {
+              "aciertos": 3.3333,
+              "total": 10,
+              "valor": 0.3333
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "primary_pass_recall": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "forbidden_source_leakage": 1,
+            "relevance_fail_leakage": 6,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.4,
+            "evidence_packet_empty_rate": 0.4,
+            "abstention_correctness": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "latencia_media_ms": {
+              "exacto": 0.009,
+              "lexico": 9.952,
+              "semantico": 0.022,
+              "fusion": 0.069,
+              "dedup": 0.013,
+              "ranking": 0.131,
+              "seleccion": 0.02,
+              "total": 10.314
+            },
+            "mrr": {
+              "aciertos": 2.3333,
+              "total": 10,
+              "valor": 0.2333
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "primary_pass_recall": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "forbidden_source_leakage": 1,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.4,
+            "evidence_packet_empty_rate": 0.4,
+            "abstention_correctness": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "latencia_media_ms": {
+              "exacto": 0.009,
+              "lexico": 9.952,
+              "semantico": 0.022,
+              "fusion": 0.069,
+              "dedup": 0.013,
+              "ranking": 0.131,
+              "seleccion": 0.02,
+              "total": 10.314
+            },
+            "mrr": {
+              "aciertos": 3.25,
+              "total": 10,
+              "valor": 0.325
+            }
+          }
+        },
+        "E_EVIDENCIA_INSUFICIENTE": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 10,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.2857,
+            "evidence_packet_empty_rate": 0.2857,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.008,
+              "semantico": 0.102,
+              "total": 0.11
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 10,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.2857,
+            "evidence_packet_empty_rate": 0.2857,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.003,
+              "lexico": 15.391,
+              "semantico": 0.055,
+              "fusion": 0.123,
+              "dedup": 0.023,
+              "ranking": 0.138,
+              "seleccion": 0.018,
+              "total": 15.921
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.5714,
+            "evidence_packet_empty_rate": 0.5714,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.003,
+              "lexico": 15.391,
+              "semantico": 0.055,
+              "fusion": 0.123,
+              "dedup": 0.023,
+              "ranking": 0.138,
+              "seleccion": 0.018,
+              "total": 15.921
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          }
+        },
+        "F_HISTORICA_VIGENCIA_ROL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.1667,
+            "evidence_packet_empty_rate": 0.1667,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.048,
+              "semantico": 0.031,
+              "total": 0.079
+            },
+            "mrr": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.1667,
+            "evidence_packet_empty_rate": 0.1667,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.011,
+              "lexico": 3.08,
+              "semantico": 0.01,
+              "fusion": 0.038,
+              "dedup": 0.003,
+              "ranking": 0.026,
+              "seleccion": 0.01,
+              "total": 3.248
+            },
+            "mrr": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.3333,
+            "evidence_packet_empty_rate": 0.3333,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.011,
+              "lexico": 3.08,
+              "semantico": 0.01,
+              "fusion": 0.038,
+              "dedup": 0.003,
+              "ranking": 0.026,
+              "seleccion": 0.01,
+              "total": 3.248
+            },
+            "mrr": {
+              "aciertos": 4,
+              "total": 5,
+              "valor": 0.8
+            }
+          }
+        }
+      },
+      "taxonomia": {
+        "A_SEMANTICA_ACTUAL": {
+          "WRONG_INSTRUMENT": 1,
+          "RELEVANCE_UNKNOWN_GATE": 3,
+          "RAW_LIMIT_LOSS": 4,
+          "RELEVANCE_REJECTION": 1,
+          "ROLE_REJECTION": 3,
+          "IDENTITY_MISS": 5,
+          "SEMANTIC_MISS": 1
+        },
+        "B_HIBRIDA_RAW": {
+          "RELEVANCE_UNKNOWN_GATE": 3,
+          "RAW_LIMIT_LOSS": 2,
+          "RELEVANCE_REJECTION": 1,
+          "ROLE_REJECTION": 2,
+          "WRONG_INSTRUMENT": 1,
+          "IDENTITY_MISS": 5,
+          "SEMANTIC_MISS": 1
+        },
+        "C_HIBRIDA_PAQUETE": {
+          "RELEVANCE_UNKNOWN_GATE": 3,
+          "RAW_LIMIT_LOSS": 2,
+          "RELEVANCE_REJECTION": 1,
+          "ROLE_REJECTION": 2,
+          "WRONG_INSTRUMENT": 1,
+          "IDENTITY_MISS": 5,
+          "SEMANTIC_MISS": 1
+        }
+      },
+      "fallos": [
+        {
+          "id": "B01",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RELEVANCE_REJECTION"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RELEVANCE_REJECTION"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RELEVANCE_REJECTION"
+        },
+        {
+          "id": "C03",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "RELEVANCE_UNKNOWN_GATE"
+        },
+        {
+          "id": "C10",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "RAW_LIMIT_LOSS"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        }
+      ],
+      "exactoFalso": [
+        {
+          "id": "F01",
+          "articulo": "11",
+          "vigenciaSnapshot": "false",
+          "resultadoC": "CONTEXT/PASS"
+        },
+        {
+          "id": "F02",
+          "articulo": "72",
+          "vigenciaSnapshot": "false",
+          "resultadoC": "CONTEXT/PASS"
+        },
+        {
+          "id": "F03",
+          "articulo": "27",
+          "vigenciaSnapshot": "false",
+          "resultadoC": "CONTEXT/PASS"
+        },
+        {
+          "id": "F04",
+          "articulo": "84",
+          "vigenciaSnapshot": "false",
+          "resultadoC": "CONTEXT/PASS"
+        }
+      ],
+      "sensibilidadLimite": [
+        {
+          "tope": 20,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 6,
+          "fueraDelPaquete": 15
+        },
+        {
+          "tope": 25,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 6,
+          "fueraDelPaquete": 15
+        },
+        {
+          "tope": 50,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 6,
+          "fueraDelPaquete": 15
+        }
+      ],
+      "politicas": {
+        "X_igual_congelada": true,
+        "preguntasConRestringidoYSecundario": 0,
+        "diferenciasXY": 0,
+        "primaryPassXIds": 26,
+        "primaryPassYIds": 26
+      },
+      "invariante": "SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY"
+    },
+    {
+      "modo": "DECLARADO",
+      "sha256": "48f445627fbe18d30e70546f86d0ed40618d631ef449409816d68103071679d1",
+      "preguntas": 53,
+      "global": {
+        "A_SEMANTICA_ACTUAL": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 15,
+            "total": 45,
+            "valor": 0.3333
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 24,
+            "total": 45,
+            "valor": 0.5333
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 6,
+            "total": 45,
+            "valor": 0.1333
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 17,
+            "total": 45,
+            "valor": 0.3778
+          },
+          "primary_pass_recall": {
+            "aciertos": 0,
+            "total": 41,
+            "valor": 0
+          },
+          "forbidden_source_leakage": 0,
+          "relevance_fail_leakage": 27,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.434,
+          "evidence_packet_empty_rate": 0.434,
+          "abstention_correctness": {
+            "aciertos": 12,
+            "total": 53,
+            "valor": 0.2264
+          },
+          "latencia_media_ms": {
+            "exacto": 0.018,
+            "semantico": 0.065,
+            "total": 0.083
+          },
+          "mrr": {
+            "aciertos": 10.15,
+            "total": 45,
+            "valor": 0.2256
+          }
+        },
+        "B_HIBRIDA_RAW": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 15,
+            "total": 45,
+            "valor": 0.3333
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 23,
+            "total": 45,
+            "valor": 0.5111
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 10,
+            "total": 45,
+            "valor": 0.2222
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 17,
+            "total": 45,
+            "valor": 0.3778
+          },
+          "primary_pass_recall": {
+            "aciertos": 0,
+            "total": 41,
+            "valor": 0
+          },
+          "forbidden_source_leakage": 0,
+          "relevance_fail_leakage": 25,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.434,
+          "evidence_packet_empty_rate": 0.434,
+          "abstention_correctness": {
+            "aciertos": 12,
+            "total": 53,
+            "valor": 0.2264
+          },
+          "latencia_media_ms": {
+            "exacto": 0.004,
+            "lexico": 10.832,
+            "semantico": 0.037,
+            "fusion": 0.07,
+            "dedup": 0.01,
+            "ranking": 0.048,
+            "seleccion": 0.011,
+            "total": 11.145
+          },
+          "mrr": {
+            "aciertos": 12.7,
+            "total": 45,
+            "valor": 0.2822
+          }
+        },
+        "C_HIBRIDA_PAQUETE": {
+          "preguntas": 53,
+          "instrumento_hit_at_1": {
+            "aciertos": 16,
+            "total": 45,
+            "valor": 0.3556
+          },
+          "instrumento_hit_at_5": {
+            "aciertos": 24,
+            "total": 45,
+            "valor": 0.5333
+          },
+          "articulo_hit_at_1": {
+            "aciertos": 10,
+            "total": 45,
+            "valor": 0.2222
+          },
+          "articulo_hit_at_5": {
+            "aciertos": 18,
+            "total": 45,
+            "valor": 0.4
+          },
+          "primary_pass_recall": {
+            "aciertos": 0,
+            "total": 41,
+            "valor": 0
+          },
+          "forbidden_source_leakage": 0,
+          "relevance_fail_leakage": 0,
+          "excluded_layer_leakage": 0,
+          "duplicate_rate": 0,
+          "empty_result_rate": 0.4906,
+          "evidence_packet_empty_rate": 0.4906,
+          "abstention_correctness": {
+            "aciertos": 12,
+            "total": 53,
+            "valor": 0.2264
+          },
+          "latencia_media_ms": {
+            "exacto": 0.004,
+            "lexico": 10.832,
+            "semantico": 0.037,
+            "fusion": 0.07,
+            "dedup": 0.01,
+            "ranking": 0.048,
+            "seleccion": 0.011,
+            "total": 11.145
+          },
+          "mrr": {
+            "aciertos": 12.95,
+            "total": 45,
+            "valor": 0.2878
+          }
+        }
+      },
+      "porCategoria": {
+        "A_EXACTA": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 1,
+            "evidence_packet_empty_rate": 1,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.029,
+              "semantico": 0.001,
+              "total": 0.029
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 1,
+            "evidence_packet_empty_rate": 1,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.008,
+              "lexico": 0,
+              "semantico": 0,
+              "fusion": 0,
+              "dedup": 0,
+              "ranking": 0,
+              "seleccion": 0.005,
+              "total": 0.043
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 1,
+            "evidence_packet_empty_rate": 1,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.008,
+              "lexico": 0,
+              "semantico": 0,
+              "fusion": 0,
+              "dedup": 0,
+              "ranking": 0,
+              "seleccion": 0.005,
+              "total": 0.043
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            }
+          }
+        },
+        "B_CONCEPTUAL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 5,
+              "total": 10,
+              "valor": 0.5
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.005,
+              "semantico": 0.104,
+              "total": 0.109
+            },
+            "mrr": {
+              "aciertos": 4.7,
+              "total": 10,
+              "valor": 0.47
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.001,
+              "lexico": 18.813,
+              "semantico": 0.063,
+              "fusion": 0.116,
+              "dedup": 0.017,
+              "ranking": 0.078,
+              "seleccion": 0.015,
+              "total": 19.303
+            },
+            "mrr": {
+              "aciertos": 4.3333,
+              "total": 10,
+              "valor": 0.4333
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.001,
+              "lexico": 18.813,
+              "semantico": 0.063,
+              "fusion": 0.116,
+              "dedup": 0.017,
+              "ranking": 0.078,
+              "seleccion": 0.015,
+              "total": 19.303
+            },
+            "mrr": {
+              "aciertos": 4.3333,
+              "total": 10,
+              "valor": 0.4333
+            }
+          }
+        },
+        "C_MULTI_REMISION_EXCEPCION": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 7,
+              "total": 10,
+              "valor": 0.7
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.01,
+              "semantico": 0.11,
+              "total": 0.12
+            },
+            "mrr": {
+              "aciertos": 4.1167,
+              "total": 10,
+              "valor": 0.4117
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 9,
+              "total": 10,
+              "valor": 0.9
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 3,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 19.716,
+              "semantico": 0.069,
+              "fusion": 0.124,
+              "dedup": 0.016,
+              "ranking": 0.079,
+              "seleccion": 0.015,
+              "total": 20.236
+            },
+            "mrr": {
+              "aciertos": 7.0333,
+              "total": 10,
+              "valor": 0.7033
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 8,
+              "total": 10,
+              "valor": 0.8
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 10,
+              "total": 10,
+              "valor": 1
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 6,
+              "total": 10,
+              "valor": 0.6
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 9,
+              "total": 10,
+              "valor": 0.9
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0,
+            "evidence_packet_empty_rate": 0,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.002,
+              "lexico": 19.716,
+              "semantico": 0.069,
+              "fusion": 0.124,
+              "dedup": 0.016,
+              "ranking": 0.079,
+              "seleccion": 0.015,
+              "total": 20.236
+            },
+            "mrr": {
+              "aciertos": 7.0333,
+              "total": 10,
+              "valor": 0.7033
+            }
+          }
+        },
+        "D_ADVERSARIAL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 1,
+              "total": 10,
+              "valor": 0.1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 7,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.6,
+            "evidence_packet_empty_rate": 0.6,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.025,
+              "semantico": 0.041,
+              "total": 0.066
+            },
+            "mrr": {
+              "aciertos": 1.3333,
+              "total": 10,
+              "valor": 0.1333
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 1,
+              "total": 10,
+              "valor": 0.1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 2,
+              "total": 10,
+              "valor": 0.2
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 7,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.6,
+            "evidence_packet_empty_rate": 0.6,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.005,
+              "lexico": 7.347,
+              "semantico": 0.023,
+              "fusion": 0.055,
+              "dedup": 0.008,
+              "ranking": 0.037,
+              "seleccion": 0.009,
+              "total": 7.586
+            },
+            "mrr": {
+              "aciertos": 1.3333,
+              "total": 10,
+              "valor": 0.1333
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 10,
+            "instrumento_hit_at_1": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 4,
+              "total": 10,
+              "valor": 0.4
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 1,
+              "total": 10,
+              "valor": 0.1
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 3,
+              "total": 10,
+              "valor": 0.3
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.6,
+            "evidence_packet_empty_rate": 0.6,
+            "abstention_correctness": {
+              "aciertos": 0,
+              "total": 10,
+              "valor": 0
+            },
+            "latencia_media_ms": {
+              "exacto": 0.005,
+              "lexico": 7.347,
+              "semantico": 0.023,
+              "fusion": 0.055,
+              "dedup": 0.008,
+              "ranking": 0.037,
+              "seleccion": 0.009,
+              "total": 7.586
+            },
+            "mrr": {
+              "aciertos": 1.5833,
+              "total": 10,
+              "valor": 0.1583
+            }
+          }
+        },
+        "E_EVIDENCIA_INSUFICIENTE": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 10,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.2857,
+            "evidence_packet_empty_rate": 0.2857,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.012,
+              "semantico": 0.112,
+              "total": 0.124
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 10,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.2857,
+            "evidence_packet_empty_rate": 0.2857,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.003,
+              "lexico": 13.937,
+              "semantico": 0.048,
+              "fusion": 0.09,
+              "dedup": 0.012,
+              "ranking": 0.076,
+              "seleccion": 0.012,
+              "total": 14.355
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 7,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.5714,
+            "evidence_packet_empty_rate": 0.5714,
+            "abstention_correctness": {
+              "aciertos": 7,
+              "total": 7,
+              "valor": 1
+            },
+            "latencia_media_ms": {
+              "exacto": 0.003,
+              "lexico": 13.937,
+              "semantico": 0.048,
+              "fusion": 0.09,
+              "dedup": 0.012,
+              "ranking": 0.076,
+              "seleccion": 0.012,
+              "total": 14.355
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 0,
+              "valor": null
+            }
+          }
+        },
+        "F_HISTORICA_VIGENCIA_ROL": {
+          "A_SEMANTICA_ACTUAL": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.8333,
+            "evidence_packet_empty_rate": 0.8333,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.029,
+              "semantico": 0.018,
+              "total": 0.047
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            }
+          },
+          "B_HIBRIDA_RAW": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 5,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 0.8333,
+            "evidence_packet_empty_rate": 0.8333,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.007,
+              "lexico": 2.965,
+              "semantico": 0.012,
+              "fusion": 0.023,
+              "dedup": 0.003,
+              "ranking": 0.013,
+              "seleccion": 0.007,
+              "total": 3.09
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            }
+          },
+          "C_HIBRIDA_PAQUETE": {
+            "preguntas": 6,
+            "instrumento_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "instrumento_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_1": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "articulo_hit_at_5": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            },
+            "primary_pass_recall": {
+              "aciertos": 0,
+              "total": 1,
+              "valor": 0
+            },
+            "forbidden_source_leakage": 0,
+            "relevance_fail_leakage": 0,
+            "excluded_layer_leakage": 0,
+            "duplicate_rate": 0,
+            "empty_result_rate": 1,
+            "evidence_packet_empty_rate": 1,
+            "abstention_correctness": {
+              "aciertos": 5,
+              "total": 6,
+              "valor": 0.8333
+            },
+            "latencia_media_ms": {
+              "exacto": 0.007,
+              "lexico": 2.965,
+              "semantico": 0.012,
+              "fusion": 0.023,
+              "dedup": 0.003,
+              "ranking": 0.013,
+              "seleccion": 0.007,
+              "total": 3.09
+            },
+            "mrr": {
+              "aciertos": 0,
+              "total": 5,
+              "valor": 0
+            }
+          }
+        }
+      },
+      "taxonomia": {
+        "A_SEMANTICA_ACTUAL": {
+          "IDENTITY_MISS": 21,
+          "WRONG_INSTRUMENT": 1,
+          "ROLE_REJECTION": 22,
+          "SEMANTIC_MISS": 1
+        },
+        "B_HIBRIDA_RAW": {
+          "IDENTITY_MISS": 21,
+          "WRONG_INSTRUMENT": 2,
+          "ROLE_REJECTION": 21,
+          "SEMANTIC_MISS": 1
+        },
+        "C_HIBRIDA_PAQUETE": {
+          "IDENTITY_MISS": 21,
+          "WRONG_INSTRUMENT": 2,
+          "ROLE_REJECTION": 21,
+          "SEMANTIC_MISS": 1
+        }
+      },
+      "fallos": [
+        {
+          "id": "A01",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A01",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A01",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A02",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A02",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A02",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A03",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A03",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A03",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A04",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A04",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A04",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A05",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A05",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A05",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A06",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A06",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A06",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A07",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A07",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A07",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A08",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A08",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A08",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A09",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A09",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A09",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A10",
+          "categoria": "A_EXACTA",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A10",
+          "categoria": "A_EXACTA",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "A10",
+          "categoria": "A_EXACTA",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "B01",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B01",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B01",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B02",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B02",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B02",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B03",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B03",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B03",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B04",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B05",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B06",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B06",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B06",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B07",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "WRONG_INSTRUMENT"
+        },
+        {
+          "id": "B08",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B08",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B08",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B09",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B09",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B09",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B10",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B10",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "B10",
+          "categoria": "B_CONCEPTUAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C01",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C01",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C01",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C02",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C03",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C03",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C03",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C04",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C04",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C04",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C05",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C05",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C05",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C06",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C07",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C08",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C08",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C08",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C09",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C09",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C09",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C10",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C10",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "C10",
+          "categoria": "C_MULTI_REMISION_EXCEPCION",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D01",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D02",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D02",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D02",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D03",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D04",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D04",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D04",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D05",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "ROLE_REJECTION"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D06",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D07",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D08",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D09",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "SEMANTIC_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "D10",
+          "categoria": "D_ADVERSARIAL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F01",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F01",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F01",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F02",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F02",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F02",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F03",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F03",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F03",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F04",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F04",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F04",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "A_SEMANTICA_ACTUAL",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "B_HIBRIDA_RAW",
+          "causa": "IDENTITY_MISS"
+        },
+        {
+          "id": "F06",
+          "categoria": "F_HISTORICA_VIGENCIA_ROL",
+          "variante": "C_HIBRIDA_PAQUETE",
+          "causa": "IDENTITY_MISS"
+        }
+      ],
+      "exactoFalso": [],
+      "sensibilidadLimite": [
+        {
+          "tope": 20,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 18,
+          "fueraDelPaquete": 41
+        },
+        {
+          "tope": 25,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 18,
+          "fueraDelPaquete": 41
+        },
+        {
+          "tope": 50,
+          "primaryPassPreguntas": 41,
+          "fueraDelPool": 18,
+          "fueraDelPaquete": 41
+        }
+      ],
+      "politicas": {
+        "X_igual_congelada": true,
+        "preguntasConRestringidoYSecundario": 0,
+        "diferenciasXY": 0,
+        "primaryPassXIds": 0,
+        "primaryPassYIds": 0
+      },
+      "invariante": "SYNTHETIC_BENCHMARK_DOES_NOT_PROVE_PRODUCTION_SUPERIORITY"
+    }
+  ]
+}

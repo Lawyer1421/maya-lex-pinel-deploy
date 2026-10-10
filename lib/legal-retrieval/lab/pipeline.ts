@@ -11,7 +11,7 @@ import { motivoExclusionDura, type MotivoExclusion } from './hard-exclusions';
 import { fusionarHibrido, candidatoDesdeFila } from './hybrid-merge';
 import { LexicalLabAdapter, type LexicalAdapter } from './lexical-lab';
 import { puntuarCandidatos, type EventoPenalizacion } from './ranking';
-import { buscarSemanticoFixture } from './semantic-fixture';
+import { buscarSemanticoFixture, SEMANTIC_CANDIDATE_CAP } from './semantic-fixture';
 import { evaluarSuficiencia, type ResultadoSuficiencia } from './sufficiency';
 import {
   RAW_CANDIDATE_LIMIT_LAB,
@@ -69,6 +69,8 @@ export interface OpcionesLab {
   k: number;
   /** raw_candidate_limit: tamaño máximo del ranking bruto. Distinto de k. */
   rawCandidateLimit?: number;
+  /** Tope semántico (espejo del RPC). Sólo para simulación de límites. */
+  semanticCap?: number;
   modo?: ModoRecuperacion;
   lexico?: LexicalAdapter;
 }
@@ -172,7 +174,7 @@ export function recuperarLab(
 
   let hitsSemanticos: ReturnType<typeof buscarSemanticoFixture> = [];
   if (modo !== 'LEXICAL_ONLY') {
-    const sem = medir(() => buscarSemanticoFixture(query, corpus));
+    const sem = medir(() => buscarSemanticoFixture(query, corpus, opciones.semanticCap ?? SEMANTIC_CANDIDATE_CAP));
     hitsSemanticos = sem.valor.filter((h) => {
       const fila = filasPorId.get(h.id);
       if (!fila) return false;
