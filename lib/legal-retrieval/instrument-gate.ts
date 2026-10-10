@@ -64,3 +64,32 @@ export function cumpleIdentidadExplicita(fuente: string, identidad: InstrumentoN
   if (identidad === null) return true;
   return identidadDeFuente(fuente) === identidad;
 }
+
+export type PredicadoFuente = (fuente: string) => boolean;
+
+/**
+ * Elegibilidad de un candidato semántico bajo la intención instrumental.
+ *
+ * A. Sin clase explícita: sin filtro (comportamiento previo, la materia puede
+ *    autorizar como siempre).
+ * B. Clase explícita con identidad resuelta: sólo fuentes que confirman esa
+ *    identidad (cumpleIdentidadExplicita).
+ * C. Clase explícita sin identidad resoluble CON materia: la materia no puede
+ *    autorizar nada, y ninguna identidad se puede verificar. Se bloquea todo
+ *    (fail-close hasta que exista evidencia con identidad verificada, P2).
+ *    Sin materia no hay autorización por materia y no se filtra.
+ *
+ * Con todos los candidatos bloqueados, el caller queda sin evidencia y
+ * buscarRAG devuelve OFFICIAL_FALLBACK_REQUIRED.
+ */
+export function elegibilidadSemantica(
+  intencion: IntencionInstrumentoExplicita,
+  materia: string | null,
+): PredicadoFuente {
+  if (intencion.identidad !== null) {
+    const identidad = intencion.identidad;
+    return (fuente) => cumpleIdentidadExplicita(fuente, identidad);
+  }
+  if (intencion.clase !== null && materia !== null) return () => false;
+  return () => true;
+}

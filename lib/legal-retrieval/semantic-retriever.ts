@@ -21,8 +21,7 @@
 
 import type { FragmentoRAG, ResultadoRAG } from './types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from './primitives';
-import { cumpleIdentidadExplicita } from './instrument-gate';
-import type { InstrumentoNormalizado } from './exact-resolver';
+import type { PredicadoFuente } from './instrument-gate';
 
 /**
  * D6(b) — true para un artículo de código hondureño confirmado NO vigente
@@ -80,7 +79,7 @@ export async function buscarEnSupabase(
   coleccion: string,
   materia: string | undefined,
   rerankHabilitado: boolean,
-  identidadExplicita: InstrumentoNormalizado | null = null,
+  elegibleFuente: PredicadoFuente = () => true,
 ): Promise<ResultadoRAG> {
   // Requiere la tabla biblioteca_vectores + RPC buscar_biblioteca en Supabase
   // (supabase/vectores.sql — poblada por scripts/seed_vectores.py) y
@@ -196,16 +195,16 @@ export async function buscarEnSupabase(
   // `fuente === null`, sin tocar la condición de D6b) para cerrar ese caso
   // sin duplicar ni reemplazar la función existente.
   //
-  // P1 (intención instrumental explícita): si la consulta nombra un instrumento
-  // con identidad resuelta, un candidato sólo entra si su propia fuente confirma
-  // esa identidad. La materia (03_NOTARIAL, etc.) nunca lo valida por sí sola.
-  // Va ANTES del corte final, para que `k` se llene con candidatos elegibles.
+  // P1 (intención instrumental explícita): elegibleFuente aplica la regla de
+  // instrument-gate (identidad confirmada, o bloqueo fail-close cuando la clase
+  // es explícita sin identidad y la materia sería la única autorización). Va
+  // ANTES del corte final, para que `k` se llene con candidatos elegibles.
   const candidatos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
     .filter((f) => !esRegistroNoVigenteExcluido(f))
     .filter((f) => f.fuente !== null)
     .filter((f) => !esFuenteDocumentalExcluida(f.fuente))
-    .filter((f) => cumpleIdentidadExplicita(f.fuente, identidadExplicita));
+    .filter((f) => elegibleFuente(f.fuente));
 
   // Etapa 2 — reranking Cohere, ahora detrás de `flag_rerank` (Decisión C,
   // DECISION_LOG 2026-09-07). `rerankHabilitado` lo resuelve `/api/chat` una

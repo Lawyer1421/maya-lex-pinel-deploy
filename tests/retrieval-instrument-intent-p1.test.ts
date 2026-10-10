@@ -3,6 +3,7 @@ import { detectarInstrumentoDesdeTexto, identidadDeFuente } from '@/lib/legal-re
 import {
   intencionInstrumentoExplicita,
   cumpleIdentidadExplicita,
+  elegibilidadSemantica,
 } from '@/lib/legal-retrieval/instrument-gate';
 
 /**
@@ -194,7 +195,7 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
   });
 
-  it('"ley notarial" genérica no filtra por instrumento: comportamiento neutral sin cambio', async () => {
+  it('C10 — clase explícita "ley" sin identidad + materia 03_NOTARIAL: ningún candidato del Código ni del Reglamento se acepta por materia', async () => {
     mockearSemantica([codigoD05, reglamentoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
@@ -204,7 +205,46 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
       'mayalex_normativos',
     );
 
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+
+  it('sin clase explícita, la materia notarial conserva su autorización (comportamiento previo)', async () => {
+    mockearSemantica([codigoD05, reglamentoD05]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG(
+      '¿Qué obligaciones tiene el notario sobre la escritura pública?',
+      5,
+      'mayalex_normativos',
+    );
+
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
+  });
+});
+
+describe('elegibilidadSemantica — tres ramas de la regla', () => {
+  it('A. sin clase explícita: no filtra, aunque haya materia', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('¿Qué es la fe pública?'), '03_NOTARIAL');
+    expect(p(FUENTE_CODIGO)).toBe(true);
+    expect(p('Ley desconocida de 2018')).toBe(true);
+  });
+
+  it('B. clase + identidad resuelta: sólo la identidad confirmada', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita(TXT_D05), '03_NOTARIAL');
+    expect(p(FUENTE_REGLAMENTO)).toBe(true);
+    expect(p(FUENTE_CODIGO)).toBe(false);
+  });
+
+  it('C. clase sin identidad + materia: bloquea todo, la materia no autoriza', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley notarial'), '03_NOTARIAL');
+    expect(p(FUENTE_CODIGO)).toBe(false);
+    expect(p(FUENTE_REGLAMENTO)).toBe(false);
+  });
+
+  it('C sin materia: no hay autorización por materia que bloquear, no filtra', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley de la República'), null);
+    expect(p(FUENTE_CODIGO)).toBe(true);
   });
 });
 
