@@ -75,6 +75,32 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
   });
 
+  it('genérico "conforme a la resolución aplicable" (NONE): sin filtro, igual que Supabase', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => respuestaPython([fragmentoPython(FUENTE_CODIGO, 'Artículo 9. Texto del Código.')])),
+    );
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+  });
+
+  it('comparación con un solo instrumento devuelto: no hay respuesta completa, igual que Supabase', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => respuestaPython([fragmentoPython('Codigo Penal', 'Artículo 1. Texto del Código Penal.')])),
+    );
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Compara el Código Penal y el Código de Comercio', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+
   it('clase explícita sin identidad y sin materia ("decreto"): bloquea, igual que Supabase', async () => {
     vi.stubGlobal(
       'fetch',

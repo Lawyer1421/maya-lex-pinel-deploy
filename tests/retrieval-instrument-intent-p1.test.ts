@@ -1,80 +1,154 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { detectarInstrumentoDesdeTexto, identidadDeFuente } from '@/lib/legal-retrieval/exact-resolver';
 import {
-  intencionInstrumentoExplicita,
-  cumpleIdentidadExplicita,
+  clasificarIntencionInstrumental,
   elegibilidadSemantica,
+  evidenciaCubreIntencion,
 } from '@/lib/legal-retrieval/instrument-gate';
 
 /**
- * P1 — intención instrumental explícita (producción).
- * EXPLICIT_INSTRUMENT_INTENT > MATERIA. La materia sola nunca valida un
- * candidato cuyo instrumento es incompatible con el que la consulta nombra.
- * Cubre alias notariales, rechazo por instrumento incompatible, neutralidad
- * de "ley notarial" genérica, y la invariante D05 a nivel de buscarRAG.
+ * P1 / P1.2 / P1.3 — intención instrumental en producción.
+ * Estados: NONE, SPECIFIC_RESOLVED, MULTI_SPECIFIC_RESOLVED, SPECIFIC_UNRESOLVED.
+ * Cubre alias notariales, genéricos que no bloquean, referencias específicas
+ * sin resolver que bloquean, comparaciones con cobertura, D05 y C10.
  */
 
 const FUENTE_CODIGO = 'Código del Notariado de Honduras (Decreto 353-2005)';
 const FUENTE_REGLAMENTO = 'Reglamento del Código del Notariado (Resolución PCSJ-17-2012)';
+const FUENTE_CODIGO_PENAL = 'Codigo Penal';
+const FUENTE_CODIGO_COMERCIO = 'Codigo de Comercio (Decreto No. 73-1950, Congreso Nacional de Honduras)';
 
 const TXT_D05 = 'Según el reglamento notarial, ¿qué presunción tienen las afirmaciones del notario?';
+const TXT_C10 = '¿Prevalece la nulidad prevista en otras leyes sobre la nulidad de la ley notarial?';
 const CONSULTA_SEMANTICA = '¿Qué presunción tienen las afirmaciones del notario?';
 
 const ORIGINAL_ENV = { ...process.env };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Alias y clase explícita (puros)
+// Clasificación: alias y referencias no resueltas
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe('alias notariales → REGLAMENTO_NOTARIADO', () => {
+describe('alias notariales → identidad resuelta', () => {
   it.each([
     'Según el reglamento notarial, ¿qué dice?',
     'Según el reglamento del notariado, ¿qué dice?',
     'Según el reglamento de la función notarial, ¿qué dice?',
     'Según el reglamento de la funcion notarial, ¿qué dice?',
-  ])('%s', (texto) => {
-    const i = intencionInstrumentoExplicita(texto);
-    expect(i.clase).toBe('reglamento');
-    expect(i.identidad).toBe('REGLAMENTO_NOTARIADO');
+  ])('REGLAMENTO_NOTARIADO — %s', (texto) => {
+    const i = clasificarIntencionInstrumental(texto);
+    expect(i.estado).toBe('SPECIFIC_RESOLVED');
+    expect(i.identidades).toEqual(['REGLAMENTO_NOTARIADO']);
   });
 
-  it('el detector de instrumento de producción reconoce el alias "reglamento notarial"', () => {
+  it.each([
+    'Según el código del notariado, ¿qué dice?',
+    'Según el código notarial, ¿qué dice?',
+  ])('CODIGO_NOTARIADO — %s', (texto) => {
+    const i = clasificarIntencionInstrumental(texto);
+    expect(i.estado).toBe('SPECIFIC_RESOLVED');
+    expect(i.identidades).toEqual(['CODIGO_NOTARIADO']);
+  });
+
+  it('el detector de la ruta exacta reconoce el alias "reglamento notarial"', () => {
     expect(detectarInstrumentoDesdeTexto('artículo 12 del reglamento notarial')).toBe('REGLAMENTO_NOTARIADO');
   });
 });
 
-describe('alias notariales → CODIGO_NOTARIADO', () => {
-  it.each([
-    'Según el código del notariado, ¿qué dice?',
-    'Según el código notarial, ¿qué dice?',
-  ])('%s', (texto) => {
-    const i = intencionInstrumentoExplicita(texto);
-    expect(i.clase).toBe('codigo');
-    expect(i.identidad).toBe('CODIGO_NOTARIADO');
-  });
-});
-
-describe('"ley notarial" genérica no se fuerza a ningún instrumento', () => {
-  it('clase ley explícita, identidad sin resolver', () => {
-    const i = intencionInstrumentoExplicita('¿Prevalece la nulidad de la ley notarial?');
-    expect(i.clase).toBe('ley');
-    expect(i.identidad).toBeNull();
+describe('"ley notarial" no se asimila a ningún instrumento', () => {
+  it('es referencia específica sin resolver (SPECIFIC_UNRESOLVED), sin identidad fabricada', () => {
+    const i = clasificarIntencionInstrumental('¿Qué dice la ley notarial?');
+    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
+    expect(i.identidades).toEqual([]);
   });
 
-  it('el detector de instrumento no convierte "ley notarial" en CODIGO_NOTARIADO', () => {
+  it('el detector de la ruta exacta no la convierte en CODIGO_NOTARIADO', () => {
     expect(detectarInstrumentoDesdeTexto('la ley notarial')).toBeNull();
   });
+});
 
-  it('sin clase de instrumento no hay intención alguna', () => {
-    const i = intencionInstrumentoExplicita('¿Qué es la fe pública?');
-    expect(i.clase).toBeNull();
-    expect(i.identidad).toBeNull();
+describe('genéricos no bloquean: estado NONE', () => {
+  it.each([
+    'Conforme a la resolución aplicable, ¿qué procede?',
+    'Según el acuerdo correspondiente, ¿qué procede?',
+    'Qué dispone la ley aplicable en este caso',
+    'Según el código aplicable, ¿qué procede?',
+    'Conforme al reglamento aplicable, ¿qué procede?',
+    '¿Qué es la fe pública?',
+  ])('%s', (texto) => {
+    expect(clasificarIntencionInstrumental(texto).estado).toBe('NONE');
+  });
+});
+
+describe('referencias específicas sin resolver bloquean', () => {
+  it('número de identificación: "según el decreto 130-2017"', () => {
+    expect(clasificarIntencionInstrumental('Según el decreto 130-2017, ¿qué dispone?').estado).toBe('SPECIFIC_UNRESOLVED');
+  });
+
+  it('referencia específica junto a una resuelta: conserva ambas y queda SPECIFIC_UNRESOLVED', () => {
+    const i = clasificarIntencionInstrumental('Código Penal y decreto 130-2017');
+    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
+    expect(i.identidades).toEqual(['CODIGO_PENAL']);
+  });
+
+  it('C10 — "ley notarial" con materia notarial: SPECIFIC_UNRESOLVED', () => {
+    expect(clasificarIntencionInstrumental(TXT_C10).estado).toBe('SPECIFIC_UNRESOLVED');
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Identidad por fuente y compatibilidad (puros)
+// Elegibilidad y cobertura (puros)
 // ─────────────────────────────────────────────────────────────────────────────
+
+describe('elegibilidadSemantica por estado', () => {
+  it('NONE: no filtra', () => {
+    const p = elegibilidadSemantica(clasificarIntencionInstrumental('¿Qué es la fe pública?'));
+    expect(p(FUENTE_CODIGO)).toBe(true);
+    expect(p('Ley desconocida de 2018')).toBe(true);
+  });
+
+  it('SPECIFIC_RESOLVED: sólo la identidad confirmada', () => {
+    const p = elegibilidadSemantica(clasificarIntencionInstrumental(TXT_D05));
+    expect(p(FUENTE_REGLAMENTO)).toBe(true);
+    expect(p(FUENTE_CODIGO)).toBe(false);
+    expect(p('Ley desconocida de 2018')).toBe(false);
+  });
+
+  it('SPECIFIC_UNRESOLVED: nada es elegible', () => {
+    const p = elegibilidadSemantica(clasificarIntencionInstrumental(TXT_C10));
+    expect(p(FUENTE_CODIGO)).toBe(false);
+    expect(p(FUENTE_REGLAMENTO)).toBe(false);
+  });
+
+  it('MULTI_SPECIFIC_RESOLVED: unión de las identidades', () => {
+    const p = elegibilidadSemantica(clasificarIntencionInstrumental('Código Penal y Código de Comercio'));
+    expect(p(FUENTE_CODIGO_PENAL)).toBe(true);
+    expect(p(FUENTE_CODIGO_COMERCIO)).toBe(true);
+    expect(p(FUENTE_CODIGO)).toBe(false);
+  });
+});
+
+describe('evidenciaCubreIntencion', () => {
+  const comparacion = clasificarIntencionInstrumental('Código Penal y Código de Comercio');
+
+  it('comparación con evidencia de un solo instrumento no cubre', () => {
+    expect(evidenciaCubreIntencion([{ fuente: FUENTE_CODIGO_PENAL }], comparacion)).toBe(false);
+  });
+
+  it('comparación con evidencia de ambos instrumentos cubre', () => {
+    expect(
+      evidenciaCubreIntencion([{ fuente: FUENTE_CODIGO_PENAL }, { fuente: FUENTE_CODIGO_COMERCIO }], comparacion),
+    ).toBe(true);
+  });
+
+  it('sin intención instrumental no exige nada', () => {
+    expect(evidenciaCubreIntencion([], clasificarIntencionInstrumental('¿Qué es la fe pública?'))).toBe(true);
+  });
+
+  it('referencia no resuelta nunca queda cubierta', () => {
+    const noResuelta = clasificarIntencionInstrumental(TXT_C10);
+    expect(evidenciaCubreIntencion([{ fuente: FUENTE_CODIGO }], noResuelta)).toBe(false);
+  });
+});
 
 describe('identidadDeFuente', () => {
   it('Reglamento y Código del Notariado se distinguen por fuente', () => {
@@ -84,25 +158,6 @@ describe('identidadDeFuente', () => {
 
   it('fuente sin identidad reconocible devuelve null', () => {
     expect(identidadDeFuente('Ley desconocida de 2018')).toBeNull();
-  });
-});
-
-describe('cumpleIdentidadExplicita', () => {
-  it('rechaza un candidato del Código cuando la consulta nombra el Reglamento', () => {
-    expect(cumpleIdentidadExplicita(FUENTE_CODIGO, 'REGLAMENTO_NOTARIADO')).toBe(false);
-  });
-
-  it('acepta el Reglamento cuando la consulta nombra el Reglamento', () => {
-    expect(cumpleIdentidadExplicita(FUENTE_REGLAMENTO, 'REGLAMENTO_NOTARIADO')).toBe(true);
-  });
-
-  it('exige confirmación de identidad: una fuente sin identidad no entra con intención explícita', () => {
-    expect(cumpleIdentidadExplicita('Ley desconocida de 2018', 'REGLAMENTO_NOTARIADO')).toBe(false);
-  });
-
-  it('sin identidad explícita no filtra (neutral)', () => {
-    expect(cumpleIdentidadExplicita(FUENTE_CODIGO, null)).toBe(true);
-    expect(cumpleIdentidadExplicita('Ley desconocida de 2018', null)).toBe(true);
   });
 });
 
@@ -126,6 +181,8 @@ function filaRPC(id: string, fuente: string, similarity: number, contenido: stri
 
 const codigoD05 = filaRPC('codigo-9', FUENTE_CODIGO, 0.95, 'Artículo 9. Las afirmaciones del notario se presumen auténticas.');
 const reglamentoD05 = filaRPC('reglamento-9', FUENTE_REGLAMENTO, 0.80, 'Artículo 9. Presunción de las afirmaciones del notario en el protocolo.');
+const codigoPenalRow = filaRPC('penal-1', FUENTE_CODIGO_PENAL, 0.90, 'Artículo 1. Texto del Código Penal.');
+const codigoComercioRow = filaRPC('comercio-1', FUENTE_CODIGO_COMERCIO, 0.85, 'Artículo 1. Texto del Código de Comercio.');
 
 function mockearSemantica(filas: unknown[]) {
   vi.doMock('@/lib/supabase', () => ({
@@ -148,14 +205,13 @@ afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
 });
 
-describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento incompatible', () => {
-  it('consulta explícita de Reglamento: ningún fragmento del Código entra al resultado', async () => {
+describe('buscarRAG (semántica) — D05 y alias', () => {
+  it('D05: consulta explícita del Reglamento; ningún fragmento del Código entra', async () => {
     mockearSemantica([codigoD05, reglamentoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
     const resultado = await buscarRAG(TXT_D05, 5, 'mayalex_normativos');
 
-    expect(resultado.fragmentos.some((f) => f.fuente === FUENTE_CODIGO)).toBe(false);
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_REGLAMENTO]);
   });
 
@@ -185,7 +241,7 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
   });
 
-  it('si ningún candidato confirma el instrumento pedido, no hay evidencia (fail-close, nunca semántica de otro instrumento)', async () => {
+  it('identidad resuelta sin fuente que la confirme: fail-close, OFFICIAL_FALLBACK_REQUIRED', async () => {
     mockearSemantica([codigoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
@@ -194,19 +250,37 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
   });
+});
 
-  it('C10 — clase explícita "ley" sin identidad + materia 03_NOTARIAL: ningún candidato del Código ni del Reglamento se acepta por materia', async () => {
+describe('buscarRAG (semántica) — referencias no resueltas', () => {
+  it('C10: "ley notarial" con materia notarial: ningún candidato por materia', async () => {
     mockearSemantica([codigoD05, reglamentoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
-    const resultado = await buscarRAG(
-      '¿Prevalece la nulidad prevista en otras leyes sobre la nulidad de la ley notarial?',
-      5,
-      'mayalex_normativos',
-    );
+    const resultado = await buscarRAG(TXT_C10, 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+
+  it('decreto con número sin resolver: fail-close', async () => {
+    mockearSemantica([codigoD05, reglamentoD05]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Según el decreto 130-2017, ¿qué dispone?', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+
+  it('genérico "conforme a la resolución aplicable": NONE, comportamiento previo sin filtro', async () => {
+    mockearSemantica([codigoD05, reglamentoD05]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
   });
 
   it('sin clase explícita, la materia notarial conserva su autorización (comportamiento previo)', async () => {
@@ -221,64 +295,37 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
 
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
   });
-});
 
-describe('buscarRAG (semántica) — clase explícita sin identidad y SIN materia: fail-close', () => {
-  // Cada consulta tiene candidatos disponibles en la RPC. Si la regla no
-  // bloqueara, la similitud los aceptaría; el resultado vacío prueba la regla.
-  const sinMateria = [
-    'Según el decreto 130-2017, ¿qué dispone?',
-    'Conforme a la resolución aplicable, ¿qué procede?',
-    'Según el acuerdo correspondiente, ¿qué procede?',
-    'Qué dispone la ley aplicable en este caso',
-    'Conforme al reglamento aplicable, ¿qué procede?',
-    'Según el código aplicable, ¿qué procede?',
-  ];
-
-  it.each(sinMateria)('%s → sin evidencia verificada y OFFICIAL_FALLBACK_REQUIRED', async (consulta) => {
+  it('sin clase ni materia: comportamiento semántico previo, sin filtro', async () => {
     mockearSemantica([codigoD05, reglamentoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
-    const resultado = await buscarRAG(consulta, 5, 'mayalex_normativos');
-
-    expect(resultado.fragmentos).toHaveLength(0);
-    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
-  });
-
-  it('sin clase explícita ni materia: comportamiento semántico previo, sin filtro', async () => {
-    mockearSemantica([codigoD05, reglamentoD05]);
-    const { buscarRAG } = await import('@/lib/rag/search');
-
-    const resultado = await buscarRAG('¿Qué es la fe pública?', 5, 'mayalex_normativos');
+    const resultado = await buscarRAG(CONSULTA_SEMANTICA, 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
     expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
   });
 });
 
-describe('elegibilidadSemantica — tres ramas de la regla', () => {
-  it('A. sin clase explícita: no filtra', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('¿Qué es la fe pública?'));
-    expect(p(FUENTE_CODIGO)).toBe(true);
-    expect(p('Ley desconocida de 2018')).toBe(true);
+describe('buscarRAG (semántica) — comparación con cobertura', () => {
+  it('comparación con evidencia de ambos instrumentos: se devuelven ambos', async () => {
+    mockearSemantica([codigoPenalRow, codigoComercioRow]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Compara el Código Penal y el Código de Comercio', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO_COMERCIO, FUENTE_CODIGO_PENAL].sort());
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
   });
 
-  it('B. clase + identidad resuelta: sólo la identidad confirmada', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita(TXT_D05));
-    expect(p(FUENTE_REGLAMENTO)).toBe(true);
-    expect(p(FUENTE_CODIGO)).toBe(false);
-  });
+  it('comparación sin evidencia de uno de los instrumentos: no hay respuesta completa', async () => {
+    mockearSemantica([codigoPenalRow]);
+    const { buscarRAG } = await import('@/lib/rag/search');
 
-  it('C. clase sin identidad + materia: bloquea todo', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley notarial'));
-    expect(p(FUENTE_CODIGO)).toBe(false);
-    expect(p(FUENTE_REGLAMENTO)).toBe(false);
-  });
+    const resultado = await buscarRAG('Compara el Código Penal y el Código de Comercio', 5, 'mayalex_normativos');
 
-  it('C. clase sin identidad y SIN materia: también bloquea (fail-close independiente de la materia)', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley de la República'));
-    expect(p(FUENTE_CODIGO)).toBe(false);
-    expect(p('Ley desconocida de 2018')).toBe(false);
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
   });
 });
 

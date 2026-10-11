@@ -191,7 +191,10 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   // \b tras "constituci[oó]n" es lo que evita que esto capture "Ley sobre
   // Justicia Constitucional" (que en la fuente real contiene "Constitucional",
   // sin límite de palabra inmediatamente después de "constitucion").
-  ['CONSTITUCION', /constituci[oó]n\b/i],
+  // Polisemia: "constitución de sociedad/hipoteca/..." es un acto jurídico, no el
+  // instrumento. Sólo cuenta como Constitución si no va seguida de "de/del" +
+  // algo distinto de "la República" u "Honduras".
+  ['CONSTITUCION', /constituci[oó]n\b(?!\s+(?:de|del)\s+(?!(?:la\s+)?rep[uú]blica\b|honduras\b))/i],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
@@ -200,6 +203,39 @@ export function detectarInstrumentoDesdeTexto(query: string): InstrumentoNormali
     if (re.test(query)) return instrumento;
   }
   return null;
+}
+
+/** Identidad de instrumento hallada en un texto, con su posición (inicio inclusive, fin exclusivo). */
+export interface IdentidadEnTexto {
+  instrumento: InstrumentoNormalizado;
+  inicio: number;
+  fin: number;
+}
+
+/**
+ * Todas las identidades de instrumento presentes en el texto, sin
+ * coincidencias superpuestas: entre dos matches que se solapan gana el más
+ * largo (p. ej. "Reglamento del Código del Notariado" sobre "Código del
+ * Notariado"); en empate, el orden de RE_INSTRUMENTO. Las no superpuestas se
+ * conservan todas (unión), en orden de aparición.
+ */
+export function detectarIdentidadesDesdeTexto(texto: string): IdentidadEnTexto[] {
+  const candidatos: (IdentidadEnTexto & { prioridad: number })[] = [];
+  RE_INSTRUMENTO.forEach(([instrumento, re], prioridad) => {
+    const global = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
+    for (const m of texto.matchAll(global)) {
+      const inicio = m.index ?? 0;
+      candidatos.push({ instrumento, inicio, fin: inicio + m[0].length, prioridad });
+    }
+  });
+  candidatos.sort((a, b) => (b.fin - b.inicio) - (a.fin - a.inicio) || a.prioridad - b.prioridad);
+  const elegidos: typeof candidatos = [];
+  for (const c of candidatos) {
+    if (!elegidos.some((e) => c.inicio < e.fin && e.inicio < c.fin)) elegidos.push(c);
+  }
+  return elegidos
+    .sort((a, b) => a.inicio - b.inicio)
+    .map(({ instrumento, inicio, fin }) => ({ instrumento, inicio, fin }));
 }
 
 // Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de

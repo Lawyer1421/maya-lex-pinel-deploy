@@ -30,7 +30,11 @@
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
-import { intencionInstrumentoExplicita, elegibilidadSemantica } from '@/lib/legal-retrieval/instrument-gate';
+import {
+  clasificarIntencionInstrumental,
+  elegibilidadSemantica,
+  evidenciaCubreIntencion,
+} from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: FUENTES_DOCTRINALES, formatearContextoRAG, requiereEvidenciaCorpus,
 // CORPUS_EVIDENCE_NOT_FOUND y MENSAJE_ABSTENCION_CORPUS se movieron a
 // evidence-engine.ts (extracción 1:1, sin cambio de comportamiento -- ver
@@ -253,6 +257,11 @@ export async function buscarRAG(
   // entra a la ruta determinista, incluso si termina fallando y degradando a
   // semántica (catch de abajo) -- el outcome final debe reflejar que SÍ se
   // intentó, no solo si tuvo éxito.
+  // P1: estado de la intención instrumental (NONE, SPECIFIC_RESOLVED,
+  // MULTI_SPECIFIC_RESOLVED, SPECIFIC_UNRESOLVED). Gobierna la ruta exacta y la
+  // semántica; ver lib/legal-retrieval/instrument-gate.ts.
+  const intencion = clasificarIntencionInstrumental(consulta);
+
   let exactoIntentado = false;
 
   // Recuperación exacta por artículo — prioridad sobre la semántica.
@@ -277,7 +286,10 @@ export async function buscarRAG(
             outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
           };
         }
-        if (exacto.fragmentos.length > 0) {
+        // La evidencia exacta sólo cuenta si cubre la intención (identidad
+        // confirmada, y en comparaciones, cada instrumento). Si no, cae a la
+        // abstención de abajo.
+        if (exacto.fragmentos.length > 0 && evidenciaCubreIntencion(exacto.fragmentos, intencion)) {
           return {
             fragmentos: exacto.fragmentos,
             articulos_encontrados: [deteccion.numero],
@@ -349,20 +361,19 @@ export async function buscarRAG(
   // comentario de detectarMateriaSemanticaAmpliada en exact-resolver.ts).
   const materiaSemantica = materia ?? detectarMateriaSemanticaAmpliada(consulta) ?? undefined;
 
-  // P1: elegibilidad de la evidencia semántica bajo la intención instrumental
-  // explícita (ver lib/legal-retrieval/instrument-gate.ts). Sin clase explícita
-  // no filtra; con identidad exige fuente confirmada; con clase sin identidad
-  // bloquea todo (la materia nunca autoriza por sí sola).
-  const elegibleFuente = elegibilidadSemantica(intencionInstrumentoExplicita(consulta));
+  // P1: elegibilidad de la evidencia semántica según el estado de la intención.
+  const elegibleFuente = elegibilidadSemantica(intencion);
 
   try {
     if (backend === 'python') {
       const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
       const elegibles = bruto.fragmentos.filter((f) => elegibleFuente(f.fuente));
+      // Sin cobertura completa de la intención, no hay evidencia utilizable.
+      const fragmentos = evidenciaCubreIntencion(elegibles, intencion) ? elegibles : [];
       const resultado = {
         ...bruto,
-        fragmentos: elegibles,
-        articulos_encontrados: [...new Set(elegibles.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        fragmentos,
+        articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
       };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
@@ -375,7 +386,12 @@ export async function buscarRAG(
       };
     }
     if (backend === 'supabase') {
-      const resultado = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente);
+      const bruto = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente);
+      // Sin cobertura completa de la intención (p. ej. una comparación sin
+      // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
+      const resultado = evidenciaCubreIntencion(bruto.fragmentos, intencion)
+        ? bruto
+        : { ...bruto, fragmentos: [], articulos_encontrados: [] };
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin
       // lanzar) desde antes de esta fase -- buscarEnSupabase nunca ve ese
