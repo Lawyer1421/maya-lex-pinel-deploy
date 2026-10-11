@@ -140,8 +140,12 @@ describe('evidenciaCubreIntencion', () => {
     ).toBe(true);
   });
 
-  it('sin intención instrumental no exige nada', () => {
-    expect(evidenciaCubreIntencion([], clasificarIntencionInstrumental('¿Qué es la fe pública?'))).toBe(true);
+  it('sin fragmentos no hay evidencia cubierta, aun sin intención instrumental', () => {
+    expect(evidenciaCubreIntencion([], clasificarIntencionInstrumental('¿Qué es la fe pública?'))).toBe(false);
+  });
+
+  it('sin intención instrumental, con fragmentos, todos pasan', () => {
+    expect(evidenciaCubreIntencion([{ fuente: FUENTE_CODIGO }], clasificarIntencionInstrumental('¿Qué es la fe pública?'))).toBe(true);
   });
 
   it('referencia no resuelta nunca queda cubierta', () => {

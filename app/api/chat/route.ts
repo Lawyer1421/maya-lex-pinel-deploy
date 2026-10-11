@@ -51,6 +51,10 @@ import {
   type FragmentoRAG,
   type RetrievalOutcome,
 } from '@/lib/rag/search';
+import {
+  clasificarIntencionInstrumental,
+  evidenciaProcedimentalPermitida,
+} from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
 // para que los consumidores actuales (tests que importan desde
@@ -332,11 +336,22 @@ export async function POST(req: NextRequest) {
         ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,
         { rerank: rerankHabilitado }
       );
-      const contextoProc = formatearContextoRAG(ragProc);
-      if (contextoProc) {
+      // El pase procedimental sólo aporta fragmentos que sobreviven a la
+      // evidencia final de la unión: nunca completa una comparación que el
+      // pase principal no cubrió.
+      const intencionPregunta = clasificarIntencionInstrumental(ultimaPregunta as string);
+      const procPermitidos = evidenciaProcedimentalPermitida(
+        ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,
+      );
+      if (procPermitidos.length > 0) {
+        const contextoProc = formatearContextoRAG({
+          ...ragProc,
+          fragmentos: procPermitidos,
+          articulos_encontrados: [...new Set(procPermitidos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        });
         contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
       }
-      fragmentos.push(...ragProc.fragmentos);
+      fragmentos.push(...procPermitidos);
     }
     // El outcome de la pasada procedimental complementaria (RUTA_C civil) no
     // sustituye al de la colección principal -- esa es la que determina si

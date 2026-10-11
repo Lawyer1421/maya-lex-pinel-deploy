@@ -34,6 +34,7 @@ import {
   clasificarIntencionInstrumental,
   elegibilidadSemantica,
   evidenciaCubreIntencion,
+  evidenciaFinal,
 } from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: FUENTES_DOCTRINALES, formatearContextoRAG, requiereEvidenciaCorpus,
 // CORPUS_EVIDENCE_NOT_FOUND y MENSAJE_ABSTENCION_CORPUS se movieron a
@@ -386,8 +387,9 @@ export async function buscarRAG(
     if (backend === 'python') {
       const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
       const elegibles = bruto.fragmentos.filter((f) => elegibleFuente(f.fuente));
-      // Sin cobertura completa de la intención, no hay evidencia utilizable.
-      const fragmentos = evidenciaCubreIntencion(elegibles, intencion) ? elegibles : [];
+      // Evidencia final enviada al contexto: cobertura completa y, en comparaciones
+      // con artículos concretos, sólo esos artículos. Sin ello, no hay evidencia.
+      const fragmentos = evidenciaFinal(elegibles, intencion);
       const resultado = {
         ...bruto,
         fragmentos,
@@ -409,7 +411,7 @@ export async function buscarRAG(
       // Sin cobertura completa de la intención (p. ej. una comparación sin
       // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
       const combinados = unirFragmentos(exactoParcial, bruto.fragmentos);
-      const fragmentos = evidenciaCubreIntencion(combinados, intencion) ? combinados : [];
+      const fragmentos = evidenciaFinal(combinados, intencion);
       const resultado = {
         ...bruto,
         fragmentos,

@@ -24,6 +24,15 @@ const casos: [string, string, string[]][] = [
   ['Según la ley nacional, ¿qué procede?', 'NONE', []],
   ['Conforme a la ley hondureña aplicable, ¿qué procede?', 'NONE', []],
 
+  // Jurisdicción y tema (sin título): NONE
+  ['¿Qué dispone la ley hondureña sobre el divorcio?', 'NONE', []],
+  ['Según la ley de Honduras sobre el divorcio, ¿qué procede?', 'NONE', []],
+
+  // Título específico tras jurisdicción: específica
+  ['¿Qué dispone la ley hondureña de adopciones?', 'SPECIFIC_UNRESOLVED', []],
+  // Tema sin jurisdicción: específica (conservador, no se extiende el ámbito)
+  ['Según la ley sobre el divorcio, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+
   // Ley con calificador propio: específica, no se extiende el ámbito
   ['Según la ley notarial hondureña, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
   ['Según la ley de adopciones, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
