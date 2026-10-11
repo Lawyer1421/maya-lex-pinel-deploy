@@ -223,28 +223,62 @@ describe('buscarRAG (semántica) — D05: materia sola no valida un instrumento 
   });
 });
 
+describe('buscarRAG (semántica) — clase explícita sin identidad y SIN materia: fail-close', () => {
+  // Cada consulta tiene candidatos disponibles en la RPC. Si la regla no
+  // bloqueara, la similitud los aceptaría; el resultado vacío prueba la regla.
+  const sinMateria = [
+    'Según el decreto 130-2017, ¿qué dispone?',
+    'Conforme a la resolución aplicable, ¿qué procede?',
+    'Según el acuerdo correspondiente, ¿qué procede?',
+    'Qué dispone la ley aplicable en este caso',
+    'Conforme al reglamento aplicable, ¿qué procede?',
+    'Según el código aplicable, ¿qué procede?',
+  ];
+
+  it.each(sinMateria)('%s → sin evidencia verificada y OFFICIAL_FALLBACK_REQUIRED', async (consulta) => {
+    mockearSemantica([codigoD05, reglamentoD05]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG(consulta, 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(0);
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+
+  it('sin clase explícita ni materia: comportamiento semántico previo, sin filtro', async () => {
+    mockearSemantica([codigoD05, reglamentoD05]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('¿Qué es la fe pública?', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+  });
+});
+
 describe('elegibilidadSemantica — tres ramas de la regla', () => {
-  it('A. sin clase explícita: no filtra, aunque haya materia', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('¿Qué es la fe pública?'), '03_NOTARIAL');
+  it('A. sin clase explícita: no filtra', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('¿Qué es la fe pública?'));
     expect(p(FUENTE_CODIGO)).toBe(true);
     expect(p('Ley desconocida de 2018')).toBe(true);
   });
 
   it('B. clase + identidad resuelta: sólo la identidad confirmada', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita(TXT_D05), '03_NOTARIAL');
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita(TXT_D05));
     expect(p(FUENTE_REGLAMENTO)).toBe(true);
     expect(p(FUENTE_CODIGO)).toBe(false);
   });
 
-  it('C. clase sin identidad + materia: bloquea todo, la materia no autoriza', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley notarial'), '03_NOTARIAL');
+  it('C. clase sin identidad + materia: bloquea todo', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley notarial'));
     expect(p(FUENTE_CODIGO)).toBe(false);
     expect(p(FUENTE_REGLAMENTO)).toBe(false);
   });
 
-  it('C sin materia: no hay autorización por materia que bloquear, no filtra', () => {
-    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley de la República'), null);
-    expect(p(FUENTE_CODIGO)).toBe(true);
+  it('C. clase sin identidad y SIN materia: también bloquea (fail-close independiente de la materia)', () => {
+    const p = elegibilidadSemantica(intencionInstrumentoExplicita('la ley de la República'));
+    expect(p(FUENTE_CODIGO)).toBe(false);
+    expect(p('Ley desconocida de 2018')).toBe(false);
   });
 });
 

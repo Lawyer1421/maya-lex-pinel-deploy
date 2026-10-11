@@ -352,8 +352,8 @@ export async function buscarRAG(
   // P1: elegibilidad de la evidencia semántica bajo la intención instrumental
   // explícita (ver lib/legal-retrieval/instrument-gate.ts). Sin clase explícita
   // no filtra; con identidad exige fuente confirmada; con clase sin identidad
-  // y materia, bloquea (la materia no autoriza).
-  const elegibleFuente = elegibilidadSemantica(intencionInstrumentoExplicita(consulta), materiaSemantica ?? null);
+  // bloquea todo (la materia nunca autoriza por sí sola).
+  const elegibleFuente = elegibilidadSemantica(intencionInstrumentoExplicita(consulta));
 
   try {
     if (backend === 'python') {
