@@ -53,12 +53,19 @@ const GENERICOS = new Set([
   'corresponde', 'corresponda', 'aplica', 'aplique',
 ]);
 
+// Calificadores de ámbito territorial o nacional. Sólo son genéricos para la
+// clase "ley" ("ley hondureña", "ley de la República", "ley nacional"). No se
+// extienden a otras clases: "decreto hondureño" sigue siendo específico.
+const CALIFICADORES_LEY_GENERICOS = new Set(['honduras', 'hondurena', 'hondureno', 'nacional', 'republica']);
+
 /**
  * true si el texto que sigue a una clase de instrumento la califica de forma
  * específica: un número de identificación en sus primeras palabras, o un
- * calificador propio que no es genérico ("notarial", "especial", "decreto 130-2017").
+ * calificador propio que no es genérico ("notarial", "especial", "de adopciones").
+ * El primer calificador no-artículo decide; en la clase "ley" los ámbitos
+ * territoriales se saltan antes de decidir.
  */
-function calificadorEspecifico(resto: string): boolean {
+function calificadorEspecifico(resto: string, clase: string): boolean {
   const palabras = (resto.split(/[?¿!¡,;:()]/)[0] ?? '')
     .trim()
     .split(/\s+/)
@@ -66,8 +73,12 @@ function calificadorEspecifico(resto: string): boolean {
     .filter(Boolean)
     .slice(0, 5);
   if (palabras.slice(0, 3).some((p) => /\d/.test(p))) return true;
-  const primera = palabras.find((p) => !ARTICULOS.has(p));
-  return primera !== undefined && !GENERICOS.has(primera);
+  for (const p of palabras) {
+    if (ARTICULOS.has(p)) continue;
+    if (clase === 'ley' && CALIFICADORES_LEY_GENERICOS.has(p)) continue;
+    return !GENERICOS.has(p);
+  }
+  return false;
 }
 
 /** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
@@ -80,7 +91,7 @@ function contarReferenciasPendientes(
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
     if (identidades.some((i) => i.inicio <= inicio && fin <= i.fin)) continue;
-    if (calificadorEspecifico(texto.slice(fin))) pendientes++;
+    if (calificadorEspecifico(texto.slice(fin), m[1])) pendientes++;
   }
   return pendientes;
 }

@@ -228,6 +228,15 @@ async function buscarEnPython(
  * @param materia - Filtro por metadato materia (ej. '01_PENAL') — garantiza
  *                  aislamiento anti-contaminación dentro de colecciones mixtas
  */
+/**
+ * Une dos listas de fragmentos conservando el orden de la primera y omitiendo
+ * de la segunda los que ya están (por id, cuando lo tienen).
+ */
+function unirFragmentos(primero: FragmentoRAG[], segundo: FragmentoRAG[]): FragmentoRAG[] {
+  const ids = new Set(primero.map((f) => f.id).filter((id): id is string => Boolean(id)));
+  return [...primero, ...segundo.filter((f) => !f.id || !ids.has(f.id))];
+}
+
 export async function buscarRAG(
   consulta: string,
   k = 5,
@@ -263,6 +272,10 @@ export async function buscarRAG(
   const intencion = clasificarIntencionInstrumental(consulta);
 
   let exactoIntentado = false;
+  // Comparación con evidencia exacta parcial (cobertura incompleta): los
+  // fragmentos exactos verificados se conservan y la ruta continúa a la
+  // semántica; la cobertura se reevalúa sobre el conjunto final.
+  let exactoParcial: FragmentoRAG[] = [];
 
   // Recuperación exacta por artículo — prioridad sobre la semántica.
   // No requiere HF_API_TOKEN (no genera embedding), así que sigue
@@ -299,16 +312,21 @@ export async function buscarRAG(
             }),
           };
         }
-        // Sin candidato exacto válido. Si el usuario identificó la materia
-        // (penal/civil) O el instrumento específico (CPP, Código Penal,
-        // Código de Trabajo, etc.), no se cae a semántica amplia — podría
-        // citar un artículo de un instrumento distinto con el mismo número,
-        // o un fragmento mal segmentado; la búsqueda semántica tampoco filtra
-        // por instrumento, así que no puede sustituir la identidad exacta que
-        // el usuario pidió. Se abstiene. Si el número vino totalmente
-        // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
-        // permite el fallback semántico — comportamiento previo, ya validado.
-        if (deteccion.materiaDetectada || deteccion.instrumento) {
+        // Comparación con evidencia exacta parcial: continúa a semántica y la
+        // cobertura final decide. Sin fragmentos exactos, se conserva la
+        // abstención de abajo (p. ej. Art. 9999 CPP).
+        if (exacto.fragmentos.length > 0 && intencion.estado === 'MULTI_SPECIFIC_RESOLVED') {
+          exactoParcial = exacto.fragmentos;
+        } else if (deteccion.materiaDetectada || deteccion.instrumento) {
+          // Sin candidato exacto válido. Si el usuario identificó la materia
+          // (penal/civil) O el instrumento específico (CPP, Código Penal,
+          // Código de Trabajo, etc.), no se cae a semántica amplia — podría
+          // citar un artículo de un instrumento distinto con el mismo número,
+          // o un fragmento mal segmentado; la búsqueda semántica tampoco filtra
+          // por instrumento, así que no puede sustituir la identidad exacta que
+          // el usuario pidió. Se abstiene. Si el número vino totalmente
+          // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
+          // permite el fallback semántico — comportamiento previo, ya validado.
           // Regla C: instrumento/artículo explícito sin candidato válido ->
           // NO_VERIFIED_EVIDENCE (ej. Art. 9999 CPP), NUNCA RETRIEVAL_ERROR.
           return {
@@ -387,11 +405,16 @@ export async function buscarRAG(
     }
     if (backend === 'supabase') {
       const bruto = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente);
+      // Evidencia final = exacta parcial (verificada por identidad) + semántica.
       // Sin cobertura completa de la intención (p. ej. una comparación sin
       // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
-      const resultado = evidenciaCubreIntencion(bruto.fragmentos, intencion)
-        ? bruto
-        : { ...bruto, fragmentos: [], articulos_encontrados: [] };
+      const combinados = unirFragmentos(exactoParcial, bruto.fragmentos);
+      const fragmentos = evidenciaCubreIntencion(combinados, intencion) ? combinados : [];
+      const resultado = {
+        ...bruto,
+        fragmentos,
+        articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+      };
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin
       // lanzar) desde antes de esta fase -- buscarEnSupabase nunca ve ese

@@ -18,6 +18,17 @@ const casos: [string, string, string[]][] = [
   ['Según el código aplicable, ¿qué procede?', 'NONE', []],
   ['Conforme al reglamento aplicable, ¿qué procede?', 'NONE', []],
 
+  // Ley con ámbito territorial o nacional: NONE (sólo para la clase ley)
+  ['Qué dispone la ley de la República', 'NONE', []],
+  ['Según la ley de Honduras, ¿qué procede?', 'NONE', []],
+  ['Según la ley nacional, ¿qué procede?', 'NONE', []],
+  ['Conforme a la ley hondureña aplicable, ¿qué procede?', 'NONE', []],
+
+  // Ley con calificador propio: específica, no se extiende el ámbito
+  ['Según la ley notarial hondureña, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según la ley de adopciones, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según el decreto hondureño, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+
   // Referencia específica sin resolver
   ['Según el decreto 130-2017, ¿qué dispone?', 'SPECIFIC_UNRESOLVED', []],
   ['Ley Especial de Adopciones de 2018', 'SPECIFIC_UNRESOLVED', []],
