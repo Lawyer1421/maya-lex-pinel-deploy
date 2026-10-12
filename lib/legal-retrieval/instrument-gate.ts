@@ -6,24 +6,25 @@
  * autoriza por sí sola un candidato semántico.
  *
  * Estados de la intención:
- * - NONE: no hay referencia a un instrumento. Sin filtro (comportamiento previo).
+ * - NONE: no hay referencia a un instrumento particular. Sin filtro (comportamiento previo).
  * - SPECIFIC_RESOLVED: una identidad resuelta. Sólo fuentes que la confirman.
  * - MULTI_SPECIFIC_RESOLVED: varias identidades resueltas (comparación). Unión
  *   de las identidades; la respuesta exige evidencia de cada una. Si la
- *   comparación pide artículos concretos, la evidencia debe ser de esos
- *   artículos: un único artículo se aplica a todos los instrumentos; varios
- *   artículos no tienen correspondencia establecida y se abstiene.
- * - SPECIFIC_UNRESOLVED: hay una referencia específica (con número o
- *   calificador propio) que no se resuelve a identidad. Fail-close: ningún
- *   candidato semántico es evidencia verificada, aunque haya otra identidad
- *   resuelta en la misma consulta.
+ *   comparación pide un artículo, cada instrumento debe aportar ese artículo;
+ *   varios artículos no tienen correspondencia establecida y se abstiene.
+ * - SPECIFIC_UNRESOLVED: una referencia inequívocamente identificada que no se
+ *   resuelve a identidad. Fail-close: ningún candidato semántico es evidencia
+ *   verificada, aunque haya otra identidad resuelta en la misma consulta.
  *
- * Las clases genéricas ("ley aplicable", "código aplicable", "resolución
- * aplicable", "acuerdo correspondiente") no son referencias específicas: su
- * estado es NONE, salvo que el contexto identifique un instrumento particular.
- * Para la clase "ley", ámbito territorial o nacional ("hondureña", "de
- * Honduras", "de la República", "nacional") es NONE, y "sobre <tema>" también
- * es NONE: sin título, no hay referencia específica.
+ * Qué cuenta como referencia específica sin resolver: una clase (ley, decreto,
+ * resolución, acuerdo, código, reglamento) seguida de un identificador (número
+ * o código, p. ej. "130-2017", "PCSJ-17-2012") o de un título reconocido
+ * ("notarial", "notariado"). Todo lo demás es lenguaje temático o de actos
+ * jurídicos y es NONE: materias ("ley civil", "en materia penal"), actos
+ * ("acuerdo de pago", "resolución del contrato"), temas ("ley sobre el
+ * divorcio"), verbos ("el código dice…") y mayúsculas o palabras desconocidas
+ * sin identificador. Las identidades reconocidas (detectarIdentidadesDesdeTexto)
+ * tienen precedencia sobre cualquier otra señal.
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
@@ -50,44 +51,28 @@ const NORMALIZAR = (texto: string): string =>
 const CLASES_RE = /\b(codigo|reglamento|ley|decreto|resolucion|acuerdo)\b/g;
 const ARTICULO_RE = /\bart(?:iculo|\.)?\s*(\d+)\b/g;
 
-// Palabras que sólo introducen el calificador ("de la república", "del notariado").
-const ARTICULOS = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'sobre', 'a', 'al', 'un', 'una']);
-
-// Calificadores genéricos: no nombran un instrumento concreto.
-const GENERICOS = new Set([
-  'aplicable', 'aplicables', 'correspondiente', 'correspondientes', 'pertinente', 'pertinentes',
-  'respectivo', 'respectiva', 'respectivos', 'respectivas', 'vigente', 'vigentes', 'competente',
-  'competentes', 'relevante', 'relevantes', 'siguiente', 'anterior', 'mismo', 'misma',
-  'que', 'en', 'para', 'con', 'por', 'se', 'y', 'o', 'es', 'sea', 'dispone', 'procede',
-  'corresponde', 'corresponda', 'aplica', 'aplique',
-]);
-
-// Calificadores de ámbito territorial o nacional. Sólo son genéricos para la
-// clase "ley". No se extienden a otras clases: "decreto hondureño" sigue siendo específico.
-const CALIFICADORES_LEY_GENERICOS = new Set(['honduras', 'hondurena', 'hondureno', 'nacional', 'republica']);
+// Títulos reconocidos de instrumentos sectoriales. Un título reconocido sin
+// resolver ("la ley notarial") es referencia específica. No se mapea a un
+// instrumento concreto: la identidad sólo la resuelve el detector.
+const TITULOS_RECONOCIDOS = new Set(['notarial', 'notariado']);
 
 /**
- * true si el texto que sigue a una clase de instrumento la califica de forma
- * específica: un número de identificación en sus primeras palabras, o un
- * calificador propio que no es genérico ("notarial", "especial", "de adopciones").
- * En la clase "ley", un ámbito territorial o nacional se salta, y "sobre"
- * introduce un tema: "ley sobre el divorcio" no nombra un título y es NONE.
+ * true si lo que sigue a una clase de instrumento es una referencia específica
+ * sin resolver: un identificador (dígitos, p. ej. "130-2017" o "de 2018") o un
+ * título reconocido, dentro de las seis palabras siguientes y antes de cualquier
+ * mención de artículo (el número de un artículo no identifica al instrumento).
+ * Cualquier otra palabra (materia, acto, tema, verbo, mayúscula) no basta.
  */
-function calificadorEspecifico(resto: string, clase: string): boolean {
-  const palabras = (resto.split(/[?¿!¡,;:()]/)[0] ?? '')
-    .trim()
-    .split(/\s+/)
-    .map((p) => p.replace(/\.+$/, ''))
-    .filter(Boolean)
-    .slice(0, 5);
-  if (palabras.slice(0, 3).some((p) => /\d/.test(p))) return true;
-  for (const p of palabras) {
-    if (clase === 'ley' && p === 'sobre') return false;
-    if (ARTICULOS.has(p)) continue;
-    if (clase === 'ley' && CALIFICADORES_LEY_GENERICOS.has(p)) continue;
-    return !GENERICOS.has(p);
+function referenciaEspecifica(resto: string): boolean {
+  const palabras: string[] = [];
+  for (const p of (resto.split(/[?¿!¡,;:()]/)[0] ?? '').trim().split(/\s+/).map((t) => t.replace(/\.+$/, ''))) {
+    if (!p) continue;
+    if (/^art(iculo)?$/.test(p)) break;
+    palabras.push(p);
+    if (palabras.length === 6) break;
   }
-  return false;
+  if (palabras.some((p) => /\d/.test(p))) return true;
+  return palabras.some((p) => TITULOS_RECONOCIDOS.has(p));
 }
 
 /** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
@@ -100,7 +85,7 @@ function contarReferenciasPendientes(
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
     if (identidades.some((i) => i.inicio <= inicio && fin <= i.fin)) continue;
-    if (calificadorEspecifico(texto.slice(fin), m[1])) pendientes++;
+    if (referenciaEspecifica(texto.slice(fin))) pendientes++;
   }
   return pendientes;
 }
@@ -147,10 +132,10 @@ function identidadesCubiertas(fragmentos: readonly { fuente: string }[], intenci
 
 /**
  * Evidencia final que puede enviarse como contexto. Devuelve [] si no hay
- * cobertura completa. En una comparación con artículos concretos, sólo cuentan
- * los fragmentos de ese artículo: un fragmento de otro artículo no autoriza la
- * comparación. Con más de un artículo pedido no hay correspondencia
- * establecida, así que se abstiene.
+ * cobertura completa. En una comparación con un artículo concreto, sólo cuentan
+ * los fragmentos de ese artículo, uno por instrumento: un fragmento de otro
+ * artículo no autoriza la comparación. Con más de un artículo pedido no hay
+ * correspondencia establecida, así que se abstiene.
  */
 export function evidenciaFinal<T extends { fuente: string; num_articulo?: string | null }>(
   fragmentos: readonly T[],
@@ -174,8 +159,9 @@ export function evidenciaCubreIntencion(
 
 /**
  * Fragmentos del pase procedimental que pueden añadirse al contexto junto al
- * principal: sólo los que sobreviven a la evidencia final de la unión. Así, un
- * instrumento que el pase principal no cubrió no entra por el procedimental.
+ * principal. Sólo se añaden los que sobreviven a la evidencia final de la unión:
+ * elegibles y verificables del instrumento y, si la consulta pide un artículo,
+ * de ese artículo. El pase procedimental no relaja ninguno de esos criterios.
  */
 export function evidenciaProcedimentalPermitida<T extends { fuente: string; num_articulo?: string | null }>(
   principal: readonly T[],

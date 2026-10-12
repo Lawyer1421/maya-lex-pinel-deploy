@@ -88,6 +88,24 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
   });
 
+  it('temático "arrendamiento ley civil" (NONE): conserva la evidencia pertinente, igual que Supabase', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        respuestaPython([
+          { contenido: 'Artículo 1. El arrendamiento es un contrato.', num_articulo: '1', fuente: 'Código Civil de Honduras (Decreto del Poder Ejecutivo del 8 de febrero de 1906)', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true },
+        ]),
+      ),
+    );
+    const { buscarRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('arrendamiento ley civil', 5, 'mayalex_normativos');
+
+    expect(resultado.fragmentos).toHaveLength(1);
+    expect(resultado.fragmentos[0].num_articulo).toBe('1');
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+  });
+
   it('genérico "ley de Honduras" (NONE): sin filtro, igual que Supabase', async () => {
     vi.stubGlobal(
       'fetch',

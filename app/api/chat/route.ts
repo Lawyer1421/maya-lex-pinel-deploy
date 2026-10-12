@@ -336,9 +336,10 @@ export async function POST(req: NextRequest) {
         ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,
         { rerank: rerankHabilitado }
       );
-      // El pase procedimental sólo aporta fragmentos que sobreviven a la
-      // evidencia final de la unión: nunca completa una comparación que el
-      // pase principal no cubrió.
+      // El pase procedimental sólo añade fragmentos que sobreviven a la evidencia
+      // final de la unión: elegibles y verificables del instrumento y, si la
+      // consulta pide un artículo, de ese artículo. Puede completar la cobertura
+      // de una comparación, pero nunca con evidencia no verificada.
       const intencionPregunta = clasificarIntencionInstrumental(ultimaPregunta as string);
       const procPermitidos = evidenciaProcedimentalPermitida(
         ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,

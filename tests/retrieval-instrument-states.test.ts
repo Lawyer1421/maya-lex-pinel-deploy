@@ -29,15 +29,34 @@ const casos: [string, string, string[]][] = [
   ['Según la ley de Honduras sobre el divorcio, ¿qué procede?', 'NONE', []],
 
   // Título específico tras jurisdicción: específica
-  ['¿Qué dispone la ley hondureña de adopciones?', 'SPECIFIC_UNRESOLVED', []],
+  // Título sin identificador ni título reconocido: NONE (no se usa cualquier palabra como prueba)
+  ['¿Qué dispone la ley hondureña de adopciones?', 'NONE', []],
   // Tema sin jurisdicción: NONE (decisión aprobada: "ley sobre X" con sólo tema no es título)
   ['Según la ley sobre el divorcio, ¿qué procede?', 'NONE', []],
   ['Según la ley sobre adopciones, ¿qué procede?', 'NONE', []],
 
   // Ley con calificador propio: específica, no se extiende el ámbito
   ['Según la ley notarial hondureña, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
-  ['Según la ley de adopciones, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
-  ['Según el decreto hondureño, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según la ley de adopciones, ¿qué procede?', 'NONE', []],
+  ['Según el decreto hondureño, ¿qué procede?', 'NONE', []],
+
+  // B1 — seis consultas reproducidas por el auditor: temáticas, sin referencia específica
+  ['¿Cómo apelar una resolución judicial en materia penal?', 'NONE', []],
+  ['arrendamiento ley civil', 'NONE', []],
+  ['el código dice algo sobre la herencia', 'NONE', []],
+  ['resolución del contrato de arrendamiento', 'NONE', []],
+  ['¿un acuerdo de pago extingue la deuda?', 'NONE', []],
+  ['el acuerdo de las partes en un contrato', 'NONE', []],
+
+  // Títulos e identificadores reconocidos tienen precedencia sobre verbos y conectores
+  ['El Código Civil establece el arrendamiento.', 'SPECIFIC_RESOLVED', ['CODIGO_CIVIL']],
+
+  // El número de un artículo no identifica al instrumento
+  ['Qué dispone la ley aplicable en el artículo 5', 'NONE', []],
+
+  // Referencia inequívocamente identificada pero no resuelta: sigue específica
+  ['la resolución PCSJ-17-2012 del Consejo', 'SPECIFIC_UNRESOLVED', []],
+  ['el acuerdo 45-2019 de la Corte', 'SPECIFIC_UNRESOLVED', []],
 
   // Referencia específica sin resolver
   ['Según el decreto 130-2017, ¿qué dispone?', 'SPECIFIC_UNRESOLVED', []],

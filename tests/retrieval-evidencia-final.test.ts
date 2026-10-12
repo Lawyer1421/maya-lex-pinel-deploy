@@ -56,7 +56,7 @@ describe('evidenciaFinal — comparación con artículos concretos', () => {
   });
 });
 
-describe('evidenciaProcedimentalPermitida — RUTA C no completa una comparación', () => {
+describe('evidenciaProcedimentalPermitida — RUTA C completa sólo con evidencia elegible y verificable', () => {
   const comparacion = clasificarIntencionInstrumental('Código Penal y Código de Comercio');
 
   it('el principal cubre la comparación: el procedimental puede añadir fragmentos elegibles', () => {
@@ -70,10 +70,19 @@ describe('evidenciaProcedimentalPermitida — RUTA C no completa una comparació
     expect(evidenciaProcedimentalPermitida([], proc, comparacion)).toEqual([]);
   });
 
-  it('el procedimental puede completar la comparación que el principal no cubría', () => {
+  it('el procedimental completa sólo con evidencia elegible del instrumento que falta', () => {
     const principal = [frag('p', FUENTE_PENAL, null)];
     const proc = [frag('c', FUENTE_COMERCIO, null)];
     expect(evidenciaProcedimentalPermitida(principal, proc, comparacion)).toEqual(proc);
+  });
+
+  it('comparación con artículo pedido: el procedimental sólo completa con el artículo requerido, no con otro', () => {
+    const conArticulo = clasificarIntencionInstrumental('Artículo 173 del Código Penal y del Código de Comercio');
+    const principal = [frag('p', FUENTE_PENAL, '173')];
+    const otroArticulo = [frag('c-12', FUENTE_COMERCIO, '12')];
+    const articuloRequerido = [frag('c-173', FUENTE_COMERCIO, '173')];
+    expect(evidenciaProcedimentalPermitida(principal, otroArticulo, conArticulo)).toEqual([]);
+    expect(evidenciaProcedimentalPermitida(principal, articuloRequerido, conArticulo)).toEqual(articuloRequerido);
   });
 
   it('sin intención instrumental: todo el procedimental pasa (comportamiento previo)', () => {
