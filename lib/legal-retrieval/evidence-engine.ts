@@ -157,10 +157,10 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     const tag = ` [${etiqueta}]`;
     const pct = (f.relevancia * 100).toFixed(0);
     if (tematica) {
-      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud: ${pct}% | sin evaluación de relevancia jurídica]`);
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}% | sin evaluación de relevancia jurídica]`);
       lineas.push(`Fuente documental: ${f.fuente}`);
     } else {
-      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${pct}%]`);
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}%]`);
       lineas.push(`Fuente documental: ${f.fuente}`);
     }
     lineas.push(f.contenido.trim());

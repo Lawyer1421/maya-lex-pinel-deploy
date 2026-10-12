@@ -150,6 +150,7 @@ describe('POST /api/chat — system prompt final para «ley sobre el divorcio»'
     expect(contexto).not.toMatch(/Fuente documental: [^\n]*divorcio/i);
     // Sin relevancia jurídica declarada para el contexto temático
     expect(contexto).not.toContain('relevancia:');
+    expect(contexto).toContain('similitud de recuperación:');
     expect(contexto).toContain('sin evaluación de relevancia jurídica');
   });
 });

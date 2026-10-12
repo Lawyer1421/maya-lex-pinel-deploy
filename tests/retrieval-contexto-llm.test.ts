@@ -81,6 +81,7 @@ describe('contexto enviado al LLM — «ley sobre el divorcio» (NONE)', () => {
 
     expect(resultado.intencionInstrumental).toBe('SPECIFIC_RESOLVED');
     expect(contexto).not.toContain('CONSULTA TEMÁTICA');
-    expect(contexto).toContain('relevancia:');
+    expect(contexto).toContain('similitud de recuperación:');
+    expect(contexto).not.toContain('sin evaluación de relevancia jurídica');
   });
 });

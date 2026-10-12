@@ -166,6 +166,7 @@ describe('5 — contexto: cada fragmento muestra su fuente documental', () => {
     const ctx = formatearContextoRAG(r);
 
     expect(ctx).toContain(`Fuente documental: ${FUENTE_CIVIL}`);
+    expect(ctx).toContain('similitud de recuperación:');
     expect(ctx).toContain('sin evaluación de relevancia jurídica');
     expect(ctx).not.toContain('relevancia:');
   });
@@ -179,6 +180,7 @@ describe('5 — contexto: cada fragmento muestra su fuente documental', () => {
 
     expect(r.intencionInstrumental).toBe('SPECIFIC_RESOLVED');
     expect(ctx).toContain(`Fuente documental: ${FUENTE_CIVIL}`);
+    expect(ctx).toContain('similitud de recuperación:');
     expect(ctx).not.toContain('CONSULTA TEMÁTICA');
   });
 
@@ -202,5 +204,6 @@ describe('5 — contexto: cada fragmento muestra su fuente documental', () => {
     expect(r.intencionInstrumental).toBe('MULTI_SPECIFIC_RESOLVED');
     expect(ctx).toContain(`Fuente documental: ${FUENTE_CODIGO_PENAL}`);
     expect(ctx).toContain(`Fuente documental: ${FUENTE_COMERCIO}`);
+    expect(ctx).toContain('similitud de recuperación:');
   });
 });
