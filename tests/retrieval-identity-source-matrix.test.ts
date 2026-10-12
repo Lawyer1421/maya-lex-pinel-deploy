@@ -112,6 +112,29 @@ describe('matriz identidad de fuente real ↔ consulta, por instrumento', () => 
   });
 });
 
+describe('alias nuevos: correspondencia documental comprobada', () => {
+  const REGLAMENTO_REAL = 'Reglamento del Código del Notariado (Resolución PCSJ-17-2012)';
+  const CODIGO_REAL = 'Código del Notariado de Honduras (Decreto 353-2005)';
+
+  it.each([
+    ['reglamento notarial', 'REGLAMENTO_NOTARIADO', REGLAMENTO_REAL],
+    ['reglamento del notariado', 'REGLAMENTO_NOTARIADO', REGLAMENTO_REAL],
+    ['código notarial', 'CODIGO_NOTARIADO', CODIGO_REAL],
+    ['código del notariado', 'CODIGO_NOTARIADO', CODIGO_REAL],
+  ])('"%s" resuelve a %s y esa identidad coincide con la fuente real', (alias, instrumento, fuenteReal) => {
+    expect(detectarInstrumentoDesdeTexto(alias)).toBe(instrumento);
+    expect(identidadDeFuente(fuenteReal)).toBe(instrumento);
+  });
+
+  // "reglamento de la función notarial" es alias pedido en P1. Su nombre no aparece
+  // literal en la fuente real: la correspondencia es por el objeto del Reglamento
+  // (funciones notariales), no por nombre. Se declara como límite.
+  it('"reglamento de la función notarial" resuelve a REGLAMENTO_NOTARIADO (límite documental declarado)', () => {
+    expect(detectarInstrumentoDesdeTexto('reglamento de la función notarial')).toBe('REGLAMENTO_NOTARIADO');
+    expect(identidadDeFuente(REGLAMENTO_REAL)).toBe('REGLAMENTO_NOTARIADO');
+  });
+});
+
 describe('desajustes conocidos (no corregidos; se reportan)', () => {
   it('CPC_TEXTO_BASE_D211-2006 (fuente normativa real del CPC) no declara el instrumento en la fuente', () => {
     // La consulta "Código Procesal Civil" sí resuelve CODIGO_PROCESAL_CIVIL,

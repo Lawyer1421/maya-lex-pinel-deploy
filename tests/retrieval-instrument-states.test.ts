@@ -63,6 +63,31 @@ const casos: [string, string, string[]][] = [
   // Títulos e identificadores reconocidos tienen precedencia sobre verbos y conectores
   ['El Código Civil establece el arrendamiento.', 'SPECIFIC_RESOLVED', ['CODIGO_CIVIL']],
 
+  // Código documental: se absorbe sólo si su correspondencia con la identidad está verificada
+  ['Reglamento del Código del Notariado PCSJ-17-2012', 'SPECIFIC_RESOLVED', ['REGLAMENTO_NOTARIADO']],
+  ['Código Procesal Penal 9-99-E', 'SPECIFIC_RESOLVED', ['CODIGO_PROCESAL_PENAL']],
+  ['Código Tributario 170-2016', 'SPECIFIC_RESOLVED', ['CODIGO_TRIBUTARIO']],
+  ['Código del Notariado PCSJ-17-2012', 'SPECIFIC_UNRESOLVED', ['CODIGO_NOTARIADO']],
+  ['Código de Comercio 170-2016', 'SPECIFIC_UNRESOLVED', ['CODIGO_COMERCIO']],
+  // Control negativo: el conflicto no se ignora
+  ['Código Civil, Decreto 130-2017', 'SPECIFIC_UNRESOLVED', ['CODIGO_CIVIL']],
+  ['Código Civil 130-2017', 'SPECIFIC_UNRESOLVED', ['CODIGO_CIVIL']],
+  // Año contextual: no es conflicto ni identifica
+  ['Código Civil de 1906', 'SPECIFIC_RESOLVED', ['CODIGO_CIVIL']],
+
+  // Alias notariales con correspondencia documental
+  ['Según el reglamento notarial, ¿qué procede?', 'SPECIFIC_RESOLVED', ['REGLAMENTO_NOTARIADO']],
+  ['Según el código notarial, ¿qué procede?', 'SPECIFIC_RESOLVED', ['CODIGO_NOTARIADO']],
+
+  // Títulos o referencias genéricas de otro tipo: no se normalizan a NONE
+  ['¿Qué establece el código de ética?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según el reglamento de la empresa, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+
+  // Actos jurídicos con "resolución/acuerdo": NONE
+  ['¿Cuándo procede la resolución del contrato?', 'NONE', []],
+  ['¿Un acuerdo de pago extingue la deuda?', 'NONE', []],
+  ['El acuerdo de las partes obliga a ambas.', 'NONE', []],
+
   // El número de un artículo no identifica al instrumento
   ['Qué dispone la ley aplicable en el artículo 5', 'NONE', []],
 

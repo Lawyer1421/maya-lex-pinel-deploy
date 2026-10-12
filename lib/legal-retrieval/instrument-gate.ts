@@ -84,6 +84,25 @@ const esAnio = (w: string): boolean => /^(19|20)\d{2}$/.test(w);
 const esIdentificador = (w: string): boolean => /\d/.test(w) && !esAnio(w);
 
 /**
+ * Identificadores documentales verificados: los números de decreto o resolución
+ * que aparecen en el nombre real de la fuente de cada instrumento (fixtures y
+ * artefactos del repositorio). Un código de la consulta sólo se absorbe si está
+ * aquí; si no, es un conflicto ("Código Civil 130-2017" no identifica al Civil).
+ * Minúsculas, como el texto normalizado.
+ */
+export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado, readonly string[]>> = {
+  CODIGO_PROCESAL_PENAL: ['9-99-e'],      // Código Procesal Penal de Honduras (Decreto 9-99-E)
+  CODIGO_NOTARIADO: ['353-2005'],         // Código del Notariado de Honduras (Decreto 353-2005)
+  REGLAMENTO_NOTARIADO: ['pcsj-17-2012'], // Reglamento del Código del Notariado (Resolución PCSJ-17-2012)
+  CODIGO_TRIBUTARIO: ['170-2016'],        // Codigo Tributario (Decreto 170-2016 - ...)
+  CODIGO_COMERCIO: ['73-1950'],           // Codigo de Comercio (Decreto No. 73-1950, ...)
+  CONSTITUCION: ['131-1982'],             // Constitucion de la Republica (Decreto 131-1982 - ...)
+};
+
+/** Código documental: token con guion y dígitos ("130-2017", "pcsj-17-2012"). */
+const esCodigoDocumental = (w: string): boolean => /-/.test(w) && /\d/.test(w);
+
+/**
  * true si lo que sigue a una clase de instrumento es una referencia específica
  * sin resolver. Se recorre la frase desde la clase, antes de cualquier mención de
  * artículo y en un máximo de seis palabras:
@@ -97,7 +116,8 @@ const esIdentificador = (w: string): boolean => /\d/.test(w) && !esAnio(w);
  * - cualquier otra palabra (adjetivo temático, verbo, materia) → NONE.
  * Un año no identifica por sí solo al instrumento.
  */
-function referenciaEspecifica(resto: string, clase: string): boolean {
+/** Palabras que siguen a una clase: hasta puntuación, máximo seis, sin pasar a una mención de artículo. */
+function tokensReferencia(resto: string): string[] {
   const t: string[] = [];
   for (const p of (resto.split(/[?¿!¡,;:()]/)[0] ?? '').trim().split(/\s+/).map((x) => x.replace(/\.+$/, ''))) {
     if (!p) continue;
@@ -105,6 +125,11 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
     t.push(p);
     if (t.length === 6) break;
   }
+  return t;
+}
+
+function referenciaEspecifica(resto: string, clase: string): boolean {
+  const t = tokensReferencia(resto);
   const jurisdiccion = (w: string): boolean => clase === 'ley' && JURISDICCION_LEY.has(w);
   let i = 0;
   while (i < t.length) {
@@ -134,15 +159,25 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
 
 /** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
 function contarReferenciasPendientes(
-  texto: string,
-  identidades: { inicio: number; fin: number }[],
+  cadena: string,
+  identidades: { instrumento: InstrumentoNormalizado; inicio: number; fin: number }[],
 ): number {
   let pendientes = 0;
-  for (const m of texto.matchAll(CLASES_RE)) {
+  for (const m of cadena.matchAll(CLASES_RE)) {
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
-    if (identidades.some((i) => i.inicio <= inicio && fin <= i.fin)) continue;
-    if (referenciaEspecifica(texto.slice(fin), m[1])) pendientes++;
+    const cubierta = identidades.find((i) => i.inicio <= inicio && fin <= i.fin);
+    if (cubierta) {
+      // Clase ya identificada: el código documental de la consulta sólo se absorbe
+      // si su correspondencia con esa identidad está verificada; si no, es conflicto.
+      const verificados = IDENTIFICADORES_DOCUMENTALES[cubierta.instrumento] ?? [];
+      const conflicto = tokensReferencia(cadena.slice(fin))
+        .filter(esCodigoDocumental)
+        .some((codigo) => !verificados.includes(codigo));
+      if (conflicto) pendientes++;
+      continue;
+    }
+    if (referenciaEspecifica(cadena.slice(fin), m[1])) pendientes++;
   }
   return pendientes;
 }
@@ -189,10 +224,14 @@ function identidadesCubiertas(fragmentos: readonly { fuente: string }[], intenci
 
 /**
  * Evidencia final que puede enviarse como contexto. Devuelve [] si no hay
- * cobertura completa. En una comparación con un artículo concreto, sólo cuentan
- * los fragmentos de ese artículo, uno por instrumento: un fragmento de otro
- * artículo no autoriza la comparación. Con más de un artículo pedido no hay
- * correspondencia establecida, así que se abstiene.
+ * cobertura completa.
+ *
+ * Alcance del filtro por artículo: sólo para MULTI_SPECIFIC_RESOLVED (comparación)
+ * con un único artículo pedido. Entonces cuentan sólo los fragmentos de ese
+ * artículo, uno por instrumento; un fragmento de otro artículo no autoriza la
+ * comparación. Con más de un artículo pedido no hay correspondencia establecida,
+ * y se abstiene. Una identidad única (SPECIFIC_RESOLVED) no se filtra por
+ * artículo: esa decisión se mantiene.
  */
 export function evidenciaFinal<T extends { fuente: string; num_articulo?: string | null }>(
   fragmentos: readonly T[],

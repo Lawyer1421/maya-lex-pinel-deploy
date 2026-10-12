@@ -332,6 +332,7 @@ export async function buscarRAG(
             fragmentos: exacto.fragmentos,
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
+            intencionInstrumental: intencion.estado,
             outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
               evidenceCount: exacto.fragmentos.length, exactAttempted: true,
             }),
@@ -356,6 +357,7 @@ export async function buscarRAG(
           // NO_VERIFIED_EVIDENCE (ej. Art. 9999 CPP), NUNCA RETRIEVAL_ERROR.
           return {
             fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+            intencionInstrumental: intencion.estado,
             outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
           };
         }
