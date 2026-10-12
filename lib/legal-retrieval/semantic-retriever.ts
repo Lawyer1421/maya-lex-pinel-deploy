@@ -195,9 +195,9 @@ export async function buscarEnSupabase(
   // `fuente === null`, sin tocar la condición de D6b) para cerrar ese caso
   // sin duplicar ni reemplazar la función existente.
   //
-  // P1 (intención instrumental explícita): elegibleFuente aplica la regla de
-  // instrument-gate (identidad confirmada, o bloqueo fail-close cuando la clase
-  // es explícita sin identidad y la materia sería la única autorización). Va
+  // P1 (intención instrumental): elegibleFuente aplica la regla de instrument-gate
+  // según el estado (NONE sin filtro; identidad resuelta exige fuente confirmada;
+  // referencia específica no resuelta bloquea todo). La materia nunca autoriza. Va
   // ANTES del corte final, para que `k` se llene con candidatos elegibles.
   const candidatos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))

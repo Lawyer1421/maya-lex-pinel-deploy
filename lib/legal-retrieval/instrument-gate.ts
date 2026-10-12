@@ -22,8 +22,8 @@
  * aplicable", "acuerdo correspondiente") no son referencias específicas: su
  * estado es NONE, salvo que el contexto identifique un instrumento particular.
  * Para la clase "ley", ámbito territorial o nacional ("hondureña", "de
- * Honduras", "de la República", "nacional") y tema tras jurisdicción ("sobre
- * el divorcio") también son NONE.
+ * Honduras", "de la República", "nacional") es NONE, y "sobre <tema>" también
+ * es NONE: sin título, no hay referencia específica.
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
@@ -70,8 +70,8 @@ const CALIFICADORES_LEY_GENERICOS = new Set(['honduras', 'hondurena', 'hondureno
  * true si el texto que sigue a una clase de instrumento la califica de forma
  * específica: un número de identificación en sus primeras palabras, o un
  * calificador propio que no es genérico ("notarial", "especial", "de adopciones").
- * En la clase "ley", un ámbito territorial o nacional se salta; si después
- * aparece "sobre" (tema), la referencia es NONE: jurisdicción y tema, sin título.
+ * En la clase "ley", un ámbito territorial o nacional se salta, y "sobre"
+ * introduce un tema: "ley sobre el divorcio" no nombra un título y es NONE.
  */
 function calificadorEspecifico(resto: string, clase: string): boolean {
   const palabras = (resto.split(/[?¿!¡,;:()]/)[0] ?? '')
@@ -81,14 +81,10 @@ function calificadorEspecifico(resto: string, clase: string): boolean {
     .filter(Boolean)
     .slice(0, 5);
   if (palabras.slice(0, 3).some((p) => /\d/.test(p))) return true;
-  let jurisdiccion = false;
   for (const p of palabras) {
-    if (clase === 'ley' && jurisdiccion && p === 'sobre') return false;
+    if (clase === 'ley' && p === 'sobre') return false;
     if (ARTICULOS.has(p)) continue;
-    if (clase === 'ley' && CALIFICADORES_LEY_GENERICOS.has(p)) {
-      jurisdiccion = true;
-      continue;
-    }
+    if (clase === 'ley' && CALIFICADORES_LEY_GENERICOS.has(p)) continue;
     return !GENERICOS.has(p);
   }
   return false;

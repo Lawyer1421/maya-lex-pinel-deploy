@@ -238,6 +238,26 @@ function unirFragmentos(primero: FragmentoRAG[], segundo: FragmentoRAG[]): Fragm
   return [...primero, ...segundo.filter((f) => !f.id || !ids.has(f.id))];
 }
 
+/**
+ * Búsqueda exacta por artículo para cada identidad de una comparación. Sin
+ * materia: cada instrumento recupera su propio artículo, con la identidad
+ * documental como único criterio de aceptación (resolverArticuloExacto).
+ */
+async function buscarArticuloPorIdentidades(
+  numero: string,
+  identidades: InstrumentoNormalizado[],
+): Promise<ResultadoExacto> {
+  // Secuencial: una búsqueda por identidad, en orden, como el resto de la ruta exacta.
+  const fragmentos: FragmentoRAG[] = [];
+  let ambiguo = false;
+  for (const id of identidades) {
+    const r = await buscarArticuloExacto(numero, null, id);
+    fragmentos.push(...r.fragmentos);
+    ambiguo = ambiguo || r.ambiguo;
+  }
+  return { fragmentos, ambiguo };
+}
+
 export async function buscarRAG(
   consulta: string,
   k = 5,
@@ -291,7 +311,11 @@ export async function buscarRAG(
       exactoIntentado = true;
       try {
         const materiaEfectiva = deteccion.materiaDetectada ?? materia ?? null;
-        const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
+        // Comparación con un artículo: cada instrumento recupera su propio artículo,
+        // sin materia de un solo instrumento. Resto: búsqueda exacta habitual.
+        const exacto = intencion.estado === 'MULTI_SPECIFIC_RESOLVED' && intencion.articulos.length === 1
+          ? await buscarArticuloPorIdentidades(deteccion.numero, intencion.identidades)
+          : await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
         if (exacto.ambiguo) {
           // Regla K (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md): ambigüedad ->
           // NO_VERIFIED_EVIDENCE, NUNCA contaminación semántica.
@@ -378,7 +402,10 @@ export async function buscarRAG(
   // constitucional además de penal/civil) -- nunca en la ruta de artículo
   // exacto de arriba, que sigue usando la detección original sin tocar (ver
   // comentario de detectarMateriaSemanticaAmpliada en exact-resolver.ts).
-  const materiaSemantica = materia ?? detectarMateriaSemanticaAmpliada(consulta) ?? undefined;
+  // En una comparación, la materia inferida del texto (la del primer instrumento)
+  // excluiría al otro: no filtra. Sólo aplica el filtro explícito del llamador.
+  const materiaSemantica = materia
+    ?? (intencion.estado === 'MULTI_SPECIFIC_RESOLVED' ? undefined : detectarMateriaSemanticaAmpliada(consulta) ?? undefined);
 
   // P1: elegibilidad de la evidencia semántica según el estado de la intención.
   const elegibleFuente = elegibilidadSemantica(intencion);

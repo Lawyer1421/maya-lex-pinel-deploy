@@ -30,8 +30,9 @@ const casos: [string, string, string[]][] = [
 
   // Título específico tras jurisdicción: específica
   ['¿Qué dispone la ley hondureña de adopciones?', 'SPECIFIC_UNRESOLVED', []],
-  // Tema sin jurisdicción: específica (conservador, no se extiende el ámbito)
-  ['Según la ley sobre el divorcio, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  // Tema sin jurisdicción: NONE (decisión aprobada: "ley sobre X" con sólo tema no es título)
+  ['Según la ley sobre el divorcio, ¿qué procede?', 'NONE', []],
+  ['Según la ley sobre adopciones, ¿qué procede?', 'NONE', []],
 
   // Ley con calificador propio: específica, no se extiende el ámbito
   ['Según la ley notarial hondureña, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
@@ -59,6 +60,10 @@ const casos: [string, string, string[]][] = [
   ['artículo 1 de la Constitución de la República de Honduras', 'SPECIFIC_RESOLVED', ['CONSTITUCION']],
   ['requisitos de constitución de sociedad anónima', 'NONE', []],
   ['constitución de hipoteca sobre inmueble', 'NONE', []],
+  ['Según la constitución en mora, ¿qué procede?', 'NONE', []],
+  ['constitución en mora', 'NONE', []],
+  ['Según la Constitución Política de Honduras, ¿qué procede?', 'SPECIFIC_RESOLVED', ['CONSTITUCION']],
+  ['¿Qué dice la Constitución sobre el artículo 11?', 'SPECIFIC_RESOLVED', ['CONSTITUCION']],
 
   // Ley sobre justicia constitucional: la identidad cubre la clase; "constitucional" no es Constitución
   ['ley sobre justicia constitucional', 'SPECIFIC_RESOLVED', ['LEY_JUSTICIA_CONSTITUCIONAL']],

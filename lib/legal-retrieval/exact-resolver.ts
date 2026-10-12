@@ -191,10 +191,13 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   // \b tras "constituci[oó]n" es lo que evita que esto capture "Ley sobre
   // Justicia Constitucional" (que en la fuente real contiene "Constitucional",
   // sin límite de palabra inmediatamente después de "constitucion").
-  // Polisemia: "constitución de sociedad/hipoteca/..." es un acto jurídico, no el
-  // instrumento. Sólo cuenta como Constitución si no va seguida de "de/del" +
-  // algo distinto de "la República" u "Honduras".
-  ['CONSTITUCION', /constituci[oó]n\b(?!\s+(?:de|del)\s+(?!(?:la\s+)?rep[uú]blica\b|honduras\b))/i],
+  // Polisemia: "constitución en mora", "constitución de sociedad/hipoteca", etc.
+  // son actos jurídicos, no el instrumento. Sólo cuenta como Constitución cuando
+  // va seguida de una referencia normativa: fin de consulta o puntuación, "de la
+  // República", "de Honduras", "política", "nacional", "sobre", "que", "establece",
+  // "dispone", "prevé", "vigente", "en su", "y", o un número. Lista positiva: lo
+  // no listado no se identifica como instrumento.
+  ['CONSTITUCION', /constituci[oó]n\b(?=\s*(?:$|[?¿!¡.,;:)]|de\s+la\s+rep[uú]blica\b|de\s+honduras\b|pol[ií]tica\b|nacional\b|sobre\b|que\b|establece\b|dispone\b|prev[eé]\b|vigente\b|en\s+su\b|y\b|\d))/i],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */

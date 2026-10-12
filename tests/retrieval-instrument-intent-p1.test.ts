@@ -185,12 +185,21 @@ function filaRPC(id: string, fuente: string, similarity: number, contenido: stri
 
 const codigoD05 = filaRPC('codigo-9', FUENTE_CODIGO, 0.95, 'Artículo 9. Las afirmaciones del notario se presumen auténticas.');
 const reglamentoD05 = filaRPC('reglamento-9', FUENTE_REGLAMENTO, 0.80, 'Artículo 9. Presunción de las afirmaciones del notario en el protocolo.');
-const codigoPenalRow = filaRPC('penal-1', FUENTE_CODIGO_PENAL, 0.90, 'Artículo 1. Texto del Código Penal.');
-const codigoComercioRow = filaRPC('comercio-1', FUENTE_CODIGO_COMERCIO, 0.85, 'Artículo 1. Texto del Código de Comercio.');
+const codigoPenalRow = { ...filaRPC('penal-1', FUENTE_CODIGO_PENAL, 0.90, 'Artículo 1. Texto del Código Penal.'), materia: '01_PENAL' };
+const codigoComercioRow = { ...filaRPC('comercio-1', FUENTE_CODIGO_COMERCIO, 0.85, 'Artículo 1. Texto del Código de Comercio.'), materia: '10_LEYES_REGLAMENTOS' };
 
-function mockearSemantica(filas: unknown[]) {
+/** RPC que respeta materia_filtro, solo_norma_vigente y límite, como buscar_biblioteca_v2. */
+function mockearSemantica(filas: { materia?: string; es_norma_vigente?: boolean }[]) {
+  const rpc = vi.fn(async (_nombre: string, params: Record<string, unknown>) => {
+    const materia = params.materia_filtro as string | null;
+    const data = filas
+      .filter((f) => materia === null || f.materia === materia)
+      .filter((f) => params.solo_norma_vigente !== true || f.es_norma_vigente === true)
+      .slice(0, (params.limite as number | undefined) ?? filas.length);
+    return { data, error: null };
+  });
   vi.doMock('@/lib/supabase', () => ({
-    createServerSupabaseClient: () => ({ rpc: vi.fn(async () => ({ data: filas, error: null })) }),
+    createServerSupabaseClient: () => ({ rpc }),
   }));
   vi.doMock('@/lib/rag/embed', () => ({
     embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)),
