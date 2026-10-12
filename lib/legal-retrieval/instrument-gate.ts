@@ -18,13 +18,14 @@
  *
  * Qué cuenta como referencia específica sin resolver: una clase (ley, decreto,
  * resolución, acuerdo, código, reglamento) seguida de un identificador (número
- * o código, p. ej. "130-2017", "PCSJ-17-2012") o de un título reconocido
- * ("notarial", "notariado"). Todo lo demás es lenguaje temático o de actos
- * jurídicos y es NONE: materias ("ley civil", "en materia penal"), actos
- * ("acuerdo de pago", "resolución del contrato"), temas ("ley sobre el
- * divorcio"), verbos ("el código dice…") y mayúsculas o palabras desconocidas
- * sin identificador. Las identidades reconocidas (detectarIdentidadesDesdeTexto)
- * tienen precedencia sobre cualquier otra señal.
+ * o código, p. ej. "130-2017", "PCSJ-17-2012"), de un título reconocido
+ * ("notarial", "notariado") o de un título particular introducido por "de/del"
+ * ("ley de Adopciones", "ley de Inquilinato"). Un año no identifica por sí solo.
+ * Es NONE: los temas ("ley sobre el divorcio", "acerca de"), las materias
+ * genéricas ("ley civil", "en materia penal"), los actos jurídicos ("resolución
+ * del contrato", "acuerdo de pago"), los verbos ("el código dice…") y las
+ * palabras sin identificador. Las identidades reconocidas
+ * (detectarIdentidadesDesdeTexto) tienen precedencia sobre cualquier otra señal.
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
@@ -51,28 +52,84 @@ const NORMALIZAR = (texto: string): string =>
 const CLASES_RE = /\b(codigo|reglamento|ley|decreto|resolucion|acuerdo)\b/g;
 const ARTICULO_RE = /\bart(?:iculo|\.)?\s*(\d+)\b/g;
 
-// Títulos reconocidos de instrumentos sectoriales. Un título reconocido sin
-// resolver ("la ley notarial") es referencia específica. No se mapea a un
-// instrumento concreto: la identidad sólo la resuelve el detector.
+// Léxico de la frontera. Las palabras están normalizadas (sin acentos, minúsculas).
+
+// Título reconocido e inequívoco: "la ley notarial" (C10). No se mapea a un
+// instrumento: la identidad sólo la resuelve el detector.
 const TITULOS_RECONOCIDOS = new Set(['notarial', 'notariado']);
+
+// Calificadores territoriales de la clase "ley". No nombran un título.
+const JURISDICCION_LEY = new Set(['honduras', 'hondurena', 'hondureno', 'nacional', 'republica']);
+
+// Adjetivos que acompañan a un título ("Ley Especial de Adopciones").
+const ADJETIVOS_TITULO = new Set(['especial', 'especiales', 'organica', 'organico', 'general']);
+
+// Artículos que pueden intercalarse tras "de" ("de la república", "de las 8 horas").
+const ARTICULOS_DE = new Set(['la', 'el', 'los', 'las']);
+
+// Actos jurídicos y materias: lo que sigue a "de/del" no es un título particular.
+const ACTO_O_MATERIA = new Set([
+  'contrato', 'contratos', 'pago', 'pagos', 'partes', 'parte', 'deuda', 'deudas',
+  'obligacion', 'obligaciones', 'sociedad', 'sociedades', 'hipoteca', 'garantia',
+  'fideicomiso', 'compraventa', 'arrendamiento', 'herencia', 'sucesion', 'familia',
+  'derecho', 'derechos', 'materia', 'mora', 'cumplimiento', 'ejecucion', 'sentencia',
+  'sentencias', 'juicio', 'proceso', 'procedimiento', 'recurso', 'apelacion', 'acto',
+  'actos', 'bienes', 'propiedad', 'cosa', 'cosas', 'delito', 'delitos', 'falta', 'faltas',
+]);
+
+/** Año contextual: no identifica por sí solo un instrumento. */
+const esAnio = (w: string): boolean => /^(19|20)\d{2}$/.test(w);
+
+/** Identificador: contiene dígitos y no es sólo un año ("130-2017", "PCSJ-17-2012", "8"). */
+const esIdentificador = (w: string): boolean => /\d/.test(w) && !esAnio(w);
 
 /**
  * true si lo que sigue a una clase de instrumento es una referencia específica
- * sin resolver: un identificador (dígitos, p. ej. "130-2017" o "de 2018") o un
- * título reconocido, dentro de las seis palabras siguientes y antes de cualquier
- * mención de artículo (el número de un artículo no identifica al instrumento).
- * Cualquier otra palabra (materia, acto, tema, verbo, mayúscula) no basta.
+ * sin resolver. Se recorre la frase desde la clase, antes de cualquier mención de
+ * artículo y en un máximo de seis palabras:
+ * - tema ("sobre …", "acerca de …") → no es específica (NONE), para cualquier clase;
+ * - identificador ("130-2017") o título reconocido ("notarial") → específica;
+ * - "de/del" + título particular ("de Adopciones", "de Inquilinato", "de las 8
+ *   horas") → específica; "de/del" + acto o materia ("del contrato", "de pago") o
+ *   + año ("de 2018") → NONE;
+ * - jurisdicción de la clase "ley" ("hondureña", "de Honduras") y adjetivos de
+ *   título ("especial") se saltan;
+ * - cualquier otra palabra (adjetivo temático, verbo, materia) → NONE.
+ * Un año no identifica por sí solo al instrumento.
  */
-function referenciaEspecifica(resto: string): boolean {
-  const palabras: string[] = [];
-  for (const p of (resto.split(/[?¿!¡,;:()]/)[0] ?? '').trim().split(/\s+/).map((t) => t.replace(/\.+$/, ''))) {
+function referenciaEspecifica(resto: string, clase: string): boolean {
+  const t: string[] = [];
+  for (const p of (resto.split(/[?¿!¡,;:()]/)[0] ?? '').trim().split(/\s+/).map((x) => x.replace(/\.+$/, ''))) {
     if (!p) continue;
     if (/^art(iculo)?$/.test(p)) break;
-    palabras.push(p);
-    if (palabras.length === 6) break;
+    t.push(p);
+    if (t.length === 6) break;
   }
-  if (palabras.some((p) => /\d/.test(p))) return true;
-  return palabras.some((p) => TITULOS_RECONOCIDOS.has(p));
+  const jurisdiccion = (w: string): boolean => clase === 'ley' && JURISDICCION_LEY.has(w);
+  let i = 0;
+  while (i < t.length) {
+    const w = t[i];
+    if (w === 'sobre' || (w === 'acerca' && (t[i + 1] === 'de' || t[i + 1] === 'del'))) return false;
+    if (jurisdiccion(w) || ADJETIVOS_TITULO.has(w)) {
+      i++;
+      continue;
+    }
+    if (esIdentificador(w) || TITULOS_RECONOCIDOS.has(w)) return true;
+    if (w === 'de' || w === 'del') {
+      let j = i + 1;
+      while (j < t.length && ARTICULOS_DE.has(t[j])) j++;
+      const x = t[j];
+      if (x === undefined) return false;
+      if (jurisdiccion(x)) {
+        i = j + 1;
+        continue;
+      }
+      if (ACTO_O_MATERIA.has(x) || esAnio(x)) return false;
+      return true;
+    }
+    return false;
+  }
+  return false;
 }
 
 /** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
@@ -85,7 +142,7 @@ function contarReferenciasPendientes(
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
     if (identidades.some((i) => i.inicio <= inicio && fin <= i.fin)) continue;
-    if (referenciaEspecifica(texto.slice(fin))) pendientes++;
+    if (referenciaEspecifica(texto.slice(fin), m[1])) pendientes++;
   }
   return pendientes;
 }

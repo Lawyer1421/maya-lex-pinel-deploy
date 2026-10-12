@@ -421,6 +421,7 @@ export async function buscarRAG(
         ...bruto,
         fragmentos,
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        intencionInstrumental: intencion.estado,
       };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
@@ -443,6 +444,7 @@ export async function buscarRAG(
         ...bruto,
         fragmentos,
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        intencionInstrumental: intencion.estado,
       };
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin

@@ -106,6 +106,26 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
   });
 
+  it('"ley sobre el divorcio" (NONE): intención NONE y contexto con fuente real, igual que Supabase', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        respuestaPython([
+          { contenido: 'Artículo 1. El matrimonio se disuelve por divorcio.', num_articulo: '1', fuente: 'Código Civil de Honduras (Decreto del Poder Ejecutivo del 8 de febrero de 1906)', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true },
+        ]),
+      ),
+    );
+    const { buscarRAG, formatearContextoRAG } = await import('@/lib/rag/search');
+
+    const resultado = await buscarRAG('Según la ley sobre el divorcio, ¿qué procede?', 5, 'mayalex_normativos');
+    const contexto = formatearContextoRAG(resultado);
+
+    expect(resultado.intencionInstrumental).toBe('NONE');
+    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(contexto).toContain('Fuente documental: Código Civil de Honduras (Decreto del Poder Ejecutivo del 8 de febrero de 1906)');
+    expect(contexto).not.toMatch(/Fuente documental: .*divorcio/i);
+  });
+
   it('genérico "ley de Honduras" (NONE): sin filtro, igual que Supabase', async () => {
     vi.stubGlobal(
       'fetch',

@@ -29,15 +29,27 @@ const casos: [string, string, string[]][] = [
   ['Según la ley de Honduras sobre el divorcio, ¿qué procede?', 'NONE', []],
 
   // Título específico tras jurisdicción: específica
-  // Título sin identificador ni título reconocido: NONE (no se usa cualquier palabra como prueba)
-  ['¿Qué dispone la ley hondureña de adopciones?', 'NONE', []],
+  // Título particular ("ley de X") no resuelto: SPECIFIC_UNRESOLVED aunque no esté en el léxico
+  ['¿Qué dispone la ley hondureña de adopciones?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según la ley de Inquilinato, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según la ley de las 8 horas, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
+  // Clase + sobre/acerca de + tema: NONE, para cualquier clase
+  ['Conforme al decreto sobre vivienda, ¿qué procede?', 'NONE', []],
+  ['Según la ley acerca del divorcio, ¿qué procede?', 'NONE', []],
+  // Un año contextual no identifica un instrumento
+  ['Según la ley de 2018, ¿qué procede?', 'NONE', []],
+  // Actos jurídicos y materia genérica: NONE
+  ['Según la resolución del contrato, ¿qué procede?', 'NONE', []],
+  ['Según el acuerdo de pago, ¿qué procede?', 'NONE', []],
   // Tema sin jurisdicción: NONE (decisión aprobada: "ley sobre X" con sólo tema no es título)
   ['Según la ley sobre el divorcio, ¿qué procede?', 'NONE', []],
   ['Según la ley sobre adopciones, ¿qué procede?', 'NONE', []],
+  // Título reconocido (notarial) tiene precedencia sobre la materia
+  ['Según la ley notarial, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
 
   // Ley con calificador propio: específica, no se extiende el ámbito
   ['Según la ley notarial hondureña, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
-  ['Según la ley de adopciones, ¿qué procede?', 'NONE', []],
+  ['Según la ley de adopciones, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
   ['Según el decreto hondureño, ¿qué procede?', 'NONE', []],
 
   // B1 — seis consultas reproducidas por el auditor: temáticas, sin referencia específica

@@ -46,6 +46,12 @@ export interface ResultadoRAG {
    * redefine ningún campo existente de ResultadoRAG).
    */
   outcome?: RetrievalOutcome;
+  /**
+   * Estado de la intención instrumental de la consulta (P1). Campo opcional y
+   * aditivo. Con NONE, el contexto presenta los fragmentos como expresión
+   * temática, con sus fuentes reales y sin relevancia jurídica evaluada.
+   */
+  intencionInstrumental?: 'NONE' | 'SPECIFIC_RESOLVED' | 'MULTI_SPECIFIC_RESOLVED' | 'SPECIFIC_UNRESOLVED';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
