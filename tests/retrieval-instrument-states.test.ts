@@ -36,8 +36,8 @@ const casos: [string, string, string[]][] = [
   // Clase + sobre/acerca de + tema: NONE, para cualquier clase
   ['Conforme al decreto sobre vivienda, ¿qué procede?', 'NONE', []],
   ['Según la ley acerca del divorcio, ¿qué procede?', 'NONE', []],
-  // Un año contextual no identifica un instrumento
-  ['Según la ley de 2018, ¿qué procede?', 'NONE', []],
+  // Ley o decreto seguidos de año: referencia específica sin resolver (el año no identifica)
+  ['Según la ley de 2018, ¿qué procede?', 'SPECIFIC_UNRESOLVED', []],
   // Actos jurídicos y materia genérica: NONE
   ['Según la resolución del contrato, ¿qué procede?', 'NONE', []],
   ['Según el acuerdo de pago, ¿qué procede?', 'NONE', []],
@@ -98,7 +98,10 @@ const casos: [string, string, string[]][] = [
   // Referencia específica sin resolver
   ['Según el decreto 130-2017, ¿qué dispone?', 'SPECIFIC_UNRESOLVED', []],
   ['Ley Especial de Adopciones de 2018', 'SPECIFIC_UNRESOLVED', []],
-  ['Código Penal y decreto 130-2017', 'SPECIFIC_UNRESOLVED', ['CODIGO_PENAL']],
+  // Referencia pendiente junto a una resuelta: el decreto no verificado sigue pendiente
+  ['Código Penal y decreto 999-2099', 'SPECIFIC_UNRESOLVED', ['CODIGO_PENAL']],
+  // Decreto verificado para el Código Penal: no es referencia pendiente
+  ['Código Penal y decreto 130-2017', 'SPECIFIC_RESOLVED', ['CODIGO_PENAL']],
 
   // Alias notariales (C10 y D05)
   ['¿Prevalece la nulidad prevista en otras leyes sobre la nulidad de la ley notarial?', 'SPECIFIC_UNRESOLVED', []],

@@ -161,6 +161,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
       lineas.push(`Fuente documental: ${f.fuente}`);
     } else {
       lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${pct}%]`);
+      lineas.push(`Fuente documental: ${f.fuente}`);
     }
     lineas.push(f.contenido.trim());
     lineas.push('');

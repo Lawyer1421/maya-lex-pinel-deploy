@@ -85,7 +85,7 @@ describe('referencias específicas sin resolver bloquean', () => {
   });
 
   it('referencia específica junto a una resuelta: conserva ambas y queda SPECIFIC_UNRESOLVED', () => {
-    const i = clasificarIntencionInstrumental('Código Penal y decreto 130-2017');
+    const i = clasificarIntencionInstrumental('Código Penal y decreto 999-2099');
     expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
     expect(i.identidades).toEqual(['CODIGO_PENAL']);
   });

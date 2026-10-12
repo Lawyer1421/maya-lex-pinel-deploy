@@ -62,7 +62,7 @@ const TITULOS_RECONOCIDOS = new Set(['notarial', 'notariado']);
 const JURISDICCION_LEY = new Set(['honduras', 'hondurena', 'hondureno', 'nacional', 'republica']);
 
 // Adjetivos que acompañan a un título ("Ley Especial de Adopciones").
-const ADJETIVOS_TITULO = new Set(['especial', 'especiales', 'organica', 'organico', 'general']);
+const ADJETIVOS_TITULO = new Set(['especial', 'especiales', 'organica', 'organico', 'general', 'marco']);
 
 // Artículos que pueden intercalarse tras "de" ("de la república", "de las 8 horas").
 const ARTICULOS_DE = new Set(['la', 'el', 'los', 'las']);
@@ -92,6 +92,9 @@ const esIdentificador = (w: string): boolean => /\d/.test(w) && !esAnio(w);
  */
 export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado, readonly string[]>> = {
   CODIGO_PROCESAL_PENAL: ['9-99-e'],      // Código Procesal Penal de Honduras (Decreto 9-99-E)
+  // Código Penal = Decreto 130-2017: lib/normas-cpp.ts ("CÓDIGO PENAL HONDURAS (D.130-2017)"),
+  // docs/retrieval/OFFICIAL_HONDURAS_SOURCE_REGISTRY.md ("Código Penal Decreto 130-2017").
+  CODIGO_PENAL: ['130-2017'],
   CODIGO_NOTARIADO: ['353-2005'],         // Código del Notariado de Honduras (Decreto 353-2005)
   REGLAMENTO_NOTARIADO: ['pcsj-17-2012'], // Reglamento del Código del Notariado (Resolución PCSJ-17-2012)
   CODIGO_TRIBUTARIO: ['170-2016'],        // Codigo Tributario (Decreto 170-2016 - ...)
@@ -128,6 +131,10 @@ function tokensReferencia(resto: string): string[] {
   return t;
 }
 
+// Clases en las que "de/del + X" puede ser un acto jurídico ("resolución del
+// contrato", "acuerdo de pago"). En las demás clases, "de X" es un título particular.
+const CLASES_CON_ACTOS = new Set(['resolucion', 'acuerdo']);
+
 function referenciaEspecifica(resto: string, clase: string): boolean {
   const t = tokensReferencia(resto);
   const jurisdiccion = (w: string): boolean => clase === 'ley' && JURISDICCION_LEY.has(w);
@@ -139,6 +146,9 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
       i++;
       continue;
     }
+    // Un año tras la clase ("ley 2018", "ley de 2018") es referencia específica sin
+    // resolver. El año no identifica al instrumento: no se resuelve identidad con él.
+    if (esAnio(w)) return true;
     if (esIdentificador(w) || TITULOS_RECONOCIDOS.has(w)) return true;
     if (w === 'de' || w === 'del') {
       let j = i + 1;
@@ -149,8 +159,9 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
         i = j + 1;
         continue;
       }
-      if (ACTO_O_MATERIA.has(x) || esAnio(x)) return false;
-      return true;
+      if (esAnio(x)) return true;
+      if (CLASES_CON_ACTOS.has(clase) && ACTO_O_MATERIA.has(x)) return false;
+      return true;   // título particular: "de Adopciones", "de Propiedad", "de las 8 horas"
     }
     return false;
   }
@@ -158,25 +169,32 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
 }
 
 /** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
+/** Forma canónica de un código documental: "D.353-2005" y "d.353-2005" son "353-2005". */
+const normalizarCodigo = (w: string): string => w.replace(/^d\./, '');
+
 function contarReferenciasPendientes(
   cadena: string,
   identidades: { instrumento: InstrumentoNormalizado; inicio: number; fin: number }[],
 ): number {
+  const resueltas = [...new Set(identidades.map((i) => i.instrumento))];
+  const verificadoPara = (codigo: string, instrumento: InstrumentoNormalizado): boolean =>
+    (IDENTIFICADORES_DOCUMENTALES[instrumento] ?? []).includes(codigo);
   let pendientes = 0;
   for (const m of cadena.matchAll(CLASES_RE)) {
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
     const cubierta = identidades.find((i) => i.inicio <= inicio && fin <= i.fin);
-    if (cubierta) {
-      // Clase ya identificada: el código documental de la consulta sólo se absorbe
-      // si su correspondencia con esa identidad está verificada; si no, es conflicto.
-      const verificados = IDENTIFICADORES_DOCUMENTALES[cubierta.instrumento] ?? [];
-      const conflicto = tokensReferencia(cadena.slice(fin))
-        .filter(esCodigoDocumental)
-        .some((codigo) => !verificados.includes(codigo));
-      if (conflicto) pendientes++;
+    const codigos = tokensReferencia(cadena.slice(fin)).filter(esCodigoDocumental).map(normalizarCodigo);
+    if (codigos.length > 0) {
+      // Código documental: se absorbe sólo si su correspondencia con una identidad
+      // resuelta está verificada. Si la clase está cubierta, con su propia identidad;
+      // si no, con cualquier identidad de la consulta. Si no, es conflicto.
+      const candidatas = cubierta ? [cubierta.instrumento] : resueltas;
+      const absorbido = codigos.every((c) => candidatas.some((id) => verificadoPara(c, id)));
+      if (!absorbido) pendientes++;
       continue;
     }
+    if (cubierta) continue;
     if (referenciaEspecifica(cadena.slice(fin), m[1])) pendientes++;
   }
   return pendientes;
