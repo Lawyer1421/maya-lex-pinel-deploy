@@ -72,19 +72,11 @@ const ADJETIVOS_TITULO = new Set(['especial', 'especiales', 'organica', 'organic
 // Artículos que pueden intercalarse tras "de" ("de la república", "de las 8 horas").
 const ARTICULOS_DE = new Set(['la', 'el', 'los', 'las']);
 
-// Actos jurídicos y materias: lo que sigue a "de/del" no es un título particular.
-const ACTO_O_MATERIA = new Set([
-  'contrato', 'contratos', 'pago', 'pagos', 'partes', 'parte', 'deuda', 'deudas',
-  'obligacion', 'obligaciones', 'sociedad', 'sociedades', 'hipoteca', 'garantia',
-  'fideicomiso', 'compraventa', 'arrendamiento', 'herencia', 'sucesion', 'familia',
-  'derecho', 'derechos', 'materia', 'mora', 'cumplimiento', 'ejecucion', 'sentencia',
-  'sentencias', 'juicio', 'proceso', 'procedimiento', 'recurso', 'apelacion', 'acto',
-  'actos', 'bienes', 'propiedad', 'cosa', 'cosas', 'delito', 'delitos', 'falta', 'faltas',
-]);
-
-// Clases en las que "de/del + X" puede ser un acto jurídico ("resolución del
-// contrato", "acuerdo de pago"). En las demás clases, "de X" es un título particular.
-const CLASES_CON_ACTOS = new Set(['resolucion', 'acuerdo']);
+// Clases de decisiones y acuerdos. Lo que sigue a "de/del" es lenguaje genérico
+// ("resolución del juez", "acuerdo de voluntades", "resolución del contrato"), salvo
+// que sea un identificador verificable, un año o un título reconocido. En las demás
+// clases, "de X" es un título particular.
+const CLASES_GENERICAS_DE = new Set(['resolucion', 'acuerdo']);
 
 /** Año contextual: no identifica por sí solo un instrumento. */
 const esAnio = (w: string): boolean => /^(19|20)\d{2}$/.test(w);
@@ -155,8 +147,10 @@ function tokensReferencia(resto: string): string[] {
  * - tema ("sobre …", "acerca de …") → no es específica (NONE), para cualquier clase;
  * - año, identificador ("130-2017") o título reconocido ("notarial") → específica;
  * - "de/del" + título particular ("de Adopciones", "de Propiedad", "de las 8
- *   horas") → específica. "de/del" + acto o materia ("del contrato", "de pago")
- *   sólo es NONE en las clases resolución y acuerdo; "de/del" + año es específica;
+ *   horas") → específica en las clases ley, decreto, reglamento y código. En las
+ *   clases resolución y acuerdo, "de/del" + palabra genérica ("del juez", "de la
+ *   Sala", "de voluntades", "del contrato") es NONE; sólo son específicas un
+ *   identificador verificable o un título reconocido. "de/del" + año es específica;
  * - jurisdicción de la clase "ley" ("hondureña", "de Honduras") y adjetivos de
  *   título ("especial", "marco") se saltan;
  * - cualquier otra palabra (adjetivo temático, verbo, materia) → NONE.
@@ -185,7 +179,9 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
         continue;
       }
       if (esAnio(x)) return true;
-      if (CLASES_CON_ACTOS.has(clase) && ACTO_O_MATERIA.has(x)) return false;
+      if (CLASES_GENERICAS_DE.has(clase)) {
+        return esIdentificador(x) || TITULOS_RECONOCIDOS.has(x);
+      }
       return true;
     }
     return false;

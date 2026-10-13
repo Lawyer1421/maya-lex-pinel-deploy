@@ -330,7 +330,7 @@ export async function POST(req: NextRequest) {
     let contextoRAG = formatearContextoRAG(ragResultado);
     const fragmentos = [...ragResultado.fragmentos];
 
-    // RUTA_C civil → segunda pasada con procedimental para completar el análisis
+    // RUTA_C civil → segunda pasada con procedimental; sólo añade fragmentos elegibles y verificables (ver evidenciaProcedimentalPermitida)
     if (ruta === 'C' && !esPenal) {
       const ragProc = await buscarRAG(
         ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,

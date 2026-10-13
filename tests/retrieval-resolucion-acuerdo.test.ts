@@ -37,6 +37,7 @@ const CASOS: { consulta: string; pertinente: Fila }[] = [
     consulta: 'el acuerdo de las partes en un contrato',
     pertinente: fila('civil-partes', FUENTE_CIVIL, '02_CIVIL', 'Artículo 3. El contrato es ley para las partes que lo otorgan.'),
   },
+  // Regresión adicional: variante propia del equipo, no es una consulta del dictamen del auditor.
   {
     consulta: '¿Cuándo procede la resolución del contrato de compraventa?',
     pertinente: fila('civil-compraventa', FUENTE_CIVIL, '02_CIVIL', 'Artículo 4. La compraventa puede resolverse por incumplimiento.'),
