@@ -172,11 +172,9 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   }
 
   lineas.push('── FIN DEL CONTEXTO RAG ──');
-  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
-
-  if (tematica) {
-    lineas.push('NOTA DE CONSULTA TEMÁTICA: los fragmentos son de similitud de recuperación, sin evaluación jurídica. Una afirmación normativa sólo puede respaldarse con ellos; si no hay evidencia suficiente en el contexto, indícalo y no completes con conocimiento general.');
-  }
+  lineas.push(tematica
+    ? 'INSTRUCCIÓN (consulta temática): los fragmentos fueron recuperados por similitud y no han sido evaluados jurídicamente. Fundamenta cada afirmación normativa sólo en ellos, citando el artículo y la fuente indicada en "Fuente documental". Si no hay evidencia suficiente en el contexto, dilo y no completes con conocimiento general. La interfaz muestra por separado la fuente y el hash de verificación de cada fragmento — no comentes sobre su presencia, ausencia o formato.'
+    : 'INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
 
   return lineas.join('\n');
 }

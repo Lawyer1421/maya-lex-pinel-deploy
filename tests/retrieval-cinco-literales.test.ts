@@ -194,6 +194,9 @@ describe('cinco literales del dictamen — POST real simulado', () => {
       const system = (llamadasModelo[0][0] as { system: string }).system;
       expect(fuentesEnSystem(system)).toContain(caso.fuente);
       expect(system).toContain('similitud de recuperación:');
+      // El pie de NONE no lleva la instrucción de uso exclusivo
+      expect(system).not.toContain('Usar exclusivamente');
+      expect(system).toContain('INSTRUCCIÓN (consulta temática)');
     });
   }
 });

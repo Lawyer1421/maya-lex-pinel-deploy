@@ -349,9 +349,11 @@ export function evidenciaCubreIntencion(
 
 /**
  * Fragmentos del pase procedimental que pueden añadirse al contexto junto al
- * principal. Sólo se añaden los que sobreviven a la evidencia final de la unión:
- * elegibles y verificables del instrumento y, si la consulta pide un artículo,
- * de ese artículo. El pase procedimental no relaja ninguno de esos criterios.
+ * principal. Sólo se añaden los que sobreviven a la evidencia final de la unión.
+ * Siempre exige que sean elegibles y verificables del instrumento. El filtro por
+ * artículo sólo se aplica en comparaciones (MULTI) con un único artículo pedido
+ * (ver evidenciaFinal); con identidad única o NONE no se filtra por artículo. El
+ * pase procedimental no relaja ninguno de estos criterios.
  */
 export function evidenciaProcedimentalPermitida<T extends { fuente: string; num_articulo?: string | null }>(
   principal: readonly T[],

@@ -337,9 +337,11 @@ export async function POST(req: NextRequest) {
         { rerank: rerankHabilitado }
       );
       // El pase procedimental sólo añade fragmentos que sobreviven a la evidencia
-      // final de la unión: elegibles y verificables del instrumento y, si la
-      // consulta pide un artículo, de ese artículo. Puede completar la cobertura
-      // de una comparación, pero nunca con evidencia no verificada.
+      // final de la unión (evidenciaProcedimentalPermitida): siempre exige que sean
+      // elegibles y verificables del instrumento. Sólo en comparaciones (MULTI) con un
+      // único artículo pedido exige además ese artículo; con identidad única o NONE no
+      // filtra por artículo. Puede completar la cobertura de una comparación, nunca con
+      // evidencia no verificada.
       const intencionPregunta = clasificarIntencionInstrumental(ultimaPregunta as string);
       const procPermitidos = evidenciaProcedimentalPermitida(
         ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,

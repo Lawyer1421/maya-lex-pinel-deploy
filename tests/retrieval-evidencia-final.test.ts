@@ -56,6 +56,23 @@ describe('evidenciaFinal — comparación con artículos concretos', () => {
   });
 });
 
+describe('evidenciaProcedimentalPermitida — alcance del filtro por artículo', () => {
+  it('identidad única: un fragmento de otro artículo del mismo instrumento se permite (sin filtro por artículo)', () => {
+    const unica = clasificarIntencionInstrumental('Artículo 173 del Código Penal');
+    const principal = [frag('p', FUENTE_PENAL, '173')];
+    const otroArticulo = [frag('p-174', FUENTE_PENAL, '174')];
+    expect(unica.estado).toBe('SPECIFIC_RESOLVED');
+    expect(evidenciaProcedimentalPermitida(principal, otroArticulo, unica)).toEqual(otroArticulo);
+  });
+
+  it('NONE: sin identidad ni artículo filtrado, el fragmento procedimental se permite', () => {
+    const none = clasificarIntencionInstrumental('¿Qué es la fe pública?');
+    const proc = [frag('x', FUENTE_CODIGO, '9')];
+    expect(evidenciaProcedimentalPermitida([], proc, none)).toEqual(proc);
+  });
+
+});
+
 describe('evidenciaProcedimentalPermitida — RUTA C completa sólo con evidencia elegible y verificable', () => {
   const comparacion = clasificarIntencionInstrumental('Código Penal y Código de Comercio');
 

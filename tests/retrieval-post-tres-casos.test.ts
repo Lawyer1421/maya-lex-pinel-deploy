@@ -192,6 +192,8 @@ describe('POST simulado — tres casos de cierre', () => {
     const system = (llamadasModelo[0][0] as { system: string }).system;
     expect(system).not.toContain('CONSULTA TEMÁTICA');
     expect(fuentesEnSystem(system)).toEqual([FUENTE_CIVIL]);
+    // SPECIFIC conserva su pie original
+    expect(system).toContain('Usar exclusivamente');
     for (const cita of done.citas as { fuente: string }[]) expect(fuentesEnSystem(system)).toContain(cita.fuente);
   });
 
