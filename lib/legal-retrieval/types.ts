@@ -52,6 +52,11 @@ export interface ResultadoRAG {
    * temática, con sus fuentes reales y sin relevancia jurídica evaluada.
    */
   intencionInstrumental?: 'NONE' | 'SPECIFIC_RESOLVED' | 'MULTI_SPECIFIC_RESOLVED' | 'SPECIFIC_UNRESOLVED';
+  /**
+   * Números de artículo que pide la consulta. Con uno o más, un fragmento de otro
+   * artículo se marca como contexto complementario y no como el artículo solicitado.
+   */
+  articulosSolicitados?: string[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

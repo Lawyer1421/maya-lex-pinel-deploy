@@ -172,7 +172,7 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     );
     const { buscarRAG } = await import('@/lib/rag/search');
 
-    const resultado = await buscarRAG('Según el decreto 130-2017, ¿qué dispone?', 5, 'mayalex_normativos');
+    const resultado = await buscarRAG('Según el decreto 999-2099, ¿qué dispone?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');

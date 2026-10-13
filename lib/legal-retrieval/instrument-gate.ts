@@ -26,6 +26,11 @@
  * del contrato", "acuerdo de pago"), los verbos ("el código dice…") y las
  * palabras sin identificador. Las identidades reconocidas
  * (detectarIdentidadesDesdeTexto) tienen precedencia sobre cualquier otra señal.
+ *
+ * Códigos documentales: un código verificado (IDENTIFICADORES_DOCUMENTALES) puede
+ * identificar al instrumento cuando aparece sin nombre en la consulta, si su
+ * correspondencia es única. Si la consulta ya nombra una identidad, el código debe
+ * estar verificado para ella; si no, es conflicto y queda SPECIFIC_UNRESOLVED.
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
@@ -61,7 +66,7 @@ const TITULOS_RECONOCIDOS = new Set(['notarial', 'notariado']);
 // Calificadores territoriales de la clase "ley". No nombran un título.
 const JURISDICCION_LEY = new Set(['honduras', 'hondurena', 'hondureno', 'nacional', 'republica']);
 
-// Adjetivos que acompañan a un título ("Ley Especial de Adopciones").
+// Adjetivos que acompañan a un título ("Ley Especial de Adopciones", "Ley Marco de …").
 const ADJETIVOS_TITULO = new Set(['especial', 'especiales', 'organica', 'organico', 'general', 'marco']);
 
 // Artículos que pueden intercalarse tras "de" ("de la república", "de las 8 horas").
@@ -77,6 +82,10 @@ const ACTO_O_MATERIA = new Set([
   'actos', 'bienes', 'propiedad', 'cosa', 'cosas', 'delito', 'delitos', 'falta', 'faltas',
 ]);
 
+// Clases en las que "de/del + X" puede ser un acto jurídico ("resolución del
+// contrato", "acuerdo de pago"). En las demás clases, "de X" es un título particular.
+const CLASES_CON_ACTOS = new Set(['resolucion', 'acuerdo']);
+
 /** Año contextual: no identifica por sí solo un instrumento. */
 const esAnio = (w: string): boolean => /^(19|20)\d{2}$/.test(w);
 
@@ -86,9 +95,7 @@ const esIdentificador = (w: string): boolean => /\d/.test(w) && !esAnio(w);
 /**
  * Identificadores documentales verificados: los números de decreto o resolución
  * que aparecen en el nombre real de la fuente de cada instrumento (fixtures y
- * artefactos del repositorio). Un código de la consulta sólo se absorbe si está
- * aquí; si no, es un conflicto ("Código Civil 130-2017" no identifica al Civil).
- * Minúsculas, como el texto normalizado.
+ * artefactos del repositorio). Minúsculas, como el texto normalizado.
  */
 export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado, readonly string[]>> = {
   CODIGO_PROCESAL_PENAL: ['9-99-e'],      // Código Procesal Penal de Honduras (Decreto 9-99-E)
@@ -105,21 +112,31 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
 /** Código documental: token con guion y dígitos ("130-2017", "pcsj-17-2012"). */
 const esCodigoDocumental = (w: string): boolean => /-/.test(w) && /\d/.test(w);
 
+/** Forma canónica de un código documental: "D.353-2005" y "d.353-2005" son "353-2005". */
+const normalizarCodigo = (w: string): string => w.replace(/^d\./, '');
+
+/** Instrumento de cada código verificado, sólo cuando el código identifica a un único instrumento. */
+const CODIGO_A_INSTRUMENTO: ReadonlyMap<string, InstrumentoNormalizado> = (() => {
+  const porCodigo = new Map<string, InstrumentoNormalizado[]>();
+  for (const [instrumento, codigos] of Object.entries(IDENTIFICADORES_DOCUMENTALES)) {
+    for (const codigo of codigos ?? []) {
+      porCodigo.set(codigo, [...(porCodigo.get(codigo) ?? []), instrumento as InstrumentoNormalizado]);
+    }
+  }
+  const unicos = new Map<string, InstrumentoNormalizado>();
+  for (const [codigo, instrumentos] of porCodigo) {
+    if (instrumentos.length === 1) unicos.set(codigo, instrumentos[0]);
+  }
+  return unicos;
+})();
+
+const verificadoPara = (codigo: string, instrumento: InstrumentoNormalizado): boolean =>
+  (IDENTIFICADORES_DOCUMENTALES[instrumento] ?? []).includes(codigo);
+
 /**
- * true si lo que sigue a una clase de instrumento es una referencia específica
- * sin resolver. Se recorre la frase desde la clase, antes de cualquier mención de
- * artículo y en un máximo de seis palabras:
- * - tema ("sobre …", "acerca de …") → no es específica (NONE), para cualquier clase;
- * - identificador ("130-2017") o título reconocido ("notarial") → específica;
- * - "de/del" + título particular ("de Adopciones", "de Inquilinato", "de las 8
- *   horas") → específica; "de/del" + acto o materia ("del contrato", "de pago") o
- *   + año ("de 2018") → NONE;
- * - jurisdicción de la clase "ley" ("hondureña", "de Honduras") y adjetivos de
- *   título ("especial") se saltan;
- * - cualquier otra palabra (adjetivo temático, verbo, materia) → NONE.
- * Un año no identifica por sí solo al instrumento.
+ * Palabras que siguen a una clase: hasta puntuación, máximo seis, sin pasar a una
+ * mención de artículo.
  */
-/** Palabras que siguen a una clase: hasta puntuación, máximo seis, sin pasar a una mención de artículo. */
 function tokensReferencia(resto: string): string[] {
   const t: string[] = [];
   for (const p of (resto.split(/[?¿!¡,;:()]/)[0] ?? '').trim().split(/\s+/).map((x) => x.replace(/\.+$/, ''))) {
@@ -131,10 +148,20 @@ function tokensReferencia(resto: string): string[] {
   return t;
 }
 
-// Clases en las que "de/del + X" puede ser un acto jurídico ("resolución del
-// contrato", "acuerdo de pago"). En las demás clases, "de X" es un título particular.
-const CLASES_CON_ACTOS = new Set(['resolucion', 'acuerdo']);
-
+/**
+ * true si lo que sigue a una clase de instrumento es una referencia específica
+ * sin resolver. Se recorre la frase desde la clase, antes de cualquier mención de
+ * artículo y en un máximo de seis palabras:
+ * - tema ("sobre …", "acerca de …") → no es específica (NONE), para cualquier clase;
+ * - año, identificador ("130-2017") o título reconocido ("notarial") → específica;
+ * - "de/del" + título particular ("de Adopciones", "de Propiedad", "de las 8
+ *   horas") → específica. "de/del" + acto o materia ("del contrato", "de pago")
+ *   sólo es NONE en las clases resolución y acuerdo; "de/del" + año es específica;
+ * - jurisdicción de la clase "ley" ("hondureña", "de Honduras") y adjetivos de
+ *   título ("especial", "marco") se saltan;
+ * - cualquier otra palabra (adjetivo temático, verbo, materia) → NONE.
+ * Un año no identifica por sí solo al instrumento.
+ */
 function referenciaEspecifica(resto: string, clase: string): boolean {
   const t = tokensReferencia(resto);
   const jurisdiccion = (w: string): boolean => clase === 'ley' && JURISDICCION_LEY.has(w);
@@ -146,8 +173,6 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
       i++;
       continue;
     }
-    // Un año tras la clase ("ley 2018", "ley de 2018") es referencia específica sin
-    // resolver. El año no identifica al instrumento: no se resuelve identidad con él.
     if (esAnio(w)) return true;
     if (esIdentificador(w) || TITULOS_RECONOCIDOS.has(w)) return true;
     if (w === 'de' || w === 'del') {
@@ -161,52 +186,107 @@ function referenciaEspecifica(resto: string, clase: string): boolean {
       }
       if (esAnio(x)) return true;
       if (CLASES_CON_ACTOS.has(clase) && ACTO_O_MATERIA.has(x)) return false;
-      return true;   // título particular: "de Adopciones", "de Propiedad", "de las 8 horas"
+      return true;
     }
     return false;
   }
   return false;
 }
 
-/** Cuenta las referencias de clase que no están cubiertas por una identidad resuelta y son específicas. */
-/** Forma canónica de un código documental: "D.353-2005" y "d.353-2005" son "353-2005". */
-const normalizarCodigo = (w: string): string => w.replace(/^d\./, '');
+/** Códigos documentales que aparecen en un texto, en forma canónica. */
+const codigosEn = (texto: string): string[] =>
+  texto
+    .split(/[\s?¿!¡,;:()+]+/)
+    .map((x) => x.replace(/\.+$/, ''))
+    .map(normalizarCodigo)
+    .filter(esCodigoDocumental);
 
-function contarReferenciasPendientes(
+/** Resultado del análisis de referencias de una consulta. */
+interface AnalisisReferencias {
+  /** Referencias específicas sin resolver (o conflictos). */
+  pendientes: number;
+  /** Identidades que se resuelven por código documental verificado y sin nombre en la consulta. */
+  porCodigo: InstrumentoNormalizado[];
+}
+
+/**
+ * Analiza las referencias de clase y los códigos documentales de la consulta.
+ *
+ * - Código dentro de la referencia de una clase ya identificada por nombre: se
+ *   absorbe sólo si está verificado para esa identidad; si no, es conflicto.
+ * - Código dentro de una clase sin identidad propia: si la consulta nombra
+ *   identidades, se absorbe sólo si está verificado para alguna de ellas; si no,
+ *   es conflicto. Si la consulta no nombra ninguna, el código identifica al
+ *   instrumento sólo cuando su correspondencia es única; si no, queda pendiente.
+ * - Código suelto (fuera de toda referencia de clase): con identidades nombradas,
+ *   mismas reglas de conflicto; sin ellas, identifica sólo con correspondencia
+ *   única, y un código desconocido no identifica nada.
+ * - Clase sin código: se aplica referenciaEspecifica (títulos, años, temas).
+ */
+function analizarReferencias(
   cadena: string,
   identidades: { instrumento: InstrumentoNormalizado; inicio: number; fin: number }[],
-): number {
-  const resueltas = [...new Set(identidades.map((i) => i.instrumento))];
-  const verificadoPara = (codigo: string, instrumento: InstrumentoNormalizado): boolean =>
-    (IDENTIFICADORES_DOCUMENTALES[instrumento] ?? []).includes(codigo);
+): AnalisisReferencias {
+  const nombradas = [...new Set(identidades.map((i) => i.instrumento))];
   let pendientes = 0;
+  const porCodigo: InstrumentoNormalizado[] = [];
+  // Códigos ya asignados a una referencia de clase; el resto son sueltos.
+  const enReferencias: string[] = [];
+
+  /** Asigna un código a una identidad por correspondencia única, o lo marca pendiente. */
+  const resolverSinNombre = (codigo: string): void => {
+    const inst = CODIGO_A_INSTRUMENTO.get(codigo);
+    if (inst) porCodigo.push(inst);
+    else pendientes++;
+  };
+
   for (const m of cadena.matchAll(CLASES_RE)) {
     const inicio = m.index ?? 0;
     const fin = inicio + m[0].length;
     const cubierta = identidades.find((i) => i.inicio <= inicio && fin <= i.fin);
     const codigos = tokensReferencia(cadena.slice(fin)).filter(esCodigoDocumental).map(normalizarCodigo);
+    enReferencias.push(...codigos);
+
     if (codigos.length > 0) {
-      // Código documental: se absorbe sólo si su correspondencia con una identidad
-      // resuelta está verificada. Si la clase está cubierta, con su propia identidad;
-      // si no, con cualquier identidad de la consulta. Si no, es conflicto.
-      const candidatas = cubierta ? [cubierta.instrumento] : resueltas;
-      const absorbido = codigos.every((c) => candidatas.some((id) => verificadoPara(c, id)));
-      if (!absorbido) pendientes++;
+      if (cubierta) {
+        if (!codigos.every((c) => verificadoPara(c, cubierta.instrumento))) pendientes++;
+      } else if (nombradas.length > 0) {
+        if (!codigos.every((c) => nombradas.some((id) => verificadoPara(c, id)))) pendientes++;
+      } else {
+        for (const c of codigos) resolverSinNombre(c);
+      }
       continue;
     }
     if (cubierta) continue;
     if (referenciaEspecifica(cadena.slice(fin), m[1])) pendientes++;
   }
-  return pendientes;
+
+  // Códigos sueltos: los que no pertenecen a ninguna referencia de clase.
+  const sueltos = codigosEn(cadena);
+  for (const c of enReferencias) {
+    const k = sueltos.indexOf(c);
+    if (k !== -1) sueltos.splice(k, 1);
+  }
+  for (const c of sueltos) {
+    if (nombradas.length > 0) {
+      if (!nombradas.some((id) => verificadoPara(c, id))) pendientes++;
+    } else {
+      const inst = CODIGO_A_INSTRUMENTO.get(c);
+      if (inst) porCodigo.push(inst);
+    }
+  }
+
+  return { pendientes, porCodigo: [...new Set(porCodigo)] };
 }
 
 /** Clasifica la intención instrumental de una consulta en uno de los cuatro estados. */
 export function clasificarIntencionInstrumental(texto: string): IntencionInstrumental {
   const n = NORMALIZAR(texto);
   const detectadas = detectarIdentidadesDesdeTexto(n);
-  const identidades = [...new Set(detectadas.map((d) => d.instrumento))];
+  const { pendientes, porCodigo } = analizarReferencias(n, detectadas);
+  const identidades = [...new Set([...detectadas.map((d) => d.instrumento), ...porCodigo])];
   const articulos = [...new Set([...n.matchAll(ARTICULO_RE)].map((m) => m[1]))];
-  if (contarReferenciasPendientes(n, detectadas) > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
+  if (pendientes > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
   if (identidades.length === 0) return { estado: 'NONE', identidades, articulos };
   return {
     estado: identidades.length === 1 ? 'SPECIFIC_RESOLVED' : 'MULTI_SPECIFIC_RESOLVED',

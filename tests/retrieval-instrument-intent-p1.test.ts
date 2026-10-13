@@ -80,8 +80,18 @@ describe('genéricos no bloquean: estado NONE', () => {
 });
 
 describe('referencias específicas sin resolver bloquean', () => {
-  it('número de identificación: "según el decreto 130-2017"', () => {
-    expect(clasificarIntencionInstrumental('Según el decreto 130-2017, ¿qué dispone?').estado).toBe('SPECIFIC_UNRESOLVED');
+  it('número de identificación sin correspondencia verificada: "según el decreto 999-2099"', () => {
+    expect(clasificarIntencionInstrumental('Según el decreto 999-2099, ¿qué dispone?').estado).toBe('SPECIFIC_UNRESOLVED');
+  });
+
+  it('número verificado sin nombre: "según el decreto 130-2017" resuelve al Código Penal', () => {
+    const i = clasificarIntencionInstrumental('Según el decreto 130-2017, ¿qué dispone?');
+    expect(i.estado).toBe('SPECIFIC_RESOLVED');
+    expect(i.identidades).toEqual(['CODIGO_PENAL']);
+  });
+
+  it('número sin nombre cuya correspondencia no está verificada queda pendiente', () => {
+    expect(clasificarIntencionInstrumental('Según el decreto 999-2099, ¿qué dispone?').estado).toBe('SPECIFIC_UNRESOLVED');
   });
 
   it('referencia específica junto a una resuelta: conserva ambas y queda SPECIFIC_UNRESOLVED', () => {
@@ -280,7 +290,7 @@ describe('buscarRAG (semántica) — referencias no resueltas', () => {
     mockearSemantica([codigoD05, reglamentoD05]);
     const { buscarRAG } = await import('@/lib/rag/search');
 
-    const resultado = await buscarRAG('Según el decreto 130-2017, ¿qué dispone?', 5, 'mayalex_normativos');
+    const resultado = await buscarRAG('Según el decreto 999-2099, ¿qué dispone?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos).toHaveLength(0);
     expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');

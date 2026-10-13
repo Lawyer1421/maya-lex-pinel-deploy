@@ -104,7 +104,7 @@ describe('B1 — consultas temáticas devuelven evidencia pertinente disponible'
     mockearRPC(CORPUS);
     const { buscarRAG } = await import('@/lib/rag/search');
 
-    const r = await buscarRAG('la resolución PCSJ-17-2012 del Consejo', 5, 'mayalex_normativos');
+    const r = await buscarRAG('la resolución 77-2099 del Consejo', 5, 'mayalex_normativos');
 
     expect(r.fragmentos).toHaveLength(0);
     expect(r.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');

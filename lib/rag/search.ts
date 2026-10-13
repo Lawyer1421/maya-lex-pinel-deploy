@@ -333,6 +333,7 @@ export async function buscarRAG(
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
             intencionInstrumental: intencion.estado,
+            articulosSolicitados: intencion.articulos,
             outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
               evidenceCount: exacto.fragmentos.length, exactAttempted: true,
             }),
@@ -358,6 +359,7 @@ export async function buscarRAG(
           return {
             fragmentos: [], articulos_encontrados: [], backend: 'supabase',
             intencionInstrumental: intencion.estado,
+            articulosSolicitados: intencion.articulos,
             outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
           };
         }
@@ -424,6 +426,7 @@ export async function buscarRAG(
         fragmentos,
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
+        articulosSolicitados: intencion.articulos,
       };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
@@ -447,6 +450,7 @@ export async function buscarRAG(
         fragmentos,
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
+        articulosSolicitados: intencion.articulos,
       };
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin

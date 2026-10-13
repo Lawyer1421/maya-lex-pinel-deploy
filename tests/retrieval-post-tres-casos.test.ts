@@ -229,4 +229,27 @@ describe('POST simulado — tres casos de cierre', () => {
     expect(done.codigo).toBe('CORPUS_EVIDENCE_NOT_FOUND');
     expect(llamadasModelo.length).toBe(0);
   });
+  it('4. identificador verificado sin nombre: ninguna fuente incompatible llega al modelo ni a las citas', async () => {
+    const codigoPenal = { ...penal173, id: 'penal-decreto', contenido: 'Artículo 1. Principio de legalidad del Código Penal.', num_articulo: '1' };
+    mockDependencias([], () => [civilDivorcio, codigoPenal]);
+    const { POST } = await import('@/app/api/chat/route');
+
+    const res = await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Según el decreto 130-2017, ¿qué dispone?' }],
+      mode: 'analisis',
+    }));
+    const eventos = await leerSSE(res);
+    const done = eventos.find((e) => e.type === 'done');
+
+    expect(llamadasModelo.length).toBe(1);
+    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const enviadas = fuentesEnSystem(system);
+    expect(enviadas).toContain(FUENTE_PENAL);
+    expect(enviadas.some((f) => f === FUENTE_CIVIL)).toBe(false);
+    expect(system).not.toMatch(/Fuente documental: Código Civil/);
+    for (const cita of done.citas as { fuente: string }[]) {
+      expect(cita.fuente).not.toBe(FUENTE_CIVIL);
+      expect(enviadas).toContain(cita.fuente);
+    }
+  });
 });

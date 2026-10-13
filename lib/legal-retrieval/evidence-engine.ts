@@ -120,7 +120,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     `Fuente: ${resultado.backend === 'python' ? 'Índice local ChromaDB' : 'Supabase pgvector'}`,
     `Fragmentos: ${resultado.fragmentos.length} | Artículos: ${resultado.articulos_encontrados.join(', ') || 'N/A'}`,
     ...(tematica
-      ? ['CONSULTA TEMÁTICA: la consulta no identifica un instrumento normativo particular. Cada fragmento indica su fuente real en "Fuente documental"; ninguna fuente es el título ni la expresión temática de la consulta.']
+      ? ['CONSULTA TEMÁTICA: la consulta no identifica un instrumento normativo particular. Los fragmentos fueron recuperados por similitud y no han sido evaluados jurídicamente; cada uno indica su fuente real en "Fuente documental", y ninguna fuente es el título ni la expresión temática de la consulta. Las afirmaciones normativas sólo pueden respaldarse con estos fragmentos: si no bastan, dilo y no completes con conocimiento general.']
       : []),
     '',
   ];
@@ -156,13 +156,17 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
     const tag = ` [${etiqueta}]`;
     const pct = (f.relevancia * 100).toFixed(0);
+    // Con un artículo pedido, un fragmento de otro artículo es contexto complementario
+    // y no debe presentarse como el artículo solicitado.
+    const solicitados = resultado.articulosSolicitados ?? [];
+    const complementario = solicitados.length > 0 && !solicitados.includes(f.num_articulo ?? '');
+    const marcaComplementario = complementario ? ' | contexto complementario: no es el artículo solicitado' : '';
     if (tematica) {
-      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}% | sin evaluación de relevancia jurídica]`);
-      lineas.push(`Fuente documental: ${f.fuente}`);
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}% | sin evaluación de relevancia jurídica${marcaComplementario}]`);
     } else {
-      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}%]`);
-      lineas.push(`Fuente documental: ${f.fuente}`);
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}%${marcaComplementario}]`);
     }
+    lineas.push(`Fuente documental: ${f.fuente}`);
     lineas.push(f.contenido.trim());
     lineas.push('');
   }

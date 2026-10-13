@@ -92,11 +92,23 @@ const casos: [string, string, string[]][] = [
   ['Qué dispone la ley aplicable en el artículo 5', 'NONE', []],
 
   // Referencia inequívocamente identificada pero no resuelta: sigue específica
-  ['la resolución PCSJ-17-2012 del Consejo', 'SPECIFIC_UNRESOLVED', []],
+  ['la resolución PCSJ-17-2012 del Consejo', 'SPECIFIC_RESOLVED', ['REGLAMENTO_NOTARIADO']],
+  ['la resolución 77-2099 del Consejo', 'SPECIFIC_UNRESOLVED', []],
   ['el acuerdo 45-2019 de la Corte', 'SPECIFIC_UNRESOLVED', []],
 
   // Referencia específica sin resolver
-  ['Según el decreto 130-2017, ¿qué dispone?', 'SPECIFIC_UNRESOLVED', []],
+  ['Según el decreto 130-2017, ¿qué dispone?', 'SPECIFIC_RESOLVED', ['CODIGO_PENAL']],
+  ['Según el decreto 999-2099, ¿qué dispone?', 'SPECIFIC_UNRESOLVED', []],
+  // Identificadores sueltos con correspondencia verificada
+  ['D.130-2017 artículo 5', 'SPECIFIC_RESOLVED', ['CODIGO_PENAL']],
+  ['D.353-2005 artículo 10', 'SPECIFIC_RESOLVED', ['CODIGO_NOTARIADO']],
+  ['D.999-2099 artículo 5', 'NONE', []],
+  // Resolución/acuerdo con actos jurídicos: NONE
+  ['¿Cuándo procede la resolución del contrato de compraventa?', 'NONE', []],
+  ['¿Qué procede con la resolución de las obligaciones?', 'NONE', []],
+  ['Según la resolución de la sociedad, ¿qué procede?', 'NONE', []],
+  ['El acuerdo de la sociedad obliga a los socios.', 'NONE', []],
+  ['acuerdo de la hipoteca sobre el inmueble', 'NONE', []],
   ['Ley Especial de Adopciones de 2018', 'SPECIFIC_UNRESOLVED', []],
   // Referencia pendiente junto a una resuelta: el decreto no verificado sigue pendiente
   ['Código Penal y decreto 999-2099', 'SPECIFIC_UNRESOLVED', ['CODIGO_PENAL']],
