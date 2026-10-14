@@ -24,7 +24,9 @@
  * Es NONE: los temas ("ley sobre el divorcio", "acerca de"), las materias
  * genéricas ("ley civil", "en materia penal"), los actos jurídicos ("resolución
  * del contrato", "acuerdo de pago"), los verbos ("el código dice…") y las
- * palabras sin identificador. Las identidades reconocidas
+ * palabras sin identificador. Una referencia institucional o con nombre propio tras
+ * resolución/acuerdo ("resolución de la CNBS", "acuerdo de Paz de Esquipulas") es
+ * específica sin resolver. Las identidades reconocidas
  * (detectarIdentidadesDesdeTexto) tienen precedencia sobre cualquier otra señal.
  *
  * Códigos documentales: un código verificado (IDENTIFICADORES_DOCUMENTALES) puede
@@ -100,6 +102,36 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
   CODIGO_COMERCIO: ['73-1950'],           // Codigo de Comercio (Decreto No. 73-1950, ...)
   CONSTITUCION: ['131-1982'],             // Constitucion de la Republica (Decreto 131-1982 - ...)
 };
+
+/** Palabra con mayúscula inicial ("Paz", "Ministros"). Sólo cuenta dentro de la referencia. */
+const esNombrePropio = (w: string | undefined): boolean => w !== undefined && /^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$/.test(w);
+
+/** Sigla institucional ("CNBS"): dos o más mayúsculas. */
+const esSigla = (w: string | undefined): boolean => w !== undefined && /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(w);
+
+/**
+ * Referencia institucional o a instrumento con nombre propio dentro de una clase
+ * genérica (resolución, acuerdo): "la resolución de la CNBS", "el acuerdo del
+ * Consejo de Ministros", "el Acuerdo de Paz de Esquipulas". Cuenta la forma de la
+ * frase, no una mayúscula aislada: tras "de/del" (y artículos) debe venir una sigla,
+ * o un nombre propio seguido de "de/del" y otro nombre propio. Una palabra
+ * capitalizada sola ("de la Sala") no basta: "resolución de la Sala" es NONE.
+ */
+function nombreInstitucionalTras(texto: string): boolean {
+  const palabras = texto.split(/[\s?¿!¡,;:()]+/).map((p) => p.replace(/\.+$/, '')).filter(Boolean);
+  for (let i = 0; i < palabras.length; i++) {
+    if (!CLASES_GENERICAS_DE.has(NORMALIZAR(palabras[i]))) continue;
+    let j = i + 1;
+    if (!['de', 'del'].includes(NORMALIZAR(palabras[j] ?? ''))) continue;
+    j++;
+    while (j < palabras.length && ARTICULOS_DE.has(NORMALIZAR(palabras[j]))) j++;
+    if (esSigla(palabras[j])) return true;
+    if (esNombrePropio(palabras[j]) && ['de', 'del'].includes(NORMALIZAR(palabras[j + 1] ?? '')) && esNombrePropio(palabras[j + 2])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /** Código documental: token con guion y dígitos ("130-2017", "pcsj-17-2012"). */
 const esCodigoDocumental = (w: string): boolean => /-/.test(w) && /\d/.test(w);
@@ -280,9 +312,10 @@ export function clasificarIntencionInstrumental(texto: string): IntencionInstrum
   const n = NORMALIZAR(texto);
   const detectadas = detectarIdentidadesDesdeTexto(n);
   const { pendientes, porCodigo } = analizarReferencias(n, detectadas);
+  const institucional = nombreInstitucionalTras(texto) ? 1 : 0;
   const identidades = [...new Set([...detectadas.map((d) => d.instrumento), ...porCodigo])];
   const articulos = [...new Set([...n.matchAll(ARTICULO_RE)].map((m) => m[1]))];
-  if (pendientes > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
+  if (pendientes + institucional > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
   if (identidades.length === 0) return { estado: 'NONE', identidades, articulos };
   return {
     estado: identidades.length === 1 ? 'SPECIFIC_RESOLVED' : 'MULTI_SPECIFIC_RESOLVED',
