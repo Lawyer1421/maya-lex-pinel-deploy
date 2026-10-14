@@ -1,0 +1,44 @@
+{
+  "id": "CLO_PR62_DENOMINACIONES_V1",
+  "version": 1,
+  "fuente": "CLO — adjudicación para PR #62 (sustituye al dictamen P3)",
+  "descripcion": "Lista cerrada de denominaciones. Institucionales: SPECIFIC_UNRESOLVED (ausencia declarada, sin sustituto, sin resolver identidad). Genéricos: NONE. Lo que no esté en ninguna lista es NONE. Toda entrada nueva requiere revisión CLO y un incremento de versión. Ninguna entrada da identidad verificada: la identidad sólo sale del registro canónico.",
+  "institucionales": {
+    "siglas": [
+      "CNBS", "BCH", "SAR", "CSJ", "TSC", "RNP", "IP", "IAIP", "CAH",
+      "UNH", "PGR", "MP", "TSE", "CONADEH", "ENEE", "ARSA", "DGME", "UFERCO"
+    ],
+    "nombres": [
+      "Consejo de Ministros",
+      "Congreso Nacional",
+      "Corte Suprema de Justicia",
+      "Presidencia de la Corte Suprema de Justicia",
+      "Sala de lo Constitucional",
+      "Presidencia de la República",
+      "Poder Ejecutivo",
+      "Instituto de la Propiedad",
+      "Comisión Nacional de Bancos y Seguros",
+      "Banco Central de Honduras",
+      "Tribunal Superior de Cuentas",
+      "Procuraduría General de la República",
+      "Ministerio Público",
+      "Colegio de Abogados de Honduras",
+      "Unión de Notarios de Honduras",
+      "Secretaría de Estado en el Despacho de Finanzas",
+      "Paz de Esquipulas",
+      "Esquipulas",
+      "Esquipulas II",
+      "Escazú",
+      "Acuerdo de Escazú"
+    ]
+  },
+  "genericos": [
+    "juez", "jueza", "juzgado", "tribunal", "sala", "magistrado",
+    "voluntades", "voluntad", "contrato", "arrendamiento", "compraventa",
+    "donación", "mutuo", "junta directiva", "junta", "asamblea",
+    "asamblea de socios", "asamblea de accionistas", "socios", "accionistas",
+    "partes", "consejo de administración", "conciliación", "divorcio",
+    "alimentos", "embargo", "demanda", "sentencia", "recurso", "apelación",
+    "fiscal", "notario", "registrador"
+  ]
+}

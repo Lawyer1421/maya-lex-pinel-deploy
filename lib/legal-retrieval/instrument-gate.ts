@@ -24,10 +24,11 @@
  * Es NONE: los temas ("ley sobre el divorcio", "acerca de"), las materias
  * genéricas ("ley civil", "en materia penal"), los actos jurídicos ("resolución
  * del contrato", "acuerdo de pago"), los verbos ("el código dice…") y las
- * palabras sin identificador. Una referencia institucional o con nombre propio tras
- * resolución/acuerdo ("resolución de la CNBS", "acuerdo de Paz de Esquipulas") es
- * específica sin resolver. Las identidades reconocidas
- * (detectarIdentidadesDesdeTexto) tienen precedencia sobre cualquier otra señal.
+ * palabras sin identificador. Las denominaciones institucionales ("CNBS", "Consejo
+ * de Ministros", "Esquipulas") son específicas sin resolver sólo si figuran en el
+ * fixture cerrado CLO_PR62_DENOMINACIONES_V1 (sin heurística de mayúsculas ni de
+ * nombres propios). Las identidades reconocidas (detectarIdentidadesDesdeTexto)
+ * tienen precedencia sobre cualquier otra señal.
  *
  * Códigos documentales: un código verificado (IDENTIFICADORES_DOCUMENTALES) puede
  * identificar al instrumento cuando aparece sin nombre en la consulta, si su
@@ -36,6 +37,7 @@
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
+import denominacionesClo from './fixtures/clo-pr62-denominaciones-v1.json';
 
 export type EstadoIntencionInstrumental =
   | 'NONE'
@@ -103,52 +105,73 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
   CONSTITUCION: ['131-1982'],             // Constitucion de la Republica (Decreto 131-1982 - ...)
 };
 
-/** Palabra con mayúscula inicial ("Paz", "Ministros"). Sólo cuenta dentro de la referencia. */
-const esNombrePropio = (w: string | undefined): boolean => w !== undefined && /^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+$/.test(w);
+/**
+ * Denominaciones del fixture CLO_PR62_DENOMINACIONES_V1. Comparación insensible a
+ * mayúsculas, minúsculas y tildes, por palabra completa y sólo contra el fixture.
+ * Una palabra en mayúsculas que no figura en la lista NO es sigla. Toda entrada
+ * nueva requiere revisión CLO (y subir la versión del fixture). Ninguna entrada
+ * aporta identidad: la identidad sólo sale del registro canónico.
+ */
+interface EntradaDenominacion {
+  readonly institucional: boolean;
+  readonly patron: RegExp;
+}
 
-/** Sigla institucional ("CNBS"): dos o más mayúsculas. */
-const esSigla = (w: string | undefined): boolean => w !== undefined && /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(w);
+const ENTRADAS_DENOMINACION: readonly EntradaDenominacion[] = (() => {
+  const escapar = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const construir = (frase: string, institucional: boolean): EntradaDenominacion => {
+    const cuerpo = NORMALIZAR(frase).trim().split(/\s+/).map(escapar).join('\\s+');
+    // Palabra completa: ni letra ni dígito pegados a los lados ("ip" no es "tipo").
+    return { institucional, patron: new RegExp(`(?<![\\p{L}\\p{N}])${cuerpo}(?![\\p{L}\\p{N}])`, 'gu') };
+  };
+  const { siglas, nombres } = denominacionesClo.institucionales;
+  return [
+    ...[...siglas, ...nombres].map((f) => construir(f, true)),
+    ...denominacionesClo.genericos.map((f) => construir(f, false)),
+  ];
+})();
 
 /**
- * Texto original con las menciones ya cubiertas por una identidad reconocida en
+ * true si el texto normalizado menciona una denominación institucional del fixture.
+ * Conflicto entre coincidencias que se solapan: gana la más larga ("Sala de lo
+ * Constitucional" es institucional; "la sala" sola es genérica → NONE). A igual
+ * longitud gana la institucional (fail-close). Una mención genérica no anula
+ * ninguna otra señal: sólo desempata frente a una coincidencia institucional más corta.
+ */
+function mencionaDenominacionInstitucional(textoNormalizado: string): boolean {
+  const coincidencias: { inicio: number; fin: number; institucional: boolean }[] = [];
+  for (const { institucional, patron } of ENTRADAS_DENOMINACION) {
+    for (const m of textoNormalizado.matchAll(patron)) {
+      const inicio = m.index ?? 0;
+      coincidencias.push({ inicio, fin: inicio + m[0].length, institucional });
+    }
+  }
+  coincidencias.sort(
+    (a, b) => b.fin - b.inicio - (a.fin - a.inicio) || Number(b.institucional) - Number(a.institucional),
+  );
+  const elegidas: typeof coincidencias = [];
+  for (const c of coincidencias) {
+    if (elegidas.some((e) => c.inicio < e.fin && e.inicio < c.fin)) continue;
+    elegidas.push(c);
+  }
+  return elegidas.some((c) => c.institucional);
+}
+
+/**
+ * Texto normalizado con las menciones ya cubiertas por una identidad reconocida en
  * blanco. Así una mención identificada no genera una referencia pendiente adicional,
- * pero las demás menciones de la consulta siguen contando. Sólo si la longitud
- * normalizada coincide con la original, para que los índices de la identidad sean válidos.
+ * pero las demás menciones de la consulta siguen contando. Los índices de las
+ * identidades son del texto normalizado, el mismo que se recibe aquí.
  */
 function sinMencionesIdentificadas(
-  texto: string,
+  textoNormalizado: string,
   identidades: readonly { inicio: number; fin: number }[],
 ): string {
-  if (NORMALIZAR(texto).length !== texto.length) return texto;
-  let salida = texto;
+  let salida = textoNormalizado;
   for (const { inicio, fin } of identidades) {
     salida = salida.slice(0, inicio) + ' '.repeat(fin - inicio) + salida.slice(fin);
   }
   return salida;
-}
-
-/**
- * Referencia institucional o a instrumento con nombre propio dentro de una clase
- * genérica (resolución, acuerdo): "la resolución de la CNBS", "el acuerdo del
- * Consejo de Ministros", "el Acuerdo de Paz de Esquipulas". Cuenta la forma de la
- * frase, no una mayúscula aislada: tras "de/del" (y artículos) debe venir una sigla,
- * o un nombre propio seguido de "de/del" y otro nombre propio. Una palabra
- * capitalizada sola ("de la Sala") no basta: "resolución de la Sala" es NONE.
- */
-function nombreInstitucionalTras(texto: string): boolean {
-  const palabras = texto.split(/[\s?¿!¡,;:()]+/).map((p) => p.replace(/\.+$/, '')).filter(Boolean);
-  for (let i = 0; i < palabras.length; i++) {
-    if (!CLASES_GENERICAS_DE.has(NORMALIZAR(palabras[i]))) continue;
-    let j = i + 1;
-    if (!['de', 'del'].includes(NORMALIZAR(palabras[j] ?? ''))) continue;
-    j++;
-    while (j < palabras.length && ['de', 'del', ...ARTICULOS_DE].includes(NORMALIZAR(palabras[j]))) j++;
-    if (esSigla(palabras[j])) return true;
-    if (esNombrePropio(palabras[j]) && ['de', 'del'].includes(NORMALIZAR(palabras[j + 1] ?? '')) && esNombrePropio(palabras[j + 2])) {
-      return true;
-    }
-  }
-  return false;
 }
 
 /** Código documental: token con guion y dígitos ("130-2017", "pcsj-17-2012"). */
@@ -330,7 +353,7 @@ export function clasificarIntencionInstrumental(texto: string): IntencionInstrum
   const n = NORMALIZAR(texto);
   const detectadas = detectarIdentidadesDesdeTexto(n);
   const { pendientes, porCodigo } = analizarReferencias(n, detectadas);
-  const institucional = nombreInstitucionalTras(sinMencionesIdentificadas(texto, detectadas)) ? 1 : 0;
+  const institucional = mencionaDenominacionInstitucional(sinMencionesIdentificadas(n, detectadas)) ? 1 : 0;
   const identidades = [...new Set([...detectadas.map((d) => d.instrumento), ...porCodigo])];
   const articulos = [...new Set([...n.matchAll(ARTICULO_RE)].map((m) => m[1]))];
   if (pendientes + institucional > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };

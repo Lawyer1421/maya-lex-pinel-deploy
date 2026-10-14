@@ -15,5 +15,13 @@ export default defineConfig({
     // Aislados pasan en <1s. Subir el margen evita flakes que bloquearían PRs
     // cuando `test` sea un required check.
     testTimeout: 15000,
+    // Límite de arranque de PGlite, no de las pruebas: los `beforeAll` de
+    // tests/sql instancian PGlite (WASM) y aplican migraciones. En la corrida
+    // completa, con la CPU compartida entre ~80 archivos, ese arranque supera
+    // los 10s por defecto y falla el hook (4 suites en una corrida local);
+    // aisladas pasan en ~15s en total. Sólo afecta a hooks (beforeAll/afterAll);
+    // `testTimeout` no se toca, así que una prueba lenta o colgada sigue
+    // fallando a los 15s.
+    hookTimeout: 120_000,
   },
 });
