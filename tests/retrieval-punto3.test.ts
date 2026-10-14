@@ -150,11 +150,11 @@ const ccAcuerdo: Fila = {
 };
 const cnArticulo: Fila = {
   id: 'cn-notario', contenido: 'Artículo 1. El notariado es la función pública que ejerce el notario.',
-  num_articulo: '1', fuente: FUENTE_CN, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '10_LEYES_REGLAMENTOS', similarity: 0.8,
+  num_articulo: '1', fuente: FUENTE_CN, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, materia: '03_NOTARIAL', similarity: 0.8,
 };
 const reglamentoArticulo: Fila = {
   id: 'reg-pcsj-1', contenido: 'Artículo 1. El presente Reglamento desarrolla el Código del Notariado.',
-  num_articulo: '1', fuente: FUENTE_REGLAMENTO, fuente_tipo: 'reglamento', jurisdiccion: 'HN', es_norma_vigente: true, materia: '10_LEYES_REGLAMENTOS', similarity: 0.9,
+  num_articulo: '1', fuente: FUENTE_REGLAMENTO, fuente_tipo: 'reglamento', jurisdiccion: 'HN', es_norma_vigente: true, materia: '03_NOTARIAL', similarity: 0.9,
 };
 
 const INSTITUCIONALES = [
@@ -176,6 +176,21 @@ describe('clasificador — punto 3', () => {
     const i = clasificarIntencionInstrumental('¿Qué dice la Resolución PCSJ-17-2012?');
     expect(i.estado).toBe('SPECIFIC_RESOLVED');
     expect(i.identidades).toEqual(['REGLAMENTO_NOTARIADO']);
+  });
+
+  // Precedencia: una mención cubierta por una identidad reconocida no genera una
+  // referencia pendiente adicional; una referencia distinta sí conserva el conflicto.
+  it('Resolución del Código del Notariado → SPECIFIC_RESOLVED [CODIGO_NOTARIADO]', () => {
+    for (const q of ['¿Qué dice la resolución del Código del Notariado?', '¿Qué dice la Resolución del Código del Notariado?']) {
+      const i = clasificarIntencionInstrumental(q);
+      expect(i.estado).toBe('SPECIFIC_RESOLVED');
+      expect(i.identidades).toEqual(['CODIGO_NOTARIADO']);
+    }
+  });
+
+  it('Resolución del Código del Notariado de la CNBS → SPECIFIC_UNRESOLVED (conflicto conservado)', () => {
+    const i = clasificarIntencionInstrumental('¿Qué dice la resolución del Código del Notariado de la CNBS?');
+    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
   });
 
   it('acuerdo de la junta directiva → NONE', () => {
@@ -209,6 +224,18 @@ describe('POST simulado — punto 3', () => {
       expect(llamadasModelo.length).toBe(0);
     });
   }
+
+  it('Resolución del Código del Notariado: sólo fuentes del Código del Notariado, sin reglamento ni Civil', async () => {
+    // El pase procedimental (RUTA_C) consulta otra colección: no debe repetir la norma normativa.
+    mockDependencias([], (coleccion) => (coleccion === 'mayalex_procedimental' ? [] : [cnArticulo, reglamentoArticulo, ccDivorcio]));
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq({ messages: [{ role: 'user', content: '¿Qué dice la resolución del Código del Notariado?' }], mode: 'analisis' }));
+    await leerSSE(res);
+
+    expect(llamadasModelo.length).toBe(1);
+    const system = (llamadasModelo[0][0] as { system: string }).system;
+    expect(fuentesEnSystem(system)).toEqual([FUENTE_CN]);
+  });
 
   it('PCSJ-17-2012 con sólo el Código del Notariado en el corpus: se declara ausente, no se sustituye', async () => {
     mockDependencias([], () => [cnArticulo, ccDivorcio]);

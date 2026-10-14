@@ -110,6 +110,24 @@ const esNombrePropio = (w: string | undefined): boolean => w !== undefined && /^
 const esSigla = (w: string | undefined): boolean => w !== undefined && /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(w);
 
 /**
+ * Texto original con las menciones ya cubiertas por una identidad reconocida en
+ * blanco. Así una mención identificada no genera una referencia pendiente adicional,
+ * pero las demás menciones de la consulta siguen contando. Sólo si la longitud
+ * normalizada coincide con la original, para que los índices de la identidad sean válidos.
+ */
+function sinMencionesIdentificadas(
+  texto: string,
+  identidades: readonly { inicio: number; fin: number }[],
+): string {
+  if (NORMALIZAR(texto).length !== texto.length) return texto;
+  let salida = texto;
+  for (const { inicio, fin } of identidades) {
+    salida = salida.slice(0, inicio) + ' '.repeat(fin - inicio) + salida.slice(fin);
+  }
+  return salida;
+}
+
+/**
  * Referencia institucional o a instrumento con nombre propio dentro de una clase
  * genérica (resolución, acuerdo): "la resolución de la CNBS", "el acuerdo del
  * Consejo de Ministros", "el Acuerdo de Paz de Esquipulas". Cuenta la forma de la
@@ -124,7 +142,7 @@ function nombreInstitucionalTras(texto: string): boolean {
     let j = i + 1;
     if (!['de', 'del'].includes(NORMALIZAR(palabras[j] ?? ''))) continue;
     j++;
-    while (j < palabras.length && ARTICULOS_DE.has(NORMALIZAR(palabras[j]))) j++;
+    while (j < palabras.length && ['de', 'del', ...ARTICULOS_DE].includes(NORMALIZAR(palabras[j]))) j++;
     if (esSigla(palabras[j])) return true;
     if (esNombrePropio(palabras[j]) && ['de', 'del'].includes(NORMALIZAR(palabras[j + 1] ?? '')) && esNombrePropio(palabras[j + 2])) {
       return true;
@@ -312,7 +330,7 @@ export function clasificarIntencionInstrumental(texto: string): IntencionInstrum
   const n = NORMALIZAR(texto);
   const detectadas = detectarIdentidadesDesdeTexto(n);
   const { pendientes, porCodigo } = analizarReferencias(n, detectadas);
-  const institucional = nombreInstitucionalTras(texto) ? 1 : 0;
+  const institucional = nombreInstitucionalTras(sinMencionesIdentificadas(texto, detectadas)) ? 1 : 0;
   const identidades = [...new Set([...detectadas.map((d) => d.instrumento), ...porCodigo])];
   const articulos = [...new Set([...n.matchAll(ARTICULO_RE)].map((m) => m[1]))];
   if (pendientes + institucional > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
