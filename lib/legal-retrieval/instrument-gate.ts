@@ -26,8 +26,12 @@
  * del contrato", "acuerdo de pago"), los verbos ("el código dice…") y las
  * palabras sin identificador. Las denominaciones institucionales ("CNBS", "Consejo
  * de Ministros", "Esquipulas") son específicas sin resolver sólo si figuran en el
- * fixture cerrado CLO_PR62_DENOMINACIONES_V1 (sin heurística de mayúsculas ni de
- * nombres propios). Las identidades reconocidas (detectarIdentidadesDesdeTexto)
+ * fixture cerrado CLO_PR62_DENOMINACIONES_V2 (sin heurística de mayúsculas ni de
+ * nombres propios) Y siguen a «resolución/acuerdo/decreto/reglamento» + de/del
+ * (alcance V2). Un órgano mencionado sin clase de instrumento ("según la CSJ", "el
+ * Ministerio Público") no activa el fixture: se conserva la identidad detectada, o NONE.
+ * Sólo las entradas que contienen la clase ("Acuerdo de Escazú") o «Paz de Esquipulas»
+ * se detectan solas. Las identidades reconocidas (detectarIdentidadesDesdeTexto)
  * tienen precedencia sobre cualquier otra señal.
  *
  * Códigos documentales: un código verificado (IDENTIFICADORES_DOCUMENTALES) puede
@@ -37,7 +41,7 @@
  */
 
 import { detectarIdentidadesDesdeTexto, identidadDeFuente, type InstrumentoNormalizado } from './exact-resolver';
-import denominacionesClo from './fixtures/clo-pr62-denominaciones-v1.json';
+import denominacionesClo from './fixtures/clo-pr62-denominaciones-v2.json';
 
 export type EstadoIntencionInstrumental =
   | 'NONE'
@@ -114,6 +118,8 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
  */
 interface EntradaDenominacion {
   readonly institucional: boolean;
+  /** Se detecta sola (sin clase de acto antes): contiene la clase, o es «Paz de Esquipulas». */
+  readonly autonoma: boolean;
   readonly patron: RegExp;
 }
 
@@ -121,8 +127,9 @@ const ENTRADAS_DENOMINACION: readonly EntradaDenominacion[] = (() => {
   const escapar = (t: string): string => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const construir = (frase: string, institucional: boolean): EntradaDenominacion => {
     const cuerpo = NORMALIZAR(frase).trim().split(/\s+/).map(escapar).join('\\s+');
+    const autonoma = /(?:resolucion|acuerdo)|^paz de esquipulas$/.test(NORMALIZAR(frase).trim());
     // Palabra completa: ni letra ni dígito pegados a los lados ("ip" no es "tipo").
-    return { institucional, patron: new RegExp(`(?<![\\p{L}\\p{N}])${cuerpo}(?![\\p{L}\\p{N}])`, 'gu') };
+    return { institucional, autonoma, patron: new RegExp(`(?<![\\p{L}\\p{N}])${cuerpo}(?![\\p{L}\\p{N}])`, 'gu') };
   };
   const { siglas, nombres } = denominacionesClo.institucionales;
   return [
@@ -131,6 +138,11 @@ const ENTRADAS_DENOMINACION: readonly EntradaDenominacion[] = (() => {
   ];
 })();
 
+/** Entradas que se detectan solas: contienen la clase de acto, o son el tratado «Paz de Esquipulas». */
+const ENTRADAS_AUTONOMAS: readonly EntradaDenominacion[] = ENTRADAS_DENOMINACION.filter(
+  (e) => e.institucional && e.autonoma,
+);
+
 /**
  * true si el texto normalizado menciona una denominación institucional del fixture.
  * Conflicto entre coincidencias que se solapan: gana la más larga ("Sala de lo
@@ -138,10 +150,13 @@ const ENTRADAS_DENOMINACION: readonly EntradaDenominacion[] = (() => {
  * longitud gana la institucional (fail-close). Una mención genérica no anula
  * ninguna otra señal: sólo desempata frente a una coincidencia institucional más corta.
  */
-function mencionaDenominacionInstitucional(textoNormalizado: string): boolean {
+function coincidenciasElegidas(
+  texto: string,
+  entradas: readonly EntradaDenominacion[],
+): { inicio: number; fin: number; institucional: boolean }[] {
   const coincidencias: { inicio: number; fin: number; institucional: boolean }[] = [];
-  for (const { institucional, patron } of ENTRADAS_DENOMINACION) {
-    for (const m of textoNormalizado.matchAll(patron)) {
+  for (const { institucional, patron } of entradas) {
+    for (const m of texto.matchAll(patron)) {
       const inicio = m.index ?? 0;
       coincidencias.push({ inicio, fin: inicio + m[0].length, institucional });
     }
@@ -154,7 +169,30 @@ function mencionaDenominacionInstitucional(textoNormalizado: string): boolean {
     if (elegidas.some((e) => c.inicio < e.fin && e.inicio < c.fin)) continue;
     elegidas.push(c);
   }
-  return elegidas.some((c) => c.institucional);
+  return elegidas;
+}
+
+/** Clase de acto seguida de de/del (+ artículos): lo que sigue es la denominación del órgano. */
+const CLASE_ACTO_DE_RE = /\b(?:resolucion|acuerdo|decreto|reglamento)\s+(?:de|del)\s+(?:(?:la|el|los|las)\s+)*/g;
+
+/**
+ * true si la consulta atribuye un acto a una denominación institucional del fixture.
+ * Alcance (V2): el fixture sólo se aplica a la denominación que sigue a
+ * «resolución/acuerdo/decreto/reglamento» + de/del (+ artículos). Un órgano mencionado
+ * sin clase de instrumento no activa el fixture (se conserva la identidad detectada, o
+ * NONE). Las entradas que contienen la clase («Acuerdo de Escazú») y «Paz de Esquipulas»
+ * se detectan solas, en cualquier posición.
+ */
+function mencionaDenominacionInstitucional(textoNormalizado: string): boolean {
+  if (coincidenciasElegidas(textoNormalizado, ENTRADAS_AUTONOMAS).some((c) => c.institucional)) return true;
+  for (const clase of textoNormalizado.matchAll(CLASE_ACTO_DE_RE)) {
+    const resto = textoNormalizado.slice((clase.index ?? 0) + clase[0].length).split(/[?¿!¡,;:()]/)[0] ?? '';
+    // La denominación debe empezar justo después de la clase; gana la coincidencia más larga.
+    if (coincidenciasElegidas(resto, ENTRADAS_DENOMINACION).some((c) => c.institucional && c.inicio === 0)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

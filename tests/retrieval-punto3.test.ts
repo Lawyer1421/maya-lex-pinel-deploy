@@ -188,9 +188,11 @@ describe('clasificador — punto 3', () => {
     }
   });
 
-  it('Resolución del Código del Notariado de la CNBS → SPECIFIC_UNRESOLVED (conflicto conservado)', () => {
+  it('Resolución del Código del Notariado de la CNBS → SPECIFIC_RESOLVED (V2: identidad conservada)', () => {
     const i = clasificarIntencionInstrumental('¿Qué dice la resolución del Código del Notariado de la CNBS?');
-    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
+    // V2: «CNBS» sin clase de instrumento propia no activa el fixture; se conserva la identidad.
+    expect(i.estado).toBe('SPECIFIC_RESOLVED');
+    expect(i.identidades).toEqual(['CODIGO_NOTARIADO']);
   });
 
   it('acuerdo de la junta directiva → NONE', () => {

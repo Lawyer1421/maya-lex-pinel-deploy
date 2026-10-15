@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { clasificarIntencionInstrumental } from '@/lib/legal-retrieval/instrument-gate';
-import fixture from '@/lib/legal-retrieval/fixtures/clo-pr62-denominaciones-v1.json';
+import fixture from '@/lib/legal-retrieval/fixtures/clo-pr62-denominaciones-v2.json';
 
 /**
- * CLO_PR62_DENOMINACIONES_V1: lista cerrada de denominaciones adjudicada por la CLO.
+ * CLO_PR62_DENOMINACIONES_V2: lista cerrada de denominaciones adjudicada por la CLO.
+ * Alcance: sólo la denominación que sigue a resolución/acuerdo (de/del); un órgano sin clase no activa el fixture.
  * Institucionales → SPECIFIC_UNRESOLVED; genéricos y todo lo que no esté en la lista → NONE.
  * Comparación insensible a mayúsculas y tildes, por palabra completa, sólo contra el
  * fixture. Ninguna entrada da identidad: ésta sólo sale del registro canónico.
@@ -12,16 +13,16 @@ import fixture from '@/lib/legal-retrieval/fixtures/clo-pr62-denominaciones-v1.j
 const estado = (q: string) => clasificarIntencionInstrumental(q).estado;
 const norm = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
-describe('fixture CLO_PR62_DENOMINACIONES_V1: metadatos y cierre', () => {
+describe('fixture CLO_PR62_DENOMINACIONES_V2: metadatos y cierre', () => {
   it('declara id, versión y fuente CLO', () => {
-    expect(fixture.id).toBe('CLO_PR62_DENOMINACIONES_V1');
-    expect(fixture.version).toBe(1);
+    expect(fixture.id).toBe('CLO_PR62_DENOMINACIONES_V2');
+    expect(fixture.version).toBe(2);
     expect(fixture.fuente).toMatch(/CLO/);
   });
 
   it('lista cerrada: cualquier entrada nueva cambia estos conteos y exige revisión CLO', () => {
     expect(fixture.institucionales.siglas).toHaveLength(18);
-    expect(fixture.institucionales.nombres).toHaveLength(21);
+    expect(fixture.institucionales.nombres).toHaveLength(25);
     expect(fixture.genericos).toHaveLength(33);
   });
 
@@ -48,30 +49,65 @@ describe('genéricos → NONE', () => {
   });
 });
 
-describe('institucionales → SPECIFIC_UNRESOLVED', () => {
+describe('institucionales tras resolución/acuerdo → SPECIFIC_UNRESOLVED', () => {
   it.each([
-    'cnbs',
     'resolución de la CNBS',
-    'consejo de ministros',
+    '¿Qué dice la RESOLUCIÓN DE LA CNBS?',
     'acuerdo del Consejo de Ministros',
     'acuerdo de paz de esquipulas',
-    'ESQUIPULAS',
-    'Escazú',
+    'Acuerdo de Paz de Esquipulas',
+    'el Acuerdo de Escazú',
     'Resolución de la CSJ sobre amparo',
-    'Sala de lo Constitucional',
+    'resolución de la Sala de lo Constitucional',
+    'acuerdo del Banco Central de Honduras',
+    'resolución del Tribunal Superior de Cuentas',
     'Acuerdo Ejecutivo 679-2014',
+    'resolución del Ministerio Público',
+    'acuerdo de la Secretaría de Finanzas',
+    'acuerdo del Colegio de Abogados',
+    'resolución de la Unión de Notarios',
+    'resolución de la Presidencia de la CSJ',
   ])('%s', (q) => {
     expect(estado(q)).toBe('SPECIFIC_UNRESOLVED');
   });
 
-  it.each([...fixture.institucionales.siglas, ...fixture.institucionales.nombres])('«%s» (cualquier caja y sin tildes)', (e) => {
-    expect(estado(`¿Qué dispone ${e}?`)).toBe('SPECIFIC_UNRESOLVED');
-    expect(estado(e.toUpperCase())).toBe('SPECIFIC_UNRESOLVED');
-    expect(estado(norm(e))).toBe('SPECIFIC_UNRESOLVED');
+  it.each([...fixture.institucionales.siglas, ...fixture.institucionales.nombres])('«%s» tras la clase (cualquier caja y sin tildes)', (e) => {
+    expect(estado(`¿Qué dispone la resolución de la ${e}?`)).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado(`ACUERDO DEL ${e.toUpperCase()}`)).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado(`acuerdo de ${norm(e)}`)).toBe('SPECIFIC_UNRESOLVED');
   });
 
   it('no resuelve identidad: se conservan sólo las identidades del registro canónico', () => {
     expect(clasificarIntencionInstrumental('resolución de la CNBS').identidades).toEqual([]);
+  });
+});
+
+describe('alcance V2: órgano sin clase de instrumento → el fixture no aplica', () => {
+  it.each([
+    '¿Cómo presento un amparo ante la Sala de lo Constitucional?',
+    '¿Qué es el principio de legalidad según la CSJ?',
+    '¿Qué es una dirección IP en un contrato?',
+    'cnbs',
+    'consejo de ministros',
+    'Sala de lo Constitucional',
+    'ESQUIPULAS',
+    'Escazú',
+  ])('%s → NONE', (q) => {
+    expect(estado(q)).toBe('NONE');
+  });
+
+  it('conserva la identidad detectada junto al órgano', () => {
+    const a = clasificarIntencionInstrumental('Según el Código Penal, ¿qué facultades tiene el Ministerio Público?');
+    expect(a.estado).toBe('SPECIFIC_RESOLVED');
+    expect(a.identidades).toEqual(['CODIGO_PENAL']);
+    const b = clasificarIntencionInstrumental('¿Qué dice el artículo 1 del Código Penal sobre el MP?');
+    expect(b.estado).toBe('SPECIFIC_RESOLVED');
+    expect(b.identidades).toEqual(['CODIGO_PENAL']);
+  });
+
+  it('las entradas que contienen la clase o «Paz de Esquipulas» se detectan solas', () => {
+    expect(estado('Acuerdo de Escazú')).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado('la Paz de Esquipulas')).toBe('SPECIFIC_UNRESOLVED');
   });
 });
 
@@ -93,11 +129,11 @@ describe('reglas de coincidencia', () => {
   });
 
   it('conflicto: gana la coincidencia más larga', () => {
-    expect(estado('Sala de lo Constitucional')).toBe('SPECIFIC_UNRESOLVED');
-    expect(estado('la sala')).toBe('NONE');
-    expect(estado('Tribunal Superior de Cuentas')).toBe('SPECIFIC_UNRESOLVED');
-    expect(estado('el tribunal')).toBe('NONE');
-    expect(estado('Presidencia de la Corte Suprema de Justicia')).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado('resolución de la Sala de lo Constitucional')).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado('resolución de la sala')).toBe('NONE');
+    expect(estado('resolución del Tribunal Superior de Cuentas')).toBe('SPECIFIC_UNRESOLVED');
+    expect(estado('resolución del tribunal')).toBe('NONE');
+    expect(estado('resolución de la Presidencia de la Corte Suprema de Justicia')).toBe('SPECIFIC_UNRESOLVED');
   });
 });
 

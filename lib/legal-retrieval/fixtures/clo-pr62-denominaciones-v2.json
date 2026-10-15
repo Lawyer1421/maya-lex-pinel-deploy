@@ -1,8 +1,8 @@
 {
-  "id": "CLO_PR62_DENOMINACIONES_V1",
-  "version": 1,
-  "fuente": "CLO — adjudicación para PR #62 (sustituye al dictamen P3)",
-  "descripcion": "Lista cerrada de denominaciones. Institucionales: SPECIFIC_UNRESOLVED (ausencia declarada, sin sustituto, sin resolver identidad). Genéricos: NONE. Lo que no esté en ninguna lista es NONE. Toda entrada nueva requiere revisión CLO y un incremento de versión. Ninguna entrada da identidad verificada: la identidad sólo sale del registro canónico.",
+  "id": "CLO_PR62_DENOMINACIONES_V2",
+  "version": 2,
+  "fuente": "CLO V2 — adjudicación para PR #62 (sustituye a V1 y al dictamen P3)",
+  "descripcion": "Lista cerrada de denominaciones. Institucionales: SPECIFIC_UNRESOLVED (ausencia declarada, sin sustituto, sin resolver identidad). Genéricos: NONE. Lo que no esté en ninguna lista es NONE. Alcance: sólo la denominación que sigue a resolución/acuerdo/decreto/reglamento + de/del; un órgano sin clase de instrumento no activa el fixture. Toda entrada nueva requiere revisión CLO y un incremento de versión. Ninguna entrada da identidad verificada: la identidad sólo sale del registro canónico.",
   "institucionales": {
     "siglas": [
       "CNBS", "BCH", "SAR", "CSJ", "TSC", "RNP", "IP", "IAIP", "CAH",
@@ -29,7 +29,11 @@
       "Esquipulas",
       "Esquipulas II",
       "Escazú",
-      "Acuerdo de Escazú"
+      "Acuerdo de Escazú",
+      "Secretaría de Finanzas",
+      "Colegio de Abogados",
+      "Unión de Notarios",
+      "Presidencia de la CSJ"
     ]
   },
   "genericos": [
