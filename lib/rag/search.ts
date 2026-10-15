@@ -30,6 +30,12 @@
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
+import {
+  clasificarIntencionInstrumental,
+  elegibilidadSemantica,
+  evidenciaCubreIntencion,
+  evidenciaFinal,
+} from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: FUENTES_DOCTRINALES, formatearContextoRAG, requiereEvidenciaCorpus,
 // CORPUS_EVIDENCE_NOT_FOUND y MENSAJE_ABSTENCION_CORPUS se movieron a
 // evidence-engine.ts (extracción 1:1, sin cambio de comportamiento -- ver
@@ -223,6 +229,35 @@ async function buscarEnPython(
  * @param materia - Filtro por metadato materia (ej. '01_PENAL') — garantiza
  *                  aislamiento anti-contaminación dentro de colecciones mixtas
  */
+/**
+ * Une dos listas de fragmentos conservando el orden de la primera y omitiendo
+ * de la segunda los que ya están (por id, cuando lo tienen).
+ */
+function unirFragmentos(primero: FragmentoRAG[], segundo: FragmentoRAG[]): FragmentoRAG[] {
+  const ids = new Set(primero.map((f) => f.id).filter((id): id is string => Boolean(id)));
+  return [...primero, ...segundo.filter((f) => !f.id || !ids.has(f.id))];
+}
+
+/**
+ * Búsqueda exacta por artículo para cada identidad de una comparación. Sin
+ * materia: cada instrumento recupera su propio artículo, con la identidad
+ * documental como único criterio de aceptación (resolverArticuloExacto).
+ */
+async function buscarArticuloPorIdentidades(
+  numero: string,
+  identidades: InstrumentoNormalizado[],
+): Promise<ResultadoExacto> {
+  // Secuencial: una búsqueda por identidad, en orden, como el resto de la ruta exacta.
+  const fragmentos: FragmentoRAG[] = [];
+  let ambiguo = false;
+  for (const id of identidades) {
+    const r = await buscarArticuloExacto(numero, null, id);
+    fragmentos.push(...r.fragmentos);
+    ambiguo = ambiguo || r.ambiguo;
+  }
+  return { fragmentos, ambiguo };
+}
+
 export async function buscarRAG(
   consulta: string,
   k = 5,
@@ -252,7 +287,16 @@ export async function buscarRAG(
   // entra a la ruta determinista, incluso si termina fallando y degradando a
   // semántica (catch de abajo) -- el outcome final debe reflejar que SÍ se
   // intentó, no solo si tuvo éxito.
+  // P1: estado de la intención instrumental (NONE, SPECIFIC_RESOLVED,
+  // MULTI_SPECIFIC_RESOLVED, SPECIFIC_UNRESOLVED). Gobierna la ruta exacta y la
+  // semántica; ver lib/legal-retrieval/instrument-gate.ts.
+  const intencion = clasificarIntencionInstrumental(consulta);
+
   let exactoIntentado = false;
+  // Comparación con evidencia exacta parcial (cobertura incompleta): los
+  // fragmentos exactos verificados se conservan y la ruta continúa a la
+  // semántica; la cobertura se reevalúa sobre el conjunto final.
+  let exactoParcial: FragmentoRAG[] = [];
 
   // Recuperación exacta por artículo — prioridad sobre la semántica.
   // No requiere HF_API_TOKEN (no genera embedding), así que sigue
@@ -267,7 +311,11 @@ export async function buscarRAG(
       exactoIntentado = true;
       try {
         const materiaEfectiva = deteccion.materiaDetectada ?? materia ?? null;
-        const exacto = await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
+        // Comparación con un artículo: cada instrumento recupera su propio artículo,
+        // sin materia de un solo instrumento. Resto: búsqueda exacta habitual.
+        const exacto = intencion.estado === 'MULTI_SPECIFIC_RESOLVED' && intencion.articulos.length === 1
+          ? await buscarArticuloPorIdentidades(deteccion.numero, intencion.identidades)
+          : await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
         if (exacto.ambiguo) {
           // Regla K (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md): ambigüedad ->
           // NO_VERIFIED_EVIDENCE, NUNCA contaminación semántica.
@@ -276,30 +324,42 @@ export async function buscarRAG(
             outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
           };
         }
-        if (exacto.fragmentos.length > 0) {
+        // La evidencia exacta sólo cuenta si cubre la intención (identidad
+        // confirmada, y en comparaciones, cada instrumento). Si no, cae a la
+        // abstención de abajo.
+        if (exacto.fragmentos.length > 0 && evidenciaCubreIntencion(exacto.fragmentos, intencion)) {
           return {
             fragmentos: exacto.fragmentos,
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
+            intencionInstrumental: intencion.estado,
+            articulosSolicitados: intencion.articulos,
             outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
               evidenceCount: exacto.fragmentos.length, exactAttempted: true,
             }),
           };
         }
-        // Sin candidato exacto válido. Si el usuario identificó la materia
-        // (penal/civil) O el instrumento específico (CPP, Código Penal,
-        // Código de Trabajo, etc.), no se cae a semántica amplia — podría
-        // citar un artículo de un instrumento distinto con el mismo número,
-        // o un fragmento mal segmentado; la búsqueda semántica tampoco filtra
-        // por instrumento, así que no puede sustituir la identidad exacta que
-        // el usuario pidió. Se abstiene. Si el número vino totalmente
-        // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
-        // permite el fallback semántico — comportamiento previo, ya validado.
-        if (deteccion.materiaDetectada || deteccion.instrumento) {
+        // Comparación con evidencia exacta parcial: continúa a semántica y la
+        // cobertura final decide. Sin fragmentos exactos, se conserva la
+        // abstención de abajo (p. ej. Art. 9999 CPP).
+        if (exacto.fragmentos.length > 0 && intencion.estado === 'MULTI_SPECIFIC_RESOLVED') {
+          exactoParcial = exacto.fragmentos;
+        } else if (deteccion.materiaDetectada || deteccion.instrumento) {
+          // Sin candidato exacto válido. Si el usuario identificó la materia
+          // (penal/civil) O el instrumento específico (CPP, Código Penal,
+          // Código de Trabajo, etc.), no se cae a semántica amplia — podría
+          // citar un artículo de un instrumento distinto con el mismo número,
+          // o un fragmento mal segmentado; la búsqueda semántica tampoco filtra
+          // por instrumento, así que no puede sustituir la identidad exacta que
+          // el usuario pidió. Se abstiene. Si el número vino totalmente
+          // desnudo ("Artículo 173" a secas, sin materia ni instrumento), sí se
+          // permite el fallback semántico — comportamiento previo, ya validado.
           // Regla C: instrumento/artículo explícito sin candidato válido ->
           // NO_VERIFIED_EVIDENCE (ej. Art. 9999 CPP), NUNCA RETRIEVAL_ERROR.
           return {
             fragmentos: [], articulos_encontrados: [], backend: 'supabase',
+            intencionInstrumental: intencion.estado,
+            articulosSolicitados: intencion.articulos,
             outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true }),
           };
         }
@@ -346,11 +406,28 @@ export async function buscarRAG(
   // constitucional además de penal/civil) -- nunca en la ruta de artículo
   // exacto de arriba, que sigue usando la detección original sin tocar (ver
   // comentario de detectarMateriaSemanticaAmpliada en exact-resolver.ts).
-  const materiaSemantica = materia ?? detectarMateriaSemanticaAmpliada(consulta) ?? undefined;
+  // En una comparación, la materia inferida del texto (la del primer instrumento)
+  // excluiría al otro: no filtra. Sólo aplica el filtro explícito del llamador.
+  const materiaSemantica = materia
+    ?? (intencion.estado === 'MULTI_SPECIFIC_RESOLVED' ? undefined : detectarMateriaSemanticaAmpliada(consulta) ?? undefined);
+
+  // P1: elegibilidad de la evidencia semántica según el estado de la intención.
+  const elegibleFuente = elegibilidadSemantica(intencion);
 
   try {
     if (backend === 'python') {
-      const resultado = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
+      const elegibles = bruto.fragmentos.filter((f) => elegibleFuente(f.fuente));
+      // Evidencia final enviada al contexto: cobertura completa y, en comparaciones
+      // con artículos concretos, sólo esos artículos. Sin ello, no hay evidencia.
+      const fragmentos = evidenciaFinal(elegibles, intencion);
+      const resultado = {
+        ...bruto,
+        fragmentos,
+        articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        intencionInstrumental: intencion.estado,
+        articulosSolicitados: intencion.articulos,
+      };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
       return {
@@ -362,7 +439,19 @@ export async function buscarRAG(
       };
     }
     if (backend === 'supabase') {
-      const resultado = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false);
+      const bruto = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente);
+      // Evidencia final = exacta parcial (verificada por identidad) + semántica.
+      // Sin cobertura completa de la intención (p. ej. una comparación sin
+      // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
+      const combinados = unirFragmentos(exactoParcial, bruto.fragmentos);
+      const fragmentos = evidenciaFinal(combinados, intencion);
+      const resultado = {
+        ...bruto,
+        fragmentos,
+        articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        intencionInstrumental: intencion.estado,
+        articulosSolicitados: intencion.articulos,
+      };
       // Regla L: un fallo de Cohere (opcional) ya degrada de forma
       // resiliente DENTRO de seleccionarFinal/rerankearFragmentos (sin
       // lanzar) desde antes de esta fase -- buscarEnSupabase nunca ve ese

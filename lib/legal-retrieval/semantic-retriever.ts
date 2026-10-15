@@ -11,15 +11,17 @@
  * de Retrieval v3 -- esta fase solo mueve el código ya existente y
  * verificado, no introduce ninguna lógica, modelo, endpoint ni k nuevo.
  *
- * Dependencias permitidas: ./types, ./primitives, lib/rag/embed, lib/rag/rerank,
- * lib/supabase. NUNCA lib/rag/search.ts (reabriría el ciclo cerrado en Fase
- * 1A.1) ni lib/legal-retrieval/exact-resolver.ts (hermano independiente --
- * ninguna de las funciones movidas aquí necesita nada de la resolución
- * determinista por artículo exacto).
+ * Dependencias permitidas: ./types, ./primitives, ./instrument-gate, lib/rag/embed,
+ * lib/rag/rerank, lib/supabase. NUNCA lib/rag/search.ts (reabriría el ciclo
+ * cerrado en Fase 1A.1). ./instrument-gate importa de ./exact-resolver, que no
+ * importa nada de este archivo: no hay ciclo. Sólo se usa la identidad de
+ * fuente para el gate de intención explícita (P1), nada de la resolución
+ * determinista por artículo exacto.
  */
 
 import type { FragmentoRAG, ResultadoRAG } from './types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from './primitives';
+import type { PredicadoFuente } from './instrument-gate';
 
 /**
  * D6(b) — true para un artículo de código hondureño confirmado NO vigente
@@ -77,6 +79,7 @@ export async function buscarEnSupabase(
   coleccion: string,
   materia: string | undefined,
   rerankHabilitado: boolean,
+  elegibleFuente: PredicadoFuente = () => true,
 ): Promise<ResultadoRAG> {
   // Requiere la tabla biblioteca_vectores + RPC buscar_biblioteca en Supabase
   // (supabase/vectores.sql — poblada por scripts/seed_vectores.py) y
@@ -191,11 +194,17 @@ export async function buscarEnSupabase(
   // Se agrega un filtro adicional, deliberadamente angosto (solo
   // `fuente === null`, sin tocar la condición de D6b) para cerrar ese caso
   // sin duplicar ni reemplazar la función existente.
+  //
+  // P1 (intención instrumental): elegibleFuente aplica la regla de instrument-gate
+  // según el estado (NONE sin filtro; identidad resuelta exige fuente confirmada;
+  // referencia específica no resuelta bloquea todo). La materia nunca autoriza. Va
+  // ANTES del corte final, para que `k` se llene con candidatos elegibles.
   const candidatos = fragmentosSinFiltrar
     .filter((f) => !contieneArtefactoAnonimizacion(f.contenido))
     .filter((f) => !esRegistroNoVigenteExcluido(f))
     .filter((f) => f.fuente !== null)
-    .filter((f) => !esFuenteDocumentalExcluida(f.fuente));
+    .filter((f) => !esFuenteDocumentalExcluida(f.fuente))
+    .filter((f) => elegibleFuente(f.fuente));
 
   // Etapa 2 — reranking Cohere, ahora detrás de `flag_rerank` (Decisión C,
   // DECISION_LOG 2026-09-07). `rerankHabilitado` lo resuelve `/api/chat` una

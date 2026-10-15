@@ -51,6 +51,10 @@ import {
   type FragmentoRAG,
   type RetrievalOutcome,
 } from '@/lib/rag/search';
+import {
+  clasificarIntencionInstrumental,
+  evidenciaProcedimentalPermitida,
+} from '@/lib/legal-retrieval/instrument-gate';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
 // para que los consumidores actuales (tests que importan desde
@@ -326,17 +330,31 @@ export async function POST(req: NextRequest) {
     let contextoRAG = formatearContextoRAG(ragResultado);
     const fragmentos = [...ragResultado.fragmentos];
 
-    // RUTA_C civil → segunda pasada con procedimental para completar el análisis
+    // RUTA_C civil → segunda pasada con procedimental; sólo añade fragmentos elegibles y verificables (ver evidenciaProcedimentalPermitida)
     if (ruta === 'C' && !esPenal) {
       const ragProc = await buscarRAG(
         ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,
         { rerank: rerankHabilitado }
       );
-      const contextoProc = formatearContextoRAG(ragProc);
-      if (contextoProc) {
+      // El pase procedimental sólo añade fragmentos que sobreviven a la evidencia
+      // final de la unión (evidenciaProcedimentalPermitida): siempre exige que sean
+      // elegibles y verificables del instrumento. Sólo en comparaciones (MULTI) con un
+      // único artículo pedido exige además ese artículo; con identidad única o NONE no
+      // filtra por artículo. Puede completar la cobertura de una comparación, nunca con
+      // evidencia no verificada.
+      const intencionPregunta = clasificarIntencionInstrumental(ultimaPregunta as string);
+      const procPermitidos = evidenciaProcedimentalPermitida(
+        ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,
+      );
+      if (procPermitidos.length > 0) {
+        const contextoProc = formatearContextoRAG({
+          ...ragProc,
+          fragmentos: procPermitidos,
+          articulos_encontrados: [...new Set(procPermitidos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
+        });
         contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
       }
-      fragmentos.push(...ragProc.fragmentos);
+      fragmentos.push(...procPermitidos);
     }
     // El outcome de la pasada procedimental complementaria (RUTA_C civil) no
     // sustituye al de la colección principal -- esa es la que determina si

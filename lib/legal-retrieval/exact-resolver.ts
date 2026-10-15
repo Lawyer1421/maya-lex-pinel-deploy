@@ -175,8 +175,11 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_CIVIL', /c[oó]digo\s+civil\b/i],
   ['CODIGO_TRABAJO', /c[oó]digo\s+(?:del?\s+)?trabajo\b/i],
   ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
-  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b/i],
-  ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:del?\s+)?notariado\b/i],
+  // Alias P1 (intención instrumental explícita): "reglamento notarial" y
+  // "reglamento de la función notarial" son el Reglamento. "ley notarial" NO
+  // es alias de ningún instrumento: no se asimila al Código del Notariado.
+  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b|(?:de\s+la\s+)?(?:funci[oó]n\s+)?notarial\b)/i],
+  ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:(?:del?\s+)?notariado\b|notarial\b)/i],
   ['CODIGO_TRIBUTARIO', /c[oó]digo\s+tributario\b/i],
   ['CODIGO_COMERCIO', /c[oó]digo\s+de\s+comercio\b/i],
   // Se evalúa antes que CONSTITUCION por el mismo motivo que
@@ -188,7 +191,13 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   // \b tras "constituci[oó]n" es lo que evita que esto capture "Ley sobre
   // Justicia Constitucional" (que en la fuente real contiene "Constitucional",
   // sin límite de palabra inmediatamente después de "constitucion").
-  ['CONSTITUCION', /constituci[oó]n\b/i],
+  // Polisemia: "constitución en mora", "constitución de sociedad/hipoteca", etc.
+  // son actos jurídicos, no el instrumento. Sólo cuenta como Constitución cuando
+  // va seguida de una referencia normativa: fin de consulta o puntuación, "de la
+  // República", "de Honduras", "política", "nacional", "sobre", "que", "establece",
+  // "dispone", "prevé", "vigente", "en su", "y", o un número. Lista positiva: lo
+  // no listado no se identifica como instrumento.
+  ['CONSTITUCION', /constituci[oó]n\b(?=\s*(?:$|[?¿!¡.,;:)]|de\s+la\s+rep[uú]blica\b|de\s+honduras\b|pol[ií]tica\b|nacional\b|sobre\b|que\b|establece\b|dispone\b|prev[eé]\b|vigente\b|en\s+su\b|y\b|\d))/i],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
@@ -197,6 +206,39 @@ export function detectarInstrumentoDesdeTexto(query: string): InstrumentoNormali
     if (re.test(query)) return instrumento;
   }
   return null;
+}
+
+/** Identidad de instrumento hallada en un texto, con su posición (inicio inclusive, fin exclusivo). */
+export interface IdentidadEnTexto {
+  instrumento: InstrumentoNormalizado;
+  inicio: number;
+  fin: number;
+}
+
+/**
+ * Todas las identidades de instrumento presentes en el texto, sin
+ * coincidencias superpuestas: entre dos matches que se solapan gana el más
+ * largo (p. ej. "Reglamento del Código del Notariado" sobre "Código del
+ * Notariado"); en empate, el orden de RE_INSTRUMENTO. Las no superpuestas se
+ * conservan todas (unión), en orden de aparición.
+ */
+export function detectarIdentidadesDesdeTexto(texto: string): IdentidadEnTexto[] {
+  const candidatos: (IdentidadEnTexto & { prioridad: number })[] = [];
+  RE_INSTRUMENTO.forEach(([instrumento, re], prioridad) => {
+    const global = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
+    for (const m of texto.matchAll(global)) {
+      const inicio = m.index ?? 0;
+      candidatos.push({ instrumento, inicio, fin: inicio + m[0].length, prioridad });
+    }
+  });
+  candidatos.sort((a, b) => (b.fin - b.inicio) - (a.fin - a.inicio) || a.prioridad - b.prioridad);
+  const elegidos: typeof candidatos = [];
+  for (const c of candidatos) {
+    if (!elegidos.some((e) => c.inicio < e.fin && e.inicio < c.fin)) elegidos.push(c);
+  }
+  return elegidos
+    .sort((a, b) => a.inicio - b.inicio)
+    .map(({ instrumento, inicio, fin }) => ({ instrumento, inicio, fin }));
 }
 
 // Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
@@ -248,6 +290,21 @@ export function identidadDocumentalCoincide(row: FilaExactaDB, instrumento: Inst
     : undefined;
   if (typeof metaDoc === 'string' && patron.test(metaDoc)) return true;
   return false;
+}
+
+/**
+ * Instrumento que declara una fuente real (sólo `fuente`, sin metadata), con
+ * los mismos patrones de identidadDocumentalCoincide. Null si la fuente no
+ * declara ninguno. Lo usa la ruta semántica, que no trae metadata por fila.
+ * El orden de RE_FUENTE_POR_INSTRUMENTO es el de declaración: los patrones
+ * están escritos para no solaparse (ver comentarios arriba).
+ */
+export function identidadDeFuente(fuente: string): InstrumentoNormalizado | null {
+  if (!fuente) return null;
+  for (const [instrumento, patron] of Object.entries(RE_FUENTE_POR_INSTRUMENTO) as [InstrumentoNormalizado, RegExp][]) {
+    if (patron.test(fuente)) return instrumento;
+  }
+  return null;
 }
 
 /** Detecta un número de artículo explícito y, si el texto lo indica, la materia y el instrumento exacto. */

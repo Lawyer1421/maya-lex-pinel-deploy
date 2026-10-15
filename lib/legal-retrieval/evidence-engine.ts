@@ -110,10 +110,18 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     return '';
   }
 
+  // Consulta temática (intención NONE): ningún fragmento se presenta como el título
+  // de la consulta. Cada fragmento lleva el nombre real de su fuente y su similitud,
+  // sin relevancia jurídica declarada: no fue evaluada.
+  const tematica = resultado.intencionInstrumental === 'NONE';
+
   const lineas = [
     '── CONTEXTO RECUPERADO — BIBLIOTECA PENAL PINEL ──',
     `Fuente: ${resultado.backend === 'python' ? 'Índice local ChromaDB' : 'Supabase pgvector'}`,
     `Fragmentos: ${resultado.fragmentos.length} | Artículos: ${resultado.articulos_encontrados.join(', ') || 'N/A'}`,
+    ...(tematica
+      ? ['CONSULTA TEMÁTICA: la consulta no identifica un instrumento normativo particular. Los fragmentos fueron recuperados por similitud y no han sido evaluados jurídicamente; cada uno indica su fuente real en "Fuente documental", y ninguna fuente es el título ni la expresión temática de la consulta. Las afirmaciones normativas sólo pueden respaldarse con estos fragmentos: si no bastan, dilo y no completes con conocimiento general.']
+      : []),
     '',
   ];
 
@@ -147,13 +155,26 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
               : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
     const tag = ` [${etiqueta}]`;
-    lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | relevancia: ${(f.relevancia * 100).toFixed(0)}%]`);
+    const pct = (f.relevancia * 100).toFixed(0);
+    // Con un artículo pedido, un fragmento de otro artículo es contexto complementario
+    // y no debe presentarse como el artículo solicitado.
+    const solicitados = resultado.articulosSolicitados ?? [];
+    const complementario = solicitados.length > 0 && !solicitados.includes(f.num_articulo ?? '');
+    const marcaComplementario = complementario ? ' | contexto complementario: no es el artículo solicitado' : '';
+    if (tematica) {
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}% | sin evaluación de relevancia jurídica${marcaComplementario}]`);
+    } else {
+      lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}%${marcaComplementario}]`);
+    }
+    lineas.push(`Fuente documental: ${f.fuente}`);
     lineas.push(f.contenido.trim());
     lineas.push('');
   }
 
   lineas.push('── FIN DEL CONTEXTO RAG ──');
-  lineas.push('INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
+  lineas.push(tematica
+    ? 'INSTRUCCIÓN (consulta temática): los fragmentos fueron recuperados por similitud y no han sido evaluados jurídicamente. Fundamenta cada afirmación normativa sólo en ellos, citando el artículo y la fuente indicada en "Fuente documental". Si no hay evidencia suficiente en el contexto, dilo y no completes con conocimiento general. La interfaz muestra por separado la fuente y el hash de verificación de cada fragmento — no comentes sobre su presencia, ausencia o formato.'
+    : 'INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
 
   return lineas.join('\n');
 }
