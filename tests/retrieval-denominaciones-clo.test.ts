@@ -162,4 +162,13 @@ describe('identidad canónica no se anula por palabras genéricas ni se fabrica 
     expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
     expect(i.identidades).toEqual(['CODIGO_NOTARIADO']);
   });
+
+  it.each([
+    ['resolución del Código del Notariado de la CNBS', 'CODIGO_NOTARIADO'],
+    ['acuerdo del Código Penal del Consejo de Ministros', 'CODIGO_PENAL'],
+  ])('conflicto institucional tras identidad: «%s» → UNRESOLVED [%s]', (q, id) => {
+    const i = clasificarIntencionInstrumental(q);
+    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
+    expect(i.identidades).toEqual([id]);
+  });
 });

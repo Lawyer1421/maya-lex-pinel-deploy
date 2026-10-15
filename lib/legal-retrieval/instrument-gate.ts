@@ -110,7 +110,7 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
 };
 
 /**
- * Denominaciones del fixture CLO_PR62_DENOMINACIONES_V1. Comparación insensible a
+ * Denominaciones del fixture CLO_PR62_DENOMINACIONES_V2. Comparación insensible a
  * mayúsculas, minúsculas y tildes, por palabra completa y sólo contra el fixture.
  * Una palabra en mayúsculas que no figura en la lista NO es sigla. Toda entrada
  * nueva requiere revisión CLO (y subir la versión del fixture). Ninguna entrada
@@ -144,7 +144,7 @@ const ENTRADAS_AUTONOMAS: readonly EntradaDenominacion[] = ENTRADAS_DENOMINACION
 );
 
 /**
- * true si el texto normalizado menciona una denominación institucional del fixture.
+ * Coincidencias (inicio, fin, institucional) del fixture que sobreviven al solapamiento.
  * Conflicto entre coincidencias que se solapan: gana la más larga ("Sala de lo
  * Constitucional" es institucional; "la sala" sola es genérica → NONE). A igual
  * longitud gana la institucional (fail-close). Una mención genérica no anula
@@ -181,12 +181,31 @@ const CLASE_ACTO_DE_RE = /\b(?:resolucion|acuerdo|decreto|reglamento)\s+(?:de|de
  * «resolución/acuerdo/decreto/reglamento» + de/del (+ artículos). Un órgano mencionado
  * sin clase de instrumento no activa el fixture (se conserva la identidad detectada, o
  * NONE). Las entradas que contienen la clase («Acuerdo de Escazú») y «Paz de Esquipulas»
- * se detectan solas, en cualquier posición.
+ * se detectan solas, en cualquier posición. Si tras la clase viene una identidad reconocida,
+ * la cadena sigue tras ese tramo: «resolución del Código del Notariado de la CNBS» sigue
+ * siendo SPECIFIC_UNRESOLVED (fail-close).
  */
-function mencionaDenominacionInstitucional(textoNormalizado: string): boolean {
+function mencionaDenominacionInstitucional(
+  textoNormalizado: string,
+  identidades: readonly { inicio: number; fin: number }[] = [],
+): boolean {
   if (coincidenciasElegidas(textoNormalizado, ENTRADAS_AUTONOMAS).some((c) => c.institucional)) return true;
   for (const clase of textoNormalizado.matchAll(CLASE_ACTO_DE_RE)) {
-    const resto = textoNormalizado.slice((clase.index ?? 0) + clase[0].length).split(/[?¿!¡,;:()]/)[0] ?? '';
+    let desde = (clase.index ?? 0) + clase[0].length;
+    // Identidad reconocida justo tras la clase («resolución del Código del Notariado de la CNBS»):
+    // la cadena sigue tras el tramo identificado, anclada a su final (fail-close).
+    // Con las identidades en blanco, entre «clase de/del» y el final del tramo sólo quedan espacios.
+    const identificada = identidades.find(
+      (i) =>
+        i.inicio >= (clase.index ?? 0) &&
+        textoNormalizado.slice(clase.index, i.fin).replace(/^\S+\s+(?:de|del)\b/, '').trim() === '',
+    );
+    if (identificada) {
+      const enlace = /^\s*(?:de|del)\s+(?:(?:la|el|los|las)\s+)*/.exec(textoNormalizado.slice(identificada.fin));
+      if (!enlace) continue;
+      desde = identificada.fin + enlace[0].length;
+    }
+    const resto = textoNormalizado.slice(desde).split(/[?¿!¡,;:()]/)[0] ?? '';
     // La denominación debe empezar justo después de la clase; gana la coincidencia más larga.
     if (coincidenciasElegidas(resto, ENTRADAS_DENOMINACION).some((c) => c.institucional && c.inicio === 0)) {
       return true;
@@ -391,7 +410,7 @@ export function clasificarIntencionInstrumental(texto: string): IntencionInstrum
   const n = NORMALIZAR(texto);
   const detectadas = detectarIdentidadesDesdeTexto(n);
   const { pendientes, porCodigo } = analizarReferencias(n, detectadas);
-  const institucional = mencionaDenominacionInstitucional(sinMencionesIdentificadas(n, detectadas)) ? 1 : 0;
+  const institucional = mencionaDenominacionInstitucional(sinMencionesIdentificadas(n, detectadas), detectadas) ? 1 : 0;
   const identidades = [...new Set([...detectadas.map((d) => d.instrumento), ...porCodigo])];
   const articulos = [...new Set([...n.matchAll(ARTICULO_RE)].map((m) => m[1]))];
   if (pendientes + institucional > 0) return { estado: 'SPECIFIC_UNRESOLVED', identidades, articulos };
