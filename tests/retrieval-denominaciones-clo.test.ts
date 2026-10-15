@@ -171,4 +171,21 @@ describe('identidad canónica no se anula por palabras genéricas ni se fabrica 
     expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
     expect(i.identidades).toEqual([id]);
   });
+
+  it('artículos antes de la identidad: «resolución de la Ley …» encadena igual (fail-close)', () => {
+    const i = clasificarIntencionInstrumental(
+      'resolución de la Ley de Justicia Constitucional de la Sala de lo Constitucional',
+    );
+    expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
+    expect(i.identidades).toEqual(['LEY_JUSTICIA_CONSTITUCIONAL']);
+  });
+
+  it.each([
+    'resolución de la Ley de Justicia Constitucional',
+    'resolución de la Ley de Justicia Constitucional de la sala',
+  ])('control: «%s» → SPECIFIC_RESOLVED [LEY_JUSTICIA_CONSTITUCIONAL]', (q) => {
+    const i = clasificarIntencionInstrumental(q);
+    expect(i.estado).toBe('SPECIFIC_RESOLVED');
+    expect(i.identidades).toEqual(['LEY_JUSTICIA_CONSTITUCIONAL']);
+  });
 });

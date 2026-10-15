@@ -198,7 +198,7 @@ function mencionaDenominacionInstitucional(
     const identificada = identidades.find(
       (i) =>
         i.inicio >= (clase.index ?? 0) &&
-        textoNormalizado.slice(clase.index, i.fin).replace(/^\S+\s+(?:de|del)\b/, '').trim() === '',
+        textoNormalizado.slice(clase.index, i.fin).replace(/^\S+\s+(?:de|del)(?:\s+(?:la|el|los|las))*\b/, '').trim() === '',
     );
     if (identificada) {
       const enlace = /^\s*(?:de|del)\s+(?:(?:la|el|los|las)\s+)*/.exec(textoNormalizado.slice(identificada.fin));
