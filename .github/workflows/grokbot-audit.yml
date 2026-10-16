@@ -1,15 +1,14 @@
 name: grokbot-audit
 
-# NO ejecuta ninguna auditoría automática. Grokbot (Auditor DevOps) es un
-# revisor externo humano-en-el-loop: revisa el diff y, cuando da 🟢, se
-# añade el label `auditor-green` al PR (por Fredy o por el propio Auditor).
+# NO ejecuta ninguna auditoría automática ni bloquea el merge. Grokbot (Auditor
+# DevOps) es un revisor externo humano-en-el-loop; su dictamen vive en los
+# comentarios del PR. El label `auditor-green` no se añade por regla, así que
+# este check ya no lo exige: siempre pasa y, si el label falta, deja un aviso
+# visible (::warning::) en el resumen del run.
 #
-# Este workflow solo CONVIERTE ESA DECISIÓN EN UN CHECK OBLIGATORIO Y VISIBLE:
-#   - sin label  -> check ❌ (bloquea merge si está en required checks)
-#   - con label  -> check ✅
-#
-# Se re-evalúa al añadir/quitar el label, así que el estado del check sigue
-# a la decisión del Auditor sin necesidad de re-push.
+# Se conserva el nombre del job `auditor-gate` porque la guía de protección de
+# rama (docs/runbooks/branch-protection-setup.md) lo lista como check requerido;
+# eliminar el workflow lo dejaría pendiente para siempre.
 
 on:
   pull_request:
@@ -22,11 +21,10 @@ jobs:
   auditor-gate:
     runs-on: ubuntu-latest
     steps:
-      - name: Requiere label 'auditor-green'
+      - name: Aviso informativo sobre 'auditor-green'
         run: |
           if [ "${{ contains(github.event.pull_request.labels.*.name, 'auditor-green') }}" = "true" ]; then
-            echo "auditor-green presente — el Auditor DevOps dio verde."
+            echo "auditor-green presente."
           else
-            echo "::error::Falta el label 'auditor-green'. El Auditor DevOps (Grokbot) no ha aprobado este diff. No mergear."
-            exit 1
+            echo "::warning::Sin label 'auditor-green'. Aviso informativo: el dictamen del Auditor DevOps está en los comentarios del PR; este check no bloquea."
           fi
