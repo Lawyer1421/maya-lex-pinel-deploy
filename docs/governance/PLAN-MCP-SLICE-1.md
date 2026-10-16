@@ -85,7 +85,7 @@ Solo lectura absoluta. Sin tablas nuevas salvo las ya planificadas (norma_versio
 
 ### 3.2 Autenticación de clientes MCP — RESUELTO (dictamen del Auditor, verificado)
 **VERIFICADO contra main (2026-10-14):** `getVerifiedEmail()` en
-`lib/rate-limit.ts` **L114–131** YA acepta `Authorization: Bearer *** y lo
+`lib/rate-limit.ts` **L114–131** YA acepta `Authorization: Bearer <JWT>` y lo
 valida con `supabase.auth.getUser(token)` (L115–124), con fail-closed ante token
 corrupto o Supabase caído (L125–127). **No se necesita fase nueva de auth para
 la v1: cero código de identidad nuevo.** El usuario Premium usa su JWT de
