@@ -66,6 +66,8 @@ describe('norma_version — CHECKs', () => {
     await insertar({ unidad: 'e3', version_id: 'ok', ...ok, estado_vigencia: 'TRUE_PRESUNTA' });
     await insertar({ unidad: 'e4', version_id: 'ok', ...ok, estado_vigencia: 'TRUE_PRESUNTA', nivel_verificacion: 'SECUNDARIA', fuente: 'CEDIJ' });
     await expect(insertar({ unidad: 'e1', version_id: 'a', ...ok, texto: null })).rejects.toThrow();
+    await expect(insertar({ unidad: 'e7', version_id: 'a', ...ok, texto: '' })).rejects.toThrow();
+    await expect(insertar({ unidad: 'e8', version_id: 'a', ...ok, texto: '   ' })).rejects.toThrow();
     await expect(insertar({ unidad: 'e2', version_id: 'a', ...ok, estado_vigencia: 'UNKNOWN' })).rejects.toThrow();
     await expect(insertar({ unidad: 'e6', version_id: 'a', ...ok, estado_vigencia: 'FALSE' })).rejects.toThrow();
     await expect(
@@ -90,6 +92,13 @@ describe('norma_version — sin solapes', () => {
   it('rechaza una segunda versión que se solapa en la misma unidad', async () => {
     await insertar({ unidad: 's1', version_id: 'a', vigente_desde: '2020-01-01', vigente_hasta: '2022-01-01' });
     await expect(insertar({ unidad: 's1', version_id: 'b', vigente_desde: '2021-06-01' })).rejects.toThrow(/sin_solapes|exclusion/i);
+  });
+  it('acepta la misma ventana con fuentes de distinto nivel (precedencia en resolverVersion)', async () => {
+    await insertar({ unidad: 'n1', version_id: 'img', nivel_verificacion: 'PRIMARIA_IMAGEN', vigente_desde: '2020-01-01' });
+    await insertar({ unidad: 'n1', version_id: 'cedij', nivel_verificacion: 'SECUNDARIA', vigente_desde: '2020-01-01' });
+    await expect(
+      insertar({ unidad: 'n1', version_id: 'cedij-bis', nivel_verificacion: 'SECUNDARIA', vigente_desde: '2020-06-01' }),
+    ).rejects.toThrow();
   });
   it('acepta versiones contiguas y la misma ventana en otra unidad', async () => {
     await insertar({ unidad: 's1', version_id: 'c', vigente_desde: '2022-01-01' });

@@ -106,7 +106,7 @@ describe('resolverVersion — hueco y fallo cerrado', () => {
 describe('resolverVersion — RANGO, UNKNOWN, FALSE, no elegible o sin texto nunca son PRIMARY', () => {
   it('fecha en RANGO (D.77-2006): devuelve la versión con advertencia, no PRIMARY', () => {
     const r = resolverVersion(NOTARIADO, '72', '2006-07-24', FIXTURES_PILOTO);
-    expect(r.estado).toBe('NO_PRIMARY');
+    expect(r.estado).toBe('CONTEXT');
     if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
     expect(r.version.version_id).toBe('d77-2006');
     expect(codigoDe(r)).toEqual(expect.arrayContaining(['FECHA_EN_RANGO', 'FECHA_EN_RANGO_INCIERTO']));
@@ -121,22 +121,22 @@ describe('resolverVersion — RANGO, UNKNOWN, FALSE, no elegible o sin texto nun
         precision_fecha: 'RANGO',
       }),
     ]);
-    expect(resolverVersion('SINT', 'R', '2010-01-01', vs).estado).toBe('NO_PRIMARY');
+    expect(resolverVersion('SINT', 'R', '2010-01-01', vs).estado).toBe('CONTEXT');
   });
   it('vigencia UNKNOWN con texto no es PRIMARY', () => {
     const vs = cadena('SINT', 'U', [verificada({ version_id: 'u1', vigente_desde: '2020-01-01', estado_vigencia: 'UNKNOWN' })]);
     const r = resolverVersion('SINT', 'U', '2021-01-01', vs);
-    expect(r.estado).toBe('NO_PRIMARY');
+    expect(r.estado).toBe('CONTEXT');
     expect(codigoDe(r)).toContain('VIGENCIA_UNKNOWN');
   });
   it('vigencia FALSE con texto no es PRIMARY', () => {
     const vs = cadena('SINT', 'F', [verificada({ version_id: 'f1', vigente_desde: '2020-01-01', estado_vigencia: 'FALSE' })]);
-    expect(resolverVersion('SINT', 'F', '2021-01-01', vs).estado).toBe('NO_PRIMARY');
+    expect(resolverVersion('SINT', 'F', '2021-01-01', vs).estado).toBe('CONTEXT');
   });
   it('elegible_primary=false impide PRIMARY aunque el resto esté completo', () => {
     const vs = cadena('SINT', 'E', [verificada({ version_id: 'e1', vigente_desde: '2020-01-01', elegible_primary: false })]);
     const r = resolverVersion('SINT', 'E', '2021-01-01', vs);
-    expect(r.estado).toBe('NO_PRIMARY');
+    expect(r.estado).toBe('CONTEXT');
     expect(codigoDe(r)).toContain('NO_ELEGIBLE_PRIMARY');
   });
   it('una versión completa y verificada sí es PRIMARY (camino positivo)', () => {
@@ -185,15 +185,94 @@ describe('resolverVersion — TRUE_PRESUNTA es elegible PRIMARY con aviso (CLO)'
       verificada({ ...base, precision_fecha: 'RANGO', vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' }),
     ]);
     for (const vs of [sinTexto, noElegible, rango]) {
-      expect(resolverVersion(CPC, '1', '2020-06-01', vs).estado).toBe('NO_PRIMARY');
+      expect(resolverVersion(CPC, '1', '2020-06-01', vs).estado).toBe('CONTEXT');
     }
   });
 
   it('UNKNOWN y FALSE siguen sin ser PRIMARY aunque tengan texto, fuente CEDIJ y elegible_primary', () => {
     for (const estado of ['UNKNOWN', 'FALSE'] as const) {
       const vs = cadena(NOTARIADO, '1', [verificada({ version_id: 'x', vigente_desde: '2015-03-01', estado_vigencia: estado, fuente: 'CEDIJ' })]);
-      expect(resolverVersion(NOTARIADO, '1', '2020-06-01', vs).estado).toBe('NO_PRIMARY');
+      expect(resolverVersion(NOTARIADO, '1', '2020-06-01', vs).estado).toBe('CONTEXT');
     }
+  });
+});
+
+describe('precedencia entre fuentes (CLO: SI_PRIMARY_CON_AVISO)', () => {
+  const imagen = fila({
+    ...verificada({ version_id: 'gaceta-img', vigente_desde: '2015-03-01', nivel_verificacion: 'PRIMARIA_IMAGEN', fuente: 'La Gaceta' }),
+    instrumento_id: NOTARIADO,
+    unidad: '1',
+  });
+  const cedij = fila({
+    ...verificada({ version_id: 'cedij-1', vigente_desde: '2015-03-01', estado_vigencia: 'TRUE_PRESUNTA', nivel_verificacion: 'SECUNDARIA', fuente: 'CEDIJ' }),
+    instrumento_id: NOTARIADO,
+    unidad: '1',
+  });
+
+  it('con PRIMARIA_IMAGEN y SECUNDARIA para el mismo artículo y fecha, gana la imagen y la secundaria pasa a contexto', () => {
+    for (const orden of [[imagen, cedij], [cedij, imagen]]) {
+      const r = resolverVersion(NOTARIADO, '1', '2020-06-01', orden);
+      expect(r.estado).toBe('PRIMARY');
+      if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.version.version_id).toBe('gaceta-img');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-1']);
+      expect(r.contexto[0].nivel_verificacion).toBe('SECUNDARIA');
+    }
+  });
+  it('sin imagen, la SECUNDARIA (CEDIJ) sigue siendo PRIMARY con VERIFICACION_SECUNDARIA y sin contexto', () => {
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [cedij]);
+    expect(r.estado).toBe('PRIMARY');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.contexto).toEqual([]);
+    expect(r.advertencias.map((a) => a.codigo)).toEqual(expect.arrayContaining(['VERIFICACION_SECUNDARIA', 'VIGENCIA_PRESUNTA']));
+  });
+  it('si la imagen gana pero no es elegible, no se cae a la secundaria: CONTEXT y la secundaria queda en contexto', () => {
+    const imagenSinTexto = { ...imagen, texto: null, elegible_primary: false };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenSinTexto, cedij]);
+    expect(r.estado).toBe('CONTEXT');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('gaceta-img');
+    expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-1']);
+  });
+  it('la imagen sólo gana en las fechas que cubre: fuera de su ventana, rige la secundaria', () => {
+    const imagenCerrada = { ...imagen, vigente_hasta: '2018-01-01' };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenCerrada, cedij]);
+    expect(r.estado).toBe('PRIMARY');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('cedij-1');
+  });
+  it('fuentes de distinto nivel para la misma fecha no cuentan como solape; dentro del mismo nivel sí', () => {
+    expect(detectarSolapes([imagen, cedij])).toEqual([]);
+    const otraSecundaria = { ...cedij, version_id: 'cedij-2' };
+    expect(detectarSolapes([cedij, otraSecundaria])).toHaveLength(1);
+    expect(codigoDe(resolverVersion(NOTARIADO, '1', '2020-06-01', [cedij, otraSecundaria]))).toBe('VERSIONES_SOLAPADAS');
+  });
+});
+
+describe('reforma o fallo posterior a la edición CEDIJ no incorporado (marcado en datos)', () => {
+  it('fila CEDIJ con elegible_primary=false y nota devuelve CONTEXT, no PRIMARY (sin detección automática)', () => {
+    const vs = cadena(CPC, '932', [
+      verificada({
+        version_id: 'cedij-932',
+        vigente_desde: '2015-03-01',
+        estado_vigencia: 'TRUE_PRESUNTA',
+        nivel_verificacion: 'SECUNDARIA',
+        fuente: 'CEDIJ',
+        elegible_primary: false,
+        nota: 'Reforma posterior a la edición CEDIJ no incorporada en este texto.',
+      }),
+    ]);
+    const r = resolverVersion(CPC, '932', '2020-06-01', vs);
+    expect(r.estado).toBe('CONTEXT');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.nota).toMatch(/no incorporada/);
+    expect(r.advertencias.map((a) => a.codigo)).toContain('NO_ELEGIBLE_PRIMARY');
+  });
+  it('el resolver no infiere el marcado: la misma fila con elegible_primary=true sí es PRIMARY', () => {
+    const vs = cadena(CPC, '932', [
+      verificada({ version_id: 'cedij-932', vigente_desde: '2015-03-01', estado_vigencia: 'TRUE_PRESUNTA', nivel_verificacion: 'SECUNDARIA', fuente: 'CEDIJ' }),
+    ]);
+    expect(resolverVersion(CPC, '932', '2020-06-01', vs).estado).toBe('PRIMARY');
   });
 });
 
@@ -241,7 +320,7 @@ describe('resolverVersion — texto null nunca devuelve PRIMARY', () => {
       for (const f of fechas) {
         const r = resolverVersion(inst, unidad, f, FIXTURES_PILOTO);
         expect(r.estado).not.toBe('PRIMARY');
-        if (r.estado === 'NO_PRIMARY') {
+        if (r.estado === 'CONTEXT') {
           resueltas++;
           expect(r.advertencias.map((a) => a.codigo)).toContain('TEXTO_NO_VERIFICADO');
         }
@@ -251,11 +330,15 @@ describe('resolverVersion — texto null nunca devuelve PRIMARY', () => {
   });
   it('una fila incoherente (texto null, TRUE, elegible_primary=true) tampoco es PRIMARY', () => {
     const vs = [fila({ instrumento_id: 'SINT', unidad: 'N', version_id: 'n1', vigente_desde: '2020-01-01', texto: null, estado_vigencia: 'TRUE', elegible_primary: true, nivel_verificacion: 'PRIMARIA_TEXTO', precision_fecha: 'DIA' })];
-    expect(resolverVersion('SINT', 'N', '2021-01-01', vs).estado).toBe('NO_PRIMARY');
+    expect(resolverVersion('SINT', 'N', '2021-01-01', vs).estado).toBe('CONTEXT');
   });
-  it('texto vacío no se confunde con texto null (sólo null bloquea)', () => {
-    const vs = cadena('SINT', 'V', [verificada({ version_id: 'v1', vigente_desde: '2020-01-01', texto: '' })]);
-    expect(resolverVersion('SINT', 'V', '2021-01-01', vs).estado).toBe('PRIMARY');
+  it('texto vacío o sólo espacios tampoco es PRIMARY (CLO)', () => {
+    for (const texto of ['', '   ', '\n\t']) {
+      const vs = cadena('SINT', 'V', [verificada({ version_id: 'v1', vigente_desde: '2020-01-01', texto })]);
+      const r = resolverVersion('SINT', 'V', '2021-01-01', vs);
+      expect(r.estado).toBe('CONTEXT');
+      expect(codigoDe(r)).toContain('TEXTO_NO_VERIFICADO');
+    }
   });
 });
 
@@ -267,7 +350,7 @@ describe('resolverVersion — inconstitucionalidad y derogación', () => {
     expect(antes.version.tipo_evento).toBe('ORIGINAL');
     expect(desde.version.tipo_evento).toBe('INCONSTITUCIONALIDAD');
     expect(desde.version.instrumento_modificador).toBe('RI-137-06');
-    expect(desde.estado).toBe('NO_PRIMARY');
+    expect(desde.estado).toBe('CONTEXT');
   });
   it('cubre el 59.11 y los arts. 60 a 71', () => {
     for (const u of ['59.11', ...Array.from({ length: 12 }, (_, i) => String(60 + i))]) {
@@ -279,7 +362,7 @@ describe('resolverVersion — inconstitucionalidad y derogación', () => {
   it('una versión con vigencia FALSE y texto no es PRIMARY y avisa que la norma no regía', () => {
     const vs = cadena('SINT', 'D', [verificada({ version_id: 'd1', vigente_desde: '2020-01-01', estado_vigencia: 'FALSE', tipo_evento: 'DEROGACION_EXPRESA' })]);
     const r = resolverVersion('SINT', 'D', '2021-01-01', vs);
-    expect(r.estado).toBe('NO_PRIMARY');
+    expect(r.estado).toBe('CONTEXT');
     expect(codigoDe(r)).toContain('NORMA_NO_VIGENTE');
   });
   it('D.40-2008 deroga el 59.15 a partir de 2008', () => {
@@ -305,7 +388,7 @@ describe('resolverVersion — texto nuevo con el mismo número', () => {
     const r = resolverVersion(NOTARIADO, '73', '2016-01-01', FIXTURES_PILOTO);
     if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
     expect(r.version).toMatchObject({ tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO', gaceta_numero: '33,801', nivel_verificacion: 'PRIMARIA_IMAGEN' });
-    expect(r.estado).toBe('NO_PRIMARY');
+    expect(r.estado).toBe('CONTEXT');
   });
   it('72-A no tiene versión anterior a 2015: antes falla cerrado', () => {
     expect(codigoDe(resolverVersion(NOTARIADO, '72-A', '2010-01-01', FIXTURES_PILOTO))).toBe('ANTERIOR_A_PRIMERA_VERSION');
@@ -319,7 +402,7 @@ describe('resolverVersion — CPC', () => {
     if (antes.estado === 'FALLO_CERRADO' || despues.estado === 'FALLO_CERRADO') throw new Error('inesperado');
     expect(antes.version.tipo_evento).toBe('ORIGINAL');
     expect(despues.version).toMatchObject({ version_id: 'd168-2009', tipo_evento: 'REFORMA', instrumento_modificador: 'D.168-2009' });
-    expect(despues.estado).toBe('NO_PRIMARY');
+    expect(despues.estado).toBe('CONTEXT');
     expect(codigoDe(despues)).toEqual(expect.arrayContaining(['TEXTO_NO_VERIFICADO', 'VIGENCIA_UNKNOWN']));
   });
   it('art. 932: dentro del margen de 2009 avisa de la incertidumbre de la fecha', () => {

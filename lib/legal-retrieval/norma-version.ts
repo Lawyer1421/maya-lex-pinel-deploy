@@ -12,11 +12,19 @@
  *    calla, rige 20 días después de publicado (calcularVigenteDesde).
  *  - Vacatio legis: si hay una versión ya publicada que aún no rige en `fecha`,
  *    se devuelve la versión anterior con advertencia VACATIO_LEGIS.
- *  - Nunca PRIMARY: texto null, vigencia UNKNOWN o FALSE, precision_fecha RANGO o
- *    elegible_primary=false. Esas versiones se devuelven NO_PRIMARY con
+ *  - Nunca PRIMARY: texto null o vacío, vigencia UNKNOWN o FALSE, precision_fecha
+ *    RANGO o elegible_primary=false. Esas versiones se devuelven CONTEXT con
  *    advertencias. TRUE_PRESUNTA SÍ puede ser PRIMARY, siempre con la
- *    advertencia VIGENCIA_PRESUNTA (CLO); la verificación SECUNDARIA también,
- *    con VERIFICACION_SECUNDARIA.
+ *    advertencia VIGENCIA_PRESUNTA; la verificación SECUNDARIA (p. ej. CEDIJ)
+ *    también, siempre con VERIFICACION_SECUNDARIA (fallo CLO 16-oct-2026,
+ *    SI_PRIMARY_CON_AVISO).
+ *  - Precedencia entre fuentes para el mismo artículo y fecha: PRIMARIA_IMAGEN >
+ *    PRIMARIA_TEXTO > SECUNDARIA. Gana la de mayor rango; las demás van en
+ *    `contexto` y nunca como PRIMARY. Si la ganadora no es elegible, no se cae
+ *    a una fuente inferior (fail-closed).
+ *  - Una reforma o fallo posterior a la edición CEDIJ que no esté incorporado se
+ *    marca en los datos (elegible_primary=false + nota). No hay detección
+ *    automática.
  *  - Sin versión, fecha en un hueco, anterior a la primera versión o posterior a
  *    una versión cerrada: FALLO_CERRADO. Nunca se rellena con la más cercana.
  */
@@ -90,8 +98,8 @@ export type MotivoFalloCerrado =
   | 'VERSIONES_SOLAPADAS';
 
 export type ResultadoVersion =
-  | { estado: 'PRIMARY'; version: NormaVersion; advertencias: Advertencia[] }
-  | { estado: 'NO_PRIMARY'; version: NormaVersion; advertencias: Advertencia[] }
+  | { estado: 'PRIMARY'; version: NormaVersion; advertencias: Advertencia[]; contexto: NormaVersion[] }
+  | { estado: 'CONTEXT'; version: NormaVersion; advertencias: Advertencia[]; contexto: NormaVersion[] }
   | { estado: 'FALLO_CERRADO'; motivo: MotivoFalloCerrado; mensaje: string };
 
 const MENSAJE_FALLO = 'no hay texto verificado para esa fecha';
@@ -135,7 +143,11 @@ function contiene(v: NormaVersion, fecha: string): boolean {
   return v.vigente_desde <= fecha && (v.vigente_hasta === null || fecha < v.vigente_hasta);
 }
 
-/** Pares de versiones de la misma (instrumento, unidad) cuyas ventanas se solapan. */
+/**
+ * Pares de versiones de la misma (instrumento, unidad, nivel_verificacion) cuyas
+ * ventanas se solapan. Fuentes de distinto nivel pueden coexistir para la misma
+ * fecha: la precedencia entre ellas la resuelve resolverVersion.
+ */
 export function detectarSolapes(versiones: readonly NormaVersion[]): [NormaVersion, NormaVersion][] {
   const solapes: [NormaVersion, NormaVersion][] = [];
   for (let i = 0; i < versiones.length; i++) {
@@ -143,6 +155,7 @@ export function detectarSolapes(versiones: readonly NormaVersion[]): [NormaVersi
       const a = versiones[i];
       const b = versiones[j];
       if (a.instrumento_id !== b.instrumento_id || a.unidad !== b.unidad) continue;
+      if (a.nivel_verificacion !== b.nivel_verificacion) continue;
       const finA = a.vigente_hasta ?? '9999-12-31';
       const finB = b.vigente_hasta ?? '9999-12-31';
       if (a.vigente_desde < finB && b.vigente_desde < finA) solapes.push([a, b]);
@@ -155,9 +168,21 @@ function fallo(motivo: MotivoFalloCerrado): ResultadoVersion {
   return { estado: 'FALLO_CERRADO', motivo, mensaje: MENSAJE_FALLO };
 }
 
+/** Sin texto utilizable: null, vacío o sólo espacios. */
+function sinTexto(v: NormaVersion): boolean {
+  return v.texto === null || v.texto.trim() === '';
+}
+
+/** Rango de precedencia entre fuentes (mayor gana). */
+const RANGO_NIVEL: Record<NivelVerificacion, number> = {
+  PRIMARIA_IMAGEN: 3,
+  PRIMARIA_TEXTO: 2,
+  SECUNDARIA: 1,
+};
+
 function advertenciasDe(v: NormaVersion, fecha: string): Advertencia[] {
   const adv: Advertencia[] = [];
-  if (v.texto === null) {
+  if (sinTexto(v)) {
     adv.push({ codigo: 'TEXTO_NO_VERIFICADO', mensaje: 'La versión no tiene texto verificado.' });
   }
   if (v.estado_vigencia === 'UNKNOWN') {
@@ -189,12 +214,12 @@ function advertenciasDe(v: NormaVersion, fecha: string): Advertencia[] {
 
 /**
  * PRIMARY exige texto, vigencia TRUE o TRUE_PRESUNTA, fecha no RANGO y
- * elegible_primary. Nunca: texto null, UNKNOWN, FALSE, RANGO, elegible_primary=false.
+ * elegible_primary. Nunca: texto null o vacío, UNKNOWN, FALSE, RANGO, elegible_primary=false.
  * Una fecha dentro del margen de incertidumbre del inicio de vigencia tampoco es
  * PRIMARY (el margen sólo existe cuando se desconoce el día exacto).
  */
 function esPrimary(v: NormaVersion, fecha: string): boolean {
-  if (v.texto === null) return false;
+  if (sinTexto(v)) return false;
   if (v.estado_vigencia !== 'TRUE' && v.estado_vigencia !== 'TRUE_PRESUNTA') return false;
   if (v.precision_fecha === 'RANGO') return false;
   if (!v.elegible_primary) return false;
@@ -227,15 +252,18 @@ export function resolverVersion(
   if (propias.length === 0) return fallo('SIN_VERSIONES');
   if (detectarSolapes(propias).length > 0) return fallo('VERSIONES_SOLAPADAS');
 
-  const vigente = propias.find((v) => contiene(v, fecha));
-  if (!vigente) {
+  const candidatas = propias
+    .filter((v) => contiene(v, fecha))
+    .sort((x, y) => RANGO_NIVEL[y.nivel_verificacion] - RANGO_NIVEL[x.nivel_verificacion]);
+  if (candidatas.length === 0) {
     if (fecha < propias[0].vigente_desde) return fallo('ANTERIOR_A_PRIMERA_VERSION');
-    const ultima = propias[propias.length - 1];
-    if (ultima.vigente_hasta !== null && fecha >= ultima.vigente_hasta) {
+    if (propias.every((v) => v.vigente_hasta !== null && fecha >= v.vigente_hasta)) {
       return fallo('POSTERIOR_A_VERSION_CERRADA');
     }
     return fallo('HUECO_ENTRE_VERSIONES');
   }
+  // Precedencia: gana la fuente de mayor rango; las demás pasan a contexto.
+  const [vigente, ...contexto] = candidatas;
 
   const advertencias = advertenciasDe(vigente, fecha);
 
@@ -253,6 +281,6 @@ export function resolverVersion(
   }
 
   return esPrimary(vigente, fecha)
-    ? { estado: 'PRIMARY', version: vigente, advertencias }
-    : { estado: 'NO_PRIMARY', version: vigente, advertencias };
+    ? { estado: 'PRIMARY', version: vigente, advertencias, contexto }
+    : { estado: 'CONTEXT', version: vigente, advertencias, contexto };
 }

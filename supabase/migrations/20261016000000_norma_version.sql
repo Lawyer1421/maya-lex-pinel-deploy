@@ -13,8 +13,13 @@
 --   * vigente_desde es la fecha de VIGENCIA, nunca la de publicación. Si el
 --     decreto calla, rige 20 días después de publicado (el cálculo vive en
 --     lib/legal-retrieval/norma-version.ts; aquí sólo se valida coherencia).
---   * Una versión sin texto, de vigencia UNKNOWN o FALSE, o con fecha en RANGO,
---     nunca puede ser elegible_primary. TRUE_PRESUNTA SÍ puede serlo (CLO).
+--   * Una versión sin texto (null o vacío), de vigencia UNKNOWN o FALSE, o con
+--     fecha en RANGO, nunca puede ser elegible_primary. TRUE_PRESUNTA y la
+--     verificación SECUNDARIA SÍ pueden serlo (fallo CLO 16-oct-2026,
+--     SI_PRIMARY_CON_AVISO).
+--   * Fuentes de distinto nivel_verificacion pueden coexistir para la misma
+--     unidad y fecha (precedencia PRIMARIA_IMAGEN > PRIMARIA_TEXTO > SECUNDARIA,
+--     resuelta en resolverVersion); dentro de un mismo nivel no hay solapes.
 -- ═══════════════════════════════════════════════════════════════════════════
 
 BEGIN;
@@ -85,15 +90,17 @@ CREATE TABLE IF NOT EXISTS public.norma_version (
   CONSTRAINT norma_version_elegible_primary_chk CHECK (
     NOT elegible_primary OR (
       texto IS NOT NULL
+      AND btrim(texto) <> ''
       AND estado_vigencia IN ('TRUE', 'TRUE_PRESUNTA')
       AND precision_fecha <> 'RANGO'
     )
   ),
 
-  -- Sin versiones solapadas por (instrumento, unidad).
+  -- Sin versiones solapadas por (instrumento, unidad, nivel_verificacion).
   CONSTRAINT norma_version_sin_solapes EXCLUDE USING gist (
     instrumento_id WITH =,
     unidad WITH =,
+    nivel_verificacion WITH =,
     daterange(vigente_desde, vigente_hasta, '[)') WITH &&
   )
 );
@@ -106,7 +113,7 @@ COMMENT ON TABLE public.norma_version IS
 COMMENT ON COLUMN public.norma_version.vigente_desde IS
   'Fecha de VIGENCIA (no de publicación). Si el decreto calla: publicación + 20 días.';
 COMMENT ON COLUMN public.norma_version.elegible_primary IS
-  'true sólo con texto y vigencia TRUE o TRUE_PRESUNTA; el CHECK lo impide con texto null, UNKNOWN, FALSE o fecha en RANGO.';
+  'true sólo con texto no vacío y vigencia TRUE o TRUE_PRESUNTA; el CHECK lo impide con texto null o vacío, UNKNOWN, FALSE o fecha en RANGO. Una reforma o fallo posterior no incorporado se marca con false y una nota.';
 
 -- RLS: lectura autenticada; sin políticas de escritura (nadie escribe vía API).
 ALTER TABLE public.norma_version ENABLE ROW LEVEL SECURITY;
