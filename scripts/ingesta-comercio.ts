@@ -253,6 +253,7 @@ async function main() {
     jurisdiccion: 'HN',
     dryRun: !execute,
     execute,
+    acceptSpacedDashHeading: false,
   };
 
   console.log(`=== ingesta-comercio.ts — ${opts.dryRun ? 'DRY-RUN' : 'EXECUTE'} ===`);
