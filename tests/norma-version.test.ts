@@ -226,13 +226,61 @@ describe('precedencia entre fuentes (CLO: SI_PRIMARY_CON_AVISO)', () => {
     expect(r.contexto).toEqual([]);
     expect(r.advertencias.map((a) => a.codigo)).toEqual(expect.arrayContaining(['VERIFICACION_SECUNDARIA', 'VIGENCIA_PRESUNTA']));
   });
-  it('si la imagen gana pero no es elegible, no se cae a la secundaria: CONTEXT y la secundaria queda en contexto', () => {
+  it('imagen superior SIN texto (sólo falta texto) no bloquea: la SECUNDARIA se sirve como PRIMARY con VERIFICACION_SECUNDARIA', () => {
+    for (const texto of [null, '', '   ']) {
+      const imagenSinTexto = { ...imagen, texto, elegible_primary: false };
+      const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenSinTexto, cedij]);
+      expect(r.estado).toBe('PRIMARY');
+      if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.version.version_id).toBe('cedij-1');
+      expect(r.advertencias.map((a) => a.codigo)).toContain('VERIFICACION_SECUNDARIA');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['gaceta-img']); // la sin texto no desplaza: queda como contexto
+    }
+  });
+  it('la cadena de rangos también salta a una PRIMARIA_TEXTO con texto cuando la imagen no tiene texto', () => {
     const imagenSinTexto = { ...imagen, texto: null, elegible_primary: false };
-    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenSinTexto, cedij]);
+    const textoPrimario = fila({
+      ...verificada({ version_id: 'prim-texto', vigente_desde: '2015-03-01', nivel_verificacion: 'PRIMARIA_TEXTO' }),
+      instrumento_id: NOTARIADO,
+      unidad: '1',
+    });
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenSinTexto, cedij, textoPrimario]);
+    expect(r.estado).toBe('PRIMARY');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('prim-texto');
+    expect(r.advertencias.map((a) => a.codigo)).not.toContain('VERIFICACION_SECUNDARIA');
+    expect(r.contexto.map((v) => v.version_id).sort()).toEqual(['cedij-1', 'gaceta-img']);
+  });
+  it.each([
+    ['vigencia FALSE', { estado_vigencia: 'FALSE' as const }],
+    ['vigencia UNKNOWN', { estado_vigencia: 'UNKNOWN' as const }],
+    ['fecha en RANGO', { precision_fecha: 'RANGO' as const, vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' }],
+    ['elegible_primary=false (con texto)', { elegible_primary: false }],
+  ])('imagen superior CON texto y %s por causa jurídica: gana, devuelve CONTEXT y NO cae a la inferior', (_motivo, cambio) => {
+    const imagenJuridica = { ...imagen, ...cambio };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenJuridica, cedij]);
     expect(r.estado).toBe('CONTEXT');
     if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
     expect(r.version.version_id).toBe('gaceta-img');
     expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-1']);
+  });
+  it('imagen superior sin texto Y derogada (FALSE) o UNKNOWN bloquea: no se sirve texto inferior de una norma no vigente', () => {
+    for (const estado_vigencia of ['FALSE', 'UNKNOWN'] as const) {
+      const imagenDerogada = { ...imagen, texto: null, elegible_primary: false, estado_vigencia };
+      const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenDerogada, cedij]);
+      expect(r.estado).toBe('CONTEXT');
+      if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.version.version_id).toBe('gaceta-img');
+    }
+  });
+  it('si ninguna fuente tiene texto, devuelve CONTEXT con la de mayor rango', () => {
+    const a = { ...imagen, texto: null, elegible_primary: false };
+    const b = { ...cedij, texto: null, elegible_primary: false };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [b, a]);
+    expect(r.estado).toBe('CONTEXT');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('gaceta-img');
+    expect(codigoDe(r)).toContain('TEXTO_NO_VERIFICADO');
   });
   it('la imagen sólo gana en las fechas que cubre: fuera de su ventana, rige la secundaria', () => {
     const imagenCerrada = { ...imagen, vigente_hasta: '2018-01-01' };

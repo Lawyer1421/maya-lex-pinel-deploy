@@ -20,8 +20,17 @@
  *    SI_PRIMARY_CON_AVISO).
  *  - Precedencia entre fuentes para el mismo artículo y fecha: PRIMARIA_IMAGEN >
  *    PRIMARIA_TEXTO > SECUNDARIA. Gana la de mayor rango; las demás van en
- *    `contexto` y nunca como PRIMARY. Si la ganadora no es elegible, no se cae
- *    a una fuente inferior (fail-closed).
+ *    `contexto` y nunca como PRIMARY. Dos casos para una versión superior que no
+ *    puede servirse como PRIMARY (fallo CLO):
+ *      · sólo por falta de texto: NO bloquea; se sirve la siguiente versión
+ *        elegible (p. ej. SECUNDARIA) como PRIMARY con VERIFICACION_SECUNDARIA.
+ *        Una versión sin texto nunca desplaza a otra a CONTEXT.
+ *      · por causa jurídica (vigencia FALSE o UNKNOWN, fecha en RANGO o dentro
+ *        del margen de incertidumbre, o elegible_primary=false con texto): es la
+ *        ganadora, se devuelve CONTEXT y NO se cae a una fuente inferior. Una
+ *        versión sin texto que además es FALSE/UNKNOWN/RANGO (p. ej. una
+ *        derogación sin texto) también bloquea: no se sirve texto inferior de
+ *        una norma derogada.
  *  - Una reforma o fallo posterior a la edición CEDIJ que no esté incorporado se
  *    marca en los datos (elegible_primary=false + nota). No hay detección
  *    automática.
@@ -173,6 +182,29 @@ function sinTexto(v: NormaVersion): boolean {
   return v.texto === null || v.texto.trim() === '';
 }
 
+/**
+ * Causa jurídica que impide servir una versión como PRIMARY, distinta de la
+ * falta de texto: vigencia FALSE o UNKNOWN, fecha en RANGO, o fecha dentro del
+ * margen de incertidumbre del inicio de vigencia. elegible_primary=false se
+ * trata aparte (sólo es causa jurídica si la versión tiene texto, porque sin
+ * texto el CHECK de la tabla lo fuerza a false).
+ */
+function causaJuridica(v: NormaVersion, fecha: string): boolean {
+  if (v.estado_vigencia === 'FALSE' || v.estado_vigencia === 'UNKNOWN') return true;
+  if (v.precision_fecha === 'RANGO') return true;
+  return (
+    v.vigente_desde_min !== null &&
+    v.vigente_desde_max !== null &&
+    v.vigente_desde_min <= fecha &&
+    fecha <= v.vigente_desde_max
+  );
+}
+
+/** La única razón para no servirla como PRIMARY es que no tiene texto. */
+function soloFaltaTexto(v: NormaVersion, fecha: string): boolean {
+  return sinTexto(v) && !causaJuridica(v, fecha);
+}
+
 /** Rango de precedencia entre fuentes (mayor gana). */
 const RANGO_NIVEL: Record<NivelVerificacion, number> = {
   PRIMARIA_IMAGEN: 3,
@@ -262,8 +294,11 @@ export function resolverVersion(
     }
     return fallo('HUECO_ENTRE_VERSIONES');
   }
-  // Precedencia: gana la fuente de mayor rango; las demás pasan a contexto.
-  const [vigente, ...contexto] = candidatas;
+  // Precedencia: gana la fuente de mayor rango que no sea sólo «sin texto»; una
+  // superior que sólo carece de texto no bloquea y pasa a contexto. Si ninguna
+  // tiene texto, gana la de mayor rango (saldrá como CONTEXT).
+  const vigente = candidatas.find((v) => !soloFaltaTexto(v, fecha)) ?? candidatas[0];
+  const contexto = candidatas.filter((v) => v !== vigente);
 
   const advertencias = advertenciasDe(vigente, fecha);
 
