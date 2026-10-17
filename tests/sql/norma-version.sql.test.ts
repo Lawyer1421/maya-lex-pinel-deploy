@@ -59,13 +59,15 @@ describe('norma_version — CHECKs', () => {
     );
     expect(r.rows[0]).toEqual({ estado_vigencia: 'UNKNOWN', elegible_primary: false });
   });
-  it('elegible_primary exige texto, vigencia TRUE, fecha no RANGO y verificación primaria', async () => {
+  it('elegible_primary exige texto, vigencia TRUE o TRUE_PRESUNTA y fecha que no sea RANGO', async () => {
     const ok = { texto: 'T', estado_vigencia: 'TRUE', nivel_verificacion: 'PRIMARIA_TEXTO', elegible_primary: true };
     await insertar({ unidad: 'e0', version_id: 'ok', ...ok });
+    // CLO: TRUE_PRESUNTA es elegible, y la verificación secundaria (p. ej. CEDIJ) no la excluye.
+    await insertar({ unidad: 'e3', version_id: 'ok', ...ok, estado_vigencia: 'TRUE_PRESUNTA' });
+    await insertar({ unidad: 'e4', version_id: 'ok', ...ok, estado_vigencia: 'TRUE_PRESUNTA', nivel_verificacion: 'SECUNDARIA', fuente: 'CEDIJ' });
     await expect(insertar({ unidad: 'e1', version_id: 'a', ...ok, texto: null })).rejects.toThrow();
     await expect(insertar({ unidad: 'e2', version_id: 'a', ...ok, estado_vigencia: 'UNKNOWN' })).rejects.toThrow();
-    await expect(insertar({ unidad: 'e3', version_id: 'a', ...ok, estado_vigencia: 'TRUE_PRESUNTA' })).rejects.toThrow();
-    await expect(insertar({ unidad: 'e4', version_id: 'a', ...ok, nivel_verificacion: 'SECUNDARIA' })).rejects.toThrow();
+    await expect(insertar({ unidad: 'e6', version_id: 'a', ...ok, estado_vigencia: 'FALSE' })).rejects.toThrow();
     await expect(
       insertar({ unidad: 'e5', version_id: 'a', ...ok, precision_fecha: 'RANGO', vigente_desde_min: '2020-01-01', vigente_desde_max: '2020-01-03' }),
     ).rejects.toThrow();

@@ -103,7 +103,7 @@ describe('resolverVersion — hueco y fallo cerrado', () => {
   });
 });
 
-describe('resolverVersion — RANGO, UNKNOWN y TRUE_PRESUNTA nunca son PRIMARY', () => {
+describe('resolverVersion — RANGO, UNKNOWN, FALSE, no elegible o sin texto nunca son PRIMARY', () => {
   it('fecha en RANGO (D.77-2006): devuelve la versión con advertencia, no PRIMARY', () => {
     const r = resolverVersion(NOTARIADO, '72', '2006-07-24', FIXTURES_PILOTO);
     expect(r.estado).toBe('NO_PRIMARY');
@@ -129,11 +129,9 @@ describe('resolverVersion — RANGO, UNKNOWN y TRUE_PRESUNTA nunca son PRIMARY',
     expect(r.estado).toBe('NO_PRIMARY');
     expect(codigoDe(r)).toContain('VIGENCIA_UNKNOWN');
   });
-  it('TRUE_PRESUNTA y verificación sólo secundaria no son PRIMARY', () => {
-    const presunta = cadena('SINT', 'P', [verificada({ version_id: 'p1', vigente_desde: '2020-01-01', estado_vigencia: 'TRUE_PRESUNTA' })]);
-    expect(resolverVersion('SINT', 'P', '2021-01-01', presunta).estado).toBe('NO_PRIMARY');
-    const secundaria = cadena('SINT', 'S', [verificada({ version_id: 's1', vigente_desde: '2020-01-01', nivel_verificacion: 'SECUNDARIA' })]);
-    expect(resolverVersion('SINT', 'S', '2021-01-01', secundaria).estado).toBe('NO_PRIMARY');
+  it('vigencia FALSE con texto no es PRIMARY', () => {
+    const vs = cadena('SINT', 'F', [verificada({ version_id: 'f1', vigente_desde: '2020-01-01', estado_vigencia: 'FALSE' })]);
+    expect(resolverVersion('SINT', 'F', '2021-01-01', vs).estado).toBe('NO_PRIMARY');
   });
   it('elegible_primary=false impide PRIMARY aunque el resto esté completo', () => {
     const vs = cadena('SINT', 'E', [verificada({ version_id: 'e1', vigente_desde: '2020-01-01', elegible_primary: false })]);
@@ -145,6 +143,91 @@ describe('resolverVersion — RANGO, UNKNOWN y TRUE_PRESUNTA nunca son PRIMARY',
     const vs = cadena('SINT', 'OK', [verificada({ version_id: 'ok1', vigente_desde: '2020-01-01' })]);
     const r = resolverVersion('SINT', 'OK', '2021-01-01', vs);
     expect(r).toMatchObject({ estado: 'PRIMARY', advertencias: [] });
+  });
+});
+
+describe('resolverVersion — TRUE_PRESUNTA es elegible PRIMARY con aviso (CLO)', () => {
+  const presunta = (instrumento: string, nivel: NormaVersion['nivel_verificacion']) =>
+    cadena(instrumento, '1', [
+      verificada({
+        version_id: 'cedij-1',
+        vigente_desde: '2015-03-01',
+        estado_vigencia: 'TRUE_PRESUNTA',
+        nivel_verificacion: nivel,
+        fuente: 'CEDIJ',
+      }),
+    ]);
+
+  it.each([
+    [NOTARIADO, 'SECUNDARIA' as const],
+    [NOTARIADO, 'PRIMARIA_TEXTO' as const],
+    [CPC, 'SECUNDARIA' as const],
+    [CPC, 'PRIMARIA_IMAGEN' as const],
+  ])('%s con TRUE_PRESUNTA + fuente CEDIJ (%s) devuelve PRIMARY con aviso', (instrumento, nivel) => {
+    const r = resolverVersion(instrumento, '1', '2020-06-01', presunta(instrumento, nivel));
+    expect(r.estado).toBe('PRIMARY');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.fuente).toBe('CEDIJ');
+    expect(r.advertencias.map((a) => a.codigo)).toContain('VIGENCIA_PRESUNTA');
+    if (nivel === 'SECUNDARIA') expect(r.advertencias.map((a) => a.codigo)).toContain('VERIFICACION_SECUNDARIA');
+  });
+
+  it('el aviso no se pierde: PRIMARY por TRUE_PRESUNTA nunca viene con advertencias vacías', () => {
+    const r = resolverVersion(CPC, '1', '2020-06-01', presunta(CPC, 'SECUNDARIA'));
+    expect(r.estado === 'PRIMARY' && r.advertencias.length).toBeGreaterThan(0);
+  });
+
+  it('TRUE_PRESUNTA sigue sujeta a las exclusiones: sin texto, no elegible o RANGO no son PRIMARY', () => {
+    const base = { version_id: 'x', vigente_desde: '2015-03-01', estado_vigencia: 'TRUE_PRESUNTA' as const, fuente: 'CEDIJ' };
+    const sinTexto = cadena(CPC, '1', [verificada({ ...base, texto: null })]);
+    const noElegible = cadena(CPC, '1', [verificada({ ...base, elegible_primary: false })]);
+    const rango = cadena(CPC, '1', [
+      verificada({ ...base, precision_fecha: 'RANGO', vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' }),
+    ]);
+    for (const vs of [sinTexto, noElegible, rango]) {
+      expect(resolverVersion(CPC, '1', '2020-06-01', vs).estado).toBe('NO_PRIMARY');
+    }
+  });
+
+  it('UNKNOWN y FALSE siguen sin ser PRIMARY aunque tengan texto, fuente CEDIJ y elegible_primary', () => {
+    for (const estado of ['UNKNOWN', 'FALSE'] as const) {
+      const vs = cadena(NOTARIADO, '1', [verificada({ version_id: 'x', vigente_desde: '2015-03-01', estado_vigencia: estado, fuente: 'CEDIJ' })]);
+      expect(resolverVersion(NOTARIADO, '1', '2020-06-01', vs).estado).toBe('NO_PRIMARY');
+    }
+  });
+});
+
+describe('fixtures piloto — fuente D.59-2015 y fechas sin día conocido', () => {
+  it('D.59-2015 (arts. 72, 72-A, 73) es PRIMARIA_IMAGEN, Gaceta 33,801', () => {
+    for (const u of ['72', '72-A', '73']) {
+      const v = FIXTURES_PILOTO.find((f) => f.instrumento_id === NOTARIADO && f.unidad === u && f.instrumento_modificador === 'D.59-2015');
+      expect(v, `falta D.59-2015 en ${u}`).toBeDefined();
+      expect(v).toMatchObject({ nivel_verificacion: 'PRIMARIA_IMAGEN', gaceta_numero: '33,801' });
+    }
+  });
+  it('72-A queda como ADICION sin versión anterior', () => {
+    const vs = FIXTURES_PILOTO.filter((f) => f.instrumento_id === NOTARIADO && f.unidad === '72-A');
+    expect(vs).toHaveLength(1);
+    expect(vs[0].tipo_evento).toBe('ADICION');
+  });
+  it('todo evento sin día conocido declara precision_fecha=AÑO y acota el año completo; no inventa un día', () => {
+    const sinDia = FIXTURES_PILOTO.filter((f) => f.precision_fecha === 'AÑO');
+    expect(sinDia.length).toBeGreaterThan(0);
+    for (const v of sinDia) {
+      const y = v.vigente_desde.slice(0, 4);
+      expect(v.vigente_desde_min).toBe(`${y}-01-01`);
+      expect(v.vigente_desde_max).toBe(`${y}-12-31`);
+      expect(v.vigente_desde).toBe(v.vigente_desde_min);
+      expect(v.nota).toMatch(/precision_fecha=AÑO/);
+    }
+  });
+  it('los eventos con día se marcan DIA (RI-137-06) o RANGO (D.77-2006); nada más', () => {
+    const porModificador = (m: string) => FIXTURES_PILOTO.filter((f) => f.instrumento_modificador === m);
+    expect(new Set(porModificador('RI-137-06').map((f) => f.precision_fecha))).toEqual(new Set(['DIA']));
+    expect(new Set(porModificador('D.77-2006').map((f) => f.precision_fecha))).toEqual(new Set(['RANGO']));
+    for (const m of ['D.40-2008', 'D.59-2015', 'D.21-2015', 'D.168-2009']) {
+      expect(new Set(porModificador(m).map((f) => f.precision_fecha))).toEqual(new Set(['AÑO']));
+    }
   });
 });
 
@@ -218,10 +301,10 @@ describe('resolverVersion — texto nuevo con el mismo número', () => {
     expect(id('2010-01-01')).toBe('d77-2006');
     expect(id('2016-01-01')).toBe('d59-2015');
   });
-  it('la versión nueva conserva Gaceta 33,801 y verificación primaria, pero sin texto no es PRIMARY', () => {
+  it('la versión nueva conserva Gaceta 33,801 y fuente PRIMARIA_IMAGEN, pero sin texto no es PRIMARY', () => {
     const r = resolverVersion(NOTARIADO, '73', '2016-01-01', FIXTURES_PILOTO);
     if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
-    expect(r.version).toMatchObject({ tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO', gaceta_numero: '33,801', nivel_verificacion: 'PRIMARIA_TEXTO' });
+    expect(r.version).toMatchObject({ tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO', gaceta_numero: '33,801', nivel_verificacion: 'PRIMARIA_IMAGEN' });
     expect(r.estado).toBe('NO_PRIMARY');
   });
   it('72-A no tiene versión anterior a 2015: antes falla cerrado', () => {

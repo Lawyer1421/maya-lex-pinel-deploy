@@ -13,8 +13,8 @@
 --   * vigente_desde es la fecha de VIGENCIA, nunca la de publicación. Si el
 --     decreto calla, rige 20 días después de publicado (el cálculo vive en
 --     lib/legal-retrieval/norma-version.ts; aquí sólo se valida coherencia).
---   * Una versión sin texto, de vigencia UNKNOWN/TRUE_PRESUNTA, con fecha en
---     RANGO o sin verificación nunca puede ser elegible_primary.
+--   * Una versión sin texto, de vigencia UNKNOWN o FALSE, o con fecha en RANGO,
+--     nunca puede ser elegible_primary. TRUE_PRESUNTA SÍ puede serlo (CLO).
 -- ═══════════════════════════════════════════════════════════════════════════
 
 BEGIN;
@@ -81,13 +81,12 @@ CREATE TABLE IF NOT EXISTS public.norma_version (
     AND (precision_fecha <> 'RANGO' OR (vigente_desde_min IS NOT NULL AND vigente_desde_max IS NOT NULL))
   ),
   -- Fail-closed en la propia tabla: elegible_primary sólo con texto, vigencia
-  -- TRUE, fecha no incierta y verificación primaria.
+  -- TRUE o TRUE_PRESUNTA (nunca UNKNOWN ni FALSE) y fecha que no sea RANGO.
   CONSTRAINT norma_version_elegible_primary_chk CHECK (
     NOT elegible_primary OR (
       texto IS NOT NULL
-      AND estado_vigencia = 'TRUE'
+      AND estado_vigencia IN ('TRUE', 'TRUE_PRESUNTA')
       AND precision_fecha <> 'RANGO'
-      AND nivel_verificacion IN ('PRIMARIA_IMAGEN', 'PRIMARIA_TEXTO')
     )
   ),
 
@@ -107,7 +106,7 @@ COMMENT ON TABLE public.norma_version IS
 COMMENT ON COLUMN public.norma_version.vigente_desde IS
   'Fecha de VIGENCIA (no de publicación). Si el decreto calla: publicación + 20 días.';
 COMMENT ON COLUMN public.norma_version.elegible_primary IS
-  'true sólo si el texto está verificado y la vigencia es TRUE; el CHECK lo impide con texto null, UNKNOWN, RANGO o sin verificación primaria.';
+  'true sólo con texto y vigencia TRUE o TRUE_PRESUNTA; el CHECK lo impide con texto null, UNKNOWN, FALSE o fecha en RANGO.';
 
 -- RLS: lectura autenticada; sin políticas de escritura (nadie escribe vía API).
 ALTER TABLE public.norma_version ENABLE ROW LEVEL SECURITY;

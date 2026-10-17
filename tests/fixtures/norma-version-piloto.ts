@@ -1,16 +1,17 @@
 /**
  * Fixtures de P0-1 (norma_version). SOLO fixtures de prueba: nada de esto se
  * siembra en ninguna base. Los eventos piloto no tienen texto verificado, así
- * que van con texto null y vigencia UNKNOWN. Las fechas de los eventos sin día
- * conocido se aproximan al año del decreto (precision_fecha 'AÑO'); no son
- * hechos verificados.
+ * que van con texto null y vigencia UNKNOWN. Los eventos sin día conocido llevan
+ * precision_fecha='AÑO' explícito y no fabrican un día: vigente_desde_min y
+ * vigente_desde_max acotan el año completo.
  */
 import type { NormaVersion } from '@/lib/legal-retrieval/norma-version';
 
 export const NOTARIADO = 'HN_NOTARIADO'; // Código del Notariado, D.353-2005
 export const CPC = 'HN_CPC'; // Código Procesal Civil, D.211-2006
 
-const NOTA_ANIO = 'FIXTURE: fecha aproximada al año del decreto; vigencia real no verificada.';
+const NOTA_ANIO =
+  'FIXTURE: día desconocido; precision_fecha=AÑO. vigente_desde es el límite inferior del año (= vigente_desde_min), no un día conocido.';
 
 /** Fila base: sin texto, UNKNOWN, no elegible. */
 export function fila(p: Partial<NormaVersion> & Pick<NormaVersion, 'instrumento_id' | 'unidad' | 'version_id' | 'vigente_desde'>): NormaVersion {
@@ -98,7 +99,7 @@ const D59_2015 = {
   tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO' as const,
   instrumento_modificador: 'D.59-2015',
   gaceta_numero: '33,801',
-  nivel_verificacion: 'PRIMARIA_TEXTO' as const,
+  nivel_verificacion: 'PRIMARIA_IMAGEN' as const, // Gaceta 33,801
   ...anio(2015),
   nota: NOTA_ANIO,
 };

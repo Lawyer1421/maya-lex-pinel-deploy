@@ -12,9 +12,11 @@
  *    calla, rige 20 días después de publicado (calcularVigenteDesde).
  *  - Vacatio legis: si hay una versión ya publicada que aún no rige en `fecha`,
  *    se devuelve la versión anterior con advertencia VACATIO_LEGIS.
- *  - Texto null, vigencia distinta de TRUE, fecha en RANGO, verificación
- *    insuficiente o elegible_primary=false: la versión se devuelve NO_PRIMARY,
- *    con advertencias, nunca como PRIMARY.
+ *  - Nunca PRIMARY: texto null, vigencia UNKNOWN o FALSE, precision_fecha RANGO o
+ *    elegible_primary=false. Esas versiones se devuelven NO_PRIMARY con
+ *    advertencias. TRUE_PRESUNTA SÍ puede ser PRIMARY, siempre con la
+ *    advertencia VIGENCIA_PRESUNTA (CLO); la verificación SECUNDARIA también,
+ *    con VERIFICACION_SECUNDARIA.
  *  - Sin versión, fecha en un hueco, anterior a la primera versión o posterior a
  *    una versión cerrada: FALLO_CERRADO. Nunca se rellena con la más cercana.
  */
@@ -185,13 +187,17 @@ function advertenciasDe(v: NormaVersion, fecha: string): Advertencia[] {
   return adv;
 }
 
-/** PRIMARY exige texto, vigencia TRUE, fecha no incierta y elegible_primary. */
+/**
+ * PRIMARY exige texto, vigencia TRUE o TRUE_PRESUNTA, fecha no RANGO y
+ * elegible_primary. Nunca: texto null, UNKNOWN, FALSE, RANGO, elegible_primary=false.
+ * Una fecha dentro del margen de incertidumbre del inicio de vigencia tampoco es
+ * PRIMARY (el margen sólo existe cuando se desconoce el día exacto).
+ */
 function esPrimary(v: NormaVersion, fecha: string): boolean {
   if (v.texto === null) return false;
-  if (v.estado_vigencia !== 'TRUE') return false;
+  if (v.estado_vigencia !== 'TRUE' && v.estado_vigencia !== 'TRUE_PRESUNTA') return false;
   if (v.precision_fecha === 'RANGO') return false;
   if (!v.elegible_primary) return false;
-  if (v.nivel_verificacion === 'SECUNDARIA') return false;
   if (
     v.vigente_desde_min !== null &&
     v.vigente_desde_max !== null &&
