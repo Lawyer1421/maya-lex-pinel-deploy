@@ -13,6 +13,13 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 const FREE_LIMIT      = parseInt(process.env.FREE_TIER_DAILY_LIMIT      ?? '3',   10);
 const PRO_LIMIT       = parseInt(process.env.PRO_TIER_DAILY_LIMIT       ?? '1000', 10);
 const ACADEMICO_LIMIT = parseInt(process.env.ACADEMICO_TIER_DAILY_LIMIT ?? '20',  10);
+const MCP_LIMIT       = parseInt(process.env.MCP_TIER_DAILY_LIMIT       ?? '200', 10);
+
+/**
+ * Prefijo de la bolsa de rate limit del servidor MCP (PLAN-MCP-SLICE-1 §3.2-bis):
+ * `mcp:email:{correo}` cuenta en queries_log por separado del chat, sin migración.
+ */
+export const MCP_BUCKET_PREFIX = 'mcp:';
 
 export type UserTier = 'free' | 'pro' | 'academico' | 'admin';
 
@@ -42,8 +49,10 @@ export function resolveTierForNewDay(params: {
   return 'free';
 }
 
-function limitForTier(tier: UserTier): number {
+function limitForTier(tier: UserTier, userIdentifier = ''): number {
   if (tier === 'admin') return 9999;
+  // Bolsa MCP: sólo pro tiene cuota propia; el resto no tiene acceso MCP (fail-closed).
+  if (userIdentifier.startsWith(MCP_BUCKET_PREFIX)) return tier === 'pro' ? MCP_LIMIT : 0;
   if (tier === 'pro') return PRO_LIMIT;
   if (tier === 'academico') return ACADEMICO_LIMIT;
   return FREE_LIMIT;
@@ -69,6 +78,22 @@ function limitForTier(tier: UserTier): number {
  */
 export function buildUserIdentifierFromEmail(email: string): string {
   return `email:${email.trim().toLowerCase()}`;
+}
+
+/** Identificador de la bolsa MCP para un correo: `mcp:email:{correo}`. */
+export function buildMcpIdentifierFromEmail(email: string): string {
+  return `${MCP_BUCKET_PREFIX}${buildUserIdentifierFromEmail(email)}`;
+}
+
+/**
+ * Identificador con el que se busca la suscripción: sin el prefijo `mcp:`.
+ * subscriptions guarda `email:{correo}`; con el prefijo el lookup fallaría y
+ * degradaría a free a un usuario pro (condición dura del dictamen, §3.2-bis).
+ */
+export function identificadorDeSuscripcion(userIdentifier: string): string {
+  return userIdentifier.startsWith(MCP_BUCKET_PREFIX)
+    ? userIdentifier.slice(MCP_BUCKET_PREFIX.length)
+    : userIdentifier;
 }
 
 export type RateLimitResult =
@@ -170,7 +195,7 @@ export async function checkAndIncrementRateLimit(
     return { allowed: true, remaining: 9999, tier: 'admin' };
   }
 
-  const limit = limitForTier(tier);
+  const limit = limitForTier(tier, userIdentifier);
 
   if (currentCount >= limit) {
     const tomorrow = new Date();
@@ -195,6 +220,33 @@ export async function checkAndIncrementRateLimit(
 }
 
 /**
+ * Tier de la bolsa MCP para un correo verificado, con la misma fuente que usa
+ * checkAndIncrementRateLimit para `mcp:email:{correo}`: la fila de hoy en
+ * queries_log de esa bolsa si existe; si no, subscriptions (sin el prefijo
+ * `mcp:`) pasada por resolveTierForNewDay. No depende de la fila del chat.
+ * Fail-closed: sin Supabase configurado o ante cualquier error -> 'free'.
+ * No incrementa nada.
+ */
+export async function resolverTierMcp(email: string): Promise<UserTier> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return 'free';
+  try {
+    const supabase = createServerSupabaseClient();
+    const identificador = buildMcpIdentifierFromEmail(email);
+    const today = new Date().toISOString().split('T')[0];
+    const { data: existing, error } = await supabase
+      .from('queries_log')
+      .select('tier')
+      .eq('user_identifier', identificador)
+      .eq('query_date', today)
+      .maybeSingle();
+    if (error) return 'free';
+    return await resolveTodayTier(supabase, identificador, existing?.tier);
+  } catch {
+    return 'free';
+  }
+}
+
+/**
  * Si ya hay queries_log.tier hoy, ese es el gate.
  * Si no hay fila (día nuevo), heredar de subscriptions.active + academico/pro/admin.
  */
@@ -205,13 +257,16 @@ async function resolveTodayTier(
   existingTier: unknown
 ): Promise<UserTier> {
   if (isUserTier(existingTier)) return existingTier;
-  if (userIdentifier.startsWith('ip:')) return 'free';
+  const idSuscripcion = identificadorDeSuscripcion(userIdentifier);
+  if (idSuscripcion.startsWith('ip:')) return 'free';
 
-  const { data: sub } = await supabase
+  const { data: sub, error } = await supabase
     .from('subscriptions')
     .select('tier, status')
-    .eq('user_identifier', userIdentifier)
+    .eq('user_identifier', idSuscripcion)
     .maybeSingle();
+  // Error de lectura de la suscripción: no se hereda ningún tier de pago.
+  if (error) return 'free';
 
   return resolveTierForNewDay({
     subscriptionStatus: sub?.status,
@@ -270,7 +325,7 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
 
   const tier = await resolveTodayTier(supabase, userIdentifier, data?.tier);
   const used = data?.query_count ?? 0;
-  const limit = limitForTier(tier);
+  const limit = limitForTier(tier, userIdentifier);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);

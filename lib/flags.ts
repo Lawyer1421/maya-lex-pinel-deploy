@@ -48,6 +48,11 @@ export const KNOWN_FLAGS = [
   // fila -- ver docs/retrieval/OFFICIAL_HONDURAS_SOURCE_REGISTRY.md para el
   // requisito de activación exacto.
   'flag_official_source_fallback',
+  // MCP v1 (docs/governance/PLAN-MCP-SLICE-1.md §3.3) — última compuerta de
+  // lib/mcp/access.ts. Sin fila sembrada en `feature_flags`: fila ausente =
+  // false = MCP deshabilitado para todos, incluso pro/admin. Sembrarla es
+  // decisión del fundador, separada del deploy.
+  'flag_mcp_enabled',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];
