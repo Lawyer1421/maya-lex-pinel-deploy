@@ -42,19 +42,8 @@ import {
   ChatMode,
   ChatModePenal,
 } from '@/lib/system-prompt';
-import {
-  buscarRAG,
-  formatearContextoRAG,
-  requiereEvidenciaCorpus,
-  CORPUS_EVIDENCE_NOT_FOUND,
-  MENSAJE_ABSTENCION_CORPUS,
-  type FragmentoRAG,
-  type RetrievalOutcome,
-} from '@/lib/rag/search';
-import {
-  clasificarIntencionInstrumental,
-  evidenciaProcedimentalPermitida,
-} from '@/lib/legal-retrieval/instrument-gate';
+import { type FragmentoRAG, type RetrievalOutcome } from '@/lib/rag/search';
+import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
 // para que los consumidores actuales (tests que importan desde
@@ -66,7 +55,6 @@ import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine
 // estado NOT_REQUIRED en las rutas donde el router nunca invoca buscarRAG.
 import {
   buildRetrievalOutcome,
-  MENSAJE_CONFIGURACION_NO_DISPONIBLE,
   MENSAJE_RETRIEVAL_ERROR,
 } from '@/lib/legal-retrieval/retrieval-outcome';
 // Fase 1E.2 — Preview/canary, detrás de flag_official_source_fallback (OFF
@@ -323,43 +311,17 @@ export async function POST(req: NextRequest) {
     // cuando el RAG realmente corre (RUTA != D).
     const rerankHabilitado = await isFlagEnabledForUser('flag_rerank', verifiedEmail);
 
-    const ragResultado = await buscarRAG(
-      ultimaPregunta as string, 5, coleccionPrincipal, materiaFiltro,
-      { rerank: rerankHabilitado }
-    );
-    let contextoRAG = formatearContextoRAG(ragResultado);
-    const fragmentos = [...ragResultado.fragmentos];
-
-    // RUTA_C civil → segunda pasada con procedimental; sólo añade fragmentos elegibles y verificables (ver evidenciaProcedimentalPermitida)
-    if (ruta === 'C' && !esPenal) {
-      const ragProc = await buscarRAG(
-        ultimaPregunta as string, 3, 'mayalex_procedimental', undefined,
-        { rerank: rerankHabilitado }
-      );
-      // El pase procedimental sólo añade fragmentos que sobreviven a la evidencia
-      // final de la unión (evidenciaProcedimentalPermitida): siempre exige que sean
-      // elegibles y verificables del instrumento. Sólo en comparaciones (MULTI) con un
-      // único artículo pedido exige además ese artículo; con identidad única o NONE no
-      // filtra por artículo. Puede completar la cobertura de una comparación, nunca con
-      // evidencia no verificada.
-      const intencionPregunta = clasificarIntencionInstrumental(ultimaPregunta as string);
-      const procPermitidos = evidenciaProcedimentalPermitida(
-        ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,
-      );
-      if (procPermitidos.length > 0) {
-        const contextoProc = formatearContextoRAG({
-          ...ragProc,
-          fragmentos: procPermitidos,
-          articulos_encontrados: [...new Set(procPermitidos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
-        });
-        contextoRAG = contextoRAG ? `${contextoRAG}\n\n${contextoProc}` : contextoProc;
-      }
-      fragmentos.push(...procPermitidos);
-    }
-    // El outcome de la pasada procedimental complementaria (RUTA_C civil) no
-    // sustituye al de la colección principal -- esa es la que determina si
-    // el retrieval "funcionó" para efectos del gate fail-closed más abajo.
-    return { texto: contextoRAG, fragmentos, outcome: ragResultado.outcome };
+    // Colección principal + pasada procedimental de RUTA_C civil (sólo añade
+    // fragmentos elegibles y verificables; ver evidenciaProcedimentalPermitida).
+    // El outcome devuelto es el de la colección principal: es el que determina
+    // si el retrieval "funcionó" para el gate fail-closed más abajo.
+    return recuperarEvidenciaCorpus({
+      pregunta: ultimaPregunta as string,
+      coleccionPrincipal,
+      materiaFiltro,
+      pasadaProcedimental: ruta === 'C' && !esPenal,
+      rerank: rerankHabilitado,
+    });
   })();
 
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
@@ -442,12 +404,9 @@ export async function POST(req: NextRequest) {
   // incompleto, nunca en código real) de que `outcome` esté ausente, en vez
   // de tratar esa ausencia como "cero evidencia" por defecto.
   const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
-  const evidenciaPrimariaInsuficiente = ragData.outcome
-    ? (ragData.outcome.evidenceCount ?? 0) === 0
-    : ragData.fragmentos.length === 0;
-  const evidenciaInsuficiente =
-    requiereEvidenciaCorpus(ultimaPregunta as string, rutaCorpusObligatoria) &&
-    evidenciaPrimariaInsuficiente;
+  const { evidenciaInsuficiente, mensajeAbstencion, codigoAbstencion } = decidirAbstencion(
+    ultimaPregunta as string, rutaCorpusObligatoria, ragData,
+  );
 
   // Fase 1D (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md, invariante central:
   // NO_VERIFIED_EVIDENCE != RETRIEVAL_FAILED). CASE 2/3 (NO_VERIFIED_EVIDENCE
@@ -456,15 +415,8 @@ export async function POST(req: NextRequest) {
   // el corpus funcionó, simplemente no encontró nada verificable. CASE 4/5
   // (CONFIGURATION_ERROR / RETRIEVAL_ERROR) usan un mensaje distinto y
   // explícito -- el propio sistema no pudo consultar las fuentes, eso NUNCA
-  // debe presentarse como si el derecho no existiera.
+  // debe presentarse como si el derecho no existiera (ver decidirAbstencion).
   const outcomeState = ragData.outcome?.state;
-  const esFalloDeSistema = outcomeState === 'CONFIGURATION_ERROR' || outcomeState === 'RETRIEVAL_ERROR';
-  const mensajeAbstencion = outcomeState === 'CONFIGURATION_ERROR'
-    ? MENSAJE_CONFIGURACION_NO_DISPONIBLE
-    : outcomeState === 'RETRIEVAL_ERROR'
-      ? MENSAJE_RETRIEVAL_ERROR
-      : MENSAJE_ABSTENCION_CORPUS;
-  const codigoAbstencion = esFalloDeSistema ? outcomeState : CORPUS_EVIDENCE_NOT_FOUND;
 
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente
