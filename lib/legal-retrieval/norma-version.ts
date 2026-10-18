@@ -36,9 +36,11 @@
  *    CUALQUIER nivel; con varias se toma la de mayor vigente_desde, desempate por
  *    mayor rango de nivel y las demás van a contexto):
  *      (a) si la posterior está vinculada a un evento de reforma identificado
- *          (tipo_evento REFORMA, TEXTO_NUEVO_MISMO_NUMERO o ADICION, con
- *          instrumento_modificador no vacío) Y es PRIMARY (texto, vigencia TRUE o
- *          TRUE_PRESUNTA, no RANGO ni margen de incertidumbre, elegible_primary),
+ *          (tipo_evento REFORMA, TEXTO_NUEVO_MISMO_NUMERO o ADICION, con un
+ *          instrumento_modificador que identifica un decreto o fallo concreto con
+ *          número; «pendiente», «s/n» o «varios» no cuentan) Y es PRIMARY (texto,
+ *          vigencia TRUE o TRUE_PRESUNTA, no RANGO ni margen de incertidumbre,
+ *          elegible_primary),
  *          se sirve la posterior como PRIMARY con sus propias advertencias
  *          (VERIFICACION_SECUNDARIA si es SECUNDARIA) y las anteriores pasan a
  *          `contexto`, cada una con un aviso REFORMA_POSTERIOR en `avisosContexto`;
@@ -49,9 +51,23 @@
  *          `avisosContexto`. Sustituye al antiguo límite 3 del dictamen CLO del
  *          16-oct-2026 (SI_PRIMARY_CON_AVISO), que sólo miraba fuentes superiores
  *          sin texto.
- *      · Caso no especificado por el CLO, fail-closed: si la vigente tiene causa
- *        jurídica (FALSE/UNKNOWN/RANGO/margen de incertidumbre) la posterior NO se
- *        promueve: resultado CONTEXT (caso b).
+ *      · La causa jurídica de la versión anterior (FALSE/UNKNOWN/RANGO) NO impide
+ *        promover la posterior: ésta se evalúa sólo por sus propios requisitos.
+ *        La causa de la anterior sólo rige para fechas previas a la vigencia de la
+ *        posterior (fallo CLO 17-oct-2026 sobre las interpretaciones; caso piloto:
+ *        Notariado arts. 72 y 73 derogados por el D.77-2006 y texto nuevo del
+ *        D.59-2015).
+ *      · DEROGACION_EXPRESA e INCONSTITUCIONALIDAD posteriores bloquean el texto
+ *        anterior pero nunca promueven texto: se devuelve la propia versión
+ *        posterior (normalmente FALSE) como CONTEXT, con las anteriores en
+ *        `contexto` y REFORMA_POSTERIOR.
+ *  - Sin reviviscencia automática: si una versión que empezó después de la
+ *    servida ya cerró su vigencia antes de `fecha` (p. ej. una reforma con
+ *    vigencia cerrada), el texto anterior no vuelve a PRIMARY salvo que un evento
+ *    posterior expreso lo restablezca (una versión que empiece después). Si no
+ *    lo hay: FALLO_CERRADO con motivo y aviso SIN_REVIVISCENCIA.
+ *  - Margen de incertidumbre (precision_fecha AÑO o RANGO, bordes inclusive): la
+ *    versión se devuelve CONTEXT con FECHA_EN_RANGO_INCIERTO.
  *  - Una reforma o fallo posterior a la edición CEDIJ que no esté registrado como
  *    versión se marca en los datos (elegible_primary=false + nota); sin esa fila
  *    no hay detección automática. Si la reforma sí está registrada como versión
@@ -111,6 +127,7 @@ export type CodigoAdvertencia =
   | 'VERIFICACION_SECUNDARIA'
   | 'REFORMA_POSTERIOR'
   | 'REFORMA_POSTERIOR_SIN_TEXTO'
+  | 'SIN_REVIVISCENCIA'
   | 'NO_ELEGIBLE_PRIMARY';
 
 export interface Advertencia {
@@ -136,7 +153,8 @@ export type MotivoFalloCerrado =
   | 'ANTERIOR_A_PRIMERA_VERSION'
   | 'HUECO_ENTRE_VERSIONES'
   | 'POSTERIOR_A_VERSION_CERRADA'
-  | 'VERSIONES_SOLAPADAS';
+  | 'VERSIONES_SOLAPADAS'
+  | 'SIN_REVIVISCENCIA';
 
 export type ResultadoVersion =
   | {
@@ -153,7 +171,7 @@ export type ResultadoVersion =
       contexto: NormaVersion[];
       avisosContexto: AvisoContexto[];
     }
-  | { estado: 'FALLO_CERRADO'; motivo: MotivoFalloCerrado; mensaje: string };
+  | { estado: 'FALLO_CERRADO'; motivo: MotivoFalloCerrado; mensaje: string; advertencias?: Advertencia[] };
 
 const MENSAJE_FALLO = 'no hay texto verificado para esa fecha';
 const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -217,8 +235,10 @@ export function detectarSolapes(versiones: readonly NormaVersion[]): [NormaVersi
   return solapes;
 }
 
-function fallo(motivo: MotivoFalloCerrado): ResultadoVersion {
-  return { estado: 'FALLO_CERRADO', motivo, mensaje: MENSAJE_FALLO };
+function fallo(motivo: MotivoFalloCerrado, advertencias?: Advertencia[]): ResultadoVersion {
+  return advertencias
+    ? { estado: 'FALLO_CERRADO', motivo, mensaje: MENSAJE_FALLO, advertencias }
+    : { estado: 'FALLO_CERRADO', motivo, mensaje: MENSAJE_FALLO };
 }
 
 /** Sin texto utilizable: null, vacío o sólo espacios. */
@@ -310,15 +330,28 @@ function esPrimary(v: NormaVersion, fecha: string): boolean {
   return true;
 }
 
-const EVENTOS_REFORMA: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISMO_NUMERO', 'ADICION'];
+/** Eventos posteriores que pueden promover su texto a PRIMARY. */
+const EVENTOS_PROMOVIBLES: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISMO_NUMERO', 'ADICION'];
+
+/** Eventos posteriores que bloquean el texto anterior pero nunca promueven texto. */
+const EVENTOS_BLOQUEANTES: readonly TipoEvento[] = ['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'];
+
+/** Marcadores que no identifican un decreto o fallo concreto. */
+const MODIFICADOR_NO_IDENTIFICA_RE = /\b(?:pendiente|varios)\b|s\s*\/\s*n\b/i;
+
+/**
+ * El instrumento_modificador identifica un decreto o fallo concreto con número
+ * («D.59-2015», «RI-137-06»). «pendiente», «s/n» o «varios» no cuentan.
+ */
+function identificaDecretoOFallo(modificador: string | null): boolean {
+  if (modificador === null) return false;
+  const m = modificador.trim();
+  return m !== '' && /\d/.test(m) && !MODIFICADOR_NO_IDENTIFICA_RE.test(m);
+}
 
 /** Vinculada a un evento de reforma identificado con su decreto o fallo. */
 function vinculadaAReforma(v: NormaVersion): boolean {
-  return (
-    EVENTOS_REFORMA.includes(v.tipo_evento) &&
-    v.instrumento_modificador !== null &&
-    v.instrumento_modificador.trim() !== ''
-  );
+  return EVENTOS_PROMOVIBLES.includes(v.tipo_evento) && identificaDecretoOFallo(v.instrumento_modificador);
 }
 
 function descripcionPosterior(p: NormaVersion): string {
@@ -383,19 +416,42 @@ export function resolverVersion(
         RANGO_NIVEL[y.nivel_verificacion] - RANGO_NIVEL[x.nivel_verificacion],
     )[0];
 
+  // La posterior se evalúa sólo por sus propios requisitos: la causa jurídica de
+  // la anterior no impide promoverla (fallo CLO 17-oct-2026).
+  const posteriorBloqueante =
+    reformaPosterior !== undefined && EVENTOS_BLOQUEANTES.includes(reformaPosterior.tipo_evento);
   const promueve =
     reformaPosterior !== undefined &&
-    !causaJuridica(vigente, fecha) &&
+    !posteriorBloqueante &&
     esPrimary(reformaPosterior, fecha) &&
     vinculadaAReforma(reformaPosterior);
 
-  const servida = promueve ? reformaPosterior : vigente;
+  // Derogación o inconstitucionalidad posterior: se devuelve la propia posterior
+  // (CONTEXT, nunca PRIMARY) y el texto anterior queda como contexto.
+  const servida = promueve || posteriorBloqueante ? (reformaPosterior as NormaVersion) : vigente;
+
+  // Sin reviviscencia automática: una versión que empezó después de la servida y
+  // ya cerró su vigencia antes de `fecha` impide que el texto anterior reviva.
+  const reformaCerrada = propias
+    .filter((v) => v.vigente_desde > servida.vigente_desde && v.vigente_hasta !== null && v.vigente_hasta <= fecha)
+    .sort((x, y) => (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0))[0];
+  if (reformaCerrada) {
+    return fallo('SIN_REVIVISCENCIA', [
+      {
+        codigo: 'SIN_REVIVISCENCIA',
+        mensaje: `La versión ${reformaCerrada.version_id} (nivel_verificacion ${reformaCerrada.nivel_verificacion}, vigente_desde ${reformaCerrada.vigente_desde}) cerró su vigencia el ${reformaCerrada.vigente_hasta} y ningún evento posterior restablece el texto anterior ${servida.version_id}.`,
+        version_posterior: reformaCerrada.version_id,
+        rige_desde: reformaCerrada.vigente_desde,
+      },
+    ]);
+  }
+
   const contexto = candidatas.filter((v) => v !== servida);
   const advertencias = advertenciasDe(servida, fecha);
   const avisosContexto: AvisoContexto[] = [];
 
   if (reformaPosterior) {
-    if (promueve) {
+    if (promueve || posteriorBloqueante) {
       for (const v of contexto) {
         avisosContexto.push({ version_id: v.version_id, advertencia: avisoReformaPosterior(reformaPosterior) });
       }
@@ -421,7 +477,9 @@ export function resolverVersion(
     });
   }
 
-  return esPrimary(servida, fecha) && (reformaPosterior === undefined || promueve)
+  return esPrimary(servida, fecha) &&
+    !EVENTOS_BLOQUEANTES.includes(servida.tipo_evento) &&
+    (reformaPosterior === undefined || promueve)
     ? { estado: 'PRIMARY', version: servida, advertencias, contexto, avisosContexto }
     : { estado: 'CONTEXT', version: servida, advertencias, contexto, avisosContexto };
 }

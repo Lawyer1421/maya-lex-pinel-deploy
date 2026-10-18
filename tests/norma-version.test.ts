@@ -763,15 +763,193 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
     });
   });
 
-  describe('edge: ganadora con causa jurídica no promueve a la posterior', () => {
+  describe('fallo CLO 17-oct (interpretaciones): la causa jurídica de la anterior NO impide promover', () => {
     it.each([
       ['FALSE', { estado_vigencia: 'FALSE' as const }],
       ['UNKNOWN', { estado_vigencia: 'UNKNOWN' as const }],
       ['RANGO', { precision_fecha: 'RANGO' as const, vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' }],
-    ])('img-2015 con texto y vigencia/fecha %s + CEDIJ reforma vinculada y elegible: CONTEXT', (_m, cambio) => {
+    ])('img-2015 con %s + CEDIJ reforma vinculada y elegible: PRIMARY cedij-2019', (_m, cambio) => {
       const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(cambio), cedij2019()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+      expect(cods(r)).toContain('VERIFICACION_SECUNDARIA');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['img-2015']);
+      expect(avisos(r).map((a) => a.advertencia.codigo)).toEqual(['REFORMA_POSTERIOR']);
+    });
+    it('la causa de la anterior sí rige para fechas previas a la vigencia de la posterior', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2017-06-01', [img2015({ estado_vigencia: 'FALSE', vigente_hasta: '2019-01-01' }), cedij2019()]));
       expect(r.estado).toBe('CONTEXT');
       expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toContain('NORMA_NO_VIGENTE');
+    });
+  });
+
+  describe('caso piloto: Notariado arts. 72 y 73 derogados (D.77-2006) y texto nuevo del D.59-2015', () => {
+    const cadenaPiloto = (unidad: string) =>
+      cadena(NOTARIADO, unidad, [
+        verificada({ version_id: 'orig-353-2005', vigente_desde: '2005-01-01', tipo_evento: 'ORIGINAL' }),
+        {
+          version_id: 'd77-2006',
+          vigente_desde: '2006-07-23',
+          vigente_desde_min: '2006-07-23',
+          vigente_desde_max: '2006-07-25',
+          precision_fecha: 'RANGO',
+          tipo_evento: 'DEROGACION_EXPRESA',
+          instrumento_modificador: 'D.77-2006',
+          estado_vigencia: 'FALSE',
+          nivel_verificacion: 'SECUNDARIA',
+        },
+        verificada({
+          version_id: 'd59-2015',
+          vigente_desde: '2015-09-01',
+          tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO',
+          instrumento_modificador: 'D.59-2015',
+          gaceta_numero: '33,801',
+          nivel_verificacion: 'PRIMARIA_IMAGEN',
+          texto: 'TEXTO NUEVO D.59-2015 (sintético)',
+        }),
+      ]);
+
+    it.each(['72', '73'])('art. %s: D.59-2015 sale PRIMARY y la derogación previa rige sólo antes', (unidad) => {
+      const vs = cadenaPiloto(unidad);
+      const despues = sinFallo(resolverVersion(NOTARIADO, unidad, '2016-01-01', vs));
+      expect(despues.estado).toBe('PRIMARY');
+      expect(despues.version).toMatchObject({ version_id: 'd59-2015', instrumento_modificador: 'D.59-2015' });
+      const antes = sinFallo(resolverVersion(NOTARIADO, unidad, '2010-01-01', vs));
+      expect(antes.estado).toBe('CONTEXT');
+      expect(antes.version).toMatchObject({ version_id: 'd77-2006', estado_vigencia: 'FALSE' });
+    });
+
+    it('con la derogación registrada como versión abierta de otro nivel, D.59-2015 igual sale PRIMARY', () => {
+      const derogacionAbierta = fila({
+        instrumento_id: NOTARIADO,
+        unidad: '72',
+        version_id: 'd77-2006-img',
+        vigente_desde: '2006-07-23',
+        tipo_evento: 'DEROGACION_EXPRESA',
+        instrumento_modificador: 'D.77-2006',
+        estado_vigencia: 'FALSE',
+        nivel_verificacion: 'PRIMARIA_IMAGEN',
+        precision_fecha: 'DIA',
+      });
+      const d59Texto = fila({
+        ...verificada({
+          version_id: 'd59-2015-txt',
+          vigente_desde: '2015-09-01',
+          tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO',
+          instrumento_modificador: 'D.59-2015',
+          nivel_verificacion: 'PRIMARIA_TEXTO',
+        }),
+        instrumento_id: NOTARIADO,
+        unidad: '72',
+      });
+      const r = sinFallo(resolverVersion(NOTARIADO, '72', '2016-01-01', [derogacionAbierta, d59Texto]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('d59-2015-txt');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['d77-2006-img']);
+    });
+  });
+
+  describe('DEROGACION_EXPRESA e INCONSTITUCIONALIDAD posteriores bloquean y no promueven texto', () => {
+    it.each(['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'] as const)('%s posterior: CONTEXT con la propia posterior FALSE; el texto anterior a contexto', (tipo_evento) => {
+      const bloqueo = cedij2019({ version_id: 'bloqueo-2019', tipo_evento, instrumento_modificador: 'RI-50-2019', estado_vigencia: 'FALSE', texto: null, elegible_primary: false });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), bloqueo]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('bloqueo-2019');
+      expect(cods(r)).toContain('NORMA_NO_VIGENTE');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['img-2015']);
+      expect(avisos(r)).toEqual([expect.objectContaining({ version_id: 'img-2015', advertencia: expect.objectContaining({ codigo: 'REFORMA_POSTERIOR' }) })]);
+    });
+    it.each(['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'] as const)('%s posterior con texto y datos incoherentes (TRUE, elegible) tampoco promueve', (tipo_evento) => {
+      const bloqueo = cedij2019({ version_id: 'bloqueo-2019', tipo_evento, instrumento_modificador: 'D.10-2019', estado_vigencia: 'TRUE', elegible_primary: true });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), bloqueo]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('bloqueo-2019');
+    });
+  });
+
+  describe('vinculación: instrumento_modificador debe identificar un decreto o fallo concreto con número', () => {
+    it.each(['pendiente', 'Pendiente', 'Decreto pendiente', 's/n', 'S/N', 'Decreto s/n', 'varios', 'Varios decretos', 'decreto', '   '])(
+      'modificador «%s» no vincula: CONTEXT de la anterior con REFORMA_POSTERIOR',
+      (instrumento_modificador) => {
+        const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador })]));
+        expect(r.estado).toBe('CONTEXT');
+        expect(r.version.version_id).toBe('img-2015');
+        expect(cods(r)).toContain('REFORMA_POSTERIOR');
+      },
+    );
+    it.each(['D.59-2015', 'RI-137-06', 'Decreto 168-2009'])('modificador «%s» sí vincula: PRIMARY la posterior', (instrumento_modificador) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador })]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+    });
+  });
+
+  describe('sin reviviscencia automática (reforma posterior con vigencia cerrada)', () => {
+    const reformaCerrada = () => cedij2019({ vigente_hasta: '2021-01-01' });
+
+    it('durante la vigencia de la reforma, la reforma es PRIMARY', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), reformaCerrada()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+    });
+    it('después de cerrar la reforma, el texto anterior no revive: FALLO_CERRADO con aviso SIN_REVIVISCENCIA', () => {
+      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), reformaCerrada()]);
+      expect(r.estado).toBe('FALLO_CERRADO');
+      if (r.estado !== 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.motivo).toBe('SIN_REVIVISCENCIA');
+      expect(r.mensaje).toBe('no hay texto verificado para esa fecha');
+      expect(r.advertencias).toEqual([
+        expect.objectContaining({ codigo: 'SIN_REVIVISCENCIA', version_posterior: 'cedij-2019', rige_desde: '2019-01-01' }),
+      ]);
+    });
+    it('el día exacto en que cierra la reforma ya no revive el texto anterior', () => {
+      expect(resolverVersion(NOTARIADO, '1', '2021-01-01', [img2015(), reformaCerrada()]).estado).toBe('FALLO_CERRADO');
+    });
+    it('un evento posterior expreso que restablece el texto sí vuelve a dar PRIMARY', () => {
+      const restablece = nv({
+        version_id: 'txt-restablece-2021',
+        vigente_desde: '2021-01-01',
+        nivel_verificacion: 'PRIMARIA_TEXTO',
+        tipo_evento: 'TEXTO_NUEVO_MISMO_NUMERO',
+        instrumento_modificador: 'D.300-2020',
+        texto: 'TEXTO RESTABLECIDO (sintético)',
+      });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), reformaCerrada(), restablece]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('txt-restablece-2021');
+    });
+    it('una fuente superior cerrada que empezó a la vez que la inferior no impide servir la inferior', () => {
+      const cedijMisma = cedij2019({ version_id: 'cedij-2015', vigente_desde: '2015-03-01', tipo_evento: 'ORIGINAL', instrumento_modificador: null });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015({ vigente_hasta: '2018-01-01' }), cedijMisma]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2015');
+    });
+  });
+
+  describe('FECHA_EN_RANGO_INCIERTO ⇒ CONTEXT para AÑO y RANGO, bordes inclusive', () => {
+    const anio = img2015({ vigente_desde: '2015-01-01', vigente_desde_min: '2015-01-01', vigente_desde_max: '2015-12-31', precision_fecha: 'AÑO' });
+    it.each(['2015-01-01', '2015-06-30', '2015-12-31'])('AÑO, fecha %s dentro del margen: CONTEXT con FECHA_EN_RANGO_INCIERTO', (f) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', f, [anio]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).toContain('FECHA_EN_RANGO_INCIERTO');
+    });
+    it('AÑO, día siguiente al borde superior: PRIMARY sin FECHA_EN_RANGO_INCIERTO', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2016-01-01', [anio]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(cods(r)).not.toContain('FECHA_EN_RANGO_INCIERTO');
+    });
+    const rango = img2015({ vigente_desde: '2006-07-23', vigente_desde_min: '2006-07-23', vigente_desde_max: '2006-07-25', precision_fecha: 'RANGO', elegible_primary: false });
+    it.each(['2006-07-23', '2006-07-24', '2006-07-25'])('RANGO, fecha %s dentro del margen: CONTEXT con FECHA_EN_RANGO_INCIERTO', (f) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', f, [rango]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).toContain('FECHA_EN_RANGO_INCIERTO');
+    });
+    it('RANGO, fuera del margen: sigue CONTEXT (RANGO nunca es PRIMARY) pero sin FECHA_EN_RANGO_INCIERTO', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2006-07-26', [rango]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).not.toContain('FECHA_EN_RANGO_INCIERTO');
+      expect(cods(r)).toContain('FECHA_EN_RANGO');
     });
   });
 
