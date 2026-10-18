@@ -1,0 +1,170 @@
+=== ingestar-ley.ts — EXECUTE (genera embeddings + .sql local, NO inserta a producción) ===
+Fuente: /workspace/out/ingesta-propiedad-d82-2004/propiedad-d82-2004.ocr.txt
+Coleccion: mayalex_normativos | Materia: 10_LEYES_REGLAMENTOS | Fuente_tipo: codigo
+
+Filtro opt-in: rejectQuotedSubstituteHeading=true (--reject-quoted-heading)
+
+Candidatos totales: 149
+Aceptados (pasan tieneEncabezadoArticulo): 140
+Rechazados: 9
+
+=== Muestra: primer y último artículo aceptado ===
+Art. 2: "ARTÍCULO 2.- Las disposiciones de esta Ley comprenden la\npropiedad mueble, inmueble, mercantil, intelectual, derechos reales y\nTÍTULO otros derechos con el propósito de hacer expedito. efectivo, trans"
+Art. 139: "ARTÍCULO 139.- Dentro de los seis (6) meses siguientes a la vigencia El Secretario de Estado en el Despacho de la Presidencia\nde la presente Ley, los notarios enviarán a la Corte Suprema de Justicia, "
+
+=== Primeros 10 rechazados (revisar si son ruido real o falsos negativos del extractor) ===
+  Art.candidato 46: "ARTICULO 46. es repistradores no objetarin la legalidad delas | tidad, es necesario que por causa de"
+  Art.candidato 125: "Artículo 125 de la Ley de Municipalidades así como los | Contratos o documentos en los que ta ley re"
+  Art.candidato 69: "Artículos 69 y 70 de la\nLey de Municipalidades. .\ny mpalicads Cuando se decida por el empleo en un a"
+  Art.candidato 126: "Artículo 126 de esta Ley. El soporte digital podrá estar en una página de Internet, en una base\nelec"
+  Art.candidato 2: "Artículo 2 de la Ley de Impuesto de\nefecto por parte del Consejo Directivo dentro del plazo de seis "
+  Art.candidato 2: "ARTÍCULO 2.- El monto del impuesto de tradición de bienes\nque laboran en estos registios deberán ser"
+  Art.candidato 6: "Artículo 6 de la Ley de\nno haya emitido las resoluciones correspondientes bajo las Papel Sellado y T"
+  Art.candidato 2: "Artículo 2 de la Ley del Impuesto de Tradición de\nleyes en aquellos aspectos que no se opongan a la "
+  Art.candidato 6: "Artículo 6 de la Ley de Papel Sellado\ny Timbres y al uso del soporte del protocolo notarial consigna"
+Cargando Xenova/multilingual-e5-small localmente (quantized:false)...
+[1/140] Art. 2... OK
+[2/140] Art. 3... OK
+[3/140] Art. 1... OK
+[4/140] Art. 4... OK
+[5/140] Art. 5... OK
+[6/140] Art. 6... OK
+[7/140] Art. 10... OK
+[8/140] Art. 7... OK
+[9/140] Art. 8... OK
+[10/140] Art. 11... OK
+[11/140] Art. 9... OK
+[12/140] Art. 12... OK
+[13/140] Art. 16... OK
+[14/140] Art. 13... OK
+[15/140] Art. 17... OK
+[16/140] Art. 14... OK
+[17/140] Art. 15... OK
+[18/140] Art. 21... OK
+[19/140] Art. 22... OK
+[20/140] Art. 23... OK
+[21/140] Art. 24... OK
+[22/140] Art. 19... OK
+[23/140] Art. 20... OK
+[24/140] Art. 29... OK
+[25/140] Art. 30... OK
+[26/140] Art. 25... OK
+[27/140] Art. 31... OK
+[28/140] Art. 26... OK
+[29/140] Art. 27... OK
+[30/140] Art. 28... OK
+[31/140] Art. 32... OK
+[32/140] Art. 33... OK
+[33/140] Art. 34... OK
+[34/140] Art. 39... OK
+[35/140] Art. 40... OK
+[36/140] Art. 35... OK
+[37/140] Art. 41... OK
+[38/140] Art. 36... OK
+[39/140] Art. 42... OK
+[40/140] Art. 37... OK
+[41/140] Art. 43... OK
+[42/140] Art. 38... OK
+[43/140] Art. 44... OK
+[44/140] Art. 50... OK
+[45/140] Art. 45... OK
+[46/140] Art. 51... OK
+[47/140] Art. 52... OK
+[48/140] Art. 53... OK
+[49/140] Art. 47... OK
+[50/140] Art. 48... OK
+[51/140] Art. 54... OK
+[52/140] Art. 49... OK
+[53/140] Art. 55... OK
+[54/140] Art. 56... OK
+[55/140] Art. 63... OK
+[56/140] Art. 64... OK
+[57/140] Art. 57... OK
+[58/140] Art. 58... OK
+[59/140] Art. 59... OK
+[60/140] Art. 65... OK
+[61/140] Art. 60... OK
+[62/140] Art. 66... OK
+[63/140] Art. 61... OK
+[64/140] Art. 67... OK
+[65/140] Art. 62... OK
+[66/140] Art. 68... OK
+[67/140] Art. 73... OK
+[68/140] Art. 69... OK
+[69/140] Art. 70... OK
+[70/140] Art. 71... OK
+[71/140] Art. 72... OK
+[72/140] Art. 74... OK
+[73/140] Art. 75... OK
+[74/140] Art. 79... OK
+[75/140] Art. 80... OK
+[76/140] Art. 76... OK
+[77/140] Art. 81... OK
+[78/140] Art. 82... OK
+[79/140] Art. 77... OK
+[80/140] Art. 78... OK
+[81/140] Art. 87... OK
+[82/140] Art. 88... OK
+[83/140] Art. 89... OK
+[84/140] Art. 83... OK
+[85/140] Art. 90... OK
+[86/140] Art. 84... OK
+[87/140] Art. 91... OK
+[88/140] Art. 85... OK
+[89/140] Art. 86... OK
+[90/140] Art. 100... OK
+[91/140] Art. 92... OK
+[92/140] Art. 101... OK
+[93/140] Art. 102... OK
+[94/140] Art. 93... OK
+[95/140] Art. 94... OK
+[96/140] Art. 103... OK
+[97/140] Art. 95... OK
+[98/140] Art. 104... OK
+[99/140] Art. 96... OK
+[100/140] Art. 97... OK
+[101/140] Art. 105... OK
+[102/140] Art. 98... OK
+[103/140] Art. 99... OK
+[104/140] Art. 106... OK
+[105/140] Art. 107... OK
+[106/140] Art. 111... OK
+[107/140] Art. 108... OK
+[108/140] Art. 109... OK
+[109/140] Art. 112... OK
+[110/140] Art. 113... OK
+[111/140] Art. 110... OK
+[112/140] Art. 114... OK
+[113/140] Art. 121... OK
+[114/140] Art. 122... OK
+[115/140] Art. 115... OK
+[116/140] Art. 123... OK
+[117/140] Art. 116... OK
+[118/140] Art. 117... OK
+[119/140] Art. 118... OK
+[120/140] Art. 124... OK
+[121/140] Art. 119... OK
+[122/140] Art. 120... OK
+[123/140] Art. 130... OK
+[124/140] Art. 131... OK
+[125/140] Art. 132... OK
+[126/140] Art. 125... OK
+[127/140] Art. 133... OK
+[128/140] Art. 126... OK
+[129/140] Art. 127... OK
+[130/140] Art. 128... OK
+[131/140] Art. 134... OK
+[132/140] Art. 129... OK
+[133/140] Art. 140... OK
+[134/140] Art. 141... OK
+[135/140] Art. 142... OK
+[136/140] Art. 135... OK
+[137/140] Art. 136... OK
+[138/140] Art. 137... OK
+[139/140] Art. 138... OK
+[140/140] Art. 139... OK
+
+✅ SQL escrito en: /workspace/out/ingesta-propiedad-d82-2004/ingesta.sql (701004 caracteres, 140 filas)
+🔒 Este script no ejecutó ningún SQL contra producción -- solo lo escribió a archivo. Aditivo, ON CONFLICT DO NOTHING, sin DELETE.
+📄 Manifest escrito en: /workspace/out/ingesta-propiedad-d82-2004/ingesta.sql.manifest.json (batch_id=mayalex_normativos:ley_propiedad_82_2004__8fd84d0c3928)
+EXIT:0
