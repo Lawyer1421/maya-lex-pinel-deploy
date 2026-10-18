@@ -162,7 +162,12 @@ export interface AvisoContexto {
 /** Fila con un problema de datos que debe revisar quien cura el corpus. */
 export interface CuracionDatos {
   version_id: string;
-  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO';
+  /**
+   * VIGENCIA_CERRADA_SIN_EVENTO: vigencia cerrada sin evento que la explique.
+   * VINCULO_NO_IDENTIFICADO: la versión posterior trae un instrumento_modificador
+   * que no está en la lista blanca (p. ej. «Acuerdo 679-2014» sin órgano).
+   */
+  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO' | 'VINCULO_NO_IDENTIFICADO';
   mensaje: string;
 }
 
@@ -358,66 +363,107 @@ const EVENTOS_PROMOVIBLES: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISM
 const EVENTOS_BLOQUEANTES: readonly TipoEvento[] = ['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'];
 
 /**
- * Marcadores que nunca identifican un decreto o fallo concreto: «s/n», «s.n.»,
- * «SN», «sin número», «sin-numero», «N/D», «N/A», «ND», «NA», la Gaceta y
- * documentos que no son decreto, acuerdo, resolución ni sentencia (oficio,
- * circular, memorándum, nota, ley sin número de decreto). Auditor @ 86cf62f, P2(a).
+ * Lista blanca V1 de siglas (dictamen CLO 18-oct-2026, addendum sobre
+ * `20eeac7`). Sólo entran siglas verificadas con fuente primaria en el corpus;
+ * una sigla nueva la agrega la CLO aquí, con su fuente. Ninguna se infiere por
+ * patrón. Fuera hasta que la CLO las coteje: STSS, CNBS, SCO, BCH, SAR, TSC y
+ * cualquier otra.
  */
-const MODIFICADOR_NO_IDENTIFICA_RE =
-  /\b(?:pendiente|varios|por definir|tbd|oficio|circular|memo|memor[aá]ndum|nota|ley)\b|\bs\s*[\/.-]?\s*n\b\.?|sin[\s-]+n[uú]mero|\bn\s*[\/.-]?\s*[da]\b|\bgaceta\b/i;
+export const SIGLAS_VINCULO_V1 = [
+  { sigla: 'PCSJ', tipo: 'RESOLUCION', significado: 'Presidencia de la Corte Suprema de Justicia', ejemplo: 'PCSJ-17-2012', fuente: 'Dictamen CLO 18-oct-2026, lista blanca V1' },
+  { sigla: 'PCM', tipo: 'DECRETO_EJECUTIVO', significado: 'Decreto Ejecutivo en Consejo de Ministros (decreto, no resolución)', ejemplo: 'PCM-005-2020', fuente: 'Dictamen CLO 18-oct-2026, lista blanca V1' },
+  { sigla: 'RI', tipo: 'EXPEDIENTE_SENTENCIA', significado: 'Recurso de inconstitucionalidad', ejemplo: 'RI-137-06', fuente: 'Dictamen CLO 18-oct-2026, lista blanca V1' },
+] as const;
 
-/** Número (nunca sólo ceros) y año: «59-2015», «137-06», «005-2020». */
-const NUM_ANIO = String.raw`(?!0+\s*-)\d{1,5}\s*-\s*(?:\d{2}|\d{4})`;
-
-/** Años de cuatro cifras admitidos (Auditor @ 86cf62f, P2(c)): desde 1821. */
-const ANIO_MIN = 1821;
-const ANIO_MAX = 2099;
-/** «No.», «Nº», «N°» opcional delante del número. */
-const NUMERO = String.raw`(?:N(?:o|º|°)\.?\s*)?`;
-/** Siglas de un identificador alfanumérico: «PCSJ-», «RI-», «PCM-». */
-const SIGLAS = String.raw`[A-Z]{1,8}(?:-[A-Z]{1,8})*\s*-\s*`;
+const siglaDe = (tipo: (typeof SIGLAS_VINCULO_V1)[number]['tipo']) =>
+  SIGLAS_VINCULO_V1.filter((s) => s.tipo === tipo).map((s) => s.sigla).join('|');
 
 /**
- * Lista blanca de vínculos (dictamen CLO 18-oct-2026). Cada patrón cubre el
- * valor recortado completo.
+ * Marcadores que nunca vinculan, aunque el resto coincidiera: «s/n», «sin
+ * número», «N/D», «pendiente», «varios», la Gaceta (también «LG») y documentos
+ * que no son decreto, acuerdo, resolución ni sentencia.
+ */
+const MODIFICADOR_NO_IDENTIFICA_RE =
+  /\b(?:pendiente|varios|por definir|tbd|oficios?|circular(?:es)?|memos?|memorand(?:o|um)|memorándum|nota|ley|acta|dictamen|lg)\b|\bs\s*[\/.-]?\s*n\b\.?|sin[\s-]+n[uú]mero|\bn\s*[\/.-]?\s*[da]\b|\bgaceta\b/i;
+
+/**
+ * Normalización declarada (dictamen CLO 18-oct-2026, punto 3): mayúsculas,
+ * espacios colapsados, guiones tipográficos -> «-», sin espacios alrededor del
+ * guion, y se quita «Número/No./N°/Nº» delante del número. «RI 137-06» ≡
+ * «RI-137-06»; «Decreto Número 59-2015» ≡ «Decreto 59-2015». Los años no se
+ * expanden: «06» sigue siendo «06».
+ */
+/** Sigla verificada seguida de espacio y número: «RI 137-06» -> «RI-137-06». */
+const SIGLA_ESPACIO_NUMERO_RE = new RegExp(String.raw`\b(${SIGLAS_VINCULO_V1.map((s) => s.sigla).join('|')}) (?=\d)`, 'g');
+
+/**
+ * «Número/No./N°/Nº» como palabra suelta delante de un número o de una sigla
+ * verificada. «NO» pegado a otra cosa («NOPCSJ-…», «NORI-…») no se quita.
+ */
+const NUMERO_PREFIJO_RE = new RegExp(
+  String.raw`(^|\s)(?:N[UÚ]MERO|NO\.|NO(?=\s)|N[°º]\.?)\s*(?=(?:(?:${SIGLAS_VINCULO_V1.map((s) => s.sigla).join('|')})-)?\d)`,
+  'g',
+);
+
+export function normalizarModificador(m: string): string {
+  return m
+    .toUpperCase()
+    .replace(/[‐-―−]/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*-\s*/g, '-')
+    .replace(SIGLA_ESPACIO_NUMERO_RE, '$1-')
+    .replace(NUMERO_PREFIJO_RE, '$1')
+    .trim();
+}
+
+/** Número (nunca sólo ceros) y año de 2 o 4 cifras, sobre el valor normalizado. */
+const NUM_ANIO = String.raw`(?!0+-)(\d{1,5})-(\d{2}|\d{4})`;
+
+/**
+ * Lista blanca de vínculos sobre el valor normalizado completo:
+ *  - Decreto (legislativo): «D.59-2015», «Decreto 59-2015».
+ *  - Decreto Ejecutivo: «DE 12-2018», «Decreto Ejecutivo 12-2018» o con sigla
+ *    PCM: «PCM-005-2020», «Decreto Ejecutivo PCM-005-2020».
+ *  - Acuerdo Ejecutivo: «AE 679-2014», «Acuerdo Ejecutivo 001-2020». Un
+ *    «Acuerdo» sin órgano, ministerial o de otro órgano NO vincula mientras no
+ *    exista el registro canónico de instrumentos.
+ *  - Resolución PCSJ: «PCSJ-17-2012», «Resolución PCSJ-17-2012».
+ *  - Sentencia o expediente RI: «RI-137-06», «Sentencia RI 137-06».
  */
 const MODIFICADOR_IDENTIFICA_RES: readonly RegExp[] = [
-  // Decreto (legislativo) con número y año: «D.59-2015», «Decreto No. 168-2009».
-  new RegExp(String.raw`^(?:D\.?|Decreto(?:\s+Legislativo)?)\s*${NUMERO}${NUM_ANIO}$`, 'i'),
-  // Decreto Ejecutivo con número y año: «DE 12-2018», «Decreto Ejecutivo PCM-005-2020».
-  new RegExp(String.raw`^(?:D\.?\s*E\.?|Decreto\s+Ejecutivo)\s*${NUMERO}(?:${SIGLAS})?${NUM_ANIO}$`, 'i'),
-  // Acuerdo Ejecutivo con número y año: «AE 679-2014», «Acuerdo Ejecutivo 679-2014».
-  new RegExp(String.raw`^(?:A\.?\s*E\.?|Acuerdo\s+Ejecutivo)\s*${NUMERO}(?:${SIGLAS})?${NUM_ANIO}$`, 'i'),
-  // Resolución con su identificador: «PCSJ-17-2012», «Resolución PCSJ-17-2012».
-  new RegExp(String.raw`^(?:Resoluci[oó]n\s*${NUMERO})?[A-Z]{2,8}(?:-[A-Z]{1,8})*\s*-\s*${NUM_ANIO}$`, 'i'),
-  // Sentencia o fallo con su expediente: «RI-137-06», «Sentencia RI-137-06».
-  new RegExp(String.raw`^(?:Sentencia|Fallo|Expediente|Exp\.)\s*${NUMERO}${SIGLAS}${NUM_ANIO}$`, 'i'),
+  new RegExp(String.raw`^(?:D\.?|DECRETO(?: LEGISLATIVO)?) ?${NUM_ANIO}$`),
+  new RegExp(String.raw`^(?:(?:D\.? ?E\.?|DECRETO EJECUTIVO) ?)${NUM_ANIO}$`),
+  new RegExp(String.raw`^(?:(?:D\.? ?E\.?|DECRETO EJECUTIVO) ?)?(?:${siglaDe('DECRETO_EJECUTIVO')})-${NUM_ANIO}$`),
+  new RegExp(String.raw`^(?:A\.? ?E\.?|ACUERDO EJECUTIVO) ?${NUM_ANIO}$`),
+  new RegExp(String.raw`^(?:RESOLUCI[OÓ]N ?)?(?:${siglaDe('RESOLUCION')})-${NUM_ANIO}$`),
+  new RegExp(String.raw`^(?:(?:SENTENCIA|FALLO|EXPEDIENTE|EXP\.) ?)?(?:${siglaDe('EXPEDIENTE_SENTENCIA')})-${NUM_ANIO}$`),
 ];
+
+/** Primer año admitido para un año de cuatro cifras. */
+const ANIO_MIN = 1821;
 
 /**
  * El instrumento_modificador identifica un decreto o fallo concreto (dictamen
- * CLO 18-oct-2026, lista blanca): Decreto, Decreto Ejecutivo o Acuerdo Ejecutivo
- * con número y año («D.59-2015», «AE 679-2014»); Resolución con su identificador
- * («PCSJ-17-2012», Reglamento del Notariado); sentencia o fallo con su
- * expediente («RI-137-06»). No cuentan «s/n», «sin número (año)», «pendiente»,
- * «varios», vacío ni null. La Gaceta sola nunca es vínculo: un mismo número trae
- * varios instrumentos; va en gaceta_numero como dato de la fuente. El número no
- * puede ser sólo ceros y un año de cuatro cifras va de 1821 a 2099. Formatos
- * válidos con otra grafía («Decreto Número 59-2015», «RI 137-06») no vinculan:
- * el cargador debe normalizarlos (fail-closed).
+ * CLO 18-oct-2026 y su addendum). Exige coincidencia completa con la lista
+ * blanca tras normalizar (normalizarModificador). Un año de cuatro cifras debe
+ * estar entre 1821 y el año de `vigenteDesde` de la propia versión: un decreto
+ * no puede ser posterior a la vigencia que produce. La Gaceta sola nunca es
+ * vínculo: va en gaceta_numero como dato de la fuente.
  */
-export function identificaDecretoOFallo(modificador: string | null): boolean {
+export function identificaDecretoOFallo(modificador: string | null, vigenteDesde: string): boolean {
   if (modificador === null) return false;
-  const m = modificador.trim();
+  const m = normalizarModificador(modificador);
   if (m === '' || MODIFICADOR_NO_IDENTIFICA_RE.test(m)) return false;
-  if (!MODIFICADOR_IDENTIFICA_RES.some((re) => re.test(m))) return false;
-  const anio = /\d+$/.exec(m)?.[0] ?? '';
-  return anio.length !== 4 || (Number(anio) >= ANIO_MIN && Number(anio) <= ANIO_MAX);
+  const coincidencia = MODIFICADOR_IDENTIFICA_RES.map((re) => re.exec(m)).find((x) => x !== null);
+  if (!coincidencia) return false;
+  const anio = coincidencia[2];
+  if (anio.length === 2) return true;
+  return Number(anio) >= ANIO_MIN && Number(anio) <= Number(vigenteDesde.slice(0, 4));
 }
 
 /** Evento real: no ORIGINAL y vinculado a un decreto o fallo identificado. */
 function esEventoReal(v: NormaVersion): boolean {
-  return v.tipo_evento !== 'ORIGINAL' && identificaDecretoOFallo(v.instrumento_modificador);
+  return v.tipo_evento !== 'ORIGINAL' && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde);
 }
 
 function avisoVigenciaCerradaSinEvento(v: NormaVersion): Advertencia {
@@ -439,7 +485,7 @@ function curacionDe(v: NormaVersion): CuracionDatos {
 
 /** Vinculada a un evento de reforma identificado con su decreto o fallo. */
 function vinculadaAReforma(v: NormaVersion): boolean {
-  return EVENTOS_PROMOVIBLES.includes(v.tipo_evento) && identificaDecretoOFallo(v.instrumento_modificador);
+  return EVENTOS_PROMOVIBLES.includes(v.tipo_evento) && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde);
 }
 
 function descripcionPosterior(p: NormaVersion): string {
@@ -592,6 +638,20 @@ export function resolverVersion(
     avisosContexto.push({ version_id: v.version_id, advertencia: avisoVigenciaCerradaSinEvento(v) });
   }
   const curacionDatos = cerradasSinEvento.map(curacionDe);
+  // Addendum CLO 18-oct-2026: un modificador escrito pero fuera de la lista
+  // blanca no vincula y va a la cola de curación.
+  if (
+    reformaPosterior &&
+    reformaPosterior.tipo_evento !== 'ORIGINAL' &&
+    (reformaPosterior.instrumento_modificador ?? '').trim() !== '' &&
+    !identificaDecretoOFallo(reformaPosterior.instrumento_modificador, reformaPosterior.vigente_desde)
+  ) {
+    curacionDatos.push({
+      version_id: reformaPosterior.version_id,
+      motivo: 'VINCULO_NO_IDENTIFICADO',
+      mensaje: `instrumento_modificador «${reformaPosterior.instrumento_modificador}» no identifica un decreto o fallo de la lista blanca: normalizarlo o registrar el instrumento.`,
+    });
+  }
 
   return esPrimary(servida, fecha) &&
     !EVENTOS_BLOQUEANTES.includes(servida.tipo_evento) &&
