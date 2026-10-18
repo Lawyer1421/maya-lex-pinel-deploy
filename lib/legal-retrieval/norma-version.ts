@@ -38,7 +38,9 @@
  *      (a) si la posterior está vinculada a un evento de reforma identificado
  *          (tipo_evento REFORMA, TEXTO_NUEVO_MISMO_NUMERO o ADICION, con un
  *          instrumento_modificador que identifica un decreto o fallo concreto con
- *          número; «pendiente», «s/n» o «varios» no cuentan) Y es PRIMARY (texto,
+ *          número según la lista blanca de identificaDecretoOFallo; «pendiente»,
+ *          «s/n», «sin número», «varios» o una Gaceta sola no cuentan) Y es
+ *          PRIMARY (texto,
  *          vigencia TRUE o TRUE_PRESUNTA, no RANGO ni margen de incertidumbre,
  *          elegible_primary),
  *          se sirve la posterior como PRIMARY con sus propias advertencias
@@ -65,7 +67,15 @@
  *    servida ya cerró su vigencia antes de `fecha` (p. ej. una reforma con
  *    vigencia cerrada), el texto anterior no vuelve a PRIMARY salvo que un evento
  *    posterior expreso lo restablezca (una versión que empiece después). Si no
- *    lo hay: FALLO_CERRADO con motivo y aviso SIN_REVIVISCENCIA.
+ *    lo hay: FALLO_CERRADO con motivo y aviso SIN_REVIVISCENCIA. Esto exige que
+ *    la versión cerrada sea un evento real (tipo_evento distinto de ORIGINAL y
+ *    vinculado a un decreto o fallo identificado).
+ *  - Vigencia cerrada sin evento (dictamen CLO 18-oct-2026): una fila ORIGINAL,
+ *    o sin vínculo identificado, cuya vigencia cerró sin un evento posterior no
+ *    prueba derogación. No sale PRIMARY ni se presenta como FALSE: se devuelve
+ *    CONTEXT con VIGENCIA_CERRADA_SIN_EVENTO y la fila va a `curacionDatos`
+ *    (error de datos, no situación jurídica). Si es la última versión y la
+ *    fecha es posterior a su cierre, se devuelve su propio texto como CONTEXT.
  *  - Margen de incertidumbre (precision_fecha AÑO o RANGO, bordes inclusive): la
  *    versión se devuelve CONTEXT con FECHA_EN_RANGO_INCIERTO.
  *  - Una reforma o fallo posterior a la edición CEDIJ que no esté registrado como
@@ -73,7 +83,8 @@
  *    no hay detección automática. Si la reforma sí está registrada como versión
  *    (de cualquier nivel), aplica la regla de reforma posterior de arriba.
  *  - Sin versión, fecha en un hueco, anterior a la primera versión o posterior a
- *    una versión cerrada: FALLO_CERRADO. Nunca se rellena con la más cercana.
+ *    una reforma cerrada sin sucesora: FALLO_CERRADO. Nunca se rellena con la
+ *    más cercana.
  */
 
 export type TipoEvento =
@@ -128,6 +139,7 @@ export type CodigoAdvertencia =
   | 'REFORMA_POSTERIOR'
   | 'REFORMA_POSTERIOR_SIN_TEXTO'
   | 'SIN_REVIVISCENCIA'
+  | 'VIGENCIA_CERRADA_SIN_EVENTO'
   | 'NO_ELEGIBLE_PRIMARY';
 
 export interface Advertencia {
@@ -147,6 +159,13 @@ export interface AvisoContexto {
   advertencia: Advertencia;
 }
 
+/** Fila con un problema de datos que debe revisar quien cura el corpus. */
+export interface CuracionDatos {
+  version_id: string;
+  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO';
+  mensaje: string;
+}
+
 export type MotivoFalloCerrado =
   | 'FECHA_INVALIDA'
   | 'SIN_VERSIONES'
@@ -163,6 +182,7 @@ export type ResultadoVersion =
       advertencias: Advertencia[];
       contexto: NormaVersion[];
       avisosContexto: AvisoContexto[];
+      curacionDatos: CuracionDatos[];
     }
   | {
       estado: 'CONTEXT';
@@ -170,6 +190,7 @@ export type ResultadoVersion =
       advertencias: Advertencia[];
       contexto: NormaVersion[];
       avisosContexto: AvisoContexto[];
+      curacionDatos: CuracionDatos[];
     }
   | { estado: 'FALLO_CERRADO'; motivo: MotivoFalloCerrado; mensaje: string; advertencias?: Advertencia[] };
 
@@ -336,17 +357,70 @@ const EVENTOS_PROMOVIBLES: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISM
 /** Eventos posteriores que bloquean el texto anterior pero nunca promueven texto. */
 const EVENTOS_BLOQUEANTES: readonly TipoEvento[] = ['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'];
 
-/** Marcadores que no identifican un decreto o fallo concreto. */
-const MODIFICADOR_NO_IDENTIFICA_RE = /\b(?:pendiente|varios)\b|s\s*\/\s*n\b/i;
+/** Marcadores que nunca identifican un decreto o fallo concreto. */
+const MODIFICADOR_NO_IDENTIFICA_RE =
+  /\b(?:pendiente|varios|por definir|tbd)\b|s\s*\/\s*n\b|sin\s+n[uú]mero|\bn\s*\/\s*d\b|\bgaceta\b/i;
+
+/** Número y año: «59-2015», «137-06». */
+const NUM_ANIO = String.raw`\d{1,5}\s*-\s*(?:\d{2}|\d{4})`;
+/** «No.», «Nº», «N°» opcional delante del número. */
+const NUMERO = String.raw`(?:N(?:o|º|°)\.?\s*)?`;
+/** Siglas de un identificador alfanumérico: «PCSJ-», «RI-», «PCM-». */
+const SIGLAS = String.raw`[A-Z]{1,8}(?:-[A-Z]{1,8})*\s*-\s*`;
 
 /**
- * El instrumento_modificador identifica un decreto o fallo concreto con número
- * («D.59-2015», «RI-137-06»). «pendiente», «s/n» o «varios» no cuentan.
+ * Lista blanca de vínculos (dictamen CLO 18-oct-2026). Cada patrón cubre el
+ * valor recortado completo.
  */
-function identificaDecretoOFallo(modificador: string | null): boolean {
+const MODIFICADOR_IDENTIFICA_RES: readonly RegExp[] = [
+  // Decreto (legislativo) con número y año: «D.59-2015», «Decreto No. 168-2009».
+  new RegExp(String.raw`^(?:D\.?|Decreto(?:\s+Legislativo)?)\s*${NUMERO}${NUM_ANIO}$`, 'i'),
+  // Decreto Ejecutivo con número y año: «DE 12-2018», «Decreto Ejecutivo PCM-005-2020».
+  new RegExp(String.raw`^(?:D\.?\s*E\.?|Decreto\s+Ejecutivo)\s*${NUMERO}(?:${SIGLAS})?${NUM_ANIO}$`, 'i'),
+  // Acuerdo Ejecutivo con número y año: «AE 679-2014», «Acuerdo Ejecutivo 679-2014».
+  new RegExp(String.raw`^(?:A\.?\s*E\.?|Acuerdo\s+Ejecutivo)\s*${NUMERO}(?:${SIGLAS})?${NUM_ANIO}$`, 'i'),
+  // Resolución con su identificador: «PCSJ-17-2012», «Resolución PCSJ-17-2012».
+  new RegExp(String.raw`^(?:Resoluci[oó]n\s*${NUMERO})?[A-Z]{2,8}(?:-[A-Z]{1,8})*\s*-\s*${NUM_ANIO}$`, 'i'),
+  // Sentencia o fallo con su expediente: «RI-137-06», «Sentencia RI-137-06».
+  new RegExp(String.raw`^(?:Sentencia|Fallo|Expediente|Exp\.)\s*${NUMERO}${SIGLAS}${NUM_ANIO}$`, 'i'),
+];
+
+/**
+ * El instrumento_modificador identifica un decreto o fallo concreto (dictamen
+ * CLO 18-oct-2026, lista blanca): Decreto, Decreto Ejecutivo o Acuerdo Ejecutivo
+ * con número y año («D.59-2015», «AE 679-2014»); Resolución con su identificador
+ * («PCSJ-17-2012», Reglamento del Notariado); sentencia o fallo con su
+ * expediente («RI-137-06»). No cuentan «s/n», «sin número (año)», «pendiente»,
+ * «varios», vacío ni null. La Gaceta sola nunca es vínculo: un mismo número trae
+ * varios instrumentos; va en gaceta_numero como dato de la fuente.
+ */
+export function identificaDecretoOFallo(modificador: string | null): boolean {
   if (modificador === null) return false;
   const m = modificador.trim();
-  return m !== '' && /\d/.test(m) && !MODIFICADOR_NO_IDENTIFICA_RE.test(m);
+  if (m === '' || MODIFICADOR_NO_IDENTIFICA_RE.test(m)) return false;
+  return MODIFICADOR_IDENTIFICA_RES.some((re) => re.test(m));
+}
+
+/** Evento real: no ORIGINAL y vinculado a un decreto o fallo identificado. */
+function esEventoReal(v: NormaVersion): boolean {
+  return v.tipo_evento !== 'ORIGINAL' && identificaDecretoOFallo(v.instrumento_modificador);
+}
+
+function avisoVigenciaCerradaSinEvento(v: NormaVersion): Advertencia {
+  return {
+    codigo: 'VIGENCIA_CERRADA_SIN_EVENTO',
+    mensaje: `La versión ${v.version_id} (nivel_verificacion ${v.nivel_verificacion}, vigente_desde ${v.vigente_desde}) tiene la vigencia cerrada el ${v.vigente_hasta} sin un evento posterior que lo explique; no se afirma que fue derogada y se registra para curación de datos.`,
+    version_posterior: v.version_id,
+    rige_desde: v.vigente_desde,
+  };
+}
+
+function curacionDe(v: NormaVersion): CuracionDatos {
+  return {
+    version_id: v.version_id,
+    motivo: 'VIGENCIA_CERRADA_SIN_EVENTO',
+    mensaje: `Vigencia cerrada el ${v.vigente_hasta} sin evento posterior vinculado: revisar vigente_hasta o registrar el evento que la cierra.`,
+  };
 }
 
 /** Vinculada a un evento de reforma identificado con su decreto o fallo. */
@@ -400,6 +474,23 @@ export function resolverVersion(
   if (candidatas.length === 0) {
     if (fecha < propias[0].vigente_desde) return fallo('ANTERIOR_A_PRIMERA_VERSION');
     if (propias.every((v) => v.vigente_hasta !== null && fecha >= v.vigente_hasta)) {
+      const ultima = [...propias].sort(
+        (x, y) =>
+          (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0) ||
+          RANGO_NIVEL[y.nivel_verificacion] - RANGO_NIVEL[x.nivel_verificacion],
+      )[0];
+      // Dictamen CLO 18-oct-2026: sin evento que cierre la vigencia no hay prueba
+      // de derogación; se devuelve su texto como CONTEXT y se marca para curación.
+      if (!esEventoReal(ultima)) {
+        return {
+          estado: 'CONTEXT',
+          version: ultima,
+          advertencias: [...advertenciasDe(ultima, fecha), avisoVigenciaCerradaSinEvento(ultima)],
+          contexto: [],
+          avisosContexto: [],
+          curacionDatos: [curacionDe(ultima)],
+        };
+      }
       return fallo('POSTERIOR_A_VERSION_CERRADA');
     }
     return fallo('HUECO_ENTRE_VERSIONES');
@@ -430,11 +521,16 @@ export function resolverVersion(
   // (CONTEXT, nunca PRIMARY) y el texto anterior queda como contexto.
   const servida = promueve || posteriorBloqueante ? (reformaPosterior as NormaVersion) : vigente;
 
-  // Sin reviviscencia automática: una versión que empezó después de la servida y
-  // ya cerró su vigencia antes de `fecha` impide que el texto anterior reviva.
-  const reformaCerrada = propias
+  // Versiones que empezaron después de la servida y ya cerraron antes de `fecha`.
+  const cerradasPosteriores = propias
     .filter((v) => v.vigente_desde > servida.vigente_desde && v.vigente_hasta !== null && v.vigente_hasta <= fecha)
-    .sort((x, y) => (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0))[0];
+    .sort((x, y) => (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0));
+  // Sin reviviscencia automática: si la cerrada es un evento real, el texto
+  // anterior no revive.
+  const reformaCerrada = cerradasPosteriores.find(esEventoReal);
+  // Sin evento real (p. ej. una edición ORIGINAL cerrada): error de datos
+  // (dictamen CLO 18-oct-2026).
+  const cerradasSinEvento = cerradasPosteriores.filter((v) => !esEventoReal(v));
   if (reformaCerrada) {
     return fallo('SIN_REVIVISCENCIA', [
       {
@@ -446,7 +542,7 @@ export function resolverVersion(
     ]);
   }
 
-  const contexto = candidatas.filter((v) => v !== servida);
+  const contexto = [...candidatas.filter((v) => v !== servida), ...cerradasSinEvento];
   const advertencias = advertenciasDe(servida, fecha);
   const avisosContexto: AvisoContexto[] = [];
 
@@ -477,9 +573,16 @@ export function resolverVersion(
     });
   }
 
+  for (const v of cerradasSinEvento) {
+    advertencias.push(avisoVigenciaCerradaSinEvento(v));
+    avisosContexto.push({ version_id: v.version_id, advertencia: avisoVigenciaCerradaSinEvento(v) });
+  }
+  const curacionDatos = cerradasSinEvento.map(curacionDe);
+
   return esPrimary(servida, fecha) &&
     !EVENTOS_BLOQUEANTES.includes(servida.tipo_evento) &&
-    (reformaPosterior === undefined || promueve)
-    ? { estado: 'PRIMARY', version: servida, advertencias, contexto, avisosContexto }
-    : { estado: 'CONTEXT', version: servida, advertencias, contexto, avisosContexto };
+    (reformaPosterior === undefined || promueve) &&
+    cerradasSinEvento.length === 0
+    ? { estado: 'PRIMARY', version: servida, advertencias, contexto, avisosContexto, curacionDatos }
+    : { estado: 'CONTEXT', version: servida, advertencias, contexto, avisosContexto, curacionDatos };
 }

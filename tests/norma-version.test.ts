@@ -83,8 +83,18 @@ describe('resolverVersion — hueco y fallo cerrado', () => {
   it('antes de la primera versión falla cerrado', () => {
     expect(codigoDe(resolverVersion('SINT', 'H', '2019-12-31', versiones))).toBe('ANTERIOR_A_PRIMERA_VERSION');
   });
-  it('después de una versión cerrada y sin sucesora falla cerrado', () => {
-    expect(codigoDe(resolverVersion('SINT', 'H', '2030-01-01', [versiones[0]]))).toBe('POSTERIOR_A_VERSION_CERRADA');
+  it('después de una reforma cerrada y sin sucesora falla cerrado', () => {
+    const reforma = fila({ ...verificada({ version_id: 'r', vigente_desde: '2020-01-01', tipo_evento: 'REFORMA', instrumento_modificador: 'D.10-2019' }), instrumento_id: 'SINT', unidad: 'H', vigente_hasta: '2021-01-01' });
+    expect(codigoDe(resolverVersion('SINT', 'H', '2030-01-01', [reforma]))).toBe('POSTERIOR_A_VERSION_CERRADA');
+  });
+  it('después de una ORIGINAL cerrada y sin sucesora: CONTEXT con VIGENCIA_CERRADA_SIN_EVENTO (dictamen CLO 18-oct-2026)', () => {
+    const r = resolverVersion('SINT', 'H', '2030-01-01', [versiones[0]]);
+    expect(r.estado).toBe('CONTEXT');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('a');
+    expect(codigoDe(r)).toContain('VIGENCIA_CERRADA_SIN_EVENTO');
+    expect(codigoDe(r)).not.toContain('NORMA_NO_VIGENTE');
+    expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'a', motivo: 'VIGENCIA_CERRADA_SIN_EVENTO' })]);
   });
   it('sin versiones para la unidad falla cerrado', () => {
     expect(codigoDe(resolverVersion('SINT', 'NO-EXISTE', '2024-01-01', versiones))).toBe('SIN_VERSIONES');
@@ -869,7 +879,12 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
   });
 
   describe('vinculación: instrumento_modificador debe identificar un decreto o fallo concreto con número', () => {
-    it.each(['pendiente', 'Pendiente', 'Decreto pendiente', 's/n', 'S/N', 'Decreto s/n', 'varios', 'Varios decretos', 'decreto', '   '])(
+    it.each([
+      'pendiente', 'Pendiente', 'Decreto pendiente', 's/n', 'S/N', 'Decreto s/n', 'varios', 'Varios decretos', 'decreto', '   ', '',
+      // Auditor @ 8da6465 y dictamen CLO 18-oct-2026 (lista blanca; la Gaceta sola nunca vincula).
+      'Gaceta 33,801', '2019', 'Decreto del 2019', 'Decreto No. ___ 2019', 'N/D 2019', 'sin número (2019)', 'Sin numero 2019',
+      'por definir 1', 'TBD-1', 'D.59-2015 Gaceta 33,801', 'Acuerdo 679', 'Resolución PCSJ',
+    ])(
       'modificador «%s» no vincula: CONTEXT de la anterior con REFORMA_POSTERIOR',
       (instrumento_modificador) => {
         const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador })]));
@@ -878,7 +893,21 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
         expect(cods(r)).toContain('REFORMA_POSTERIOR');
       },
     );
-    it.each(['D.59-2015', 'RI-137-06', 'Decreto 168-2009'])('modificador «%s» sí vincula: PRIMARY la posterior', (instrumento_modificador) => {
+    it('modificador null no vincula', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: null })]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+    });
+    it.each([
+      // Decreto (legislativo)
+      'D.59-2015', 'D. 59-2015', 'Decreto 168-2009', 'Decreto No. 168-2009', 'Decreto Legislativo 59-2015', '  D.59-2015  ',
+      // Decreto Ejecutivo y Acuerdo Ejecutivo
+      'DE 12-2018', 'Decreto Ejecutivo PCM-005-2020', 'AE 679-2014', 'A.E. 679-2014', 'Acuerdo Ejecutivo 679-2014', 'Acuerdo Ejecutivo No. 679-2014',
+      // Resolución con su identificador
+      'PCSJ-17-2012', 'Resolución PCSJ-17-2012', 'Resolucion No. PCSJ-17-2012',
+      // Sentencia o fallo con su expediente
+      'RI-137-06', 'Sentencia RI-137-06', 'Fallo RI-137-06', 'Expediente RI-137-06',
+    ])('modificador «%s» sí vincula: PRIMARY la posterior', (instrumento_modificador) => {
       const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador })]));
       expect(r.estado).toBe('PRIMARY');
       expect(r.version.version_id).toBe('cedij-2019');
@@ -924,6 +953,53 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015({ vigente_hasta: '2018-01-01' }), cedijMisma]));
       expect(r.estado).toBe('PRIMARY');
       expect(r.version.version_id).toBe('cedij-2015');
+    });
+  });
+
+  describe('dictamen CLO 18-oct-2026: VIGENCIA_CERRADA_SIN_EVENTO frente a SIN_REVIVISCENCIA', () => {
+    const edicionCerrada = (extra: Partial<NormaVersion> = {}) =>
+      cedij2019({ version_id: 'cedij-ed-2016', vigente_desde: '2016-01-01', vigente_hasta: '2019-01-01', tipo_evento: 'ORIGINAL', instrumento_modificador: null, ...extra });
+
+    it('ORIGINAL posterior cerrada sin evento: CONTEXT (no FALSE, no FALLO_CERRADO), aviso y curación', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), edicionCerrada()]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(r.version.estado_vigencia).toBe('TRUE');
+      expect(cods(r)).toContain('VIGENCIA_CERRADA_SIN_EVENTO');
+      expect(cods(r)).not.toContain('SIN_REVIVISCENCIA');
+      expect(cods(r)).not.toContain('NORMA_NO_VIGENTE');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-ed-2016']);
+      expect(avisos(r)).toEqual([
+        expect.objectContaining({ version_id: 'cedij-ed-2016', advertencia: expect.objectContaining({ codigo: 'VIGENCIA_CERRADA_SIN_EVENTO' }) }),
+      ]);
+      expect(r.curacionDatos).toEqual([
+        { version_id: 'cedij-ed-2016', motivo: 'VIGENCIA_CERRADA_SIN_EVENTO', mensaje: expect.stringContaining('2019-01-01') },
+      ]);
+    });
+    it('REFORMA posterior cerrada sin vínculo identificado también es VIGENCIA_CERRADA_SIN_EVENTO, no SIN_REVIVISCENCIA', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), cedij2019({ vigente_hasta: '2021-01-01', instrumento_modificador: 'sin número (2019)' })]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).toContain('VIGENCIA_CERRADA_SIN_EVENTO');
+      expect(r.curacionDatos.map((c) => c.version_id)).toEqual(['cedij-2019']);
+    });
+    it('REFORMA posterior cerrada con decreto identificado: FALLO_CERRADO SIN_REVIVISCENCIA, sin curación', () => {
+      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), cedij2019({ vigente_hasta: '2021-01-01' })]);
+      expect(r.estado).toBe('FALLO_CERRADO');
+      if (r.estado !== 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.motivo).toBe('SIN_REVIVISCENCIA');
+      expect('curacionDatos' in r).toBe(false);
+    });
+    it('con una cerrada real y otra sin evento, manda SIN_REVIVISCENCIA', () => {
+      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), edicionCerrada({ vigente_hasta: '2017-01-01' }), cedij2019({ version_id: 'txt-2018', vigente_desde: '2018-01-01', vigente_hasta: '2020-01-01', nivel_verificacion: 'PRIMARIA_TEXTO' })]);
+      expect(codigoDe(r)).toBe('SIN_REVIVISCENCIA');
+    });
+    it('antes del cierre de la edición ORIGINAL rige la regla de versión posterior, sin aviso de vigencia cerrada ni curación', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2017-06-01', [img2015(), edicionCerrada()]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toContain('REFORMA_POSTERIOR');
+      expect(cods(r)).not.toContain('VIGENCIA_CERRADA_SIN_EVENTO');
+      expect(r.curacionDatos).toEqual([]);
     });
   });
 
