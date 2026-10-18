@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { verificarCita, normalizarCita, NORMALIZACION_CITA } from '@/lib/mcp/verificar-cita';
+import { verificarCita, normalizarCita, NORMALIZACION_CITA, MAX_CARACTERES_CITA } from '@/lib/mcp/verificar-cita';
 
 const ART = 'Artículo 1.- El Notario es el profesional del Derecho investido de fe pública,\n  facultado para autenticar y dar forma – en los términos de esta Ley – a los actos jurídicos.';
 
@@ -29,6 +29,26 @@ describe('verificarCita — tres estados exhaustivos (PLAN-MCP-SLICE-1 §2.3)', 
   });
 });
 
+describe('verificarCita — tope de longitud (Auditor @ e1c0c40, P2-3)', () => {
+  it('una cita de más de MAX_CARACTERES_CITA no se compara: cita_demasiado_larga', () => {
+    const larga = 'palabra '.repeat(400); // 3.200 caracteres
+    expect(verificarCita(larga, ART)).toEqual({ estado: 'cita_demasiado_larga', normalizacion: NORMALIZACION_CITA, max_caracteres: MAX_CARACTERES_CITA });
+  });
+  it('el tope se mide tras normalizar y el límite exacto sí se compara', () => {
+    const justo = 'a'.repeat(MAX_CARACTERES_CITA);
+    expect(verificarCita(justo, justo).estado).toBe('verificada');
+    expect(verificarCita(`  ${justo}  \n`, justo).estado).toBe('verificada');
+    expect(verificarCita(justo + 'a', justo + 'a').estado).toBe('cita_demasiado_larga');
+  });
+  it('cita en el tope contra un texto largo termina rápido', () => {
+    const cita = Array.from({ length: 300 }, (_, i) => `w${i}`).join(' ').slice(0, MAX_CARACTERES_CITA);
+    const texto = Array.from({ length: 20000 }, (_, i) => `t${i % 997}`).join(' ');
+    const t0 = Date.now();
+    expect(verificarCita(cita, texto).estado).toBe('texto_distinto');
+    expect(Date.now() - t0).toBeLessThan(2000);
+  });
+});
+
 describe('verificarCita — normalización', () => {
   it('tilde compuesta y descompuesta son iguales (NFC)', () => {
     const descompuesta = 'investido de fe pública';
@@ -44,9 +64,18 @@ describe('verificarCita — normalización', () => {
     expect(verificarCita('dar forma - en los términos de esta Ley - a los actos', ART).estado).toBe('verificada');
     expect(verificarCita('dar forma — en los términos', ART).estado).toBe('verificada');
   });
-  it('comillas tipográficas y rectas son iguales', () => {
-    expect(verificarCita('el “acto” notarial', 'Se llama "acto" notarial a').estado).toBe('texto_distinto');
-    expect(verificarCita('llama «acto» notarial', 'Se llama "acto" notarial a').estado).toBe('verificada');
+  it('comillas tipográficas y rectas son iguales (dobles y simples)', () => {
+    // Cada par sólo difiere en el tipo de comilla.
+    expect(verificarCita('llama \u201Cacto\u201D notarial', 'Se llama "acto" notarial a').estado).toBe('verificada');
+    expect(verificarCita('llama \u00ABacto\u00BB notarial', 'Se llama "acto" notarial a').estado).toBe('verificada');
+    expect(verificarCita("llama \u2018acto\u2019 notarial", "Se llama 'acto' notarial a").estado).toBe('verificada');
+    expect(verificarCita("llama 'acto' notarial", 'Se llama \u2018acto\u2019 notarial a').estado).toBe('verificada');
+  });
+  it('el guion suave (U+00AD, invisible) se elimina; no equivale a un guion', () => {
+    const texto = 'investido de fe p\u00FA\u00ADblica';
+    expect(verificarCita('fe p\u00FAblica', texto).estado).toBe('verificada');
+    expect(verificarCita('fe p\u00FA-blica', texto).estado).toBe('texto_distinto');
+    expect(NORMALIZACION_CITA).toContain('sin guion suave');
   });
   it('distingue mayúsculas y puntuación', () => {
     expect(verificarCita('el notario es', ART).estado).toBe('texto_distinto');

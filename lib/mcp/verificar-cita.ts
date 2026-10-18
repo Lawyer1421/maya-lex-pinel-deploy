@@ -7,8 +7,9 @@
  * Normalización declarada (se aplica igual a la cita y al texto):
  *  1. Unicode NFC: una tilde compuesta y una descompuesta son iguales. Una
  *     palabra SIN tilde no es igual a la misma palabra con tilde.
- *  2. Guiones (‐ ‑ ‒ – — − ­) -> «-»; comillas tipográficas (“ ” « » „ ‘ ’ ‚)
- *     -> comillas rectas.
+ *  2. El guion suave (U+00AD, invisible, sale de PDFs) se elimina. Guiones
+ *     (‐ ‑ ‒ – — −) -> «-»; comillas tipográficas (“ ” « » „ ‘ ’ ‚) -> comillas
+ *     rectas.
  *  3. Todo espacio en blanco (incluidos saltos de línea y NBSP) -> un espacio;
  *     sin espacios al inicio ni al final.
  * Distingue mayúsculas y puntuación: tras normalizar, la coincidencia es exacta.
@@ -20,13 +21,23 @@
  *  - `texto_distinto`: hay texto pero la cita no coincide; se devuelve el pasaje
  *    más cercano (ventana de palabras con mayor coincidencia) para revisión
  *    humana.
+ * Además, una entrada que supera MAX_CARACTERES_CITA se rechaza sin comparar
+ * (`cita_demasiado_larga`): no es un veredicto sobre la cita, es un límite de
+ * entrada que el handler debe devolver como error de validación.
  *
  * El texto lo resuelve el llamador vía norma_version (§2.2). Este módulo no
  * decide si ese texto es fuente primaria: quien lo cablee debe pasar sólo el
  * texto de un resultado PRIMARY, o informar el estado CONTEXT junto al veredicto.
  */
 
-export const NORMALIZACION_CITA = 'NFC + guiones + comillas + espacios';
+export const NORMALIZACION_CITA = 'NFC + sin guion suave + guiones + comillas + espacios';
+
+/**
+ * Tope de la cita en caracteres (tras normalizar). La búsqueda del pasaje
+ * cercano crece con cita × texto; una cita más larga no se compara y vuelve
+ * como `cita_demasiado_larga` (Auditor @ e1c0c40, P2-3).
+ */
+export const MAX_CARACTERES_CITA = 2000;
 
 /** Palabras de la cita ausentes del pasaje que se devuelven como máximo. */
 const MAX_PALABRAS_FALTANTES = 20;
@@ -34,6 +45,8 @@ const MAX_PALABRAS_FALTANTES = 20;
 export type ResultadoVerificacion =
   | { estado: 'verificada'; normalizacion: string }
   | { estado: 'no_encontrada'; normalizacion: string }
+  /** La cita supera MAX_CARACTERES_CITA: no se compara (ni se verifica). */
+  | { estado: 'cita_demasiado_larga'; normalizacion: string; max_caracteres: number }
   | {
       estado: 'texto_distinto';
       normalizacion: string;
@@ -48,7 +61,8 @@ export type ResultadoVerificacion =
 export function normalizarCita(s: string): string {
   return s
     .normalize('NFC')
-    .replace(/[‐‑‒–—−­]/g, '-')
+    .replace(/­/g, '')
+    .replace(/[‐‑‒–—−]/g, '-')
     .replace(/[“”«»„]/g, '"')
     .replace(/[‘’‚]/g, "'")
     .replace(/\s+/g, ' ')
@@ -135,6 +149,9 @@ export function verificarCita(cita: string, texto: string | null): ResultadoVeri
     return { estado: 'no_encontrada', normalizacion: NORMALIZACION_CITA };
   }
   const c = normalizarCita(cita);
+  if (c.length > MAX_CARACTERES_CITA) {
+    return { estado: 'cita_demasiado_larga', normalizacion: NORMALIZACION_CITA, max_caracteres: MAX_CARACTERES_CITA };
+  }
   const t = normalizarCita(texto);
   // Una cita vacía es subcadena de todo: nunca se verifica.
   if (c !== '' && t.includes(c)) return { estado: 'verificada', normalizacion: NORMALIZACION_CITA };

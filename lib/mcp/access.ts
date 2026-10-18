@@ -17,17 +17,16 @@
  * elegible sin flag queda fuera. No hay ruta MCP todavía: este módulo sólo
  * fija el contrato y sus tests.
  */
-import { resolveCurrentAccess, type AccessTier } from '@/lib/paypal/access';
 import { isFlagEnabledForUser } from '@/lib/flags';
-import { identificadorDeSuscripcion } from '@/lib/rate-limit';
+import { resolverTierMcp, type UserTier } from '@/lib/rate-limit';
 
 /** Clasificación de autorización -- solo semántica de acceso/auditoría, nunca de facturación. */
 export type McpAuthorization = 'ALLOW' | 'ALLOW_INTERNAL' | 'DENY';
 
-const PREMIUM_TIERS: ReadonlySet<AccessTier> = new Set(['pro']);
-const INTERNAL_TIERS: ReadonlySet<AccessTier> = new Set(['admin']);
+const PREMIUM_TIERS: ReadonlySet<UserTier> = new Set(['pro']);
+const INTERNAL_TIERS: ReadonlySet<UserTier> = new Set(['admin']);
 
-function clasificarTier(tier: AccessTier): McpAuthorization {
+function clasificarTier(tier: UserTier): McpAuthorization {
   if (PREMIUM_TIERS.has(tier)) return 'ALLOW';
   if (INTERNAL_TIERS.has(tier)) return 'ALLOW_INTERNAL';
   return 'DENY';
@@ -38,7 +37,7 @@ export interface McpAccessResult {
   granted: boolean;
   authorization: McpAuthorization;
   /** Tier real resuelto (nunca decide por sí solo). */
-  tier: AccessTier;
+  tier: UserTier;
   /** Estado de flag_mcp_enabled para este usuario. */
   flagEnabled: boolean;
   /** true si el tier por sí solo (pro o admin) calificaría. */
@@ -46,27 +45,27 @@ export interface McpAccessResult {
 }
 
 /**
- * Resuelve la autorización MCP. `userIdentifier` es el identificador de
- * facturación (`email:{correo}`); si llega con el prefijo `mcp:` se quita. Fail-closed:
- * si resolveCurrentAccess lanza, tier='free' -> DENY; isFlagEnabledForUser ya
- * es fail-closed; el flag es la última compuerta.
+ * Resuelve la autorización MCP para un correo verificado (getVerifiedEmail).
+ *
+ * El tier sale de resolverTierMcp: la fila de hoy de la bolsa `mcp:email:…` o,
+ * si no la hay, la suscripción activa. NO se usa resolveCurrentAccess, que sólo
+ * mira la fila del chat de hoy y degradaría a free a un pro que entra por MCP
+ * antes de usar el chat (Auditor @ e1c0c40, P1-1). Fail-closed: sin correo o
+ * ante cualquier error, tier='free' -> DENY; el flag es la última compuerta.
  */
-export async function resolveMcpAccess(
-  userIdentifier: string,
-  userEmail: string | null | undefined,
-): Promise<McpAccessResult> {
-  let tier: AccessTier = 'free';
+export async function resolveMcpAccess(userEmail: string | null | undefined): Promise<McpAccessResult> {
+  let tier: UserTier = 'free';
 
-  try {
-    // Defensa: aunque llegue el identificador de la bolsa `mcp:`, el tier se
-    // resuelve con el de facturación.
-    const access = await resolveCurrentAccess(identificadorDeSuscripcion(userIdentifier));
-    tier = access.tier;
-  } catch (err) {
-    console.error(
-      '[mcp/access] Error resolviendo tier -- fail-closed (acceso denegado):',
-      err instanceof Error ? err.message : err,
-    );
+  if (userEmail && userEmail.trim() !== '') {
+    try {
+      tier = await resolverTierMcp(userEmail);
+    } catch (err) {
+      console.error(
+        '[mcp/access] Error resolviendo tier -- fail-closed (acceso denegado):',
+        err instanceof Error ? err.message : err,
+      );
+      tier = 'free';
+    }
   }
 
   const eligibleTier = PREMIUM_TIERS.has(tier) || INTERNAL_TIERS.has(tier);

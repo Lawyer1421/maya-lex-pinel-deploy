@@ -220,6 +220,33 @@ export async function checkAndIncrementRateLimit(
 }
 
 /**
+ * Tier de la bolsa MCP para un correo verificado, con la misma fuente que usa
+ * checkAndIncrementRateLimit para `mcp:email:{correo}`: la fila de hoy en
+ * queries_log de esa bolsa si existe; si no, subscriptions (sin el prefijo
+ * `mcp:`) pasada por resolveTierForNewDay. No depende de la fila del chat.
+ * Fail-closed: sin Supabase configurado o ante cualquier error -> 'free'.
+ * No incrementa nada.
+ */
+export async function resolverTierMcp(email: string): Promise<UserTier> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return 'free';
+  try {
+    const supabase = createServerSupabaseClient();
+    const identificador = buildMcpIdentifierFromEmail(email);
+    const today = new Date().toISOString().split('T')[0];
+    const { data: existing, error } = await supabase
+      .from('queries_log')
+      .select('tier')
+      .eq('user_identifier', identificador)
+      .eq('query_date', today)
+      .maybeSingle();
+    if (error) return 'free';
+    return await resolveTodayTier(supabase, identificador, existing?.tier);
+  } catch {
+    return 'free';
+  }
+}
+
+/**
  * Si ya hay queries_log.tier hoy, ese es el gate.
  * Si no hay fila (día nuevo), heredar de subscriptions.active + academico/pro/admin.
  */
@@ -233,11 +260,13 @@ async function resolveTodayTier(
   const idSuscripcion = identificadorDeSuscripcion(userIdentifier);
   if (idSuscripcion.startsWith('ip:')) return 'free';
 
-  const { data: sub } = await supabase
+  const { data: sub, error } = await supabase
     .from('subscriptions')
     .select('tier, status')
     .eq('user_identifier', idSuscripcion)
     .maybeSingle();
+  // Error de lectura de la suscripción: no se hereda ningún tier de pago.
+  if (error) return 'free';
 
   return resolveTierForNewDay({
     subscriptionStatus: sub?.status,
