@@ -563,3 +563,247 @@ describe('migración norma_version (SQL)', () => {
     expect(rb).toMatch(/DROP TABLE IF EXISTS public\.norma_version/);
   });
 });
+
+describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', () => {
+  const FECHA = '2020-06-01';
+  type Res = ReturnType<typeof resolverVersion>;
+  const sinFallo = (r: Res) => {
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    return r;
+  };
+  const cods = (r: Res) => sinFallo(r).advertencias.map((a) => a.codigo);
+  const avisos = (r: Res) => {
+    const x = sinFallo(r) as unknown as { avisosContexto: { version_id: string; advertencia: { codigo: string; mensaje: string } }[] };
+    return x.avisosContexto;
+  };
+  const nv = (p: Partial<NormaVersion> & Pick<NormaVersion, 'version_id' | 'vigente_desde'>) =>
+    fila({ ...verificada(p), instrumento_id: NOTARIADO, unidad: '1' });
+
+  const img2015 = (extra: Partial<NormaVersion> = {}) =>
+    nv({ version_id: 'img-2015', vigente_desde: '2015-03-01', nivel_verificacion: 'PRIMARIA_IMAGEN', fuente: 'La Gaceta', ...extra });
+  const cedij2019 = (extra: Partial<NormaVersion> = {}) =>
+    nv({
+      version_id: 'cedij-2019',
+      vigente_desde: '2019-01-01',
+      nivel_verificacion: 'SECUNDARIA',
+      fuente: 'CEDIJ',
+      tipo_evento: 'REFORMA',
+      instrumento_modificador: 'D.999-2019',
+      texto: 'TEXTO REFORMADO 2019 (CEDIJ)',
+      estado_vigencia: 'TRUE_PRESUNTA',
+      elegible_primary: true,
+      ...extra,
+    });
+
+  describe('caso (a): la posterior cumple todo y se promueve a PRIMARY', () => {
+    it('CEDIJ posterior bajo imagen: PRIMARY cedij-2019 con avisos y la anterior en contexto', () => {
+      for (const orden of [[img2015(), cedij2019()], [cedij2019(), img2015()]]) {
+        const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, orden));
+        expect(r.estado).toBe('PRIMARY');
+        expect(r.version.version_id).toBe('cedij-2019');
+        expect(cods(r)).toEqual(expect.arrayContaining(['VERIFICACION_SECUNDARIA', 'VIGENCIA_PRESUNTA']));
+        expect(r.contexto.map((v) => v.version_id)).toEqual(['img-2015']);
+        const a = avisos(r).filter((x) => x.version_id === 'img-2015');
+        expect(a.map((x) => x.advertencia.codigo)).toContain('REFORMA_POSTERIOR');
+      }
+    });
+    it('el aviso REFORMA_POSTERIOR nombra la versión posterior, su nivel y su vigente_desde', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019()]));
+      const adv = avisos(r).find((x) => x.advertencia.codigo === 'REFORMA_POSTERIOR')!.advertencia as unknown as Record<string, unknown>;
+      expect(adv.mensaje).toEqual(expect.stringContaining('cedij-2019'));
+      expect(adv.mensaje).toEqual(expect.stringContaining('SECUNDARIA'));
+      expect(adv.mensaje).toEqual(expect.stringContaining('2019-01-01'));
+      expect(adv.version_posterior).toBe('cedij-2019');
+      expect(adv.rige_desde).toBe('2019-01-01');
+    });
+    it('PRIMARIA_TEXTO posterior bajo una imagen: PRIMARY y SIN VERIFICACION_SECUNDARIA', () => {
+      const posterior = cedij2019({ nivel_verificacion: 'PRIMARIA_TEXTO', estado_vigencia: 'TRUE', fuente: null });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), posterior]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+      expect(cods(r)).not.toContain('VERIFICACION_SECUNDARIA');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['img-2015']);
+      expect(avisos(r).map((x) => [x.version_id, x.advertencia.codigo])).toContainEqual(['img-2015', 'REFORMA_POSTERIOR']);
+    });
+    it.each(['TEXTO_NUEVO_MISMO_NUMERO', 'ADICION'] as const)('tipo_evento %s con modificador también vincula la reforma', (tipo_evento) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ tipo_evento })]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+    });
+    it('G\': CEDIJ reforma 2019 CON instrumento_modificador sobre imagen con texto es PRIMARY (caso a)', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: 'D.999-2019' })]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+    });
+  });
+
+  describe('caso (b): si la posterior falla cualquier condición, CONTEXT de la anterior', () => {
+    const esperaContext = (posterior: NormaVersion) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), posterior]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toContain('REFORMA_POSTERIOR');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-2019']);
+      expect(avisos(r).length).toBeGreaterThan(0);
+      return r;
+    };
+
+    it('posterior en RANGO: CONTEXT, nunca PRIMARY, version = img-2015', () => {
+      esperaContext(cedij2019({ precision_fecha: 'RANGO', vigente_desde_min: '2019-01-01', vigente_desde_max: '2019-01-03' }));
+    });
+    it('posterior sin evento de reforma vinculado: instrumento_modificador null', () => {
+      esperaContext(cedij2019({ instrumento_modificador: null }));
+    });
+    it('posterior sin evento de reforma vinculado: tipo_evento ORIGINAL aunque haya modificador', () => {
+      esperaContext(cedij2019({ tipo_evento: 'ORIGINAL', instrumento_modificador: 'D.999-2019' }));
+    });
+    it.each([
+      ['UNKNOWN', { estado_vigencia: 'UNKNOWN' as const }],
+      ['FALSE', { estado_vigencia: 'FALSE' as const }],
+      ['elegible_primary=false', { elegible_primary: false }],
+      ['texto vacío', { texto: '' }],
+      ['texto solo espacios', { texto: '   ' }],
+    ])('posterior con %s: CONTEXT', (_m, cambio) => {
+      esperaContext(cedij2019(cambio));
+    });
+    it('posterior con texto null: CONTEXT con REFORMA_POSTERIOR y REFORMA_POSTERIOR_SIN_TEXTO', () => {
+      const r = esperaContext(cedij2019({ texto: null, elegible_primary: false }));
+      expect(cods(r)).toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    });
+  });
+
+  describe('casos reproducidos por el Auditor sobre 2a809f4', () => {
+    it('F: reforma PRIMARIA_TEXTO 2019 sin texto bajo imagen con texto: CONTEXT img-2015', () => {
+      const reforma = nv({
+        version_id: 'txt-reforma-2019',
+        vigente_desde: '2019-01-01',
+        nivel_verificacion: 'PRIMARIA_TEXTO',
+        tipo_evento: 'REFORMA',
+        instrumento_modificador: 'D.999-2019',
+        texto: null,
+        elegible_primary: false,
+      });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), reforma]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toEqual(expect.arrayContaining(['REFORMA_POSTERIOR', 'REFORMA_POSTERIOR_SIN_TEXTO']));
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['txt-reforma-2019']);
+    });
+    it('F2: la reforma 2019 es SECUNDARIA (CEDIJ) sin texto: CONTEXT img-2015', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ texto: null, elegible_primary: false })]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toEqual(expect.arrayContaining(['REFORMA_POSTERIOR', 'REFORMA_POSTERIOR_SIN_TEXTO']));
+    });
+    it('G: CEDIJ reforma con texto, TRUE_PRESUNTA y elegible pero SIN instrumento_modificador: CONTEXT, nunca PRIMARY', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: null })]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(cods(r)).toContain('REFORMA_POSTERIOR');
+    });
+  });
+
+  describe('regresión de los casos previos del Auditor', () => {
+    const imgOrig = () => nv({ version_id: 'img-orig', vigente_desde: '2015-03-01', vigente_hasta: '2019-01-01', nivel_verificacion: 'PRIMARIA_IMAGEN' });
+    const cedij2015 = () =>
+      nv({ version_id: 'cedij-2015', vigente_desde: '2015-03-01', nivel_verificacion: 'SECUNDARIA', estado_vigencia: 'TRUE_PRESUNTA', fuente: 'CEDIJ' });
+
+    it('A: imagen de reforma 2019 sin texto sobre cedij-2015: CONTEXT cedij-2015 con REFORMA_POSTERIOR_SIN_TEXTO', () => {
+      const imgReforma = nv({
+        version_id: 'img-reforma-2019',
+        vigente_desde: '2019-01-01',
+        nivel_verificacion: 'PRIMARIA_IMAGEN',
+        tipo_evento: 'REFORMA',
+        texto: null,
+        elegible_primary: false,
+      });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [imgOrig(), imgReforma, cedij2015()]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('cedij-2015');
+      expect(cods(r)).toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    });
+    it('B: igual con PRIMARIA_TEXTO como inferior: CONTEXT', () => {
+      const imgReforma = nv({
+        version_id: 'img-reforma-2019',
+        vigente_desde: '2019-01-01',
+        nivel_verificacion: 'PRIMARIA_IMAGEN',
+        tipo_evento: 'REFORMA',
+        texto: null,
+        elegible_primary: false,
+      });
+      const inferior = nv({ version_id: 'txt-2015', vigente_desde: '2015-03-01', nivel_verificacion: 'PRIMARIA_TEXTO' });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [imgOrig(), imgReforma, inferior]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    });
+    it('D: imagen superior sin texto con el MISMO vigente_desde cede: PRIMARY cedij con VERIFICACION_SECUNDARIA', () => {
+      const imgSinTexto = nv({ version_id: 'img-sin-texto', vigente_desde: '2015-03-01', nivel_verificacion: 'PRIMARIA_IMAGEN', texto: null, elegible_primary: false });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [imgSinTexto, cedij2015()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2015');
+      expect(cods(r)).toContain('VERIFICACION_SECUNDARIA');
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR');
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    });
+    it('E: fecha anterior a la reforma de 2019: PRIMARY de la versión anterior (cedij-2015), sin avisos de reforma', () => {
+      const imgSinTexto2015 = nv({ version_id: 'img-orig-sin-texto', vigente_desde: '2015-03-01', vigente_hasta: '2019-01-01', nivel_verificacion: 'PRIMARIA_IMAGEN', texto: null, elegible_primary: false });
+      const imgReforma = nv({ version_id: 'img-reforma-2019', vigente_desde: '2019-01-01', nivel_verificacion: 'PRIMARIA_IMAGEN', tipo_evento: 'REFORMA', texto: null, elegible_primary: false });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2017-06-01', [imgSinTexto2015, imgReforma, cedij2015()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2015');
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR');
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    });
+    it('E\': con la imagen original con texto y fecha anterior a la reforma, PRIMARY de la imagen', () => {
+      const imgReforma = nv({ version_id: 'img-reforma-2019', vigente_desde: '2019-01-01', nivel_verificacion: 'PRIMARIA_IMAGEN', tipo_evento: 'REFORMA', texto: null, elegible_primary: false });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2017-06-01', [imgOrig(), imgReforma, cedij2015()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('img-orig');
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR');
+    });
+  });
+
+  describe('edge: ganadora con causa jurídica no promueve a la posterior', () => {
+    it.each([
+      ['FALSE', { estado_vigencia: 'FALSE' as const }],
+      ['UNKNOWN', { estado_vigencia: 'UNKNOWN' as const }],
+      ['RANGO', { precision_fecha: 'RANGO' as const, vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' }],
+    ])('img-2015 con texto y vigencia/fecha %s + CEDIJ reforma vinculada y elegible: CONTEXT', (_m, cambio) => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(cambio), cedij2019()]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+    });
+  });
+
+  describe('reglas que se mantienen', () => {
+    it('texto null, vacío o solo espacios nunca es PRIMARY (incluso con posterior vinculada)', () => {
+      for (const texto of [null, '', '   ']) {
+        const sola = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015({ texto })]));
+        expect(sola.estado).toBe('CONTEXT');
+        const conPosterior = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ texto })]));
+        expect(conPosterior.estado).toBe('CONTEXT');
+      }
+    });
+    it('PRIMARIA_IMAGEN gana a CEDIJ en la misma fecha (sin posterior): PRIMARY imagen, cedij en contexto, sin REFORMA_POSTERIOR', () => {
+      const cedijMisma = cedij2019({ version_id: 'cedij-2015', vigente_desde: '2015-03-01', tipo_evento: 'ORIGINAL', instrumento_modificador: null });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [cedijMisma, img2015()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['cedij-2015']);
+      expect(cods(r)).not.toContain('REFORMA_POSTERIOR');
+      expect(avisos(r)).toEqual([]);
+    });
+    it('fecha anterior a la reforma: PRIMARY de la versión anterior y avisosContexto vacío', () => {
+      const imgCerrada = img2015({ vigente_hasta: '2019-01-01' });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2017-06-01', [imgCerrada, cedij2019()]));
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(avisos(r)).toEqual([]);
+    });
+    it('FECHA_EN_RANGO_INCIERTO se mantiene', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2015-03-02', [img2015({ vigente_desde_min: '2015-03-01', vigente_desde_max: '2015-03-03' })]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(cods(r)).toContain('FECHA_EN_RANGO_INCIERTO');
+    });
+  });
+});

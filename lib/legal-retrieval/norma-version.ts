@@ -20,23 +20,42 @@
  *    SI_PRIMARY_CON_AVISO).
  *  - Precedencia entre fuentes para el mismo artículo y fecha: PRIMARIA_IMAGEN >
  *    PRIMARIA_TEXTO > SECUNDARIA. Gana la de mayor rango; las demás van en
- *    `contexto` y nunca como PRIMARY. Dos casos para una versión superior que no
- *    puede servirse como PRIMARY (fallo CLO):
+ *    `contexto` y nunca como PRIMARY. Una versión superior que no puede servirse
+ *    como PRIMARY se trata así:
  *      · sólo por falta de texto: puede ceder a la siguiente versión elegible
  *        (p. ej. SECUNDARIA) únicamente cuando su vigente_desde NO es posterior.
- *        Límite 3 del dictamen CLO del 16-oct-2026: si la fuente superior sin
- *        texto representa una reforma/fallo posterior (vigente_desde posterior),
- *        el texto inferior sólo puede devolverse como CONTEXT con
- *        REFORMA_POSTERIOR_SIN_TEXTO.
+ *        Si es posterior se aplica la regla de reforma posterior (abajo).
  *      · por causa jurídica (vigencia FALSE o UNKNOWN, fecha en RANGO o dentro
  *        del margen de incertidumbre, o elegible_primary=false con texto): es la
  *        ganadora, se devuelve CONTEXT y NO se cae a una fuente inferior. Una
  *        versión sin texto que además es FALSE/UNKNOWN/RANGO (p. ej. una
  *        derogación sin texto) también bloquea: no se sirve texto inferior de
  *        una norma derogada.
- *  - Una reforma o fallo posterior a la edición CEDIJ que no esté incorporado se
- *    marca en los datos (elegible_primary=false + nota). No hay detección
- *    automática.
+ *  - Reforma posterior (dictamen CLO 17-oct-2026, fail-closed). Si entre las
+ *    candidatas hay una versión POSTERIOR a la vigente (vigente_desde mayor, de
+ *    CUALQUIER nivel; con varias se toma la de mayor vigente_desde, desempate por
+ *    mayor rango de nivel y las demás van a contexto):
+ *      (a) si la posterior está vinculada a un evento de reforma identificado
+ *          (tipo_evento REFORMA, TEXTO_NUEVO_MISMO_NUMERO o ADICION, con
+ *          instrumento_modificador no vacío) Y es PRIMARY (texto, vigencia TRUE o
+ *          TRUE_PRESUNTA, no RANGO ni margen de incertidumbre, elegible_primary),
+ *          se sirve la posterior como PRIMARY con sus propias advertencias
+ *          (VERIFICACION_SECUNDARIA si es SECUNDARIA) y las anteriores pasan a
+ *          `contexto`, cada una con un aviso REFORMA_POSTERIOR en `avisosContexto`;
+ *      (b) si falla cualquiera de esas condiciones, NINGUNA es PRIMARY: se
+ *          devuelve CONTEXT con la vigente (advertencia REFORMA_POSTERIOR, más
+ *          REFORMA_POSTERIOR_SIN_TEXTO si la posterior no tiene texto) y todas las
+ *          demás candidatas en `contexto`, con REFORMA_POSTERIOR en
+ *          `avisosContexto`. Sustituye al antiguo límite 3 del dictamen CLO del
+ *          16-oct-2026 (SI_PRIMARY_CON_AVISO), que sólo miraba fuentes superiores
+ *          sin texto.
+ *      · Caso no especificado por el CLO, fail-closed: si la vigente tiene causa
+ *        jurídica (FALSE/UNKNOWN/RANGO/margen de incertidumbre) la posterior NO se
+ *        promueve: resultado CONTEXT (caso b).
+ *  - Una reforma o fallo posterior a la edición CEDIJ que no esté registrado como
+ *    versión se marca en los datos (elegible_primary=false + nota); sin esa fila
+ *    no hay detección automática. Si la reforma sí está registrada como versión
+ *    (de cualquier nivel), aplica la regla de reforma posterior de arriba.
  *  - Sin versión, fecha en un hueco, anterior a la primera versión o posterior a
  *    una versión cerrada: FALLO_CERRADO. Nunca se rellena con la más cercana.
  */
@@ -90,6 +109,7 @@ export type CodigoAdvertencia =
   | 'FECHA_EN_RANGO'
   | 'FECHA_EN_RANGO_INCIERTO'
   | 'VERIFICACION_SECUNDARIA'
+  | 'REFORMA_POSTERIOR'
   | 'REFORMA_POSTERIOR_SIN_TEXTO'
   | 'NO_ELEGIBLE_PRIMARY';
 
@@ -98,8 +118,16 @@ export interface Advertencia {
   mensaje: string;
   /** VACATIO_LEGIS: versión ya publicada que aún no rige. */
   version_nueva?: string;
-  /** VACATIO_LEGIS: desde cuándo rige la versión nueva. */
+  /** VACATIO_LEGIS: desde cuándo rige la versión nueva. REFORMA_POSTERIOR*: vigente_desde de la posterior. */
   rige_desde?: string;
+  /** REFORMA_POSTERIOR*: version_id de la versión posterior. */
+  version_posterior?: string;
+}
+
+/** Aviso sobre una versión que viaja en `contexto`. */
+export interface AvisoContexto {
+  version_id: string;
+  advertencia: Advertencia;
 }
 
 export type MotivoFalloCerrado =
@@ -111,8 +139,20 @@ export type MotivoFalloCerrado =
   | 'VERSIONES_SOLAPADAS';
 
 export type ResultadoVersion =
-  | { estado: 'PRIMARY'; version: NormaVersion; advertencias: Advertencia[]; contexto: NormaVersion[] }
-  | { estado: 'CONTEXT'; version: NormaVersion; advertencias: Advertencia[]; contexto: NormaVersion[] }
+  | {
+      estado: 'PRIMARY';
+      version: NormaVersion;
+      advertencias: Advertencia[];
+      contexto: NormaVersion[];
+      avisosContexto: AvisoContexto[];
+    }
+  | {
+      estado: 'CONTEXT';
+      version: NormaVersion;
+      advertencias: Advertencia[];
+      contexto: NormaVersion[];
+      avisosContexto: AvisoContexto[];
+    }
   | { estado: 'FALLO_CERRADO'; motivo: MotivoFalloCerrado; mensaje: string };
 
 const MENSAJE_FALLO = 'no hay texto verificado para esa fecha';
@@ -270,6 +310,39 @@ function esPrimary(v: NormaVersion, fecha: string): boolean {
   return true;
 }
 
+const EVENTOS_REFORMA: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISMO_NUMERO', 'ADICION'];
+
+/** Vinculada a un evento de reforma identificado con su decreto o fallo. */
+function vinculadaAReforma(v: NormaVersion): boolean {
+  return (
+    EVENTOS_REFORMA.includes(v.tipo_evento) &&
+    v.instrumento_modificador !== null &&
+    v.instrumento_modificador.trim() !== ''
+  );
+}
+
+function descripcionPosterior(p: NormaVersion): string {
+  return `${p.version_id} (nivel_verificacion ${p.nivel_verificacion}, vigente_desde ${p.vigente_desde})`;
+}
+
+function avisoReformaPosterior(p: NormaVersion): Advertencia {
+  return {
+    codigo: 'REFORMA_POSTERIOR',
+    mensaje: `Existe una versión posterior ${descripcionPosterior(p)}; esta versión es histórica o no es verificable como PRIMARY y se muestra sólo como contexto.`,
+    version_posterior: p.version_id,
+    rige_desde: p.vigente_desde,
+  };
+}
+
+function avisoReformaPosteriorSinTexto(p: NormaVersion): Advertencia {
+  return {
+    codigo: 'REFORMA_POSTERIOR_SIN_TEXTO',
+    mensaje: `La versión posterior ${descripcionPosterior(p)} no tiene texto incorporado; el texto de la versión devuelta se muestra sólo como contexto.`,
+    version_posterior: p.version_id,
+    rige_desde: p.vigente_desde,
+  };
+}
+
 /**
  * Versión de (instrumento, unidad) vigente en `fecha` (ISO YYYY-MM-DD) entre las
  * `versiones` dadas (filas de norma_version; se filtran por instrumento y unidad).
@@ -299,28 +372,40 @@ export function resolverVersion(
     return fallo('HUECO_ENTRE_VERSIONES');
   }
   // Precedencia: gana la fuente de mayor rango que no sea sólo «sin texto».
-  // Límite 3 del dictamen CLO del 16-oct-2026: una fuente superior sin texto
-  // sólo cede si su vigente_desde NO es posterior al de la fuente inferior.
-  // Si es posterior, la inferior se conserva únicamente como CONTEXT con
-  // REFORMA_POSTERIOR_SIN_TEXTO (fail-closed ante reforma/fallo no incorporado).
   const vigente = candidatas.find((v) => !soloFaltaTexto(v, fecha)) ?? candidatas[0];
-  const contexto = candidatas.filter((v) => v !== vigente);
 
-  const superiorPosteriorSinTexto = candidatas.find(
-    (v) =>
-      v !== vigente &&
-      RANGO_NIVEL[v.nivel_verificacion] > RANGO_NIVEL[vigente.nivel_verificacion] &&
-      soloFaltaTexto(v, fecha) &&
-      v.vigente_desde > vigente.vigente_desde,
-  );
+  // Dictamen CLO 17-oct-2026: versión posterior (de cualquier nivel) a la vigente.
+  const reformaPosterior = candidatas
+    .filter((v) => v !== vigente && v.vigente_desde > vigente.vigente_desde)
+    .sort(
+      (x, y) =>
+        (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0) ||
+        RANGO_NIVEL[y.nivel_verificacion] - RANGO_NIVEL[x.nivel_verificacion],
+    )[0];
 
-  const advertencias = advertenciasDe(vigente, fecha);
-  if (superiorPosteriorSinTexto) {
-    advertencias.push({
-      codigo: 'REFORMA_POSTERIOR_SIN_TEXTO',
-      mensaje:
-        'Existe una fuente de mayor verificación con vigencia posterior pero sin texto incorporado; el texto inferior se muestra sólo como contexto.',
-    });
+  const promueve =
+    reformaPosterior !== undefined &&
+    !causaJuridica(vigente, fecha) &&
+    esPrimary(reformaPosterior, fecha) &&
+    vinculadaAReforma(reformaPosterior);
+
+  const servida = promueve ? reformaPosterior : vigente;
+  const contexto = candidatas.filter((v) => v !== servida);
+  const advertencias = advertenciasDe(servida, fecha);
+  const avisosContexto: AvisoContexto[] = [];
+
+  if (reformaPosterior) {
+    if (promueve) {
+      for (const v of contexto) {
+        avisosContexto.push({ version_id: v.version_id, advertencia: avisoReformaPosterior(reformaPosterior) });
+      }
+    } else {
+      advertencias.push(avisoReformaPosterior(reformaPosterior));
+      if (sinTexto(reformaPosterior)) advertencias.push(avisoReformaPosteriorSinTexto(reformaPosterior));
+      for (const v of contexto) {
+        avisosContexto.push({ version_id: v.version_id, advertencia: avisoReformaPosterior(reformaPosterior) });
+      }
+    }
   }
 
   // Vacatio legis: versión posterior ya publicada pero aún sin regir en `fecha`.
@@ -336,7 +421,7 @@ export function resolverVersion(
     });
   }
 
-  return esPrimary(vigente, fecha) && !superiorPosteriorSinTexto
-    ? { estado: 'PRIMARY', version: vigente, advertencias, contexto }
-    : { estado: 'CONTEXT', version: vigente, advertencias, contexto };
+  return esPrimary(servida, fecha) && (reformaPosterior === undefined || promueve)
+    ? { estado: 'PRIMARY', version: servida, advertencias, contexto, avisosContexto }
+    : { estado: 'CONTEXT', version: servida, advertencias, contexto, avisosContexto };
 }
