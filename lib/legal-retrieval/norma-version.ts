@@ -22,9 +22,12 @@
  *    PRIMARIA_TEXTO > SECUNDARIA. Gana la de mayor rango; las demás van en
  *    `contexto` y nunca como PRIMARY. Dos casos para una versión superior que no
  *    puede servirse como PRIMARY (fallo CLO):
- *      · sólo por falta de texto: NO bloquea; se sirve la siguiente versión
- *        elegible (p. ej. SECUNDARIA) como PRIMARY con VERIFICACION_SECUNDARIA.
- *        Una versión sin texto nunca desplaza a otra a CONTEXT.
+ *      · sólo por falta de texto: puede ceder a la siguiente versión elegible
+ *        (p. ej. SECUNDARIA) únicamente cuando su vigente_desde NO es posterior.
+ *        Límite 3 del dictamen CLO del 16-oct-2026: si la fuente superior sin
+ *        texto representa una reforma/fallo posterior (vigente_desde posterior),
+ *        el texto inferior sólo puede devolverse como CONTEXT con
+ *        REFORMA_POSTERIOR_SIN_TEXTO.
  *      · por causa jurídica (vigencia FALSE o UNKNOWN, fecha en RANGO o dentro
  *        del margen de incertidumbre, o elegible_primary=false con texto): es la
  *        ganadora, se devuelve CONTEXT y NO se cae a una fuente inferior. Una
@@ -87,6 +90,7 @@ export type CodigoAdvertencia =
   | 'FECHA_EN_RANGO'
   | 'FECHA_EN_RANGO_INCIERTO'
   | 'VERIFICACION_SECUNDARIA'
+  | 'REFORMA_POSTERIOR_SIN_TEXTO'
   | 'NO_ELEGIBLE_PRIMARY';
 
 export interface Advertencia {
@@ -294,13 +298,30 @@ export function resolverVersion(
     }
     return fallo('HUECO_ENTRE_VERSIONES');
   }
-  // Precedencia: gana la fuente de mayor rango que no sea sólo «sin texto»; una
-  // superior que sólo carece de texto no bloquea y pasa a contexto. Si ninguna
-  // tiene texto, gana la de mayor rango (saldrá como CONTEXT).
+  // Precedencia: gana la fuente de mayor rango que no sea sólo «sin texto».
+  // Límite 3 del dictamen CLO del 16-oct-2026: una fuente superior sin texto
+  // sólo cede si su vigente_desde NO es posterior al de la fuente inferior.
+  // Si es posterior, la inferior se conserva únicamente como CONTEXT con
+  // REFORMA_POSTERIOR_SIN_TEXTO (fail-closed ante reforma/fallo no incorporado).
   const vigente = candidatas.find((v) => !soloFaltaTexto(v, fecha)) ?? candidatas[0];
   const contexto = candidatas.filter((v) => v !== vigente);
 
+  const superiorPosteriorSinTexto = candidatas.find(
+    (v) =>
+      v !== vigente &&
+      RANGO_NIVEL[v.nivel_verificacion] > RANGO_NIVEL[vigente.nivel_verificacion] &&
+      soloFaltaTexto(v, fecha) &&
+      v.vigente_desde > vigente.vigente_desde,
+  );
+
   const advertencias = advertenciasDe(vigente, fecha);
+  if (superiorPosteriorSinTexto) {
+    advertencias.push({
+      codigo: 'REFORMA_POSTERIOR_SIN_TEXTO',
+      mensaje:
+        'Existe una fuente de mayor verificación con vigencia posterior pero sin texto incorporado; el texto inferior se muestra sólo como contexto.',
+    });
+  }
 
   // Vacatio legis: versión posterior ya publicada pero aún sin regir en `fecha`.
   const enVacatio = propias.find(
@@ -315,7 +336,7 @@ export function resolverVersion(
     });
   }
 
-  return esPrimary(vigente, fecha)
+  return esPrimary(vigente, fecha) && !superiorPosteriorSinTexto
     ? { estado: 'PRIMARY', version: vigente, advertencias, contexto }
     : { estado: 'CONTEXT', version: vigente, advertencias, contexto };
 }

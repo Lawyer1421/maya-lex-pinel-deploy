@@ -237,6 +237,42 @@ describe('precedencia entre fuentes (CLO: SI_PRIMARY_CON_AVISO)', () => {
       expect(r.contexto.map((v) => v.version_id)).toEqual(['gaceta-img']); // la sin texto no desplaza: queda como contexto
     }
   });
+  it('fuente superior sin texto ANTERIOR a CEDIJ puede ceder: la inferior sigue PRIMARY', () => {
+    const imagenAnteriorSinTexto = {
+      ...imagen,
+      version_id: 'gaceta-anterior-sin-texto',
+      vigente_desde: '2014-01-01',
+      texto: null,
+      elegible_primary: false,
+    };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [imagenAnteriorSinTexto, cedij]);
+    expect(r.estado).toBe('PRIMARY');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('cedij-1');
+    expect(r.advertencias.map((a) => a.codigo)).toContain('VERIFICACION_SECUNDARIA');
+    expect(r.advertencias.map((a) => a.codigo)).not.toContain('REFORMA_POSTERIOR_SIN_TEXTO');
+    expect(r.contexto.map((v) => v.version_id)).toEqual(['gaceta-anterior-sin-texto']);
+  });
+
+  it('fuente superior sin texto POSTERIOR a CEDIJ bloquea PRIMARY: inferior queda CONTEXT con aviso CLO límite 3', () => {
+    const reformaPosteriorSinTexto = {
+      ...imagen,
+      version_id: 'reforma-posterior-sin-texto',
+      vigente_desde: '2018-01-01',
+      texto: null,
+      elegible_primary: false,
+      tipo_evento: 'REFORMA' as const,
+    };
+    const r = resolverVersion(NOTARIADO, '1', '2020-06-01', [reformaPosteriorSinTexto, cedij]);
+    expect(r.estado).toBe('CONTEXT');
+    if (r.estado === 'FALLO_CERRADO') throw new Error('inesperado');
+    expect(r.version.version_id).toBe('cedij-1');
+    expect(r.advertencias.map((a) => a.codigo)).toEqual(
+      expect.arrayContaining(['VERIFICACION_SECUNDARIA', 'REFORMA_POSTERIOR_SIN_TEXTO']),
+    );
+    expect(r.contexto.map((v) => v.version_id)).toEqual(['reforma-posterior-sin-texto']);
+  });
+
   it('la cadena de rangos también salta a una PRIMARIA_TEXTO con texto cuando la imagen no tiene texto', () => {
     const imagenSinTexto = { ...imagen, texto: null, elegible_primary: false };
     const textoPrimario = fila({
