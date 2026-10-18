@@ -6,6 +6,9 @@ import {
   calcularVigenteDesde,
   detectarSolapes,
   esFechaIso,
+  identificaDecretoOFallo,
+  normalizarModificador,
+  SIGLAS_VINCULO_V1,
   type NormaVersion,
 } from '@/lib/legal-retrieval/norma-version';
 import { CPC, FIXTURES_PILOTO, NOTARIADO, cadena, fila } from './fixtures/norma-version-piloto';
@@ -85,7 +88,9 @@ describe('resolverVersion — hueco y fallo cerrado', () => {
   });
   it('después de una reforma cerrada y sin sucesora falla cerrado', () => {
     const reforma = fila({ ...verificada({ version_id: 'r', vigente_desde: '2020-01-01', tipo_evento: 'REFORMA', instrumento_modificador: 'D.10-2019' }), instrumento_id: 'SINT', unidad: 'H', vigente_hasta: '2021-01-01' });
-    expect(codigoDe(resolverVersion('SINT', 'H', '2030-01-01', [reforma]))).toBe('POSTERIOR_A_VERSION_CERRADA');
+    expect(resolverVersion('SINT', 'H', '2030-01-01', [reforma])).toEqual({
+      estado: 'FALLO_CERRADO', motivo: 'POSTERIOR_A_VERSION_CERRADA', mensaje: 'no hay texto verificado para esa fecha',
+    });
   });
   it('después de una ORIGINAL cerrada y sin sucesora: CONTEXT con VIGENCIA_CERRADA_SIN_EVENTO (dictamen CLO 18-oct-2026)', () => {
     const r = resolverVersion('SINT', 'H', '2030-01-01', [versiones[0]]);
@@ -884,6 +889,15 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       // Auditor @ 8da6465 y dictamen CLO 18-oct-2026 (lista blanca; la Gaceta sola nunca vincula).
       'Gaceta 33,801', '2019', 'Decreto del 2019', 'Decreto No. ___ 2019', 'N/D 2019', 'sin número (2019)', 'Sin numero 2019',
       'por definir 1', 'TBD-1', 'D.59-2015 Gaceta 33,801', 'Acuerdo 679', 'Resolución PCSJ',
+      // Auditor @ 86cf62f, P2(a) y (c): siglas que no son resolución, «s/n» y «n/d» con otra grafía, año y número imposibles.
+      'Oficio-12-2019', 'Circular-1-2019', 'Memo-1-2019', 'Ley-12-2019', 'ND-1-2019', 'NA-1-2019', 'SN-1-2019',
+      'Sin-Numero-1-2019', 'S.N.-1-2019', 'N.D. 2019', 'D.59-9999', 'D.59-1700', 'D.0-00', 'Decreto 000-2015',
+      // Addendum CLO 18-oct-2026 (Auditor @ 20eeac7): sólo siglas verificadas (PCSJ, PCM, RI); año entre 1821 y vigente_desde.
+      'Acta-1-2019', 'Dictamen-1-2019', 'LG-32958-2012', 'Oficios-12-2019', 'XX-1-2019', 'PEND-1-2019',
+      'STSS-001-2020', 'Resolución CNBS-1-2019', 'Resolución XX-1-2019', 'Acuerdo 679-2014', 'Acuerdo Ministerial 12-2018',
+      'D.59-1820', 'D.59-2099', 'D.10-2020',
+      // Revisión cruzada: «NO» pegado a una sigla no se quita.
+      'NOPCSJ-17-2012', 'NORI-137-06', 'NOPCM-5-2020',
     ])(
       'modificador «%s» no vincula: CONTEXT de la anterior con REFORMA_POSTERIOR',
       (instrumento_modificador) => {
@@ -898,17 +912,43 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       expect(r.estado).toBe('CONTEXT');
       expect(r.version.version_id).toBe('img-2015');
     });
+    it('un modificador escrito fuera de la lista blanca va a curacionDatos (VINCULO_NO_IDENTIFICADO)', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: 'Acuerdo 679-2014' })]));
+      expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'cedij-2019', motivo: 'VINCULO_NO_IDENTIFICADO' })]);
+      expect(sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: null })])).curacionDatos).toEqual([]);
+      expect(sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019()])).curacionDatos).toEqual([]);
+    });
+    it('un año igual al de vigente_desde vincula; uno posterior no', () => {
+      expect(identificaDecretoOFallo('D.999-2019', '2019-01-01')).toBe(true);
+      expect(identificaDecretoOFallo('D.999-2020', '2019-12-31')).toBe(false);
+      expect(identificaDecretoOFallo('D.59-1821', '2015-09-01')).toBe(true);
+      expect(identificaDecretoOFallo('RI-137-06', '2007-08-07')).toBe(true);
+    });
+    it('normalizarModificador: espacios, guiones, «Número/No./N°/Nº» y mayúsculas; no expande años', () => {
+      expect(normalizarModificador('  ri   137 – 06 ')).toBe('RI-137-06');
+      expect(normalizarModificador('Decreto Número 59-2015')).toBe('DECRETO 59-2015');
+      expect(normalizarModificador('Decreto Nº 59 - 2015')).toBe('DECRETO 59-2015');
+      expect(normalizarModificador('Resolución No. PCSJ-17-2012')).toBe('RESOLUCIÓN PCSJ-17-2012');
+    });
+    it('la lista blanca V1 de siglas es dato exportado: PCSJ, PCM y RI', () => {
+      expect(SIGLAS_VINCULO_V1.map((s) => s.sigla)).toEqual(['PCSJ', 'PCM', 'RI']);
+      for (const s of SIGLAS_VINCULO_V1) expect(s.fuente).toMatch(/CLO/);
+    });
     it.each([
-      // Decreto (legislativo)
-      'D.59-2015', 'D. 59-2015', 'Decreto 168-2009', 'Decreto No. 168-2009', 'Decreto Legislativo 59-2015', '  D.59-2015  ',
-      // Decreto Ejecutivo y Acuerdo Ejecutivo
-      'DE 12-2018', 'Decreto Ejecutivo PCM-005-2020', 'AE 679-2014', 'A.E. 679-2014', 'Acuerdo Ejecutivo 679-2014', 'Acuerdo Ejecutivo No. 679-2014',
-      // Resolución con su identificador
+      // Decreto (legislativo) y su normalización
+      'D.59-2015', 'D. 59-2015', 'Decreto 59-2015', 'Decreto Número 59-2015', 'Decreto No. 59-2015', 'Decreto N° 59-2015',
+      'Decreto 168-2009', 'Decreto Legislativo 59-2015', '  D.59-2015  ',
+      // Decreto Ejecutivo (PCM) y Acuerdo Ejecutivo
+      'DE 12-2018', 'PCM-005-2020', 'Decreto Ejecutivo PCM-005-2020', 'AE 679-2014', 'A.E. 679-2014',
+      'Acuerdo Ejecutivo 679-2014', 'Acuerdo Ejecutivo No. 679-2014', 'Acuerdo Ejecutivo 001-2020',
+      // Resolución PCSJ
       'PCSJ-17-2012', 'Resolución PCSJ-17-2012', 'Resolucion No. PCSJ-17-2012',
-      // Sentencia o fallo con su expediente
-      'RI-137-06', 'Sentencia RI-137-06', 'Fallo RI-137-06', 'Expediente RI-137-06',
+      // Sentencia o expediente RI
+      'RI-137-06', 'RI 137-06', 'Sentencia RI 137-06', 'Sentencia RI-137-06', 'Fallo RI-137-06', 'Expediente RI-137-06',
+      'N° RI 137-06', 'Resolución N° PCSJ 17-2012', 'Decreto Ejecutivo Número PCM 005-2020',
     ])('modificador «%s» sí vincula: PRIMARY la posterior', (instrumento_modificador) => {
-      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador })]));
+      // vigente_desde 2021: todos los años de la lista son anteriores o iguales.
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), cedij2019({ instrumento_modificador, vigente_desde: '2021-01-01' })]));
       expect(r.estado).toBe('PRIMARY');
       expect(r.version.version_id).toBe('cedij-2019');
     });
@@ -990,7 +1030,7 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       expect('curacionDatos' in r).toBe(false);
     });
     it('con una cerrada real y otra sin evento, manda SIN_REVIVISCENCIA', () => {
-      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), edicionCerrada({ vigente_hasta: '2017-01-01' }), cedij2019({ version_id: 'txt-2018', vigente_desde: '2018-01-01', vigente_hasta: '2020-01-01', nivel_verificacion: 'PRIMARIA_TEXTO' })]);
+      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), edicionCerrada({ vigente_hasta: '2017-01-01' }), cedij2019({ version_id: 'txt-2018', vigente_desde: '2018-01-01', vigente_hasta: '2020-01-01', nivel_verificacion: 'PRIMARIA_TEXTO', instrumento_modificador: 'D.10-2018' })]);
       expect(codigoDe(r)).toBe('SIN_REVIVISCENCIA');
     });
     it('antes del cierre de la edición ORIGINAL rige la regla de versión posterior, sin aviso de vigencia cerrada ni curación', () => {
