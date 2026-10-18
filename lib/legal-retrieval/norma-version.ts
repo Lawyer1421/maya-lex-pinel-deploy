@@ -357,12 +357,21 @@ const EVENTOS_PROMOVIBLES: readonly TipoEvento[] = ['REFORMA', 'TEXTO_NUEVO_MISM
 /** Eventos posteriores que bloquean el texto anterior pero nunca promueven texto. */
 const EVENTOS_BLOQUEANTES: readonly TipoEvento[] = ['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'];
 
-/** Marcadores que nunca identifican un decreto o fallo concreto. */
+/**
+ * Marcadores que nunca identifican un decreto o fallo concreto: «s/n», «s.n.»,
+ * «SN», «sin número», «sin-numero», «N/D», «N/A», «ND», «NA», la Gaceta y
+ * documentos que no son decreto, acuerdo, resolución ni sentencia (oficio,
+ * circular, memorándum, nota, ley sin número de decreto). Auditor @ 86cf62f, P2(a).
+ */
 const MODIFICADOR_NO_IDENTIFICA_RE =
-  /\b(?:pendiente|varios|por definir|tbd)\b|s\s*\/\s*n\b|sin\s+n[uú]mero|\bn\s*\/\s*d\b|\bgaceta\b/i;
+  /\b(?:pendiente|varios|por definir|tbd|oficio|circular|memo|memor[aá]ndum|nota|ley)\b|\bs\s*[\/.-]?\s*n\b\.?|sin[\s-]+n[uú]mero|\bn\s*[\/.-]?\s*[da]\b|\bgaceta\b/i;
 
-/** Número y año: «59-2015», «137-06». */
-const NUM_ANIO = String.raw`\d{1,5}\s*-\s*(?:\d{2}|\d{4})`;
+/** Número (nunca sólo ceros) y año: «59-2015», «137-06», «005-2020». */
+const NUM_ANIO = String.raw`(?!0+\s*-)\d{1,5}\s*-\s*(?:\d{2}|\d{4})`;
+
+/** Años de cuatro cifras admitidos (Auditor @ 86cf62f, P2(c)): desde 1821. */
+const ANIO_MIN = 1821;
+const ANIO_MAX = 2099;
 /** «No.», «Nº», «N°» opcional delante del número. */
 const NUMERO = String.raw`(?:N(?:o|º|°)\.?\s*)?`;
 /** Siglas de un identificador alfanumérico: «PCSJ-», «RI-», «PCM-». */
@@ -392,13 +401,18 @@ const MODIFICADOR_IDENTIFICA_RES: readonly RegExp[] = [
  * («PCSJ-17-2012», Reglamento del Notariado); sentencia o fallo con su
  * expediente («RI-137-06»). No cuentan «s/n», «sin número (año)», «pendiente»,
  * «varios», vacío ni null. La Gaceta sola nunca es vínculo: un mismo número trae
- * varios instrumentos; va en gaceta_numero como dato de la fuente.
+ * varios instrumentos; va en gaceta_numero como dato de la fuente. El número no
+ * puede ser sólo ceros y un año de cuatro cifras va de 1821 a 2099. Formatos
+ * válidos con otra grafía («Decreto Número 59-2015», «RI 137-06») no vinculan:
+ * el cargador debe normalizarlos (fail-closed).
  */
 export function identificaDecretoOFallo(modificador: string | null): boolean {
   if (modificador === null) return false;
   const m = modificador.trim();
   if (m === '' || MODIFICADOR_NO_IDENTIFICA_RE.test(m)) return false;
-  return MODIFICADOR_IDENTIFICA_RES.some((re) => re.test(m));
+  if (!MODIFICADOR_IDENTIFICA_RES.some((re) => re.test(m))) return false;
+  const anio = /\d+$/.exec(m)?.[0] ?? '';
+  return anio.length !== 4 || (Number(anio) >= ANIO_MIN && Number(anio) <= ANIO_MAX);
 }
 
 /** Evento real: no ORIGINAL y vinculado a un decreto o fallo identificado. */

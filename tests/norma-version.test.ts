@@ -884,6 +884,9 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       // Auditor @ 8da6465 y dictamen CLO 18-oct-2026 (lista blanca; la Gaceta sola nunca vincula).
       'Gaceta 33,801', '2019', 'Decreto del 2019', 'Decreto No. ___ 2019', 'N/D 2019', 'sin número (2019)', 'Sin numero 2019',
       'por definir 1', 'TBD-1', 'D.59-2015 Gaceta 33,801', 'Acuerdo 679', 'Resolución PCSJ',
+      // Auditor @ 86cf62f, P2(a) y (c): siglas que no son resolución, «s/n» y «n/d» con otra grafía, año y número imposibles.
+      'Oficio-12-2019', 'Circular-1-2019', 'Memo-1-2019', 'Ley-12-2019', 'ND-1-2019', 'NA-1-2019', 'SN-1-2019',
+      'Sin-Numero-1-2019', 'S.N.-1-2019', 'N.D. 2019', 'D.59-9999', 'D.59-1700', 'D.0-00', 'Decreto 000-2015',
     ])(
       'modificador «%s» no vincula: CONTEXT de la anterior con REFORMA_POSTERIOR',
       (instrumento_modificador) => {
