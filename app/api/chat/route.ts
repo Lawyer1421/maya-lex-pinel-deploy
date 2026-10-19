@@ -30,8 +30,11 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import {
-  checkRateLimit,
-  incrementRateLimit,
+  reserveRateLimit,
+  releaseRateLimit,
+  RateLimitStoreError,
+  esFalloProveedorQueDevuelveCuota,
+  esFalloOpenRouterQueDevuelveCuota,
   getVerifiedEmail,
   getUserIdentifier,
   buildUserIdentifierFromEmail,
@@ -234,13 +237,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. Cuota — ANTES de RAG y Anthropic. No incrementa: solo se cobra si
-  // la consulta termina bien (el modelo no falló con 5xx/timeout).
+  // 2. Cuota — reserva atómica ANTES de RAG y Anthropic.
+  // Se devuelve solo ante 5xx/timeout del proveedor, aclaración o abstención.
   const verifiedEmail = await getVerifiedEmail(req);
   const userIdentifier = verifiedEmail
     ? buildUserIdentifierFromEmail(verifiedEmail)
     : getUserIdentifier(req);
-  const rateLimitResult = await checkRateLimit(userIdentifier);
+  let rateLimitResult;
+  try {
+    rateLimitResult = await reserveRateLimit(userIdentifier);
+  } catch (err) {
+    if (err instanceof RateLimitStoreError) {
+      return NextResponse.json(
+        { error: 'Servicio de cuota no disponible', code: 'RATE_LIMIT_UNAVAILABLE' },
+        { status: 503 },
+      );
+    }
+    throw err;
+  }
 
   if (!rateLimitResult.allowed) {
     const esFree = rateLimitResult.tier === 'free';
@@ -473,7 +487,7 @@ export async function POST(req: NextRequest) {
   // 4. Streaming Response
   const stream = new ReadableStream({
     async start(controller) {
-      let consultaExitosa = false;
+      let devolverReserva = false;
       try {
         // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
         // Aplica cuando: (a) modo análisis + query ambigua [usarRouter=true, ruta=D]
@@ -496,7 +510,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
-          consultaExitosa = true;
+          devolverReserva = true;
           return;
         }
 
@@ -561,7 +575,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
-          consultaExitosa = true;
+          devolverReserva = true;
           return;
         }
 
@@ -582,7 +596,6 @@ export async function POST(req: NextRequest) {
               controller.enqueue(sseEvent({ type: 'text', text: token }));
             },
             onDone: ({ inputTokens, outputTokens }) => {
-              consultaExitosa = true;
               controller.enqueue(sseEvent({
                 type: 'done',
                 consulta_id: consultaId,
@@ -603,6 +616,9 @@ export async function POST(req: NextRequest) {
               }));
             },
             onError: (message) => {
+              if (esFalloOpenRouterQueDevuelveCuota(message)) {
+                devolverReserva = true;
+              }
               controller.enqueue(sseEvent({ type: 'error', message }));
             },
           });
@@ -659,7 +675,6 @@ export async function POST(req: NextRequest) {
                 break;
 
               case 'message_stop':
-                consultaExitosa = true;
                 controller.enqueue(sseEvent({
                   type: 'done',
                   consulta_id: consultaId,
@@ -683,7 +698,9 @@ export async function POST(req: NextRequest) {
         }
       } catch (error) {
         console.error('[Maya Lex] Error streaming:', error);
-        consultaExitosa = false;
+        if (esFalloProveedorQueDevuelveCuota(error)) {
+          devolverReserva = true;
+        }
 
         let errorMessage = 'Error interno del servidor';
         if (error instanceof Anthropic.APIError) {
@@ -694,8 +711,12 @@ export async function POST(req: NextRequest) {
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
       } finally {
-        if (consultaExitosa) {
-          await incrementRateLimit(userIdentifier, rateLimitResult.tier);
+        if (devolverReserva) {
+          try {
+            await releaseRateLimit(userIdentifier);
+          } catch (releaseErr) {
+            console.error('[RateLimit] no se pudo devolver la reserva', releaseErr);
+          }
         }
         controller.close();
       }
