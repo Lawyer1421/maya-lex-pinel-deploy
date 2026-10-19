@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MODELO_OPUS, MODELO_SONNET } from '@/lib/model-config';
+import { MODELO_HAIKU, MODELO_OPUS, MODELO_SONNET } from '@/lib/model-config';
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -46,6 +46,25 @@ function mockChat(tier: string) {
     buscarPlantilla: vi.fn().mockResolvedValue([]),
     formatearContextoPlantilla: vi.fn().mockReturnValue(''),
   }));
+  vi.doMock('@/lib/legal-retrieval/retrieval-session', () => ({
+    recuperarEvidenciaCorpus: vi.fn().mockResolvedValue({
+      texto: 'Artículo 1. Texto de prueba.',
+      fragmentos: [{
+        id: '1',
+        contenido: 'Artículo 1. Texto de prueba.',
+        fuente: 'Código Civil',
+        num_articulo: '1',
+        similarity: 0.9,
+      }],
+      outcome: { state: 'OK', evidenceCount: 1 },
+    }),
+    decidirAbstencion: vi.fn().mockReturnValue({
+      evidenciaInsuficiente: false,
+      esFalloDeSistema: false,
+      mensajeAbstencion: '',
+      codigoAbstencion: '',
+    }),
+  }));
   llamadas.length = 0;
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {}
@@ -79,7 +98,7 @@ afterEach(() => {
 });
 
 describe('POST /api/chat — override de modelo según plan', () => {
-  it('anónimo/free que pide Opus recibe Sonnet y el system cachea el prompt estático', async () => {
+  it('anónimo/free que pide Opus en sala recibe Haiku y el system cachea el prompt estático', async () => {
     mockChat('free');
     const { POST } = await import('@/app/api/chat/route');
     await POST(fakeReq({
@@ -92,19 +111,39 @@ describe('POST /api/chat — override de modelo según plan', () => {
       model: string;
       system: Array<{ text: string; cache_control?: { type: string } }>;
     };
-    expect(params.model).toBe(MODELO_SONNET);
+    expect(params.model).toBe(MODELO_HAIKU);
     expect(params.system[0]?.cache_control).toEqual({ type: 'ephemeral' });
   });
 
-  it('Pro puede usar Opus', async () => {
+  it('Pro que pide Opus en analisis recibe Sonnet', async () => {
     mockChat('pro');
     const { POST } = await import('@/app/api/chat/route');
     await POST(fakeReq({
-      messages: [{ role: 'user', content: 'Hola, una consulta breve de sala.' }],
-      mode: 'sala_ia',
+      messages: [{ role: 'user', content: 'Cuál es el plazo de apelación civil?' }],
+      mode: 'analisis',
       modelOverride: MODELO_OPUS,
     }));
     const params = llamadas[0]?.[0] as { model: string };
-    expect(params.model).toBe(MODELO_OPUS);
+    expect(params.model).toBe(MODELO_SONNET);
+  });
+
+  it('free o Pro que pide Opus o Sonnet en sala recibe Haiku', async () => {
+    for (const { tier, override } of [
+      { tier: 'free', override: MODELO_OPUS },
+      { tier: 'free', override: MODELO_SONNET },
+      { tier: 'pro', override: MODELO_OPUS },
+      { tier: 'pro', override: MODELO_SONNET },
+    ]) {
+      vi.resetModules();
+      mockChat(tier);
+      const { POST } = await import('@/app/api/chat/route');
+      await POST(fakeReq({
+        messages: [{ role: 'user', content: 'Hola, una consulta breve de sala.' }],
+        mode: 'sala_ia',
+        modelOverride: override,
+      }));
+      const params = llamadas[0]?.[0] as { model: string };
+      expect(params.model).toBe(MODELO_HAIKU);
+    }
   });
 });

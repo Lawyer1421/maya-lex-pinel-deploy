@@ -2,29 +2,25 @@
  * Resolución de modelo Anthropic por modo de chat.
  *
  * Defaults en código. Override opcional `MAYA_MODEL_<MODO>` (allowlist).
- * Valor vacío o inválido → default del modo. Opus nunca entra por env.
+ * Valor vacío o inválido → default del modo. Opus nunca entra por env
+ * ni por override de cliente (ningún plan, Pro incluido).
  *
  * IDs oficiales (docs Anthropic, Models overview / Model IDs):
  *   claude-sonnet-4-6  — Sonnet 4.6, ID anclado (legacy, activo)
  *   claude-haiku-4-5   — alias oficial → claude-haiku-4-5-20251001
- *   claude-opus-4-8    — solo override de cliente Pro, nunca default
- *   claude-sonnet-5-5 / claude-haiku-5-5 / claude-opus-5-5 — allowlist
- *   para override explícito (IDs actuales del lineup).
  *
- * Sin ninguna MAYA_MODEL_* la app usa estos defaults.
+ * Allowlist cerrada a esos dos IDs. Sin ninguna MAYA_MODEL_* la app
+ * usa estos defaults.
  */
 
 export const MODELO_SONNET = 'claude-sonnet-4-6';
 export const MODELO_HAIKU = 'claude-haiku-4-5';
+/** ID de referencia para detectar pedidos bloqueados. No está en la allowlist. */
 export const MODELO_OPUS = 'claude-opus-4-8';
 
 export const ALLOWLIST_MODELOS = new Set([
   MODELO_SONNET,
   MODELO_HAIKU,
-  MODELO_OPUS,
-  'claude-sonnet-5-5',
-  'claude-haiku-5-5',
-  'claude-opus-5-5',
 ]);
 
 export type ModoChat =
@@ -135,8 +131,10 @@ export function resolverConfigModo(mode: ModoChat): ConfigModo {
 }
 
 /**
- * Override que pide el cliente. Solo Pro puede elegir (incl. Opus).
- * Free / anónimo / desconocido: se ignora; si pedían Opus → Sonnet.
+ * Override que pide el cliente.
+ * - Sala (sala_ia / sala_penal): siempre el modelo del modo (Haiku). Nadie sube.
+ * - Opus de cualquier plan: modelo del modo (Sonnet en análisis/documento/penal).
+ * - Pro en modos no-sala: solo IDs allowlisted (Sonnet / Haiku).
  */
 export function resolverModeloCliente(
   mode: ModoChat,
@@ -144,11 +142,11 @@ export function resolverModeloCliente(
   tier: string | null | undefined,
 ): string {
   const delModo = resolverModeloModo(mode);
+  const esSala = mode === 'sala_ia' || mode === 'sala_penal';
+  if (esSala) return delModo;
+  if (esOpus(override)) return delModo;
   if (tier === 'pro' && esModeloPermitido(override)) {
     return override!;
-  }
-  if (esOpus(override)) {
-    return MODELO_SONNET;
   }
   return delModo;
 }
@@ -158,14 +156,12 @@ export const HISTORY_TURNS_ENV = 'MAYA_HISTORY_TURNS';
 
 export const MODELOS_UI = [
   { id: 'default', label: 'Predeterminado', sub: 'Óptimo según el modo activo' },
-  { id: MODELO_OPUS, label: 'Claude Opus 4.8', sub: 'Máxima profundidad de razonamiento' },
   { id: MODELO_SONNET, label: 'Claude Sonnet 4.6', sub: 'Balance velocidad / precisión' },
 ] as const;
 
-/** Solo Pro ve Opus. Free / anónimo / desconocido: default + Sonnet. */
-export function modelosVisibles(tier?: string): readonly (typeof MODELOS_UI)[number][] {
-  if (tier === 'pro') return MODELOS_UI;
-  return MODELOS_UI.filter((m) => m.id !== MODELO_OPUS);
+/** Opus no se ofrece a ningún plan. */
+export function modelosVisibles(_tier?: string): readonly (typeof MODELOS_UI)[number][] {
+  return MODELOS_UI;
 }
 
 export function leerHistoryTurns(crudo = process.env[HISTORY_TURNS_ENV]): number {

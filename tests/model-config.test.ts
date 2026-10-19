@@ -30,8 +30,8 @@ describe('resolverModeloModo — defaults y env', () => {
   });
 
   it('env allowlisted no-Opus sustituye el default', () => {
-    process.env.MAYA_MODEL_ANALISIS = 'claude-sonnet-5-5';
-    expect(resolverModeloModo('analisis')).toBe('claude-sonnet-5-5');
+    process.env.MAYA_MODEL_ANALISIS = MODELO_HAIKU;
+    expect(resolverModeloModo('analisis')).toBe(MODELO_HAIKU);
   });
 
   it('env vacía o inválida cae al default (nunca a Opus)', () => {
@@ -49,6 +49,21 @@ describe('resolverModeloModo — defaults y env', () => {
     expect(resolverModeloModo('sala_ia')).toBe(MODELO_HAIKU);
   });
 
+  it('MAYA_MODEL_<MODO>=opus (cualquier forma) cae al default del modo', () => {
+    process.env.MAYA_MODEL_ANALISIS = 'opus';
+    expect(resolverModeloModo('analisis')).toBe(MODELO_SONNET);
+    process.env.MAYA_MODEL_DOCUMENTO = 'claude-opus-5-5';
+    expect(resolverModeloModo('documento')).toBe(MODELO_SONNET);
+    process.env.MAYA_MODEL_ANALISIS_PENAL = MODELO_OPUS;
+    expect(resolverModeloModo('analisis_penal')).toBe(MODELO_SONNET);
+    process.env.MAYA_MODEL_ESCRITOS_PENALES = 'opus';
+    expect(resolverModeloModo('escritos_penales')).toBe(MODELO_SONNET);
+    process.env.MAYA_MODEL_SALA_IA = 'opus';
+    expect(resolverModeloModo('sala_ia')).toBe(MODELO_HAIKU);
+    process.env.MAYA_MODEL_SALA_PENAL = 'claude-opus-4-8';
+    expect(resolverModeloModo('sala_penal')).toBe(MODELO_HAIKU);
+  });
+
   it('max_tokens y thinking documentados por modo', () => {
     expect(resolverConfigModo('analisis').max_tokens).toBe(2500);
     expect(resolverConfigModo('analisis').thinking).toEqual({
@@ -61,16 +76,28 @@ describe('resolverModeloModo — defaults y env', () => {
   });
 });
 
-describe('resolverModeloCliente — gate Pro', () => {
-  it('anónimo o free que pide Opus recibe Sonnet', () => {
+describe('resolverModeloCliente — Opus bloqueado para todos', () => {
+  it('anónimo o free que pide Opus recibe el modelo del modo', () => {
     expect(resolverModeloCliente('analisis', MODELO_OPUS, null)).toBe(MODELO_SONNET);
     expect(resolverModeloCliente('analisis', MODELO_OPUS, 'free')).toBe(MODELO_SONNET);
     expect(resolverModeloCliente('analisis', MODELO_OPUS, 'academico')).toBe(MODELO_SONNET);
     expect(resolverModeloCliente('analisis', MODELO_OPUS, 'desconocido')).toBe(MODELO_SONNET);
   });
 
-  it('Pro puede pedir Opus', () => {
-    expect(resolverModeloCliente('analisis', MODELO_OPUS, 'pro')).toBe(MODELO_OPUS);
+  it('Pro que pide Opus recibe Sonnet (modelo del modo analisis)', () => {
+    expect(resolverModeloCliente('analisis', MODELO_OPUS, 'pro')).toBe(MODELO_SONNET);
+    expect(resolverModeloCliente('documento', MODELO_OPUS, 'pro')).toBe(MODELO_SONNET);
+    expect(resolverModeloCliente('analisis_penal', MODELO_OPUS, 'pro')).toBe(MODELO_SONNET);
+    expect(resolverModeloCliente('escritos_penales', MODELO_OPUS, 'pro')).toBe(MODELO_SONNET);
+  });
+
+  it('free o Pro que pide Opus o Sonnet en sala recibe Haiku', () => {
+    for (const tier of ['free', 'pro', null, 'academico'] as const) {
+      expect(resolverModeloCliente('sala_ia', MODELO_OPUS, tier)).toBe(MODELO_HAIKU);
+      expect(resolverModeloCliente('sala_ia', MODELO_SONNET, tier)).toBe(MODELO_HAIKU);
+      expect(resolverModeloCliente('sala_penal', MODELO_OPUS, tier)).toBe(MODELO_HAIKU);
+      expect(resolverModeloCliente('sala_penal', MODELO_SONNET, tier)).toBe(MODELO_HAIKU);
+    }
   });
 
   it('sin override, usa el default del modo', () => {
@@ -90,9 +117,10 @@ describe('leerHistoryTurns', () => {
 });
 
 describe('modelosVisibles — UI', () => {
-  it('Opus solo visible para Pro', () => {
-    expect(modelosVisibles(undefined).some((m) => m.id === MODELO_OPUS)).toBe(false);
-    expect(modelosVisibles('free').some((m) => m.id === MODELO_OPUS)).toBe(false);
-    expect(modelosVisibles('pro').some((m) => m.id === MODELO_OPUS)).toBe(true);
+  it('Opus no visible para nadie, Pro incluido', () => {
+    const ids = (tier?: string) => modelosVisibles(tier).map((m) => String(m.id));
+    expect(ids(undefined)).not.toContain(MODELO_OPUS);
+    expect(ids('free')).not.toContain(MODELO_OPUS);
+    expect(ids('pro')).not.toContain(MODELO_OPUS);
   });
 });

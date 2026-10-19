@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
-import { MODELO_OPUS, MODELOS_UI, modelosVisibles } from '@/lib/model-config';
+import { MODELOS_UI, modelosVisibles } from '@/lib/model-config';
 import {
   DOCUMENT_AUTH_ERROR,
   DOCUMENT_FORMAT_ERROR,
@@ -175,12 +175,6 @@ export default function PromptInput({
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (tier !== 'pro' && modelOverride === MODELO_OPUS) {
-      setModelOverride('default');
-    }
-  }, [tier, modelOverride]);
 
   // Auto-resize textarea
   useEffect(() => {
