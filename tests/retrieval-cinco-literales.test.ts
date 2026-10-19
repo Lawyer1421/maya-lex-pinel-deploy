@@ -1,4 +1,5 @@
 import { clasificarIntencionInstrumental } from '@/lib/legal-retrieval/instrument-gate';
+import { textoDeSystem } from '@/lib/system-prompt';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 /**
@@ -136,8 +137,8 @@ async function leerSSE(res: Response) {
 }
 
 /** Fuentes que el system prompt enviado muestra como "Fuente documental". */
-function fuentesEnSystem(system: string): string[] {
-  return [...system.matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
+function fuentesEnSystem(system: unknown): string[] {
+  return [...textoDeSystem(system as never).matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
 }
 
 beforeEach(() => {
@@ -191,7 +192,7 @@ describe('cinco literales del dictamen — POST real simulado', () => {
 
       expect(done.codigo).not.toBe('CORPUS_EVIDENCE_NOT_FOUND');
       expect(llamadasModelo.length).toBe(1);
-      const system = (llamadasModelo[0][0] as { system: string }).system;
+      const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
       expect(fuentesEnSystem(system)).toContain(caso.fuente);
       expect(system).toContain('similitud de recuperación:');
       // El pie de NONE no lleva la instrucción de uso exclusivo
