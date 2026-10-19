@@ -36,6 +36,10 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
   });
 
   vi.doMock('@/lib/rate-limit', () => ({
+    checkRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
+    incrementRateLimit: vi.fn().mockResolvedValue(undefined),
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
