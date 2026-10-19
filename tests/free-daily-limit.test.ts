@@ -21,6 +21,7 @@ function statefulSupabase(opts?: {
   readError?: { code: string; message: string };
   subs?: Record<string, { tier: string; status: string }>;
   authEmail?: string | null;
+  casAlwaysMiss?: boolean;
 }) {
   const rows = new Map<string, { query_count: number; tier: string }>();
   let writeLock = Promise.resolve();
@@ -40,6 +41,7 @@ function statefulSupabase(opts?: {
       if (patch) {
         const applied = patch;
         return withLock(() => {
+          if (opts?.casAlwaysMiss) return { data: [], error: null };
           const key = `${filtros.user_identifier}|${filtros.query_date}`;
           const row = rows.get(key);
           if (!row) return { data: [], error: null };
@@ -55,6 +57,7 @@ function statefulSupabase(opts?: {
         const row = upsertRow;
         upsert(row);
         return withLock(() => {
+          if (opts?.casAlwaysMiss) return { data: [], error: null };
           const key = `${row.user_identifier}|${row.query_date}`;
           if (rows.has(key) && ignoreDuplicates) return { data: [], error: null };
           rows.set(key, { query_count: row.query_count, tier: row.tier });
@@ -109,8 +112,10 @@ function statefulSupabase(opts?: {
 
 function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
   anthropicError?: { status: number };
+  anthropicThrow?: Error;
   hangAfterFirstChunk?: boolean;
   emptyCorpus?: boolean;
+  ragError?: Error;
 }) {
   vi.doMock('next/server', async () => {
     const actual = await vi.importActual<typeof import('next/server')>('next/server');
@@ -135,18 +140,20 @@ function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
     buscarPlantilla: vi.fn().mockResolvedValue([]),
     formatearContextoPlantilla: vi.fn().mockReturnValue(''),
   }));
-  if (opts?.emptyCorpus) {
+  if (opts?.emptyCorpus || opts?.ragError) {
     vi.doMock('@/lib/legal-retrieval/retrieval-session', async () => {
       const actual = await vi.importActual<typeof import('@/lib/legal-retrieval/retrieval-session')>(
         '@/lib/legal-retrieval/retrieval-session',
       );
       return {
         ...actual,
-        recuperarEvidenciaCorpus: vi.fn().mockResolvedValue({
-          texto: '',
-          fragmentos: [],
-          outcome: { state: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0 },
-        }),
+        recuperarEvidenciaCorpus: opts.ragError
+          ? vi.fn().mockRejectedValue(opts.ragError)
+          : vi.fn().mockResolvedValue({
+              texto: '',
+              fragmentos: [],
+              outcome: { state: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0 },
+            }),
       };
     });
   }
@@ -162,6 +169,9 @@ function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
       messages = {
         create: async (...args: unknown[]) => {
           llamadasAnthropic.push(args);
+          if (opts?.anthropicThrow) {
+            throw opts.anthropicThrow;
+          }
           if (opts?.anthropicError) {
             throw new MockAPIError('fallo del modelo', opts.anthropicError.status);
           }
@@ -393,5 +403,93 @@ describe('POST /api/chat — cuota free 1/día', () => {
     expect(r2.status).not.toBe(429);
     await drain(r2 as unknown as Response);
     expect(llamadasAnthropic.length).toBe(1);
+  });
+
+  it('error de RAG antes del stream → 503, devuelve la reserva, 0 Anthropic', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb, { ragError: new Error('pgvector timeout') });
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '203.0.113.20' };
+    const analisis = {
+      messages: [{
+        role: 'user',
+        content: 'Explica las medidas cautelares personales aplicables en el proceso penal hondureño.',
+      }],
+      mode: 'analisis_penal',
+    };
+    const res = await POST(fakeReq(analisis, headers));
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.code).toBe('RETRIEVAL_UNAVAILABLE');
+    expect(body.code).not.toBe(FREE_DAILY_LIMIT_CODE);
+    expect(llamadasAnthropic.length).toBe(0);
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
+
+    vi.resetModules();
+    mockChatDeps(sb);
+    const { POST: POST2 } = await import('@/app/api/chat/route');
+    const ok = await POST2(fakeReq(salaBody, headers));
+    expect(ok.status).not.toBe(429);
+    await drain(ok as unknown as Response);
+  });
+
+  it('error interno en el stream (no proveedor) → devuelve la reserva', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb, { anthropicThrow: new Error('fallo interno de streaming') });
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '203.0.113.21' };
+    const fail = await POST(fakeReq(salaBody, headers));
+    await drain(fail as unknown as Response);
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
+
+    vi.resetModules();
+    llamadasAnthropic.length = 0;
+    mockChatDeps(sb);
+    const { POST: POST2 } = await import('@/app/api/chat/route');
+    const ok = await POST2(fakeReq(salaBody, headers));
+    expect(ok.status).not.toBe(429);
+    await drain(ok as unknown as Response);
+  });
+
+  it('Anthropic 429 (overload) → devuelve la reserva', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb, { anthropicError: { status: 429 } });
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '203.0.113.22' };
+    const fail = await POST(fakeReq(salaBody, headers));
+    await drain(fail as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(1);
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
+
+    vi.resetModules();
+    llamadasAnthropic.length = 0;
+    mockChatDeps(sb);
+    const { POST: POST2 } = await import('@/app/api/chat/route');
+    const ok = await POST2(fakeReq(salaBody, headers));
+    expect(ok.status).not.toBe(429);
+    await drain(ok as unknown as Response);
+  });
+
+  it('P3: 8 reintentos CAS agotados para usuario de pago → 503, no tarjeta FREE', async () => {
+    const sb = statefulSupabase({
+      authEmail: 'abogado@ejemplo.com',
+      subs: { 'email:abogado@ejemplo.com': { tier: 'pro', status: 'active' } },
+      casAlwaysMiss: true,
+    });
+    mockChatDeps(sb);
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq(salaBody, {
+      authorization: 'Bearer token',
+      'x-forwarded-for': '192.0.2.90',
+    }));
+    expect(res.status).toBe(503);
+    expect(res.headers.get('Retry-After')).toBe('2');
+    const body = await res.json();
+    expect(body.code).toBe('RESERVE_EXHAUSTED');
+    expect(body.code).not.toBe(FREE_DAILY_LIMIT_CODE);
+    expect(llamadasAnthropic.length).toBe(0);
   });
 });

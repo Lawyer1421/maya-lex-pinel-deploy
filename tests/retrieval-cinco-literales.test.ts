@@ -70,6 +70,7 @@ function mockDependencias(tabla: Fila[], rpcFilas: (coleccion: string) => Fila[]
     RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
     esFalloProveedorQueDevuelveCuota: () => false,
     esFalloOpenRouterQueDevuelveCuota: () => false,
+    esAbortDelCliente: () => false,
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
