@@ -7,7 +7,7 @@ import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
 import CancelarSuscripcionButton from '@/components/CancelarSuscripcionButton';
 import { resolveCurrentAccess } from '@/lib/paypal/access';
-import { buildUserIdentifierFromEmail } from '@/lib/rate-limit';
+import { buildUserIdentifierFromEmail, fechaDiaHn } from '@/lib/rate-limit';
 
 export const metadata: Metadata = {
   title: 'Mi Cuenta — MAYA LEX IA PINEL HN',
@@ -43,7 +43,7 @@ export default async function CuentaPage({
     .from('queries_log')
     .select('query_count, tier')
     .eq('user_identifier', userIdentifier)
-    .eq('query_date', new Date().toISOString().split('T')[0])
+    .eq('query_date', fechaDiaHn())
     .single();
 
   // Fuente única de "qué puede hacer este usuario ahora mismo" — el mismo
@@ -61,7 +61,7 @@ export default async function CuentaPage({
     : null;
 
   const consultasHoy = usage?.query_count ?? 0;
-  const limiteHoy = tier === 'pro' ? '∞' : tier === 'academico' ? '20' : '3';
+  const limiteHoy = tier === 'pro' ? '∞' : tier === 'academico' ? '20' : '1';
 
   const estadoLabel = access.verificationPending
     ? `Verificando${access.pendingTier ? ` (${access.pendingTier})` : ''}…`

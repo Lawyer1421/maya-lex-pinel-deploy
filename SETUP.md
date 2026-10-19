@@ -51,7 +51,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 ## PASO 3 — Configurar base de datos Supabase (OPCIONAL)
 
-Si quieres el rate limiting real (3 consultas/día en plan gratuito):
+Si quieres el rate limiting real (1 consulta/día en plan gratuito):
 
 1. Ve a https://app.supabase.com y crea un proyecto
 2. En el menú lateral, ve a **SQL Editor**
@@ -102,7 +102,7 @@ maya-lex-app/
 │   └── MessageBubble.tsx      ← Burbuja de mensajes con Markdown
 ├── lib/
 │   ├── system-prompt.ts       ← System prompt completo de Maya Lex
-│   ├── rate-limit.ts          ← Control de 3 consultas/día (free)
+│   ├── rate-limit.ts          ← Control de 1 consulta/día (free)
 │   └── supabase.ts            ← Cliente de base de datos
 ├── supabase/
 │   └── schema.sql             ← Esquema de base de datos

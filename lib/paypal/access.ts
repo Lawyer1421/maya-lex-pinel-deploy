@@ -22,6 +22,7 @@
  */
 
 import { createServerSupabaseClient } from '@/lib/supabase';
+import { fechaDiaHn } from '@/lib/rate-limit';
 
 export type AccessTier = 'free' | 'pro' | 'academico' | 'admin';
 export type AccessSource = 'queries_log' | 'subscriptions' | 'none';
@@ -70,7 +71,7 @@ export function canAnalyzeDocuments(params: {
 
 export async function resolveCurrentAccess(userIdentifier: string): Promise<CurrentAccess> {
   const supabase = createServerSupabaseClient();
-  const today = new Date().toISOString().split('T')[0];
+  const today = fechaDiaHn();
 
   const [{ data: sub }, { data: usage }] = await Promise.all([
     supabase

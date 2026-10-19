@@ -60,7 +60,7 @@ describe('PLANES_V2 — qué planes invocan PayPal y con qué tier (Pruebas 1, 2
     const profesional = PLANES_V2.find((p) => p.id === 'profesional')!;
     const selfServe = [explorar, academico, profesional];
 
-    expect(explorar.caracteristicas).toContain('3 consultas/día');
+    expect(explorar.caracteristicas).toContain('1 consulta/día');
     expect(academico.caracteristicas).toContain('20 consultas/día');
     expect(profesional.caracteristicas).toContain('1000 consultas/día');
 

@@ -31,7 +31,7 @@ export function autoStartTierDesde(valor: string | undefined): 'pro' | 'academic
 /**
  * Self-serve (Explorar / Académico / Profesional): mismas funciones reales;
  * solo cambia la cuota diaria. Defaults = env de lib/rate-limit.ts
- * (FREE 3, ACADEMICO 20, PRO 1000). No vender expediente / export / prioridad.
+ * (FREE 1, ACADEMICO 20, PRO 1000). No vender expediente / export / prioridad.
  */
 export const PLANES_V2: PlanV2[] = [
   {
@@ -41,7 +41,7 @@ export const PLANES_V2: PlanV2[] = [
     periodo: '',
     descripcion: 'Conozca Maya Lex antes de decidir.',
     caracteristicas: [
-      '3 consultas/día',
+      '1 consulta/día',
       'Modos de chat: Sala IA, Análisis y Documento',
       'Adjuntar documentos (PDF, DOCX, TXT)',
       'Voz a texto y búsqueda web',

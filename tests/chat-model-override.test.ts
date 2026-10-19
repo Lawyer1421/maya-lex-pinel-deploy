@@ -23,9 +23,20 @@ function mockChat(tier: string) {
     return { ...actual, after: (fn: () => unknown) => { fn(); } };
   });
   vi.doMock('@/lib/rate-limit', () => ({
+    checkRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier, resetAt: new Date().toISOString(),
+    }),
+    reserveRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier, resetAt: new Date().toISOString(),
+    }),
+    incrementRateLimit: vi.fn().mockResolvedValue(undefined),
+    releaseRateLimit: vi.fn().mockResolvedValue(undefined),
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier, resetAt: new Date().toISOString(),
     }),
+    RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
+    esFalloProveedorQueDevuelveCuota: () => false,
+    esFalloOpenRouterQueDevuelveCuota: () => false,
     getVerifiedEmail: vi.fn().mockResolvedValue(tier === 'pro' ? 'pro@test.com' : null),
     getUserIdentifier: vi.fn().mockReturnValue('ip:test'),
     buildUserIdentifierFromEmail: (e: string) => `email:${e.trim().toLowerCase()}`,
