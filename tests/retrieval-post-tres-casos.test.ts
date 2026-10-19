@@ -134,9 +134,11 @@ async function leerSSE(res: Response) {
   return raw.split('\n\n').filter((c) => c.startsWith('data: ')).map((c) => JSON.parse(c.slice('data: '.length)));
 }
 
+import { textoDeSystem } from '@/lib/system-prompt';
+
 /** Fuentes que el system prompt enviado muestra como "Fuente documental". */
-function fuentesEnSystem(system: string): string[] {
-  return [...system.matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
+function fuentesEnSystem(system: unknown): string[] {
+  return [...textoDeSystem(system as never).matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
 }
 
 beforeEach(() => {
@@ -167,7 +169,7 @@ describe('POST simulado — tres casos de cierre', () => {
     const done = eventos.find((e) => e.type === 'done');
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     const enviadas = fuentesEnSystem(system);
     expect(system).toContain('CONSULTA TEMÁTICA');
     expect(enviadas).toContain(FUENTE_CIVIL);
@@ -189,7 +191,7 @@ describe('POST simulado — tres casos de cierre', () => {
     const done = eventos.find((e) => e.type === 'done');
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     expect(system).not.toContain('CONSULTA TEMÁTICA');
     expect(fuentesEnSystem(system)).toEqual([FUENTE_CIVIL]);
     // SPECIFIC conserva su pie original
@@ -209,7 +211,7 @@ describe('POST simulado — tres casos de cierre', () => {
     const done = eventos.find((e) => e.type === 'done');
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     const enviadas = fuentesEnSystem(system);
     expect(enviadas).toContain(FUENTE_PENAL);
     expect(enviadas).toContain(FUENTE_COMERCIO);
@@ -244,7 +246,7 @@ describe('POST simulado — tres casos de cierre', () => {
     const done = eventos.find((e) => e.type === 'done');
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     const enviadas = fuentesEnSystem(system);
     expect(enviadas).toContain(FUENTE_PENAL);
     expect(enviadas.some((f) => f === FUENTE_CIVIL)).toBe(false);

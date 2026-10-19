@@ -41,7 +41,16 @@ import {
   CLAUDE_CONFIG_PENAL,
   ChatMode,
   ChatModePenal,
+  construirSystemConCache,
+  textoDeSystem,
 } from '@/lib/system-prompt';
+import {
+  ALLOWLIST_MODELOS,
+  resolverConfigModo,
+  resolverModeloCliente,
+  type ModoChat,
+} from '@/lib/model-config';
+import { recortarHistorialDesdeEnv } from '@/lib/chat-history';
 import { type FragmentoRAG, type RetrievalOutcome } from '@/lib/rag/search';
 import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
@@ -107,11 +116,7 @@ interface ChatRequest {
 }
 
 // Modelos permitidos como override (lista blanca — previene inyección)
-const VALID_MODEL_OVERRIDES = new Set([
-  'claude-opus-4-8',
-  'claude-sonnet-4-6',
-  'claude-haiku-4-5',
-]);
+const VALID_MODEL_OVERRIDES = ALLOWLIST_MODELOS;
 
 const VALID_MODES: AnyMode[] = [
   'sala_ia', 'analisis', 'documento',
@@ -119,10 +124,11 @@ const VALID_MODES: AnyMode[] = [
 ];
 
 function getConfig(mode: AnyMode) {
+  const resuelto = resolverConfigModo(mode as ModoChat);
   if (mode in CLAUDE_CONFIG_PENAL) {
-    return CLAUDE_CONFIG_PENAL[mode as ChatModePenal];
+    return { ...CLAUDE_CONFIG_PENAL[mode as ChatModePenal], ...resuelto };
   }
-  return CLAUDE_CONFIG[mode as ChatMode];
+  return { ...CLAUDE_CONFIG[mode as ChatMode], ...resuelto };
 }
 
 function esModoPenal(mode: AnyMode): boolean {
@@ -197,16 +203,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Request body inválido' }, { status: 400 });
   }
 
-  const { messages, mode = 'analisis', webSearch = false, modelOverride } = body;
-  const safeModelOverride =
-    modelOverride && VALID_MODEL_OVERRIDES.has(modelOverride) ? modelOverride : null;
+  const { messages: messagesRaw, mode = 'analisis', webSearch = false, modelOverride } = body;
 
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+  if (!messagesRaw || !Array.isArray(messagesRaw) || messagesRaw.length === 0) {
     return NextResponse.json(
       { error: 'messages es requerido y debe ser un array no vacío' },
       { status: 400 }
     );
   }
+  const messages = recortarHistorialDesdeEnv(messagesRaw);
 
   if (!VALID_MODES.includes(mode)) {
     return NextResponse.json(
@@ -258,6 +263,11 @@ export async function POST(req: NextRequest) {
 
   // 3. Configurar según modo
   const config    = getConfig(mode);
+  const modeloEfectivo = resolverModeloCliente(
+    mode as ModoChat,
+    modelOverride && VALID_MODEL_OVERRIDES.has(modelOverride) ? modelOverride : null,
+    rateLimitResult.tier,
+  );
   const consultaId = crypto.randomUUID();
   const inicioMs   = Date.now();
 
@@ -285,7 +295,7 @@ export async function POST(req: NextRequest) {
   // su latencia total antes de emitir el primer token del streaming. Son
   // independientes entre sí — solo el ORDEN DE INYECCIÓN en el prompt importa
   // (RAG antes que web, jerarquía OWASP RAG), no el orden de ejecución.
-  let systemConRAG = config.systemPrompt;
+  let dinamicoSystem = '';
 
   // Fase 1D: `outcome` es opcional y aditivo -- ningún consumidor existente
   // de RagOut se rompe por no leerlo.
@@ -419,10 +429,10 @@ export async function POST(req: NextRequest) {
   const outcomeState = ragData.outcome?.state;
 
   if (contextoRAG) {
-    // OWASP RAG: contexto como DATO, enmarcado explícitamente
-    systemConRAG = `${config.systemPrompt}\n\n${contextoRAG}`;
+    // OWASP RAG: contexto como DATO, enmarcado explícitamente — DESPUÉS del caché
+    dinamicoSystem = contextoRAG;
   }
-  systemConRAG += contextoWeb;
+  dinamicoSystem += contextoWeb;
 
   // ── Plantillas notariales del archivo profesional (solo modo 'documento') ──
   // Piloto validado 2026-07-15/16 — 12 poderes genéricos, sin PII.
@@ -431,7 +441,7 @@ export async function POST(req: NextRequest) {
       const resultadosPlantilla = await buscarPlantilla(ultimaPregunta as string, { limite: 2 });
       const contextoPlantilla = formatearContextoPlantilla(resultadosPlantilla);
       if (contextoPlantilla) {
-        systemConRAG += '\n\n' + contextoPlantilla;
+        dinamicoSystem += (dinamicoSystem ? '\n\n' : '') + contextoPlantilla;
         console.log(
           `[Plantillas] Inyectada(s) ${resultadosPlantilla.filter(r => r.similarity >= 0.75).length} plantilla(s)` +
           ` | mejor similitud=${resultadosPlantilla[0]?.similarity.toFixed(2) ?? 'n/a'}`
@@ -441,6 +451,9 @@ export async function POST(req: NextRequest) {
       console.warn('[Plantillas] Error no crítico:', err instanceof Error ? err.message : String(err));
     }
   }
+
+  const systemBlocks = construirSystemConCache(config.systemPrompt, dinamicoSystem);
+  const systemConRAG = textoDeSystem(systemBlocks);
 
   if (process.env.DEBUG_CLAUDE === 'true') {
     console.log(`[Router] mode=${mode} ruta=${ruta} proveedor=${PROVEEDOR_LLM}`);
@@ -582,9 +595,9 @@ export async function POST(req: NextRequest) {
         } else {
           // ── Anthropic Claude path (default) ─────────────────────────
           const params: Anthropic.MessageCreateParamsStreaming = {
-            model: safeModelOverride ?? config.model,
+            model: modeloEfectivo,
             max_tokens: config.max_tokens,
-            system: systemConRAG,
+            system: systemBlocks,
             messages: claudeMessages,
             stream: true,
           };
@@ -596,7 +609,7 @@ export async function POST(req: NextRequest) {
 
           if (process.env.DEBUG_CLAUDE === 'true') {
             console.log('[Maya Lex] Enviando a Claude:', {
-              model: config.model, mode, messages: claudeMessages.length, userIdentifier,
+              model: modeloEfectivo, mode, messages: claudeMessages.length, userIdentifier,
             });
           }
 
@@ -641,7 +654,7 @@ export async function POST(req: NextRequest) {
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,
                   modo: mode, ruta_rag: ruta,
-                  modelo: safeModelOverride ?? config.model, proveedor: 'anthropic',
+                  modelo: modeloEfectivo, proveedor: 'anthropic',
                   tokens_input: inputTokens, tokens_output: outputTokens,
                   tiempo_ms: Date.now() - inicioMs,
                   web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
