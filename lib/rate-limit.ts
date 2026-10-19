@@ -2,18 +2,56 @@
  * Rate Limiting — MAYA LEX IA PINEL HN
  *
  * Los planes self-serve se diferencian SOLO por cuota diaria:
- *   free      → FREE_TIER_DAILY_LIMIT      (default 3)
+ *   free      → FREE_TIER_DAILY_LIMIT      (default 1)
  *   academico → ACADEMICO_TIER_DAILY_LIMIT (default 20)
  *   pro       → PRO_TIER_DAILY_LIMIT       (default 1000)
  * Identificación: IP (sin login) o email: (Supabase Auth)
+ * Día = medianoche→medianoche America/Tegucigalpa (UTC-6).
  */
 
 import { createServerSupabaseClient } from '@/lib/supabase';
 
-const FREE_LIMIT      = parseInt(process.env.FREE_TIER_DAILY_LIMIT      ?? '3',   10);
-const PRO_LIMIT       = parseInt(process.env.PRO_TIER_DAILY_LIMIT       ?? '1000', 10);
-const ACADEMICO_LIMIT = parseInt(process.env.ACADEMICO_TIER_DAILY_LIMIT ?? '20',  10);
-const MCP_LIMIT       = parseInt(process.env.MCP_TIER_DAILY_LIMIT       ?? '200', 10);
+export const TZ_HN = 'America/Tegucigalpa';
+export const FREE_DAILY_LIMIT_CODE = 'FREE_DAILY_LIMIT';
+export const FREE_LIMIT_DEFAULT = 1;
+
+/** Ausente, NaN o <1 → fallback. Nunca ilimitado. */
+export function parseDailyLimit(raw: string | undefined, fallback: number): number {
+  if (raw === undefined || raw.trim() === '') return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return n;
+}
+
+function freeLimit(): number {
+  return parseDailyLimit(process.env.FREE_TIER_DAILY_LIMIT, FREE_LIMIT_DEFAULT);
+}
+function proLimit(): number {
+  return parseDailyLimit(process.env.PRO_TIER_DAILY_LIMIT, 1000);
+}
+function academicoLimit(): number {
+  return parseDailyLimit(process.env.ACADEMICO_TIER_DAILY_LIMIT, 20);
+}
+function mcpLimit(): number {
+  return parseDailyLimit(process.env.MCP_TIER_DAILY_LIMIT, 200);
+}
+
+/** YYYY-MM-DD del calendario en America/Tegucigalpa. `now` inyectable en tests. */
+export function fechaDiaHn(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ_HN,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+}
+
+/** Próxima medianoche HN (UTC-6, sin DST) como ISO-8601. */
+export function resetAtMedianocheHn(now: Date = new Date()): string {
+  const dia = fechaDiaHn(now);
+  const [y, m, d] = dia.split('-').map((n) => Number.parseInt(n, 10));
+  return new Date(Date.UTC(y!, m! - 1, d! + 1, 6, 0, 0, 0)).toISOString();
+}
 
 /**
  * Prefijo de la bolsa de rate limit del servidor MCP (PLAN-MCP-SLICE-1 §3.2-bis):
@@ -34,7 +72,7 @@ function isUserTier(value: unknown): value is UserTier {
  *
  * Si subscriptions.status === 'active' y el tier es academico / pro / admin,
  * usar ESE tier de facturación — no defaultar a 'free'. Un PayPal activo
- * no debe caer al tope gratuito (~3) en la primera consulta del día.
+ * no debe caer al tope gratuito (1) en la primera consulta del día.
  * Free autenticado y anónimo (IP) siguen en 'free'.
  *
  * No lee auth.users ni el resto de la fila de pago: solo tier + status.
@@ -52,10 +90,10 @@ export function resolveTierForNewDay(params: {
 function limitForTier(tier: UserTier, userIdentifier = ''): number {
   if (tier === 'admin') return 9999;
   // Bolsa MCP: sólo pro tiene cuota propia; el resto no tiene acceso MCP (fail-closed).
-  if (userIdentifier.startsWith(MCP_BUCKET_PREFIX)) return tier === 'pro' ? MCP_LIMIT : 0;
-  if (tier === 'pro') return PRO_LIMIT;
-  if (tier === 'academico') return ACADEMICO_LIMIT;
-  return FREE_LIMIT;
+  if (userIdentifier.startsWith(MCP_BUCKET_PREFIX)) return tier === 'pro' ? mcpLimit() : 0;
+  if (tier === 'pro') return proLimit();
+  if (tier === 'academico') return academicoLimit();
+  return freeLimit();
 }
 
 /**
@@ -106,11 +144,14 @@ export type RateLimitResult =
  * Para identidad autenticada usar getUserIdentifierVerificado().
  */
 export function getUserIdentifier(req: Request): string {
-  const forwarded =
-    req.headers.get('x-forwarded-for') ??
+  const vercel = req.headers.get('x-vercel-forwarded-for');
+  if (vercel) return `ip:${vercel.split(',')[0].trim()}`;
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) return `ip:${forwarded.split(',')[0].trim()}`;
+  const real =
     req.headers.get('x-real-ip') ??
     req.headers.get('cf-connecting-ip');
-  if (forwarded) return `ip:${forwarded.split(',')[0].trim()}`;
+  if (real) return `ip:${real.split(',')[0].trim()}`;
 
   return 'ip:unknown';
 }
@@ -166,57 +207,88 @@ export async function getUserIdentifierVerificado(req: Request): Promise<string>
  *
  * Estrategia: upsert con ON CONFLICT para evitar race conditions.
  */
-export async function checkAndIncrementRateLimit(
-  userIdentifier: string
-): Promise<RateLimitResult> {
-  // Si Supabase no está configurado → modo demo sin límites
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    console.warn('[RateLimit] Supabase no configurado — modo sin límites');
-    return { allowed: true, remaining: 99, tier: 'free' };
-  }
-
-  const supabase = createServerSupabaseClient();
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-  // 1. Buscar registro del día
+async function leerUsoDelDia(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+  today: string,
+): Promise<{ query_count: number; tier: unknown } | null> {
   const { data: existing } = await supabase
     .from('queries_log')
     .select('query_count, tier')
     .eq('user_identifier', userIdentifier)
     .eq('query_date', today)
     .single();
+  return existing ?? null;
+}
 
+/**
+ * Chequeo sin escribir. Usar ANTES de RAG/Anthropic.
+ * `now` inyectable (tests de medianoche HN).
+ */
+export async function checkRateLimit(
+  userIdentifier: string,
+  now: Date = new Date(),
+): Promise<RateLimitResult> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    console.warn('[RateLimit] Supabase no configurado — modo sin límites');
+    return { allowed: true, remaining: 99, tier: 'free' };
+  }
+
+  const supabase = createServerSupabaseClient();
+  const today = fechaDiaHn(now);
+  const existing = await leerUsoDelDia(supabase, userIdentifier, today);
   const tier = await resolveTodayTier(supabase, userIdentifier, existing?.tier);
   const currentCount = existing?.query_count ?? 0;
 
-  // Admins nunca tienen límite
   if (tier === 'admin') {
-    await incrementCount(supabase, userIdentifier, today, tier, currentCount);
     return { allowed: true, remaining: 9999, tier: 'admin' };
   }
 
   const limit = limitForTier(tier, userIdentifier);
 
   if (currentCount >= limit) {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
     return {
       allowed: false,
       remaining: 0,
       tier,
-      resetAt: tomorrow.toISOString(),
+      resetAt: resetAtMedianocheHn(now),
     };
   }
-
-  // 2. Incrementar contador (upsert)
-  await incrementCount(supabase, userIdentifier, today, tier, currentCount);
 
   return {
     allowed: true,
     remaining: limit - currentCount - 1,
     tier,
   };
+}
+
+/** Cobra una consulta exitosa. No llamar si el modelo falló (5xx/timeout). */
+export async function incrementRateLimit(
+  userIdentifier: string,
+  tier: UserTier,
+  now: Date = new Date(),
+): Promise<void> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
+  const supabase = createServerSupabaseClient();
+  const today = fechaDiaHn(now);
+  const existing = await leerUsoDelDia(supabase, userIdentifier, today);
+  const currentCount = existing?.query_count ?? 0;
+  await incrementCount(supabase, userIdentifier, today, tier, currentCount);
+}
+
+/**
+ * Verifica e incrementa (bolsa MCP y callers legacy).
+ * El chat usa checkRateLimit + incrementRateLimit para no cobrar fallos.
+ */
+export async function checkAndIncrementRateLimit(
+  userIdentifier: string,
+  now: Date = new Date(),
+): Promise<RateLimitResult> {
+  const result = await checkRateLimit(userIdentifier, now);
+  if (!result.allowed) return result;
+  await incrementRateLimit(userIdentifier, result.tier, now);
+  return result;
 }
 
 /**
@@ -232,7 +304,7 @@ export async function resolverTierMcp(email: string): Promise<UserTier> {
   try {
     const supabase = createServerSupabaseClient();
     const identificador = buildMcpIdentifierFromEmail(email);
-    const today = new Date().toISOString().split('T')[0];
+    const today = fechaDiaHn();
     const { data: existing, error } = await supabase
       .from('queries_log')
       .select('tier')
@@ -310,11 +382,12 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
   resetAt: string;
 }> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return { used: 0, limit: FREE_LIMIT, tier: 'free', resetAt: '' };
+    return { used: 0, limit: freeLimit(), tier: 'free', resetAt: '' };
   }
 
   const supabase = createServerSupabaseClient();
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = fechaDiaHn(now);
 
   const { data } = await supabase
     .from('queries_log')
@@ -327,9 +400,5 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
   const used = data?.query_count ?? 0;
   const limit = limitForTier(tier, userIdentifier);
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-
-  return { used, limit, tier, resetAt: tomorrow.toISOString() };
+  return { used, limit, tier, resetAt: resetAtMedianocheHn(now) };
 }
