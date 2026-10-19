@@ -61,10 +61,10 @@ export type ResultadoVerificacion =
 export function normalizarCita(s: string): string {
   return s
     .normalize('NFC')
-    .replace(/­/g, '')
-    .replace(/[‐‑‒–—−]/g, '-')
-    .replace(/[“”«»„]/g, '"')
-    .replace(/[‘’‚]/g, "'")
+    .replace(/\u00AD/g, '')
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, '-')
+    .replace(/[\u201C\u201D\u00AB\u00BB\u201E]/g, '"')
+    .replace(/[\u2018\u2019\u201A]/g, "'")
     .replace(/\s+/g, ' ')
     .trim();
 }
