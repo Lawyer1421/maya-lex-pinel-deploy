@@ -8,6 +8,7 @@ import {
   esFechaIso,
   identificaDecretoOFallo,
   motivoRechazoVinculo,
+  rechazoVinculo,
   anioEnCursoUTC,
   normalizarModificador,
   SIGLAS_VINCULO_V1,
@@ -917,7 +918,10 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
     it('un modificador escrito fuera de la lista blanca va a curacionDatos (VINCULO_NO_IDENTIFICADO)', () => {
       const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: 'Acuerdo 679-2014' })]));
       expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'cedij-2019', motivo: 'VINCULO_NO_IDENTIFICADO' })]);
-      expect(sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: null })])).curacionDatos).toEqual([]);
+      // Criterio CLO 18-oct-2026 sobre #69: un evento sin instrumento también va a curación.
+      expect(sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019({ instrumento_modificador: null })])).curacionDatos).toEqual([
+        expect.objectContaining({ version_id: 'cedij-2019', motivo: 'SIN_INSTRUMENTO_MODIFICADOR' }),
+      ]);
       expect(sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), cedij2019()])).curacionDatos).toEqual([]);
     });
     it('un año igual al de vigente_desde vincula; uno posterior no', () => {
@@ -1082,12 +1086,14 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       expect(identificaDecretoOFallo('Decreto 144-83', '1984-01-01', 2026)).toBe(true);
       expect(resolver('Decreto 144-83', '1984-01-01').estado).toBe('PRIMARY');
     });
-    it('Decreto 59-15 no vincula (desde 2000 se exigen 4 cifras) y va a curación', () => {
+    it('Decreto 59-15 en un evento de 2016 no vincula: 1915 y 2015 caben, ANIO_2_CIFRAS_AMBIGUO', () => {
+      // Antes (#69) se rechazaba por «desde 2000 se exigen 4 cifras»; el criterio CLO sobre #69 lo
+      // reemplaza por la desambiguación contra vigente_desde: aquí quedan los dos candidatos.
       expect(identificaDecretoOFallo('Decreto 59-15', '2016-01-01', 2026)).toBe(false);
-      expect(motivoRechazoVinculo('Decreto 59-15', '2016-01-01', 2026)).toMatch(/4 cifras/);
+      expect(rechazoVinculo('Decreto 59-15', '2016-01-01', 2026)?.motivo).toBe('ANIO_2_CIFRAS_AMBIGUO');
       const r = resolver('Decreto 59-15', '2016-01-01');
       expect(r.estado).toBe('CONTEXT');
-      expect(r.curacionDatos).toContainEqual(expect.objectContaining({ version_id: 'cedij-2019', motivo: 'VINCULO_NO_IDENTIFICADO' }));
+      expect(r.curacionDatos).toContainEqual(expect.objectContaining({ version_id: 'cedij-2019', motivo: 'ANIO_2_CIFRAS_AMBIGUO' }));
     });
     it('Decreto 59-99 en un evento de 1998 no vincula (1999 > 1998) y va a curación', () => {
       expect(identificaDecretoOFallo('Decreto 59-99', '1998-06-01', 2026)).toBe(false);
@@ -1138,6 +1144,114 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
       expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'ref-2010', motivo: 'VINCULO_NO_IDENTIFICADO' })]);
       const ok = resolverVersion(NOTARIADO, '1', '2005-01-01', [img2015()]);
       expect('curacionDatos' in ok).toBe(false);
+    });
+  });
+
+  describe('criterio CLO 18-oct-2026 sobre #69: desambiguación de años de 2 cifras y eventos sin instrumento', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-10-18T12:00:00Z'));
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    const resolver = (mod: string | null, vigente_desde: string, tipo_evento: NormaVersion['tipo_evento'] = 'REFORMA') =>
+      sinFallo(
+        resolverVersion(NOTARIADO, '1', '2030-06-01', [
+          img2015({ vigente_desde: '1900-01-01' }),
+          cedij2019({ instrumento_modificador: mod, vigente_desde, tipo_evento }),
+        ]),
+      );
+
+    it('«Decreto 59-15» con un evento de 2016: ambiguo, curación ANIO_2_CIFRAS_AMBIGUO, no vincula', () => {
+      const r = resolver('Decreto 59-15', '2016-01-01');
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('img-2015');
+      expect(r.curacionDatos).toContainEqual(expect.objectContaining({ version_id: 'cedij-2019', motivo: 'ANIO_2_CIFRAS_AMBIGUO' }));
+    });
+    it('«Decreto 59-15» con un evento de 1916 vincula como 1915 (2015 > 1916)', () => {
+      expect(rechazoVinculo('Decreto 59-15', '1916-01-01', 2026)).toBeNull();
+      const r = resolver('Decreto 59-15', '1916-01-01');
+      expect(r.estado).toBe('PRIMARY');
+      expect(r.version.version_id).toBe('cedij-2019');
+      expect(r.curacionDatos).toEqual([]);
+    });
+    it('«Decreto 144-83» vincula como 1983 (2083 > vigente_desde)', () => {
+      expect(rechazoVinculo('Decreto 144-83', '1984-01-01', 2026)).toBeNull();
+      expect(resolver('Decreto 144-83', '1984-01-01').estado).toBe('PRIMARY');
+      // Con un evento de 1982, ni 1983 ni 2083 caben: no vincula.
+      expect(rechazoVinculo('Decreto 144-83', '1982-01-01', 2026)?.motivo).toBe('VINCULO_NO_IDENTIFICADO');
+    });
+    it('«PCM-008-97» vincula como 1997', () => {
+      expect(rechazoVinculo('PCM-008-97', '1998-01-01', 2026)).toBeNull();
+      expect(resolver('PCM-008-97', '1998-01-01').estado).toBe('PRIMARY');
+    });
+    it('«PCM 05-20» con un evento de 2021: ambiguo (1920 y 2020), curación, no vincula', () => {
+      expect(rechazoVinculo('PCM 05-20', '2021-01-01', 2026)?.motivo).toBe('ANIO_2_CIFRAS_AMBIGUO');
+      const r = resolver('PCM 05-20', '2021-01-01');
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.curacionDatos).toContainEqual(expect.objectContaining({ motivo: 'ANIO_2_CIFRAS_AMBIGUO' }));
+    });
+    it('AE y PCSJ siguen el mismo criterio que Decreto y PCM', () => {
+      expect(rechazoVinculo('AE 1-85', '1990-01-01', 2026)).toBeNull();
+      expect(rechazoVinculo('AE 1-15', '2016-01-01', 2026)?.motivo).toBe('ANIO_2_CIFRAS_AMBIGUO');
+      expect(rechazoVinculo('PCSJ-17-12', '2013-01-01', 2026)?.motivo).toBe('ANIO_2_CIFRAS_AMBIGUO');
+      expect(rechazoVinculo('PCSJ-17-12', '1913-01-01', 2026)).toBeNull();
+    });
+    it('con 4 cifras no cambia nada: rango 1821..vigente_desde', () => {
+      expect(rechazoVinculo('Decreto 59-2015', '2016-01-01', 2026)).toBeNull();
+      expect(rechazoVinculo('Decreto 59-1820', '2016-01-01', 2026)?.motivo).toBe('VINCULO_NO_IDENTIFICADO');
+      expect(rechazoVinculo('Decreto 59-2017', '2016-01-01', 2026)?.motivo).toBe('VINCULO_NO_IDENTIFICADO');
+    });
+    it.each(['2015-01-01', '2016-06-01', '2030-01-01'])('«RI-137-15» con un evento de %s vincula como 2015 (RI no cambia)', (vigente_desde) => {
+      expect(rechazoVinculo('RI-137-15', vigente_desde, 2026)).toBeNull();
+      expect(resolver('RI-137-15', vigente_desde).estado).toBe('PRIMARY');
+    });
+    it('«RI-137-15» con un evento de 2014 no vincula (2015 > 2014)', () => {
+      expect(rechazoVinculo('RI-137-15', '2014-01-01', 2026)?.motivo).toBe('VINCULO_NO_IDENTIFICADO');
+    });
+
+    it('instrumento_modificador nulo: curación SIN_INSTRUMENTO_MODIFICADOR y FALLO_CERRADO sin promover', () => {
+      // Hoy (#69) esta unidad ya da FALLO_CERRADO SIN_REVIVISCENCIA: la reforma D.10-2019 cerró en 2021 y la
+      // edición CEDIJ de 2021 no tiene instrumento, así que no restablece ni promueve su texto.
+      const vs = [
+        img2015(),
+        nv({ version_id: 'ref-2019', vigente_desde: '2019-01-01', vigente_hasta: '2021-01-01', nivel_verificacion: 'PRIMARIA_TEXTO', tipo_evento: 'REFORMA', instrumento_modificador: 'D.10-2019' }),
+        cedij2019({ version_id: 'cedij-2021', vigente_desde: '2021-01-01', instrumento_modificador: null }),
+      ];
+      const r = resolverVersion(NOTARIADO, '1', '2022-06-01', vs);
+      expect(r.estado).toBe('FALLO_CERRADO');
+      if (r.estado !== 'FALLO_CERRADO') throw new Error('inesperado');
+      expect(r.motivo).toBe('SIN_REVIVISCENCIA');
+      expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'cedij-2021', motivo: 'SIN_INSTRUMENTO_MODIFICADOR' })]);
+      // Con el instrumento identificado, la misma fila sí restablece el texto (contraste).
+      const conInstrumento = vs.map((v) => (v.version_id === 'cedij-2021' ? { ...v, instrumento_modificador: 'D.5-2021' } : v));
+      const ok = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', conInstrumento));
+      expect(ok.estado).toBe('PRIMARY');
+      expect(ok.version.version_id).toBe('cedij-2021');
+    });
+    it('instrumento_modificador vacío o sólo espacios: misma curación, no vincula', () => {
+      for (const mod of ['', '   ']) {
+        const r = resolver(mod, '2019-01-01');
+        expect(r.estado).toBe('CONTEXT');
+        expect(r.version.version_id).toBe('img-2015');
+        expect(r.curacionDatos).toContainEqual(expect.objectContaining({ version_id: 'cedij-2019', motivo: 'SIN_INSTRUMENTO_MODIFICADOR' }));
+      }
+    });
+    it.each(['DEROGACION_EXPRESA', 'INCONSTITUCIONALIDAD'] as const)('%s sin instrumento sigue bloqueando y va a curación', (tipo_evento) => {
+      const bloqueo = cedij2019({ version_id: 'bloqueo-2019', tipo_evento, instrumento_modificador: null, estado_vigencia: 'FALSE', texto: null, elegible_primary: false });
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', FECHA, [img2015(), bloqueo]));
+      expect(r.estado).toBe('CONTEXT');
+      expect(r.version.version_id).toBe('bloqueo-2019');
+      expect(r.contexto.map((v) => v.version_id)).toEqual(['img-2015']);
+      expect(r.curacionDatos).toEqual([expect.objectContaining({ version_id: 'bloqueo-2019', motivo: 'SIN_INSTRUMENTO_MODIFICADOR' })]);
+    });
+    it('VIGENCIA_CERRADA_SIN_EVENTO y SIN_INSTRUMENTO_MODIFICADOR conviven en la misma cola', () => {
+      const r = sinFallo(resolverVersion(NOTARIADO, '1', '2022-06-01', [img2015(), cedij2019({ vigente_hasta: '2021-01-01', instrumento_modificador: null })]));
+      expect(r.curacionDatos.map((c) => [c.version_id, c.motivo])).toEqual([
+        ['cedij-2019', 'VIGENCIA_CERRADA_SIN_EVENTO'],
+        ['cedij-2019', 'SIN_INSTRUMENTO_MODIFICADOR'],
+      ]);
     });
   });
 

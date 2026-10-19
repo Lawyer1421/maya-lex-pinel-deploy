@@ -166,10 +166,16 @@ export interface CuracionDatos {
    * VIGENCIA_CERRADA_SIN_EVENTO: vigencia cerrada sin evento que la explique.
    * VINCULO_NO_IDENTIFICADO: una fila de evento trae un instrumento_modificador
    * que no está en la lista blanca (p. ej. «Acuerdo 679-2014» sin órgano).
+   * ANIO_2_CIFRAS_AMBIGUO: año de 2 cifras con dos lecturas posibles (19YY y
+   * 20YY) anteriores o iguales a vigente_desde.
+   * SIN_INSTRUMENTO_MODIFICADOR: una fila de evento sin instrumento_modificador.
    */
-  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO' | 'VINCULO_NO_IDENTIFICADO';
+  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO' | MotivoRechazoVinculo;
   mensaje: string;
 }
+
+/** Motivos de curación por un vínculo rechazado (criterio CLO 18-oct-2026 sobre #69). */
+export type MotivoRechazoVinculo = 'VINCULO_NO_IDENTIFICADO' | 'ANIO_2_CIFRAS_AMBIGUO' | 'SIN_INSTRUMENTO_MODIFICADOR';
 
 export type MotivoFalloCerrado =
   | 'FECHA_INVALIDA'
@@ -455,18 +461,26 @@ const DECRETO_EJECUTIVO_SIN_PCM_RE = new RegExp(String.raw`^(?:D\.? ?E\.?|DECRET
 const ANIO_MIN = 1821;
 
 /**
- * Año que se lee en un identificador de 2 cifras, sólo para validar; el texto
- * del expediente se compara en la notación de su fuente y nunca se expande
- * (regla CLO 18-oct-2026 sobre años de 2 cifras):
+ * Lectura de un año de 2 cifras, sólo para validar; el texto del expediente se
+ * compara en la notación de su fuente y nunca se expande. Criterio CLO
+ * 18-oct-2026 sobre #69, que sustituye la fórmula «19YY; 4 cifras desde 2000»:
  *  - EXPEDIENTE_RI: 20YY si no pasa de `anioEnCurso`; si pasa, 19YY.
- *  - Decreto y demás tipos: 19YY. Desde 2000 se exigen 4 cifras, así que un
- *    YY que también podría ser 20YY (20YY <= `anioEnCurso`, p. ej. «59-15») es
- *    ambiguo y no se lee: devuelve null (no vincula, va a curación).
+ *  - Decreto, PCM, AE y PCSJ: candidatos 19YY y 20YY; se conservan los que no
+ *    pasan del año de vigente_desde (ni bajan de 1821). Uno -> ese año; dos ->
+ *    ANIO_2_CIFRAS_AMBIGUO; ninguno -> no vincula.
  */
-function anioLeidoDosCifras(tipo: TipoVinculo, yy: string, anioEnCurso: number): number | null {
+function leerAnioDosCifras(
+  tipo: TipoVinculo,
+  yy: string,
+  anioVigencia: number,
+  anioEnCurso: number,
+): { anio: number } | { ambiguo: true } | { ninguno: true } {
   const n = Number(yy);
-  if (tipo === 'EXPEDIENTE_RI') return 2000 + n <= anioEnCurso ? 2000 + n : 1900 + n;
-  return 2000 + n <= anioEnCurso ? null : 1900 + n;
+  if (tipo === 'EXPEDIENTE_RI') return { anio: 2000 + n <= anioEnCurso ? 2000 + n : 1900 + n };
+  const candidatos = [1900 + n, 2000 + n].filter((a) => a >= ANIO_MIN && a <= anioVigencia);
+  if (candidatos.length === 2) return { ambiguo: true };
+  if (candidatos.length === 0) return { ninguno: true };
+  return { anio: candidatos[0] };
 }
 
 /**
@@ -480,42 +494,63 @@ export function anioEnCursoUTC(): number {
 }
 
 /**
- * Motivo por el que `modificador` NO identifica un decreto o fallo concreto, o
- * null si lo identifica (dictamen CLO 18-oct-2026, su addendum y la regla CLO
- * 18-oct-2026 sobre años de 2 cifras y formatos). `anioEnCurso` sólo se usa
- * para leer años de 2 cifras; por defecto, el año UTC actual.
+ * Por qué `modificador` NO identifica un decreto o fallo concreto, o null si lo
+ * identifica (dictamen CLO 18-oct-2026, su addendum y el criterio CLO
+ * 18-oct-2026 sobre #69). `anioEnCurso` sólo se usa para leer años de 2 cifras
+ * de expedientes RI.
  */
+export function rechazoVinculo(
+  modificador: string | null,
+  vigenteDesde: string,
+  anioEnCurso: number = anioEnCursoUTC(),
+): { motivo: MotivoRechazoVinculo; detalle: string } | null {
+  const no = (detalle: string) => ({ motivo: 'VINCULO_NO_IDENTIFICADO' as const, detalle });
+  if (modificador === null || normalizarModificador(modificador) === '') {
+    return { motivo: 'SIN_INSTRUMENTO_MODIFICADOR', detalle: 'sin instrumento_modificador' };
+  }
+  const m = normalizarModificador(modificador);
+  if (MODIFICADOR_NO_IDENTIFICA_RE.test(m)) return no('marcador que nunca vincula (s/n, Gaceta, oficio, acta…)');
+  if (DECRETO_EJECUTIVO_SIN_PCM_RE.test(m)) return no('Decreto Ejecutivo sin sigla PCM');
+  const hallado = MODIFICADOR_IDENTIFICA_RES.map(({ tipo, re }) => ({ tipo, m: re.exec(m) })).find((x) => x.m !== null);
+  if (!hallado || !hallado.m) return no('formato fuera de la lista blanca');
+  if (!/^\d{4}-/.test(vigenteDesde)) return no('vigente_desde inválido');
+  const anioVigencia = Number(vigenteDesde.slice(0, 4));
+  const anioTexto = hallado.m[2];
+  let anio: number;
+  if (anioTexto.length === 4) {
+    anio = Number(anioTexto);
+  } else {
+    if (hallado.tipo === 'EXPEDIENTE_RI' && !Number.isInteger(anioEnCurso)) {
+      return no('año en curso inválido para leer un año de 2 cifras');
+    }
+    const lectura = leerAnioDosCifras(hallado.tipo, anioTexto, anioVigencia, anioEnCurso);
+    if ('ambiguo' in lectura) {
+      return {
+        motivo: 'ANIO_2_CIFRAS_AMBIGUO',
+        detalle: `año de 2 cifras «${anioTexto}» ambiguo: 19${anioTexto} y 20${anioTexto} no pasan de vigente_desde (${anioVigencia})`,
+      };
+    }
+    if ('ninguno' in lectura) {
+      return no(`año de 2 cifras «${anioTexto}»: ni 19${anioTexto} ni 20${anioTexto} cabe entre ${ANIO_MIN} y vigente_desde (${anioVigencia})`);
+    }
+    // TODO(CLO 18-oct-2026): un decreto con año de 2 cifras debe existir además
+    // en el registro canónico de instrumentos. Ese registro aún no existe en el
+    // código; cuando exista, comprobar aquí (hallado.tipo === 'DECRETO') y, si
+    // no consta, devolver un motivo de rechazo. No se inventan datos.
+    anio = lectura.anio;
+  }
+  if (anio < ANIO_MIN) return no(`año ${anio} anterior a ${ANIO_MIN}`);
+  if (anio > anioVigencia) return no(`año ${anio} posterior al de vigente_desde (${anioVigencia})`);
+  return null;
+}
+
+/** Detalle de rechazoVinculo, o null si el modificador vincula. */
 export function motivoRechazoVinculo(
   modificador: string | null,
   vigenteDesde: string,
   anioEnCurso: number = anioEnCursoUTC(),
 ): string | null {
-  if (modificador === null) return 'sin instrumento_modificador';
-  const m = normalizarModificador(modificador);
-  if (m === '') return 'sin instrumento_modificador';
-  if (MODIFICADOR_NO_IDENTIFICA_RE.test(m)) return 'marcador que nunca vincula (s/n, Gaceta, oficio, acta…)';
-  if (DECRETO_EJECUTIVO_SIN_PCM_RE.test(m)) return 'Decreto Ejecutivo sin sigla PCM';
-  const hallado = MODIFICADOR_IDENTIFICA_RES.map(({ tipo, re }) => ({ tipo, m: re.exec(m) })).find((x) => x.m !== null);
-  if (!hallado || !hallado.m) return 'formato fuera de la lista blanca';
-  const anioTexto = hallado.m[2];
-  if (anioTexto.length === 2 && !Number.isInteger(anioEnCurso)) return 'año en curso inválido para leer un año de 2 cifras';
-  let anio: number;
-  if (anioTexto.length === 4) {
-    anio = Number(anioTexto);
-  } else {
-    const leido = anioLeidoDosCifras(hallado.tipo, anioTexto, anioEnCurso);
-    if (leido === null) return `año de 2 cifras «${anioTexto}» ambiguo: desde 2000 se exigen 4 cifras`;
-    // TODO(CLO 18-oct-2026): un decreto con año de 2 cifras debe existir además
-    // en el registro canónico de instrumentos. Ese registro aún no existe en el
-    // código; cuando exista, comprobar aquí (hallado.tipo === 'DECRETO') y, si
-    // no consta, devolver un motivo de rechazo. No se inventan datos.
-    anio = leido;
-  }
-  const anioVigencia = Number(vigenteDesde.slice(0, 4));
-  if (!Number.isInteger(anioVigencia) || !/^\d{4}-/.test(vigenteDesde)) return 'vigente_desde inválido';
-  if (anio < ANIO_MIN) return `año ${anio} anterior a ${ANIO_MIN}`;
-  if (anio > anioVigencia) return `año ${anio} posterior al de vigente_desde (${anioVigencia})`;
-  return null;
+  return rechazoVinculo(modificador, vigenteDesde, anioEnCurso)?.detalle ?? null;
 }
 
 /**
@@ -584,20 +619,25 @@ function avisoReformaPosteriorSinTexto(p: NormaVersion): Advertencia {
 /**
  * Vínculos rechazados de la unidad (regla CLO 18-oct-2026: todo vínculo
  * rechazado sale marcado para curación, no sólo el de la versión posterior):
- * filas de evento (tipo_evento distinto de ORIGINAL) con instrumento_modificador
- * escrito que no identifica un decreto o fallo. Sólo marca: no cambia qué
- * versión se sirve ni su estado.
+ * filas de evento (tipo_evento distinto de ORIGINAL) cuyo instrumento_modificador
+ * no identifica un decreto o fallo (VINCULO_NO_IDENTIFICADO o
+ * ANIO_2_CIFRAS_AMBIGUO) o falta (SIN_INSTRUMENTO_MODIFICADOR, criterio CLO
+ * 18-oct-2026 sobre #69). Sólo marca: no cambia qué versión se sirve ni su
+ * estado.
  */
 function curacionVinculos(propias: readonly NormaVersion[], anioEnCurso: number): CuracionDatos[] {
   const out: CuracionDatos[] = [];
   for (const v of propias) {
-    if (v.tipo_evento === 'ORIGINAL' || (v.instrumento_modificador ?? '').trim() === '') continue;
-    const motivo = motivoRechazoVinculo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
-    if (motivo === null) continue;
+    if (v.tipo_evento === 'ORIGINAL') continue;
+    const rechazo = rechazoVinculo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
+    if (rechazo === null) continue;
     out.push({
       version_id: v.version_id,
-      motivo: 'VINCULO_NO_IDENTIFICADO',
-      mensaje: `instrumento_modificador «${v.instrumento_modificador}» no vincula (${motivo}): normalizarlo o registrar el instrumento.`,
+      motivo: rechazo.motivo,
+      mensaje:
+        rechazo.motivo === 'SIN_INSTRUMENTO_MODIFICADOR'
+          ? `evento ${v.tipo_evento} sin instrumento_modificador: registrar el decreto o fallo que lo produce.`
+          : `instrumento_modificador «${v.instrumento_modificador}» no vincula (${rechazo.detalle}): normalizarlo o registrar el instrumento.`,
     });
   }
   return out;
