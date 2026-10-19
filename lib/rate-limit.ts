@@ -138,6 +138,38 @@ export type RateLimitResult =
   | { allowed: true;  remaining: number; tier: UserTier }
   | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string };
 
+export class RateLimitStoreError extends Error {
+  readonly code: string;
+  constructor(message: string, code = 'STORE_ERROR') {
+    super(message);
+    this.name = 'RateLimitStoreError';
+    this.code = code;
+  }
+}
+
+const PGRST_NO_ROWS = 'PGRST116';
+const RESERVE_MAX_ATTEMPTS = 8;
+
+/** 5xx / 529 / timeout del proveedor. Abort del cliente no aplica. */
+export function esFalloProveedorQueDevuelveCuota(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const e = error as { status?: unknown; name?: string; message?: string };
+  if (e.name === 'APIUserAbortError' || e.name === 'AbortError') return false;
+  if (e.name === 'APIConnectionTimeoutError') return true;
+  if (typeof e.status === 'number') return e.status === 529 || e.status >= 500;
+  return typeof e.message === 'string' && /timeout/i.test(e.message);
+}
+
+/** OpenRouter reporta fallos por mensaje (HTTP 5xx/529, timeout, conexión). */
+export function esFalloOpenRouterQueDevuelveCuota(message: string): boolean {
+  if (/timeout/i.test(message)) return true;
+  if (/Error de conexión/i.test(message)) return true;
+  const m = message.match(/HTTP (\d+)/);
+  if (!m) return false;
+  const s = Number.parseInt(m[1]!, 10);
+  return s === 529 || s >= 500;
+}
+
 /**
  * Extrae el identificador de usuario de la Request (SIN verificación).
  * Solo IP — el header X-User-ID fue eliminado por suplantable (auditoría #8).
@@ -213,18 +245,27 @@ async function leerUsoDelDia(
   userIdentifier: string,
   today: string,
 ): Promise<{ query_count: number; tier: unknown } | null> {
-  const { data: existing } = await supabase
+  const { data: existing, error } = await supabase
     .from('queries_log')
     .select('query_count, tier')
     .eq('user_identifier', userIdentifier)
     .eq('query_date', today)
     .single();
+  if (error && error.code !== PGRST_NO_ROWS) {
+    console.error('[RateLimit] lectura queries_log falló', {
+      code: error.code,
+      message: error.message,
+    });
+    throw new RateLimitStoreError(
+      error.message ?? 'queries_log read failed',
+      String(error.code ?? 'STORE_ERROR'),
+    );
+  }
   return existing ?? null;
 }
 
 /**
- * Chequeo sin escribir. Usar ANTES de RAG/Anthropic.
- * `now` inyectable (tests de medianoche HN).
+ * Chequeo sin escribir. `now` inyectable (tests de medianoche HN).
  */
 export async function checkRateLimit(
   userIdentifier: string,
@@ -263,32 +304,107 @@ export async function checkRateLimit(
   };
 }
 
-/** Cobra una consulta exitosa. No llamar si el modelo falló (5xx/timeout). */
-export async function incrementRateLimit(
+/**
+ * Reserva atómica ANTES de RAG/Anthropic (CAS).
+ * update … eq('query_count', c).select(); si no hay fila, insert/upsert
+ * que ignora duplicado. 0 filas afectadas → relee y reaplica el límite.
+ */
+export async function reserveRateLimit(
   userIdentifier: string,
-  tier: UserTier,
+  now: Date = new Date(),
+): Promise<RateLimitResult> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    console.warn('[RateLimit] Supabase no configurado — modo sin límites');
+    return { allowed: true, remaining: 99, tier: 'free' };
+  }
+
+  const supabase = createServerSupabaseClient();
+  const today = fechaDiaHn(now);
+
+  for (let attempt = 0; attempt < RESERVE_MAX_ATTEMPTS; attempt++) {
+    const existing = await leerUsoDelDia(supabase, userIdentifier, today);
+    const tier = await resolveTodayTier(supabase, userIdentifier, existing?.tier);
+
+    if (tier === 'admin') {
+      return { allowed: true, remaining: 9999, tier: 'admin' };
+    }
+
+    const limit = limitForTier(tier, userIdentifier);
+    const currentCount = existing?.query_count ?? 0;
+
+    if (currentCount >= limit) {
+      return {
+        allowed: false,
+        remaining: 0,
+        tier,
+        resetAt: resetAtMedianocheHn(now),
+      };
+    }
+
+    const affected = existing
+      ? await updateCountCas(supabase, userIdentifier, today, tier, currentCount)
+      : await insertCountIgnoreDup(supabase, userIdentifier, today, tier);
+
+    if (affected > 0) {
+      return {
+        allowed: true,
+        remaining: limit - currentCount - 1,
+        tier,
+      };
+    }
+  }
+
+  return {
+    allowed: false,
+    remaining: 0,
+    tier: 'free',
+    resetAt: resetAtMedianocheHn(now),
+  };
+}
+
+/** Devuelve una reserva (aclaración, abstención, 5xx/timeout del proveedor). */
+export async function releaseRateLimit(
+  userIdentifier: string,
   now: Date = new Date(),
 ): Promise<void> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
   const supabase = createServerSupabaseClient();
   const today = fechaDiaHn(now);
-  const existing = await leerUsoDelDia(supabase, userIdentifier, today);
-  const currentCount = existing?.query_count ?? 0;
-  await incrementCount(supabase, userIdentifier, today, tier, currentCount);
+
+  for (let attempt = 0; attempt < RESERVE_MAX_ATTEMPTS; attempt++) {
+    const existing = await leerUsoDelDia(supabase, userIdentifier, today);
+    const currentCount = existing?.query_count ?? 0;
+    if (!existing || currentCount <= 0) return;
+    const affected = await updateCountCas(
+      supabase,
+      userIdentifier,
+      today,
+      typeof existing.tier === 'string' ? existing.tier : 'free',
+      currentCount,
+      currentCount - 1,
+    );
+    if (affected > 0) return;
+  }
+}
+
+/** Reserva (misma CAS que el chat). El segundo arg se ignora: el tier se resuelve. */
+export async function incrementRateLimit(
+  userIdentifier: string,
+  _tier?: UserTier,
+  now: Date = new Date(),
+): Promise<void> {
+  await reserveRateLimit(userIdentifier, now);
 }
 
 /**
- * Verifica e incrementa (bolsa MCP y callers legacy).
- * El chat usa checkRateLimit + incrementRateLimit para no cobrar fallos.
+ * Reserva atómica (bolsa MCP y callers legacy).
+ * El chat usa reserveRateLimit + releaseRateLimit.
  */
 export async function checkAndIncrementRateLimit(
   userIdentifier: string,
   now: Date = new Date(),
 ): Promise<RateLimitResult> {
-  const result = await checkRateLimit(userIdentifier, now);
-  if (!result.allowed) return result;
-  await incrementRateLimit(userIdentifier, result.tier, now);
-  return result;
+  return reserveRateLimit(userIdentifier, now);
 }
 
 /**
@@ -319,8 +435,11 @@ export async function resolverTierMcp(email: string): Promise<UserTier> {
 }
 
 /**
- * Si ya hay queries_log.tier hoy, ese es el gate.
- * Si no hay fila (día nuevo), heredar de subscriptions.active + academico/pro/admin.
+ * Tier de pago en queries_log se respeta (no se pisa).
+ * Si la fila de hoy es 'free' o no hay fila, se consulta subscriptions:
+ * un PayPal activo tras gastar la consulta gratis (p. ej. 19:00 HN) no
+ * debe quedar bloqueado porque paypal_apply_event escribe current_date UTC.
+ * Identidad por IP nunca mira subscriptions.
  */
 async function resolveTodayTier(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -328,7 +447,7 @@ async function resolveTodayTier(
   userIdentifier: string,
   existingTier: unknown
 ): Promise<UserTier> {
-  if (isUserTier(existingTier)) return existingTier;
+  if (isUserTier(existingTier) && existingTier !== 'free') return existingTier;
   const idSuscripcion = identificadorDeSuscripcion(userIdentifier);
   if (idSuscripcion.startsWith('ip:')) return 'free';
 
@@ -346,29 +465,75 @@ async function resolveTodayTier(
   });
 }
 
-async function incrementCount(
+async function updateCountCas(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   userIdentifier: string,
   today: string,
   tier: string,
-  currentCount: number
-) {
-  await supabase
+  expectedCount: number,
+  nextCount = expectedCount + 1,
+): Promise<number> {
+  const { data, error } = await supabase
+    .from('queries_log')
+    .update({
+      query_count: nextCount,
+      tier,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_identifier', userIdentifier)
+    .eq('query_date', today)
+    .eq('query_count', expectedCount)
+    .select('query_count');
+
+  if (error) {
+    console.error('[RateLimit] update queries_log falló', {
+      code: error.code,
+      message: error.message,
+    });
+    throw new RateLimitStoreError(
+      error.message ?? 'queries_log update failed',
+      String(error.code ?? 'STORE_ERROR'),
+    );
+  }
+  return Array.isArray(data) ? data.length : 0;
+}
+
+async function insertCountIgnoreDup(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+  today: string,
+  tier: string,
+): Promise<number> {
+  const { data, error } = await supabase
     .from('queries_log')
     .upsert(
       {
         user_identifier: userIdentifier,
         query_date: today,
-        query_count: currentCount + 1,
+        query_count: 1,
         tier,
         updated_at: new Date().toISOString(),
       },
       {
         onConflict: 'user_identifier,query_date',
-        ignoreDuplicates: false,
-      }
+        ignoreDuplicates: true,
+      },
+    )
+    .select('query_count');
+
+  if (error) {
+    console.error('[RateLimit] upsert queries_log falló', {
+      code: error.code,
+      message: error.message,
+    });
+    throw new RateLimitStoreError(
+      error.message ?? 'queries_log upsert failed',
+      String(error.code ?? 'STORE_ERROR'),
     );
+  }
+  return Array.isArray(data) ? data.length : 0;
 }
 
 /**
