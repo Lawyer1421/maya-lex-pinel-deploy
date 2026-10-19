@@ -39,10 +39,17 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
     checkRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
+    reserveRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
     incrementRateLimit: vi.fn().mockResolvedValue(undefined),
+    releaseRateLimit: vi.fn().mockResolvedValue(undefined),
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
+    RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
+    esFalloProveedorQueDevuelveCuota: () => false,
+    esFalloOpenRouterQueDevuelveCuota: () => false,
     getUserIdentifierVerificado: vi.fn().mockResolvedValue('ip:test'),
     getVerifiedEmail: vi.fn().mockResolvedValue(null),
     getUserIdentifier: vi.fn().mockReturnValue('ip:test'),

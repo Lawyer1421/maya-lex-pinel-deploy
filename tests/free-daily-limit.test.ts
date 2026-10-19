@@ -17,36 +17,80 @@ function fakeClaudeStream(text: string) {
 
 const llamadasAnthropic: unknown[][] = [];
 
-function statefulSupabase() {
+function statefulSupabase(opts?: {
+  readError?: { code: string; message: string };
+  subs?: Record<string, { tier: string; status: string }>;
+  authEmail?: string | null;
+}) {
   const rows = new Map<string, { query_count: number; tier: string }>();
-  const upsert = vi.fn(async (row: {
-    user_identifier: string;
-    query_date: string;
-    query_count: number;
-    tier: string;
-  }) => {
-    rows.set(`${row.user_identifier}|${row.query_date}`, {
-      query_count: row.query_count,
-      tier: row.tier,
-    });
-    return { error: null };
-  });
+  let writeLock = Promise.resolve();
+  function withLock<T>(fn: () => T): Promise<T> {
+    const run = writeLock.then(fn);
+    writeLock = run.then(() => undefined, () => undefined);
+    return run;
+  }
+  const upsert = vi.fn();
   const from = vi.fn((table: string) => {
     const filtros: Record<string, unknown> = {};
+    let patch: { query_count?: number; tier?: string } | null = null;
+    let upsertRow: { user_identifier: string; query_date: string; query_count: number; tier: string } | null = null;
+    let ignoreDuplicates = false;
     const chain: Record<string, unknown> = {};
-    chain.select = vi.fn(() => chain);
+    chain.select = vi.fn(() => {
+      if (patch) {
+        const applied = patch;
+        return withLock(() => {
+          const key = `${filtros.user_identifier}|${filtros.query_date}`;
+          const row = rows.get(key);
+          if (!row) return { data: [], error: null };
+          if (filtros.query_count !== undefined && row.query_count !== filtros.query_count) {
+            return { data: [], error: null };
+          }
+          if (typeof applied.query_count === 'number') row.query_count = applied.query_count;
+          if (typeof applied.tier === 'string') row.tier = applied.tier;
+          return { data: [{ query_count: row.query_count, tier: row.tier }], error: null };
+        });
+      }
+      if (upsertRow) {
+        const row = upsertRow;
+        upsert(row);
+        return withLock(() => {
+          const key = `${row.user_identifier}|${row.query_date}`;
+          if (rows.has(key) && ignoreDuplicates) return { data: [], error: null };
+          rows.set(key, { query_count: row.query_count, tier: row.tier });
+          return { data: [rows.get(key)], error: null };
+        });
+      }
+      return chain;
+    });
     chain.eq = vi.fn((col: string, val: unknown) => {
       filtros[col] = val;
       return chain;
     });
     chain.single = vi.fn(async () => {
+      if (opts?.readError && table === 'queries_log') {
+        return { data: null, error: opts.readError };
+      }
       if (table !== 'queries_log') return { data: null, error: null };
       const key = `${filtros.user_identifier}|${filtros.query_date}`;
       const data = rows.get(key) ?? null;
       return { data, error: data ? null : { code: 'PGRST116' } };
     });
-    chain.maybeSingle = vi.fn(async () => ({ data: null, error: null }));
-    chain.upsert = upsert;
+    chain.maybeSingle = vi.fn(async () => ({
+      data: table === 'subscriptions'
+        ? opts?.subs?.[String(filtros.user_identifier)] ?? null
+        : null,
+      error: null,
+    }));
+    chain.update = vi.fn((p: { query_count?: number; tier?: string }) => {
+      patch = p;
+      return chain;
+    });
+    chain.upsert = vi.fn((row: typeof upsertRow, extra?: { ignoreDuplicates?: boolean }) => {
+      upsertRow = row;
+      ignoreDuplicates = Boolean(extra?.ignoreDuplicates);
+      return chain;
+    });
     return chain;
   });
   return {
@@ -54,13 +98,19 @@ function statefulSupabase() {
     upsert,
     rows,
     auth: {
-      getUser: async () => ({ data: { user: null }, error: { message: 'no session' } }),
+      getUser: async () => (
+        opts?.authEmail
+          ? { data: { user: { email: opts.authEmail } }, error: null }
+          : { data: { user: null }, error: { message: 'no session' } }
+      ),
     },
   };
 }
 
 function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
   anthropicError?: { status: number };
+  hangAfterFirstChunk?: boolean;
+  emptyCorpus?: boolean;
 }) {
   vi.doMock('next/server', async () => {
     const actual = await vi.importActual<typeof import('next/server')>('next/server');
@@ -85,6 +135,21 @@ function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
     buscarPlantilla: vi.fn().mockResolvedValue([]),
     formatearContextoPlantilla: vi.fn().mockReturnValue(''),
   }));
+  if (opts?.emptyCorpus) {
+    vi.doMock('@/lib/legal-retrieval/retrieval-session', async () => {
+      const actual = await vi.importActual<typeof import('@/lib/legal-retrieval/retrieval-session')>(
+        '@/lib/legal-retrieval/retrieval-session',
+      );
+      return {
+        ...actual,
+        recuperarEvidenciaCorpus: vi.fn().mockResolvedValue({
+          texto: '',
+          fragmentos: [],
+          outcome: { state: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0 },
+        }),
+      };
+    });
+  }
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {
       status: number;
@@ -99,6 +164,14 @@ function mockChatDeps(supabase: ReturnType<typeof statefulSupabase>, opts?: {
           llamadasAnthropic.push(args);
           if (opts?.anthropicError) {
             throw new MockAPIError('fallo del modelo', opts.anthropicError.status);
+          }
+          if (opts?.hangAfterFirstChunk) {
+            return (async function* () {
+              yield { type: 'message_start', message: { usage: { input_tokens: 8 } } };
+              yield { type: 'content_block_start', content_block: { type: 'text' } };
+              yield { type: 'content_block_delta', delta: { type: 'text_delta', text: 'hola' } };
+              await new Promise(() => { /* cliente aborta; el stream no termina */ });
+            })();
           }
           return fakeClaudeStream('ok');
         },
@@ -159,7 +232,7 @@ describe('POST /api/chat — cuota free 1/día', () => {
     expect(r1.status).not.toBe(429);
     await drain(r1 as unknown as Response);
     expect(llamadasAnthropic.length).toBe(1);
-    expect(sb.upsert).toHaveBeenCalled();
+    expect(sb.rows.size).toBeGreaterThan(0);
 
     const r2 = await POST(fakeReq(salaBody, headers));
     expect(r2.status).toBe(429);
@@ -195,7 +268,8 @@ describe('POST /api/chat — cuota free 1/día', () => {
     const fail = await POST(fakeReq(salaBody, headers));
     await drain(fail as unknown as Response);
     expect(llamadasAnthropic.length).toBe(1);
-    expect(sb.upsert).not.toHaveBeenCalled();
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
 
     vi.resetModules();
     llamadasAnthropic.length = 0;
@@ -205,6 +279,119 @@ describe('POST /api/chat — cuota free 1/día', () => {
     expect(ok.status).not.toBe(429);
     await drain(ok as unknown as Response);
     expect(llamadasAnthropic.length).toBe(1);
-    expect(sb.upsert).toHaveBeenCalled();
+  });
+
+  it('P1-1: pago nocturno tras gastar free → 200, no 429', async () => {
+    const sb = statefulSupabase({
+      authEmail: 'pagado@ejemplo.com',
+      subs: { 'email:pagado@ejemplo.com': { tier: 'pro', status: 'active' } },
+    });
+    const { fechaDiaHn } = await import('@/lib/rate-limit');
+    sb.rows.set(`email:pagado@ejemplo.com|${fechaDiaHn()}`, { query_count: 1, tier: 'free' });
+    mockChatDeps(sb);
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq(salaBody, {
+      authorization: 'Bearer token',
+      'x-forwarded-for': '192.0.2.80',
+    }));
+    expect(res.status).not.toBe(429);
+    await drain(res as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(1);
+  });
+
+  it('P2-1: 5 POST paralelos misma IP → 1 con 200, 4 con 429, 1 Anthropic', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb);
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-vercel-forwarded-for': '203.0.113.77' };
+    const results = await Promise.all(
+      Array.from({ length: 5 }, () => POST(fakeReq(salaBody, headers))),
+    );
+    const denied = results.filter((r) => r.status === 429);
+    const allowed = results.filter((r) => r.status !== 429);
+    expect(allowed).toHaveLength(1);
+    expect(denied).toHaveLength(4);
+    await Promise.all(allowed.map((r) => drain(r as unknown as Response)));
+    expect(llamadasAnthropic.length).toBe(1);
+  });
+
+  it('P2-2: cliente aborta tras el primer chunk → la siguiente consulta da 429', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb, { hangAfterFirstChunk: true });
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '198.51.100.44' };
+
+    const first = await POST(fakeReq(salaBody, headers));
+    expect(first.status).not.toBe(429);
+    const reader = (first as unknown as Response).body!.getReader();
+    await reader.read();
+    await reader.cancel();
+
+    vi.resetModules();
+    mockChatDeps(sb);
+    const { POST: POST2 } = await import('@/app/api/chat/route');
+    const second = await POST2(fakeReq(salaBody, headers));
+    expect(second.status).toBe(429);
+    const body = await second.json();
+    expect(body.code).toBe(FREE_DAILY_LIMIT_CODE);
+  });
+
+  it('P2-3: error 57014 en lectura → 503 y 0 llamadas a Anthropic', async () => {
+    const sb = statefulSupabase({
+      readError: { code: '57014', message: 'canceling statement due to statement timeout' },
+    });
+    mockChatDeps(sb);
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST(fakeReq(salaBody, { 'x-forwarded-for': '192.0.2.14' }));
+    expect(res.status).toBe(503);
+    expect(llamadasAnthropic.length).toBe(0);
+  });
+
+  it('P2-4: aclaración RUTA_D no consume la consulta', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb);
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '203.0.113.8' };
+    const aclaracion = { messages: [{ role: 'user', content: 'hola' }], mode: 'analisis' };
+    const r1 = await POST(fakeReq(aclaracion, headers));
+    expect(r1.status).not.toBe(429);
+    await drain(r1 as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(0);
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
+
+    const r2 = await POST(fakeReq(salaBody, headers));
+    expect(r2.status).not.toBe(429);
+    await drain(r2 as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(1);
+  });
+
+  it('P2-4: abstención de corpus no consume la consulta', async () => {
+    const sb = statefulSupabase();
+    mockChatDeps(sb, { emptyCorpus: true });
+    const { POST } = await import('@/app/api/chat/route');
+    const headers = { 'x-forwarded-for': '203.0.113.9' };
+    const analisis = {
+      messages: [{
+        role: 'user',
+        content: 'Explica las medidas cautelares personales aplicables en el proceso penal hondureño.',
+      }],
+      mode: 'analisis_penal',
+    };
+    const r1 = await POST(fakeReq(analisis, headers));
+    expect(r1.status).not.toBe(429);
+    await drain(r1 as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(0);
+    const used = [...sb.rows.values()].reduce((n, r) => n + r.query_count, 0);
+    expect(used).toBe(0);
+
+    vi.resetModules();
+    llamadasAnthropic.length = 0;
+    mockChatDeps(sb);
+    const { POST: POST2 } = await import('@/app/api/chat/route');
+    const r2 = await POST2(fakeReq(salaBody, headers));
+    expect(r2.status).not.toBe(429);
+    await drain(r2 as unknown as Response);
+    expect(llamadasAnthropic.length).toBe(1);
   });
 });

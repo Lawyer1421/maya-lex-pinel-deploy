@@ -50,7 +50,14 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
     checkRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
+    reserveRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
     incrementRateLimit: vi.fn().mockResolvedValue(undefined),
+    releaseRateLimit: vi.fn().mockResolvedValue(undefined),
+    RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
+    esFalloProveedorQueDevuelveCuota: () => false,
+    esFalloOpenRouterQueDevuelveCuota: () => false,
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),

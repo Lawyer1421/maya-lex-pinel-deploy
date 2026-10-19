@@ -12,12 +12,18 @@ function fakeSupabase(opts: {
   usage: { query_count: number; tier: string } | null;
   subs: Record<string, { tier: string; status: string }>;
 }) {
-  const upsert = vi.fn().mockResolvedValue({ error: null });
+  const upsert = vi.fn();
   const eqs: { table: string; col: string; val: unknown }[] = [];
   const from = vi.fn((table: string) => {
     const filtros: Record<string, unknown> = {};
+    let mode: 'read' | 'update' | 'upsert' = 'read';
     const chain: Record<string, unknown> = {};
-    chain.select = vi.fn(() => chain);
+    chain.select = vi.fn(() => {
+      if (mode === 'upsert' || mode === 'update') {
+        return Promise.resolve({ data: [{ query_count: 1 }], error: null });
+      }
+      return chain;
+    });
     chain.eq = vi.fn((col: string, val: unknown) => {
       filtros[col] = val;
       eqs.push({ table, col, val });
@@ -28,7 +34,15 @@ function fakeSupabase(opts: {
       data: table === 'subscriptions' ? opts.subs[String(filtros.user_identifier)] ?? null : null,
       error: null,
     }));
-    chain.upsert = upsert;
+    chain.update = vi.fn(() => {
+      mode = 'update';
+      return chain;
+    });
+    chain.upsert = vi.fn((row: unknown, extra?: unknown) => {
+      mode = 'upsert';
+      upsert(row, extra);
+      return chain;
+    });
     return chain;
   });
   return { from, upsert, eqs };

@@ -1,25 +1,31 @@
 import { describe, it, expect, vi } from 'vitest';
 
 function fakeSupabase(subRow: unknown, usageRow: unknown) {
+  const eqCalls: Array<[string, unknown]> = [];
   const from = vi.fn((table: string) => {
     const chain: any = {};
     chain.select = vi.fn().mockReturnValue(chain);
-    chain.eq = vi.fn().mockReturnValue(chain);
+    chain.eq = vi.fn((col: string, val: unknown) => {
+      eqCalls.push([col, val]);
+      return chain;
+    });
     chain.maybeSingle = vi.fn().mockResolvedValue({
       data: table === 'subscriptions' ? subRow : usageRow,
       error: null,
     });
     return chain;
   });
-  return { from } as any;
+  return { from, eqCalls } as any;
 }
 
 async function freshAccess(subRow: unknown, usageRow: unknown) {
   vi.resetModules();
+  const sb = fakeSupabase(subRow, usageRow);
   vi.doMock('@/lib/supabase', () => ({
-    createServerSupabaseClient: () => fakeSupabase(subRow, usageRow),
+    createServerSupabaseClient: () => sb,
   }));
-  return import('@/lib/paypal/access');
+  const mod = await import('@/lib/paypal/access');
+  return { ...mod, eqCalls: sb.eqCalls as Array<[string, unknown]> };
 }
 
 describe('resolveCurrentAccess — precedencia de fuentes', () => {
@@ -94,6 +100,15 @@ describe('resolveCurrentAccess — precedencia de fuentes', () => {
     );
     const access = await resolveCurrentAccess('email:alumno@ejemplo.com');
     expect(access.canAnalyzeDocuments).toBe(true);
+  });
+});
+
+describe('resolveCurrentAccess — fecha HN', () => {
+  it('queries_log usa fechaDiaHn, no UTC current_date', async () => {
+    const { resolveCurrentAccess, eqCalls } = await freshAccess(null, { tier: 'free' });
+    const { fechaDiaHn } = await import('@/lib/rate-limit');
+    await resolveCurrentAccess('email:x@y.com');
+    expect(eqCalls).toContainEqual(['query_date', fechaDiaHn()]);
   });
 });
 
