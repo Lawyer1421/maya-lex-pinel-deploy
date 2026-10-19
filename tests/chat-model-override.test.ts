@@ -127,6 +127,34 @@ describe('POST /api/chat — override de modelo según plan', () => {
     expect(params.model).toBe(MODELO_SONNET);
   });
 
+  it('Pro que pide Haiku en analisis no envía thinking', async () => {
+    mockChat('pro');
+    const { POST } = await import('@/app/api/chat/route');
+    await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Cuál es el plazo de apelación civil?' }],
+      mode: 'analisis',
+      modelOverride: MODELO_HAIKU,
+    }));
+    const params = llamadas[0]?.[0] as { model: string; thinking?: unknown };
+    expect(params.model).toBe(MODELO_HAIKU);
+    expect(params.thinking).toBeUndefined();
+  });
+
+  it('default Sonnet en analisis envía thinking adaptive', async () => {
+    mockChat('free');
+    const { POST } = await import('@/app/api/chat/route');
+    await POST(fakeReq({
+      messages: [{ role: 'user', content: 'Cuál es el plazo de apelación civil?' }],
+      mode: 'analisis',
+    }));
+    const params = llamadas[0]?.[0] as {
+      model: string;
+      thinking?: { type: string; display: string };
+    };
+    expect(params.model).toBe(MODELO_SONNET);
+    expect(params.thinking).toEqual({ type: 'adaptive', display: 'summarized' });
+  });
+
   it('free o Pro que pide Opus o Sonnet en sala recibe Haiku', async () => {
     for (const { tier, override } of [
       { tier: 'free', override: MODELO_OPUS },

@@ -48,6 +48,7 @@ import {
   ALLOWLIST_MODELOS,
   resolverConfigModo,
   resolverModeloCliente,
+  thinkingParaModelo,
   type ModoChat,
 } from '@/lib/model-config';
 import { recortarHistorialDesdeEnv } from '@/lib/chat-history';
@@ -602,9 +603,10 @@ export async function POST(req: NextRequest) {
             stream: true,
           };
 
-          if (config.thinking) {
-            // @ts-expect-error — thinking es soportado en claude-opus-4-8
-            params.thinking = config.thinking;
+          const thinkingEfectivo = thinkingParaModelo(modeloEfectivo);
+          if (thinkingEfectivo) {
+            // @ts-expect-error — thinking adaptive solo en claude-sonnet-4-6
+            params.thinking = thinkingEfectivo;
           }
 
           if (process.env.DEBUG_CLAUDE === 'true') {

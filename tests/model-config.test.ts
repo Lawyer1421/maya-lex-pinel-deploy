@@ -8,6 +8,7 @@ import {
   resolverConfigModo,
   resolverModeloCliente,
   resolverModeloModo,
+  soportaThinkingAdaptive,
 } from '@/lib/model-config';
 import { modelosVisibles } from '@/lib/model-config';
 
@@ -73,6 +74,15 @@ describe('resolverModeloModo — defaults y env', () => {
     expect(resolverConfigModo('sala_ia').thinking).toBeUndefined();
     expect(DEFAULTS_MODO.documento.max_tokens).toBeLessThan(8000);
     expect(DEFAULTS_MODO.escritos_penales.max_tokens).toBeLessThan(10000);
+  });
+
+  it('env MAYA_MODEL_ANALISIS=Haiku quita thinking adaptive', () => {
+    process.env.MAYA_MODEL_ANALISIS = MODELO_HAIKU;
+    const cfg = resolverConfigModo('analisis');
+    expect(cfg.model).toBe(MODELO_HAIKU);
+    expect(cfg.thinking).toBeUndefined();
+    expect(soportaThinkingAdaptive(MODELO_HAIKU)).toBe(false);
+    expect(soportaThinkingAdaptive(MODELO_SONNET)).toBe(true);
   });
 });
 

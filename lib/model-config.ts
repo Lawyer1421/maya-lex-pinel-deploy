@@ -103,6 +103,21 @@ export function esModeloPermitido(modelId: string | null | undefined): boolean {
   return typeof modelId === 'string' && ALLOWLIST_MODELOS.has(modelId);
 }
 
+/** Haiku 4.5 rechaza type: "adaptive" con HTTP 400. Solo Sonnet 4.6 lo soporta. */
+export function soportaThinkingAdaptive(model: string | null | undefined): boolean {
+  return model === MODELO_SONNET;
+}
+
+export const THINKING_ADAPTIVE: Exclude<ThinkingConfig, undefined> = {
+  type: 'adaptive',
+  display: 'summarized',
+};
+
+/** Thinking se deriva del modelo efectivo, no del default del modo. */
+export function thinkingParaModelo(model: string | null | undefined): ThinkingConfig {
+  return soportaThinkingAdaptive(model) ? THINKING_ADAPTIVE : undefined;
+}
+
 function leerOverrideEnv(mode: ModoChat): string | undefined {
   const crudo = process.env[ENV_POR_MODO[mode]];
   if (crudo === undefined) return undefined;
@@ -127,7 +142,8 @@ export function resolverModeloModo(mode: ModoChat): string {
 
 export function resolverConfigModo(mode: ModoChat): ConfigModo {
   const base = DEFAULTS_MODO[mode];
-  return { ...base, model: resolverModeloModo(mode) };
+  const model = resolverModeloModo(mode);
+  return { ...base, model, thinking: thinkingParaModelo(model) };
 }
 
 /**
