@@ -33,8 +33,8 @@ import {
   reserveRateLimit,
   releaseRateLimit,
   RateLimitStoreError,
-  esFalloProveedorQueDevuelveCuota,
   esFalloOpenRouterQueDevuelveCuota,
+  esAbortDelCliente,
   getVerifiedEmail,
   getUserIdentifier,
   buildUserIdentifierFromEmail,
@@ -249,8 +249,11 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof RateLimitStoreError) {
       return NextResponse.json(
-        { error: 'Servicio de cuota no disponible', code: 'RATE_LIMIT_UNAVAILABLE' },
-        { status: 503 },
+        {
+          error: 'Servicio de cuota no disponible',
+          code: err.code === 'RESERVE_EXHAUSTED' ? 'RESERVE_EXHAUSTED' : 'RATE_LIMIT_UNAVAILABLE',
+        },
+        { status: 503, headers: { 'Retry-After': '2' } },
       );
     }
     throw err;
@@ -401,7 +404,22 @@ export async function POST(req: NextRequest) {
     }
   })();
 
-  const [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  let ragData: RagOut;
+  let contextoWeb: string;
+  try {
+    [ragData, contextoWeb] = await Promise.all([ragPromise, webPromise]);
+  } catch (err) {
+    console.error('[Maya Lex] Error RAG/web antes del stream:', err);
+    try {
+      await releaseRateLimit(userIdentifier);
+    } catch (releaseErr) {
+      console.error('[RateLimit] no se pudo devolver la reserva tras fallo RAG', releaseErr);
+    }
+    return NextResponse.json(
+      { error: 'Servicio de recuperación no disponible', code: 'RETRIEVAL_UNAVAILABLE' },
+      { status: 503, headers: { 'Retry-After': '2' } },
+    );
+  }
   const contextoRAG = ragData.texto;
   const citas = construirCitas(ragData.fragmentos);
 
@@ -616,7 +634,7 @@ export async function POST(req: NextRequest) {
               }));
             },
             onError: (message) => {
-              if (esFalloOpenRouterQueDevuelveCuota(message)) {
+              if (esFalloOpenRouterQueDevuelveCuota(message) || !/abort/i.test(message)) {
                 devolverReserva = true;
               }
               controller.enqueue(sseEvent({ type: 'error', message }));
@@ -698,7 +716,7 @@ export async function POST(req: NextRequest) {
         }
       } catch (error) {
         console.error('[Maya Lex] Error streaming:', error);
-        if (esFalloProveedorQueDevuelveCuota(error)) {
+        if (!esAbortDelCliente(error)) {
           devolverReserva = true;
         }
 
