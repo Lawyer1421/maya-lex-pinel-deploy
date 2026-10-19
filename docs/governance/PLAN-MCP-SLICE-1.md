@@ -107,6 +107,18 @@ el lookup en subscriptions fallaría y degradaría a free). Entregable
 obligatorio: **test que lo demuestre** (caso: usuario pro con identificador
 `mcp:...` conserva límite de pro, no cae a free).
 
+**Tier del mismo día (nota del Auditor @ 72432ee, P3-1; aceptado).** El tier
+MCP lo resuelve `resolverTierMcp` (`lib/rate-limit.ts`): la fila de hoy de
+`queries_log` para `mcp:email:…` si existe; si no, la suscripción activa. Una
+vez escrita la fila del día, ese tier rige hasta que cambia la fecha UTC:
+- un pro que cancela conserva el acceso MCP hasta las 00:00 UTC (18:00 hora
+  de Honduras) de ese día;
+- es la misma semántica que el chat («si ya hay queries_log.tier hoy, ese es
+  el gate»);
+- no existe el caso inverso (un free bloqueado tras ascender a pro): con
+  cuota 0 la bolsa MCP no escribe fila, así que al día siguiente, o en la
+  siguiente consulta del mismo día, se lee la suscripción activa.
+
 ### 3.3 Matriz de autorización MCP (espejo de Exequátur)
 ```
 pro      + flag_mcp_enabled ON  -> ALLOW

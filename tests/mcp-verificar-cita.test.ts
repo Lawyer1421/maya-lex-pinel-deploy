@@ -47,6 +47,19 @@ describe('verificarCita — tope de longitud (Auditor @ e1c0c40, P2-3)', () => {
     expect(verificarCita(cita, texto).estado).toBe('texto_distinto');
     expect(Date.now() - t0).toBeLessThan(2000);
   });
+  it('peor caso en el tope: palabras repetidas (todas las ventanas empatan) contra 20.000 palabras', () => {
+    // Cada ventana del texto empata en coincidencias, así que el desempate por
+    // alineación corre en todas (Auditor @ 72432ee, P3-4). Debe seguir acotado.
+    const cita = `${'a '.repeat(998)}b`.slice(0, MAX_CARACTERES_CITA);
+    expect(normalizarCita(cita).length).toBeLessThanOrEqual(MAX_CARACTERES_CITA);
+    const texto = Array.from({ length: 20000 }, () => 'a').join(' ');
+    const t0 = Date.now();
+    const r = verificarCita(cita, texto);
+    const ms = Date.now() - t0;
+    expect(r.estado).toBe('texto_distinto');
+    if (r.estado === 'texto_distinto') expect(r.palabras_faltantes).toEqual(['b']);
+    expect(ms).toBeLessThan(5000);
+  });
 });
 
 describe('verificarCita — normalización', () => {
