@@ -30,10 +30,12 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import {
-  checkAndIncrementRateLimit,
+  checkRateLimit,
+  incrementRateLimit,
   getVerifiedEmail,
   getUserIdentifier,
   buildUserIdentifierFromEmail,
+  FREE_DAILY_LIMIT_CODE,
 } from '@/lib/rate-limit';
 import { isFlagEnabledForUser } from '@/lib/flags';
 import {
@@ -232,23 +234,31 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 2. Rate Limiting — identidad verificada: email:{correo} si hay sesión, ip: si no
+  // 2. Cuota — ANTES de RAG y Anthropic. No incrementa: solo se cobra si
+  // la consulta termina bien (el modelo no falló con 5xx/timeout).
   const verifiedEmail = await getVerifiedEmail(req);
   const userIdentifier = verifiedEmail
     ? buildUserIdentifierFromEmail(verifiedEmail)
     : getUserIdentifier(req);
-  const rateLimitResult = await checkAndIncrementRateLimit(userIdentifier);
+  const rateLimitResult = await checkRateLimit(userIdentifier);
 
   if (!rateLimitResult.allowed) {
+    const esFree = rateLimitResult.tier === 'free';
     return NextResponse.json(
-      {
-        error: 'Límite diario alcanzado',
-        message: rateLimitResult.tier === 'free'
-          ? `Has alcanzado el límite de ${3} consultas gratuitas por día. Actualiza al Plan Pro para consultas ilimitadas.`
-          : 'Has alcanzado el límite diario.',
-        resetAt: rateLimitResult.resetAt,
-        upgradeUrl: '/pricing',
-      },
+      esFree
+        ? {
+            code: FREE_DAILY_LIMIT_CODE,
+            resetAt: rateLimitResult.resetAt,
+            plans: ['academico', 'premium'] as const,
+            error: 'Límite diario alcanzado',
+            message: 'Ya usaste tu consulta gratis de hoy.',
+          }
+        : {
+            error: 'Límite diario alcanzado',
+            message: 'Has alcanzado el límite diario.',
+            resetAt: rateLimitResult.resetAt,
+            upgradeUrl: '/pricing',
+          },
       {
         status: 429,
         headers: {
@@ -463,6 +473,7 @@ export async function POST(req: NextRequest) {
   // 4. Streaming Response
   const stream = new ReadableStream({
     async start(controller) {
+      let consultaExitosa = false;
       try {
         // RUTA_D en modo de análisis → aclaración inmediata sin LLM ni RAG
         // Aplica cuando: (a) modo análisis + query ambigua [usarRouter=true, ruta=D]
@@ -485,6 +496,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          consultaExitosa = true;
           return;
         }
 
@@ -549,6 +561,7 @@ export async function POST(req: NextRequest) {
             web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
             tier_usuario: rateLimitResult.tier, exito: true,
           }));
+          consultaExitosa = true;
           return;
         }
 
@@ -569,6 +582,7 @@ export async function POST(req: NextRequest) {
               controller.enqueue(sseEvent({ type: 'text', text: token }));
             },
             onDone: ({ inputTokens, outputTokens }) => {
+              consultaExitosa = true;
               controller.enqueue(sseEvent({
                 type: 'done',
                 consulta_id: consultaId,
@@ -645,6 +659,7 @@ export async function POST(req: NextRequest) {
                 break;
 
               case 'message_stop':
+                consultaExitosa = true;
                 controller.enqueue(sseEvent({
                   type: 'done',
                   consulta_id: consultaId,
@@ -668,6 +683,7 @@ export async function POST(req: NextRequest) {
         }
       } catch (error) {
         console.error('[Maya Lex] Error streaming:', error);
+        consultaExitosa = false;
 
         let errorMessage = 'Error interno del servidor';
         if (error instanceof Anthropic.APIError) {
@@ -678,6 +694,9 @@ export async function POST(req: NextRequest) {
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
       } finally {
+        if (consultaExitosa) {
+          await incrementRateLimit(userIdentifier, rateLimitResult.tier);
+        }
         controller.close();
       }
     },
