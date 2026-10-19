@@ -32,7 +32,7 @@ const PREGUNTAS_FAQ = [
   },
   {
     pregunta: '¿Necesito pagar para probarlo?',
-    respuesta: 'No — cree una cuenta gratuita (sin tarjeta) y use Maya Lex en /chat con hasta 3 consultas reales por día.',
+    respuesta: 'No — cree una cuenta gratuita (sin tarjeta) y use Maya Lex en /chat con 1 consulta/día.',
   },
   {
     pregunta: '¿Qué pasa con mis suscripciones y datos si cambia el diseño del sitio?',

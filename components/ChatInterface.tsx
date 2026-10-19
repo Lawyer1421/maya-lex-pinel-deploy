@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { ChatMode } from '@/lib/system-prompt';
 import MessageBubble from './MessageBubble';
 import PromptInput, { type Attachment, type SendPayload } from './PromptInput';
+import FreeDailyLimitCard from './FreeDailyLimitCard';
+import { esRespuestaFreeDailyLimit } from '@/lib/free-daily-limit-ui';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { createStreamTextBuffer } from '@/lib/chat/stream-text-buffer';
 import { filterSuggestions } from '@/lib/chat/suggestion-filter';
@@ -98,6 +100,8 @@ export default function ChatInterface() {
   const [isThinking, setIsThinking] = useState(false);
   const [usage, setUsage] = useState<UsageInfo>({});
   const [error, setError] = useState<string | null>(null);
+  const [freeDailyLimit, setFreeDailyLimit] = useState<{ resetAt?: string } | null>(null);
+  const [hasSession, setHasSession] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [draftQuery, setDraftQuery] = useState('');
   const [feedbackMap, setFeedbackMap] = useState<Record<string, boolean>>({});
@@ -132,6 +136,7 @@ export default function ChatInterface() {
     (async () => {
       try {
         const authHeader = await getAuthHeader();
+        setHasSession(Boolean(authHeader.Authorization));
         const res = await fetch('/api/usage', { headers: authHeader });
         const data = await res.json();
         setUsage((prev) => ({
@@ -160,6 +165,7 @@ export default function ChatInterface() {
       if ((!text.trim() && attachments.length === 0) || isLoading) return;
 
       setError(null);
+      setFreeDailyLimit(null);
       setShowSuggestions(false);
 
       // Contenido visible en la burbuja de usuario
@@ -212,7 +218,9 @@ export default function ChatInterface() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          if (response.status === 429) {
+          if (response.status === 429 && esRespuestaFreeDailyLimit(errorData)) {
+            setFreeDailyLimit({ resetAt: errorData.resetAt });
+          } else if (response.status === 429) {
             const resetTime = errorData.resetAt
               ? new Date(errorData.resetAt).toLocaleTimeString('es-HN')
               : 'mañana';
@@ -468,7 +476,7 @@ export default function ChatInterface() {
 
             <div className="mt-6 text-center">
               <p className="text-white/30 text-xs">
-                Plan Gratuito: 3 consultas diarias ·{' '}
+                Plan Gratuito: 1 consulta/día ·{' '}
                 <a href="/pricing" className="text-gold hover:underline">
                   Actualizar al Plan Pro →
                 </a>
@@ -516,6 +524,13 @@ export default function ChatInterface() {
             )}
           </div>
         ))}
+
+        {freeDailyLimit && (
+          <FreeDailyLimitCard
+            resetAt={freeDailyLimit.resetAt}
+            isAnonymous={!hasSession}
+          />
+        )}
 
         {/* Error */}
         {error && (
