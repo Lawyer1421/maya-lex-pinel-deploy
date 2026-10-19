@@ -8,6 +8,7 @@ import {
   esFechaIso,
   identificaDecretoOFallo,
   motivoRechazoVinculo,
+  anioEnCursoUTC,
   normalizarModificador,
   SIGLAS_VINCULO_V1,
   type NormaVersion,
@@ -1055,6 +1056,17 @@ describe('dictamen CLO 17-oct-2026 — reforma posterior de cualquier nivel', ()
     });
     afterEach(() => {
       vi.useRealTimers();
+    });
+    it('el año en curso se inyecta en resolverVersion (resultado reproducible sin depender del reloj)', () => {
+      const vs = [img2015({ vigente_desde: '1980-01-01' }), cedij2019({ instrumento_modificador: 'RI-12-27', vigente_desde: '2000-01-01' })];
+      // 2026: «27» se lee 1927 (≤ 2000) -> vincula. 2027: se lee 2027 (> 2000) -> no vincula y va a curación.
+      expect(sinFallo(resolverVersion(NOTARIADO, '1', '2030-06-01', vs, { anioEnCurso: 2026 })).estado).toBe('PRIMARY');
+      const r2027 = sinFallo(resolverVersion(NOTARIADO, '1', '2030-06-01', vs, { anioEnCurso: 2027 }));
+      expect(r2027.estado).toBe('CONTEXT');
+      expect(r2027.curacionDatos).toContainEqual(expect.objectContaining({ version_id: 'cedij-2019', motivo: 'VINCULO_NO_IDENTIFICADO' }));
+      // Sin opciones se usa el reloj (fijado en 2026 en este describe).
+      expect(sinFallo(resolverVersion(NOTARIADO, '1', '2030-06-01', vs)).estado).toBe('PRIMARY');
+      expect(anioEnCursoUTC()).toBe(2026);
     });
     it('un año en curso inválido nunca permite leer un año de 2 cifras', () => {
       expect(identificaDecretoOFallo('Decreto 59-15', '2016-01-01', Number.NaN)).toBe(false);

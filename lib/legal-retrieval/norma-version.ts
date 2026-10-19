@@ -470,6 +470,16 @@ function anioLeidoDosCifras(tipo: TipoVinculo, yy: string, anioEnCurso: number):
 }
 
 /**
+ * Año en curso (UTC) según el reloj del sistema. Sólo se usa como valor por
+ * defecto en las funciones exportadas; el resto lo recibe como parámetro, de
+ * modo que un resultado se puede reproducir y auditar fijando el año
+ * (Auditor @ 692c38f, P3-2).
+ */
+export function anioEnCursoUTC(): number {
+  return new Date().getUTCFullYear();
+}
+
+/**
  * Motivo por el que `modificador` NO identifica un decreto o fallo concreto, o
  * null si lo identifica (dictamen CLO 18-oct-2026, su addendum y la regla CLO
  * 18-oct-2026 sobre años de 2 cifras y formatos). `anioEnCurso` sólo se usa
@@ -478,7 +488,7 @@ function anioLeidoDosCifras(tipo: TipoVinculo, yy: string, anioEnCurso: number):
 export function motivoRechazoVinculo(
   modificador: string | null,
   vigenteDesde: string,
-  anioEnCurso: number = new Date().getUTCFullYear(),
+  anioEnCurso: number = anioEnCursoUTC(),
 ): string | null {
   if (modificador === null) return 'sin instrumento_modificador';
   const m = normalizarModificador(modificador);
@@ -523,8 +533,8 @@ export function identificaDecretoOFallo(
 }
 
 /** Evento real: no ORIGINAL y vinculado a un decreto o fallo identificado. */
-function esEventoReal(v: NormaVersion): boolean {
-  return v.tipo_evento !== 'ORIGINAL' && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde);
+function esEventoReal(v: NormaVersion, anioEnCurso: number): boolean {
+  return v.tipo_evento !== 'ORIGINAL' && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
 }
 
 function avisoVigenciaCerradaSinEvento(v: NormaVersion): Advertencia {
@@ -545,8 +555,8 @@ function curacionDe(v: NormaVersion): CuracionDatos {
 }
 
 /** Vinculada a un evento de reforma identificado con su decreto o fallo. */
-function vinculadaAReforma(v: NormaVersion): boolean {
-  return EVENTOS_PROMOVIBLES.includes(v.tipo_evento) && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde);
+function vinculadaAReforma(v: NormaVersion, anioEnCurso: number): boolean {
+  return EVENTOS_PROMOVIBLES.includes(v.tipo_evento) && identificaDecretoOFallo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
 }
 
 function descripcionPosterior(p: NormaVersion): string {
@@ -578,11 +588,11 @@ function avisoReformaPosteriorSinTexto(p: NormaVersion): Advertencia {
  * escrito que no identifica un decreto o fallo. Sólo marca: no cambia qué
  * versión se sirve ni su estado.
  */
-function curacionVinculos(propias: readonly NormaVersion[]): CuracionDatos[] {
+function curacionVinculos(propias: readonly NormaVersion[], anioEnCurso: number): CuracionDatos[] {
   const out: CuracionDatos[] = [];
   for (const v of propias) {
     if (v.tipo_evento === 'ORIGINAL' || (v.instrumento_modificador ?? '').trim() === '') continue;
-    const motivo = motivoRechazoVinculo(v.instrumento_modificador, v.vigente_desde);
+    const motivo = motivoRechazoVinculo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
     if (motivo === null) continue;
     out.push({
       version_id: v.version_id,
@@ -598,15 +608,25 @@ function curacionVinculos(propias: readonly NormaVersion[]): CuracionDatos[] {
  * `versiones` dadas (filas de norma_version; se filtran por instrumento y unidad).
  * Todo resultado lleva en `curacionDatos` los vínculos rechazados de la unidad
  * (en FALLO_CERRADO, sólo si los hay).
+ *
+ * `opciones.anioEnCurso` fija el año con que se leen los años de 2 cifras; si
+ * falta, se toma una sola vez del reloj (anioEnCursoUTC) y se usa en toda la
+ * resolución, para que un mismo dato no cambie de resultado a mitad de la
+ * llamada.
  */
 export function resolverVersion(
   instrumento: string,
   unidad: string,
   fecha: string,
   versiones: readonly NormaVersion[],
+  opciones: { anioEnCurso?: number } = {},
 ): ResultadoVersion {
-  const r = resolverVersionBase(instrumento, unidad, fecha, versiones);
-  const vinculos = curacionVinculos(versiones.filter((v) => v.instrumento_id === instrumento && v.unidad === unidad));
+  const anioEnCurso = opciones.anioEnCurso ?? anioEnCursoUTC();
+  const r = resolverVersionBase(instrumento, unidad, fecha, versiones, anioEnCurso);
+  const vinculos = curacionVinculos(
+    versiones.filter((v) => v.instrumento_id === instrumento && v.unidad === unidad),
+    anioEnCurso,
+  );
   if (vinculos.length === 0) return r;
   if (r.estado === 'FALLO_CERRADO') return { ...r, curacionDatos: vinculos };
   const ya = new Set(r.curacionDatos.map((c) => `${c.version_id}|${c.motivo}`));
@@ -618,6 +638,7 @@ function resolverVersionBase(
   unidad: string,
   fecha: string,
   versiones: readonly NormaVersion[],
+  anioEnCurso: number,
 ): ResultadoVersion {
   if (!esFechaIso(fecha)) return fallo('FECHA_INVALIDA');
 
@@ -640,7 +661,7 @@ function resolverVersionBase(
       )[0];
       // Dictamen CLO 18-oct-2026: sin evento que cierre la vigencia no hay prueba
       // de derogación; se devuelve su texto como CONTEXT y se marca para curación.
-      if (!esEventoReal(ultima)) {
+      if (!esEventoReal(ultima, anioEnCurso)) {
         return {
           estado: 'CONTEXT',
           version: ultima,
@@ -674,7 +695,7 @@ function resolverVersionBase(
     reformaPosterior !== undefined &&
     !posteriorBloqueante &&
     esPrimary(reformaPosterior, fecha) &&
-    vinculadaAReforma(reformaPosterior);
+    vinculadaAReforma(reformaPosterior, anioEnCurso);
 
   // Derogación o inconstitucionalidad posterior: se devuelve la propia posterior
   // (CONTEXT, nunca PRIMARY) y el texto anterior queda como contexto.
@@ -686,10 +707,10 @@ function resolverVersionBase(
     .sort((x, y) => (x.vigente_desde < y.vigente_desde ? 1 : x.vigente_desde > y.vigente_desde ? -1 : 0));
   // Sin reviviscencia automática: si la cerrada es un evento real, el texto
   // anterior no revive.
-  const reformaCerrada = cerradasPosteriores.find(esEventoReal);
+  const reformaCerrada = cerradasPosteriores.find((v) => esEventoReal(v, anioEnCurso));
   // Sin evento real (p. ej. una edición ORIGINAL cerrada): error de datos
   // (dictamen CLO 18-oct-2026).
-  const cerradasSinEvento = cerradasPosteriores.filter((v) => !esEventoReal(v));
+  const cerradasSinEvento = cerradasPosteriores.filter((v) => !esEventoReal(v, anioEnCurso));
   if (reformaCerrada) {
     return fallo('SIN_REVIVISCENCIA', [
       {
