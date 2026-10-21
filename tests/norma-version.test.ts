@@ -1408,6 +1408,10 @@ describe('dictamen CLO 21-oct-2026 (issue #74) sobre #70', () => {
       expect(r.estado).toBe('CONTEXT');
       expect(r.version.version_id).toBe('evento');
       expect(r.advertencias.map((a) => a.codigo)).toContain('REFORMA_NO_VINCULADA');
+      // La advertencia se refiere a la propia versión servida: no declara una versión posterior.
+      const adv = r.advertencias.find((a) => a.codigo === 'REFORMA_NO_VINCULADA');
+      expect(adv).not.toHaveProperty('version_posterior');
+      expect(adv).not.toHaveProperty('rige_desde');
     });
     it.each(['REFORMA', 'TEXTO_NUEVO_MISMO_NUMERO', 'ADICION'] as const)('%s con un vínculo rechazado (ambiguo) tampoco es PRIMARY', (tipo_evento) => {
       const r = sinFallo(resolverVersion(NOTARIADO, '1', '2030-06-01', [nv({ version_id: 'evento', vigente_desde: '2016-01-01', tipo_evento, instrumento_modificador: 'Decreto 59-15' })], { anioEnCurso: ANIO }));

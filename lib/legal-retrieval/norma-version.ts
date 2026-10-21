@@ -695,8 +695,6 @@ function avisoReformaNoVinculada(v: NormaVersion): Advertencia {
   return {
     codigo: 'REFORMA_NO_VINCULADA',
     mensaje: `La versión ${v.version_id} es un evento ${v.tipo_evento} sin instrumento modificador vinculado; no se sirve como fuente primaria y se muestra sólo como contexto.`,
-    version_posterior: v.version_id,
-    rige_desde: v.vigente_desde,
   };
 }
 
