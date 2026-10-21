@@ -13,12 +13,16 @@
  *
  * Duplicados: colapso solo si el cuerpo normalizado es idéntico.
  * Ambiguos (mismo número, cuerpo distinto) → fail-hard, EXCEPTO:
- *   - 11/27: última ocurrencia (única reforma sustantiva 77-2006 del Código).
  *   - 1/2/3/4: primera ocurrencia (Código 353-2005); el anexo 1–4 es trámite
  *     del decreto (orden, derogación Instituto, timbres CAH, vigencia).
+ *   - 11/27 del Código: ya no se adjudican (dictamen CLO 21-oct-2026, issue
+ *     #74). Solo deciden la Gaceta 30,904 o una fe de erratas oficial; hasta
+ *     entonces van a curación TEXTO_DIVERGENTE y no se cargan (sin PRIMARY).
  * OCR: solo el número de artículo (`2O` → `20`). No se reescribe el cuerpo.
- * 17/21/52: GAPS_DOCUMENTALES_PENDIENTES_DE_FE_DE_ERRATAS_O_COPIA_GACETA
- * (no bloquean prepararLote).
+ * Encabezados: además de los del parser genérico, se aceptan «ARTÍCULO 21 -»
+ * y «ARTÍCULO 52. -» (defecto técnico, mismo dictamen). No se reescribe el texto.
+ * 17: HUECO. No se carga ni se inventa; queda en curación hasta tener fuente
+ * oficial (no bloquea prepararLote). --execute sigue bloqueado.
  *
  * NETWORK_WRITES = 0. Este archivo NUNCA abre red ni Supabase.
  *
@@ -88,23 +92,74 @@ export interface GapDocumentalNotariado {
   motivo: string;
 }
 
+/**
+ * 21 y 52 dejaron de ser gaps: eran un defecto técnico del parser
+ * (encabezadoNotarialConGuion). Sólo queda el 17 (dictamen CLO 21-oct-2026).
+ */
 export const GAPS_DOCUMENTALES_CODIGO_NOTARIADO: readonly GapDocumentalNotariado[] = [
   {
     numArticulo: '17',
     codigo: CODIGO_GAP_DOCUMENTAL,
     motivo: 'encabezado ARTÍCULO 17.Los sin espacio; no entra al patrón de candidato',
   },
+];
+
+/** Motivos de curación del Código del Notariado (dictamen CLO 21-oct-2026, issue #74). */
+export type MotivoCuracionNotariado = 'HUECO' | 'TEXTO_DIVERGENTE';
+
+export interface CuracionNotariado {
+  numArticulo: string;
+  motivo: MotivoCuracionNotariado;
+  detalle: string;
+}
+
+/**
+ * Artículos del Código que no se cargan y van a curación sin PRIMARY. No se
+ * inventa texto ni se elige entre versiones: cambiar esta lista exige fuente
+ * oficial (Gaceta 30,904 o fe de erratas) y un nuevo dictamen CLO.
+ */
+export const CURACION_CODIGO_NOTARIADO: readonly CuracionNotariado[] = [
   {
-    numArticulo: '21',
-    codigo: CODIGO_GAP_DOCUMENTAL,
-    motivo: 'encabezado ARTÍCULO 21 - (guion espaciado); tieneEncabezadoArticulo rechaza',
+    numArticulo: '11',
+    motivo: 'TEXTO_DIVERGENTE',
+    detalle: 'texto 2005 y texto del anexo 77-2006 difieren; solo deciden la Gaceta 30,904 o una fe de erratas oficial',
   },
   {
-    numArticulo: '52',
-    codigo: CODIGO_GAP_DOCUMENTAL,
-    motivo: 'encabezado ARTÍCULO 52. -; tieneEncabezadoArticulo rechaza el guion',
+    numArticulo: '17',
+    motivo: 'HUECO',
+    detalle: 'sin texto verificable en la fuente; no se carga ni se inventa hasta tener fuente oficial',
+  },
+  {
+    numArticulo: '27',
+    motivo: 'TEXTO_DIVERGENTE',
+    detalle: 'texto 2005 y texto del anexo 77-2006 difieren; solo deciden la Gaceta 30,904 o una fe de erratas oficial',
   },
 ];
+
+function curacionPara(clave: ClaveInstrumentoNotarial): readonly CuracionNotariado[] {
+  return clave === 'codigo' ? CURACION_CODIGO_NOTARIADO : [];
+}
+
+/**
+ * Encabezados del Código del Notariado que el parser genérico rechaza por el
+ * guion: «ARTÍCULO 21 -» y «ARTÍCULO 52. -». Sólo la palabra en mayúsculas al
+ * inicio de la ventana (una cita dentro de un cuerpo va en minúsculas) y, tras
+ * el guion, mayúscula, número o comillas, como exige tieneEncabezadoArticulo.
+ */
+export function encabezadoNotarialConGuion(ventana: string, numArticulo: string): boolean {
+  if (!/^\d+[a-z]?$/i.test(numArticulo)) return false;
+  const m = new RegExp(`^ART[IÍ]CULO[ \\t]+${numArticulo}[ \\t]*\\.?[ \\t]*-[ \\t]*`).exec(ventana);
+  if (!m) return false;
+  const siguiente = ventana[m[0].length];
+  if (!siguiente) return false;
+  if (/[0-9"«]/.test(siguiente)) return true;
+  return siguiente === siguiente.toUpperCase() && siguiente !== siguiente.toLowerCase();
+}
+
+/** Segmentación del Notariado: parser genérico + encabezados con guion. */
+export function segmentarNotariado(textoLimpio: string): ChunkCandidato[] {
+  return segmentarGenerico(textoLimpio, { aceptarEncabezadoExtra: encabezadoNotarialConGuion });
+}
 
 export function identidadPorClave(clave: string): IdentidadNotarial {
   if (clave === 'codigo') return IDENTIDAD_CODIGO_NOTARIADO;
@@ -148,10 +203,6 @@ export function aplicarOcrNumerosNotariado(chunks: ChunkCandidato[]): {
     return { ...c, numArticulo: normalizado };
   });
   return { chunks: normalizados, ocrNormalizados };
-}
-
-export function esArticuloReforma77(num: string): boolean {
-  return ARTICULOS_REFORMA_77_2006.includes(num);
 }
 
 export function esArticuloTramite77(num: string): boolean {
@@ -242,37 +293,35 @@ export interface LoteEditorialNotariado {
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
   divergentes: DuplicadoDivergente[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   ocrNormalizados: string[];
+  /** Artículos que no se cargan y van a curación sin PRIMARY (sólo Código). */
+  curacion: CuracionNotariado[];
 }
 
 /**
  * OCR de número + adjudicación Control Plane:
- *   11/27   → última ocurrencia (reforma sustantiva 77-2006 del Código)
  *   1/2/3/4 → primera ocurrencia (Código 353-2005; anexo = trámite del decreto)
+ *   11/17/27 del Código → curación (CURACION_CODIGO_NOTARIADO): se quitan de
+ *     `finales` aunque haya una sola ocurrencia (dictamen CLO 21-oct-2026).
  * El resto de divergentes no se adjudica. No declara VIGENTE.
  */
-export function aplicarPoliticaEditorialNotariado(aceptados: ChunkCandidato[]): LoteEditorialNotariado {
+export function aplicarPoliticaEditorialNotariado(
+  aceptados: ChunkCandidato[],
+  clave: ClaveInstrumentoNotarial = 'codigo',
+): LoteEditorialNotariado {
   const { chunks, ocrNormalizados } = aplicarOcrNumerosNotariado(aceptados);
-  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(chunks);
-  const adjudicadosReforma77: string[] = [];
+  const curacion = [...curacionPara(clave)];
+  const enCuracion = new Set(curacion.map((c) => c.numArticulo));
+  const { finales, colapsadosIdenticos, divergentes } = clasificarDuplicadosNotariado(
+    chunks.filter((c) => !enCuracion.has(c.numArticulo)),
+  );
   const adjudicadosTramite77: string[] = [];
   const finalesAdjudicados = [...finales];
   const divergentesRestantes: DuplicadoDivergente[] = [];
 
   for (const d of divergentes) {
     const ocurrencias = chunks.filter((c) => c.numArticulo === d.numArticulo);
-    if (esArticuloReforma77(d.numArticulo)) {
-      const elegido = ocurrencias[ocurrencias.length - 1];
-      if (!elegido) {
-        divergentesRestantes.push(d);
-        continue;
-      }
-      finalesAdjudicados.push(elegido);
-      adjudicadosReforma77.push(d.numArticulo);
-      continue;
-    }
     if (esArticuloTramite77(d.numArticulo)) {
       const elegido = ocurrencias[0];
       if (!elegido) {
@@ -293,32 +342,35 @@ export function aplicarPoliticaEditorialNotariado(aceptados: ChunkCandidato[]): 
     finales: finalesAdjudicados,
     colapsadosIdenticos,
     divergentes: divergentesRestantes,
-    adjudicadosReforma77,
     adjudicadosTramite77,
     ocrNormalizados,
+    curacion,
   };
 }
 
-export function resolverDuplicadosNotariado(aceptados: ChunkCandidato[]): {
+export function resolverDuplicadosNotariado(
+  aceptados: ChunkCandidato[],
+  clave: ClaveInstrumentoNotarial = 'codigo',
+): {
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   ocrNormalizados: string[];
+  curacion: CuracionNotariado[];
 } {
-  const editorial = aplicarPoliticaEditorialNotariado(aceptados);
+  const editorial = aplicarPoliticaEditorialNotariado(aceptados, clave);
   if (editorial.divergentes.length > 0) {
     fallarDuro(
       `artículos con cuerpos distintos no se adjudican: ${editorial.divergentes.map((d) => d.numArticulo).join(', ')}. ` +
-        `Reformas 77-2006 (${ARTICULOS_REFORMA_77_2006.join(', ')}) y trámite (${ARTICULOS_TRAMITE_77_2006.join(', ')}) ya se aplicaron.`,
+        `Trámite 77-2006 (${ARTICULOS_TRAMITE_77_2006.join(', ')}) ya se aplicó; ${ARTICULOS_REFORMA_77_2006.join(', ')} van a curación.`,
     );
   }
   return {
     finales: editorial.finales,
     colapsadosIdenticos: editorial.colapsadosIdenticos,
-    adjudicadosReforma77: editorial.adjudicadosReforma77,
     adjudicadosTramite77: editorial.adjudicadosTramite77,
     ocrNormalizados: editorial.ocrNormalizados,
+    curacion: editorial.curacion,
   };
 }
 
@@ -360,9 +412,9 @@ export interface InformeDryRunNotariado {
     finalesUnicos: number;
     colapsadosIdenticos: number;
     divergentes: number;
-    adjudicadosReforma77: number;
     adjudicadosTramite77: number;
     ocrNormalizados: number;
+    curacion: number;
   };
   articulosAceptados: string[];
   huecosNumeracion: string[];
@@ -370,10 +422,10 @@ export interface InformeDryRunNotariado {
   curriculoFaltantes: string[];
   colapsadosIdenticos: string[];
   divergentes: DuplicadoDivergente[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   ocrNormalizados: string[];
   gapsDocumentales: GapDocumentalNotariado[];
+  curacion: CuracionNotariado[];
   rechazados: Array<{ numArticulo: string; snippet: string }>;
   hallazgos: HallazgoParseo;
   vigenciaDeclarada: false;
@@ -390,9 +442,9 @@ export interface HallazgoParseo {
   curriculoBloqueadoPorDivergente: string[];
   curriculoAusente: string[];
   ocrNormalizados: string[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   gapsDocumentales: string[];
+  enCuracion: string[];
 }
 
 export function clasificarHuecosParseo(
@@ -402,9 +454,9 @@ export function clasificarHuecosParseo(
   divergentes: DuplicadoDivergente[],
   rechazados: Array<{ numArticulo: string }>,
   ocrNormalizados: string[] = [],
-  adjudicadosReforma77: string[] = [],
   adjudicadosTramite77: string[] = [],
   gapsDocumentales: string[] = [],
+  enCuracion: string[] = [],
 ): HallazgoParseo {
   const ocrLetraOPorCero = articulosAceptados.filter((n) => /^\d+[Oo]$/.test(n));
   const equivalentesOcr = new Set([
@@ -413,19 +465,20 @@ export function clasificarHuecosParseo(
   ]);
   const divergenteNums = new Set(divergentes.map((d) => d.numArticulo));
   const rechazoNums = new Set(rechazados.map((r) => r.numArticulo));
+  const curacionNums = new Set(enCuracion);
   return {
     ocrLetraOPorCero,
     huecosPorDivergente: huecosNumeracion.filter((n) => divergenteNums.has(n)),
     huecosPorRechazo: huecosNumeracion.filter((n) => rechazoNums.has(n) && !divergenteNums.has(n)),
     huecosSinCandidato: huecosNumeracion.filter(
-      (n) => !equivalentesOcr.has(n) && !divergenteNums.has(n) && !rechazoNums.has(n),
+      (n) => !equivalentesOcr.has(n) && !divergenteNums.has(n) && !rechazoNums.has(n) && !curacionNums.has(n),
     ),
     curriculoBloqueadoPorDivergente: curriculoFaltantes.filter((n) => divergenteNums.has(n)),
     curriculoAusente: curriculoFaltantes.filter((n) => !divergenteNums.has(n)),
     ocrNormalizados,
-    adjudicadosReforma77,
     adjudicadosTramite77,
     gapsDocumentales,
+    enCuracion,
   };
 }
 
@@ -435,15 +488,18 @@ export function analizarFuenteNotariado(
   source: InformeDryRunNotariado['source'],
 ): InformeDryRunNotariado {
   const limpio = limpiarRuidoBasico(texto);
-  const candidatos = segmentarGenerico(limpio);
+  const candidatos = segmentarNotariado(limpio);
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
-  const editorial = aplicarPoliticaEditorialNotariado(aceptados);
+  const editorial = aplicarPoliticaEditorialNotariado(aceptados, identidad.clave);
   const articulosAceptados = editorial.finales.map((c) => c.numArticulo);
   const curriculoFaltantes = identidad.articulosCurriculo.filter((n) => !articulosAceptados.includes(n));
   const huecosNumeracion = huecosNumericos(articulosAceptados);
   const gapsDocumentales = identidad.clave === 'codigo' ? gapsDocumentalesPendientes(huecosNumeracion) : [];
-  const huecosBloqueantes = huecosNumeracion.filter((n) => !gapsDocumentales.some((g) => g.numArticulo === n));
+  const enCuracion = editorial.curacion.map((c) => c.numArticulo);
+  const huecosBloqueantes = huecosNumeracion.filter(
+    (n) => !gapsDocumentales.some((g) => g.numArticulo === n) && !enCuracion.includes(n),
+  );
   const rechazadosInforme = rechazados.map((c) => ({
     numArticulo: normalizarNumeroArticuloOcr(c.numArticulo).normalizado,
     snippet: snippetEncabezado(c.contenido),
@@ -461,9 +517,9 @@ export function analizarFuenteNotariado(
       finalesUnicos: editorial.finales.length,
       colapsadosIdenticos: editorial.colapsadosIdenticos.length,
       divergentes: editorial.divergentes.length,
-      adjudicadosReforma77: editorial.adjudicadosReforma77.length,
       adjudicadosTramite77: editorial.adjudicadosTramite77.length,
       ocrNormalizados: editorial.ocrNormalizados.length,
+      curacion: editorial.curacion.length,
     },
     articulosAceptados,
     huecosNumeracion,
@@ -471,10 +527,10 @@ export function analizarFuenteNotariado(
     curriculoFaltantes,
     colapsadosIdenticos: editorial.colapsadosIdenticos,
     divergentes: editorial.divergentes,
-    adjudicadosReforma77: editorial.adjudicadosReforma77,
     adjudicadosTramite77: editorial.adjudicadosTramite77,
     ocrNormalizados: editorial.ocrNormalizados,
     gapsDocumentales,
+    curacion: editorial.curacion,
     rechazados: rechazadosInforme,
     hallazgos: clasificarHuecosParseo(
       articulosAceptados,
@@ -483,9 +539,9 @@ export function analizarFuenteNotariado(
       editorial.divergentes,
       rechazadosInforme,
       editorial.ocrNormalizados,
-      editorial.adjudicadosReforma77,
       editorial.adjudicadosTramite77,
       gapsDocumentales.map((g) => g.numArticulo),
+      enCuracion,
     ),
     vigenciaDeclarada: false,
     corpusWrite: false,
@@ -501,10 +557,10 @@ export interface LoteNotariado {
   rechazados: ChunkCandidato[];
   finales: ChunkCandidato[];
   colapsadosIdenticos: string[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   ocrNormalizados: string[];
   gapsDocumentales: GapDocumentalNotariado[];
+  curacion: CuracionNotariado[];
   manifest: ManifestoCorpusNotariado;
   registros: RegistroGenerico[];
 }
@@ -512,30 +568,31 @@ export interface LoteNotariado {
 export interface ManifestoCorpusNotariado {
   instrumento: InstrumentoNormalizado;
   adjudicacion_editorial: {
-    reformas_sustantivas_77_2006_ultima_ocurrencia: string[];
     tramite_77_2006_primera_ocurrencia: string[];
   };
   ocr_numeros_normalizados: string[];
   gaps_documentales: GapDocumentalNotariado[];
+  /** No se cargan; sin PRIMARY hasta fuente oficial (dictamen CLO 21-oct-2026). */
+  curacion: CuracionNotariado[];
   vigenciaDeclarada: false;
   networkWrites: 0;
 }
 
 export function prepararLoteNotariado(texto: string, identidad: IdentidadNotarial): LoteNotariado {
   const limpio = limpiarRuidoBasico(texto);
-  const candidatos = segmentarGenerico(limpio);
+  const candidatos = segmentarNotariado(limpio);
   const aceptados = candidatos.filter((c) => c.aceptado);
   const rechazados = candidatos.filter((c) => !c.aceptado);
-  const { finales, colapsadosIdenticos, adjudicadosReforma77, adjudicadosTramite77, ocrNormalizados } =
-    resolverDuplicadosNotariado(aceptados);
+  const { finales, colapsadosIdenticos, adjudicadosTramite77, ocrNormalizados, curacion } =
+    resolverDuplicadosNotariado(aceptados, identidad.clave);
   const huecos = huecosNumericos(finales.map((c) => c.numArticulo));
   const gapsDocumentales = identidad.clave === 'codigo' ? gapsDocumentalesPendientes(huecos) : [];
+  const enCuracion = new Set(curacion.map((c) => c.numArticulo));
+  if (finales.some((c) => enCuracion.has(c.numArticulo))) {
+    fallarDuro('un artículo en curación (HUECO o TEXTO_DIVERGENTE) no puede cargarse');
+  }
   const registros = finales.map((c) => {
     const registro = construirRegistro(c, identidad.opts);
-    if (adjudicadosReforma77.includes(c.numArticulo)) {
-      registro.metadata.reforma_adjudicada = 'Decreto 77-2006';
-      registro.metadata.adjudicacion_editorial = 'prevalece_anexo_77_2006';
-    }
     if (adjudicadosTramite77.includes(c.numArticulo)) {
       registro.metadata.adjudicacion_editorial = 'primera_ocurrencia_tramite_77_2006';
       registro.metadata.anexo_77_2006_descartado = 'tramite_legislativo';
@@ -594,18 +651,18 @@ export function prepararLoteNotariado(texto: string, identidad: IdentidadNotaria
     rechazados,
     finales,
     colapsadosIdenticos,
-    adjudicadosReforma77,
     adjudicadosTramite77,
     ocrNormalizados,
     gapsDocumentales,
+    curacion,
     manifest: {
       instrumento: identidad.instrumentoNormalizado,
       adjudicacion_editorial: {
-        reformas_sustantivas_77_2006_ultima_ocurrencia: adjudicadosReforma77,
         tramite_77_2006_primera_ocurrencia: adjudicadosTramite77,
       },
       ocr_numeros_normalizados: ocrNormalizados,
       gaps_documentales: gapsDocumentales,
+      curacion,
       vigenciaDeclarada: false,
       networkWrites: NETWORK_WRITES,
     },
@@ -643,6 +700,9 @@ function main(): void {
   console.log(`Trámite 77-2006 (1ª ocurrencia): ${lote.adjudicadosTramite77.join(', ') || '(ninguno)'}`);
   console.log(
     `Gaps documentales: ${lote.gapsDocumentales.map((g) => g.numArticulo).join(', ') || '(ninguno)'}`,
+  );
+  console.log(
+    `En curación (no se cargan): ${lote.curacion.map((c) => `${c.numArticulo} ${c.motivo}`).join(', ') || '(ninguno)'}`,
   );
   console.log(`Registros: ${lote.registros.length}`);
   console.log(`IDs: ${lote.registros.map((r) => r.id).join(', ')}`);

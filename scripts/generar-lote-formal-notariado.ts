@@ -18,8 +18,8 @@ import { extraerTexto } from './ingestar-ley';
 import {
   ANCLA_ART2_CODIGO,
   ANCLA_ART3_CODIGO,
-  ARTICULOS_REFORMA_77_2006,
   ARTICULOS_TRAMITE_77_2006,
+  CURACION_CODIGO_NOTARIADO,
   IDENTIDAD_CODIGO_NOTARIADO,
   IDENTIDAD_REGLAMENTO_NOTARIADO,
   NETWORK_WRITES,
@@ -70,17 +70,17 @@ export interface InstrumentoLoteFormal {
     rechazados: number;
     registros: number;
     colapsadosIdenticos: number;
-    adjudicadosReforma77: number;
     adjudicadosTramite77: number;
     ocrNormalizados: number;
+    curacion: number;
   };
   articulos: string[];
   ids: string[];
   colapsadosIdenticos: string[];
-  adjudicadosReforma77: string[];
   adjudicadosTramite77: string[];
   ocrNormalizados: string[];
   gapsDocumentales: LoteNotariado['gapsDocumentales'];
+  curacion: LoteNotariado['curacion'];
   manifest: LoteNotariado['manifest'];
   anclasSustantivas?: {
     articulo2: { id: string; coincideCodigo2005: boolean; prefijo: string };
@@ -96,7 +96,7 @@ export interface InformeLoteFormal {
   guardianAnclas: 'verificarAnclasSustantivasNotariado';
   matrizCanonica: {
     primeraOcurrencia_353_2005: readonly string[];
-    ultimaOcurrencia_77_2006: readonly string[];
+    curacionCodigo: readonly string[];
   };
   sqlApply: false;
   corpusWrite: false;
@@ -189,17 +189,17 @@ export function construirInstrumentoLote(
       rechazados: lote.rechazados.length,
       registros: registros.length,
       colapsadosIdenticos: lote.colapsadosIdenticos.length,
-      adjudicadosReforma77: lote.adjudicadosReforma77.length,
       adjudicadosTramite77: lote.adjudicadosTramite77.length,
       ocrNormalizados: lote.ocrNormalizados.length,
+      curacion: lote.curacion.length,
     },
     articulos: lote.registros.map((r) => r.num_articulo),
     ids: lote.registros.map((r) => r.id),
     colapsadosIdenticos: lote.colapsadosIdenticos,
-    adjudicadosReforma77: lote.adjudicadosReforma77,
     adjudicadosTramite77: lote.adjudicadosTramite77,
     ocrNormalizados: lote.ocrNormalizados,
     gapsDocumentales: lote.gapsDocumentales,
+    curacion: lote.curacion,
     manifest: lote.manifest,
     anclasSustantivas: identidad.clave === 'codigo' ? anclasCodigo(registros) : undefined,
     registros,
@@ -218,7 +218,7 @@ export function informeMarkdown(sesion: InformeLoteFormal): string {
     `- Baseline: \`${sesion.baseline}\``,
     `- Guardián: \`${sesion.guardianAnclas}\``,
     `- Matriz primera ocurrencia (353-2005): ${sesion.matrizCanonica.primeraOcurrencia_353_2005.join(', ')}`,
-    `- Matriz última ocurrencia (77-2006): ${sesion.matrizCanonica.ultimaOcurrencia_77_2006.join(', ')}`,
+    `- En curación del Código (dictamen CLO 21-oct-2026): ${sesion.matrizCanonica.curacionCodigo.join(', ')}`,
     '',
     '## Barreras',
     '',
@@ -247,7 +247,9 @@ export function informeMarkdown(sesion: InformeLoteFormal): string {
     );
     lineas.push(`- Registros del lote: **${i.counts.registros}**`);
     lineas.push(`- Colapsados idénticos: ${i.colapsadosIdenticos.join(', ') || '(ninguno)'}`);
-    lineas.push(`- Reforma 77-2006 (última ocurrencia): ${i.adjudicadosReforma77.join(', ') || '(ninguno)'}`);
+    lineas.push(
+      `- En curación, no se cargan: ${i.curacion.map((c) => `${c.numArticulo} (${c.motivo})`).join(', ') || '(ninguno)'}`,
+    );
     lineas.push(`- Trámite 77-2006 (primera ocurrencia): ${i.adjudicadosTramite77.join(', ') || '(ninguno)'}`);
     lineas.push(`- OCR número O→0: ${i.ocrNormalizados.join(', ') || '(ninguno)'}`);
     lineas.push(
@@ -361,7 +363,7 @@ export function generarSesionLoteFormal(): InformeLoteFormal {
     guardianAnclas: 'verificarAnclasSustantivasNotariado',
     matrizCanonica: {
       primeraOcurrencia_353_2005: ARTICULOS_TRAMITE_77_2006,
-      ultimaOcurrencia_77_2006: ARTICULOS_REFORMA_77_2006,
+      curacionCodigo: CURACION_CODIGO_NOTARIADO.map((c) => `${c.numArticulo}:${c.motivo}`),
     },
     sqlApply: false,
     corpusWrite: false,
@@ -389,7 +391,7 @@ function main(): void {
   console.log(`Lote MD: ${mdOut}`);
   for (const i of sesion.instrumentos) {
     console.log(
-      `${i.instrumento}: registros=${i.counts.registros} reforma=[${i.adjudicadosReforma77.join(',')}] tramite=[${i.adjudicadosTramite77.join(',')}] ocr=[${i.ocrNormalizados.join(',')}] gaps=[${i.gapsDocumentales.map((g) => g.numArticulo).join(',')}]`,
+      `${i.instrumento}: registros=${i.counts.registros} curacion=[${i.curacion.map((c) => c.numArticulo).join(',')}] tramite=[${i.adjudicadosTramite77.join(',')}] ocr=[${i.ocrNormalizados.join(',')}] gaps=[${i.gapsDocumentales.map((g) => g.numArticulo).join(',')}]`,
     );
   }
 }

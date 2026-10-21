@@ -117,7 +117,9 @@ function informeMarkdown(sesion: InformeSesionDryRun): string {
     lineas.push(
       `- Divergentes (no adjudicados): ${i.divergentes.map((d) => `${d.numArticulo}×${d.ocurrencias}`).join(', ') || '(ninguno)'}`,
     );
-    lineas.push(`- Adjudicados 77-2006 (última ocurrencia): ${i.adjudicadosReforma77.join(', ') || '(ninguno)'}`);
+    lineas.push(
+      `- En curación, no se cargan: ${i.curacion.map((c) => `${c.numArticulo} (${c.motivo})`).join(', ') || '(ninguno)'}`,
+    );
     lineas.push(`- Trámite 77-2006 (primera ocurrencia): ${i.adjudicadosTramite77.join(', ') || '(ninguno)'}`);
     lineas.push(`- OCR número O→0: ${i.ocrNormalizados.join(', ') || '(ninguno)'}`);
     lineas.push(`- Huecos de numeración: ${i.huecosNumeracion.join(', ') || '(ninguno)'}`);

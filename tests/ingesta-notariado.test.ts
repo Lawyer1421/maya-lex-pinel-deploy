@@ -6,6 +6,8 @@ import {
   ARTICULOS_REFORMA_77_2006,
   ARTICULOS_TRAMITE_77_2006,
   CODIGO_GAP_DOCUMENTAL,
+  CURACION_CODIGO_NOTARIADO,
+  GAPS_DOCUMENTALES_CODIGO_NOTARIADO,
   IDENTIDAD_CODIGO_NOTARIADO,
   IDENTIDAD_REGLAMENTO_NOTARIADO,
   NETWORK_WRITES,
@@ -13,12 +15,15 @@ import {
   aplicarPoliticaEditorialNotariado,
   clasificarDuplicadosNotariado,
   clasificarHuecosParseo,
+  encabezadoNotarialConGuion,
   identidadPorClave,
   normalizarNumeroArticuloOcr,
   parsearArgsNotariado,
   prepararLoteNotariado,
   resolverDuplicadosNotariado,
+  segmentarNotariado,
 } from '@/scripts/ingesta-notariado';
+import { segmentarGenerico } from '@/scripts/ingestar-ley';
 import type { ChunkCandidato } from '@/scripts/ingestar-ley';
 
 beforeEach(() => {
@@ -258,7 +263,7 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     }
   });
 
-  it('última ocurrencia solo en 11/27; 1/2/3/4 son primera ocurrencia', () => {
+  it('11/27 divergentes van a curación TEXTO_DIVERGENTE (no se adjudican ni fallan); 1/2/3/4 son primera ocurrencia', () => {
     const editorial = aplicarPoliticaEditorialNotariado([
       chunk('1', 'Cuerpo 2005 sintético del primero'),
       chunk('2', 'Cuerpo 2005 sintético del segundo'),
@@ -273,13 +278,14 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
       chunk('27', 'Cuerpo 2005 sintético del 27'),
       chunk('27', 'Cuerpo 77-2006 sintético del 27'),
     ]);
-    expect(editorial.adjudicadosReforma77).toEqual(['11', '27']);
+    // Dictamen CLO 21-oct-2026 (issue #74): sólo la Gaceta 30,904 o una fe de erratas deciden 11/27.
+    expect(editorial.curacion.filter((c) => c.motivo === 'TEXTO_DIVERGENTE').map((c) => c.numArticulo)).toEqual(['11', '27']);
     expect(editorial.adjudicadosTramite77).toEqual(['1', '2', '3', '4']);
     expect(editorial.divergentes).toEqual([]);
     expect(editorial.finales.find((c) => c.numArticulo === '2')?.contenido).toMatch(/2005/);
     expect(editorial.finales.find((c) => c.numArticulo === '3')?.contenido).toMatch(/2005/);
-    expect(editorial.finales.find((c) => c.numArticulo === '11')?.contenido).toMatch(/77-2006/);
-    expect(editorial.finales.find((c) => c.numArticulo === '27')?.contenido).toMatch(/77-2006/);
+    expect(editorial.finales.some((c) => c.numArticulo === '11' || c.numArticulo === '27')).toBe(false);
+    expect(() => resolverDuplicadosNotariado([chunk('11', 'A'), chunk('11', 'B distinto')])).not.toThrow();
   });
 
   it('ancla: art. 2/3 de trámite 77-2006 no pueden quedar como canónicos', () => {
@@ -306,14 +312,17 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     ).toThrow(/process.exit/);
   });
 
-  it('fixture editorial cubre currículo, OCR 20 y 11 reformado; 2/3 son 2005', () => {
+  it('fixture editorial cubre currículo y OCR 20; 2/3 son 2005; 11/17/27 en curación sin cargar', () => {
     const informe = analizarFuenteNotariado(fixtureEditorial, IDENTIDAD_CODIGO_NOTARIADO, fuenteSintetica);
     expect(informe.curriculoFaltantes).toEqual([]);
-    expect(informe.adjudicadosReforma77).toEqual(['11']);
+    expect(informe.curacion).toEqual(CURACION_CODIGO_NOTARIADO);
     expect(informe.adjudicadosTramite77).toEqual(['1', '2', '3', '4']);
     expect(informe.ocrNormalizados).toEqual(['20']);
     expect(informe.articulosAceptados).toContain('20');
-    expect(informe.articulosAceptados).toContain('27');
+    expect(informe.articulosAceptados).not.toContain('11');
+    expect(informe.articulosAceptados).not.toContain('27');
+    expect(informe.huecosBloqueantes).not.toEqual(expect.arrayContaining(['11']));
+    expect(informe.hallazgos.enCuracion).toEqual(['11', '17', '27']);
     expect(informe.networkWrites).toBe(0);
     expect(informe.vigenciaDeclarada).toBe(false);
 
@@ -323,18 +332,104 @@ describe('política editorial 77-2006 + OCR — fail-closed', () => {
     });
     expect(lote.registros.find((r) => r.num_articulo === '2')?.contenido).toMatch(/original del segundo/);
     expect(lote.registros.find((r) => r.num_articulo === '3')?.contenido).toMatch(/original del tercer/);
-    expect(lote.registros.find((r) => r.num_articulo === '11')?.contenido).toMatch(/reformado/);
+    expect(lote.registros.find((r) => r.num_articulo === '11')).toBeUndefined();
+    expect(lote.registros.find((r) => r.num_articulo === '27')).toBeUndefined();
     expect(lote.registros.find((r) => r.num_articulo === '1')?.contenido).toMatch(/original del primer/);
     expect(lote.registros.find((r) => r.num_articulo === '2')?.metadata.adjudicacion_editorial).toBe(
       'primera_ocurrencia_tramite_77_2006',
     );
-    expect(lote.registros.find((r) => r.num_articulo === '11')?.metadata.reforma_adjudicada).toBe(
-      'Decreto 77-2006',
-    );
+    expect(lote.manifest.curacion).toEqual(CURACION_CODIGO_NOTARIADO);
+    expect(lote.registros.some((r) => 'reforma_adjudicada' in r.metadata)).toBe(false);
     expect(lote.registros.find((r) => r.num_articulo === '20')?.id).toBe(
       'mayalex_normativos:codigo_notariado_2005_a20',
     );
     expect(lote.manifest.gaps_documentales.some((g) => g.codigo === CODIGO_GAP_DOCUMENTAL)).toBe(true);
     expect(lote.registros.every((r) => r.es_norma_vigente === false)).toBe(true);
+  });
+});
+
+describe('dictamen CLO 21-oct-2026 (issue #74) — parser y curación del Código del Notariado', () => {
+  const codigoCon = (...lineas: string[]) =>
+    [
+      'Código del Notariado de Honduras (Decreto 353-2005)',
+      'FIXTURE SINTÉTICA — no es el texto legal oficial.',
+      'ARTÍCULO 2. El Notariado es la institución del Estado sintética. No es norma vigente.',
+      'ARTÍCULO 3. La función notarial es aquella función de interés público sintética. No es norma vigente.',
+      'ARTÍCULO 7. Texto sintético del séptimo. No es norma vigente.',
+      'ARTÍCULO 8. Texto sintético del octavo. No es norma vigente.',
+      ...lineas,
+    ].join('\n');
+  const idCodigo = { ...IDENTIDAD_CODIGO_NOTARIADO, opts: { ...IDENTIDAD_CODIGO_NOTARIADO.opts, input: 'clo-74' } };
+
+  it('acepta «ARTÍCULO 21 -» y «ARTÍCULO 52. -» como encabezados', () => {
+    expect(encabezadoNotarialConGuion('ARTÍCULO 21 - Texto sintético', '21')).toBe(true);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 52. - Texto sintético', '52')).toBe(true);
+    expect(encabezadoNotarialConGuion('ARTICULO 52.- Texto sintético', '52')).toBe(true);
+    const chunks = segmentarNotariado(codigoCon('ARTÍCULO 21 - Texto sintético del veintiuno.', 'ARTÍCULO 52. - Texto sintético del cincuenta y dos.'));
+    expect(chunks.filter((c) => c.aceptado).map((c) => c.numArticulo)).toEqual(['2', '3', '7', '8', '21', '52']);
+  });
+
+  it('el parser genérico (y por tanto tieneEncabezadoArticulo en producción) no cambia: sigue rechazando esos encabezados', () => {
+    const chunks = segmentarGenerico('ARTÍCULO 21 - Texto sintético.\nARTÍCULO 52. - Otro texto sintético.');
+    expect(chunks.filter((c) => c.aceptado)).toEqual([]);
+  });
+
+  it('no altera el texto: el contenido es el tramo original de la fuente, encabezado incluido', () => {
+    const linea21 = 'ARTÍCULO 21 - Texto sintético del veintiuno, con   espacios   y guion - interno.';
+    const linea52 = 'ARTÍCULO 52. - Texto sintético del cincuenta y dos.';
+    const lote = prepararLoteNotariado(codigoCon(linea21, linea52), idCodigo);
+    expect(lote.finales.find((c) => c.numArticulo === '21')?.contenido).toBe(linea21);
+    expect(lote.finales.find((c) => c.numArticulo === '52')?.contenido).toBe(linea52);
+    expect(lote.registros.find((r) => r.num_articulo === '21')?.contenido).toContain(linea21);
+    expect(lote.registros.find((r) => r.num_articulo === '52')?.contenido).toContain(linea52);
+  });
+
+  it('una cita con guion dentro de un cuerpo (minúsculas) no se toma por encabezado', () => {
+    expect(encabezadoNotarialConGuion('artículo 21 - Texto', '21')).toBe(false);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 21 - texto en minúscula', '21')).toBe(false);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 21 -', '21')).toBe(false);
+    const chunks = segmentarNotariado(codigoCon('ARTÍCULO 9. Remite al artículo 21 - Ver texto sintético.'));
+    expect(chunks.filter((c) => c.aceptado).map((c) => c.numArticulo)).not.toContain('21');
+  });
+
+  it('21 y 52 ya no son gaps documentales; el 17 sí', () => {
+    expect(GAPS_DOCUMENTALES_CODIGO_NOTARIADO.map((g) => g.numArticulo)).toEqual(['17']);
+  });
+
+  it('art. 17: HUECO en curación; no se carga ni se inventa, aunque la fuente traiga un candidato', () => {
+    expect(CURACION_CODIGO_NOTARIADO.find((c) => c.numArticulo === '17')?.motivo).toBe('HUECO');
+    const lote = prepararLoteNotariado(codigoCon('ARTÍCULO 17. Texto sintético que no debe cargarse.'), idCodigo);
+    expect(lote.registros.some((r) => r.num_articulo === '17')).toBe(false);
+    expect(lote.curacion).toContainEqual(expect.objectContaining({ numArticulo: '17', motivo: 'HUECO' }));
+    // «ARTÍCULO 17.Los» (sin espacio) sigue sin entrar.
+    expect(segmentarNotariado('ARTÍCULO 17.Los notarios sintéticos.').filter((c) => c.aceptado)).toEqual([]);
+  });
+
+  it('arts. 11 y 27: TEXTO_DIVERGENTE, sin PRIMARY ni registro, también con una sola ocurrencia', () => {
+    const lote = prepararLoteNotariado(
+      codigoCon('ARTÍCULO 11. Texto sintético único del undécimo.', 'ARTÍCULO 27. Texto sintético único del 27.'),
+      idCodigo,
+    );
+    expect(lote.registros.some((r) => r.num_articulo === '11' || r.num_articulo === '27')).toBe(false);
+    expect(lote.curacion.filter((c) => c.motivo === 'TEXTO_DIVERGENTE').map((c) => c.numArticulo)).toEqual(['11', '27']);
+    expect(lote.registros.every((r) => r.es_norma_vigente === false)).toBe(true);
+  });
+
+  it('el Reglamento no se ve afectado: sus arts. 11 y 27 se cargan y no hay curación', () => {
+    const texto = [
+      'Reglamento del Código del Notariado (Resolución PCSJ-17-2012)',
+      'ARTÍCULO 11. Texto sintético del Reglamento.',
+      'ARTÍCULO 27. Otro texto sintético del Reglamento.',
+    ].join('\n');
+    const lote = prepararLoteNotariado(texto, {
+      ...IDENTIDAD_REGLAMENTO_NOTARIADO,
+      opts: { ...IDENTIDAD_REGLAMENTO_NOTARIADO.opts, input: 'clo-74' },
+    });
+    expect(lote.registros.map((r) => r.num_articulo)).toEqual(['11', '27']);
+    expect(lote.curacion).toEqual([]);
+  });
+
+  it('--execute sigue bloqueado', () => {
+    expect(() => parsearArgsNotariado(['--execute', 'x.sql', '--instrumento', 'codigo', '--input', 'x.txt'])).toThrow(/process.exit/);
   });
 });
