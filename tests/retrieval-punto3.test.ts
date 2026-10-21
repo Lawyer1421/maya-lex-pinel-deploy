@@ -34,6 +34,17 @@ function mockDependencias(tabla: Fila[], rpcFilas: (coleccion: string) => Fila[]
     return { ...actual, after: (fn: () => unknown) => { fn(); } };
   });
   vi.doMock('@/lib/rate-limit', () => ({
+    checkRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
+    reserveRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
+    incrementRateLimit: vi.fn().mockResolvedValue(undefined),
+    releaseRateLimit: vi.fn().mockResolvedValue(undefined),
+    RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
+    esFalloProveedorQueDevuelveCuota: () => false,
+    esFalloOpenRouterQueDevuelveCuota: () => false,
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
@@ -111,9 +122,11 @@ async function leerSSE(res: Response) {
   return raw.split('\n\n').filter((c) => c.startsWith('data: ')).map((c) => JSON.parse(c.slice('data: '.length)));
 }
 
+import { textoDeSystem } from '@/lib/system-prompt';
+
 /** Fuentes que el system prompt enviado muestra como "Fuente documental". */
-function fuentesEnSystem(system: string): string[] {
-  return [...system.matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
+function fuentesEnSystem(system: unknown): string[] {
+  return [...textoDeSystem(system as never).matchAll(/^Fuente documental: (.+)$/gm)].map((m) => m[1]);
 }
 
 beforeEach(() => {
@@ -234,7 +247,7 @@ describe('POST simulado — punto 3', () => {
     await leerSSE(res);
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     expect(fuentesEnSystem(system)).toEqual([FUENTE_CN]);
   });
 
@@ -257,7 +270,7 @@ describe('POST simulado — punto 3', () => {
     await leerSSE(res);
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     expect(fuentesEnSystem(system)).toEqual([FUENTE_REGLAMENTO]);
     expect(system).toContain('Usar exclusivamente');
   });
@@ -269,7 +282,7 @@ describe('POST simulado — punto 3', () => {
     await leerSSE(res);
 
     expect(llamadasModelo.length).toBe(1);
-    const system = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     expect(fuentesEnSystem(system)).toContain(FUENTE_CC);
     expect(system).toContain('INSTRUCCIÓN (consulta temática)');
     expect(system).not.toContain('Usar exclusivamente');

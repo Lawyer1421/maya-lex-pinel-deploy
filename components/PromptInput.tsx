@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { MODELOS_UI, modelosVisibles } from '@/lib/model-config';
 import {
   DOCUMENT_AUTH_ERROR,
   DOCUMENT_FORMAT_ERROR,
@@ -113,25 +114,9 @@ export interface PromptInputProps {
 
 // ── Modelos disponibles ─────────────────────────────────────────────────────
 
-const MODELS = [
-  {
-    id: 'default',
-    label: 'Predeterminado',
-    sub: 'Óptimo según el modo activo',
-  },
-  {
-    id: 'claude-opus-4-8',
-    label: 'Claude Opus 4.8',
-    sub: 'Máxima profundidad de razonamiento',
-  },
-  {
-    id: 'claude-sonnet-4-6',
-    label: 'Claude Sonnet 4.6',
-    sub: 'Balance velocidad / precisión',
-  },
-] as const;
+type ModelId = (typeof MODELOS_UI)[number]['id'];
 
-type ModelId = (typeof MODELS)[number]['id'];
+export { modelosVisibles };
 
 // ── Helper SpeechRecognition (prefijo webkit) ────────────────────────────────
 // SpeechRecognition no está tipada uniformemente en todos los targets de TS;
@@ -156,6 +141,7 @@ export default function PromptInput({
   isLoading,
   onCancel,
   placeholder = 'Consulta jurídica en español o inglés...',
+  tier,
   canAttach: canAttachProp,
   onDraftChange,
 }: PromptInputProps) {
@@ -177,6 +163,8 @@ export default function PromptInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<AnySpeechRecognition>(null);
+
+  const modelos = modelosVisibles(tier);
 
   useEffect(() => {
     let cancelled = false;
@@ -350,7 +338,7 @@ export default function PromptInput({
 
   // ── Render ───────────────────────────────────────────────────────────────
 
-  const activeModel = MODELS.find((m) => m.id === modelOverride) ?? MODELS[0];
+  const activeModel = MODELOS_UI.find((m) => m.id === modelOverride) ?? MODELOS_UI[0];
   const canSend = (text.trim().length > 0 || attachments.length > 0) && !isLoading;
 
   return (
@@ -553,7 +541,7 @@ export default function PromptInput({
                 {/* Sub-menú modelos */}
                 {showModelPicker && (
                   <div className="border-t border-white/5 pt-1 pb-0.5">
-                    {MODELS.map((m) => (
+                    {modelos.map((m) => (
                       <button
                         key={m.id}
                         onClick={() => {

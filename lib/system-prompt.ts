@@ -4,6 +4,7 @@
  * Copiloto de Litigación Penal Hondureña (sistema Civil Law / Romano-Germánico)
  * Motor de razonamiento jurídico probabilístico — NO chatbot de respuestas fijas.
  */
+import { DEFAULTS_MODO } from './model-config';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAYA PENAL — COPILOTO EXCLUSIVO PENAL HONDUREÑO
@@ -289,21 +290,15 @@ const MAYA_LEX_DOCUMENTO_PROMPT = [
 
 export const CLAUDE_CONFIG = {
   sala_ia: {
-    model: 'claude-haiku-4-5' as const,
-    max_tokens: 800,
-    thinking: undefined,
+    ...DEFAULTS_MODO.sala_ia,
     systemPrompt: SALA_IA_SYSTEM_PROMPT,
   },
   analisis: {
-    model: 'claude-opus-4-8' as const,
-    max_tokens: 4000,
-    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
+    ...DEFAULTS_MODO.analisis,
     systemPrompt: MAYA_LEX_SYSTEM_PROMPT,
   },
   documento: {
-    model: 'claude-opus-4-8' as const,
-    max_tokens: 8000,
-    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
+    ...DEFAULTS_MODO.documento,
     systemPrompt: MAYA_LEX_DOCUMENTO_PROMPT,
   },
 } as const;
@@ -379,37 +374,62 @@ export const CLAUDE_CONFIG_PENAL = {
    * Formato: Norma → Argumento de trinchera → Respaldo constitucional
    */
   sala_penal: {
-    model: 'claude-haiku-4-5' as const,
-    max_tokens: 600,
-    thinking: undefined,
+    ...DEFAULTS_MODO.sala_penal,
     systemPrompt: SALA_IA_SYSTEM_PROMPT, // Prompt ya actualizado con ejemplo penal
   },
 
   /**
-   * ANÁLISIS PENAL — Opus 4.7 | Adaptive thinking | Análisis jurídico profundo
+   * ANÁLISIS PENAL — Sonnet | Adaptive thinking | Análisis jurídico profundo
    * Activa Motor de Análisis Penal (10 capas): Hechos → Teoría del delito →
    * Garantías → Prueba → Jurisprudencia → Motor de Riesgo
    */
   analisis_penal: {
-    model: 'claude-opus-4-8' as const,
-    max_tokens: 6000,
-    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
+    ...DEFAULTS_MODO.analisis_penal,
     systemPrompt: FULL_MAYA_PENAL_PROMPT,
   },
 
   /**
-   * ESCRITOS PENALES — Opus 4.8 | 10 000 tokens | Generación de documentos
+   * ESCRITOS PENALES — Sonnet | tokens bajados | Generación de documentos
    * Requerimientos, excepciones, recursos, hábeas corpus, apelaciones.
    * Mismo núcleo penal que analisis_penal + ANEXO_ESCRITOS_PENALES (estructura
    * formal de escrito, petitorio, checklist) — antes compartía el prompt de
    * analisis_penal sin diferenciación de formato de salida.
    */
   escritos_penales: {
-    model: 'claude-opus-4-8' as const,
-    max_tokens: 10000,
-    thinking: { type: 'adaptive' as const, display: 'summarized' as const },
+    ...DEFAULTS_MODO.escritos_penales,
     systemPrompt: FULL_MAYA_PENAL_ESCRITOS_PROMPT,
   },
 } as const;
+
+export interface BloqueSystem {
+  type: 'text';
+  text: string;
+  cache_control?: { type: 'ephemeral' };
+}
+
+/**
+ * System prompt en bloques: la parte estática lleva cache_control ephemeral.
+ * El contexto RAG / web / plantillas va DESPUÉS del punto de caché.
+ */
+export function construirSystemConCache(promptEstatico: string, dinamico = ''): BloqueSystem[] {
+  const bloques: BloqueSystem[] = [
+    { type: 'text', text: promptEstatico, cache_control: { type: 'ephemeral' } },
+  ];
+  if (dinamico.trim()) {
+    bloques.push({ type: 'text', text: dinamico });
+  }
+  return bloques;
+}
+
+export function textoDeSystem(system: unknown): string {
+  if (!system) return '';
+  if (typeof system === 'string') return system;
+  if (Array.isArray(system)) {
+    return system
+      .map((b) => (b && typeof b === 'object' && 'text' in b ? String((b as BloqueSystem).text ?? '') : ''))
+      .join('\n\n');
+  }
+  return '';
+}
 
 export type ChatModePenal = keyof typeof CLAUDE_CONFIG_PENAL;

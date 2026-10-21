@@ -37,6 +37,17 @@ function mockDependencias() {
     return { ...actual, after: (fn: () => unknown) => { fn(); } };
   });
   vi.doMock('@/lib/rate-limit', () => ({
+    checkRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
+    reserveRateLimit: vi.fn().mockResolvedValue({
+      allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
+    }),
+    incrementRateLimit: vi.fn().mockResolvedValue(undefined),
+    releaseRateLimit: vi.fn().mockResolvedValue(undefined),
+    RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
+    esFalloProveedorQueDevuelveCuota: () => false,
+    esFalloOpenRouterQueDevuelveCuota: () => false,
     checkAndIncrementRateLimit: vi.fn().mockResolvedValue({
       allowed: true, remaining: 2, tier: 'free', resetAt: new Date().toISOString(),
     }),
@@ -107,11 +118,14 @@ async function leerSSE(res: Response) {
   return raw.split('\n\n').filter((c) => c.startsWith('data: ')).map((c) => JSON.parse(c.slice('data: '.length)));
 }
 
+import { textoDeSystem } from '@/lib/system-prompt';
+
 /** Bloque de contexto RAG dentro del system prompt enviado al modelo. */
-function bloqueContexto(system: string): string {
-  const ini = system.indexOf('── CONTEXTO RECUPERADO');
-  const fin = system.indexOf('── FIN DEL CONTEXTO RAG ──');
-  return ini === -1 ? '' : system.slice(ini, fin === -1 ? undefined : fin);
+function bloqueContexto(system: unknown): string {
+  const texto = textoDeSystem(system as never);
+  const ini = texto.indexOf('── CONTEXTO RECUPERADO');
+  const fin = texto.indexOf('── FIN DEL CONTEXTO RAG ──');
+  return ini === -1 ? '' : texto.slice(ini, fin === -1 ? undefined : fin);
 }
 
 beforeEach(() => {
@@ -141,7 +155,7 @@ describe('POST /api/chat — system prompt final para «ley sobre el divorcio»'
     await leerSSE(res);
 
     expect(llamadasModelo.length).toBeGreaterThan(0);
-    const system: string = (llamadasModelo[0][0] as { system: string }).system;
+    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
     const contexto = bloqueContexto(system);
 
     expect(contexto).toContain('CONSULTA TEMÁTICA');
