@@ -76,6 +76,13 @@
  *    CONTEXT con VIGENCIA_CERRADA_SIN_EVENTO y la fila va a `curacionDatos`
  *    (error de datos, no situación jurídica). Si es la última versión y la
  *    fecha es posterior a su cierre, se devuelve su propio texto como CONTEXT.
+ *  - REFORMA_NO_VINCULADA (dictamen CLO 21-oct-2026, issue #74): una REFORMA,
+ *    TEXTO_NUEVO_MISMO_NUMERO o ADICION cuyo instrumento_modificador falta o no
+ *    vincula nunca se sirve PRIMARY, ni siquiera como única versión vigente:
+ *    sale CONTEXT con esa advertencia.
+ *  - Cola de curación (mismo dictamen): una entrada por (instrumento, unidad,
+ *    versión), con el arreglo de sus motivos; la inserción es idempotente
+ *    (agregarCuracion).
  *  - Margen de incertidumbre (precision_fecha AÑO o RANGO, bordes inclusive): la
  *    versión se devuelve CONTEXT con FECHA_EN_RANGO_INCIERTO.
  *  - Una reforma o fallo posterior a la edición CEDIJ que no esté registrado como
@@ -140,6 +147,7 @@ export type CodigoAdvertencia =
   | 'REFORMA_POSTERIOR_SIN_TEXTO'
   | 'SIN_REVIVISCENCIA'
   | 'VIGENCIA_CERRADA_SIN_EVENTO'
+  | 'REFORMA_NO_VINCULADA'
   | 'NO_ELEGIBLE_PRIMARY';
 
 export interface Advertencia {
@@ -159,22 +167,59 @@ export interface AvisoContexto {
   advertencia: Advertencia;
 }
 
-/** Fila con un problema de datos que debe revisar quien cura el corpus. */
+/**
+ * Motivos de curación de una fila:
+ *  - VIGENCIA_CERRADA_SIN_EVENTO: vigencia cerrada sin evento que la explique.
+ *  - VINCULO_NO_IDENTIFICADO: una fila de evento trae un instrumento_modificador
+ *    que no está en la lista blanca (p. ej. «Acuerdo 679-2014» sin órgano).
+ *  - ANIO_2_CIFRAS_AMBIGUO: año de 2 cifras sin exactamente una lectura válida
+ *    (19YY y 20YY caben las dos, o no cabe ninguna) entre 1821 y vigente_desde.
+ *  - SIN_INSTRUMENTO_MODIFICADOR: una fila de evento sin instrumento_modificador.
+ */
+export type MotivoCuracion = 'VIGENCIA_CERRADA_SIN_EVENTO' | MotivoRechazoVinculo;
+
+/**
+ * Entrada de la cola de curación (dictamen CLO 21-oct-2026, issue #74): una sola
+ * entrada por (instrumento, unidad, versión o evento), con todos sus motivos.
+ * Se construye con agregarCuracion, que es idempotente.
+ */
 export interface CuracionDatos {
+  instrumento_id: string;
+  unidad: string;
   version_id: string;
-  /**
-   * VIGENCIA_CERRADA_SIN_EVENTO: vigencia cerrada sin evento que la explique.
-   * VINCULO_NO_IDENTIFICADO: una fila de evento trae un instrumento_modificador
-   * que no está en la lista blanca (p. ej. «Acuerdo 679-2014» sin órgano).
-   * ANIO_2_CIFRAS_AMBIGUO: año de 2 cifras con dos lecturas posibles (19YY y
-   * 20YY) anteriores o iguales a vigente_desde.
-   * SIN_INSTRUMENTO_MODIFICADOR: una fila de evento sin instrumento_modificador.
-   */
-  motivo: 'VIGENCIA_CERRADA_SIN_EVENTO' | MotivoRechazoVinculo;
-  mensaje: string;
+  /** Motivos sin repetir, en el orden en que se detectaron. */
+  motivos: MotivoCuracion[];
+  /** Un mensaje por motivo, en el mismo orden que `motivos`. */
+  mensajes: string[];
 }
 
-/** Motivos de curación por un vínculo rechazado (criterio CLO 18-oct-2026 sobre #69). */
+function claveCuracion(c: Pick<CuracionDatos, 'instrumento_id' | 'unidad' | 'version_id'>): string {
+  return JSON.stringify([c.instrumento_id, c.unidad, c.version_id]);
+}
+
+/**
+ * Agrega un motivo a la cola sin mutarla. Si la fila ya tiene entrada, suma el
+ * motivo a esa entrada; si el motivo ya estaba, devuelve una cola igual
+ * (idempotente: aplicar la misma inserción dos veces no cambia nada).
+ */
+export function agregarCuracion(
+  cola: readonly CuracionDatos[],
+  v: Pick<NormaVersion, 'instrumento_id' | 'unidad' | 'version_id'>,
+  motivo: MotivoCuracion,
+  mensaje: string,
+): CuracionDatos[] {
+  const clave = claveCuracion(v);
+  const i = cola.findIndex((c) => claveCuracion(c) === clave);
+  if (i === -1) {
+    return [...cola, { instrumento_id: v.instrumento_id, unidad: v.unidad, version_id: v.version_id, motivos: [motivo], mensajes: [mensaje] }];
+  }
+  if (cola[i].motivos.includes(motivo)) return [...cola];
+  const out = [...cola];
+  out[i] = { ...cola[i], motivos: [...cola[i].motivos, motivo], mensajes: [...cola[i].mensajes, mensaje] };
+  return out;
+}
+
+/** Motivos de curación por un vínculo rechazado (criterio CLO 18-oct-2026 sobre #69 y dictamen CLO 21-oct-2026). */
 export type MotivoRechazoVinculo = 'VINCULO_NO_IDENTIFICADO' | 'ANIO_2_CIFRAS_AMBIGUO' | 'SIN_INSTRUMENTO_MODIFICADOR';
 
 export type MotivoFalloCerrado =
@@ -463,11 +508,13 @@ const ANIO_MIN = 1821;
 /**
  * Lectura de un año de 2 cifras, sólo para validar; el texto del expediente se
  * compara en la notación de su fuente y nunca se expande. Criterio CLO
- * 18-oct-2026 sobre #69, que sustituye la fórmula «19YY; 4 cifras desde 2000»:
- *  - EXPEDIENTE_RI: 20YY si no pasa de `anioEnCurso`; si pasa, 19YY.
+ * 18-oct-2026 sobre #69, que sustituye la fórmula «19YY; 4 cifras desde 2000»,
+ * con el cambio del dictamen CLO 21-oct-2026 (issue #74):
+ *  - EXPEDIENTE_RI: 20YY si no pasa de `anioEnCurso`; si pasa, 19YY. La lectura
+ *    tampoco puede pasar del año de vigente_desde (se comprueba después).
  *  - Decreto, PCM, AE y PCSJ: candidatos 19YY y 20YY; se conservan los que no
- *    pasan del año de vigente_desde (ni bajan de 1821). Uno -> ese año; dos ->
- *    ANIO_2_CIFRAS_AMBIGUO; ninguno -> no vincula.
+ *    pasan del año de vigente_desde (ni bajan de 1821). Uno -> ese año; dos o
+ *    ninguno -> curación ANIO_2_CIFRAS_AMBIGUO, sin vincular.
  */
 function leerAnioDosCifras(
   tipo: TipoVinculo,
@@ -504,6 +551,29 @@ export function rechazoVinculo(
   vigenteDesde: string,
   anioEnCurso: number = anioEnCursoUTC(),
 ): { motivo: MotivoRechazoVinculo; detalle: string } | null {
+  const r = analizarVinculo(modificador, vigenteDesde, anioEnCurso);
+  return 'anio' in r ? null : r;
+}
+
+/**
+ * Año con que se lee el instrumento_modificador (p. ej. «Decreto 59-15» en un
+ * evento de 1916 -> 1915), o null si no vincula. Sólo valida: el texto del
+ * modificador nunca se reescribe con este año.
+ */
+export function anioVinculo(
+  modificador: string | null,
+  vigenteDesde: string,
+  anioEnCurso: number = anioEnCursoUTC(),
+): number | null {
+  const r = analizarVinculo(modificador, vigenteDesde, anioEnCurso);
+  return 'anio' in r ? r.anio : null;
+}
+
+function analizarVinculo(
+  modificador: string | null,
+  vigenteDesde: string,
+  anioEnCurso: number,
+): { motivo: MotivoRechazoVinculo; detalle: string } | { anio: number } {
   const no = (detalle: string) => ({ motivo: 'VINCULO_NO_IDENTIFICADO' as const, detalle });
   if (modificador === null || normalizarModificador(modificador) === '') {
     return { motivo: 'SIN_INSTRUMENTO_MODIFICADOR', detalle: 'sin instrumento_modificador' };
@@ -531,17 +601,30 @@ export function rechazoVinculo(
       };
     }
     if ('ninguno' in lectura) {
-      return no(`año de 2 cifras «${anioTexto}»: ni 19${anioTexto} ni 20${anioTexto} cabe entre ${ANIO_MIN} y vigente_desde (${anioVigencia})`);
+      // Dictamen CLO 21-oct-2026: sin ninguna lectura válida también es curación
+      // ANIO_2_CIFRAS_AMBIGUO, igual que con dos lecturas.
+      return {
+        motivo: 'ANIO_2_CIFRAS_AMBIGUO',
+        detalle: `año de 2 cifras «${anioTexto}» sin lectura válida: ni 19${anioTexto} ni 20${anioTexto} cabe entre ${ANIO_MIN} y vigente_desde (${anioVigencia})`,
+      };
     }
     // TODO(CLO 18-oct-2026): un decreto con año de 2 cifras debe existir además
     // en el registro canónico de instrumentos. Ese registro aún no existe en el
     // código; cuando exista, comprobar aquí (hallado.tipo === 'DECRETO') y, si
     // no consta, devolver un motivo de rechazo. No se inventan datos.
     anio = lectura.anio;
+    // RI conserva su regla de lectura; si el año leído no cabe hasta
+    // vigente_desde, no queda lectura válida (dictamen CLO 21-oct-2026).
+    if (anio > anioVigencia) {
+      return {
+        motivo: 'ANIO_2_CIFRAS_AMBIGUO',
+        detalle: `año de 2 cifras «${anioTexto}» leído como ${anio}, posterior al de vigente_desde (${anioVigencia}): sin lectura válida`,
+      };
+    }
   }
   if (anio < ANIO_MIN) return no(`año ${anio} anterior a ${ANIO_MIN}`);
   if (anio > anioVigencia) return no(`año ${anio} posterior al de vigente_desde (${anioVigencia})`);
-  return null;
+  return { anio };
 }
 
 /** Detalle de rechazoVinculo, o null si el modificador vincula. */
@@ -581,12 +664,13 @@ function avisoVigenciaCerradaSinEvento(v: NormaVersion): Advertencia {
   };
 }
 
-function curacionDe(v: NormaVersion): CuracionDatos {
-  return {
-    version_id: v.version_id,
-    motivo: 'VIGENCIA_CERRADA_SIN_EVENTO',
-    mensaje: `Vigencia cerrada el ${v.vigente_hasta} sin evento posterior vinculado: revisar vigente_hasta o registrar el evento que la cierra.`,
-  };
+function curacionVigenciaCerrada(cola: readonly CuracionDatos[], v: NormaVersion): CuracionDatos[] {
+  return agregarCuracion(
+    cola,
+    v,
+    'VIGENCIA_CERRADA_SIN_EVENTO',
+    `Vigencia cerrada el ${v.vigente_hasta} sin evento posterior vinculado: revisar vigente_hasta o registrar el evento que la cierra.`,
+  );
 }
 
 /** Vinculada a un evento de reforma identificado con su decreto o fallo. */
@@ -604,6 +688,15 @@ function avisoReformaPosterior(p: NormaVersion): Advertencia {
     mensaje: `Existe una versión posterior ${descripcionPosterior(p)}; esta versión es histórica o no es verificable como PRIMARY y se muestra sólo como contexto.`,
     version_posterior: p.version_id,
     rige_desde: p.vigente_desde,
+  };
+}
+
+function avisoReformaNoVinculada(v: NormaVersion): Advertencia {
+  return {
+    codigo: 'REFORMA_NO_VINCULADA',
+    mensaje: `La versión ${v.version_id} es un evento ${v.tipo_evento} sin instrumento modificador vinculado; no se sirve como fuente primaria y se muestra sólo como contexto.`,
+    version_posterior: v.version_id,
+    rige_desde: v.vigente_desde,
   };
 }
 
@@ -625,20 +718,24 @@ function avisoReformaPosteriorSinTexto(p: NormaVersion): Advertencia {
  * 18-oct-2026 sobre #69). Sólo marca: no cambia qué versión se sirve ni su
  * estado.
  */
-function curacionVinculos(propias: readonly NormaVersion[], anioEnCurso: number): CuracionDatos[] {
-  const out: CuracionDatos[] = [];
+function curacionVinculos(
+  cola: readonly CuracionDatos[],
+  propias: readonly NormaVersion[],
+  anioEnCurso: number,
+): CuracionDatos[] {
+  let out = [...cola];
   for (const v of propias) {
     if (v.tipo_evento === 'ORIGINAL') continue;
     const rechazo = rechazoVinculo(v.instrumento_modificador, v.vigente_desde, anioEnCurso);
     if (rechazo === null) continue;
-    out.push({
-      version_id: v.version_id,
-      motivo: rechazo.motivo,
-      mensaje:
-        rechazo.motivo === 'SIN_INSTRUMENTO_MODIFICADOR'
-          ? `evento ${v.tipo_evento} sin instrumento_modificador: registrar el decreto o fallo que lo produce.`
-          : `instrumento_modificador «${v.instrumento_modificador}» no vincula (${rechazo.detalle}): normalizarlo o registrar el instrumento.`,
-    });
+    out = agregarCuracion(
+      out,
+      v,
+      rechazo.motivo,
+      rechazo.motivo === 'SIN_INSTRUMENTO_MODIFICADOR'
+        ? `evento ${v.tipo_evento} sin instrumento_modificador: registrar el decreto o fallo que lo produce.`
+        : `instrumento_modificador «${v.instrumento_modificador}» no vincula (${rechazo.detalle}): normalizarlo o registrar el instrumento.`,
+    );
   }
   return out;
 }
@@ -663,14 +760,14 @@ export function resolverVersion(
 ): ResultadoVersion {
   const anioEnCurso = opciones.anioEnCurso ?? anioEnCursoUTC();
   const r = resolverVersionBase(instrumento, unidad, fecha, versiones, anioEnCurso);
-  const vinculos = curacionVinculos(
+  const base = r.estado === 'FALLO_CERRADO' ? (r.curacionDatos ?? []) : r.curacionDatos;
+  const cola = curacionVinculos(
+    base,
     versiones.filter((v) => v.instrumento_id === instrumento && v.unidad === unidad),
     anioEnCurso,
   );
-  if (vinculos.length === 0) return r;
-  if (r.estado === 'FALLO_CERRADO') return { ...r, curacionDatos: vinculos };
-  const ya = new Set(r.curacionDatos.map((c) => `${c.version_id}|${c.motivo}`));
-  return { ...r, curacionDatos: [...r.curacionDatos, ...vinculos.filter((c) => !ya.has(`${c.version_id}|${c.motivo}`))] };
+  if (r.estado === 'FALLO_CERRADO') return cola.length === 0 ? r : { ...r, curacionDatos: cola };
+  return { ...r, curacionDatos: cola };
 }
 
 function resolverVersionBase(
@@ -708,7 +805,7 @@ function resolverVersionBase(
           advertencias: [...advertenciasDe(ultima, fecha), avisoVigenciaCerradaSinEvento(ultima)],
           contexto: [],
           avisosContexto: [],
-          curacionDatos: [curacionDe(ultima)],
+          curacionDatos: curacionVigenciaCerrada([], ultima),
         };
       }
       return fallo('POSTERIOR_A_VERSION_CERRADA');
@@ -797,10 +894,18 @@ function resolverVersionBase(
     advertencias.push(avisoVigenciaCerradaSinEvento(v));
     avisosContexto.push({ version_id: v.version_id, advertencia: avisoVigenciaCerradaSinEvento(v) });
   }
-  const curacionDatos = cerradasSinEvento.map(curacionDe);
+  const curacionDatos = cerradasSinEvento.reduce<CuracionDatos[]>(curacionVigenciaCerrada, []);
+
+  // REFORMA_NO_VINCULADA (dictamen CLO 21-oct-2026, issue #74): una REFORMA,
+  // TEXTO_NUEVO_MISMO_NUMERO o ADICION sin instrumento modificador vinculado
+  // nunca es PRIMARY, aunque sea la única versión vigente; sale como CONTEXT.
+  const reformaNoVinculada =
+    EVENTOS_PROMOVIBLES.includes(servida.tipo_evento) && !vinculadaAReforma(servida, anioEnCurso);
+  if (reformaNoVinculada) advertencias.push(avisoReformaNoVinculada(servida));
 
   return esPrimary(servida, fecha) &&
     !EVENTOS_BLOQUEANTES.includes(servida.tipo_evento) &&
+    !reformaNoVinculada &&
     (reformaPosterior === undefined || promueve) &&
     cerradasSinEvento.length === 0
     ? { estado: 'PRIMARY', version: servida, advertencias, contexto, avisosContexto, curacionDatos }
