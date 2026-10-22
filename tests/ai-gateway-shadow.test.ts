@@ -349,10 +349,12 @@ describe('aislamiento: el resultado sombra nunca llega al usuario', () => {
       const p = join(dir, n);
       return statSync(p).isDirectory() ? archivos(p) : /\.(ts|tsx)$/.test(n) ? [p] : [];
     });
-  it('ningún archivo de app/ ni de lib/ fuera del gateway importa lib/ai-gateway', () => {
+  it('fuera del gateway sólo app/api/chat/route.ts importa lib/ai-gateway, y sólo el dispatcher (PR-G2)', () => {
     const fuera = [...archivos(join(RAIZ, 'app')), ...archivos(join(RAIZ, 'lib'))].filter((p) => !relative(RAIZ, p).startsWith('lib/ai-gateway'));
     const importan = fuera.filter((p) => /ai-gateway/.test(readFileSync(p, 'utf8'))).map((p) => relative(RAIZ, p));
-    expect(importan).toEqual([]);
+    expect(importan).toEqual(['app/api/chat/route.ts']);
+    const lineas = readFileSync(join(RAIZ, 'app', 'api', 'chat', 'route.ts'), 'utf8').split('\n').filter((l) => /ai-gateway/.test(l));
+    expect(lineas.filter((l) => /^import /.test(l))).toEqual(["import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';"]);
   });
   // Guard de red: fetch, XMLHttpRequest, OpenAI y su clave, process.env, Supabase y los clientes HTTP
   // (axios, undici, http y https, con o sin prefijo node:) en import, require o import dinámico.

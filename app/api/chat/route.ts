@@ -64,6 +64,7 @@ import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retriev
 // para que los consumidores actuales (tests que importan desde
 // '@/app/api/chat/route') no requieran ningún cambio de import.
 import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
+import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';
 // Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md: mensajes distintos para
 // CONFIGURATION_ERROR/RETRIEVAL_ERROR (nunca "no existe la ley" cuando en
 // realidad el propio sistema no pudo consultarla) y el builder para el
@@ -452,6 +453,17 @@ export async function POST(req: NextRequest) {
   // explícito -- el propio sistema no pudo consultar las fuentes, eso NUNCA
   // debe presentarse como si el derecho no existiera (ver decidirAbstencion).
   const outcomeState = ragData.outcome?.state;
+
+  // PR-G2 (AI Gateway, modo sombra): despacho fire-and-forget DESPUÉS del
+  // Evidence Gate. No se espera, no recibe la respuesta ni la modifica; con el
+  // kill switch apagado (default) no hace nada. Ver lib/ai-gateway/shadow.
+  despacharShadow({
+    queryId: consultaId,
+    pregunta: ultimaPregunta as string,
+    fragmentos: ragData.fragmentos,
+    decision: evidenciaInsuficiente ? 'ABSTAIN' : 'ANSWER',
+    retrievalState: outcomeState,
+  });
 
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente — DESPUÉS del caché
