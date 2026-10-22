@@ -14,6 +14,7 @@ import type { FragmentoRAG, RetrievalExecutionState } from '../../legal-retrieva
 import { SHADOW_GATEWAY_ENABLED, SHADOW_REGISTRY_MAX, SHADOW_TIMEOUT_MS } from './config';
 import { crearAdaptadorSombra } from './adaptador-sombra';
 import { validarSalida } from './citation-validator';
+import { crearCircuitBreaker } from './circuit-breaker';
 import { detectarPii } from './pii-gate';
 import type { EvidenceChunk, ShadowGatewayInput, ShadowStatus } from './types';
 
@@ -21,6 +22,7 @@ export type EstadoDespacho =
   | 'SKIPPED_DISABLED'
   | 'SKIPPED_PII'
   | 'SKIPPED_NO_OUTCOME'
+  | 'SKIPPED_CIRCUIT_OPEN'
   | 'DISPATCHED'
   | 'COMPLETED'
   | 'ERROR'
@@ -31,6 +33,10 @@ export interface RegistroDespacho {
   estado: EstadoDespacho;
   /** Categoría de PII (SKIPPED_PII), estado del resultado sombra (COMPLETED) o tipo de error. */
   motivo: string | null;
+  /** Solo en COMPLETED: tokens, costo estimado y latencia del resultado sombra (nunca texto). */
+  uso?: { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; latenciaMs: number };
+  /** Solo en COMPLETED: el estado sombra difiere de la decisión de producción (INVALID cuenta como desacuerdo). */
+  desacuerdo?: boolean;
 }
 
 export interface ParametrosDespacho {
@@ -42,6 +48,7 @@ export interface ParametrosDespacho {
 }
 
 const registro: RegistroDespacho[] = [];
+const breaker = crearCircuitBreaker();
 const pendientes = new Set<Promise<void>>();
 
 function anotar(r: RegistroDespacho): void {
@@ -72,14 +79,27 @@ function aEvidencia(fragmentos: readonly FragmentoRAG[]): EvidenceChunk[] {
   }));
 }
 
-function conTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error('TIMEOUT')), ms);
-    if (typeof t === 'object' && 'unref' in t) t.unref();
-    p.then(
-      (v) => { clearTimeout(t); resolve(v); },
-      (e) => { clearTimeout(t); reject(e); },
-    );
+/**
+ * Corre `fn` con una señal que se aborta al vencer `ms`. Rechaza con Error('TIMEOUT') aunque el adaptador
+ * ignore la señal, y siempre limpia el temporizador. La promesa de `fn` queda atendida: no genera rechazos
+ * sin manejar si falla después del timeout.
+ */
+function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: number): Promise<T> {
+  const ctrl = new AbortController();
+  let temporizador: ReturnType<typeof setTimeout> | undefined;
+  const vencido = new Promise<never>((_, reject) => {
+    temporizador = setTimeout(() => {
+      // Primero se rechaza con TIMEOUT y después se aborta: un cliente que rechaza al abortar no debe
+      // ganar la carrera y hacer pasar el timeout por un error de otro tipo.
+      reject(new Error('TIMEOUT'));
+      ctrl.abort();
+    }, ms);
+    if (typeof temporizador === 'object' && 'unref' in temporizador) temporizador.unref();
+  });
+  const trabajo = fn(ctrl.signal);
+  trabajo.catch(() => {});
+  return Promise.race([trabajo, vencido]).finally(() => {
+    if (temporizador !== undefined) clearTimeout(temporizador);
   });
 }
 
@@ -102,15 +122,28 @@ export function despacharShadow(params: ParametrosDespacho): void {
       evidence: aEvidencia(params.fragmentos ?? []),
       productionOutcome: { decision: params.decision, retrievalState: params.retrievalState },
     };
+    if (!breaker.permitir()) {
+      anotar({ queryId, estado: 'SKIPPED_CIRCUIT_OPEN', motivo: null });
+      return;
+    }
     anotar({ queryId, estado: 'DISPATCHED', motivo: null });
     const trabajo = (async () => {
       const adapter = crearAdaptadorSombra();
-      const cruda = await conTimeout(adapter.responder(input), SHADOW_TIMEOUT_MS);
+      const cruda = await conTimeout((signal) => adapter.responder(input, { signal }), SHADOW_TIMEOUT_MS);
+      breaker.exito();
       const resultado = validarSalida(input, cruda);
       const estado: ShadowStatus = resultado.status;
-      anotar({ queryId, estado: 'COMPLETED', motivo: estado });
+      const u = resultado.usage;
+      anotar({
+        queryId,
+        estado: 'COMPLETED',
+        motivo: estado,
+        uso: { inputTokens: u.inputTokens, outputTokens: u.outputTokens, totalTokens: u.inputTokens + u.outputTokens, estimatedCostUsd: u.estimatedCostUsd, latenciaMs: resultado.latencyMs },
+        desacuerdo: estado !== params.decision,
+      });
     })()
       .catch((e: unknown) => {
+        breaker.fallo();
         const esTimeout = e instanceof Error && e.message === 'TIMEOUT';
         anotar({ queryId, estado: esTimeout ? 'TIMEOUT' : 'ERROR', motivo: esTimeout ? null : (e instanceof Error ? e.name : 'desconocido') });
       })

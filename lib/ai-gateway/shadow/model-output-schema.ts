@@ -42,6 +42,47 @@ export const MODEL_OUTPUT_JSON_SCHEMA = {
   },
 } as const;
 
+/**
+ * Esquema para el cable (PR-G3a): subconjunto conservador de MODEL_OUTPUT_JSON_SCHEMA que solo usa
+ * type, properties, required, additionalProperties, enum e items. No lleva $schema, title ni minLength
+ * (que podría rechazar el modo estricto de un proveedor): esas restricciones las sigue imponiendo
+ * `modelOutputSchema` (zod) y `parsearSalidaModelo` después de recibir la salida. Compatibilidad con la
+ * API real: pendiente de confirmar contra la documentación oficial.
+ */
+export const MODEL_OUTPUT_WIRE_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['decision', 'claims', 'abstention_reason'],
+  properties: {
+    decision: { type: 'string', enum: ['ANSWER', 'ABSTAIN'] },
+    claims: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['claim_id', 'text', 'citations'],
+        properties: {
+          claim_id: { type: 'string' },
+          text: { type: 'string' },
+          citations: {
+            type: 'array',
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['chunk_id', 'support'],
+              properties: {
+                chunk_id: { type: 'string' },
+                support: { type: 'string', enum: ['DIRECT', 'INDIRECT'] },
+              },
+            },
+          },
+        },
+      },
+    },
+    abstention_reason: { type: ['string', 'null'] },
+  },
+} as const;
+
 const citacionSchema = z
   .object({
     chunk_id: z.string().min(1),
