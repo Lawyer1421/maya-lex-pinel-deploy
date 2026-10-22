@@ -392,6 +392,36 @@ describe('dictamen CLO 21-oct-2026 (issue #74) — parser y curación del Códig
     expect(chunks.filter((c) => c.aceptado).map((c) => c.numArticulo)).not.toContain('21');
   });
 
+  it('rechaza encabezados de rango: «ARTÍCULO 5 - 10» y «ARTÍCULOS 5 al 10»', () => {
+    // Dictamen CLO 22-oct-2026: un rango nunca es el encabezado de un artículo.
+    expect(encabezadoNotarialConGuion('ARTÍCULO 5 - 10 Texto sintético', '5')).toBe(false);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 5 -10 Texto sintético', '5')).toBe(false);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 5. - 10 Texto sintético', '5')).toBe(false);
+    expect(encabezadoNotarialConGuion('ARTÍCULOS 5 al 10 Texto sintético', '5')).toBe(false);
+    for (const rango of ['ARTÍCULO 5 - 10 Texto sintético del rango.', 'ARTÍCULOS 5 al 10 Texto sintético del rango.']) {
+      const aceptados = segmentarNotariado(`ARTÍCULO 4. Texto sintético del cuarto.\n${rango}`).filter((c) => c.aceptado);
+      expect(aceptados.map((c) => c.numArticulo)).toEqual(['4']);
+      // El rango queda dentro del cuerpo del artículo anterior: no se pierde ni se reescribe.
+      expect(aceptados[0].contenido).toContain(rango);
+    }
+  });
+
+  it('los encabezados válidos siguen pasando junto a los rangos rechazados', () => {
+    const texto = [
+      'ARTÍCULO 4. Texto sintético del cuarto.',
+      'ARTÍCULO 5 - 10 Rango sintético.',
+      'ARTÍCULO 11.- Texto sintético del undécimo.',
+      'ARTÍCULO 21 -Texto sintético sin espacio tras el guion.',
+      'ARTÍCULO 52. - Texto sintético del cincuenta y dos.',
+      'ARTÍCULO 53 «Texto entre comillas» sintético.',
+      'ARTÍCULOS 60 al 62 Rango sintético.',
+      'Artículo 70. Texto sintético del setenta.',
+    ].join('\n');
+    expect(segmentarNotariado(texto).filter((c) => c.aceptado).map((c) => c.numArticulo)).toEqual(['4', '11', '21', '52', '53', '70']);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 21 -Acta sintética', '21')).toBe(true);
+    expect(encabezadoNotarialConGuion('ARTÍCULO 21 - «Texto»', '21')).toBe(true);
+  });
+
   it('21 y 52 ya no son gaps documentales; el 17 sí', () => {
     expect(GAPS_DOCUMENTALES_CODIGO_NOTARIADO.map((g) => g.numArticulo)).toEqual(['17']);
   });

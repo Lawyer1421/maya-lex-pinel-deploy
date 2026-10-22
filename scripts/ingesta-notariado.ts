@@ -144,7 +144,9 @@ function curacionPara(clave: ClaveInstrumentoNotarial): readonly CuracionNotaria
  * Encabezados del Código del Notariado que el parser genérico rechaza por el
  * guion: «ARTÍCULO 21 -» y «ARTÍCULO 52. -». Sólo la palabra en mayúsculas al
  * inicio de la ventana (una cita dentro de un cuerpo va en minúsculas) y, tras
- * el guion, mayúscula, número o comillas, como exige tieneEncabezadoArticulo.
+ * el guion, mayúscula o comillas, como exige tieneEncabezadoArticulo. Un
+ * número tras el guion es un rango («ARTÍCULO 5 - 10»), no un encabezado, y
+ * el plural («ARTÍCULOS 5 al 10») nunca entra.
  */
 export function encabezadoNotarialConGuion(ventana: string, numArticulo: string): boolean {
   if (!/^\d+[a-z]?$/i.test(numArticulo)) return false;
@@ -152,7 +154,8 @@ export function encabezadoNotarialConGuion(ventana: string, numArticulo: string)
   if (!m) return false;
   const siguiente = ventana[m[0].length];
   if (!siguiente) return false;
-  if (/[0-9"«]/.test(siguiente)) return true;
+  if (/[0-9]/.test(siguiente)) return false;
+  if (/["«]/.test(siguiente)) return true;
   return siguiente === siguiente.toUpperCase() && siguiente !== siguiente.toLowerCase();
 }
 
