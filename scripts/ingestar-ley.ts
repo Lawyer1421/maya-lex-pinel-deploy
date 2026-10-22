@@ -221,6 +221,11 @@ export interface OpcionesSegmentacion {
   // propia fuente sigue esta convención, tras verificarlo contra su propio
   // texto (igual que ingesta-comercio.ts lo hizo antes de activarla).
   exigirOrtografiaSinTilde?: boolean;
+  // Encabezados que la fuente escribe de forma propia y tieneEncabezadoArticulo
+  // no reconoce (p. ej. el Código del Notariado: «ARTÍCULO 21 -»). Opt-in: se
+  // suma a tieneEncabezadoArticulo, nunca la sustituye, y no cambia el texto:
+  // el contenido del segmento sigue siendo el tramo original de la fuente.
+  aceptarEncabezadoExtra?: (ventana: string, numArticulo: string) => boolean;
 }
 
 export function segmentarGenerico(
@@ -242,7 +247,9 @@ export function segmentarGenerico(
     // Se evalúa contra una ventana corta, NUNCA contra el texto completo
     // hasta el siguiente match (ver hallazgo arriba). Se exige además la
     // ortografía de encabezado cuando la fuente lo pide (hallazgo 3).
-    const aceptado = esOrtografiaDeEncabezado(m[0]) && tieneEncabezadoArticulo(ventana, numArticulo);
+    const aceptado =
+      esOrtografiaDeEncabezado(m[0]) &&
+      (tieneEncabezadoArticulo(ventana, numArticulo) || opciones.aceptarEncabezadoExtra?.(ventana, numArticulo) === true);
     return { inicio, numArticulo, aceptado, largoMatch };
   });
 
