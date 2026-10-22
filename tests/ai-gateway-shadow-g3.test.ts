@@ -158,12 +158,19 @@ describe('gate de corpus público (experimental, fail-closed)', () => {
   it('si UNO falla, todo se rechaza', () => {
     expect(evaluarCorpusPublico([frag(), frag({ id: 'f2', jurisdiccion: 'MX' }), frag({ id: 'f3' })]).estado).toBe('PUBLIC_CORPUS_REJECT');
   });
-  it('una lista vacía pasa de forma vacua (no hay evidencia que pueda ser privada)', () => {
-    expect(evaluarCorpusPublico([]).estado).toBe('PUBLIC_CORPUS_PASS');
+  it('M1 (auditoría #85): una lista vacía se rechaza con sin_evidencia: no hay nada que verificar ni motivo para exponer la pregunta', () => {
+    expect(evaluarCorpusPublico([])).toEqual({ estado: 'PUBLIC_CORPUS_REJECT', razon: 'sin_evidencia' });
+    expect(evaluarCorpusPublico(undefined as never)).toEqual({ estado: 'PUBLIC_CORPUS_REJECT', razon: 'sin_evidencia' });
   });
   it('la razón es el nombre del campo, nunca su valor', () => {
     const r = evaluarCorpusPublico([frag({ fuente: 'doc_secreto_cliente' })]);
     expect(JSON.stringify(r)).not.toMatch(/secreto|cliente/);
+  });
+  it('M2 (auditoría #85): la deuda PRIVACY_GATE_KNOWN_FALSE_NEGATIVES_PENDING queda en el encabezado del gate y en el documento de deuda previa a canary', () => {
+    const gate = readFileSync(join(RAIZ, 'lib', 'ai-gateway', 'shadow', 'privacy-gate.ts'), 'utf8');
+    expect(gate).toMatch(/PRIVACY_GATE_KNOWN_FALSE_NEGATIVES_PENDING/);
+    const doc = readFileSync(join(RAIZ, 'docs', 'governance', 'gateway-g3-deuda-pre-canary.md'), 'utf8');
+    for (const marca of ['PRIVACY_GATE_KNOWN_FALSE_NEGATIVES_PENDING', 'PUBLIC_PROVENANCE_STRONG_PROOF_PENDING', 'Verificar antes de activar']) expect(doc, marca).toContain(marca);
   });
   it('la deuda PUBLIC_PROVENANCE_STRONG_PROOF_PENDING queda registrada y el gate no se presenta como prueba absoluta', () => {
     const fuente = readFileSync(join(RAIZ, 'lib', 'ai-gateway', 'shadow', 'public-corpus-gate.ts'), 'utf8');
@@ -493,6 +500,13 @@ describe('dispatcher: cada compuerta fail-closed deja cero llamadas', () => {
     await d.esperarDespachos();
     expect(responder).toHaveBeenCalledTimes(5);
     expect(d.registroDespachos().at(-1)).toEqual({ queryId: 'abierto', estado: 'SKIPPED_CIRCUIT_OPEN', motivo: null });
+  });
+  it('M1: cero fragmentos → SKIPPED_PUBLIC_CORPUS (sin_evidencia) y cero llamadas, con kill switch y presupuesto simulados encendidos', async () => {
+    const { d, responder } = await cargar({ habilitado: true, presupuesto: 1, credencial: true });
+    d.despacharShadow(params('vacio', { fragmentos: [] }));
+    await d.esperarDespachos();
+    expect(responder).not.toHaveBeenCalled();
+    expect(d.registroDespachos()).toEqual([{ queryId: 'vacio', estado: 'SKIPPED_PUBLIC_CORPUS', motivo: 'sin_evidencia' }]);
   });
   it('orden: privacidad antes que corpus, corpus antes que credencial, credencial antes que presupuesto', async () => {
     const { d } = await cargar({ credencial: false }); // presupuesto 0 real

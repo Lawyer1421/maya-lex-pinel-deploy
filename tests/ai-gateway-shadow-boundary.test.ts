@@ -176,7 +176,8 @@ describe('(a) la respuesta HTTP es idéntica byte a byte con shadow encendido o 
     const encendido = await correrRuta('Según el corpus, ¿qué garantías tiene el imputado durante la detención?', []);
     expect(apagado.cuerpo).toContain('CORPUS_EVIDENCE_NOT_FOUND');
     expect(encendido.cuerpo).toBe(apagado.cuerpo);
-    expect(encendido.registro[0]).toMatchObject({ estado: 'DISPATCHED' });
+    // M1 (auditoría #85): con cero fragmentos no hay evidencia que verificar, así que no hay despacho.
+    expect(encendido.registro).toEqual([{ queryId: '00000000-0000-4000-8000-000000000001', estado: 'SKIPPED_PUBLIC_CORPUS', motivo: 'sin_evidencia' }]);
   });
 });
 

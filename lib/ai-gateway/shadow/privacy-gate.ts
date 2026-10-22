@@ -11,6 +11,10 @@
  *
  * El resultado nombra la etapa y una razón-código; nunca el texto ni el dato detectado.
  *
+ * DEUDA PREVIA A CANARY: PRIVACY_GATE_KNOWN_FALSE_NEGATIVES_PENDING — los falsos negativos conocidos de abajo
+ * son un BLOQUEO para cualquier canary (junto con PUBLIC_PROVENANCE_STRONG_PROOF_PENDING). Ver
+ * docs/governance/gateway-g3-deuda-pre-canary.md.
+ *
  * FALSOS POSITIVOS CONOCIDOS (se rechaza algo público): nombres propios legítimos fuera del vocabulario
  *   («Tratado de Libre Comercio con Estados Unidos»), siglas no listadas, preguntas sin vocabulario jurídico
  *   reconocible, dos años o números de 4 dígitos seguidos («2019 2020») por la regla de teléfonos.

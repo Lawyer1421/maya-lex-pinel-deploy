@@ -13,8 +13,9 @@
  * DEUDA PREVIA A CANARY: PUBLIC_PROVENANCE_STRONG_PROOF_PENDING (prueba fuerte de procedencia pública,
  * p. ej. una columna de procedencia verificada). No se hace en este PR: sin SQL, migración ni columna nueva.
  *
- * Una lista vacía pasa de forma vacua: no hay evidencia que pueda ser privada. La razón de un rechazo es solo
- * el NOMBRE del campo que falló, nunca su valor.
+ * Una lista VACÍA también se rechaza (`sin_evidencia`): con cero fragmentos no hay nada que verificar y la llamada
+ * solo gastaría y expondría la pregunta (auditoría del PR #85, M1). La razón de un rechazo es solo el NOMBRE del
+ * campo que falló, nunca su valor.
  */
 import { FUENTES_DOCTRINALES } from '../../legal-retrieval/evidence-engine';
 import { esFuenteDocumentalExcluida } from '../../legal-retrieval/semantic-retriever';
@@ -37,6 +38,7 @@ function motivoDeRechazo(f: FragmentoRAG): string | null {
 }
 
 export function evaluarCorpusPublico(fragmentos: readonly FragmentoRAG[]): ResultadoCorpusPublico {
+  if (!Array.isArray(fragmentos) || fragmentos.length === 0) return { estado: 'PUBLIC_CORPUS_REJECT', razon: 'sin_evidencia' };
   for (const f of fragmentos) {
     const razon = motivoDeRechazo(f);
     if (razon) return { estado: 'PUBLIC_CORPUS_REJECT', razon };
