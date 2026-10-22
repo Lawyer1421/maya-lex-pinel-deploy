@@ -37,7 +37,16 @@ export interface GoldenCase {
   /** Sólo VERIFICADO entra al gate; PENDIENTE es hipótesis del CLO aún abierta. */
   estado: 'VERIFICADO' | 'PENDIENTE';
   categoria: CategoriaGolden;
-  /** Artículo, instrumento y Gaceta tal como los fija el CLO. */
+  /**
+   * Fecha y dictamen CLO que fija el caso (p. ej. «Dictamen CLO 21-oct-2026,
+   * issue #74, …»). Sin esta referencia un caso no entra al gate.
+   */
+  clo_ruling_ref: string;
+  /** Artículo (o unidad) exacto que fija el CLO para el caso. */
+  articulo: string;
+  /** Gaceta que fija el CLO para el caso; null sólo si el dictamen no cita ninguna. */
+  gaceta: string | null;
+  /** Texto del dictamen: instrumento, artículo y Gaceta tal como los fija el CLO. */
   referenciaCLO: string;
   input: ShadowGatewayInput;
   esperado: {
@@ -47,6 +56,11 @@ export interface GoldenCase {
     /** Instrumentos que no se pueden citar (p. ej. Código Penal para el art. 173-B). */
     instrumentosProhibidos?: string[];
   };
+}
+
+/** Un caso entra al gate sólo si es VERIFICADO y lleva una clo_ruling_ref no vacía. */
+export function entraAlGate(caso: GoldenCase): boolean {
+  return caso.estado === 'VERIFICADO' && typeof caso.clo_ruling_ref === 'string' && caso.clo_ruling_ref.trim() !== '';
 }
 
 export interface ComparacionCaso {
@@ -130,7 +144,7 @@ export async function runGoldenSet(
   opciones: { modoTarifa?: ModoTarifa } = {},
 ): Promise<InformeGolden> {
   const modoTarifa = opciones.modoTarifa ?? 'standard';
-  const verificados = casos.filter((c) => c.estado === 'VERIFICADO');
+  const verificados = casos.filter(entraAlGate);
   const resultados: ShadowGatewayResult[] = [];
   const comparaciones: ComparacionCaso[] = [];
   for (const caso of verificados) {
@@ -168,7 +182,7 @@ export async function runGoldenSet(
     modelo: adapter.modelo,
     modoTarifa,
     casosEvaluados: verificados.map((c) => c.id),
-    casosExcluidosPendientes: casos.filter((c) => c.estado !== 'VERIFICADO').map((c) => c.id),
+    casosExcluidosPendientes: casos.filter((c) => !entraAlGate(c)).map((c) => c.id),
     resultados,
     comparaciones,
     metricas,

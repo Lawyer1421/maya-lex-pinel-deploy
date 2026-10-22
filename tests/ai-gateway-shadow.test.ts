@@ -7,13 +7,20 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { validarSalida, type SalidaCruda } from '@/lib/ai-gateway/shadow/citation-validator';
-import { RecordedResponseAdapter, runGoldenSet, type GoldenCase } from '@/lib/ai-gateway/shadow/golden-runner';
+import { RecordedResponseAdapter, entraAlGate, runGoldenSet, type GoldenCase } from '@/lib/ai-gateway/shadow/golden-runner';
 import { MODEL_OUTPUT_JSON_SCHEMA, parsearSalidaModelo } from '@/lib/ai-gateway/shadow/model-output-schema';
 import { TARIFAS_GPT6_LUNA, estimarCostoUsd } from '@/lib/ai-gateway/shadow/pricing';
 import { MODELO_GATEWAY, type ShadowGatewayInput, type ShadowGatewayResult } from '@/lib/ai-gateway/shadow/types';
 import { construirRespuestaHttpUsuario, type ProductionUserResponse } from '@/lib/ai-gateway/user-response-boundary';
 import { resolverVersion } from '@/lib/legal-retrieval/norma-version';
-import { CASOS_PENDIENTES_CLO, GOLDEN_G1, RESPUESTAS_GRABADAS_G1, VERSION_REFORMA_SIN_INSTRUMENTO } from './golden/gateway-g1-casos';
+import {
+  CASOS_PENDIENTES_CLO,
+  GOLDEN_G1,
+  PARA_PR_POSTERIOR_ISSUE_78,
+  PENDIENTE_VERIFICACION_CLO,
+  RESPUESTAS_GRABADAS_G1,
+  VERSION_REFORMA_SIN_INSTRUMENTO,
+} from './golden/gateway-g1-casos';
 
 const RAIZ = join(__dirname, '..');
 
@@ -143,8 +150,8 @@ describe('tarifas de gpt-6-luna (verificadas el 21-oct-2026)', () => {
 });
 
 describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
-  it('carga exactamente los 8 casos verificados, cada uno con su referencia del CLO', () => {
-    expect(GOLDEN_G1).toHaveLength(8);
+  it('carga exactamente los 7 casos verificados, cada uno con su referencia del CLO', () => {
+    expect(GOLDEN_G1).toHaveLength(7);
     expect(GOLDEN_G1.every((c) => c.estado === 'VERIFICADO')).toBe(true);
     const refs = Object.fromEntries(GOLDEN_G1.map((c) => [c.id, c.referenciaCLO]));
     expect(refs['G1-ABS-NOTARIADO-ART-500']).toMatch(/art\. 500 no existe/);
@@ -152,12 +159,65 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     expect(refs['G1-ABS-REGLAMENTO-ART-12-BIS']).toMatch(/PCSJ-17-2012, Gaceta 32,958/);
     expect(refs['G1-NOT-LEY-DEL-NOTARIADO']).toMatch(/D\.353-2005, Gaceta 30,904/);
     expect(refs['G1-REF-ART-173-B-CPP']).toMatch(/CPP \(adicionado por el D\.98-2017, Gaceta 34,473\)/);
-    expect(refs['G1-VIG-CODIGO-PENAL-130-2017']).toMatch(/25-jun-2020 por el D\.46-2020/);
-    expect(refs['G1-VIG-CODIGO-PENAL-130-2017']).toMatch(/art\. 634 deroga el D\.144-83/);
+    expect(refs['G1-VIG-CODIGO-PENAL-130-2017']).toBeUndefined();
     expect(refs['G1-VIG-D57-2020-SIN-REVIVISCENCIA']).toMatch(/D\.43-2023 \(Gaceta 36,290\)\. No revive/);
     expect(refs['G1-ART-TRIBUTARIO-214']).toMatch(/D\.170-2016 \(Gaceta 34,224\): su art\. 214 deroga el D\.22-97/);
     expect(refs['G1-VER-REFORMA-NO-VINCULADA']).toMatch(/REFORMA_NO_VINCULADA, CONTEXT/);
   });
+  it('H1: el caso del Código Penal D.130-2017 salió del gate y no cuenta en ninguna métrica', async () => {
+    expect(GOLDEN_G1.some((c) => c.id === 'G1-VIG-CODIGO-PENAL-130-2017')).toBe(false);
+    expect(PENDIENTE_VERIFICACION_CLO.map((c) => c.id)).toEqual(['G1-VIG-CODIGO-PENAL-130-2017']);
+    expect(Object.keys(RESPUESTAS_GRABADAS_G1)).not.toContain('q-g1-05');
+    const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(RESPUESTAS_GRABADAS_G1));
+    expect(informe.casosEvaluados).not.toContain('G1-VIG-CODIGO-PENAL-130-2017');
+    expect(informe.casosExcluidosPendientes).not.toContain('G1-VIG-CODIGO-PENAL-130-2017');
+    // No se afirma ningún artículo derogatorio en ningún fixture, referencia o respuesta grabada.
+    const todo = JSON.stringify({ GOLDEN_G1, PENDIENTE_VERIFICACION_CLO, RESPUESTAS_GRABADAS_G1 });
+    expect(todo).not.toMatch(/art\. 634|\b634\b|144-83/);
+  });
+
+  it('H3: cada caso lleva clo_ruling_ref (fecha y dictamen CLO), su artículo y su Gaceta', () => {
+    for (const c of GOLDEN_G1) {
+      expect(c.clo_ruling_ref, c.id).toMatch(/CLO/);
+      expect(c.clo_ruling_ref, c.id).toMatch(/21-oct-2026/);
+      expect(c.articulo.trim(), c.id).not.toBe('');
+      if (c.gaceta !== null) expect(c.gaceta, c.id).toMatch(/\d{2},\d{3}/);
+    }
+    // La única Gaceta nula es la del caso sintético, que el dictamen no ata a ninguna.
+    expect(GOLDEN_G1.filter((c) => c.gaceta === null).map((c) => c.id)).toEqual(['G1-VER-REFORMA-NO-VINCULADA']);
+  });
+  it('H3: ningún caso sin clo_ruling_ref entra al gate', async () => {
+    const base = GOLDEN_G1[0];
+    for (const sinRef of ['', '   ', undefined as unknown as string]) {
+      const caso: GoldenCase = { ...base, id: 'SIN-REF', clo_ruling_ref: sinRef };
+      expect(entraAlGate(caso)).toBe(false);
+    }
+    expect(entraAlGate(base)).toBe(true);
+    expect(entraAlGate({ ...base, estado: 'PENDIENTE' })).toBe(false);
+    const sinRef: GoldenCase = { ...base, id: 'SIN-REF', clo_ruling_ref: '', input: { ...base.input, queryId: 'q-sin-grabar' } };
+    const informe = await runGoldenSet([...GOLDEN_G1, sinRef], new RecordedResponseAdapter(RESPUESTAS_GRABADAS_G1));
+    expect(informe.casosEvaluados).not.toContain('SIN-REF');
+    expect(informe.casosExcluidosPendientes).toEqual(['SIN-REF']);
+    expect(informe.gate.pasa).toBe(true);
+  });
+
+  it('H2: A1, A3, B2, B4, B5, C4, D2 y D3 no se agregan: quedan para un PR posterior (Issue #78)', () => {
+    expect(PARA_PR_POSTERIOR_ISSUE_78.map((c) => c.id)).toEqual(['A1', 'A3', 'B2', 'B4', 'B5', 'C4', 'D2', 'D3']);
+    expect(GOLDEN_G1.map((c) => c.id).some((id) => /\b(A1|A3|B2|B4|B5|C4|D2|D3)\b/.test(id))).toBe(false);
+  });
+
+  it('coherencia: producción no abstiene con éxito ni responde sin evidencia verificada', () => {
+    const exitos = ['EXACT_SUCCESS', 'SEMANTIC_SUCCESS', 'NOT_REQUIRED'];
+    for (const c of GOLDEN_G1) {
+      const { decision, retrievalState } = c.input.productionOutcome;
+      if (decision === 'ABSTAIN') expect(exitos, c.id).not.toContain(retrievalState);
+      else expect(exitos, c.id).toContain(retrievalState);
+    }
+    // q-g1-08: sólo evidencia CONTEXT, producción se abstiene por falta de evidencia verificada.
+    const q8 = GOLDEN_G1.find((c) => c.id === 'G1-VER-REFORMA-NO-VINCULADA')!;
+    expect(q8.input.productionOutcome).toEqual({ decision: 'ABSTAIN', retrievalState: 'NO_VERIFIED_EVIDENCE' });
+  });
+
   it('las hipótesis NV del CLO quedan pendientes, fuera de los fixtures', () => {
     expect(CASOS_PENDIENTES_CLO.length).toBeGreaterThan(0);
     expect(GOLDEN_G1.some((c) => /Civil|Electoral/.test(c.referenciaCLO))).toBe(false);
@@ -174,11 +234,11 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
   it('con las respuestas grabadas el gate pasa: 0 % de citas inválidas y todas las métricas al 100 %', async () => {
     const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(RESPUESTAS_GRABADAS_G1));
     expect(informe.modelo).toBe('gpt-6-luna');
-    expect(informe.casosEvaluados).toHaveLength(8);
-    expect(informe.metricas.citasInvalidas).toEqual({ numerador: 0, denominador: 7, tasa: 0 });
+    expect(informe.casosEvaluados).toHaveLength(7);
+    expect(informe.metricas.citasInvalidas).toEqual({ numerador: 0, denominador: 5, tasa: 0 });
     expect(informe.metricas.abstencionCorrecta).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
-    expect(informe.metricas.exactitudArticuloExacto).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
-    expect(informe.metricas.precisionClaimsSustentadas).toEqual({ numerador: 6, denominador: 6, tasa: 1 });
+    expect(informe.metricas.exactitudArticuloExacto).toEqual({ numerador: 2, denominador: 2, tasa: 1 });
+    expect(informe.metricas.precisionClaimsSustentadas).toEqual({ numerador: 4, denominador: 4, tasa: 1 });
     expect(informe.desacuerdos).toEqual([]);
     expect(informe.gate).toEqual({ pasa: true, motivos: [] });
   });
@@ -205,6 +265,22 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     ]);
     expect(informe.metricas.abstencionCorrecta.tasa).toBeCloseTo(2 / 3, 12);
     expect(informe.gate.pasa).toBe(false);
+  });
+  it('desacuerdo INVERSO: el shadow dice ABSTAIN y producción dice ANSWER, y queda registrado', async () => {
+    const caso = GOLDEN_G1.find((c) => c.id === 'G1-ART-TRIBUTARIO-214')!;
+    expect(caso.input.productionOutcome.decision).toBe('ANSWER');
+    const respuestas = {
+      ...RESPUESTAS_GRABADAS_G1,
+      [caso.input.queryId]: cruda({ decision: 'ABSTAIN', claims: [], abstention_reason: 'No encuentro evidencia suficiente.' }),
+    };
+    const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(respuestas));
+    expect(informe.desacuerdos).toEqual([
+      expect.objectContaining({ caseId: caso.id, shadowStatus: 'ABSTAIN', produccion: 'ANSWER', esperado: 'ANSWER', desacuerdoConProduccion: true, cumpleEsperado: false }),
+    ]);
+    expect(informe.gate.pasa).toBe(false);
+    // No cuenta como abstención correcta: el CLO esperaba ANSWER.
+    expect(informe.metricas.abstencionCorrecta).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
+    expect(informe.metricas.exactitudArticuloExacto.tasa).toBe(0.5);
   });
   it('un INVALID también es desacuerdo con producción', async () => {
     const caso = GOLDEN_G1.find((c) => c.id === 'G1-ART-TRIBUTARIO-214')!;
@@ -274,11 +350,46 @@ describe('aislamiento: el resultado sombra nunca llega al usuario', () => {
     const importan = fuera.filter((p) => /ai-gateway/.test(readFileSync(p, 'utf8'))).map((p) => relative(RAIZ, p));
     expect(importan).toEqual([]);
   });
-  it('el gateway no abre red ni lee claves: sin fetch, OpenAI, OPENAI_API_KEY, process.env ni Supabase', () => {
+  // Guard de red: fetch, XMLHttpRequest, OpenAI y su clave, process.env, Supabase y los clientes HTTP
+  // (axios, undici, http y https, con o sin prefijo node:) en import, require o import dinámico.
+  const GUARD_RED = new RegExp(
+    [
+      String.raw`\bfetch\s*\(`,
+      'XMLHttpRequest',
+      'OPENAI_API_KEY',
+      String.raw`process\.env`,
+      '@supabase',
+      String.raw`(?:from|import|require)\s*\(?\s*['"](?:openai|axios|undici|(?:node:)?https?)['"]`,
+    ].join('|'),
+  );
+  it('el guard de red detecta fetch, XMLHttpRequest, OpenAI, axios, undici, node:http, node:https, http y https', () => {
+    const detectados = [
+      "await fetch('https://x')",
+      'new XMLHttpRequest()',
+      "import OpenAI from 'openai'",
+      "const k = OPENAI_API_KEY",
+      'process.env.X',
+      "import { createClient } from '@supabase/supabase-js'",
+      "import axios from 'axios'",
+      "import { request } from 'undici'",
+      "import http from 'node:http'",
+      "import https from 'node:https'",
+      "import http from 'http'",
+      "import https from \"https\"",
+      "const h = require('node:http')",
+      "const a = require('axios')",
+      "const u = await import('undici')",
+    ];
+    for (const linea of detectados) expect(linea, linea).toMatch(GUARD_RED);
+    // Sin falsos positivos con texto normal ni con la palabra «http» fuera de un import.
+    for (const ok of ["const url = 'https://ejemplo'", 'const httpStatus = 200', "import { z } from 'zod'"]) {
+      expect(ok, ok).not.toMatch(GUARD_RED);
+    }
+  });
+  it('el gateway no abre red ni lee claves (guard ampliado)', () => {
     const fuentes = [...archivos(join(RAIZ, 'lib', 'ai-gateway')), join(RAIZ, 'tests', 'golden', 'gateway-g1-casos.ts')];
     for (const p of fuentes) {
-      const src = readFileSync(p, 'utf8');
-      expect(src, relative(RAIZ, p)).not.toMatch(/\bfetch\s*\(|from ['"]openai['"]|OPENAI_API_KEY|process\.env|@supabase|XMLHttpRequest|node:https?\b/);
+      expect(readFileSync(p, 'utf8'), relative(RAIZ, p)).not.toMatch(GUARD_RED);
     }
   });
 });
