@@ -19,8 +19,11 @@ import {
   PARA_PR_POSTERIOR_ISSUE_78,
   PENDIENTE_VERIFICACION_CLO,
   RESPUESTAS_GRABADAS_G1,
+  PROCEDENCIA_G1,
   VERSION_REFORMA_SIN_INSTRUMENTO,
 } from './golden/gateway-g1-casos';
+
+const PENAL = 'G1-VIG-CODIGO-PENAL-130-2017';
 
 const RAIZ = join(__dirname, '..');
 
@@ -150,8 +153,8 @@ describe('tarifas de gpt-6-luna (verificadas el 21-oct-2026)', () => {
 });
 
 describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
-  it('carga exactamente los 7 casos verificados, cada uno con su referencia del CLO', () => {
-    expect(GOLDEN_G1).toHaveLength(7);
+  it('carga exactamente los 8 casos verificados, cada uno con su referencia del CLO', () => {
+    expect(GOLDEN_G1).toHaveLength(8);
     expect(GOLDEN_G1.every((c) => c.estado === 'VERIFICADO')).toBe(true);
     const refs = Object.fromEntries(GOLDEN_G1.map((c) => [c.id, c.referenciaCLO]));
     expect(refs['G1-ABS-NOTARIADO-ART-500']).toMatch(/art\. 500 no existe/);
@@ -159,26 +162,46 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     expect(refs['G1-ABS-REGLAMENTO-ART-12-BIS']).toMatch(/PCSJ-17-2012, Gaceta 32,958/);
     expect(refs['G1-NOT-LEY-DEL-NOTARIADO']).toMatch(/D\.353-2005, Gaceta 30,904/);
     expect(refs['G1-REF-ART-173-B-CPP']).toMatch(/CPP \(adicionado por el D\.98-2017, Gaceta 34,473\)/);
-    expect(refs['G1-VIG-CODIGO-PENAL-130-2017']).toBeUndefined();
+    expect(refs['G1-VIG-CODIGO-PENAL-130-2017']).toMatch(/Art\. 634 del D\.130-2017: deroga el D\.144-83/);
     expect(refs['G1-VIG-D57-2020-SIN-REVIVISCENCIA']).toMatch(/D\.43-2023 \(Gaceta 36,290\)\. No revive/);
     expect(refs['G1-ART-TRIBUTARIO-214']).toMatch(/D\.170-2016 \(Gaceta 34,224\): su art\. 214 deroga el D\.22-97/);
     expect(refs['G1-VER-REFORMA-NO-VINCULADA']).toMatch(/REFORMA_NO_VINCULADA, CONTEXT/);
   });
-  it('H1: el caso del Código Penal D.130-2017 salió del gate y no cuenta en ninguna métrica', async () => {
-    expect(GOLDEN_G1.some((c) => c.id === 'G1-VIG-CODIGO-PENAL-130-2017')).toBe(false);
-    expect(PENDIENTE_VERIFICACION_CLO.map((c) => c.id)).toEqual(['G1-VIG-CODIGO-PENAL-130-2017']);
-    expect(Object.keys(RESPUESTAS_GRABADAS_G1)).not.toContain('q-g1-05');
+  it('H1 (CLO 22-oct-2026): el caso Penal D.130-2017 volvió al gate con fuentes oficiales y cuenta en las métricas', async () => {
+    expect(GOLDEN_G1.some((c) => c.id === PENAL)).toBe(true);
+    expect(PENDIENTE_VERIFICACION_CLO).toEqual([]);
+    expect(Object.keys(RESPUESTAS_GRABADAS_G1)).toContain('q-g1-05');
     const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(RESPUESTAS_GRABADAS_G1));
-    expect(informe.casosEvaluados).not.toContain('G1-VIG-CODIGO-PENAL-130-2017');
-    expect(informe.casosExcluidosPendientes).not.toContain('G1-VIG-CODIGO-PENAL-130-2017');
-    // No se afirma ningún artículo derogatorio en ningún fixture, referencia o respuesta grabada.
-    const todo = JSON.stringify({ GOLDEN_G1, PENDIENTE_VERIFICACION_CLO, RESPUESTAS_GRABADAS_G1 });
-    expect(todo).not.toMatch(/art\. 634|\b634\b|144-83/);
+    expect(informe.casosEvaluados).toContain(PENAL);
+    expect(informe.casosExcluidosPendientes).not.toContain(PENAL);
+  });
+  it('H1: 634 y 144-83 se aceptan sólo en el caso Penal; en cualquier otro caso siguen prohibidos', () => {
+    // Política: las referencias 634 y 144-83 sólo se permiten en el caso Penal verificado por el CLO.
+    const REFERENCIA_PENAL = /art\. 634|\b634\b|144-83/;
+    const violaPolitica = (caso: GoldenCase, grabada: unknown) => caso.id !== PENAL && REFERENCIA_PENAL.test(JSON.stringify({ caso, grabada }));
+    const penalReal = GOLDEN_G1.find((c) => c.id === PENAL)!;
+    expect(violaPolitica(penalReal, RESPUESTAS_GRABADAS_G1['q-g1-05'])).toBe(false);
+    const ficticio: GoldenCase = { ...penalReal, id: 'G1-FICTICIO-OTRO' };
+    expect(violaPolitica(ficticio, RESPUESTAS_GRABADAS_G1['q-g1-05'])).toBe(true);
+    expect(violaPolitica({ ...GOLDEN_G1[0], referenciaCLO: 'El art. 634 deroga algo' }, undefined)).toBe(true);
+    const otrosCasos = GOLDEN_G1.filter((c) => c.id !== PENAL);
+    const queryIdsOtros = new Set(otrosCasos.map((c) => c.input.queryId));
+    const otrasRespuestas = Object.fromEntries(Object.entries(RESPUESTAS_GRABADAS_G1).filter(([q]) => queryIdsOtros.has(q)));
+    expect(JSON.stringify({ otrosCasos, otrasRespuestas, PROCEDENCIA: otrosCasos.map((c) => PROCEDENCIA_G1[c.id]) })).not.toMatch(/art\. 634|\b634\b|144-83/);
+    const penal = GOLDEN_G1.find((c) => c.id === PENAL)!;
+    expect(JSON.stringify({ penal, r: RESPUESTAS_GRABADAS_G1['q-g1-05'] })).toMatch(/634/);
+    expect(JSON.stringify(RESPUESTAS_GRABADAS_G1['q-g1-05'])).toMatch(/144-83/);
   });
 
   it('H3: cada caso lleva clo_ruling_ref (fecha y dictamen CLO), su artículo y su Gaceta', () => {
     for (const c of GOLDEN_G1) {
       expect(c.clo_ruling_ref, c.id).toMatch(/CLO/);
+      // Procedencia 2 (fuentes oficiales, 22-oct-2026): se valida en tests/golden-procedencia-clo.test.ts.
+      if (PROCEDENCIA_G1[c.id].kind === 'CLO_OFFICIAL_SOURCE_RULING') {
+        expect(c.articulo.trim(), c.id).not.toBe('');
+        expect(c.gaceta, c.id).toMatch(/\d{2},\d{3}/);
+        continue;
+      }
       expect(c.clo_ruling_ref, c.id).toMatch(/21-oct-2026/);
       // H3-bis (Auditor, 22-oct-2026): la fuente verificable es el dictamen del issue #74, con su URL y su código de caso;
       // el prompt PR-G1 puede acompañarla, pero no ser la única referencia.
@@ -238,11 +261,11 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
   it('con las respuestas grabadas el gate pasa: 0 % de citas inválidas y todas las métricas al 100 %', async () => {
     const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(RESPUESTAS_GRABADAS_G1));
     expect(informe.modelo).toBe('gpt-6-luna');
-    expect(informe.casosEvaluados).toHaveLength(7);
-    expect(informe.metricas.citasInvalidas).toEqual({ numerador: 0, denominador: 5, tasa: 0 });
+    expect(informe.casosEvaluados).toHaveLength(8);
+    expect(informe.metricas.citasInvalidas).toEqual({ numerador: 0, denominador: 7, tasa: 0 });
     expect(informe.metricas.abstencionCorrecta).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
-    expect(informe.metricas.exactitudArticuloExacto).toEqual({ numerador: 2, denominador: 2, tasa: 1 });
-    expect(informe.metricas.precisionClaimsSustentadas).toEqual({ numerador: 4, denominador: 4, tasa: 1 });
+    expect(informe.metricas.exactitudArticuloExacto).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
+    expect(informe.metricas.precisionClaimsSustentadas).toEqual({ numerador: 6, denominador: 6, tasa: 1 });
     expect(informe.desacuerdos).toEqual([]);
     expect(informe.gate).toEqual({ pasa: true, motivos: [] });
   });
@@ -284,7 +307,7 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     expect(informe.gate.pasa).toBe(false);
     // No cuenta como abstención correcta: el CLO esperaba ANSWER.
     expect(informe.metricas.abstencionCorrecta).toEqual({ numerador: 3, denominador: 3, tasa: 1 });
-    expect(informe.metricas.exactitudArticuloExacto.tasa).toBe(0.5);
+    expect(informe.metricas.exactitudArticuloExacto.tasa).toBeCloseTo(2 / 3, 12);
   });
   it('un INVALID también es desacuerdo con producción', async () => {
     const caso = GOLDEN_G1.find((c) => c.id === 'G1-ART-TRIBUTARIO-214')!;

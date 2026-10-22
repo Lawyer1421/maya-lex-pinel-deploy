@@ -12,6 +12,7 @@ import type { SalidaCruda } from '@/lib/ai-gateway/shadow/citation-validator';
 import type { GoldenCase } from '@/lib/ai-gateway/shadow/golden-runner';
 import type { EvidenceChunk } from '@/lib/ai-gateway/shadow/types';
 import { resolverVersion, type NormaVersion } from '@/lib/legal-retrieval/norma-version';
+import type { CloRulingSource } from './procedencia-clo';
 
 const SINTETICO = 'FIXTURE SINTÉTICA: no es el texto legal oficial.';
 
@@ -117,6 +118,26 @@ export const GOLDEN_G1: readonly GoldenCase[] = [
     esperado: { decision: 'ANSWER', articulo: { instrumento: 'CPP', articulo: '173-B' }, instrumentosProhibidos: ['CODIGO_PENAL'] },
   },
   {
+    id: 'G1-VIG-CODIGO-PENAL-130-2017',
+    estado: 'VERIFICADO',
+    categoria: 'VIGENCIA_VERSION',
+    clo_ruling_ref: 'Dictamen CLO 22-oct-2026, fuentes oficiales: La Gaceta 34,940 (SHA-256 54f6a4122f8b96a60631deb8c486284ff0744c0d09ea0ed332d8d5d1960ba132) y La Gaceta 35,247 (SHA-256 60b5b7865bdb0b868131005429017632fb168e286a1a9dfa5482378e8f58bbdb). Verificado contra La Gaceta 34,940 y 35,247 (Investigador Fuentes Oficiales HN), CLO 22-oct-2026.',
+    articulo: '634 del D.130-2017 (deroga el D.144-83 y todas sus reformas); vigencia desde el 25-jun-2020 por el art. 1 del D.46-2020',
+    gaceta: '34,940; 35,247',
+    referenciaCLO:
+      'Art. 634 del D.130-2017: deroga el D.144-83 (Código Penal de 1983) y todas sus reformas (La Gaceta 34,940, 10-may-2019, pág. 140-A). Vigencia desde el 25-jun-2020 por el art. 1 del D.46-2020, que reforma el art. 635 (La Gaceta 35,247, 9-may-2020, pág. 2-A).',
+    input: {
+      queryId: 'q-g1-05',
+      sanitizedQuestion: '¿Qué deroga el artículo 634 del Código Penal (Decreto 130-2017) y desde cuándo está vigente?',
+      evidence: [
+        chunk({ chunk_id: 'cp-130-2017-634', instrumento: 'CODIGO_PENAL_D130_2017', articulo: '634', gaceta: '34,940', rol: 'PRIMARY' }),
+        chunk({ chunk_id: 'd46-2020-1', instrumento: 'DECRETO_46_2020', articulo: '1', gaceta: '35,247', rol: 'PRIMARY' }),
+      ],
+      productionOutcome: { decision: 'ANSWER', retrievalState: 'EXACT_SUCCESS' },
+    },
+    esperado: { decision: 'ANSWER', articulo: { instrumento: 'CODIGO_PENAL_D130_2017', articulo: '634' } },
+  },
+  {
     id: 'G1-VIG-D57-2020-SIN-REVIVISCENCIA',
     estado: 'VERIFICADO',
     categoria: 'VIGENCIA_VERSION',
@@ -170,6 +191,34 @@ export const GOLDEN_G1: readonly GoldenCase[] = [
   },
 ];
 
+
+const ref = (id: string): string => GOLDEN_G1.find((c) => c.id === id)!.clo_ruling_ref;
+
+/**
+ * Procedencia del dictamen CLO de cada caso. Los siete casos del 21-oct-2026 conservan su
+ * clo_ruling_ref sin cambios (rulingRef es esa misma cadena) y su código de caso, tal como
+ * ya figura en esa referencia. El caso Penal se apoya en fuentes oficiales.
+ */
+export const PROCEDENCIA_G1: Readonly<Record<string, CloRulingSource>> = {
+  'G1-ABS-NOTARIADO-ART-500': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-ABS-NOTARIADO-ART-500'), caseCode: 'C2' },
+  'G1-ABS-REGLAMENTO-ART-12-BIS': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-ABS-REGLAMENTO-ART-12-BIS'), caseCode: 'C1' },
+  'G1-NOT-LEY-DEL-NOTARIADO': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-NOT-LEY-DEL-NOTARIADO'), caseCode: 'D1' },
+  'G1-REF-ART-173-B-CPP': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-REF-ART-173-B-CPP'), caseCode: 'C3' },
+  'G1-VIG-CODIGO-PENAL-130-2017': {
+    kind: 'CLO_OFFICIAL_SOURCE_RULING',
+    verifiedAt: '22-oct-2026',
+    officialSources: [
+      { publication: 'La Gaceta', number: '34,940', sha256: '54f6a4122f8b96a60631deb8c486284ff0744c0d09ea0ed332d8d5d1960ba132' },
+      { publication: 'La Gaceta', number: '35,247', sha256: '60b5b7865bdb0b868131005429017632fb168e286a1a9dfa5482378e8f58bbdb' },
+    ],
+    goldenCaseId: 'G1-VIG-CODIGO-PENAL-130-2017',
+    researchProvenance: 'Investigador Fuentes Oficiales HN',
+  },
+  'G1-VIG-D57-2020-SIN-REVIVISCENCIA': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-VIG-D57-2020-SIN-REVIVISCENCIA'), caseCode: 'B3' },
+  'G1-ART-TRIBUTARIO-214': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-ART-TRIBUTARIO-214'), caseCode: 'A4' },
+  'G1-VER-REFORMA-NO-VINCULADA': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-VER-REFORMA-NO-VINCULADA'), caseCode: 'punto 1' },
+};
+
 /** Hipótesis del CLO aún no verificadas (marcadas NV en #74). No son fixtures ni entran al gate. */
 export const CASOS_PENDIENTES_CLO = [
   'E1 (NV): fecha y vigencia del Código Civil de 1906',
@@ -177,16 +226,12 @@ export const CASOS_PENDIENTES_CLO = [
 ] as const;
 
 /**
- * Casos retirados del gate por hallazgo del Auditor y que esperan verificación
- * del CLO. No cuentan en ninguna métrica y no llevan respuesta grabada. Aquí no
- * se afirma ningún artículo derogatorio: el contenido legal lo fija el CLO.
+ * Casos retirados del gate que esperan verificación del CLO. Vacío desde el
+ * dictamen CLO del 22-oct-2026 (Issue #78): el caso Penal D.130-2017 volvió al
+ * gate con fuentes oficiales. Si vuelve a haber uno, no cuenta en ninguna métrica
+ * ni lleva respuesta grabada.
  */
-export const PENDIENTE_VERIFICACION_CLO: readonly { id: string; motivo: string }[] = [
-  {
-    id: 'G1-VIG-CODIGO-PENAL-130-2017',
-    motivo: 'Auditor DevOps, PR #76, H1 (alto): el caso afirmaba un artículo derogatorio sin verificación; vuelve al gate sólo con el dictamen del CLO.',
-  },
-];
+export const PENDIENTE_VERIFICACION_CLO: readonly { id: string; motivo: string }[] = [];
 
 /**
  * Casos del dictamen CLO del issue #74 que NO se agregan en este PR. Quedan
@@ -225,6 +270,17 @@ export const RESPUESTAS_GRABADAS_G1: Readonly<Record<string, SalidaCruda>> = {
       abstention_reason: null,
     },
     ...uso(1500, 130, 700),
+  },
+  'q-g1-05': {
+    rawOutput: {
+      decision: 'ANSWER',
+      claims: [
+        { claim_id: 'c1', text: 'El art. 634 del Decreto 130-2017 (La Gaceta 34,940) deroga el Decreto 144-83 (Código Penal de 1983) y todas sus reformas.', citations: [{ chunk_id: 'cp-130-2017-634', support: 'DIRECT' }] },
+        { claim_id: 'c2', text: 'El Decreto 130-2017 está vigente desde el 25-jun-2020, por el art. 1 del Decreto 46-2020 (La Gaceta 35,247), que reforma el art. 635.', citations: [{ chunk_id: 'd46-2020-1', support: 'DIRECT' }] },
+      ],
+      abstention_reason: null,
+    },
+    ...uso(1400, 150, 680),
   },
   'q-g1-06': {
     rawOutput: {
