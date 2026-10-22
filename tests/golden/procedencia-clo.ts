@@ -117,6 +117,46 @@ export function validarProcedencia(casoId: string, cloRulingRef: string, p: unkn
 
 const PATRON_HASH = /\b[0-9a-fA-F]{64}\b/g;
 
+// ── Reconocimiento de Gacetas (N1) ───────────────────────────────────────────
+// Reconoce «La Gaceta 34,940», «Gaceta 34.940», «gaceta 34940», «Gaceta No. 34 940», «Gaceta Nº 34,940»,
+// y listas «Gacetas 34,940 y 35,247». Todo se normaliza a «NN,NNN». El número literal de officialSources
+// sigue exigiéndose en esa forma; la tolerancia es solo para leer lo que cita clo_ruling_ref o referenciaCLO.
+const NUM = String.raw`\d{2}[,. ]?\d{3}`;
+const CABEZA_GACETA = new RegExp(String.raw`Gacetas?\s+(?:N(?:o|[°º])\.?\s*|n[úu]m(?:ero)?\.?\s*)?(${NUM})(?!\d)((?:\s*(?:,|;|y|e)\s*${NUM}(?!\d))*)`, 'gi');
+const normalizaNumeroGaceta = (n: string): string => {
+  const d = n.replace(/\D/g, '');
+  return `${d.slice(0, 2)},${d.slice(2)}`;
+};
+
+interface CitaGaceta { numeros: string[]; inicio: number; }
+
+/** Todas las Gacetas que cita un texto, con el índice donde empieza cada cita. */
+function citasDeGaceta(texto: string): CitaGaceta[] {
+  const out: CitaGaceta[] = [];
+  for (const m of texto.matchAll(CABEZA_GACETA)) {
+    const lista = [m[1], ...(m[2].match(new RegExp(NUM, 'g')) ?? [])];
+    out.push({ numeros: lista.map(normalizaNumeroGaceta), inicio: m.index ?? 0 });
+  }
+  return out;
+}
+
+/** Números de Gaceta que cita un texto, normalizados a «NN,NNN». */
+export function numerosDeGaceta(texto: string): string[] {
+  return citasDeGaceta(texto).flatMap((c) => c.numeros);
+}
+
+const escapar = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** ¿Aparece «Gaceta N (SHA-256 h)» con el hash literal en minúscula? Tolera «No.», «Nº», separadores del número y «SHA256». */
+function sha256AsociadoAGaceta(texto: string, numero: string, sha256: string): boolean {
+  const [a, b] = numero.split(',');
+  const re = new RegExp(
+    String.raw`Gacetas?\s+(?:N(?:o|[°º])\.?\s*|n[úu]m(?:ero)?\.?\s*)?${a}[,. ]?${b}(?!\d)\s*\(\s*SHA-?256\s*[:=]?\s*${escapar(sha256)}\s*\)`,
+    'i',
+  );
+  return re.test(texto);
+}
+
 /** Cruza officialSources con clo_ruling_ref y con la Gaceta del caso (M2) y rechaza duplicados (B1). */
 function validarFuentesContraReferencia(casoId: string, fuentes: unknown[], cloRulingRef: string, gacetaCaso: string | null): string[] {
   const e: string[] = [];
@@ -130,20 +170,21 @@ function validarFuentesContraReferencia(casoId: string, fuentes: unknown[], cloR
   for (const h of new Set(hashes.filter((x, i) => hashes.indexOf(x) !== i))) falla(`officialSources repite el sha256 ${h.slice(0, 12)}…`);
 
   // M2: cada fuente aparece en clo_ruling_ref, con su sha256 en el mismo segmento «La Gaceta N (SHA-256 h)».
+  const citados = new Set(numerosDeGaceta(cloRulingRef));
   for (const f of fo) {
-    if (!cloRulingRef.includes(f.number)) falla(`la Gaceta ${f.number} de officialSources no aparece en clo_ruling_ref`);
+    if (!citados.has(f.number)) falla(`la Gaceta ${f.number} de officialSources no aparece en clo_ruling_ref`);
     else if (!cloRulingRef.includes(f.sha256)) falla(`el sha256 de la Gaceta ${f.number} no aparece en clo_ruling_ref`);
-    else if (!cloRulingRef.includes(`La Gaceta ${f.number} (SHA-256 ${f.sha256})`)) falla(`el sha256 no está asociado a la Gaceta ${f.number} en clo_ruling_ref (segmento «La Gaceta N (SHA-256 h)»)`);
+    else if (!sha256AsociadoAGaceta(cloRulingRef, f.number, f.sha256)) falla(`el sha256 no está asociado a la Gaceta ${f.number} en clo_ruling_ref (segmento «La Gaceta N (SHA-256 h)»)`);
   }
-  // clo_ruling_ref no cita Gacetas ni hashes ausentes de officialSources.
-  for (const m of cloRulingRef.matchAll(/La Gaceta (\d{2},\d{3})/g)) {
-    if (!numeros.includes(m[1])) falla(`clo_ruling_ref cita la Gaceta ${m[1]}, que no está en officialSources`);
+  // clo_ruling_ref no cita Gacetas ni hashes ausentes de officialSources (N1: en cualquiera de sus formatos).
+  for (const n of citados) {
+    if (!numeros.includes(n)) falla(`clo_ruling_ref cita la Gaceta ${n}, que no está en officialSources`);
   }
   for (const m of cloRulingRef.matchAll(PATRON_HASH)) {
     if (!hashes.includes(m[0])) falla(`clo_ruling_ref cita un sha256 (${m[0].slice(0, 12)}…) que no está en officialSources`);
   }
   // El conjunto de números de officialSources coincide con el campo gaceta del caso.
-  const delCaso = new Set((gacetaCaso ?? '').match(/\d{2},\d{3}/g) ?? []);
+  const delCaso = new Set(numerosDeGaceta(`Gaceta ${gacetaCaso ?? ''}`).concat((gacetaCaso ?? '').match(/\d{2},\d{3}/g) ?? []));
   const deFuentes = new Set(numeros);
   const iguales = delCaso.size === deFuentes.size && [...delCaso].every((n) => deFuentes.has(n));
   if (!iguales) falla(`la gaceta del caso («${gacetaCaso ?? 'null'}») no coincide con las Gacetas de officialSources (${[...deFuentes].join(', ')})`);
@@ -157,12 +198,72 @@ export interface VerificacionFechaPagina {
   detalle: Array<{ gaceta: string; fecha: string; pagina: string; paginaPdf: number }>;
 }
 
-/** Gacetas de referenciaCLO que citan fecha o «pág.»: requieren verificacionFechaPagina. */
-export function gacetasConFechaOPagina(referenciaCLO: string): Array<{ gaceta: string; fecha: string | null; pagina: string | null }> {
-  const out: Array<{ gaceta: string; fecha: string | null; pagina: string | null }> = [];
-  for (const m of referenciaCLO.matchAll(/Gaceta (\d{2},\d{3})(?:,\s*(\d{1,2}-[a-z]{3}-\d{4}))?(?:,\s*p[áa]g\.\s*([0-9A-Za-z.-]+))?/g)) {
-    if (m[2] || m[3]) out.push({ gaceta: m[1], fecha: m[2] ?? null, pagina: m[3] ?? null });
-  }
+// ── Fechas y páginas citadas (N2) ────────────────────────────────────────────
+const MES_POR_NOMBRE: Record<string, string> = {
+  ene: 'ene', enero: 'ene', feb: 'feb', febrero: 'feb', mar: 'mar', marzo: 'mar', abr: 'abr', abril: 'abr',
+  may: 'may', mayo: 'may', jun: 'jun', junio: 'jun', jul: 'jul', julio: 'jul', ago: 'ago', agosto: 'ago',
+  sep: 'sep', sept: 'sep', septiembre: 'sep', setiembre: 'sep', oct: 'oct', octubre: 'oct', nov: 'nov', noviembre: 'nov', dic: 'dic', diciembre: 'dic',
+};
+const NOMBRES_MES = Object.keys(MES_POR_NOMBRE).sort((x, y) => y.length - x.length).join('|');
+const fechaCanonica = (d: number, mes: string, a: string) => `${d}-${mes}-${a}`;
+
+/** Normaliza una fecha a «d-mmm-aaaa» (sin cero inicial), o null si no se reconoce. */
+export function normalizaFecha(t: string): string | null {
+  const s = t.trim().toLowerCase();
+  let m = new RegExp(String.raw`^(\d{1,2})[-\s]+(?:de\s+)?(${NOMBRES_MES})\.?[-\s]+(?:de\s+)?(\d{4})$`).exec(s);
+  if (m) return fechaCanonica(Number(m[1]), MES_POR_NOMBRE[m[2]], m[3]);
+  m = /^(\d{1,2})[/.](\d{1,2})[/.](\d{4})$/.exec(s);
+  if (m && Number(m[2]) >= 1 && Number(m[2]) <= 12) return fechaCanonica(Number(m[1]), MESES[Number(m[2]) - 1], m[3]);
+  m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (m && Number(m[2]) >= 1 && Number(m[2]) <= 12) return fechaCanonica(Number(m[3]), MESES[Number(m[2]) - 1], m[1]);
+  return null;
+}
+
+/** Normaliza una página impresa: «140-A», «140A», «A.140», «A-140» → «140-A»; «156» → «156». */
+export function normalizaPagina(t: string): string {
+  const s = t.trim().toUpperCase().replace(/\s+/g, '');
+  let m = /^(\d+)[-.]?([A-Z])$/.exec(s);
+  if (m) return `${m[1]}-${m[2]}`;
+  m = /^([A-Z])[-.]?(\d+)$/.exec(s);
+  if (m) return `${m[2]}-${m[1]}`;
+  return s;
+}
+
+const FECHA_EN_TEXTO = new RegExp(
+  String.raw`\b(\d{1,2}[-\s]+(?:de\s+)?(?:${NOMBRES_MES})\.?[-\s]+(?:de\s+)?\d{4}|\d{1,2}[/.]\d{1,2}[/.]\d{4}|\d{4}-\d{2}-\d{2})\b`,
+  'i',
+);
+const PAGINA_EN_TEXTO = /\b(?:p|pp|p[áa]g|p[áa]gs|p[áa]gina|p[áa]ginas)\s+([0-9]+(?:[-.]?[A-Za-z])?|[A-Za-z][-.]?[0-9]+)(?![\w])/i;
+
+export interface CitaGacetaConDetalle { gaceta: string; fecha: string | null; pagina: string | null; ambigua: boolean }
+
+/**
+ * Gacetas de referenciaCLO que citan fecha o página: requieren verificacionFechaPagina.
+ * El segmento de una cita va desde «Gaceta N» hasta el siguiente «;», «)», salto de línea, fin de oración o
+ * la siguiente Gaceta. Dentro de él se busca cualquier fecha (dd-mmm-aaaa, «10 de mayo de 2019», dd/mm/aaaa,
+ * aaaa-mm-dd) y cualquier página (p., pp., pág., página; «141-A», «A.140»), con o sin coma. Un segmento con
+ * varias Gacetas y una fecha o página es ambiguo y se marca para exigir verificación de todas.
+ */
+export function gacetasConFechaOPagina(referenciaCLO: string): CitaGacetaConDetalle[] {
+  // Las abreviaturas con punto no terminan una oración.
+  const t = referenciaCLO.replace(/\b(p|pp|pág|págs|pag|pags|no|núm|num)\./gi, '$1 ');
+  const cabezas = citasDeGaceta(t);
+  const out: CitaGacetaConDetalle[] = [];
+  cabezas.forEach((c, i) => {
+    const desde = c.inicio;
+    const hasta = cabezas[i + 1]?.inicio ?? t.length;
+    const trozo = t.slice(desde, hasta);
+    const corte = trozo.search(/[;)\n]|\.\s+(?=[A-ZÁÉÍÓÚÑ])/);
+    const segmento = corte >= 0 ? trozo.slice(0, corte) : trozo;
+    // Se descartan los números de la propia cita para no confundirlos con páginas ni fechas.
+    const resto = segmento.replace(CABEZA_GACETA, ' ');
+    const f = FECHA_EN_TEXTO.exec(resto);
+    const p = PAGINA_EN_TEXTO.exec(resto);
+    if (!f && !p) return;
+    const fecha = f ? (normalizaFecha(f[1]) ?? f[1]) : null;
+    const pagina = p ? normalizaPagina(p[1]) : null;
+    for (const n of c.numeros) out.push({ gaceta: n, fecha, pagina, ambigua: c.numeros.length > 1 });
+  });
   return out;
 }
 
@@ -177,10 +278,11 @@ export function validarVerificacionFechaPagina(casoId: string, referenciaCLO: st
   if (parsearFechaDdMmmAaaa(o.fecha) === null) falla('verificacionFechaPagina.fecha debe tener formato dd-mmm-aaaa');
   const detalle = Array.isArray(o.detalle) ? o.detalle : [];
   for (const c of citadas) {
+    if (c.ambigua) falla(`la cita de la Gaceta ${c.gaceta} agrupa varias Gacetas con una sola fecha o página; cada Gaceta debe citarse por separado`);
     const d = detalle.find((x) => x?.gaceta === c.gaceta);
     if (!d) { falla(`la Gaceta ${c.gaceta} citada en referenciaCLO no tiene detalle en verificacionFechaPagina`); continue; }
-    if (c.fecha !== null && d.fecha !== c.fecha) falla(`la fecha de la Gaceta ${c.gaceta} (${c.fecha}) no coincide con verificacionFechaPagina (${d.fecha})`);
-    if (c.pagina !== null && d.pagina !== c.pagina) falla(`la página de la Gaceta ${c.gaceta} (${c.pagina}) no coincide con verificacionFechaPagina (${d.pagina})`);
+    if (c.fecha !== null && (normalizaFecha(String(d.fecha)) ?? d.fecha) !== c.fecha) falla(`la fecha de la Gaceta ${c.gaceta} (${c.fecha}) no coincide con verificacionFechaPagina (${d.fecha})`);
+    if (c.pagina !== null && normalizaPagina(String(d.pagina)) !== c.pagina) falla(`la página de la Gaceta ${c.gaceta} (${c.pagina}) no coincide con verificacionFechaPagina (${d.pagina})`);
     if (!Number.isInteger(d.paginaPdf) || d.paginaPdf < 1) falla(`la Gaceta ${c.gaceta} no tiene paginaPdf válida`);
   }
   return e;

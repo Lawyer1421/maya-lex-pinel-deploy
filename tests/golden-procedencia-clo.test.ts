@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GOLDEN_G1, PROCEDENCIA_G1 } from './golden/gateway-g1-casos';
-import { gacetasConFechaOPagina, parsearFechaDdMmmAaaa, validarProcedencia, validarProcedenciasGoldenSet, validarVerificacionFechaPagina } from './golden/procedencia-clo';
+import { gacetasConFechaOPagina, normalizaFecha, normalizaPagina, numerosDeGaceta, parsearFechaDdMmmAaaa, validarProcedencia, validarProcedenciasGoldenSet, validarVerificacionFechaPagina } from './golden/procedencia-clo';
 
 /**
  * H3 (dictamen CLO 22-oct-2026): procedencia discriminada del dictamen de cada caso.
@@ -294,8 +294,8 @@ describe('M1: fecha y página de La Gaceta citadas en referenciaCLO exigen verif
   const valida = (v: unknown, r: string = ref) => validarVerificacionFechaPagina(PENAL, r, v);
   it('el caso Penal conserva sus fechas y páginas y lleva la verificación del 22-oct-2026', () => {
     expect(gacetasConFechaOPagina(ref)).toEqual([
-      { gaceta: '34,940', fecha: '10-may-2019', pagina: '140-A' },
-      { gaceta: '35,247', fecha: '9-may-2020', pagina: '2-A' },
+      { gaceta: '34,940', fecha: '10-may-2019', pagina: '140-A', ambigua: false },
+      { gaceta: '35,247', fecha: '9-may-2020', pagina: '2-A', ambigua: false },
     ]);
     expect(ok).toEqual({
       estado: 'VERIFICADO_CLO_PDF_OFICIAL',
@@ -338,5 +338,107 @@ describe('M1: fecha y página de La Gaceta citadas en referenciaCLO exigen verif
   it('un caso que cita una página nueva sin verificación falla (no se puede colar otra cita)', () => {
     expect(valida(undefined, 'Gaceta 30,904, pág. 5').join('|')).toMatch(/falta verificacionFechaPagina/);
     expect(valida(undefined, 'Gaceta 30,904')).toEqual([]);
+  });
+});
+
+describe('N1: el cruce de Gacetas reconoce variantes de formato', () => {
+  const REF = penal.clo_ruling_ref;
+  const nombra = (e: string[]) => e.every((x) => x.startsWith(`${PENAL}: `));
+  it('normaliza espaciado, puntos, comas y prefijos habituales a NN,NNN', () => {
+    for (const t of ['La Gaceta 34,940', 'Gaceta 34.940', 'gaceta 34940', 'GACETA 34 940', 'La Gaceta No. 34,940', 'Gaceta Nº 34.940', 'Gaceta N° 34940', 'Gaceta núm. 34 940', 'Gaceta número 34,940']) {
+      expect(numerosDeGaceta(t), t).toEqual(['34,940']);
+    }
+    expect(numerosDeGaceta('Gacetas 34,940 y 35,247')).toEqual(['34,940', '35,247']);
+    expect(numerosDeGaceta('Gaceta 34,940, 35,247 e 36,000')).toEqual(['34,940', '35,247', '36,000']);
+  });
+  it('no confunde fechas, páginas ni años con números de Gaceta', () => {
+    expect(numerosDeGaceta('La Gaceta 34,940, 10-may-2019, pág. 140-A')).toEqual(['34,940']);
+    expect(numerosDeGaceta('Decreto 130-2017, art. 634, folio 12345')).toEqual([]);
+  });
+  const conExtra = (cola: string) => validaOficial(oficialReal(), ctxBase, REF + cola);
+  it('rechaza una Gaceta extra citada en cualquiera de sus formatos', () => {
+    for (const cola of [' Ver Gaceta 36,000.', ' Ver Gaceta 36000.', ' Ver gaceta 36.000.', ' Ver Gaceta No. 36 000.', ' Ver Gaceta Nº 36,000.', ' Ver Gacetas 34,940 y 36,000.']) {
+      const e = conExtra(cola);
+      expect(e.join('|'), cola).toMatch(/clo_ruling_ref cita la Gaceta 36,000, que no está en officialSources/);
+      expect(nombra(e)).toBe(true);
+    }
+  });
+  it('acepta las variantes de formato de las fuentes reales (el hash sigue literal)', () => {
+    const variante = REF
+      .replace('La Gaceta 34,940 (SHA-256 ', 'La Gaceta No. 34.940 (SHA256: ')
+      .replace('La Gaceta 35,247 (SHA-256 ', 'Gaceta Nº 35247 ( sha-256 ');
+    expect(variante).not.toBe(REF);
+    expect(validaOficial(oficialReal(), ctxBase, variante)).toEqual([]);
+  });
+  it('mantiene la integridad: un hash en mayúscula o alterado sigue rechazado aunque cambie el formato', () => {
+    const mayus = REF.replace('La Gaceta 34,940 (SHA-256 ' + HASH_A, 'La Gaceta No. 34.940 (SHA256: ' + HASH_A.toUpperCase());
+    const e = validaOficial(oficialReal(), ctxBase, mayus).join('|');
+    expect(e).toMatch(/el sha256 de la Gaceta 34,940 no aparece en clo_ruling_ref/);
+    const cruzado = REF.replace(HASH_A, '@@').replace(HASH_B, HASH_A).replace('@@', HASH_B).replace('La Gaceta 34,940', 'Gaceta No. 34.940');
+    expect(validaOficial(oficialReal(), ctxBase, cruzado).join('|')).toMatch(/el sha256 no está asociado a la Gaceta 34,940/);
+  });
+  it('la gaceta del caso se lee con los mismos formatos', () => {
+    expect(validaOficial(oficialReal(), ctxBase, REF, '34.940; 35247')).toEqual([]);
+    expect(validaOficial(oficialReal(), ctxBase, REF, '34,940; 36,000').join('|')).toMatch(/la gaceta del caso .* no coincide/);
+  });
+});
+
+describe('N2: fecha y página citadas con variaciones estructuradas exigen verificación', () => {
+  const detalle = (gaceta: string, fecha: string, pagina: string) => ({ estado: 'VERIFICADO_CLO_PDF_OFICIAL', fecha: '22-oct-2026', detalle: [{ gaceta, fecha, pagina, paginaPdf: 5 }] });
+  const exige = (texto: string) => validarVerificacionFechaPagina('CASO-X', texto, undefined);
+  it('normaliza fechas y páginas', () => {
+    expect(normalizaFecha('10 de mayo de 2019')).toBe('10-may-2019');
+    expect(normalizaFecha('09/05/2020')).toBe('9-may-2020');
+    expect(normalizaFecha('2020-05-09')).toBe('9-may-2020');
+    expect(normalizaFecha('10-MAY-2019')).toBe('10-may-2019');
+    expect(normalizaFecha('10 septiembre 2019')).toBe('10-sep-2019');
+    expect(normalizaFecha('mañana')).toBeNull();
+    expect(normalizaPagina('A.140')).toBe('140-A');
+    expect(normalizaPagina('140A')).toBe('140-A');
+    expect(normalizaPagina('140-a')).toBe('140-A');
+    expect(normalizaPagina('156')).toBe('156');
+  });
+  it('exige verificación en cada variación que antes pasaba sin ella', () => {
+    for (const texto of [
+      'La Gaceta 34,940 del 10 de mayo de 2019, página 141-A',
+      'La Gaceta 34,940 pág. 141-A',
+      'La Gaceta 34,940 p. 141-A',
+      'La Gaceta 34,940, pp. 5',
+      'La Gaceta 34,940 (10/05/2019)',
+      'Gaceta 34.940 de fecha 2019-05-10',
+      'Gaceta No. 34940, 10 mayo 2019',
+      'La Gaceta 34,940, 10-may-2019, pág. A.140',
+    ]) {
+      expect(exige(texto).join('|'), texto).toMatch(/CASO-X: referenciaCLO cita fecha o página de La Gaceta y falta verificacionFechaPagina/);
+    }
+  });
+  it('no exige verificación cuando la cita no trae fecha ni página', () => {
+    for (const texto of ['Gaceta 30,904', 'Código del Notariado, D.353-2005, Gaceta 30,904: el último artículo es el 94; el art. 500 no existe.', 'adicionado por el D.98-2017, Gaceta 34,473), no al Código Penal.', 'La Gaceta 35,398 y la Gaceta 36,290']) {
+      expect(exige(texto), texto).toEqual([]);
+    }
+  });
+  it('la fecha de otra oración o de otra cita no se atribuye a la Gaceta', () => {
+    expect(exige('Vigencia desde el 25-jun-2020 por el art. 1 del D.46-2020 (La Gaceta 35,247)')).toEqual([]);
+    expect(gacetasConFechaOPagina('La Gaceta 34,940 (publicada). Entró en vigor el 25-jun-2020.')).toEqual([]);
+  });
+  it('acepta una variación cuando el detalle coincide (aunque se escriba distinto)', () => {
+    const v = (g: string, f: string, p: string) => validarVerificacionFechaPagina('CASO-X', 'La Gaceta 34,940 del 10 de mayo de 2019, página 141-A', detalle(g, f, p));
+    expect(v('34,940', '10-may-2019', '141-A')).toEqual([]);
+    expect(v('34,940', '10 de mayo de 2019', '141A')).toEqual([]);
+    expect(validarVerificacionFechaPagina('CASO-X', 'La Gaceta 34,940, 10-may-2019, pág. A.140', detalle('34,940', '10/05/2019', '140-A'))).toEqual([]);
+  });
+  it('rechaza una variación cuando la fecha, la página o la Gaceta no coinciden', () => {
+    const texto = 'La Gaceta 34,940 del 10 de mayo de 2019, página 141-A';
+    expect(validarVerificacionFechaPagina('CASO-X', texto, detalle('34,940', '11-may-2019', '141-A')).join('|')).toMatch(/la fecha de la Gaceta 34,940 \(10-may-2019\) no coincide/);
+    expect(validarVerificacionFechaPagina('CASO-X', texto, detalle('34,940', '10-may-2019', '142-A')).join('|')).toMatch(/la página de la Gaceta 34,940 \(141-A\) no coincide/);
+    expect(validarVerificacionFechaPagina('CASO-X', texto, detalle('35,247', '10-may-2019', '141-A')).join('|')).toMatch(/la Gaceta 34,940 citada en referenciaCLO no tiene detalle/);
+  });
+  it('una cita que agrupa varias Gacetas con una sola fecha es ambigua y se rechaza', () => {
+    const e = validarVerificacionFechaPagina('CASO-X', 'Gacetas 34,940 y 35,247, 10-may-2019', { estado: 'VERIFICADO_CLO_PDF_OFICIAL', fecha: '22-oct-2026', detalle: [{ gaceta: '34,940', fecha: '10-may-2019', pagina: '1', paginaPdf: 1 }, { gaceta: '35,247', fecha: '10-may-2019', pagina: '1', paginaPdf: 1 }] }).join('|');
+    expect(e).toMatch(/agrupa varias Gacetas con una sola fecha o página/);
+  });
+  it('el Golden Set real sigue válido y solo el caso Penal cita fecha o página', () => {
+    expect(validarProcedenciasGoldenSet(GOLDEN_G1, PROCEDENCIA_G1, new Date())).toEqual([]);
+    expect(GOLDEN_G1.filter((c) => gacetasConFechaOPagina(c.referenciaCLO).length > 0).map((c) => c.id)).toEqual([PENAL]);
   });
 });
