@@ -22,6 +22,8 @@ export interface CircuitBreaker {
   permitir(): boolean;
   exito(): void;
   fallo(): void;
+  /** Devuelve una sonda que no llegó a ejecutarse (p. ej. el presupuesto la rechazó) sin cerrar ni abrir el breaker. */
+  cancelarSonda(): void;
   estado(): EstadoBreaker;
 }
 
@@ -66,6 +68,9 @@ export function crearCircuitBreaker(opciones: OpcionesBreaker = {}): CircuitBrea
       fallos = fallos.filter((x) => t - x < ventana);
       fallos.push(t);
       if (fallos.length >= umbral) abrir();
+    },
+    cancelarSonda() {
+      sondaEnCurso = false;
     },
     estado() {
       if (!abierto) return 'CERRADO';

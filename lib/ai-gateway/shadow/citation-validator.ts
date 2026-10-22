@@ -5,6 +5,8 @@
  *  - Una claim con algún chunk_id que no está en el evidence de ESA consulta se
  *    descarta entera (CITA_FUERA_DE_EVIDENCIA) y cada cita así cuenta como
  *    cita inválida.
+ *  - G3: una claim sin ninguna cita DIRECT a evidence con `citable === true` se descarta
+ *    (SIN_SOPORTE_DIRECTO_CITABLE): no es una claim jurídica validada.
  *  - Si el modelo decidió ANSWER y no queda ninguna claim sustentada, el
  *    resultado es INVALID: no se convierte en respuesta ni en abstención.
  */
@@ -21,7 +23,7 @@ import {
 
 export interface SalidaCruda {
   rawOutput: unknown;
-  usage: { inputTokens: number; outputTokens: number };
+  usage: { inputTokens: number; outputTokens: number; /** Subconjunto de inputTokens servido desde caché. */ cachedInputTokens?: number };
   latencyMs: number;
 }
 
@@ -33,7 +35,7 @@ export function validarSalida(
   const usage = {
     inputTokens: cruda.usage.inputTokens,
     outputTokens: cruda.usage.outputTokens,
-    estimatedCostUsd: estimarCostoUsd(cruda.usage.inputTokens, cruda.usage.outputTokens, modo),
+    estimatedCostUsd: estimarCostoUsd(cruda.usage.inputTokens, cruda.usage.outputTokens, modo, cruda.usage.cachedInputTokens ?? 0),
   };
   const base = { queryId: input.queryId, model: MODELO_GATEWAY, usage, latencyMs: cruda.latencyMs };
   const invalido = (invalidReason: string, extra: Partial<Pick<ShadowGatewayResult, 'discardedClaims' | 'invalidCitations' | 'totalCitations'>> = {}) =>
@@ -65,7 +67,8 @@ export function validarSalida(
     });
   }
 
-  const evidenceIds = new Set(input.evidence.map((e) => e.chunk_id));
+  const evidencePorId = new Map(input.evidence.map((e) => [e.chunk_id, e]));
+  const evidenceIds = new Set(evidencePorId.keys());
   const claims: ValidatedClaim[] = [];
   const discardedClaims: DiscardedClaim[] = [];
   let invalidCitations = 0;
@@ -80,6 +83,13 @@ export function validarSalida(
     if (fuera.length > 0) {
       invalidCitations += fuera.length;
       discardedClaims.push({ claim_id: c.claim_id, motivo: 'CITA_FUERA_DE_EVIDENCIA', chunkIdsInvalidos: fuera });
+      continue;
+    }
+    // G3: una claim solo es jurídica validada si tiene al menos una cita DIRECT a evidence citable. El modelo
+    // declara `support`, pero el servidor decide la citabilidad: un fragmento no citable nunca es autoridad.
+    const respaldoDirecto = c.citations.some((ct) => ct.support === 'DIRECT' && evidencePorId.get(ct.chunk_id)?.citable === true);
+    if (!respaldoDirecto) {
+      discardedClaims.push({ claim_id: c.claim_id, motivo: 'SIN_SOPORTE_DIRECTO_CITABLE', chunkIdsInvalidos: [] });
       continue;
     }
     claims.push({ claim_id: c.claim_id, text: c.text, citations: c.citations.map((ct) => ({ chunk_id: ct.chunk_id, support: ct.support })) });

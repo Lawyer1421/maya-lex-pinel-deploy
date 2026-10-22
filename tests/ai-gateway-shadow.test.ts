@@ -9,7 +9,8 @@ import { join, relative } from 'node:path';
 import { validarSalida, type SalidaCruda } from '@/lib/ai-gateway/shadow/citation-validator';
 import { RecordedResponseAdapter, entraAlGate, runGoldenSet, type GoldenCase } from '@/lib/ai-gateway/shadow/golden-runner';
 import { MODEL_OUTPUT_JSON_SCHEMA, parsearSalidaModelo } from '@/lib/ai-gateway/shadow/model-output-schema';
-import { TARIFAS_GPT6_LUNA, estimarCostoUsd } from '@/lib/ai-gateway/shadow/pricing';
+import { estimarCostoUsd } from '@/lib/ai-gateway/shadow/pricing';
+import { SHADOW_MODEL_CONFIG } from '@/lib/ai-gateway/shadow/shadow-model-config';
 import { MODELO_GATEWAY, type ShadowGatewayInput, type ShadowGatewayResult } from '@/lib/ai-gateway/shadow/types';
 import { construirRespuestaHttpUsuario, type ProductionUserResponse } from '@/lib/ai-gateway/user-response-boundary';
 import { resolverVersion } from '@/lib/legal-retrieval/norma-version';
@@ -30,7 +31,7 @@ const RAIZ = join(__dirname, '..');
 const input = (evidenceIds: string[], decision: 'ANSWER' | 'ABSTAIN' = 'ANSWER', queryId = 'q-test'): ShadowGatewayInput => ({
   queryId,
   sanitizedQuestion: 'pregunta sintética',
-  evidence: evidenceIds.map((chunk_id) => ({ chunk_id, instrumento: 'SINT', articulo: '1', gaceta: null, rol: 'PRIMARY' as const, texto: 'FIXTURE SINTÉTICA' })),
+  evidence: evidenceIds.map((chunk_id) => ({ chunk_id, instrumento: 'SINT', articulo: '1', gaceta: null, rol: 'PRIMARY' as const, citable: true, texto: 'FIXTURE SINTÉTICA' })),
   productionOutcome: { decision, retrievalState: decision === 'ANSWER' ? 'EXACT_SUCCESS' : 'NO_VERIFIED_EVIDENCE' },
 });
 const cruda = (rawOutput: unknown): SalidaCruda => ({ rawOutput, usage: { inputTokens: 1000, outputTokens: 100 }, latencyMs: 5 });
@@ -39,7 +40,7 @@ const answer = (claims: unknown[]) => ({ decision: 'ANSWER', claims, abstention_
 describe('modelo y contratos', () => {
   it('el único modelo es gpt-6-luna', () => {
     expect(MODELO_GATEWAY).toBe('gpt-6-luna');
-    expect(TARIFAS_GPT6_LUNA.modelo).toBe('gpt-6-luna');
+    expect(SHADOW_MODEL_CONFIG.modelId).toBe('gpt-6-luna');
   });
   it('ShadowGatewayResult lleva origin SHADOW, status, claims, usage y latencyMs', () => {
     const r = validarSalida(input(['a']), cruda(answer([{ claim_id: 'c1', text: 't', citations: [{ chunk_id: 'a', support: 'DIRECT' }] }])));
@@ -135,16 +136,21 @@ describe('validador determinístico de citas', () => {
   });
 });
 
-describe('tarifas de gpt-6-luna (verificadas el 21-oct-2026)', () => {
-  it('constantes estándar y batch', () => {
-    expect(TARIFAS_GPT6_LUNA.verificadoEl).toBe('2026-10-21');
-    expect(TARIFAS_GPT6_LUNA.standard).toEqual({ inputUsdPorMillon: 0.1, outputUsdPorMillon: 0.5 });
-    expect(TARIFAS_GPT6_LUNA.batch).toEqual({ inputUsdPorMillon: 0.05, outputUsdPorMillon: 0.25 });
+describe('tarifas de gpt-6-luna (única fuente: shadow-model-config.ts)', () => {
+  const { standard, batch } = SHADOW_MODEL_CONFIG.pricing;
+  it('la configuración central lleva fecha de verificación y URL documental', () => {
+    expect(SHADOW_MODEL_CONFIG.pricing.verifiedAt).toBe('2026-10-22');
+    expect(SHADOW_MODEL_CONFIG.pricing.sourceUrl).toBe('https://developers.openai.com/api/docs/pricing');
   });
-  it('estima el costo por millón de tokens', () => {
-    expect(estimarCostoUsd(1_000_000, 0)).toBeCloseTo(0.1, 12);
-    expect(estimarCostoUsd(0, 1_000_000)).toBeCloseTo(0.5, 12);
-    expect(estimarCostoUsd(1_000_000, 1_000_000, 'batch')).toBeCloseTo(0.3, 12);
+  it('estima el costo por millón de tokens con las tarifas de la configuración', () => {
+    expect(estimarCostoUsd(1_000_000, 0)).toBeCloseTo(standard.inputUsdPerMillion, 12);
+    expect(estimarCostoUsd(0, 1_000_000)).toBeCloseTo(standard.outputUsdPerMillion, 12);
+    expect(estimarCostoUsd(1_000_000, 1_000_000, 'batch')).toBeCloseTo(batch.inputUsdPerMillion + batch.outputUsdPerMillion, 12);
+  });
+  it('la entrada en caché se cobra a su tarifa y es un subconjunto de la entrada', () => {
+    expect(estimarCostoUsd(1_000_000, 0, 'standard', 1_000_000)).toBeCloseTo(standard.cachedInputUsdPerMillion, 12);
+    expect(estimarCostoUsd(1_000_000, 0, 'standard', 400_000)).toBeCloseTo((600_000 * standard.inputUsdPerMillion + 400_000 * standard.cachedInputUsdPerMillion) / 1e6, 12);
+    expect(() => estimarCostoUsd(100, 0, 'standard', 200)).toThrow(/caché/);
   });
   it('tokens inválidos no se estiman', () => {
     expect(() => estimarCostoUsd(-1, 0)).toThrow();
@@ -276,15 +282,16 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     const tin = Object.values(RESPUESTAS_GRABADAS_G1).reduce((s, r) => s + r.usage.inputTokens, 0);
     const tout = Object.values(RESPUESTAS_GRABADAS_G1).reduce((s, r) => s + r.usage.outputTokens, 0);
     expect(std.metricas.tokens).toEqual({ input: tin, output: tout });
-    expect(std.metricas.costoEstimadoUsd).toBeCloseTo((tin * 0.1 + tout * 0.5) / 1e6, 12);
-    expect(batch.metricas.costoEstimadoUsd).toBeCloseTo((tin * 0.05 + tout * 0.25) / 1e6, 12);
+    const { standard, batch: tarifaBatch } = SHADOW_MODEL_CONFIG.pricing;
+    expect(std.metricas.costoEstimadoUsd).toBeCloseTo((tin * standard.inputUsdPerMillion + tout * standard.outputUsdPerMillion) / 1e6, 12);
+    expect(batch.metricas.costoEstimadoUsd).toBeCloseTo((tin * tarifaBatch.inputUsdPerMillion + tout * tarifaBatch.outputUsdPerMillion) / 1e6, 12);
   });
 
   it('TEST CRÍTICO: si el adaptador falso dice ANSWER y producción dice ABSTAIN, se registra el desacuerdo', async () => {
     const caso = GOLDEN_G1.find((c) => c.id === 'G1-ABS-NOTARIADO-ART-500')!;
     const respuestas = {
       ...RESPUESTAS_GRABADAS_G1,
-      [caso.input.queryId]: cruda(answer([{ claim_id: 'c1', text: 'El art. 500 regula…', citations: [{ chunk_id: 'cn-94', support: 'INDIRECT' }] }])),
+      [caso.input.queryId]: cruda(answer([{ claim_id: 'c1', text: 'El art. 500 regula…', citations: [{ chunk_id: 'cn-94', support: 'DIRECT' }] }])),
     };
     const informe = await runGoldenSet(GOLDEN_G1, new RecordedResponseAdapter(respuestas));
     expect(informe.desacuerdos).toEqual([
@@ -332,7 +339,9 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     const caso = GOLDEN_G1.find((c) => c.id === 'G1-REF-ART-173-B-CPP')!;
     const respuestas = { [caso.input.queryId]: cruda(answer([{ claim_id: 'c1', text: 't', citations: [{ chunk_id: 'cp-173', support: 'DIRECT' }] }])) };
     const informe = await runGoldenSet([caso], new RecordedResponseAdapter(respuestas));
-    expect(informe.comparaciones[0]).toMatchObject({ articuloExactoCorrecto: false, citaInstrumentoProhibido: true, cumpleEsperado: false });
+    // G3: cp-173 es CONTEXT (no citable); una cita DIRECT a un fragmento no citable no cuenta como respaldo, así que la
+    // claim se descarta y el resultado es INVALID. Sigue sin ser un acierto y el gate sigue fallando.
+    expect(informe.comparaciones[0]).toMatchObject({ shadowStatus: 'INVALID', articuloExactoCorrecto: false, cumpleEsperado: false });
     expect(informe.gate.pasa).toBe(false);
   });
   it('un caso PENDIENTE no entra al gate ni se evalúa', async () => {
@@ -416,7 +425,8 @@ describe('aislamiento: el resultado sombra nunca llega al usuario', () => {
     }
   });
   it('el gateway no abre red ni lee claves (guard ampliado)', () => {
-    const fuentes = [...archivos(join(RAIZ, 'lib', 'ai-gateway')), join(RAIZ, 'tests', 'golden', 'gateway-g1-casos.ts')];
+    // G3: openai-adapter.ts es el único módulo con una excepción acotada (ver tests/ai-gateway-shadow-g3.test.ts).
+    const fuentes = [...archivos(join(RAIZ, 'lib', 'ai-gateway')).filter((p) => !p.endsWith('openai-adapter.ts')), join(RAIZ, 'tests', 'golden', 'gateway-g1-casos.ts')];
     for (const p of fuentes) {
       expect(readFileSync(p, 'utf8'), relative(RAIZ, p)).not.toMatch(GUARD_RED);
     }

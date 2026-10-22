@@ -1,10 +1,16 @@
 /**
  * lib/ai-gateway/shadow/adaptador-sombra.ts
- * PR-G2: único punto donde el despacho obtiene su adaptador. Sigue siendo el
- * falso de G1 (sin red, sin clave): no hay adaptador real en este PR.
+ * PR-G3: único punto donde el despacho obtiene su adaptador y comprueba la credencial.
+ * El adaptador es el de OpenAI, que solo se invoca si el kill switch, los gates, la credencial, el breaker y
+ * el presupuesto lo permiten. Hoy el kill switch está apagado y el presupuesto es 0: nada se ejecuta.
  */
-import { RecordedResponseAdapter, type ShadowModelAdapter } from './golden-runner';
+import type { ShadowModelAdapter } from './golden-runner';
+import { credencialDisponible as hayCredencial, crearAdaptadorOpenAI } from './openai-adapter';
+
+export function credencialDisponible(): boolean {
+  return hayCredencial();
+}
 
 export function crearAdaptadorSombra(): ShadowModelAdapter {
-  return new RecordedResponseAdapter({});
+  return crearAdaptadorOpenAI();
 }

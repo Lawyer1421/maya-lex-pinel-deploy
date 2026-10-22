@@ -16,7 +16,9 @@ import type { CloRulingSource, VerificacionFechaPagina } from './procedencia-clo
 
 const SINTETICO = 'FIXTURE SINTÉTICA: no es el texto legal oficial.';
 
-const chunk = (c: Omit<EvidenceChunk, 'texto'>): EvidenceChunk => ({ ...c, texto: `${SINTETICO} ${c.instrumento} art. ${c.articulo ?? '-'}` });
+// Fixtures sintéticos: el CLO declara qué chunk es autoridad (PRIMARY) y cuál es solo contexto. En ellos `citable` sigue
+// a `rol`; en el runtime real el rol es null y `citable` lo decide construirCitas (ver evidence-classification.ts).
+const chunk = (c: Omit<EvidenceChunk, 'texto' | 'citable'>): EvidenceChunk => ({ ...c, citable: c.rol === 'PRIMARY', texto: `${SINTETICO} ${c.instrumento} art. ${c.articulo ?? '-'}` });
 
 /** Versión de una unidad cuyo único evento es una REFORMA sin instrumento modificador. */
 export const VERSION_REFORMA_SIN_INSTRUMENTO: NormaVersion = {
@@ -194,7 +196,7 @@ export const GOLDEN_G1: readonly CasoG1[] = [
     input: {
       queryId: 'q-g1-08',
       sanitizedQuestion: '¿Cuál es el texto vigente de la unidad reformada?',
-      evidence: [{ chunk_id: 'reforma-sin-instrumento', instrumento: 'SINT_G1', articulo: '1', gaceta: null, rol: ROL_REFORMA_SIN_INSTRUMENTO, texto: SINTETICO }],
+      evidence: [{ chunk_id: 'reforma-sin-instrumento', instrumento: 'SINT_G1', articulo: '1', gaceta: null, rol: ROL_REFORMA_SIN_INSTRUMENTO, citable: false, texto: SINTETICO }],
       // Sin evidencia PRIMARY (sólo CONTEXT) producción no tiene qué citar: NO_VERIFIED_EVIDENCE, nunca EXACT_SUCCESS.
       productionOutcome: { decision: 'ABSTAIN', retrievalState: 'NO_VERIFIED_EVIDENCE' },
     },

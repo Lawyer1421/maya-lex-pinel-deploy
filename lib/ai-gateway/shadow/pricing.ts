@@ -1,21 +1,22 @@
 /**
- * Tarifas de gpt-6-luna para estimar el costo del modo sombra (USD por millón
- * de tokens). Verificadas el 21-oct-2026 (dictamen CLO). Si cambian, se
- * actualizan aquí con la nueva fecha de verificación; nunca se infieren.
+ * Estimación de costo del modo sombra. Las tarifas NO viven aquí: se leen de shadow-model-config.ts,
+ * la única fuente (con su fecha de verificación y su URL documental).
  */
-export const TARIFAS_GPT6_LUNA = {
-  modelo: 'gpt-6-luna',
-  verificadoEl: '2026-10-21',
-  standard: { inputUsdPorMillon: 0.1, outputUsdPorMillon: 0.5 },
-  batch: { inputUsdPorMillon: 0.05, outputUsdPorMillon: 0.25 },
-} as const;
+import { SHADOW_MODEL_CONFIG } from './shadow-model-config';
 
 export type ModoTarifa = 'standard' | 'batch';
 
-export function estimarCostoUsd(inputTokens: number, outputTokens: number, modo: ModoTarifa = 'standard'): number {
-  if (!Number.isFinite(inputTokens) || !Number.isFinite(outputTokens) || inputTokens < 0 || outputTokens < 0) {
+/**
+ * Costo estimado en USD. `cachedInputTokens` es un subconjunto de `inputTokens` (así lo reporta la API):
+ * se cobra a la tarifa de entrada en caché si existe; si el modo no tiene tarifa de caché, se cobra completo.
+ */
+export function estimarCostoUsd(inputTokens: number, outputTokens: number, modo: ModoTarifa = 'standard', cachedInputTokens = 0): number {
+  if (![inputTokens, outputTokens, cachedInputTokens].every((n) => Number.isFinite(n) && n >= 0)) {
     throw new Error('tokens inválidos para estimar costo');
   }
-  const t = TARIFAS_GPT6_LUNA[modo];
-  return (inputTokens * t.inputUsdPorMillon + outputTokens * t.outputUsdPorMillon) / 1_000_000;
+  if (cachedInputTokens > inputTokens) throw new Error('tokens en caché mayores que los de entrada');
+  const t = SHADOW_MODEL_CONFIG.pricing[modo];
+  const tarifaCache = t.cachedInputUsdPerMillion ?? t.inputUsdPerMillion;
+  const sinCache = inputTokens - cachedInputTokens;
+  return (sinCache * t.inputUsdPerMillion + cachedInputTokens * tarifaCache + outputTokens * t.outputUsdPerMillion) / 1_000_000;
 }

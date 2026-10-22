@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { crearCircuitBreaker } from '@/lib/ai-gateway/shadow/circuit-breaker';
+import { SHADOW_MODEL_CONFIG } from '@/lib/ai-gateway/shadow/shadow-model-config';
 import { MODEL_OUTPUT_JSON_SCHEMA, MODEL_OUTPUT_WIRE_JSON_SCHEMA, modelOutputSchema } from '@/lib/ai-gateway/shadow/model-output-schema';
 
 /**
@@ -61,6 +62,16 @@ describe('circuit breaker en memoria', () => {
     r.avanza(5_000);
     expect(b.permitir()).toBe(true);
   });
+  it('una sonda cancelada (p. ej. rechazada por el presupuesto) no cierra ni reabre el breaker y libera la sonda', () => {
+    const r = reloj();
+    const b = crearCircuitBreaker({ umbralFallos: 2, enfriamientoMs: 5_000, ahora: r.ahora });
+    b.fallo(); b.fallo();
+    r.avanza(5_000);
+    expect(b.permitir()).toBe(true);
+    b.cancelarSonda();
+    expect(b.estado()).toBe('SEMIABIERTO');
+    expect(b.permitir()).toBe(true);
+  });
   it('un éxito reinicia el conteo de fallos', () => {
     const b = crearCircuitBreaker({ umbralFallos: 3 });
     b.fallo(); b.fallo(); b.exito(); b.fallo(); b.fallo();
@@ -69,12 +80,13 @@ describe('circuit breaker en memoria', () => {
 });
 
 const PREGUNTA = 'Explica el artículo 173 del Código Procesal Penal de Honduras';
-const FRAG = { id: 'f1', contenido: 'ARTICULO 173.- Texto limpio de prueba.', num_articulo: '173', fuente: 'Codigo Procesal Penal', relevancia: 0.9, hash: 'abcd1234' };
+const FRAG = { id: 'f1', contenido: 'ARTICULO 173.- Texto limpio de prueba.', num_articulo: '173', fuente: 'Codigo Procesal Penal', relevancia: 0.9, hash: 'abcd1234', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true };
 
 async function cargarDispatcher(responder: (input: unknown, opciones?: { signal?: AbortSignal }) => Promise<unknown>, habilitado = true) {
   vi.resetModules();
   vi.doMock('@/lib/ai-gateway/shadow/config', () => ({ SHADOW_GATEWAY_ENABLED: habilitado, SHADOW_TIMEOUT_MS: 40, SHADOW_REGISTRY_MAX: 200 }));
-  vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({ crearAdaptadorSombra: () => ({ modelo: 'gpt-6-luna', responder }) }));
+  vi.doMock('@/lib/ai-gateway/shadow/shadow-model-config', async (original) => ({ ...(await original<typeof import('@/lib/ai-gateway/shadow/shadow-model-config')>()), SHADOW_BUDGET_USD: 1 }));
+  vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({ credencialDisponible: () => true, crearAdaptadorSombra: () => ({ modelo: 'gpt-6-luna', responder }) }));
   return import('@/lib/ai-gateway/shadow/dispatcher');
 }
 const params = (queryId: string, decision: 'ANSWER' | 'ABSTAIN' = 'ANSWER') => ({ queryId, pregunta: PREGUNTA, fragmentos: [FRAG as never], decision, retrievalState: 'EXACT_SUCCESS' as const });
@@ -133,7 +145,7 @@ describe('registro con uso y desacuerdo', () => {
     d.despacharShadow(params('q-5'));
     await d.esperarDespachos();
     const r = d.registroDespachos().at(-1)!;
-    expect(r.uso).toEqual({ inputTokens: 1000, outputTokens: 100, totalTokens: 1100, estimatedCostUsd: (1000 * 0.1 + 100 * 0.5) / 1_000_000, latenciaMs: 12 });
+    expect(r.uso).toEqual({ inputTokens: 1000, outputTokens: 100, totalTokens: 1100, estimatedCostUsd: (1000 * SHADOW_MODEL_CONFIG.pricing.standard.inputUsdPerMillion + 100 * SHADOW_MODEL_CONFIG.pricing.standard.outputUsdPerMillion) / 1_000_000, latenciaMs: 12 });
     expect(r.desacuerdo).toBe(false);
     expect(JSON.stringify(r)).not.toMatch(/art\. 173|Procesal|Explica/);
   });
