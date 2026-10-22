@@ -180,6 +180,10 @@ describe('Golden Set PR-G1 (sólo casos verificados por el CLO)', () => {
     for (const c of GOLDEN_G1) {
       expect(c.clo_ruling_ref, c.id).toMatch(/CLO/);
       expect(c.clo_ruling_ref, c.id).toMatch(/21-oct-2026/);
+      // H3-bis (Auditor, 22-oct-2026): la fuente verificable es el dictamen del issue #74, con su URL y su código de caso;
+      // el prompt PR-G1 puede acompañarla, pero no ser la única referencia.
+      expect(c.clo_ruling_ref, c.id).toContain('issuecomment-6313691566');
+      expect(c.clo_ruling_ref, c.id).toMatch(/\b[A-E]\d\b|punto 1/);
       expect(c.articulo.trim(), c.id).not.toBe('');
       if (c.gaceta !== null) expect(c.gaceta, c.id).toMatch(/\d{2},\d{3}/);
     }
