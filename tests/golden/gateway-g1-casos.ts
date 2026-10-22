@@ -12,7 +12,7 @@ import type { SalidaCruda } from '@/lib/ai-gateway/shadow/citation-validator';
 import type { GoldenCase } from '@/lib/ai-gateway/shadow/golden-runner';
 import type { EvidenceChunk } from '@/lib/ai-gateway/shadow/types';
 import { resolverVersion, type NormaVersion } from '@/lib/legal-retrieval/norma-version';
-import type { CloRulingSource } from './procedencia-clo';
+import type { CloRulingSource, VerificacionFechaPagina } from './procedencia-clo';
 
 const SINTETICO = 'FIXTURE SINTÉTICA: no es el texto legal oficial.';
 
@@ -49,7 +49,10 @@ export const VERSION_REFORMA_SIN_INSTRUMENTO: NormaVersion = {
 const resueltaReforma = resolverVersion('SINT_G1', '1', '2026-10-21', [VERSION_REFORMA_SIN_INSTRUMENTO], { anioEnCurso: 2026 });
 const ROL_REFORMA_SIN_INSTRUMENTO: EvidenceChunk['rol'] = resueltaReforma.estado === 'PRIMARY' ? 'PRIMARY' : 'CONTEXT';
 
-export const GOLDEN_G1: readonly GoldenCase[] = [
+/** Caso del Golden Set con la verificación de fecha y página de La Gaceta que cite su referenciaCLO (M1). */
+export type CasoG1 = GoldenCase & { verificacionFechaPagina?: VerificacionFechaPagina };
+
+export const GOLDEN_G1: readonly CasoG1[] = [
   {
     id: 'G1-ABS-NOTARIADO-ART-500',
     estado: 'VERIFICADO',
@@ -124,6 +127,14 @@ export const GOLDEN_G1: readonly GoldenCase[] = [
     clo_ruling_ref: 'Dictamen CLO 22-oct-2026, fuentes oficiales: La Gaceta 34,940 (SHA-256 54f6a4122f8b96a60631deb8c486284ff0744c0d09ea0ed332d8d5d1960ba132) y La Gaceta 35,247 (SHA-256 60b5b7865bdb0b868131005429017632fb168e286a1a9dfa5482378e8f58bbdb). Verificado contra La Gaceta 34,940 y 35,247 (Investigador Fuentes Oficiales HN), CLO 22-oct-2026.',
     articulo: '634 del D.130-2017 (deroga el D.144-83 y todas sus reformas); vigencia desde el 25-jun-2020 por el art. 1 del D.46-2020',
     gaceta: '34,940; 35,247',
+    verificacionFechaPagina: {
+      estado: 'VERIFICADO_CLO_PDF_OFICIAL',
+      fecha: '22-oct-2026',
+      detalle: [
+        { gaceta: '34,940', fecha: '10-may-2019', pagina: '140-A', paginaPdf: 156 },
+        { gaceta: '35,247', fecha: '9-may-2020', pagina: '2-A', paginaPdf: 2 },
+      ],
+    },
     referenciaCLO:
       'Art. 634 del D.130-2017: deroga el D.144-83 (Código Penal de 1983) y todas sus reformas (La Gaceta 34,940, 10-may-2019, pág. 140-A). Vigencia desde el 25-jun-2020 por el art. 1 del D.46-2020, que reforma el art. 635 (La Gaceta 35,247, 9-may-2020, pág. 2-A).',
     input: {
@@ -212,7 +223,7 @@ export const PROCEDENCIA_G1: Readonly<Record<string, CloRulingSource>> = {
       { publication: 'La Gaceta', number: '35,247', sha256: '60b5b7865bdb0b868131005429017632fb168e286a1a9dfa5482378e8f58bbdb' },
     ],
     goldenCaseId: 'G1-VIG-CODIGO-PENAL-130-2017',
-    researchProvenance: 'Investigador Fuentes Oficiales HN',
+    researchProvenance: 'Investigador Fuentes Oficiales HN, 22-oct-2026; cotejo CLO del PDF oficial ENAG',
   },
   'G1-VIG-D57-2020-SIN-REVIVISCENCIA': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-VIG-D57-2020-SIN-REVIVISCENCIA'), caseCode: 'B3' },
   'G1-ART-TRIBUTARIO-214': { kind: 'CLO_ISSUE_RULING', verifiedAt: '21-oct-2026', rulingRef: ref('G1-ART-TRIBUTARIO-214'), caseCode: 'A4' },

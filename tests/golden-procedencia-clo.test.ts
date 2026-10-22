@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GOLDEN_G1, PROCEDENCIA_G1 } from './golden/gateway-g1-casos';
-import { parsearFechaDdMmmAaaa, validarProcedencia, validarProcedenciasGoldenSet } from './golden/procedencia-clo';
+import { gacetasConFechaOPagina, parsearFechaDdMmmAaaa, validarProcedencia, validarProcedenciasGoldenSet, validarVerificacionFechaPagina } from './golden/procedencia-clo';
 
 /**
  * H3 (dictamen CLO 22-oct-2026): procedencia discriminada del dictamen de cada caso.
@@ -21,7 +21,15 @@ const oficial = (cambios: Record<string, unknown> = {}) => ({
   goldenCaseId: PENAL,
   ...cambios,
 });
-const validaOficial = (p: unknown, ctx = { fechaCommit: HOY, idsGolden: IDS }) => validarProcedencia(PENAL, penal.clo_ruling_ref, p, ctx);
+const validaOficial = (p: unknown, ctx = { fechaCommit: HOY, idsGolden: IDS }, ref: string = penal.clo_ruling_ref, gaceta: string | null = penal.gaceta) =>
+  validarProcedencia(PENAL, ref, p, ctx, gaceta);
+const ctxBase = { fechaCommit: HOY, idsGolden: IDS };
+/** Fuentes del fixture real, para que los negativos de M2 cambien una sola cosa. */
+const DOS_FUENTES = [
+  { publication: 'La Gaceta', number: '34,940', sha256: HASH_A },
+  { publication: 'La Gaceta', number: '35,247', sha256: HASH_B },
+];
+const oficialReal = (cambios: Record<string, unknown> = {}) => oficial({ officialSources: DOS_FUENTES, ...cambios });
 
 const issue = (id: string, cambios: Record<string, unknown> = {}) => ({ ...PROCEDENCIA_G1[id], ...cambios });
 const CASO7 = 'G1-ART-TRIBUTARIO-214';
@@ -68,7 +76,7 @@ describe('(b) el caso Penal pasa como CLO_OFFICIAL_SOURCE_RULING (22-oct-2026, d
         { publication: 'La Gaceta', number: '35,247', sha256: HASH_B },
       ],
       goldenCaseId: PENAL,
-      researchProvenance: 'Investigador Fuentes Oficiales HN',
+      researchProvenance: 'Investigador Fuentes Oficiales HN, 22-oct-2026; cotejo CLO del PDF oficial ENAG',
     });
     expect(validaOficial(p)).toEqual([]);
   });
@@ -133,8 +141,8 @@ describe('(d) fechas y researchProvenance', () => {
   });
   it('falla un verifiedAt posterior a la fecha del commit; el mismo día pasa', () => {
     expect(validaOficial(oficial({ verifiedAt: '23-oct-2026' })).join('|')).toMatch(/verifiedAt no puede ser posterior a la fecha del commit/);
-    expect(validaOficial(oficial({ verifiedAt: '22-oct-2026' }))).toEqual([]);
-    expect(validaOficial(oficial({ verifiedAt: '21-oct-2026' }))).toEqual([]);
+    expect(validaOficial(oficialReal({ verifiedAt: '22-oct-2026' }))).toEqual([]);
+    expect(validaOficial(oficialReal({ verifiedAt: '21-oct-2026' }))).toEqual([]);
   });
   it('un caso cuya única procedencia es researchProvenance falla', () => {
     const soloInvestigador = { kind: 'CLO_OFFICIAL_SOURCE_RULING', researchProvenance: 'Investigador Fuentes Oficiales HN' };
@@ -187,5 +195,148 @@ describe('(f) una mezcla de campos de los dos tipos falla', () => {
   });
   it('un kind desconocido falla', () => {
     expect(validaOficial({ ...oficial(), kind: 'MIXTO' }).join('|')).toMatch(/kind debe ser/);
+  });
+});
+
+describe('M2: fuentes y hashes deben coincidir con clo_ruling_ref y con la gaceta del caso', () => {
+  const REF = penal.clo_ruling_ref;
+  const nombra = (e: string[]) => e.every((x) => x.startsWith(`${PENAL}: `));
+  it('positivo: el fixture real valida sin errores', () => {
+    expect(validaOficial(oficialReal())).toEqual([]);
+    expect(validarProcedenciasGoldenSet(GOLDEN_G1, PROCEDENCIA_G1, HOY)).toEqual([]);
+  });
+  it('clo_ruling_ref sin hashes', () => {
+    const e = validaOficial(oficialReal(), ctxBase, 'texto sin hashes');
+    expect(e.length).toBeGreaterThan(0);
+    expect(nombra(e)).toBe(true);
+    expect(e.join('|')).toMatch(/la Gaceta 34,940 de officialSources no aparece en clo_ruling_ref/);
+  });
+  it('con número pero sin hash', () => {
+    const sinHash = 'Dictamen CLO 22-oct-2026: La Gaceta 34,940 y La Gaceta 35,247.';
+    const e = validaOficial(oficialReal(), ctxBase, sinHash);
+    expect(e.join('|')).toMatch(/el sha256 de la Gaceta 34,940 no aparece en clo_ruling_ref/);
+    expect(nombra(e)).toBe(true);
+  });
+  it('hashes de otra Gaceta (intercambiados 34,940 ↔ 35,247)', () => {
+    const cambiado = REF.replace(HASH_A, '@@A@@').replace(HASH_B, HASH_A).replace('@@A@@', HASH_B);
+    expect(cambiado).not.toBe(REF);
+    const e = validaOficial(oficialReal(), ctxBase, cambiado);
+    expect(e.join('|')).toMatch(/el sha256 no está asociado a la Gaceta 34,940/);
+    expect(e.join('|')).toMatch(/el sha256 no está asociado a la Gaceta 35,247/);
+    expect(nombra(e)).toBe(true);
+  });
+  it('hash con un carácter distinto', () => {
+    const alterado = REF.replace(HASH_A, HASH_A.slice(0, 63) + (HASH_A.endsWith('2') ? '3' : '2'));
+    const e = validaOficial(oficialReal(), ctxBase, alterado);
+    expect(e.join('|')).toMatch(/el sha256 de la Gaceta 34,940 no aparece en clo_ruling_ref/);
+    expect(e.join('|')).toMatch(/cita un sha256 .* que no está en officialSources/);
+    expect(nombra(e)).toBe(true);
+  });
+  it('Gaceta extra en clo_ruling_ref no listada en officialSources', () => {
+    const e = validaOficial(oficialReal(), ctxBase, REF + ' Ver también La Gaceta 99,999.');
+    expect(e.join('|')).toMatch(/cita la Gaceta 99,999, que no está en officialSources/);
+    expect(nombra(e)).toBe(true);
+  });
+  it('un hash extra en clo_ruling_ref no listado en officialSources', () => {
+    const e = validaOficial(oficialReal(), ctxBase, REF + ' ' + 'a'.repeat(64));
+    expect(e.join('|')).toMatch(/cita un sha256 \(aaaaaaaaaaaa…\) que no está en officialSources/);
+  });
+  it('gaceta del caso distinta de officialSources', () => {
+    for (const g of ['34,940', '34,940; 35,247; 36,000', '34,940; 35,248', null]) {
+      const e = validaOficial(oficialReal(), ctxBase, REF, g);
+      expect(e.join('|'), String(g)).toMatch(/la gaceta del caso .* no coincide con las Gacetas de officialSources/);
+      expect(nombra(e)).toBe(true);
+    }
+  });
+  it('el Golden Set completo señala el caso cuando se altera su gaceta', () => {
+    const casos = GOLDEN_G1.map((c) => (c.id === PENAL ? { ...c, gaceta: '34,940' } : c));
+    const e = validarProcedenciasGoldenSet(casos, PROCEDENCIA_G1, HOY);
+    expect(e.length).toBeGreaterThan(0);
+    expect(e.every((x) => x.startsWith(`${PENAL}: `))).toBe(true);
+  });
+});
+
+describe('B1: fuentes oficiales duplicadas', () => {
+  it('la misma Gaceta dos veces', () => {
+    const e = validaOficial(oficial({ officialSources: [DOS_FUENTES[0], { ...DOS_FUENTES[0], sha256: HASH_B }] })).join('|');
+    expect(e).toMatch(/G1-VIG-CODIGO-PENAL-130-2017: officialSources repite la Gaceta 34,940/);
+  });
+  it('el mismo sha256 con distinto número', () => {
+    const e = validaOficial(oficial({ officialSources: [DOS_FUENTES[0], { ...DOS_FUENTES[1], sha256: HASH_A }] })).join('|');
+    expect(e).toMatch(/G1-VIG-CODIGO-PENAL-130-2017: officialSources repite el sha256 54f6a4122f8b/);
+  });
+});
+
+describe('B2: researchProvenance vacío o contaminado lo rechaza el validador', () => {
+  for (const [nombre, valor, re] of [
+    ['vacío', '', /researchProvenance debe ser texto no vacío/],
+    ['solo espacios', '   ', /researchProvenance debe ser texto no vacío/],
+    ['no es texto', 42, /researchProvenance debe ser texto no vacío/],
+    ['con URL https', 'Investigador https://ejemplo.hn/x', /no puede contener una URL/],
+    ['con URL www', 'Investigador www.ejemplo.hn', /no puede contener una URL/],
+    ['con #74', 'Investigador, ver #74', /no puede referirse al issue #74/],
+    ['con issues/74', 'Investigador, issues/74', /no puede referirse al issue #74/],
+    ['con issuecomment-6313691566', 'Investigador issuecomment-6313691566', /no puede referirse al issue #74/],
+  ] as Array<[string, unknown, RegExp]>) {
+    it(`rechaza researchProvenance ${nombre}`, () => {
+      expect(validaOficial(oficialReal({ researchProvenance: valor })).join('|')).toMatch(re);
+    });
+  }
+  it('acepta el valor real y también su ausencia', () => {
+    expect(validaOficial(oficialReal({ researchProvenance: 'Investigador Fuentes Oficiales HN, 22-oct-2026; cotejo CLO del PDF oficial ENAG' }))).toEqual([]);
+    expect(validaOficial(oficialReal())).toEqual([]);
+  });
+});
+
+describe('M1: fecha y página de La Gaceta citadas en referenciaCLO exigen verificacionFechaPagina', () => {
+  const ref = penal.referenciaCLO;
+  const ok = penal.verificacionFechaPagina;
+  const valida = (v: unknown, r: string = ref) => validarVerificacionFechaPagina(PENAL, r, v);
+  it('el caso Penal conserva sus fechas y páginas y lleva la verificación del 22-oct-2026', () => {
+    expect(gacetasConFechaOPagina(ref)).toEqual([
+      { gaceta: '34,940', fecha: '10-may-2019', pagina: '140-A' },
+      { gaceta: '35,247', fecha: '9-may-2020', pagina: '2-A' },
+    ]);
+    expect(ok).toEqual({
+      estado: 'VERIFICADO_CLO_PDF_OFICIAL',
+      fecha: '22-oct-2026',
+      detalle: [
+        { gaceta: '34,940', fecha: '10-may-2019', pagina: '140-A', paginaPdf: 156 },
+        { gaceta: '35,247', fecha: '9-may-2020', pagina: '2-A', paginaPdf: 2 },
+      ],
+    });
+    expect(valida(ok)).toEqual([]);
+  });
+  it('todo caso del Golden Set que cite fecha o «pág.» tiene su verificación', () => {
+    for (const c of GOLDEN_G1) {
+      expect(validarVerificacionFechaPagina(c.id, c.referenciaCLO, c.verificacionFechaPagina), c.id).toEqual([]);
+    }
+    const conCita = GOLDEN_G1.filter((c) => gacetasConFechaOPagina(c.referenciaCLO).length > 0).map((c) => c.id);
+    expect(conCita).toEqual([PENAL]);
+  });
+  it('falla si falta el campo', () => {
+    expect(valida(undefined).join('|')).toMatch(/G1-VIG-CODIGO-PENAL-130-2017: referenciaCLO cita fecha o página de La Gaceta y falta verificacionFechaPagina/);
+    const e = validarProcedenciasGoldenSet(GOLDEN_G1.map((c) => (c.id === PENAL ? { ...c, verificacionFechaPagina: undefined } : c)), PROCEDENCIA_G1, HOY);
+    expect(e.join('|')).toMatch(/falta verificacionFechaPagina/);
+  });
+  it('falla si queda una Gaceta citada sin detalle', () => {
+    const sin = { ...ok!, detalle: ok!.detalle.slice(0, 1) };
+    expect(valida(sin).join('|')).toMatch(/la Gaceta 35,247 citada en referenciaCLO no tiene detalle/);
+  });
+  it('falla si una fecha no coincide', () => {
+    const mal = { ...ok!, detalle: [{ ...ok!.detalle[0], fecha: '11-may-2019' }, ok!.detalle[1]] };
+    expect(valida(mal).join('|')).toMatch(/la fecha de la Gaceta 34,940 \(10-may-2019\) no coincide/);
+  });
+  it('falla si una página no coincide', () => {
+    const mal = { ...ok!, detalle: [ok!.detalle[0], { ...ok!.detalle[1], pagina: '3-A' }] };
+    expect(valida(mal).join('|')).toMatch(/la página de la Gaceta 35,247 \(2-A\) no coincide/);
+  });
+  it('falla si el estado no es VERIFICADO_CLO_PDF_OFICIAL o la fecha no es dd-mmm-aaaa', () => {
+    expect(valida({ ...ok, estado: 'PENDIENTE' }).join('|')).toMatch(/estado debe ser VERIFICADO_CLO_PDF_OFICIAL/);
+    expect(valida({ ...ok, fecha: '2026-10-22' }).join('|')).toMatch(/fecha debe tener formato dd-mmm-aaaa/);
+  });
+  it('un caso que cita una página nueva sin verificación falla (no se puede colar otra cita)', () => {
+    expect(valida(undefined, 'Gaceta 30,904, pág. 5').join('|')).toMatch(/falta verificacionFechaPagina/);
+    expect(valida(undefined, 'Gaceta 30,904')).toEqual([]);
   });
 });
