@@ -87,7 +87,7 @@ export async function esperarDespachos(vaciar = false): Promise<void> {
  * Evidencia para el modelo. El rol queda en `null`: el runtime actual no produce PRIMARY/CONTEXT y no se
  * infiere ni se usa CONTEXT por defecto. La clasificación y la citabilidad son las que producción ya aplica.
  */
-function aEvidencia(fragmentos: readonly FragmentoRAG[]): EvidenceChunk[] {
+export function aEvidencia(fragmentos: readonly FragmentoRAG[]): EvidenceChunk[] {
   return fragmentos.map((f, i) => {
     const { clasificacionProduccion, citable } = clasificarFragmento(f);
     return {
@@ -108,7 +108,7 @@ function aEvidencia(fragmentos: readonly FragmentoRAG[]): EvidenceChunk[] {
  * ignore la señal, y siempre limpia el temporizador. La promesa de `fn` queda atendida: no genera rechazos
  * sin manejar si falla después del timeout.
  */
-function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: number): Promise<T> {
+export function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: number): Promise<T> {
   const ctrl = new AbortController();
   let temporizador: ReturnType<typeof setTimeout> | undefined;
   const vencido = new Promise<never>((_, reject) => {
@@ -128,7 +128,7 @@ function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: number): Pro
 }
 
 /** Costo del peor caso: entrada estimada de forma conservadora más el tope de salida. */
-function peorCasoUsd(input: ShadowGatewayInput): number {
+export function peorCasoUsd(input: ShadowGatewayInput): number {
   const caracteres = input.sanitizedQuestion.length + input.evidence.reduce((n, e) => n + e.texto.length + 200, 0) + 1500;
   const tokensEntrada = Math.ceil(caracteres / SHADOW_MODEL_CONFIG.charsPerTokenEstimate);
   return estimarCostoUsd(tokensEntrada, SHADOW_MODEL_CONFIG.maxOutputTokens);
