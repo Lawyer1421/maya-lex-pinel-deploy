@@ -1,8 +1,8 @@
 # STATUS — MayaLex Launch Acceleration
 
-- **CURRENT MAIN SHA:** `88b12cd`
+- **CURRENT MAIN SHA:** `8b696ad`
 - **ACTIVE WORKSTREAMS:** cableado de Legal OS en modo sombra sobre la ruta actual; golden sets por materia (para el CLO); crawlers de fuentes oficiales públicas; source cards (UX); proveedor OpenAI de producción (requiere autorización de canary).
-- **MERGED PRS:** #88 (G6, por Fredy); #89–#93 (Fase 1, núcleo Legal OS, skills, fábrica de corpus, bus, evaluación, observabilidad, grafo, recuperación, agentes, aprendizaje, entitlements, jurisprudencia, descubrimiento A/B, tarjetas de fuentes con bandera OFF, golden sets).
+- **MERGED PRS:** #88 (G6, por Fredy); #89–#94 (Fase 1, núcleo Legal OS, skills, fábrica de corpus, bus, evaluación, observabilidad, grafo, recuperación, agentes, aprendizaje, entitlements, jurisprudencia, descubrimiento A/B, tarjetas de fuentes con bandera OFF, golden sets).
 - **OPEN PRS:** ver abajo (actualizar tras cada hito).
 - **CORPUS COVERAGE:** ver `CORPUS_GAP_MATRIX_HN.md` — 0 instrumentos `AVAILABLE`, 9 filas `PARTIAL`, 5 `MISSING`, 6 `PENDING_VERIFICATION`.
 - **GOLDEN SET SCORE:** n/d (`NOT_SCORABLE` en las 15 materias) — 150 plantillas (94 abstenciones fijadas por diseño, 56 pendientes de CLO), ver `GOLDEN_SETS_STATUS.md`; hay esquema, métricas y 8 casos semilla `PENDING_CLO_REVIEW`; ninguno `CLO_APPROVED`, así que la corrección jurídica no es calculable aún.
