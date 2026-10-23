@@ -90,3 +90,29 @@ describe('subordinación', () => {
     }
   });
 });
+
+describe('skills en el shadow (P10): se ejecutan en modo evaluación y quedan en la traza', () => {
+  it('una consulta de artículo con el instrumento exigido por la skill: skill_id en el registro y requisitos cumplidos', async () => {
+    const r = (await ejecutarLegalOsShadow(P({ pregunta: '¿Qué dice el artículo 173 del Código Procesal Penal?', retrievalState: 'EXACT_SUCCESS' }), { env: ON, emitir: () => undefined }))!;
+    expect(r.skill_id).toMatch(/^HN\./);
+    expect(r.skill_evidence).toMatchObject({ met: true });
+    expect(r.skill_evidence!.present_instruments).toContain('CODIGO_PROCESAL_PENAL');
+  });
+  it('si falta el instrumento exigido por la skill, el shadow se abstiene y lo registra (SKILL_EVIDENCE_NOT_MET), sin tocar producción', async () => {
+    const r = (await ejecutarLegalOsShadow(P({ pregunta: '¿Qué dice el artículo 173 del Código Procesal Penal?', retrievalState: 'EXACT_SUCCESS', fragmentos: [F({ fuente: 'Codigo Civil', num_articulo: '173' })], decisionProduccion: 'ANSWER' }), { env: ON, emitir: () => undefined }))!;
+    expect(r.final_shadow_status).toBe('SHADOW_ABSTAIN');
+    expect(['INSTRUMENTO_SIN_EVIDENCIA', 'SKILL_EVIDENCE_NOT_MET']).toContain(r.abstention.reason);
+    expect(r.agreement).toBe('SHADOW_STRICTER');
+  });
+  it('sin skill aplicable el registro lo dice con claridad: skill_id y skill_evidence nulos', async () => {
+    const r = (await ejecutarLegalOsShadow(P({ pregunta: 'Dame una receta de baleadas' }), { env: ON, emitir: () => undefined }))!;
+    expect(r.skill_id).toBeNull();
+    expect(r.skill_evidence).toBeNull();
+  });
+  it('el registro no contiene texto de la pregunta ni de los fragmentos', async () => {
+    const r = (await ejecutarLegalOsShadow(P({ pregunta: '¿Qué dice el artículo 173 del Código Procesal Penal?', retrievalState: 'EXACT_SUCCESS' }), { env: ON, emitir: () => undefined }))!;
+    const j = JSON.stringify(r);
+    expect(j).not.toContain('artículo 173 del Código');
+    expect(j).not.toContain('Texto sintético');
+  });
+});

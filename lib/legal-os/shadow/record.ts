@@ -27,6 +27,8 @@ export interface RegistroShadow {
   jurisdiction: { country: string; jurisdiction: string };
   matter: string | null;
   skill_id: string | null;
+  /** Requisitos de evidencia de la skill ejecutada (null si no se eligió ninguna). Solo contadores y códigos; sin texto. */
+  skill_evidence: { met: boolean; required_instruments: string[]; present_instruments: string[]; primary_sources: number; min_primary_sources: number } | null;
   intent: string;
   risk: string;
   retrieval_plan: string[];
@@ -71,7 +73,13 @@ export function construirRegistroShadow(e: EntradaRegistro): RegistroShadow {
     query_id: t.query_id,
     jurisdiction: t.jurisdiction,
     matter: intent.matter,
-    skill_id: e.skillId ?? null,
+    skill_id: e.skillId ?? e.salida.skill_id ?? null,
+    skill_evidence: e.salida.skillEvidencia
+      ? {
+          met: e.salida.skillEvidencia.met, required_instruments: e.salida.skillEvidencia.requiredInstruments, present_instruments: e.salida.skillEvidencia.presentInstruments,
+          primary_sources: e.salida.skillEvidencia.primarySources, min_primary_sources: e.salida.skillEvidencia.minPrimarySources,
+        }
+      : null,
     intent: intent.task,
     risk: intent.risk,
     retrieval_plan: plan.pasos.filter((p) => p.enabled).map((p) => p.kind),
