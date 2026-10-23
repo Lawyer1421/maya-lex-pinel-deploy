@@ -331,7 +331,9 @@ describe('G5-G simulación de costo y latencia', () => {
   it('total shadow: p50 ≤ p95 ≤ p99 y excluye la recuperación', () => {
     expect(l.totalShadow.p50).toBeLessThanOrEqual(l.totalShadow.p95);
     expect(l.totalShadow.p95).toBeLessThanOrEqual(l.totalShadow.p99);
-    expect(l.totalShadow.p50).toBeLessThan(l.etapas.adapter.p50 + 5);
+    // Las etapas MEDIDAS (privacidad, etc.) varían con la carga de la máquina: el margen es su p99 sumado, no una constante.
+    const medidas = Object.values(l.etapas).filter((e) => e.origen === 'MEDIDO').reduce((a, e) => a + e.p99, 0);
+    expect(l.totalShadow.p50).toBeLessThan(l.etapas.adapter.p50 + 5 + medidas);
   });
 });
 
