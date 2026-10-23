@@ -99,9 +99,15 @@ async function leer(res: Response) {
 
 interface Corrida { status: number; contentType: string | null; cuerpo: string; estados: string[] }
 
-async function correr(o: { pregunta?: string; fragmentos?: unknown[]; retrievalState?: string; evidenceCount?: number; shadow: Shadow }): Promise<Corrida> {
+type LegalOsModo = 'off' | 'on' | 'lanza';
+
+async function correr(o: { pregunta?: string; fragmentos?: unknown[]; retrievalState?: string; evidenceCount?: number; shadow: Shadow; legalOs?: LegalOsModo }): Promise<Corrida> {
   vi.resetModules();
   vi.restoreAllMocks();
+  vi.doUnmock('@/lib/legal-os/shadow');
+  delete process.env.LEGAL_OS_SHADOW;
+  if (o.legalOs === 'on') process.env.LEGAL_OS_SHADOW = '1';
+  if (o.legalOs === 'lanza') vi.doMock('@/lib/legal-os/shadow', () => ({ despacharLegalOsShadow: () => { throw new Error('el shadow de Legal OS explotó'); } }));
   for (const m of ['pii-gate', 'dispatcher', 'public-provenance', 'adaptador-sombra', 'config', 'shadow-model-config']) vi.doUnmock(`@/lib/ai-gateway/shadow/${m}`);
   vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(UUID);
   const fragmentos = o.fragmentos ?? [FRAGMENTO];
@@ -157,6 +163,15 @@ const ESCENARIOS: Escenario[] = [
       base: await correr({ retrievalState: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, shadow: { enabled: false } }),
       con: await correr({ retrievalState: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, shadow: { enabled: true, responder: RESPUESTA_VALIDA } }),
     }) },
+  { id: 'legal-os-shadow-encendido', descripcion: 'Legal OS shadow ENCENDIDO (simulado): la respuesta de producción no cambia', esperaEstado: () => true,
+    run: async () => ({ base: await correr({ shadow: { enabled: false } }), con: await correr({ shadow: { enabled: false }, legalOs: 'on' }) }) },
+  { id: 'legal-os-shadow-lanza', descripcion: 'El despacho de Legal OS lanza de forma síncrona', esperaEstado: () => true,
+    run: async () => ({ base: await correr({ shadow: { enabled: false } }), con: await correr({ shadow: { enabled: false }, legalOs: 'lanza' }) }) },
+  { id: 'legal-os-shadow-abstencion-de-produccion', descripcion: 'Producción se abstiene y Legal OS shadow está encendido', esperaEstado: () => true,
+    run: async () => ({
+      base: await correr({ retrievalState: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, shadow: { enabled: false } }),
+      con: await correr({ retrievalState: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, shadow: { enabled: false }, legalOs: 'on' }),
+    }) },
   { id: 'sin-evidencia', descripcion: 'Cero fragmentos: abstención, sin despacho', esperaEstado: (e) => e.includes('SKIPPED_PUBLIC_CORPUS'),
     run: async () => ({ base: await correr({ fragmentos: [], shadow: { enabled: false } }), con: await correr({ fragmentos: [], shadow: { enabled: true, responder: RESPUESTA_VALIDA } }) }) },
 ];
@@ -193,6 +208,29 @@ describe('G6-E independencia: PRODUCTION_HTTP_RESPONSE_INDEPENDENT', () => {
     const antes = ruta.slice(0, llamadas[0].index!).split('\n').at(-1) ?? '';
     expect(antes.trim()).toBe('');
     expect(ruta).not.toMatch(/registroDespachos|esperarDespachos|ShadowGatewayResult|estimatedCostUsd/);
+    const legalOs = [...ruta.matchAll(/despacharLegalOsShadow\(/g)];
+    expect(legalOs).toHaveLength(1);
+    expect((ruta.slice(0, legalOs[0].index!).split('\n').at(-1) ?? '').trim()).toBe('');
+  });
+
+  it('Legal OS shadow encendido produce UN registro con los campos de la traza, sin la pregunta cruda, y la respuesta no cambia', async () => {
+    const lineas: string[] = [];
+    const orig = console.log;
+    console.log = (...a: unknown[]) => { lineas.push(a.map(String).join(' ')); };
+    try {
+      const base = await correr({ shadow: { enabled: false } });
+      const con = await correr({ shadow: { enabled: false }, legalOs: 'on' });
+      await new Promise((r) => setTimeout(r, 20));
+      expect(con.cuerpo).toBe(base.cuerpo);
+      const reg = lineas.filter((l) => l.includes('legal_os_shadow'));
+      expect(reg).toHaveLength(1);
+      const r = JSON.parse(reg[0]).legal_os_shadow;
+      for (const k of ['query_id', 'jurisdiction', 'matter', 'skill_id', 'intent', 'risk', 'retrieval_plan', 'exact_resolution', 'retrieved_sources', 'source_tier', 'evidence_status', 'model_route', 'model_id', 'model_called', 'citations', 'citation_validation', 'abstention', 'latency_ms', 'estimated_cost_usd', 'privacy_decision', 'provenance_decision', 'final_shadow_status']) expect(r, k).toHaveProperty(k);
+      expect(r.model_called).toBe(false);
+      expect(reg[0]).not.toContain('artículo 173 del Código Procesal Penal de Honduras');
+    } finally {
+      console.log = orig;
+    }
   });
 
   it('lifecycle con after() SIMULADO: el shadow corre DESPUÉS de que la respuesta HTTP terminó y su fallo no puede alcanzarla', async () => {

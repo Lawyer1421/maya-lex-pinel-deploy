@@ -20,7 +20,7 @@ Condiciones: 12/15 MET.
 | ROLLBACK_TESTED | MET | CLAUDE_CODE | docs/governance/evidence/g6-rollback-evidence.json |
 | KILL_SWITCH_TESTED | MET | CLAUDE_CODE | g6-rollback-evidence.json → killSwitchProbado; rollback = revertir y redesplegar (no hay interruptor en caliente) |
 | BUDGET_PROPOSAL_COMPLETE | MET | CLAUDE_CODE | 8 solicitudes máx., presupuesto duro recomendado 0.05 USD; docs/governance/evidence/g6-cost-authorization.md |
-| PRODUCTION_INDEPENDENCE_DEMONSTRATED | MET | CLAUDE_CODE | 12 escenarios idénticos a la línea base (docs/governance/evidence/g6-production-independence.json) |
+| PRODUCTION_INDEPENDENCE_DEMONSTRATED | MET | CLAUDE_CODE | 15 escenarios idénticos a la línea base (docs/governance/evidence/g6-production-independence.json) |
 | NO_PRIVATE_DATA | MET | CLAUDE_CODE | Envolvente del primer canary (vocabulario cerrado) + privacyGate PASS; 0 casos privados aceptados. |
 | NO_PRIVATE_CORPUS | MET | CLAUDE_CODE | Gate estructural (rechaza doc_*, doctrina y fuentes no «codigo») + manifiesto de procedencia por fragmento aprobado. |
 | NO_CORPUS_WRITES | MET | CLAUDE_CODE | Escaneo de lib/ai-gateway/**: 0 archivos con patrones de escritura o de cliente de base de datos |
