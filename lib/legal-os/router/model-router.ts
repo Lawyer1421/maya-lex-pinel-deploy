@@ -5,6 +5,7 @@
  * (3) el modelo caro solo cuando riesgo, profundidad y evidencia lo justifican y el plan lo permite;
  * (4) el techo de coste del plan manda.
  */
+import { configDesdePolitica, resolverCapacidad } from '../providers/capabilities';
 import { MODEL_POLICY, TARIFAS_FAST, type ModelPolicy } from '../policies/model-policy';
 import type { ModelRoute, RoutingInput } from '../types';
 
@@ -36,7 +37,9 @@ export function enrutarModelo(entrada: RoutingInput, politica: ModelPolicy = MOD
   }
 
   // Sin evidencia suficiente → abstención (fail-closed), jamás un modelo «a ver qué sale».
-  if (i.requiresEvidence && (entrada.evidenceCount === 0 || entrada.evidenceQuality < UMBRAL_EVIDENCIA_MINIMA)) {
+  // Una skill puede subir o bajar el mínimo (evidence_threshold); sin skill rige el global.
+  const umbral = entrada.umbralEvidencia ?? UMBRAL_EVIDENCIA_MINIMA;
+  if (i.requiresEvidence && (entrada.evidenceCount === 0 || entrada.evidenceQuality < umbral)) {
     return ruta({ role: 'NONE', abstain: true, reasons: ['evidencia insuficiente: abstención'] });
   }
 
@@ -46,15 +49,16 @@ export function enrutarModelo(entrada: RoutingInput, politica: ModelPolicy = MOD
   const quiereDeep = queDeep && planPermiteDeep;
   if (queDeep && !planPermiteDeep) reasons.push(`plan ${entrada.tier} sin modelo profundo`);
 
-  let role: 'FAST' | 'DEEP' = quiereDeep ? 'DEEP' : 'FAST';
-  let deepUnavailable = false;
-  if (role === 'DEEP' && !(politica.deep.verified && politica.deep.modelId)) {
-    role = 'FAST';
-    deepUnavailable = true;
-    reasons.push('modelo profundo no verificado: se usa FAST con esfuerzo de razonamiento mayor');
+  // Capacidades, no IDs: DEEP_REASONING sin modelo verificado se degrada (STANDARD → FAST) y se avisa.
+  const { config, registro } = configDesdePolitica(politica);
+  const resuelta = resolverCapacidad(quiereDeep ? 'DEEP_REASONING' : 'FAST', config, registro);
+  const role: 'FAST' | 'DEEP' = resuelta.capabilityUsed === 'DEEP_REASONING' ? 'DEEP' : 'FAST';
+  const deepUnavailable = quiereDeep && resuelta.degradedFrom === 'DEEP_REASONING';
+  if (deepUnavailable) reasons.push('modelo profundo no verificado: se usa FAST con esfuerzo de razonamiento mayor');
+  if (resuelta.modelId === null) {
+    return ruta({ role: 'NONE', abstain: true, deepUnavailable, reasons: [...reasons, 'sin modelo verificado para la capacidad pedida'] });
   }
-
-  const modelId = role === 'DEEP' ? (politica.deep.modelId as string) : politica.fast.modelId;
+  const modelId = resuelta.modelId;
   const salida = quiereDeep ? SALIDA_PROFUNDA : SALIDA_RAPIDA;
   const costo = estimarCostoUsd(entrada.estimatedInputTokens, salida);
   const techo = politica.maxCostUsdPorConsulta[entrada.tier];

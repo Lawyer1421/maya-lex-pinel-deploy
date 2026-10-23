@@ -5,8 +5,8 @@
  */
 import { z } from 'zod';
 
-/** CC.MATERIA.SUBMATERIA[.TAREA] — p. ej. HN.CIVIL.CONTRACTS.SALE o HN.FAMILY.DIVORCE */
-export const SKILL_ID_RE = /^[A-Z]{2}(\.[A-Z][A-Z0-9_]*){2,3}$/;
+/** CC.MATERIA[.SUBMATERIA[.TAREA]] — p. ej. HN.CIVIL.CONTRACTS.SALE, HN.FAMILY.DIVORCE o HN.PROCEDURAL_PENAL (materia compuesta). */
+export const SKILL_ID_RE = /^[A-Z]{2}(\.[A-Z][A-Z0-9_]*){1,3}$/;
 
 export const SkillStatus = z.enum(['DRAFT', 'REVIEW', 'ACTIVE', 'DEPRECATED']);
 export type SkillStatus = z.infer<typeof SkillStatus>;
@@ -26,6 +26,21 @@ const CitationPolicy = z.object({
   allowedSourceRoles: z.array(z.enum(['PRIMARY', 'CONTEXT'])).min(1),
 });
 
+/**
+ * Requisitos de evidencia EJECUTABLES por el pipeline. `required_instruments` son ids de InstrumentoNormalizado (exact-resolver) que deben
+ * estar en la evidencia recuperada (todos); vacío = no se exige un instrumento concreto (instrumento aún sin id normalizado).
+ */
+export const EvidenceRequirementsSchema = z
+  .object({
+    required_instruments: z.array(z.string().regex(/^[A-Z_]+$/)),
+    /** Mínimo de fragmentos distintos de los instrumentos exigidos (o de cualquier instrumento si la lista está vacía). */
+    min_primary_sources: z.number().int().min(1),
+    /** La jurisprudencia nunca sustituye a la norma: como máximo apoya. */
+    jurisprudence: z.enum(['SUPPORTING_ONLY', 'NOT_USED']),
+  })
+  .strict();
+export type EvidenceRequirements = z.infer<typeof EvidenceRequirementsSchema>;
+
 export const LegalSkillSchema = z
   .object({
     skill_id: z.string().regex(SKILL_ID_RE, 'skill_id debe ser CC.MATERIA.SUBMATERIA[.TAREA] en mayúsculas'),
@@ -43,6 +58,7 @@ export const LegalSkillSchema = z
     validity_rules: z.array(z.string().min(1)).min(1),
     /** Calidad mínima de evidencia 0–1 para responder. */
     evidence_threshold: z.number().min(0).max(1),
+    evidence_requirements: EvidenceRequirementsSchema.optional(),
     citation_policy: CitationPolicy,
     abstention_policy: AbstentionPolicy.nullable(),
     instructions: z.string().min(1),

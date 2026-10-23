@@ -47,6 +47,8 @@ export interface RoutingInput {
   estimatedInputTokens: number;
   /** Objetivo de latencia percibida en ms. */
   latencyTargetMs: number;
+  /** Mínimo de calidad de evidencia fijado por la skill seleccionada (sustituye al global si está presente). */
+  umbralEvidencia?: number;
 }
 
 export interface ModelRoute {
