@@ -16,9 +16,18 @@ describe('tarjetas de fuente: vigencia', () => {
       expect(t.validityLabel).not.toMatch(/vigente HN/i);
     }
   });
-  it('true → vigente; false → no vigente', () => {
-    expect(crearTarjeta({ fuente: 'A', vigente: true }).validityLabel).toBe(ETIQUETA.vigente);
+  it('forma antigua: `vigente: true` NO prueba verificación (es la marca del corpus) → «Vigencia no verificada»; false → no vigente', () => {
+    expect(crearTarjeta({ fuente: 'A', vigente: true })).toMatchObject({ validity: 'NO_VERIFICADA', validityLabel: ETIQUETA.noVerificada });
     expect(crearTarjeta({ fuente: 'A', vigente: false })).toMatchObject({ validity: 'NO_VIGENTE', validityLabel: ETIQUETA.noVigente });
+  });
+  it('solo el estado VERIFIED del backend produce «Vigencia verificada»; PRESUMED se rotula presumida con advertencia', () => {
+    expect(crearTarjeta({ fuente: 'A', validityState: 'VERIFIED' })).toMatchObject({ validity: 'VERIFICADA', validityLabel: 'Vigencia verificada' });
+    const p = crearTarjeta({ fuente: 'A', validityState: 'PRESUMED', vigente: true });
+    expect(p).toMatchObject({ validity: 'PRESUMIDA' });
+    expect(p.validityLabel).not.toBe('Vigencia verificada');
+    expect(p.warnings.join(' ')).toMatch(/no tiene verificación humana/);
+    expect(crearTarjeta({ fuente: 'A', validityState: 'NOT_VERIFIED', vigente: true }).validity).toBe('NO_VERIFICADA');
+    expect(crearTarjeta({ fuente: 'A', validityState: 'NOT_IN_FORCE' }).validity).toBe('NO_VIGENTE');
   });
   it('doctrina (FUENTES_DOCTRINALES) se rotula «Doctrina — no vinculante» aunque la bandera sea true', () => {
     const t = crearTarjeta({ fuente: 'CPC_COMENTADO_ROMERO_2024', articulo: '9', vigente: true }, { fuentesDoctrinales: FUENTES_DOCTRINALES });
