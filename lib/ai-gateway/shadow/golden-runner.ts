@@ -10,7 +10,11 @@ import { MODELO_GATEWAY, type ModeloGateway, type ShadowGatewayInput, type Shado
 
 export interface ShadowModelAdapter {
   readonly modelo: ModeloGateway;
-  responder(input: ShadowGatewayInput): Promise<SalidaCruda>;
+  /**
+   * `opciones.signal` se aborta cuando vence el timeout del despacho: un adaptador con red debe pasarla
+   * a su cliente para no seguir trabajando después. Es opcional: el adaptador falso la ignora.
+   */
+  responder(input: ShadowGatewayInput, opciones?: { signal?: AbortSignal }): Promise<SalidaCruda>;
 }
 
 /** Adaptador falso: devuelve la respuesta grabada para cada queryId. Sin red. */

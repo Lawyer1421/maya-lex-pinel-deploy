@@ -13,6 +13,19 @@ import type { ResultadoExacto } from '../../legal-retrieval/exact-resolver';
 export const MODELO_GATEWAY = 'gpt-6-luna' as const;
 export type ModeloGateway = typeof MODELO_GATEWAY;
 
+/**
+ * Clasificación que PRODUCCIÓN ya aplica hoy a un fragmento (la etiqueta de formatearContextoRAG). No es un rol
+ * PRIMARY/CONTEXT: es la semántica auténtica del runtime actual.
+ */
+export type ClasificacionProduccion =
+  | 'NORMA_VIGENTE_HONDURAS'
+  | 'DOCTRINAL_NO_VINCULANTE'
+  | 'COMPARADA'
+  | 'DOCTRINA_JURISPRUDENCIA'
+  | 'NO_VIGENTE'
+  | 'SIN_CLASIFICAR'
+  | 'DESCONOCIDA';
+
 /** Fragmento de evidencia que se entrega al modelo. `chunk_id` es la única forma de citarlo. */
 export interface EvidenceChunk {
   chunk_id: string;
@@ -22,8 +35,15 @@ export interface EvidenceChunk {
   articulo: string | null;
   /** Gaceta de la fuente, si se conoce. */
   gaceta: string | null;
-  /** PRIMARY o CONTEXT, según resolvió producción. */
-  rol: 'PRIMARY' | 'CONTEXT';
+  /**
+   * PRIMARY o CONTEXT solo si lo resolvió `resolverVersion`. El runtime actual NO lo produce: allí es `null`.
+   * Nunca se infiere ni se usa CONTEXT por defecto, y el modelo no puede declararlo.
+   */
+  rol: 'PRIMARY' | 'CONTEXT' | null;
+  /** Clasificación que producción ya aplica al fragmento (ausente en fixtures sintéticos). */
+  clasificacionProduccion?: ClasificacionProduccion;
+  /** ¿Producción lo trata como citable (construirCitas)? Solo un chunk citable puede ser respaldo DIRECT. */
+  citable: boolean;
   texto: string;
 }
 
@@ -58,7 +78,7 @@ export interface ValidatedClaim {
   citations: ValidatedCitation[];
 }
 
-export type MotivoDescarte = 'SIN_CITAS' | 'CITA_FUERA_DE_EVIDENCIA';
+export type MotivoDescarte = 'SIN_CITAS' | 'CITA_FUERA_DE_EVIDENCIA' | 'SIN_SOPORTE_DIRECTO_CITABLE';
 
 export interface DiscardedClaim {
   claim_id: string;

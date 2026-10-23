@@ -91,8 +91,11 @@ function mockShadow(opts: { enabled: boolean; responder?: () => Promise<unknown>
     SHADOW_TIMEOUT_MS: 50,
     SHADOW_REGISTRY_MAX: 200,
   }));
+  // G3: con presupuesto 0 (valor real) no hay llamada; estas pruebas fijan un presupuesto solo para ejercer el flujo.
+  vi.doMock('@/lib/ai-gateway/shadow/shadow-model-config', async (original) => ({ ...(await original<typeof import('@/lib/ai-gateway/shadow/shadow-model-config')>()), SHADOW_BUDGET_USD: 1 }));
   const responder = vi.fn(opts.responder ?? (async () => { throw new Error('sin respuesta grabada'); }));
   vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({
+    credencialDisponible: () => true,
     crearAdaptadorSombra: () => ({ modelo: 'gpt-6-luna', responder }),
   }));
   return responder;
@@ -173,7 +176,8 @@ describe('(a) la respuesta HTTP es idéntica byte a byte con shadow encendido o 
     const encendido = await correrRuta('Según el corpus, ¿qué garantías tiene el imputado durante la detención?', []);
     expect(apagado.cuerpo).toContain('CORPUS_EVIDENCE_NOT_FOUND');
     expect(encendido.cuerpo).toBe(apagado.cuerpo);
-    expect(encendido.registro[0]).toMatchObject({ estado: 'DISPATCHED' });
+    // M1 (auditoría #85): con cero fragmentos no hay evidencia que verificar, así que no hay despacho.
+    expect(encendido.registro).toEqual([{ queryId: '00000000-0000-4000-8000-000000000001', estado: 'SKIPPED_PUBLIC_CORPUS', motivo: 'sin_evidencia' }]);
   });
 });
 
@@ -243,8 +247,9 @@ describe('(c) el PII gate bloquea cada patrón', () => {
       PREGUNTA_LIMPIA,
       'Explica el artículo 21 del Código del Notariado',
       'Según el Decreto 353-2005, ¿qué exige el artículo 52?',
-      'mi cliente quiere saber qué dice el artículo 173',
     ]) expect(detectarPii(q), q).toBeNull();
+    // G3: «mi cliente» a secas (sin nombre) también se rechaza.
+    expect(detectarPii('mi cliente quiere saber qué dice el artículo 173')).toBe('CLIENTE_O_PARTE');
   });
   it('el registro nunca guarda la pregunta ni el dato detectado', async () => {
     mockShadow({ enabled: true });
@@ -275,21 +280,20 @@ describe('(d) con el kill switch apagado hay cero despachos', () => {
   });
 });
 
-describe('(f) el guard de red cubre los archivos nuevos de G2', () => {
-  it('config, pii-gate, adaptador-sombra y dispatcher no abren red ni leen claves', () => {
+describe('(f) el guard de red cubre los archivos de G2 y G3', () => {
+  it('ningún archivo de shadow abre red ni lee claves, salvo la excepción acotada del adaptador (ver tests/ai-gateway-shadow-g3.test.ts)', () => {
     const GUARD_RED = new RegExp([
       String.raw`\bfetch\s*\(`, 'XMLHttpRequest', 'OPENAI_API_KEY', String.raw`process\.env`, '@supabase',
       String.raw`(?:from|import|require)\s*\(?\s*['"](?:openai|axios|undici|(?:node:)?https?)['"]`,
     ].join('|'));
     const dir = join(RAIZ, 'lib', 'ai-gateway', 'shadow');
-    const nuevos = ['config.ts', 'pii-gate.ts', 'adaptador-sombra.ts', 'dispatcher.ts'];
+    const nuevos = ['config.ts', 'pii-gate.ts', 'privacy-gate.ts', 'public-corpus-gate.ts', 'evidence-classification.ts', 'budget-guard.ts', 'circuit-breaker.ts', 'shadow-model-config.ts', 'adaptador-sombra.ts', 'dispatcher.ts'];
     for (const n of nuevos) {
       expect(statSync(join(dir, n)).isFile()).toBe(true);
       expect(readFileSync(join(dir, n), 'utf8'), n).not.toMatch(GUARD_RED);
     }
-    // El adaptador de G2 sigue siendo el falso de G1.
-    expect(readFileSync(join(dir, 'adaptador-sombra.ts'), 'utf8')).toMatch(/new RecordedResponseAdapter\(\{\}\)/);
-    const todos = readdirSync(dir).map((f) => relative(RAIZ, join(dir, f)));
-    expect(todos.some((f) => /openai/i.test(f))).toBe(false);
+    // Solo openai-adapter.ts lleva «openai» en el nombre.
+    const conOpenai = readdirSync(dir).filter((f) => /openai/i.test(f));
+    expect(conOpenai).toEqual(['openai-adapter.ts']);
   });
 });
