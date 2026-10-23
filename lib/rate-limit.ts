@@ -149,25 +149,34 @@ export class RateLimitStoreError extends Error {
 
 const PGRST_NO_ROWS = 'PGRST116';
 const RESERVE_MAX_ATTEMPTS = 8;
+export const RESERVE_EXHAUSTED_CODE = 'RESERVE_EXHAUSTED';
 
-/** 5xx / 529 / timeout del proveedor. Abort del cliente no aplica. */
+export function esAbortDelCliente(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const name = (error as { name?: string }).name;
+  return name === 'APIUserAbortError' || name === 'AbortError';
+}
+
+/** 429 / 5xx / 529 / timeout del proveedor. Abort del cliente no aplica. */
 export function esFalloProveedorQueDevuelveCuota(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
+  if (esAbortDelCliente(error)) return false;
   const e = error as { status?: unknown; name?: string; message?: string };
-  if (e.name === 'APIUserAbortError' || e.name === 'AbortError') return false;
   if (e.name === 'APIConnectionTimeoutError') return true;
-  if (typeof e.status === 'number') return e.status === 529 || e.status >= 500;
+  if (typeof e.status === 'number') {
+    return e.status === 429 || e.status === 529 || e.status >= 500;
+  }
   return typeof e.message === 'string' && /timeout/i.test(e.message);
 }
 
-/** OpenRouter reporta fallos por mensaje (HTTP 5xx/529, timeout, conexión). */
+/** OpenRouter reporta fallos por mensaje (HTTP 429/5xx/529, timeout, conexión). */
 export function esFalloOpenRouterQueDevuelveCuota(message: string): boolean {
   if (/timeout/i.test(message)) return true;
   if (/Error de conexión/i.test(message)) return true;
   const m = message.match(/HTTP (\d+)/);
   if (!m) return false;
   const s = Number.parseInt(m[1]!, 10);
-  return s === 529 || s >= 500;
+  return s === 429 || s === 529 || s >= 500;
 }
 
 /**
@@ -354,12 +363,10 @@ export async function reserveRateLimit(
     }
   }
 
-  return {
-    allowed: false,
-    remaining: 0,
-    tier: 'free',
-    resetAt: resetAtMedianocheHn(now),
-  };
+  throw new RateLimitStoreError(
+    'No se pudo reservar la consulta',
+    RESERVE_EXHAUSTED_CODE,
+  );
 }
 
 /** Devuelve una reserva (aclaración, abstención, 5xx/timeout del proveedor). */

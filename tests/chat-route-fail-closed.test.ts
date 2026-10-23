@@ -50,6 +50,7 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
     RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
     esFalloProveedorQueDevuelveCuota: () => false,
     esFalloOpenRouterQueDevuelveCuota: () => false,
+    esAbortDelCliente: () => false,
     getUserIdentifierVerificado: vi.fn().mockResolvedValue('ip:test'),
     getVerifiedEmail: vi.fn().mockResolvedValue(null),
     getUserIdentifier: vi.fn().mockReturnValue('ip:test'),

@@ -7,6 +7,7 @@ import {
   getUserIdentifier,
   esFalloProveedorQueDevuelveCuota,
   esFalloOpenRouterQueDevuelveCuota,
+  esAbortDelCliente,
 } from '@/lib/rate-limit';
 
 describe('resolveTierForNewDay — no defaultar a free si PayPal está active', () => {
@@ -62,6 +63,7 @@ function fakeSupabase(opts: {
   usage: { query_count: number; tier: string } | null;
   sub: { tier: string; status: string } | null;
   readError?: { code: string; message: string };
+  casAlwaysMiss?: boolean;
 }) {
   const upsert = vi.fn();
   const update = vi.fn();
@@ -70,6 +72,11 @@ function fakeSupabase(opts: {
     const chain: Record<string, unknown> = {};
     const self = () => chain;
     chain.select = vi.fn(() => {
+      if (mode === 'update' || mode === 'upsert') {
+        if (opts.casAlwaysMiss) {
+          return Promise.resolve({ data: [], error: null });
+        }
+      }
       if (mode === 'update') {
         return Promise.resolve({
           data: opts.usage ? [{ query_count: opts.usage.query_count + 1 }] : [],
@@ -367,6 +374,19 @@ describe('cuota free 1/día — chequeo, reinicio HN y planes de pago', () => {
     expect(r.tier).toBe('pro');
   });
 
+  it('8 reintentos CAS agotados → RESERVE_EXHAUSTED, no 429 free', async () => {
+    const sb = fakeSupabase({
+      usage: { query_count: 0, tier: 'pro' },
+      sub: { tier: 'pro', status: 'active' },
+      casAlwaysMiss: true,
+    });
+    const { reserveRateLimit, RESERVE_EXHAUSTED_CODE } = await freshRateLimit(sb);
+    await expect(reserveRateLimit('email:abogado@ejemplo.com')).rejects.toMatchObject({
+      name: 'RateLimitStoreError',
+      code: RESERVE_EXHAUSTED_CODE,
+    });
+  });
+
   it('lectura queries_log 57014 lanza RateLimitStoreError', async () => {
     const sb = fakeSupabase({
       usage: null,
@@ -394,13 +414,16 @@ describe('cuota free 1/día — chequeo, reinicio HN y planes de pago', () => {
 });
 
 describe('esFalloProveedorQueDevuelveCuota', () => {
-  it('5xx / 529 / timeout sí; abort del cliente no', () => {
+  it('429 / 5xx / 529 / timeout sí; abort del cliente no', () => {
     expect(esFalloProveedorQueDevuelveCuota({ status: 500, name: 'APIError' })).toBe(true);
+    expect(esFalloProveedorQueDevuelveCuota({ status: 429, name: 'APIError' })).toBe(true);
     expect(esFalloProveedorQueDevuelveCuota({ status: 529, name: 'APIError' })).toBe(true);
     expect(esFalloProveedorQueDevuelveCuota({ name: 'APIConnectionTimeoutError' })).toBe(true);
+    expect(esAbortDelCliente({ name: 'AbortError', message: 'aborted' })).toBe(true);
     expect(esFalloProveedorQueDevuelveCuota({ name: 'AbortError', message: 'aborted' })).toBe(false);
     expect(esFalloProveedorQueDevuelveCuota({ name: 'APIUserAbortError' })).toBe(false);
     expect(esFalloProveedorQueDevuelveCuota({ status: 401, name: 'APIError' })).toBe(false);
+    expect(esFalloOpenRouterQueDevuelveCuota('OpenRouter HTTP 429: overloaded')).toBe(true);
     expect(esFalloOpenRouterQueDevuelveCuota('OpenRouter HTTP 503: down')).toBe(true);
     expect(esFalloOpenRouterQueDevuelveCuota('Error de conexión con OpenRouter: timeout')).toBe(true);
     expect(esFalloOpenRouterQueDevuelveCuota('OpenRouter HTTP 401: key')).toBe(false);

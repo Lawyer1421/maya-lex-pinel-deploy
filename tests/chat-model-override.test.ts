@@ -37,6 +37,7 @@ function mockChat(tier: string) {
     RateLimitStoreError: class RateLimitStoreError extends Error { code = 'STORE_ERROR'; },
     esFalloProveedorQueDevuelveCuota: () => false,
     esFalloOpenRouterQueDevuelveCuota: () => false,
+    esAbortDelCliente: () => false,
     getVerifiedEmail: vi.fn().mockResolvedValue(tier === 'pro' ? 'pro@test.com' : null),
     getUserIdentifier: vi.fn().mockReturnValue('ip:test'),
     buildUserIdentifierFromEmail: (e: string) => `email:${e.trim().toLowerCase()}`,
