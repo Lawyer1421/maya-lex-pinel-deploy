@@ -33,6 +33,19 @@ export const ARCHIVOS_PRODUCCION_JURIDICA: readonly string[] = [
   'lib/legal-retrieval/types.ts',
 ];
 
+/** Código y benchmarks que producen las métricas de privacidad y la envolvente del primer canary. */
+export const ARCHIVOS_PRIVACIDAD: readonly string[] = [
+  'lib/ai-gateway/shadow/privacy-gate.ts',
+  'lib/ai-gateway/shadow/pii-gate.ts',
+  'lib/ai-gateway/shadow/nombres-propios.ts',
+  'lib/ai-gateway/shadow/nombres-inequivocos.ts',
+  'lib/ai-gateway/shadow/entidades-publicas.ts',
+  'lib/ai-gateway/canary/first-canary-envelope.ts',
+  'tests/privacy/benchmark-privacidad.ts',
+  'tests/privacy/benchmark-adversarial.ts',
+  'tests/privacy/benchmark-g6.ts',
+];
+
 export function hashArchivos(rutas: readonly string[], raiz = process.cwd()): Record<string, string> {
   const out: Record<string, string> = {};
   for (const ruta of [...rutas].sort()) {

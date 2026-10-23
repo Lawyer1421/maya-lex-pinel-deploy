@@ -51,3 +51,46 @@ if (process.argv.includes('--misses')) {
   console.log('\nHOLDOUT3 PRIVADOS NO DETECTADOS:\n' + h3.privadosPerdidos.join('\n'));
   console.log('\nHOLDOUT3 PÚBLICOS RECHAZADOS:\n' + h3.publicosRechazados.join('\n'));
 }
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { ARCHIVOS_PRIVACIDAD, hashArchivos } from '../lib/ai-gateway/canary/evidence-integrity';
+import { evaluarEnvolvente } from '../lib/ai-gateway/canary/first-canary-envelope';
+import { BENCH_PII } from '../tests/privacy/benchmark-privacidad';
+import { generarAdversariales } from '../tests/privacy/benchmark-adversarial';
+import { HOLDOUT2_PRIVADOS, HOLDOUT3_PRIVADOS, HOLDOUT_PRIVADOS, generarPrivadosG6 } from '../tests/privacy/benchmark-g6';
+
+if (process.argv.includes('--write-json')) {
+  const privados = [...BENCH_PII.map((c) => c.texto), ...generarAdversariales().map((c) => c.texto), ...generarPrivadosG6().map((c) => c.texto), ...HOLDOUT_PRIVADOS, ...HOLDOUT2_PRIVADOS, ...HOLDOUT3_PRIVADOS];
+  const r4 = (n: number) => Math.round(n * 10_000) / 10_000;
+  const evidencia = {
+    nota: 'requiredRecall mide solo los formatos canónicos exigidos: NO es un recall de privacidad. El riesgo residual real está en el holdout 3 (el gate no se ajustó contra él).',
+    metricas: {
+      requiredRecall: r4(m.requiredRecall), requiredTotal: m.requiredTotal,
+      residualMissRate: r4(m.residualMissRate), adversarialTotal: m.adversarialTotal,
+      overallMissRate: r4(m.overallMissRate), privateTotal: m.privateTotal,
+      publicFalsePositiveRate: r4(m.publicFalsePositiveRate), publicPlainTotal: m.publicPlainTotal,
+      privateDocumentRecall: r4(m.privateDocumentRecall), privateDocumentTotal: m.privateDocumentTotal,
+      publicNamedEntityFalsePositiveRate: r4(m.publicNamedEntityFalsePositiveRate), publicNamedTotal: m.publicNamedTotal,
+    },
+    holdouts: {
+      holdout1_inspeccionado: { privateMissRate: r4(h.holdoutPrivateMissRate), total: h.holdoutPrivateTotal },
+      holdout2_inspeccionado: { privateMissRate: r4(h2.holdout2PrivateMissRate), total: h2.holdout2PrivateTotal },
+      holdout3_final_sin_ajuste: {
+        privateMissRate: r4(h3.holdout3PrivateMissRate), privateMissed: h3.holdout3PrivateMissed, privateTotal: h3.holdout3PrivateTotal,
+        publicFalsePositiveRate: r4(h3.holdout3PublicFalsePositiveRate), namedFalsePositiveRate: r4(h3.holdout3NamedFalsePositiveRate),
+      },
+    },
+    envolventePrimerCanary: {
+      privadosEvaluados: privados.length,
+      aceptadosPorLaEnvolvente: privados.filter((t) => evaluarEnvolvente(t).elegible).length,
+      goldenElegibles: GOLDEN_G1.filter((c) => evaluarEnvolvente(c.input.sanitizedQuestion).elegible).length,
+      goldenTotal: GOLDEN_G1.length,
+    },
+    codigoHashes: hashArchivos(ARCHIVOS_PRIVACIDAD),
+  };
+  const destino = path.join(process.cwd(), 'docs', 'governance', 'evidence', 'g6-privacy-metrics.json');
+  fs.mkdirSync(path.dirname(destino), { recursive: true });
+  fs.writeFileSync(destino, `${JSON.stringify(evidencia, null, 2)}\n`);
+  console.log(`\nescrito ${path.relative(process.cwd(), destino)}`);
+}

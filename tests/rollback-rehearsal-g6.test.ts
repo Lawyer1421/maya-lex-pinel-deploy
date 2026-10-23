@@ -13,6 +13,7 @@ import { CONFIG_ENSAYO, DISPARADORES, aplicarRollback, ensayar, estadoRealEsSegu
 const RAIZ = join(__dirname, '..');
 const DESTINO = join(RAIZ, 'docs', 'governance', 'evidence', 'g6-rollback-evidence.json');
 const antes = hashArchivos(ARCHIVOS_PRODUCCION_JURIDICA);
+let killSwitchProbado = false;
 
 afterEach(() => vi.resetModules());
 
@@ -82,6 +83,7 @@ describe('G6-F rollback: el despacho shadow vuelve a apagado sin tocar la respue
     await off.d.esperarDespachos();
     expect(off.responder).not.toHaveBeenCalled();
     expect(off.d.registroDespachos()).toEqual([]);
+    killSwitchProbado = true;
   });
 });
 
@@ -95,6 +97,7 @@ describe('G6-F rollback: no modifica el código jurídico de producción', () =>
       ROLLBACK_REHEARSAL_PASSED: DISPARADORES.map((d) => ensayar(d)).every((r) => r.noReanuda && !r.permiteTraficoDespues && r.configFinalValida && r.detenidoPor !== null),
       estadoSeguro: { SHADOW_GATEWAY_ENABLED: false, enabled: false, maxRequests: 0, maxBudgetUsd: 0, sampleStrategy: 'NINGUNA' },
       estadoRealEsSeguro: estadoRealEsSeguro(),
+      killSwitchProbado,
       ensayos: DISPARADORES.map((d) => ensayar(d)),
       limiteConocido: 'El kill switch del shadow es una constante de código: el retorno a «apagado» en un despliegue real es revertir y redesplegar (promover el despliegue anterior). No hay interruptor en caliente.',
       codigoHashes: antes,

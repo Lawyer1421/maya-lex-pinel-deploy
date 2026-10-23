@@ -8,6 +8,7 @@
     "sampleStrategy": "NINGUNA"
   },
   "estadoRealEsSeguro": true,
+  "killSwitchProbado": true,
   "ensayos": [
     {
       "disparador": "ADAPTER_FAILURE",
