@@ -75,18 +75,38 @@ export function contieneNombreCompleto(texto: string): boolean {
 }
 
 const DIGITOS = new Set(['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']);
+/** Decenas y «once…diecinueve»: valen 2 dígitos en la cuenta mixta. */
+const DECENAS = new Set([
+  'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte',
+  'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa',
+]);
 
-/** ¿Hay una secuencia de al menos `minimo` dígitos escritos con palabras («nueve nueve ocho siete»)? */
+/**
+ * ¿Hay dígitos escritos con palabras? Dos reglas independientes:
+ *  1. al menos `minimo` palabras-dígito seguidas («nueve nueve ocho siete»);
+ *  2. mezcla de palabras y cifras («9 8 siete 6 5 4 3 2», «noventa y ocho 7654») que sumen 6 o más dígitos,
+ *     con al menos UNA palabra-número (así «artículos 12, 13, 14 y 15» o «2019 2020» no disparan esta regla).
+ * Cualquier otra palabra corta la racha; los conectores («y», «de»…) no.
+ */
 export function contieneNumeroEnPalabras(texto: string, minimo = 4): boolean {
-  const palabras = sinTildes(texto).match(/[a-zñ]+/g) ?? [];
+  const fichas = sinTildes(texto).match(/[a-zñ]+|\d+/g) ?? [];
   let racha = 0;
-  for (const p of palabras) {
-    if (DIGITOS.has(p)) {
+  let peso = 0;
+  let hayPalabra = false;
+  for (const f of fichas) {
+    const esDigito = DIGITOS.has(f);
+    const esDecena = DECENAS.has(f);
+    if (esDigito) {
       racha++;
       if (racha >= minimo) return true;
-    } else if (!CONECTORES.has(p) || p === 'y') {
-      // Una palabra que no es dígito corta la racha; «y» y los conectores no cuentan como corte entre dígitos.
-      if (!CONECTORES.has(p)) racha = 0;
+    } else if (!CONECTORES.has(f) && !/^\d+$/.test(f)) racha = 0;
+    if (esDigito || esDecena || /^\d+$/.test(f)) {
+      peso += esDecena ? 2 : esDigito ? 1 : f.length;
+      if (esDigito || esDecena) hayPalabra = true;
+      if (hayPalabra && peso >= 6) return true;
+    } else if (!CONECTORES.has(f)) {
+      peso = 0;
+      hayPalabra = false;
     }
   }
   return false;

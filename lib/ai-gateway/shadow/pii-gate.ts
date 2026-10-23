@@ -29,7 +29,10 @@ export type CategoriaPii =
   | 'FORMA_SOCIETARIA'
   | 'NOMBRE_COMPLETO'
   | 'NUMERO_EN_PALABRAS'
-  | 'NUMERO_JUDICIAL';
+  | 'NUMERO_JUDICIAL'
+  | 'PLACA'
+  | 'PARIENTE_O_TERCERO'
+  | 'INICIALES_NOMBRE';
 
 export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   EMAIL: 'A',
@@ -48,6 +51,9 @@ export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   NOMBRE_COMPLETO: 'B',
   NUMERO_EN_PALABRAS: 'A',
   NUMERO_JUDICIAL: 'B',
+  PLACA: 'A',
+  PARIENTE_O_TERCERO: 'B',
+  INICIALES_NOMBRE: 'B',
 };
 
 const MAYUS = 'A-ZÁÉÍÓÚÑ';
@@ -103,6 +109,20 @@ const PATRONES: ReadonlyArray<readonly [CategoriaPii, RegExp]> = [
   // Número judicial: palabra procesal + número con guion (o largo), o código de tribunal tipo «SCA-0123-2021».
   ['NUMERO_JUDICIAL', /\b(?:caso|proceso|juicio|recurso|amparo|auto|sentencia|resoluci[oó]n|demanda|denuncia|apelaci[oó]n|casaci[oó]n|querella)\s*(?:n[úu]m(?:ero)?\.?|no\.?|n[°º]|#)?\s*[:\-]?\s*\d[\d-]*\d(?!\w)/i],
   ['NUMERO_JUDICIAL', /\b(?!PCSJ\b)[A-Z]{1,5}-\d{2,6}-\d{2,4}\b/],
+
+  // ── G5-B (adversarial) ─────────────────────────────────────────────────────
+  // Teléfono con separador suelto («9876 - 5432», «9876.5432») o dígitos sueltos («9 8 7 6 5 4 3 2»).
+  ['TELEFONO', /(?<![\d-])\d{4}(?:\s+[-.]\s*|\.\s*|\s*[-]\s+)\d{4}(?![\d-])/],
+  ['TELEFONO', /(?<!\d)(?:\d\s){5,}\d(?!\d)/],
+  // Identificadores judiciales no estándar: «rol 2022-0456-PEN», «carpeta fiscal MP-2021-8841», «L-14/22».
+  ['NUMERO_JUDICIAL', /\b(?:rol|carpeta(?:\s+fiscal)?|legajo|sumario)\s*(?:n[úu]m(?:ero)?\.?|no\.?|n[°º]|#)?\s*[:\-]?\s*[A-Z0-9-]*\d/i],
+  ['NUMERO_JUDICIAL', /\b[A-Z]{1,3}-\d{1,4}\/\d{2,4}\b/],
+  // Placa de vehículo («HAB-1234»).
+  ['PLACA', /\b[A-Z]{3}[- ]?\d{4}\b/],
+  // Terceros identificables por parentesco o relación («mi esposa», «mi vecino»): relato privado, no pregunta abstracta.
+  ['PARIENTE_O_TERCERO', /\b(?:mi|mis)\s+(?:esposa|esposo|hij[oa]s?|madre|padre|hermano|hermana|vecin[oa]|jefe|socio|socia|novia|novio|suegr[oa]|abuel[oa]|tio|tia|primo|prima)\b/i],
+  // Iniciales seguidas de apellido: «J. A. Hernández», «M.L. Pérez».
+  ['INICIALES_NOMBRE', new RegExp(String.raw`\b[${MAYUS}]\.\s?(?:[${MAYUS}]\.\s?)*[${MAYUS}][${MINUS}]+`)],
 ];
 
 /** Devuelve la categoría detectada, o null si el texto no tiene señales de las etapas A o B. */
