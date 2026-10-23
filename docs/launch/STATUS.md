@@ -1,6 +1,6 @@
 # STATUS — MayaLex Launch Acceleration
 
-- **CURRENT MAIN SHA:** `88b12cd`
+- **CURRENT MAIN SHA:** `8b696add2ba0a8b6627d3d07e4e89d673c4f1c59` (verificado 2026-10-23: árbol limpio, merge de #94 presente, `tsc` limpio, 2222 pruebas pasan, 1 omitida; CI de `main` run 237 en éxito).
 - **ACTIVE WORKSTREAMS:** cableado de Legal OS en modo sombra sobre la ruta actual; golden sets por materia (para el CLO); crawlers de fuentes oficiales públicas; source cards (UX); proveedor OpenAI de producción (requiere autorización de canary).
 - **MERGED PRS:** #88 (G6, por Fredy); #89–#93 (Fase 1, núcleo Legal OS, skills, fábrica de corpus, bus, evaluación, observabilidad, grafo, recuperación, agentes, aprendizaje, entitlements, jurisprudencia, descubrimiento A/B, tarjetas de fuentes con bandera OFF, golden sets).
 - **OPEN PRS:** ver abajo (actualizar tras cada hito).
@@ -8,6 +8,7 @@
 - **GOLDEN SET SCORE:** n/d (`NOT_SCORABLE` en las 15 materias) — 150 plantillas (94 abstenciones fijadas por diseño, 56 pendientes de CLO), ver `GOLDEN_SETS_STATUS.md`; hay esquema, métricas y 8 casos semilla `PENDING_CLO_REVIEW`; ninguno `CLO_APPROVED`, así que la corrección jurídica no es calculable aún.
 - **LATENCY / COST:** n/d en producción; simulación del shadow en `docs/governance/evidence/g6-cost-authorization.md`.
 - **BLOQUEO DE ENTORNO:** el entorno de ejecución no alcanza ningún host `.gob.hn` oficial (proxy 403 / ENOTFOUND). Descubrimiento A/B (`docs/launch/discovery/`) solo produjo candidatos `UNVERIFIED` sin URL ni hash. Fredy debe permitir `legislacion.poderjudicial.gob.hn`, `www.tsc.gob.hn` y el host oficial de La Gaceta en la red del entorno, o descargar los PDF a mano.
+- **CI HISTÓRICO:** PR #89 mostró CI `test` en rojo por una prueba de tiempo intermitente; resuelto por #90. Ver `CI_HISTORY.md` (`HISTORICAL_CI_FAILURE_RESOLVED_BY_LATER_GREEN_MAIN`). Regla desde ahora: no se fusiona sin leer también los check runs de Actions.
 - **P0:** ver `LAUNCH_BLOCKERS.md` (5). **P1:** 5. **P2:** 3.
 - **DECISIONES DE FREDY PENDIENTES:** 21 celdas de entitlements por plan sin definir (`null`); techos de coste por plan (propuestos); ID del modelo profundo (no verificado).
 - **UX:** tarjetas de fuentes listas tras la bandera `NEXT_PUBLIC_MAYALEX_SOURCE_CARDS` (OFF por defecto; activarla es decisión de Fredy: variable de Vercel). Ver `UX_SOURCE_CARDS_WIRING.md`.
