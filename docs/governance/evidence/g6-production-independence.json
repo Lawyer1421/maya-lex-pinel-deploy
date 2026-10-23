@@ -179,6 +179,6 @@
     "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1",
     "lib/legal-os/learning/from-shadow.ts": "7e6dd960d3e732cb4b29ad4d521f09483d343edd6d8681b1555f3a902263ab59",
     "lib/legal-os/shadow/config.ts": "0227836ce354d2a6e28795af157f2fa4f487c228c79105ba8c167764c94d4f67",
-    "lib/legal-os/shadow/dispatch.ts": "adf8997f95ff7a5ca7ba1f272aac5b274276653a33ca7b7dea6a8e463a888d8a"
+    "lib/legal-os/shadow/dispatch.ts": "d90d1744579372b0c89dbd146e9fb9fa38d9bd1e49fdfe93b8a0e3177320c4f8"
   }
 }

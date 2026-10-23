@@ -78,6 +78,8 @@ export async function ejecutarLegalOsShadow(p: ParametrosShadow, o: OpcionesShad
     proveedor: proveedorSimulado,
     sink: o.sink ?? crearSinkEnMemoria(),
     reloj: o.reloj,
+    // Shadow = modo de evaluación: se ejecutan las skills DRAFT para medir sus requisitos de evidencia. En producción real no se ejecuta ninguna.
+    permitirSkillsBorrador: true,
   };
   const salida = await ejecutarPipeline({ queryId: p.queryId, pregunta: p.pregunta, tier: p.tier ?? 'ACADEMICO' }, deps);
   const exacto = detectarArticuloExacto(p.pregunta);
