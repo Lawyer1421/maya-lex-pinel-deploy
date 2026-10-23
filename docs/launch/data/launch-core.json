@@ -1,0 +1,323 @@
+{
+  "alcance": "Tier A",
+  "filas": [
+    {
+      "id": "CONSTITUCION",
+      "instrumento": "Constitución de la República de Honduras",
+      "materia": "CONSTITUTIONAL",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CONSTITUCION"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_CIVIL",
+      "instrumento": "Código Civil",
+      "materia": "CIVIL",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_CIVIL"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_PROCESAL_CIVIL",
+      "instrumento": "Código Procesal Civil",
+      "materia": "CIVIL_PROCEDURE",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CPC_PRIMARY_NORMATIVO",
+            "HN_CPC_PROCEDURAL_MIRROR",
+            "HN_CPC_TEXTO_BASE_D211_2006",
+            "HN_CPC_ROMERO_2024"
+          ]
+        }
+      ],
+      "nota": "Cuatro capas; la comentada (Romero 2024) es doctrinal y no establece texto normativo."
+    },
+    {
+      "id": "CODIGO_PENAL",
+      "instrumento": "Código Penal",
+      "materia": "CRIMINAL",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_PENAL"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_PROCESAL_PENAL",
+      "instrumento": "Código Procesal Penal",
+      "materia": "CRIMINAL_PROCEDURE",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CPP_D9_99E"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_COMERCIO",
+      "instrumento": "Código de Comercio",
+      "materia": "COMMERCIAL",
+      "estado": "MISSING",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Ausencia verificada en el corpus; el descubrimiento solo aportó pistas no oficiales (sin URL ni hash).",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "ABSENT_CODIGO_DE_COMERCIO_DECRETO_73_1950"
+          ]
+        },
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_A_ABSENT_INSTRUMENTS.json",
+          "ids": [
+            "HN_CODIGO_COMERCIO_D73_1950"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_TRABAJO",
+      "instrumento": "Código del Trabajo",
+      "materia": "LABOR",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_TRABAJO"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_FAMILIA",
+      "instrumento": "Código de Familia",
+      "materia": "FAMILY",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_FAMILIA"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_NINEZ",
+      "instrumento": "Código de la Niñez y de la Adolescencia",
+      "materia": "FAMILY",
+      "estado": "MISSING",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Ausencia verificada en el corpus; el descubrimiento solo aportó pistas no oficiales (sin URL ni hash).",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "ABSENT_DECRETO_73_96_CODIGO_DE_LA_NINEZ_Y_LA_ADOLESCENCIA"
+          ]
+        },
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_A_ABSENT_INSTRUMENTS.json",
+          "ids": [
+            "HN_CODIGO_NINEZ_ADOLESCENCIA_D73_96"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "LEGISLACION_NOTARIAL",
+      "instrumento": "Código del Notariado / legislación notarial",
+      "materia": "NOTARIAL",
+      "estado": "PENDING_CLO",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus, pero el inventario exige adjudicación del CLO sobre el estado legal del instrumento primario.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_NOTARIADO_D353_2005",
+            "HN_RESOLUCION_PCSJ_17_2012"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "PROCEDIMIENTO_ADMINISTRATIVO",
+      "instrumento": "Procedimiento administrativo",
+      "materia": "ADMINISTRATIVE",
+      "estado": "DISCOVERED_UNVERIFIED",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Sin entrada en el inventario del corpus; solo candidatos de descubrimiento, sin URL oficial ni hash. Descubrir no es verificar.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_PROCEDIMIENTO_ADMINISTRATIVO",
+            "HN_LEY_JURISDICCION_CONTENCIOSO_ADMINISTRATIVA",
+            "HN_LEY_GENERAL_ADMINISTRACION_PUBLICA"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "LEGISLACION_PROPIEDAD",
+      "instrumento": "Legislación de propiedad",
+      "materia": "PROPERTY",
+      "estado": "DISCOVERED_UNVERIFIED",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Sin entrada en el inventario del corpus; solo candidatos de descubrimiento, sin URL oficial ni hash. Descubrir no es verificar.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_PROPIEDAD"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "CODIGO_TRIBUTARIO",
+      "instrumento": "Código Tributario",
+      "materia": "TAX",
+      "estado": "AVAILABLE_PARTIAL",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Presente en el corpus (inventario auditado) sin verificación humana V4/V5 ni vigencia verificada.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/data/corpus-seed.json",
+          "ids": [
+            "HN_CODIGO_TRIBUTARIO"
+          ]
+        },
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_IMPUESTO_SOBRE_VENTAS",
+            "HN_LEY_IMPUESTO_SOBRE_LA_RENTA"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "LEGISLACION_ADUANERA",
+      "instrumento": "Legislación aduanera",
+      "materia": "CUSTOMS",
+      "estado": "DISCOVERED_UNVERIFIED",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Sin entrada en el inventario del corpus; solo candidatos de descubrimiento, sin URL oficial ni hash. Descubrir no es verificar.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_ADUANAS",
+            "HN_CAUCA_RECAUCA"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "AML_CFT",
+      "instrumento": "Legislación núcleo AML/CFT",
+      "materia": "AML",
+      "estado": "DISCOVERED_UNVERIFIED",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Sin entrada en el inventario del corpus; solo candidatos de descubrimiento, sin URL oficial ni hash. Descubrir no es verificar.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_ESPECIAL_LAVADO_ACTIVOS",
+            "HN_LEY_REGULACION_APNFD",
+            "HN_LEY_DELITO_LAVADO_ACTIVOS_45_2002",
+            "HN_LEY_BENEFICIARIOS_FINALES"
+          ]
+        }
+      ],
+      "nota": null
+    },
+    {
+      "id": "BANCA_FINANCIERA",
+      "instrumento": "Legislación núcleo bancaria/financiera",
+      "materia": "BANKING",
+      "estado": "DISCOVERED_UNVERIFIED",
+      "pendiente_aprobacion_humana": true,
+      "motivo": "Sin entrada en el inventario del corpus; solo candidatos de descubrimiento, sin URL oficial ni hash. Descubrir no es verificar.",
+      "evidencia": [
+        {
+          "archivo": "docs/launch/discovery/DISCOVERY_B_PENDING_MATTERS.json",
+          "ids": [
+            "HN_LEY_SISTEMA_FINANCIERO"
+          ]
+        }
+      ],
+      "nota": null
+    }
+  ],
+  "resumen": {
+    "total": 16,
+    "porEstado": {
+      "AVAILABLE_VERIFIED": 0,
+      "AVAILABLE_PARTIAL": 8,
+      "OUTDATED": 0,
+      "MISSING": 2,
+      "DISCOVERED_UNVERIFIED": 5,
+      "PENDING_CLO": 1
+    },
+    "cobertura": {
+      "verificada": 0,
+      "enCorpusSinVerificar": 56.3,
+      "ausente": 12.5,
+      "soloDescubierta": 31.3
+    }
+  }
+}
