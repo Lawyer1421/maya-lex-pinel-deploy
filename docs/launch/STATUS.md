@@ -1,6 +1,6 @@
 # STATUS — MayaLex Launch Acceleration
 
-- **CURRENT MAIN SHA:** `8b696add2ba0a8b6627d3d07e4e89d673c4f1c59` (verificado 2026-10-23: árbol limpio, merge de #94 presente, `tsc` limpio, 2222 pruebas pasan, 1 omitida; CI de `main` run 237 en éxito).
+- **CURRENT MAIN SHA:** `6d79f579e2eac8484fe727bb2c03a0b09c53b0b2` (tras PR #95)
 - **ACTIVE WORKSTREAMS:** cableado de Legal OS en modo sombra sobre la ruta actual; golden sets por materia (para el CLO); crawlers de fuentes oficiales públicas; source cards (UX); proveedor OpenAI de producción (requiere autorización de canary).
 - **MERGED PRS:** #88 (G6, por Fredy); #89–#93 (Fase 1, núcleo Legal OS, skills, fábrica de corpus, bus, evaluación, observabilidad, grafo, recuperación, agentes, aprendizaje, entitlements, jurisprudencia, descubrimiento A/B, tarjetas de fuentes con bandera OFF, golden sets).
 - **OPEN PRS:** ver abajo (actualizar tras cada hito).
@@ -13,4 +13,7 @@
 - **DECISIONES DE FREDY PENDIENTES:** 21 celdas de entitlements por plan sin definir (`null`); techos de coste por plan (propuestos); ID del modelo profundo (no verificado).
 - **UX:** tarjetas de fuentes listas tras la bandera `NEXT_PUBLIC_MAYALEX_SOURCE_CARDS` (OFF por defecto; activarla es decisión de Fredy: variable de Vercel). Ver `UX_SOURCE_CARDS_WIRING.md`.
 - **PIPELINE (esqueleto andante, `lib/legal-os/pipeline`):** compuertas → recuperación → enrutador → modelo/exacto → validación de citas → traza, con dependencias inyectadas y NO conectado a producción. Línea base: 94/94 casos de abstención de diseño se abstienen aun con un recuperador adversarial que siempre devuelve evidencia (abstentionAccuracy 1.0, n=94). No es una medida de corrección jurídica.
+- **SHADOW (P2/P3):** Legal OS shadow simulado conectado a la ruta de chat, APAGADO por defecto (`LEGAL_OS_SHADOW=1`, no en producción sin `LEGAL_OS_SHADOW_ALLOW_PROD=1`); independencia de la respuesta HTTP re-certificada (15 escenarios).
+- **IMPORTADOR DE PAQUETES (P5/P6):** contrato `OfficialSourcePackage`, CLI `tools/corpus/import-official-source-package.ts` y registro de fuentes oficiales legible por máquina (17 entradas; dominios no verificados quedan `null`/PENDING_VERIFICATION).
+- **SOURCE CARDS (P11):** DTO v2; «Vigencia verificada» solo con registro de verificación humana. Hallazgo: `Cita.vigente` siempre es `true` (no prueba verificación); el marcado de producción actual dice «Norma vigente HN» y no se cambió (decisión de producto/CLO).
 - **NEXT ACTIONS:** cablear Legal OS (router+trazas) en modo sombra sobre la ruta actual; golden sets por materia (casos redactados para revisión del CLO); crawlers de fuentes oficiales públicas.

@@ -1,0 +1,17 @@
+{
+  "source_url": "https://example.invalid/sintetico/ley-de-prueba.pdf",
+  "source_domain": "example.invalid",
+  "retrieved_at": "2026-10-01T12:00:00Z",
+  "document_name": "Ley Sintética de Prueba",
+  "document_type": "LAW",
+  "decree": "UNKNOWN",
+  "gaceta": "UNKNOWN",
+  "gaceta_date": "UNKNOWN",
+  "bytes_sha256": "69fdea9e9d079b7fc36d5b10a9529e10c092407eab3ad3dc4f9c3b6db83fea1f",
+  "text_sha256": "5096f96bc44ecba51c951d8ee72be10581d4eae41d8bf0a765d80240626f10ad",
+  "extracted_text": "ARTÍCULO 1.- Texto SINTÉTICO de prueba. Este documento es ficticio y existe solo para probar el importador de paquetes de fuente oficial; no es una ley real. ARTÍCULO 2.- Segundo artículo sintético.",
+  "retrieval_method": "MANUAL_BROWSER",
+  "source_tier": null,
+  "retriever": "human",
+  "verification_state": "UNVERIFIED"
+}
