@@ -1,0 +1,125 @@
+[
+  {
+    "record": {
+      "id": "HN_CODIGO_COMERCIO_D73_1950", "country": "HN", "jurisdiction": "NACIONAL", "matter": "COMMERCIAL",
+      "title": "Código de Comercio", "decree": "73-1950", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Ausente del corpus (inventario maestro V1). Ninguna fuente oficial pudo consultarse: la red de la sesión bloquea los hosts .gob.hn."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_FOUND_OFFICIAL_UNREACHABLE", "checked_on": "2026-10-23", "official_url_fetch": null,
+      "leads": [
+        { "url": "https://www.wipo.int/wipolex/en/details.jsp?id=2143", "kind": "SECONDARY_INDEX", "fetched": false, "claim": "Resultado de búsqueda: Código de Comercio, Decreto 73/1950; no se pudo abrir (DNS bloqueado). Fechas discrepantes entre fuentes (17-feb-1950 / 1-may-1950): sin verificar." },
+        { "url": "https://dpej.rae.es/legislaci%C3%B3n-b%C3%A1sica-de-honduras", "kind": "SECONDARY_INDEX", "fetched": false, "claim": "Índice sistemático que lista el Decreto 73/1950; no abierto." }
+      ],
+      "next_step": "Obtener el texto y la Gaceta de publicación en Tier 1/2 (La Gaceta, legislacion.poderjudicial.gob.hn) desde una red con acceso; verificar reformas (p. ej. el Decreto 284-2013 sobre sociedades unipersonales)."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_LEY_ORGANIZACION_ATRIBUCIONES_TRIBUNALES", "country": "HN", "jurisdiction": "NACIONAL", "matter": "OTHER",
+      "title": "Ley de Organización y Atribuciones de los Tribunales", "decree": "UNKNOWN", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Ausente del corpus (inventario maestro V1). Número de decreto y fecha de origen sin verificar en fuente oficial."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_FOUND_OFFICIAL_UNREACHABLE", "checked_on": "2026-10-23", "official_url_fetch": null,
+      "leads": [
+        { "url": "https://dpej.rae.es/eli/hn/d/1906/02/08/76", "kind": "SECONDARY_INDEX", "fetched": false, "claim": "Resultado de búsqueda: identificaría la ley con un Decreto 76 de 1906; no abierto." },
+        { "url": "https://www.icj.org/wp-content/uploads/2015/03/Honduras-Ley-de-Organizacion-y-Atribuciones-de-los-Tribunales.pdf", "kind": "THIRD_PARTY_COPY", "fetched": false, "claim": "Copia en PDF de un tercero; no es fuente oficial y no se descargó." }
+      ],
+      "next_step": "Confirmar decreto, fecha y reformas en fuente oficial; las referencias a reformas (decretos 11, 24, 29, 178) provienen de un índice secundario y no están verificadas."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_CODIGO_NINEZ_ADOLESCENCIA_D73_96", "country": "HN", "jurisdiction": "NACIONAL", "matter": "FAMILY",
+      "title": "Código de la Niñez y de la Adolescencia", "decree": "73-96", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Ausente del corpus (inventario maestro V1). Reformado por el Decreto 35-2013 según fuentes secundarias (sin verificar)."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_FOUND_OFFICIAL_UNREACHABLE", "checked_on": "2026-10-23", "official_url_fetch": null,
+      "leads": [
+        { "url": "https://leap.unep.org/en/countries/hn/national-legislation/decreto-no-73-96-codigo-de-la-ninez-y-la-adolescencia", "kind": "SECONDARY_INDEX", "fetched": false, "claim": "Resultado de búsqueda: ficha del Decreto 73-96 con publicación en La Gaceta No. 28,053 de 1996 (dato sin verificar)." },
+        { "url": "https://www.tsc.gob.hn/web/leyes/Codigo_niñezyadolescencia_2013.pdf", "kind": "TIER_4_CANDIDATE", "fetched": false, "claim": "Resultado de búsqueda con host del Tribunal Superior de Cuentas (Tier 4, host verificado en el registro); no se pudo abrir (DNS bloqueado)." }
+      ],
+      "next_step": "Descargar desde el host Tier 4/Tier 2 con acceso, calcular sha256 y verificar la versión consolidada con el Decreto 35-2013."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_DECRETO_31_2015", "country": "HN", "jurisdiction": "NACIONAL", "matter": "UNKNOWN",
+      "title": "Decreto 31-2015 (título sin identificar)", "decree": "31-2015", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Título y materia NO identificados: la búsqueda no devolvió el decreto."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_IDENTIFIED", "checked_on": "2026-10-23", "official_url_fetch": null, "leads": [],
+      "next_step": "El CLO debe indicar qué instrumento es; buscar por número y año en el Congreso Nacional o en La Gaceta."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_DECRETO_35_2013", "country": "HN", "jurisdiction": "NACIONAL", "matter": "FAMILY",
+      "title": "Decreto 35-2013 (reformas; contenido sin verificar)", "decree": "35-2013", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Fuentes secundarias discrepan: una lo asocia al Código de la Niñez y la Adolescencia y otra al art. 39 del Código de Familia. Sin resolver."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "AMBIGUOUS_UNVERIFIED", "checked_on": "2026-10-23", "official_url_fetch": null,
+      "leads": [
+        { "url": "https://leap.unep.org/en/countries/hn/national-legislation/decreto-no-35-2013-modifica-el-decreto-no-73-96-codigo-de-la", "kind": "SECONDARY_INDEX", "fetched": false, "claim": "Resultado de búsqueda: ficha que dice que modifica el Decreto 73-96; no abierto." }
+      ],
+      "next_step": "Resolver la discrepancia con el texto de La Gaceta (Tier 1) antes de cualquier ingesta."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_DECRETO_124_92", "country": "HN", "jurisdiction": "NACIONAL", "matter": "UNKNOWN",
+      "title": "Decreto 124-92 (título sin identificar)", "decree": "124-92", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Título y materia NO identificados: la búsqueda no devolvió el decreto."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_IDENTIFIED", "checked_on": "2026-10-23", "official_url_fetch": null, "leads": [],
+      "next_step": "El CLO debe indicar qué instrumento es; buscar en la biblioteca del Tribunal Superior de Cuentas (Tier 4) y en La Gaceta."
+    }
+  },
+  {
+    "record": {
+      "id": "HN_DECRETO_284_2013", "country": "HN", "jurisdiction": "NACIONAL", "matter": "COMMERCIAL",
+      "title": "Ley para la Generación de Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (Decreto 284-2013; título según fuentes secundarias)", "decree": "284-2013", "publication": "UNKNOWN", "gaceta_number": "UNKNOWN", "gaceta_date": "UNKNOWN",
+      "effective_date": "UNKNOWN", "official_url": null, "pdf_sha256": null, "text_sha256": null, "source": "UNKNOWN", "source_tier": null,
+      "articles": [], "reforms": [], "derogations": [], "interpretations": [], "constitutional_effects": [], "version": 1,
+      "verification_state": "PENDING_VERIFICATION", "ingestion_state": "DISCOVER", "presence": "ABSENT_VERIFIED", "outdated": false,
+      "measures": { "rows": null, "distinct_articles": null }, "approvals": [],
+      "notes": ["Título y Gaceta (5-jun-2014, No. 33,445) provienen solo de resúmenes de búsqueda de fuentes secundarias; no verificados."]
+    },
+    "discovery": {
+      "discovery_only": true, "status": "NOT_FOUND_OFFICIAL_UNREACHABLE", "checked_on": "2026-10-23", "official_url_fetch": null,
+      "leads": [
+        { "url": "https://www.tsc.gob.hn/web/leyes/Ley_gene_empl_dere_inver.pdf", "kind": "TIER_4_CANDIDATE", "fetched": false, "claim": "Resultado de búsqueda con host del Tribunal Superior de Cuentas (Tier 4, host verificado en el registro); no se pudo abrir (DNS bloqueado)." }
+      ],
+      "next_step": "Descargar desde Tier 4/Tier 2 con acceso, calcular sha256 y confirmar título, Gaceta y reformas al Código de Comercio."
+    }
+  }
+]
