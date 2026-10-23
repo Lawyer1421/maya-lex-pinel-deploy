@@ -27,9 +27,25 @@ describe('buildAuthCallbackUrl — AUTH_CALLBACK_REDIRECT_MISMATCH fix', () => {
     expect(url).not.toContain('mayalexhn.com');
   });
 
-  it('origin inválido/ausente cae al fallback de producción (no a /demo, no a un origin arbitrario)', () => {
+  it('origin inválido/ausente cae al fallback de producción (no a un env residual)', () => {
     expect(buildAuthCallbackUrl('', '/chat')).toBe('https://mayalexhn.com/auth/callback?next=%2Fchat');
     expect(buildAuthCallbackUrl('not-a-url', '/chat')).toBe('https://mayalexhn.com/auth/callback?next=%2Fchat');
+  });
+
+  it('NEXT_PUBLIC_APP_URL no gobierna el callback OAuth aunque apunte a otro producto', () => {
+    const previa = process.env.NEXT_PUBLIC_APP_URL;
+    process.env.NEXT_PUBLIC_APP_URL = 'https://example-other-product.test';
+    try {
+      expect(buildAuthCallbackUrl('', '/chat')).toBe('https://mayalexhn.com/auth/callback?next=%2Fchat');
+      expect(buildAuthCallbackUrl('http://localhost:3000', '/chat')).toBe(
+        'http://localhost:3000/auth/callback?next=%2Fchat',
+      );
+      expect(buildAuthCallbackUrl('https://mayalexhn.com', '/chat')).toBe(
+        'https://mayalexhn.com/auth/callback?next=%2Fchat',
+      );
+    } finally {
+      process.env.NEXT_PUBLIC_APP_URL = previa;
+    }
   });
 
   it('next inseguro se sanea antes de construir la URL — nunca se filtra un open redirect', () => {

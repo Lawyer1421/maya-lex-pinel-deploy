@@ -17,16 +17,22 @@ import { sanitizeNextPath } from '@/lib/auth/redirect';
 export { sanitizeNextPath };
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get('code');
-  const next = sanitizeNextPath(searchParams.get('next'));
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get('code');
+  const next = sanitizeNextPath(requestUrl.searchParams.get('next'));
+  // Destino siempre relativo al origin de ESTA request (localhost / mayalexhn.com
+  // / Preview). Nunca NEXT_PUBLIC_APP_URL ni un host absoluto del querystring.
+  const destino = new URL(next, requestUrl.origin);
+  if (destino.origin !== requestUrl.origin) {
+    return NextResponse.redirect(new URL('/login?error=link_invalido', requestUrl.origin));
+  }
 
   if (code) {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(destino);
     }
 
     // No se expone el detalle del error al cliente — solo se registra
@@ -35,5 +41,5 @@ export async function GET(request: NextRequest) {
   }
 
   // Código ausente o inválido → redirigir al login con mensaje genérico
-  return NextResponse.redirect(`${origin}/login?error=link_invalido`);
+  return NextResponse.redirect(new URL('/login?error=link_invalido', requestUrl.origin));
 }
