@@ -13,6 +13,7 @@ import { crearSinkEnMemoria, type TraceSink } from '../observability';
 import { ejecutarPipeline, type ChunkEvidencia, type DependenciasPipeline } from '../pipeline';
 import { crearProveedorFalso } from '../providers/provider';
 import { legalOsShadowHabilitado, type EntornoShadow } from './config';
+import { generarCandidatos, senalesDesdeRegistro } from '../learning';
 import { construirRegistroShadow, type RegistroShadow } from './record';
 
 export interface ParametrosShadow {
@@ -29,6 +30,8 @@ export interface OpcionesShadow {
   env?: EntornoShadow;
   /** Destino del registro; por defecto, una línea JSON en el log. */
   emitir?: (registro: RegistroShadow) => void;
+  /** Destino de las señales de aprendizaje (observar/proponer; jamás aplicar). Por defecto, una línea JSON por candidato. */
+  emitirSenales?: (candidatos: ReturnType<typeof generarCandidatos>) => void;
   sink?: TraceSink;
   reloj?: () => number;
 }
@@ -85,6 +88,12 @@ export async function ejecutarLegalOsShadow(p: ParametrosShadow, o: OpcionesShad
     privacidad: salida.motivo === 'DATOS_PERSONALES_SOLICITADOS' ? 'REJECT_PERSONAL_DATA_REQUEST' : 'GUARDS_PASS_NO_EXTERNAL_SEND',
   });
   (o.emitir ?? ((r) => console.log(JSON.stringify({ legal_os_shadow: r }))))(registro);
+  try {
+    const candidatos = generarCandidatos(senalesDesdeRegistro(registro, new Date().toISOString()));
+    if (candidatos.length > 0) (o.emitirSenales ?? ((c) => console.log(JSON.stringify({ legal_os_signal: c.map((x) => ({ id: x.senal.id, kind: x.senal.kind, reason: x.senal.reasonCode, priority: x.clasificacion.priority, action: x.clasificacion.suggestedAction, proposal: x.propuesta.id })) }))))(candidatos);
+  } catch {
+    // Las señales son informativas: un fallo aquí jamás afecta al registro ni a producción.
+  }
   return registro;
 }
 

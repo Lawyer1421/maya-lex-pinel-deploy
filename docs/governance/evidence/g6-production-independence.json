@@ -177,7 +177,8 @@
     "lib/ai-gateway/shadow/public-provenance-manifest.ts": "88a8be5e2f815afe607439ebf5b6fb6725b080fa432af8916478b940b4335957",
     "lib/ai-gateway/shadow/public-provenance.ts": "f7082d0328e4e0cd654e95cec5581952bc1727c66690564800cc4ca144988e1d",
     "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1",
+    "lib/legal-os/learning/from-shadow.ts": "7e6dd960d3e732cb4b29ad4d521f09483d343edd6d8681b1555f3a902263ab59",
     "lib/legal-os/shadow/config.ts": "0227836ce354d2a6e28795af157f2fa4f487c228c79105ba8c167764c94d4f67",
-    "lib/legal-os/shadow/dispatch.ts": "4625dd89d45ce7db575d5565529d33cb6d9433b396afcb920f19b67777892c01"
+    "lib/legal-os/shadow/dispatch.ts": "adf8997f95ff7a5ca7ba1f272aac5b274276653a33ca7b7dea6a8e463a888d8a"
   }
 }
