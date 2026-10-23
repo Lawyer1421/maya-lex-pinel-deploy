@@ -78,7 +78,7 @@ describe('pipeline', () => {
 
 describe('el módulo solo observa y propone', () => {
   it('no exporta ninguna función que aplique cambios y no toca fs, red, entorno ni el gateway', () => {
-    expect(Object.keys(aprendizaje).sort()).toEqual(['ESTADOS_APRENDIZAJE', 'SIGNAL_KINDS', 'Signal', 'UMBRAL_CONFIANZA', 'UMBRAL_COSTO_USD', 'UMBRAL_FRECUENCIA', 'UMBRAL_LATENCIA_MS', 'avanzar', 'clasificarSenal', 'nuevoItem', 'proponerCasoEval']);
+    expect(Object.keys(aprendizaje).sort()).toEqual(['ESTADOS_APRENDIZAJE', 'SIGNAL_KINDS', 'Signal', 'UMBRAL_CONFIANZA', 'UMBRAL_COSTO_USD', 'UMBRAL_FRECUENCIA', 'UMBRAL_LATENCIA_MS', 'avanzar', 'clasificarSenal', 'generarCandidatos', 'nuevoItem', 'proponerCasoEval', 'senalDeFeedback', 'senalesDesdeRegistro']);
     const dir = join(RAIZ, 'lib', 'legal-os', 'learning');
     const re = new RegExp([String.raw`\bfetch\s*\(`, 'XMLHttpRequest', String.raw`process\.env`, 'node:http', 'node:fs', 'supabase', 'ai-' + 'gateway'].join('|'), 'i');
     for (const f of readdirSync(dir)) expect(readFileSync(join(dir, f), 'utf8'), f).not.toMatch(re);
