@@ -91,7 +91,7 @@ describe('privacy gate fail-closed (sin LLM)', () => {
     ['sin señal jurídica', '¿Qué hago?', 'E'],
     ['saludo', 'Hola buenos días', 'E'],
     ['nombre propio sin marcador (diccionario)', '¿Qué dice el artículo 173 sobre Pedro Martínez?', 'B'],
-    ['empresa con nombre propio', '¿Qué dice el artículo 173 para la Cervecería Hondureña?', 'E'],
+    ['empresa con nombre propio (no registrada)', '¿Qué dice el artículo 173 para la Ferretería El Ahorro?', 'E'],
     ['entrada vacía', '   ', 'E'],
   ];
   for (const [nombre, texto, etapa] of RECHAZOS) {
@@ -111,8 +111,12 @@ describe('privacy gate fail-closed (sin LLM)', () => {
   });
 
   // Limitaciones CONOCIDAS (documentadas en privacy-gate.ts): un filtro determinista no las elimina.
-  it('FALSO POSITIVO conocido: un nombre propio legítimo fuera del vocabulario se rechaza', () => {
-    expect(privacyGate('¿Qué dice el Tratado de Libre Comercio con Estados Unidos?').estado).toBe('REJECT');
+  it('FALSO POSITIVO conocido: un caso público extranjero que no está en el registro de entidades públicas se rechaza', () => {
+    expect(privacyGate('¿Qué decidió la Corte Suprema en el caso Ekmekdjian contra Sofovich sobre el derecho de respuesta?').estado).toBe('REJECT');
+  });
+  it('G6-C: los nombres públicos del registro (autores, casos, instituciones, lugares) no se rechazan', () => {
+    expect(privacyGate('¿Qué sostiene Hans Kelsen sobre la validez de las normas jurídicas?').estado).toBe('PASS');
+    expect(privacyGate('¿Qué dice el Tratado de Libre Comercio con Estados Unidos sobre inversiones?').estado).toBe('PASS');
   });
   it('FALSO POSITIVO conocido: dos números de 4 dígitos seguidos se leen como teléfono', () => {
     expect(privacyGate('¿Qué ley rige entre los años 2019 2020?').estado).toBe('REJECT');
@@ -123,8 +127,8 @@ describe('privacy gate fail-closed (sin LLM)', () => {
   it('G4-B cerrado: datos personales escritos con palabras se detectan', () => {
     expect(privacyGate('Mi número es nueve nueve ocho siete, ¿qué dice el artículo 173?').estado).toBe('REJECT');
   });
-  it('FALSO NEGATIVO residual: un nombre fuera del diccionario, en minúscula y sin marcador, pasa', () => {
-    expect(privacyGate('¿qué dice el artículo 173 sobre zacarias quiroz?').estado).toBe('PASS');
+  it('FALSO NEGATIVO residual (medido en el holdout 3 de la ronda 2): un nombre raro, en minúscula y sin cue, a mitad de frase, pasa', () => {
+    expect(privacyGate('se murió ambrosio padgett sin testamento, ¿quién hereda según el Código Civil?').estado).toBe('PASS');
   });
 });
 
@@ -342,6 +346,7 @@ describe('adaptador OpenAI (implementado, no ejecutado)', () => {
     expect(cuerpo.model).toBe(SHADOW_MODEL_CONFIG.modelId);
     expect(cuerpo.store).toBe(false);
     expect(cuerpo.max_output_tokens).toBe(SHADOW_MODEL_CONFIG.maxOutputTokens);
+    expect(cuerpo.reasoning).toEqual({ effort: 'none' }); // el modelo razona en medium por defecto
     expect(cuerpo.text).toEqual({ format: { type: 'json_schema', name: 'mayalex_shadow_output', strict: true, schema: MODEL_OUTPUT_WIRE_JSON_SCHEMA } });
     for (const prohibido of ['tools', 'tool_choice', 'previous_response_id', 'conversation', 'background', 'file_ids', 'metadata', 'parallel_tool_calls']) {
       expect(Object.keys(cuerpo), prohibido).not.toContain(prohibido);

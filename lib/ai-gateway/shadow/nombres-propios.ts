@@ -38,7 +38,12 @@ const APELLIDOS = new Set(
     'cardona carranza chavez coello colindres contreras cortes erazo escoto espinal fajardo figueroa fuentes galindo ' +
     'godoy guerrero guzman herrera irias izaguirre lara lemus lobo madrid mancia matute montoya nunez ochoa orellana ' +
     'oseguera padilla palma paredes pavon portillo quan quintanilla raudales reconco sabillon santos serrano sevilla ' +
-    'tabora turcios umana varela vega vijil williams zepeda'
+    'tabora turcios umana varela vega vijil williams zepeda ' +
+    'aguilera alvarado amaya ardon avila banegas barrientos betancourth bulnes cacho calix canales cerrato chinchilla cisneros ' +
+    'cuellar dubon escobar espinoza estrada fiallos gallardo handal hernandes lanza lizardo lopes mairena ' +
+    'martines matamoros mondragon montes mairena nolasco ordonez oviedo pagoada palacios pastrana pavon pineda quinonez quiroz ' +
+    'rapalo rivas rodrigues sarmiento sauceda tinoco tzul valle yanes zepeda zuniga ' +
+    'cardenas cifuentes chacon calderon obando quijada matzir jiron barahona colindres alvarenga coy xol pech chuc bodden'
   ).split(' '),
 );
 
@@ -108,6 +113,24 @@ export function contieneNumeroEnPalabras(texto: string, minimo = 4): boolean {
       peso = 0;
       hayPalabra = false;
     }
+  }
+  return false;
+}
+
+/** Apellidos que además son palabras comunes del español jurídico: no activan la regla «de + apellido». */
+const APELLIDOS_AMBIGUOS: ReadonlySet<string> = new Set([
+  'cruz', 'reyes', 'flores', 'lobo', 'vega', 'sierra', 'palma', 'paz', 'madrid', 'torres', 'castillo', 'mora', 'rosales', 'valle', 'santos',
+  'lagos', 'ramos', 'salinas', 'fuentes', 'cortes', 'delgado', 'blanco', 'rey', 'medina', 'serrano', 'moreno', 'ortega', 'salas', 'baca',
+  'varela', 'solis', 'rivas', 'montes', 'palacios', 'estrada', 'canales', 'cabrera', 'paredes', 'carranza', 'cerrato', 'lara', 'cortes',
+  'guerrero', 'herrera', 'vargas', 'castro', 'sevilla', 'campos', 'rios', 'navarro', 'romero', 'ortiz', 'molina', 'luna', 'rojas',
+]);
+
+/** «de» / «del» / «sobre» / «contra» + un apellido hondureño inequívoco («el caso de turcios»). Una sola palabra, en cualquier caja. */
+export function contieneDeApellido(texto: string): boolean {
+  const palabras = sinTildes(texto).match(/[a-zñ]+/g) ?? [];
+  for (let i = 1; i < palabras.length; i++) {
+    const w = palabras[i];
+    if (APELLIDOS.has(w) && !APELLIDOS_AMBIGUOS.has(w) && ['de', 'del', 'sobre', 'contra', 'para'].includes(palabras[i - 1])) return true;
   }
   return false;
 }

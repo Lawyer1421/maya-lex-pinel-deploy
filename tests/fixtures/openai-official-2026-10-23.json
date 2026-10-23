@@ -1,0 +1,15 @@
+{
+  "_comment": "Valores leídos de las páginas OFICIALES de OpenAI el 2026-10-23 (contenido obtenido con un servicio de extracción de páginas). Sirven para detectar deriva entre la documentación y shadow-model-config.ts.",
+  "model": "gpt-6-luna",
+  "pricingSourceUrl": "https://developers.openai.com/api/docs/pricing",
+  "standard": { "input": 0.1, "output": 0.5, "cachedInput": 0.01, "cacheWrite30m": 0.125, "cacheWrite12h": 0.25 },
+  "batch": { "input": 0.05, "output": 0.25, "cachedInput": 0.005 },
+  "fast": { "input": 0.2, "output": 1.0, "cachedInput": 0.02 },
+  "longContext": { "thresholdInputTokens": 272000, "inputMultiplier": 2, "outputMultiplier": 1.5 },
+  "minCacheableTokens": 1024,
+  "reasoningEffortDefault": "medium",
+  "reasoningEffortSupported": ["none", "low", "medium", "high", "xhigh", "max"],
+  "contextWindow": 1050000,
+  "maxOutputTokens": 128000,
+  "retention": { "responsesApplicationStateDays": 30, "abuseMonitoringDaysDefault": 30 }
+}

@@ -1,0 +1,154 @@
+{
+  "PRODUCTION_HTTP_RESPONSE_INDEPENDENT": true,
+  "criterio": "Para cada modo de fallo del shadow, estado HTTP, tipo de contenido y cuerpo SSE de la ruta real son idénticos a la misma consulta con el shadow apagado.",
+  "escenarios": [
+    {
+      "id": "abstencion-de-produccion-con-shadow-ANSWER",
+      "descripcion": "Producción se abstiene (sin evidencia verificada) y el shadow diría ANSWER",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "fae6380da6721d4d016b48d3aee2f7e8a5ae2290f9b91f427f053aa7a758f17e",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "id": "adapter-error",
+      "descripcion": "El adaptador lanza una excepción",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "ERROR"
+      ]
+    },
+    {
+      "id": "despachador-lanza",
+      "descripcion": "despacharShadow lanza de forma síncrona",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": []
+    },
+    {
+      "id": "fallo-de-citas",
+      "descripcion": "La única claim cita un chunk inexistente",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "id": "incidente-de-privacidad",
+      "descripcion": "La pregunta trae un correo: el shadow no se despacha",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "SKIPPED_PII"
+      ]
+    },
+    {
+      "id": "presupuesto-cero",
+      "descripcion": "Presupuesto real 0: sin llamada",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "SKIPPED_BUDGET"
+      ]
+    },
+    {
+      "id": "procedencia-invalida",
+      "descripcion": "Manifiesto vacío: sin prueba fuerte de procedencia",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "SKIPPED_PUBLIC_PROVENANCE"
+      ]
+    },
+    {
+      "id": "respuesta-malformada",
+      "descripcion": "El adaptador devuelve algo que no es el esquema",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "id": "shadow-respuesta-valida",
+      "descripcion": "El shadow responde bien y concuerda",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "id": "sin-credenciales",
+      "descripcion": "Sin credencial",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "SKIPPED_NO_CREDENTIALS"
+      ]
+    },
+    {
+      "id": "sin-evidencia",
+      "descripcion": "Cero fragmentos: abstención, sin despacho",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "fae6380da6721d4d016b48d3aee2f7e8a5ae2290f9b91f427f053aa7a758f17e",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "SKIPPED_PUBLIC_CORPUS"
+      ]
+    },
+    {
+      "id": "timeout",
+      "descripcion": "El adaptador nunca responde",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": [
+        "DISPATCHED",
+        "TIMEOUT"
+      ]
+    }
+  ],
+  "codigoHashes": {
+    "app/api/chat/route.ts": "a2950cd8b1f20b541330bfffcfccebadea68f3d90fbf870d09ff018458663d24",
+    "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
+    "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
+    "lib/ai-gateway/shadow/dispatcher.ts": "e21a751b26407f38da224609e5d1462ac5de9b311551a77b0b23454a91ec5b2a",
+    "lib/ai-gateway/shadow/openai-adapter.ts": "89d27f3af8b7b1dc9e5be8e925ce0cde2da67d82bc7d839feb52791ab99709aa",
+    "lib/ai-gateway/shadow/pii-gate.ts": "bf8699c5ae09dac585eb87f1205d936696ae399c407cd95167ded82fcb05fd25",
+    "lib/ai-gateway/shadow/privacy-gate.ts": "abfc3714b4bc545cb208c0e41abc369764a76a4f09c50fce3c9bcfc55da7fbcf",
+    "lib/ai-gateway/shadow/public-provenance-manifest.ts": "88a8be5e2f815afe607439ebf5b6fb6725b080fa432af8916478b940b4335957",
+    "lib/ai-gateway/shadow/public-provenance.ts": "f7082d0328e4e0cd654e95cec5581952bc1727c66690564800cc4ca144988e1d",
+    "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1"
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "CANARY_AUTHORIZATION_PACK": true,
+  "decision": "NOT_READY_FOR_FREDY_DECISION",
+  "condiciones": [
+    {
+      "id": "OPENAI_OFFICIAL_VERIFICATION_CURRENT",
+      "descripcion": "Verificación oficial de OpenAI vigente (≤ 7 días) y completa",
+      "estado": "MET",
+      "evidencia": "lib/ai-gateway/canary/openai-verification.ts: 0 pendientes, vigente=true, más antigua 2026-10-23",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "CLO_PILOT_APPROVED",
+      "descripcion": "El CLO aprobó las entradas del piloto",
+      "estado": "NOT_MET",
+      "evidencia": "0/2 candidatos APPROVED; el resto PENDING_CLO_APPROVAL (docs/governance/evidence/g6-clo-pilot-pack.md)",
+      "responsable": "CLO",
+      "falta": "Aportar id canónico, texto exacto, URL oficial y estado V4/V5 por artículo, y registrar la decisión formal del CLO (nombre, fecha, enlace)."
+    },
+    {
+      "id": "EFFECTIVE_MANIFEST_GT_ZERO",
+      "descripcion": "El manifiesto efectivo tiene al menos una entrada aprobada",
+      "estado": "NOT_MET",
+      "evidencia": "MANIFIESTO_PROCEDENCIA_PUBLICA.length = 0",
+      "responsable": "CLO",
+      "falta": "Pasar el último paso (entrada aprobada → manifiesto efectivo) solo tras la aprobación humana válida y con autorización."
+    },
+    {
+      "id": "PRIVACY_METRICS_CURRENT",
+      "descripcion": "Las seis métricas de privacidad están generadas con el código actual",
+      "estado": "MET",
+      "evidencia": "docs/governance/evidence/g6-privacy-metrics.json (hashes del gate y de los benchmarks)",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "FIRST_CANARY_PRIVACY_POLICY_SATISFIED",
+      "descripcion": "La envolvente del primer canary rechaza todos los casos privados de todos los conjuntos",
+      "estado": "MET",
+      "evidencia": "0/841 privados aceptados; 7/8 preguntas del Golden Set elegibles",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "RESIDUAL_RISK_QUANTIFIED",
+      "descripcion": "El riesgo residual del gate general está cuantificado con un conjunto de retención sin ajuste",
+      "estado": "MET",
+      "evidencia": "holdout 3: 6/39 privados no detectados (15.4 %); el primer canary NO depende de este gate: lo acota la envolvente",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "SERVERLESS_CERTIFIED",
+      "descripcion": "El modelo de ejecución serverless está certificado punto por punto",
+      "estado": "NOT_MET",
+      "evidencia": "8/9 puntos VERIFIED (lib/ai-gateway/canary/serverless-certification.ts)",
+      "responsable": "ADMIN_VERCEL",
+      "falta": "max-duration: La API de solo lectura no expone si Fluid Compute está activo en este proyecto, así que la duración disponible (300 s con Fluid) no está confirmada. Cerrarlo: ver el interruptor en el panel de Vercel, o autorizar un export const maxDuration explícito en la ruta."
+    },
+    {
+      "id": "ROLLBACK_TESTED",
+      "descripcion": "El ensayo de rollback pasó con los 8 disparadores y el código jurídico no cambió",
+      "estado": "MET",
+      "evidencia": "docs/governance/evidence/g6-rollback-evidence.json",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "KILL_SWITCH_TESTED",
+      "descripcion": "El kill switch apaga el despacho shadow sin tocar la respuesta (límite: es una constante de código)",
+      "estado": "MET",
+      "evidencia": "g6-rollback-evidence.json → killSwitchProbado; rollback = revertir y redesplegar (no hay interruptor en caliente)",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "BUDGET_PROPOSAL_COMPLETE",
+      "descripcion": "Propuesta de envolvente y de presupuesto completa y coherente con la solicitud real",
+      "estado": "MET",
+      "evidencia": "8 solicitudes máx., presupuesto duro recomendado 0.05 USD; docs/governance/evidence/g6-cost-authorization.md",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "PRODUCTION_INDEPENDENCE_DEMONSTRATED",
+      "descripcion": "La respuesta HTTP de producción es idéntica con cualquier fallo del shadow (PRODUCTION_HTTP_RESPONSE_INDEPENDENT)",
+      "estado": "MET",
+      "evidencia": "12 escenarios idénticos a la línea base (docs/governance/evidence/g6-production-independence.json)",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "NO_PRIVATE_DATA",
+      "descripcion": "Solo preguntas públicas abstractas que pasan la envolvente; sin datos privados",
+      "estado": "MET",
+      "evidencia": "Envolvente del primer canary (vocabulario cerrado) + privacyGate PASS; 0 casos privados aceptados.",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "NO_PRIVATE_CORPUS",
+      "descripcion": "Ningún fragmento del corpus privado (capa doc_*, instrumentos) puede llegar al modelo",
+      "estado": "MET",
+      "evidencia": "Gate estructural (rechaza doc_*, doctrina y fuentes no «codigo») + manifiesto de procedencia por fragmento aprobado.",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "NO_CORPUS_WRITES",
+      "descripcion": "Nada en lib/ai-gateway puede escribir en el corpus ni en la base",
+      "estado": "MET",
+      "evidencia": "Escaneo de lib/ai-gateway/**: 0 archivos con patrones de escritura o de cliente de base de datos",
+      "responsable": "CLAUDE_CODE"
+    },
+    {
+      "id": "MODEL_ZERO_AUTHORITY_OVER_LEGAL_VALIDITY",
+      "descripcion": "El modelo no declara vigencia, validez ni rol: su salida solo propone claims con citas que el servidor valida",
+      "estado": "MET",
+      "evidencia": "El esquema de salida no tiene campos de vigencia/validez/rol; producción ABSTAIN es autoritativa (g6-production-independence.json).",
+      "responsable": "CLAUDE_CODE"
+    }
+  ],
+  "bloqueos": [
+    {
+      "id": "CLO_PILOT_APPROVED",
+      "descripcion": "El CLO aprobó las entradas del piloto",
+      "estado": "NOT_MET",
+      "evidencia": "0/2 candidatos APPROVED; el resto PENDING_CLO_APPROVAL (docs/governance/evidence/g6-clo-pilot-pack.md)",
+      "responsable": "CLO",
+      "falta": "Aportar id canónico, texto exacto, URL oficial y estado V4/V5 por artículo, y registrar la decisión formal del CLO (nombre, fecha, enlace)."
+    },
+    {
+      "id": "EFFECTIVE_MANIFEST_GT_ZERO",
+      "descripcion": "El manifiesto efectivo tiene al menos una entrada aprobada",
+      "estado": "NOT_MET",
+      "evidencia": "MANIFIESTO_PROCEDENCIA_PUBLICA.length = 0",
+      "responsable": "CLO",
+      "falta": "Pasar el último paso (entrada aprobada → manifiesto efectivo) solo tras la aprobación humana válida y con autorización."
+    },
+    {
+      "id": "SERVERLESS_CERTIFIED",
+      "descripcion": "El modelo de ejecución serverless está certificado punto por punto",
+      "estado": "NOT_MET",
+      "evidencia": "8/9 puntos VERIFIED (lib/ai-gateway/canary/serverless-certification.ts)",
+      "responsable": "ADMIN_VERCEL",
+      "falta": "max-duration: La API de solo lectura no expone si Fluid Compute está activo en este proyecto, así que la duración disponible (300 s con Fluid) no está confirmada. Cerrarlo: ver el interruptor en el panel de Vercel, o autorizar un export const maxDuration explícito en la ruta."
+    }
+  ],
+  "contratoDeActivacion": {
+    "decision": "NO_GO",
+    "razones": [
+      {
+        "condicion": "FREDY_AUTHORIZATION",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "CLO_PROVENANCE_PILOT_APPROVED",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "PRIVACY_RESIDUAL_RISK_ACCEPTED_OR_MITIGATED",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "BUDGET_GT_ZERO_EXPLICITLY_AUTHORIZED",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "KILL_SWITCH_EXPLICITLY_AUTHORIZED",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "PRODUCTION_RESPONSE_INDEPENDENT",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "NO_PRIVATE_DATA",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "NO_CORPUS_WRITES",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "NO_MODEL_AUTHORITY_OVER_LEGAL_VALIDITY",
+        "motivo": "NO_CUMPLIDA"
+      },
+      {
+        "condicion": "ROLLBACK_TESTED",
+        "motivo": "NO_CUMPLIDA"
+      }
+    ]
+  },
+  "valoresReales": {
+    "SHADOW_GATEWAY_ENABLED": false,
+    "SHADOW_BUDGET_USD": 0,
+    "enabled": false,
+    "maxRequests": 0,
+    "maxBudgetUsd": 0,
+    "sampleStrategy": "NINGUNA"
+  },
+  "nota": "READY_FOR_FREDY_DECISION NO activa nada: solo habilita que Fredy emita CANARY_GO o CANARY_NO_GO. El contrato de activación sigue en NO_GO mientras Fredy no autorice, el presupuesto sea 0 y el kill switch esté apagado."
+}

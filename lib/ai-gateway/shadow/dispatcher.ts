@@ -23,7 +23,7 @@ import { validarSalida } from './citation-validator';
 import { evaluarCorpusPublico } from './public-corpus-gate';
 import { evaluarProcedenciaFuerte } from './public-provenance';
 import { clasificarFragmento } from './evidence-classification';
-import { estimarCostoUsd } from './pricing';
+import { estimarCostoConservadorUsd } from './pricing';
 import { privacyGate } from './privacy-gate';
 import { SHADOW_BUDGET_USD, SHADOW_BUDGET_WINDOW_MS, SHADOW_MODEL_CONFIG } from './shadow-model-config';
 import type { EvidenceChunk, ShadowGatewayInput, ShadowStatus } from './types';
@@ -131,7 +131,7 @@ export function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: numbe
 export function peorCasoUsd(input: ShadowGatewayInput): number {
   const caracteres = input.sanitizedQuestion.length + input.evidence.reduce((n, e) => n + e.texto.length + 200, 0) + 1500;
   const tokensEntrada = Math.ceil(caracteres / SHADOW_MODEL_CONFIG.charsPerTokenEstimate);
-  return estimarCostoUsd(tokensEntrada, SHADOW_MODEL_CONFIG.maxOutputTokens);
+  return estimarCostoConservadorUsd(tokensEntrada, SHADOW_MODEL_CONFIG.maxOutputTokens);
 }
 
 export function despacharShadow(params: ParametrosDespacho): void {
@@ -201,7 +201,8 @@ export function despacharShadow(params: ParametrosDespacho): void {
       const cruda = await conTimeout((signal) => adapter.responder(input, { signal }), SHADOW_TIMEOUT_MS);
       breaker.exito();
       const resultado = validarSalida(input, cruda);
-      presupuesto.liquidar(reserva, resultado.usage.estimatedCostUsd);
+      // Se liquida con la cota superior (escritura de caché incluida): nunca se subestima lo gastado.
+      presupuesto.liquidar(reserva, estimarCostoConservadorUsd(resultado.usage.inputTokens, resultado.usage.outputTokens));
       const estado: ShadowStatus = resultado.status;
       const u = resultado.usage;
       anotar({

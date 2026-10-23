@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { medirPrivacidad, generarAdversariales, etapasDeFalsosPositivos } from './privacy/benchmark-adversarial';
 import { GOLDEN_G1 } from './golden/gateway-g1-casos';
+import { medirHoldout3 } from './privacy/benchmark-g6';
 
 const golden = GOLDEN_G1.map((c) => c.input.sanitizedQuestion);
 const m = medirPrivacidad(golden);
@@ -26,25 +27,21 @@ describe('G5-B benchmark adversarial de privacidad (métricas separadas)', () =>
     expect(m.residualMissRate).toBe(m.adversarialMissed / m.adversarialTotal);
     expect(m.residualMissRate).toBeLessThanOrEqual(TOPE_RESIDUAL_MISS_RATE);
   });
-  it('el residual NO es cero y se reconoce: nombres en minúscula fuera del diccionario siguen pasando', () => {
-    expect(m.adversarialMissed).toBeGreaterThan(0);
-    expect(m.residualMissPorGrupo.MINUSCULAS.missed).toBeGreaterThan(0);
-    // Nombres capitalizados raros, extranjeros, con errores, conectores o iniciales: los atrapa el gate.
-    for (const g of ['NOMBRE_HONDUREÑO_RARO', 'APELLIDO_RARO', 'NOMBRE_EXTRANJERO', 'ERROR_ORTOGRAFICO', 'NOMBRE_CON_CONECTORES', 'INICIALES', 'EMAIL_ROTO', 'TELEFONO_FRAGMENTADO', 'NUMERO_PARCIAL_EN_LETRAS', 'IDENTIFICADOR_JUDICIAL_NO_ESTANDAR', 'DOCUMENTO_PRIVADO_DISFRAZADO']) {
-      expect(m.residualMissPorGrupo[g].missed, g).toBe(0);
-    }
+  it('G6-C: el conjunto adversarial de G5 queda cubierto; el riesgo residual NO es cero y se mide en el holdout 3', () => {
+    expect(m.adversarialMissed).toBe(0);
+    expect(medirHoldout3().holdout3PrivateMissRate).toBeGreaterThan(0);
   });
   it('overallMissRate incluye exigidos + adversariales: es la cifra sin maquillaje', () => {
     const esperado = (m.requiredTotal * (1 - m.requiredRecall) + m.adversarialMissed) / (m.requiredTotal + m.adversarialTotal);
     expect(m.overallMissRate).toBeCloseTo(esperado, 10);
-    expect(m.overallMissRate).toBeGreaterThan(0);
+    expect(m.overallMissRate).toBeLessThanOrEqual(TOPE_RESIDUAL_MISS_RATE);
   });
   it('publicFalsePositiveRate: bajo el tope, y todo falso positivo es de la etapa E (fail-closed), nunca de A/B', () => {
     expect(m.publicFalsePositiveRate).toBeLessThanOrEqual(TOPE_PUBLIC_FALSE_POSITIVE_RATE);
     expect(m.publicTotal).toBeGreaterThanOrEqual(50);
     for (const e of etapasDeFalsosPositivos(golden)) expect(e).toBe('E');
   });
-  it('ninguna de las tres métricas se informa como «100 % de privacidad»', () => {
-    expect(m.residualMissRate).toBeGreaterThan(0);
+  it('ninguna métrica se presenta como «100 % de privacidad»: el holdout 3 conserva falsos negativos', () => {
+    expect(medirHoldout3().holdout3PrivateMissed).toBeGreaterThan(0);
   });
 });

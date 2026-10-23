@@ -1,0 +1,145 @@
+{
+  "ROLLBACK_REHEARSAL_PASSED": true,
+  "estadoSeguro": {
+    "SHADOW_GATEWAY_ENABLED": false,
+    "enabled": false,
+    "maxRequests": 0,
+    "maxBudgetUsd": 0,
+    "sampleStrategy": "NINGUNA"
+  },
+  "estadoRealEsSeguro": true,
+  "killSwitchProbado": true,
+  "ensayos": [
+    {
+      "disparador": "ADAPTER_FAILURE",
+      "detenidoPor": "ERRORES_ADAPTADOR",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "PRIVACY_INCIDENT",
+      "detenidoPor": "INCIDENTE_PRIVACIDAD",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "PROVENANCE_MISMATCH",
+      "detenidoPor": "PROCEDENCIA_NO_COINCIDE",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "SCHEMA_FAILURE",
+      "detenidoPor": "FALLO_ESQUEMA",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "UNEXPECTED_COST",
+      "detenidoPor": "COSTO_INESPERADO",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "TIMEOUT",
+      "detenidoPor": "ERRORES_ADAPTADOR",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "CIRCUIT_BREAKER_OPEN",
+      "detenidoPor": "ERRORES_ADAPTADOR",
+      "solicitudesAntesDeParar": 4,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    },
+    {
+      "disparador": "MANUAL_KILL",
+      "detenidoPor": "MAX_REQUESTS",
+      "solicitudesAntesDeParar": 9,
+      "noReanuda": true,
+      "estadoFinal": {
+        "SHADOW_GATEWAY_ENABLED": false,
+        "enabled": false,
+        "maxRequests": 0,
+        "maxBudgetUsd": 0,
+        "sampleStrategy": "NINGUNA"
+      },
+      "configFinalValida": true,
+      "permiteTraficoDespues": false
+    }
+  ],
+  "limiteConocido": "El kill switch del shadow es una constante de código: el retorno a «apagado» en un despliegue real es revertir y redesplegar (promover el despliegue anterior). No hay interruptor en caliente.",
+  "codigoHashes": {
+    "app/api/chat/route.ts": "a2950cd8b1f20b541330bfffcfccebadea68f3d90fbf870d09ff018458663d24",
+    "lib/legal-retrieval/evidence-engine.ts": "05a70d3912505786b18a5b1487cb4658550c5654de377a6d3d57a442eda20501",
+    "lib/legal-retrieval/exact-resolver.ts": "81eada250fd8f6a2648da12ab0b8877ea02f6c79f4835d18f1bb376a147aca8b",
+    "lib/legal-retrieval/instrument-gate.ts": "5abf4434aa7be4df60f5c778ec9e764912424a5ecd46f351221c28fb1e101717",
+    "lib/legal-retrieval/primitives.ts": "8b45f9e318f5fabf5a469342196afba67851e2c1aaac25716a983a59c1f2737d",
+    "lib/legal-retrieval/semantic-retriever.ts": "6555ca2d880e11880ab611a3d77fe283ae34c95842dea8a748a53f202149d8b1",
+    "lib/legal-retrieval/types.ts": "396adfe61d9594b18ac30ce7c1d87150b20430ffffcfa07725c00b94a88ddd43",
+    "lib/rag/search.ts": "d891491136e255845c12945644260ef7da3729d357c73dc0a1fadc8bf71b4b84"
+  }
+}

@@ -11,7 +11,9 @@
  * G4-B añade: NOMBRE_COMPLETO, NUMERO_EN_PALABRAS, NUMERO_JUDICIAL (etapa B/A) y variantes de teléfono y correo.
  * El orden de los patrones es estable: los de G2 van primero y conservan su categoría.
  */
-import { contieneNombreCompleto, contieneNumeroEnPalabras } from './nombres-propios';
+import { contieneDeApellido, contieneNombreCompleto, contieneNumeroEnPalabras } from './nombres-propios';
+import { contieneNombreDePila } from './nombres-inequivocos';
+import { enmascararEntidadesPublicas } from './entidades-publicas';
 
 export type CategoriaPii =
   | 'EMAIL'
@@ -32,7 +34,10 @@ export type CategoriaPii =
   | 'NUMERO_JUDICIAL'
   | 'PLACA'
   | 'PARIENTE_O_TERCERO'
-  | 'INICIALES_NOMBRE';
+  | 'INICIALES_NOMBRE'
+  | 'NOMBRE_DE_PILA'
+  | 'NOMBRE_AL_INICIO'
+  | 'RELATO_PERSONAL';
 
 export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   EMAIL: 'A',
@@ -54,6 +59,9 @@ export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   PLACA: 'A',
   PARIENTE_O_TERCERO: 'B',
   INICIALES_NOMBRE: 'B',
+  NOMBRE_DE_PILA: 'B',
+  NOMBRE_AL_INICIO: 'B',
+  RELATO_PERSONAL: 'B',
 };
 
 const MAYUS = 'A-ZÁÉÍÓÚÑ';
@@ -123,7 +131,35 @@ const PATRONES: ReadonlyArray<readonly [CategoriaPii, RegExp]> = [
   ['PARIENTE_O_TERCERO', /\b(?:mi|mis)\s+(?:esposa|esposo|hij[oa]s?|madre|padre|hermano|hermana|vecin[oa]|jefe|socio|socia|novia|novio|suegr[oa]|abuel[oa]|tio|tia|primo|prima)\b/i],
   // Iniciales seguidas de apellido: «J. A. Hernández», «M.L. Pérez».
   ['INICIALES_NOMBRE', new RegExp(String.raw`\b[${MAYUS}]\.\s?(?:[${MAYUS}]\.\s?)*[${MAYUS}][${MINUS}]+`)],
+
+  // ── G6-C (ronda 2) ─────────────────────────────────────────────────────────
+  // Correo ofuscado con «en»/«arroba» y «punto» entre palabras o paréntesis: «abogado en gmail punto com», «ju4n(arroba)hotmail(punto)com».
+  // Relato en primera persona sobre bienes, empleo o deudas propias: situación personal, no consulta abstracta.
+  ['RELATO_PERSONAL', /\b(?:me|nos)\s+(?:despidi|embarg|demand|denunci|detuvo|detuvieron|multo|multaron|estaf|robo|robaron|desalojo|desalojaron|quito|quitaron|cobr|amenaz|agredi|notific|citaron|citaron)\w*/i],
+  ['RELATO_PERSONAL', /\b(?:mi|mis|nuestro|nuestra)\s+(?:jefe|jefa|patrono|patrona|empleador|empleadora|casa|finca|terreno|lote|empresa|negocio|salario|sueldo|deuda|prestamo|préstamo|inquilino|inquilina|arrendador|arrendadora|socio|socia|banco|abogado|abogada|hija|hijo|nieto|nieta|abuelo|abuela|cuñado|cuñada|yerno|nuera|sobrino|sobrina|pareja|ex|exesposo|exesposa|compañero|compañera)\b/i],
+  ['EMAIL', /[\w.+-]+\s+en\s+[\w-]+\s+punto\s+(?:com|net|org|hn|es|edu|gob|info)\b/i],
+  ['EMAIL', /[\w.+-]+\s*(?:\(arroba\)|\[arroba\]|\(at\)|\[at\])\s*[\w-]+\s*(?:\(punto\)|\[punto\]|\(dot\)|\[dot\])\s*[a-z]{2,}/i],
+  // Identidad (13 dígitos) o RTN (14) parcialmente enmascarados con asteriscos: «0801-1990-1****».
+  ['IDENTIDAD_RTN', /(?<![\w*])\d{4}[-\s]?\d{4}[-\s]?(?=[\d*]*\*)[\d*]{4,6}(?![\w*])/],
 ];
+
+// Tratamiento seguido de un nombre en MINÚSCULA («el señor tomás aguilera», «don telmo»). Se excluyen los cargos y roles procesales.
+const TITULOS = /(?<![a-z])(senor|senora|senorita|dona|don|sr|sra|srta|licenciado|licenciada|lic|ingeniero|ingeniera|ing|doctor|doctora|dr|dra)\.?\s+([a-z]{3,})/g;
+const CARGOS_Y_ROLES: ReadonlySet<string> = new Set([
+  'juez', 'jueza', 'notario', 'notaria', 'fiscal', 'magistrado', 'magistrada', 'presidente', 'presidenta', 'secretario', 'secretaria',
+  'alcalde', 'alcaldesa', 'director', 'directora', 'ministro', 'ministra', 'procurador', 'procuradora', 'perito', 'registrador',
+  'registradora', 'abogado', 'abogada', 'defensor', 'defensora', 'testigo', 'arrendador', 'arrendatario', 'comprador', 'vendedor',
+  'deudor', 'acreedor', 'patrono', 'trabajador', 'empleador', 'propietario', 'poseedor', 'demandante', 'demandado', 'imputado',
+  'acusado', 'condenado', 'cliente', 'usuario', 'consumidor', 'contribuyente', 'funcionario', 'empleado', 'apoderado', 'mandatario',
+  'representante', 'tutor', 'curador', 'heredero', 'legatario', 'albacea', 'conyuge', 'esposo', 'esposa', 'padre', 'madre', 'hijo',
+  'hija', 'menor', 'ciudadano', 'ciudadana', 'inquilino', 'inquilina', 'gerente', 'administrador', 'administradora', 'tesorero',
+  'sindico', 'liquidador', 'comisionado', 'diputado', 'diputada', 'regidor', 'regidora', 'fedatario', 'oficial', 'agente',
+]);
+
+function tituloSeguidoDeNombre(textoSinTildes: string): boolean {
+  for (const m of textoSinTildes.toLowerCase().matchAll(TITULOS)) if (!CARGOS_Y_ROLES.has(m[2])) return true;
+  return false;
+}
 
 /** Devuelve la categoría detectada, o null si el texto no tiene señales de las etapas A o B. */
 export function detectarPii(texto: string): CategoriaPii | null {
@@ -132,6 +168,11 @@ export function detectarPii(texto: string): CategoriaPii | null {
   }
   // Detección por diccionario (sin importar mayúsculas): pares nombre/apellido y dígitos escritos con palabras.
   if (contieneNumeroEnPalabras(texto)) return 'NUMERO_EN_PALABRAS';
-  if (contieneNombreCompleto(texto)) return 'NOMBRE_COMPLETO';
+  // Nombres: los nombres públicos del registro (autores, casos, instituciones, lugares) se enmascaran antes de estas comprobaciones.
+  const sinPublicos = enmascararEntidadesPublicas(texto);
+  if (tituloSeguidoDeNombre(sinPublicos)) return 'TRATAMIENTO_NOMBRE';
+  if (contieneNombreCompleto(sinPublicos)) return 'NOMBRE_COMPLETO';
+  if (contieneNombreDePila(sinPublicos)) return 'NOMBRE_DE_PILA';
+  if (contieneDeApellido(sinPublicos)) return 'NOMBRE_COMPLETO';
   return null;
 }

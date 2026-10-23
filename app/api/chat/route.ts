@@ -457,13 +457,18 @@ export async function POST(req: NextRequest) {
   // PR-G2 (AI Gateway, modo sombra): despacho fire-and-forget DESPUÉS del
   // Evidence Gate. No se espera, no recibe la respuesta ni la modifica; con el
   // kill switch apagado (default) no hace nada. Ver lib/ai-gateway/shadow.
-  despacharShadow({
-    queryId: consultaId,
-    pregunta: ultimaPregunta as string,
-    fragmentos: ragData.fragmentos,
-    decision: evidenciaInsuficiente ? 'ABSTAIN' : 'ANSWER',
-    retrievalState: outcomeState,
-  });
+  // G6-E: defensa en profundidad. `despacharShadow` ya se protege por dentro, pero ningún fallo del shadow puede llegar a producción.
+  try {
+    despacharShadow({
+      queryId: consultaId,
+      pregunta: ultimaPregunta as string,
+      fragmentos: ragData.fragmentos,
+      decision: evidenciaInsuficiente ? 'ABSTAIN' : 'ANSWER',
+      retrievalState: outcomeState,
+    });
+  } catch {
+    // El shadow es subordinado: se ignora cualquier error.
+  }
 
   if (contextoRAG) {
     // OWASP RAG: contexto como DATO, enmarcado explícitamente — DESPUÉS del caché
