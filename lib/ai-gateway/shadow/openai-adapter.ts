@@ -53,6 +53,8 @@ export function construirSolicitud(input: ShadowGatewayInput) {
     instructions: INSTRUCCIONES_SOMBRA,
     input: serializarEntrada(input),
     max_output_tokens: SHADOW_MODEL_CONFIG.maxOutputTokens,
+    // El modelo razona en `medium` por defecto (documentación oficial): sin esto los tokens de razonamiento consumirían la salida.
+    reasoning: { effort: SHADOW_MODEL_CONFIG.reasoningEffort },
     text: {
       format: {
         type: 'json_schema' as const,

@@ -342,6 +342,7 @@ describe('adaptador OpenAI (implementado, no ejecutado)', () => {
     expect(cuerpo.model).toBe(SHADOW_MODEL_CONFIG.modelId);
     expect(cuerpo.store).toBe(false);
     expect(cuerpo.max_output_tokens).toBe(SHADOW_MODEL_CONFIG.maxOutputTokens);
+    expect(cuerpo.reasoning).toEqual({ effort: 'none' }); // el modelo razona en medium por defecto
     expect(cuerpo.text).toEqual({ format: { type: 'json_schema', name: 'mayalex_shadow_output', strict: true, schema: MODEL_OUTPUT_WIRE_JSON_SCHEMA } });
     for (const prohibido of ['tools', 'tool_choice', 'previous_response_id', 'conversation', 'background', 'file_ids', 'metadata', 'parallel_tool_calls']) {
       expect(Object.keys(cuerpo), prohibido).not.toContain(prohibido);

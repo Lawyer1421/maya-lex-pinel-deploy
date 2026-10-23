@@ -139,7 +139,7 @@ describe('validador determinístico de citas', () => {
 describe('tarifas de gpt-6-luna (única fuente: shadow-model-config.ts)', () => {
   const { standard, batch } = SHADOW_MODEL_CONFIG.pricing;
   it('la configuración central lleva fecha de verificación y URL documental', () => {
-    expect(SHADOW_MODEL_CONFIG.pricing.verifiedAt).toBe('2026-10-22');
+    expect(SHADOW_MODEL_CONFIG.pricing.verifiedAt).toBe('2026-10-23');
     expect(SHADOW_MODEL_CONFIG.pricing.sourceUrl).toBe('https://developers.openai.com/api/docs/pricing');
   });
   it('estima el costo por millón de tokens con las tarifas de la configuración', () => {
