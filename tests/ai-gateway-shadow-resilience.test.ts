@@ -86,6 +86,7 @@ async function cargarDispatcher(responder: (input: unknown, opciones?: { signal?
   vi.resetModules();
   vi.doMock('@/lib/ai-gateway/shadow/config', () => ({ SHADOW_GATEWAY_ENABLED: habilitado, SHADOW_TIMEOUT_MS: 40, SHADOW_REGISTRY_MAX: 200 }));
   vi.doMock('@/lib/ai-gateway/shadow/shadow-model-config', async (original) => ({ ...(await original<typeof import('@/lib/ai-gateway/shadow/shadow-model-config')>()), SHADOW_BUDGET_USD: 1 }));
+  vi.doMock('@/lib/ai-gateway/shadow/public-provenance', () => ({ evaluarProcedenciaFuerte: () => ({ estado: 'PROVENANCE_PASS' }) }));
   vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({ credencialDisponible: () => true, crearAdaptadorSombra: () => ({ modelo: 'gpt-6-luna', responder }) }));
   return import('@/lib/ai-gateway/shadow/dispatcher');
 }

@@ -90,7 +90,7 @@ describe('privacy gate fail-closed (sin LLM)', () => {
     // E — duda
     ['sin señal jurídica', '¿Qué hago?', 'E'],
     ['saludo', 'Hola buenos días', 'E'],
-    ['nombre propio detectable', '¿Qué dice el artículo 173 sobre Pedro Martínez?', 'E'],
+    ['nombre propio sin marcador (diccionario)', '¿Qué dice el artículo 173 sobre Pedro Martínez?', 'B'],
     ['empresa con nombre propio', '¿Qué dice el artículo 173 para la Cervecería Hondureña?', 'E'],
     ['entrada vacía', '   ', 'E'],
   ];
@@ -117,11 +117,14 @@ describe('privacy gate fail-closed (sin LLM)', () => {
   it('FALSO POSITIVO conocido: dos números de 4 dígitos seguidos se leen como teléfono', () => {
     expect(privacyGate('¿Qué ley rige entre los años 2019 2020?').estado).toBe('REJECT');
   });
-  it('FALSO NEGATIVO conocido: un nombre en minúscula y sin marcador pasa', () => {
-    expect(privacyGate('¿qué dice el artículo 173 sobre juan perez?').estado).toBe('PASS');
+  it('G4-B cerrado: un nombre en minúscula y sin marcador se detecta por diccionario', () => {
+    expect(privacyGate('¿qué dice el artículo 173 sobre juan perez?').estado).toBe('REJECT');
   });
-  it('FALSO NEGATIVO conocido: datos personales escritos con palabras pasan', () => {
-    expect(privacyGate('Mi número es nueve nueve ocho siete, ¿qué dice el artículo 173?').estado).toBe('PASS');
+  it('G4-B cerrado: datos personales escritos con palabras se detectan', () => {
+    expect(privacyGate('Mi número es nueve nueve ocho siete, ¿qué dice el artículo 173?').estado).toBe('REJECT');
+  });
+  it('FALSO NEGATIVO residual: un nombre fuera del diccionario, en minúscula y sin marcador, pasa', () => {
+    expect(privacyGate('¿qué dice el artículo 173 sobre zacarias quiroz?').estado).toBe('PASS');
   });
 });
 
@@ -431,6 +434,7 @@ async function cargar(o: OpcionesCarga = {}) {
     vi.doMock('@/lib/ai-gateway/shadow/shadow-model-config', async (original) => ({ ...(await original<typeof import('@/lib/ai-gateway/shadow/shadow-model-config')>()), SHADOW_BUDGET_USD: presupuesto }));
   }
   const responder = vi.fn(o.responder ?? (async () => ({ rawOutput: { decision: 'ANSWER', claims: [{ claim_id: 'c1', text: 'texto', citations: [{ chunk_id: 'f1', support: 'DIRECT' }] }], abstention_reason: null }, usage: { inputTokens: 100, outputTokens: 10 }, latencyMs: 3 })));
+  vi.doMock('@/lib/ai-gateway/shadow/public-provenance', () => ({ evaluarProcedenciaFuerte: () => ({ estado: 'PROVENANCE_PASS' }) }));
   vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({
     credencialDisponible: () => o.credencial ?? true,
     crearAdaptadorSombra: () => ({ modelo: 'gpt-6-luna', responder }),

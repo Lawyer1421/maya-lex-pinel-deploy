@@ -3,6 +3,8 @@
 Estado del PR #85: el adaptador OpenAI está implementado pero **apagado y sin presupuesto**:
 `SHADOW_GATEWAY_ENABLED = false` y `SHADOW_BUDGET_USD = 0` (constantes de código). No hay llamada real posible.
 
+> **Actualización G4:** ver `docs/governance/g4-pre-canary.md`. La procedencia fuerte ya tiene gate y manifiesto (vacío); el privacy gate se endureció con benchmark. Las filas de abajo son el estado de G3.
+
 ## Deuda previa a canary (bloqueos)
 
 | Marca | Qué falta |
