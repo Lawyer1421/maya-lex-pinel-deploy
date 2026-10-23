@@ -6,7 +6,8 @@ import { detectarArticuloExacto } from '../../legal-retrieval/exact-resolver';
 import type { IntentResult, LegalTask, RiskLevel } from '../types';
 import { resolverJurisdiccion } from '../jurisdiction/registry';
 
-const RE_REDACTAR = /\b(redacta|redactar|elabora|elaborar|borrador|modelo de|minuta|demanda de|escrito de|contrato de)\b/i;
+// Solo verbos/sustantivos de redacción: «contrato de»/«demanda de» por sí solos aparecen en preguntas de investigación.
+const RE_REDACTAR = /\b(redacta\w*|redactar|elabora\w*|elaborar|prepara(?:r|me)?\s+(?:un|una|el|la)|borrador|minuta)\b/i;
 const RE_DOCUMENTO = /\b(revisa|revisar|analiza este|adjunto|este documento|esta escritura|este contrato)\b/i;
 const RE_ANALISIS = /\b(anali[zc]a|compara|diferencia|estrategia|viabilidad|riesgos?|consecuencias|c[oó]mo (?:se )?(?:debe|deber[ií]a)|qu[eé] pasa si)\b/i;
 const RE_ALTO_RIESGO = /\b(plazo|prescrip|caducidad|recurso|apelaci[oó]n|casaci[oó]n|detenci[oó]n|prisi[oó]n|delito|demanda|sanci[oó]n|multa|despido|desahucio|embargo)\b/i;

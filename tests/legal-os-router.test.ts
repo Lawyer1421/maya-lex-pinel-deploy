@@ -27,6 +27,7 @@ describe('jurisdicción', () => {
 describe('intención', () => {
   it('artículo exacto', () => expect(clasificarIntencion('¿Qué dice el artículo 173 del Código Procesal Penal?')).toMatchObject({ task: 'EXACT_LOOKUP', hasExactReference: true, matter: 'penal' }));
   it('redacción de escrito es alto riesgo', () => expect(clasificarIntencion('Redacta una demanda de desahucio')).toMatchObject({ task: 'DRAFTING', risk: 'HIGH' }));
+  it('«contrato de» en una pregunta de investigación NO es redacción', () => expect(clasificarIntencion('¿Qué dice el Código Civil sobre el contrato de compraventa?')).toMatchObject({ task: 'RESEARCH', risk: 'LOW' }));
   it('análisis', () => expect(clasificarIntencion('Compara el despido directo e indirecto y sus consecuencias')).toMatchObject({ task: 'ANALYSIS', matter: 'laboral' }));
   it('fuera de alcance', () => expect(clasificarIntencion('Dame una receta de baleadas')).toMatchObject({ task: 'OUT_OF_SCOPE', requiresEvidence: false }));
 });
