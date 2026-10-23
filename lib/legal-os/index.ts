@@ -10,3 +10,8 @@ export * as evaluation from './evaluation';
 export * as observability from './observability';
 export * as tools from './tools';
 export * as graph from './graph';
+export * as retrieval from './retrieval';
+export * as agents from './agents';
+export * as learning from './learning';
+export * as entitlements from './entitlements';
+export * as jurisprudence from './jurisprudence';
