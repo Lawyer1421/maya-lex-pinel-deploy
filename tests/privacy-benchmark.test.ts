@@ -23,8 +23,8 @@ describe('G4-B benchmark de privacidad (offline)', () => {
     const rr = ejecutarBenchmark(FP_CONOCIDOS);
     expect(rr.falsosPositivos).toEqual(FP_CONOCIDOS);
   });
-  it('los falsos negativos residuales conocidos siguen documentados (no se aceptan sin registro)', () => {
-    // Si un residual pasa a detectarse, quitar `residual` del caso. Si aparecen más, documentarlos.
-    expect(r.residualesNoDetectados.length).toBe(BENCH_PII.filter((c) => c.residual).length);
+  it('no quedan residuales marcados en el conjunto de G4 (el riesgo residual real se mide en tests/privacy-g6.test.ts)', () => {
+    expect(BENCH_PII.filter((c) => c.residual)).toEqual([]);
+    expect(r.residualesNoDetectados).toEqual([]);
   });
 });

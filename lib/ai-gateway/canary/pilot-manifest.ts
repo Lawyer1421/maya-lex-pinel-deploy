@@ -37,6 +37,38 @@ export interface CandidatoPiloto {
   /** Nota de procedencia: de dónde sale cada dato y qué NO se sabe. */
   nota: string;
   revisionCLO: RevisionCLO | null;
+  /** G6-B: expediente completo para el CLO, con la procedencia de cada dato. Opcional: no afecta la verificación del manifiesto. */
+  dossier?: DossierCLO;
+}
+
+export type EstadoDato = 'SOURCED_FROM_REPO' | 'PENDING_VERIFICATION';
+
+/** Un dato del expediente: su valor (o null), de dónde sale y si falta verificarlo. Nunca se rellena lo que no se sabe. */
+export interface DatoDossier {
+  valor: string | null;
+  estado: EstadoDato;
+  /** Procedencia: archivo/sección del repositorio o fuente que lo respalda; null si no hay. */
+  procedencia: string | null;
+  nota?: string;
+}
+
+export interface DossierCLO {
+  norma: DatoDossier;
+  decreto: DatoDossier;
+  articulo: DatoDossier;
+  textoExacto: DatoDossier;
+  fragmentoIdCanonico: DatoDossier;
+  contenidoSha256: DatoDossier;
+  gaceta: DatoDossier;
+  fechaGaceta: DatoDossier;
+  urlOficial: DatoDossier;
+  pdfSha256: DatoDossier;
+  estadoV: DatoDossier;
+  evidenciaVigencia: DatoDossier;
+  reformaODerogacion: DatoDossier;
+  goldenSetRelacionado: DatoDossier;
+  /** Qué se le pide decidir al CLO. */
+  decisionSolicitada: string;
 }
 
 export interface ResultadoVerificacion {

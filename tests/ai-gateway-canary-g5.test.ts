@@ -15,7 +15,7 @@ import {
 } from '@/lib/ai-gateway/canary/canary-config';
 import { CONDICIONES_CANARY, evaluarGoNoGo, type CondicionCanary, type EvidenciaCondicion } from '@/lib/ai-gateway/canary/go-no-go';
 import { decisionActualGoNoGo, estadoActualGoNoGo } from '@/lib/ai-gateway/canary/estado-actual';
-import { VERIFICACION_OPENAI, estadoVerificacionOpenAI, type EntradaVerificacion } from '@/lib/ai-gateway/canary/openai-verification';
+import { VERIFICACION_OPENAI, estadoVerificacionOpenAI } from '@/lib/ai-gateway/canary/openai-verification';
 import {
   aEntradaManifiesto, construirManifiestoEfectivo, etapaDe, informePiloto, registrarRevisionCLO, verificarCandidato, type CandidatoPiloto,
 } from '@/lib/ai-gateway/canary/pilot-manifest';
@@ -142,12 +142,11 @@ describe('G5-H contrato GO / NO-GO', () => {
     expect(e.BUDGET_GT_ZERO_EXPLICITLY_AUTHORIZED.cumplida).toBe(false);
     expect(e.KILL_SWITCH_EXPLICITLY_AUTHORIZED.cumplida).toBe(false);
     expect(e.CLO_PROVENANCE_PILOT_APPROVED.cumplida).toBe(false);
-    expect(e.OFFICIAL_API_VERIFICATION_CURRENT.cumplida).toBe(false);
   });
 });
 
-// ── G5-E ─────────────────────────────────────────────────────────────────────
-describe('G5-E registro de verificación de OpenAI', () => {
+// ── G5-E (reemplazado por G6-A: ver tests/ai-gateway-canary-g6.test.ts) ──────
+describe('G5-E registro de verificación de OpenAI (esquema G6-A)', () => {
   it('cada entrada trae fuente, fecha, valor verificado y ubicación en el código', () => {
     for (const e of VERIFICACION_OPENAI) {
       expect(e.sourceUrl, e.id).toMatch(/^https:\/\//);
@@ -156,31 +155,9 @@ describe('G5-E registro de verificación de OpenAI', () => {
       expect(e.codeLocation.length, e.id).toBeGreaterThan(3);
     }
   });
-  it('cubre todos los temas pedidos', () => {
-    const ids = VERIFICACION_OPENAI.map((e) => e.id);
-    for (const id of ['model-availability', 'responses-api-syntax', 'structured-outputs', 'store-false-retention', 'sdk-version', 'node-requirement', 'sdk-retries', 'abort-signal', 'pricing-input', 'pricing-cached-input', 'pricing-output']) expect(ids).toContain(id);
-  });
-  it('nada de terceros ni sin verificar cuenta como verificación oficial; el registro actual NO está completo', () => {
-    for (const e of VERIFICACION_OPENAI.filter((x) => x.estado === 'THIRD_PARTY_ONLY' || x.estado === 'UNVERIFIED')) expect(e.estado).not.toBe('VERIFIED_OFFICIAL');
-    const est = estadoVerificacionOpenAI(VERIFICACION_OPENAI, new Date('2026-10-23T12:00:00Z'));
-    expect(est.completa).toBe(false);
-    expect(est.pendientes).toEqual(expect.arrayContaining(['model-availability', 'pricing-input', 'pricing-cached-input', 'pricing-output', 'store-false-retention', 'structured-outputs']));
-  });
   it('una verificación completa pero vieja deja de ser vigente', () => {
-    const buenas: EntradaVerificacion[] = VERIFICACION_OPENAI.map((e) => ({ ...e, estado: 'VERIFIED_OFFICIAL' }));
-    expect(estadoVerificacionOpenAI(buenas, new Date('2026-10-25T00:00:00Z')).completa).toBe(true);
-    expect(estadoVerificacionOpenAI(buenas, new Date('2026-12-01T00:00:00Z')).completa).toBe(false);
-  });
-  it('las tarifas del registro coinciden con la configuración central (única fuente numérica)', () => {
-    const t = SHADOW_MODEL_CONFIG.pricing.standard;
-    expect(VERIFICACION_OPENAI.find((e) => e.id === 'pricing-input')!.verifiedValue).toContain(String(t.inputUsdPerMillion));
-    expect(VERIFICACION_OPENAI.find((e) => e.id === 'pricing-output')!.verifiedValue).toContain(String(t.outputUsdPerMillion));
-    expect(VERIFICACION_OPENAI.find((e) => e.id === 'pricing-cached-input')!.verifiedValue).toContain(String(t.cachedInputUsdPerMillion));
-  });
-  it('el documento G5 menciona cada entrada del registro (sin deriva entre documento y código)', () => {
-    const doc = leer('docs', 'governance', 'g5-canary-readiness.md');
-    for (const e of VERIFICACION_OPENAI) expect(doc, e.id).toContain(e.id.startsWith('pricing-') ? 'pricing-' : e.id);
-    expect(doc).toContain('NO_GO');
+    expect(estadoVerificacionOpenAI(VERIFICACION_OPENAI, new Date('2026-10-25T00:00:00Z')).completa).toBe(true);
+    expect(estadoVerificacionOpenAI(VERIFICACION_OPENAI, new Date('2026-12-01T00:00:00Z')).completa).toBe(false);
   });
   it('el SDK registrado coincide con package.json', () => {
     expect(JSON.parse(leer('package.json')).dependencies.openai).toBe('7.43.0');

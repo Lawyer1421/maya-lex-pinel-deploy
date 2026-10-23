@@ -26,6 +26,7 @@
  */
 import { IDENTIFICADORES_DOCUMENTALES } from '../../legal-retrieval/instrument-gate';
 import { ETAPA_POR_CATEGORIA, detectarPii } from './pii-gate';
+import { enmascararEntidadesPublicas } from './entidades-publicas';
 
 export type ResultadoPrivacidad =
   | { estado: 'PASS' }
@@ -43,6 +44,18 @@ const SENALES_JURIDICAS: readonly string[] = [
   'prision', 'cautelar', 'juicio', 'audiencia', 'tribunal', 'juez', 'fiscal', 'notari', 'escritura', 'registro', 'contrato',
   'sociedad', 'tribut', 'impuesto', 'laboral', 'trabajo', 'familia', 'civil', 'penal', 'mercantil', 'comercio', 'herencia',
   'sucesion', 'propiedad', 'prueba', 'competente', 'jurisdiccion', 'legal', 'juridic', 'instrumento', 'resolucion',
+  // G6-C: más raíces de consultas jurídicas públicas (civil, penal, procesal, mercantil, internacional).
+  'demand', 'rebeld', 'testament', 'heredar', 'hereder', 'fianza', 'fiador', 'hipotec', 'usufruct', 'arrend', 'alquiler', 'inquilin',
+  'divorc', 'patern', 'alimento', 'habeas', 'embargo', 'nulid', 'pagare', 'cheque', 'lavado', 'estafa', 'peculado', 'cohecho',
+  'homicidio', 'lesion', 'hurto', 'extorsion', 'secuestro', 'fraude', 'usura', 'dolo', 'culpa', 'tutela', 'curatela', 'adopcion',
+  'matrimonio', 'fideicomiso', 'quiebra', 'arbitraje', 'notificacion', 'citacion', 'emplazamiento', 'edicto', 'mandato', 'poder',
+  'testigo', 'perito', 'allanamiento', 'flagrancia', 'costas', 'comiso', 'litispendencia', 'reconvencion', 'cosa juzgada', 'derechos humanos',
+  'tratado', 'convencion', 'convenio', 'pacto', 'jurisprudencia', 'doctrina', 'teoria', 'principio', 'garantias', 'debido proceso',
+  'electoral', 'municipal', 'administrativ', 'constituc', 'penal', 'tributar', 'aduaner', 'migrac', 'agrari', 'ambient', 'energia',
+  'telecomunic', 'bancari', 'financier', 'consumidor', 'seguro', 'valores', 'competencia desleal', 'propiedad intelectual', 'patente',
+  'ordenamiento', 'seguridad', 'policia', 'carrera judicial', 'procesal', 'accion', 'corte', 'justicia', 'atribucion', 'funcion', 'competencia',
+  'sentenc', 'caso', 'archivo nacional', 'dominio', 'oportunidad', 'emancipa', 'patria potestad', 'nino', 'consejo', 'anticorrup', 'tradicion',
+  'criterio', 'interes superior', 'convenc',
 ];
 
 /** Palabras capitalizadas permitidas en una consulta jurídica pública (sin tildes, minúsculas). */
@@ -55,6 +68,16 @@ const CAPITALIZADAS_PERMITIDAS: ReadonlySet<string> = new Set([
   'seguros', 'bancos', 'procedimiento', 'corte', 'suprema', 'congreso', 'poder', 'judicial', 'ejecutivo', 'legislativo',
   'ministerio', 'publico', 'fiscalia', 'tribunal', 'sala', 'articulo', 'titulo', 'capitulo', 'libro', 'seccion', 'segun',
   'sobre', 'del', 'de', 'la', 'el',
+  // G6-C: vocabulario capitalizado de instituciones, leyes y tratados (palabras comunes, no nombres de persona).
+  'interamericana', 'derechos', 'humanos', 'superior', 'cuentas', 'procuraduria', 'general', 'banco', 'central', 'servicio',
+  'administracion', 'rentas', 'instituto', 'agrario', 'comisionado', 'alcaldia', 'municipal', 'inmueble', 'sistema', 'financiero',
+  'contratacion', 'impuesto', 'renta', 'vehicular', 'testimonio', 'ordenamiento', 'ingresos', 'direccion', 'ejecutiva', 'secretaria',
+  'seguridad', 'policia', 'carrera', 'supremo', 'unidas', 'naciones', 'carta', 'convencion', 'convenio', 'pacto', 'tratado',
+  'declaracion', 'universal', 'americana', 'fiscal', 'juez', 'letras', 'magistrado', 'notario', 'procurador', 'presidente',
+  'empresa', 'electrica', 'justicia', 'equidad', 'libre', 'estados', 'unidos', 'internacional', 'privado', 'reforma', 'aduanas',
+  'hondureno', 'honduras', 'honduran', 'agraria', 'defensa', 'nacional', 'derecho', 'organizacion', 'instituciones', 'tributaria',
+  'inversiones', 'proteccion', 'orgánica', 'lavado', 'activos', 'medio', 'ambiente', 'recursos', 'naturales', 'trabajadores',
+  'archivo', 'consejo', 'anticorrupcion', 'nacion', 'nino', 'ninos', 'migratoria', 'electrico', 'financiera', 'valores', 'mercado', 'competencia', 'propiedad', 'intelectual', 'publica', 'publicas',
   // Palabras de los nombres de instrumentos que ya conoce instrument-gate (CODIGO_PROCESAL_PENAL → codigo, procesal, penal).
   ...Object.keys(IDENTIFICADORES_DOCUMENTALES).flatMap((k) => k.toLowerCase().split('_')),
 ]);
@@ -62,6 +85,29 @@ const CAPITALIZADAS_PERMITIDAS: ReadonlySet<string> = new Set([
 const SIGLAS_PERMITIDAS: ReadonlySet<string> = new Set(['cpp', 'cpc', 'cp', 'cc', 'ct', 'isr', 'isv', 'pcsj', 'bis', 'dni' /* rechazado antes por la etapa A */]);
 
 const FORMULAS_DOCUMENTALES = /\b(?:CONSIDERANDO|POR TANTO|RESUELVE|FALLA|VISTOS?|RESULTANDO|ANTECEDENTES|HECHOS PROBADOS)\b|\ba las \d{1,2}[:.]\d{2}\s+horas\b/;
+
+/** Palabras con las que empieza normalmente una consulta jurídica pública. */
+const INICIOS_COMUNES: ReadonlySet<string> = new Set([
+  'que', 'cual', 'cuales', 'como', 'cuando', 'donde', 'quien', 'quienes', 'cuanto', 'cuanta', 'cuantos', 'cuantas', 'por', 'para', 'si',
+  'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'lo', 'al', 'del', 'de', 'en', 'con', 'sin', 'segun', 'sobre', 'ante', 'bajo',
+  'contra', 'desde', 'entre', 'hacia', 'hasta', 'mediante', 'tras', 'durante', 'y', 'o', 'u', 'e', 'ni', 'pero', 'aunque', 'tambien', 'cuando',
+  'es', 'son', 'esta', 'estan', 'hay', 'existe', 'existen', 'puede', 'pueden', 'debe', 'deben', 'se', 'me', 'mi', 'mis', 'tu', 'su', 'nuestro',
+  'tengo', 'tiene', 'tienen', 'tenemos', 'quiero', 'necesito', 'queremos', 'busco', 'dime', 'digame', 'explica', 'explique', 'explicame',
+  'indica', 'indique', 'cita', 'cite', 'resume', 'resuma', 'define', 'defina', 'compara', 'compare', 'lista', 'liste', 'enumera', 'enumere',
+  'muestra', 'muestre', 'ayuda', 'ayudame', 'consulta', 'consulto', 'consultas', 'hola', 'buenos', 'buenas', 'gracias', 'favor', 'quisiera',
+  'podria', 'podrian', 'seria', 'serian', 'habria', 'hablame', 'cuentame', 'dame', 'dar', 'dice', 'dicen', 'establece', 'regula', 'ahora',
+  'entonces', 'ademas', 'asimismo', 'adicionalmente', 'otra', 'otro', 'otras', 'otros', 'este', 'esta', 'estos', 'estas', 'ese', 'esa',
+  'aquel', 'cada', 'todo', 'toda', 'todos', 'todas', 'algun', 'alguna', 'algunos', 'algunas', 'ningun', 'ninguna', 'nuestra', 'nuestros',
+  'a', 'ha', 'han', 'fue', 'fueron', 'ser', 'estar', 'tener', 'poder', 'deber', 'hacer', 'existe', 'procede', 'proceden', 'aplica', 'aplican',
+  'sigue', 'siguen', 'rige', 'rigen', 'vale', 'valen', 'corresponde', 'corresponden', 'cabe', 'caben', 'requiere', 'exige', 'prescribe', 'caduca',
+  'vence', 'vencen', 'cuenta', 'cuentan', 'queda', 'quedan', 'permite', 'prohibe', 'obliga', 'autoriza', 'faculta', 'otorga', 'concede', 'impone',
+  'sanciona', 'castiga', 'penaliza', 'tipifica', 'preve', 'contempla', 'dispone', 'determina', 'fija', 'senala', 'consagra', 'garantiza',
+  'reconoce', 'protege', 'ampara', 'contiene', 'incluye', 'comprende', 'abarca', 'cubre', 'significa', 'implica', 'consiste', 'constituye',
+  'sera', 'seran', 'era', 'eran', 'fuera', 'sea', 'sean', 'haya', 'hubo', 'habia', 'hubiera', 'conviene', 'importa', 'sirve', 'sirven',
+]);
+function esInicioComun(palabra: string): boolean {
+  return INICIOS_COMUNES.has(palabra) || SENALES_JURIDICAS.some((s) => palabra.startsWith(s.replace(/\.$/, '')));
+}
 
 function rechazo(etapa: 'A' | 'B' | 'C' | 'E', razon: string): ResultadoPrivacidad {
   return { estado: 'REJECT', etapa, razon };
@@ -103,8 +149,13 @@ export function privacyGate(texto: unknown): ResultadoPrivacidad {
   const plano = sinTildes(t);
   if (!SENALES_JURIDICAS.some((s) => plano.includes(s))) return rechazo('E', 'sin_senal_juridica');
 
+  // B (ronda 2): una consulta que EMPIEZA por una palabra que no es interrogativa, función ni vocabulario jurídico suele empezar por un
+  // nombre propio («wenceslao maldonado quiere…», «aceituno vendió…»). Se rechaza: un nombre al inicio no se distingue de una palabra rara.
+  const primera = sinTildes(t).match(/^[^a-z0-9ñ]*([a-zñ]+)/);
+  if (primera && !esInicioComun(primera[1])) return rechazo('B', 'NOMBRE_AL_INICIO');
+
   // E: cualquier palabra capitalizada fuera del vocabulario jurídico puede ser un nombre propio.
-  for (const palabra of capitalizadasFueraDeInicio(t)) {
+  for (const palabra of capitalizadasFueraDeInicio(enmascararEntidadesPublicas(t))) {
     if (/\d/.test(palabra)) continue;
     const p = sinTildes(palabra);
     if (CAPITALIZADAS_PERMITIDAS.has(p) || SIGLAS_PERMITIDAS.has(p)) continue;
