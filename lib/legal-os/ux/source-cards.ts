@@ -1,19 +1,23 @@
 /**
  * lib/legal-os/ux/source-cards.ts
  * Modelo de vista (PURO, sin React, sin red) del panel «por qué respondió MayaLex».
- * Reglas: la vigencia se deriva SOLO de la bandera existente (true → vigente; null/ausente → «Vigencia no verificada»; false → no vigente);
- * una URL solo se muestra si es oficial verificada (misma regla que la recuperación); lo doctrinal se rotula «Doctrina — no vinculante».
+ * Reglas: «Vigencia verificada» SOLO con `validity_state = VERIFIED` del backend (DTO v2). La forma antigua (`Cita` v1, `vigente: true`) NO prueba
+ * verificación (es la marca del corpus): se muestra «Vigencia no verificada». `PRESUMED` se muestra como presumida; `false`/NOT_IN_FORCE → no vigente.
+ * Una URL solo se muestra si es oficial verificada (misma regla que la recuperación); lo doctrinal se rotula «Doctrina — no vinculante».
  */
 import { esFuenteOficial } from '../retrieval/official-sources';
+import { esCitaDTOv2, type CitaDTOv2, type ValidityState } from './cita-dto';
 
 export type SourceCardKind = 'LAW' | 'ARTICLE' | 'GACETA' | 'JUDGMENT';
 
-/** Entrada mínima: la `Cita` de producción cabe aquí (vigente=true, sin url/gaceta). */
+/** Entrada mínima: la `Cita` v1 de producción cabe aquí (sin url/gaceta); el DTO v2 se convierte con `normalizarEntrada`. */
 export interface FuenteEntrada {
   fuente: string;
   articulo?: string | null;
   texto?: string;
-  /** Bandera de vigencia existente; null/undefined = sin verificar. */
+  /** Estado de vigencia dado por el backend (DTO v2). Ausente = forma antigua. */
+  validityState?: ValidityState;
+  /** Forma antigua: bandera del corpus. `true` NO equivale a verificada. `false` sí se respeta (no vigente). */
   vigente?: boolean | null;
   hash?: string;
   kind?: SourceCardKind;
@@ -33,7 +37,7 @@ export interface SourceCard {
   article: string | null;
   versionLabel: string;
   validityLabel: string;
-  validity: 'VIGENTE' | 'NO_VIGENTE' | 'NO_VERIFICADA' | 'DOCTRINAL';
+  validity: 'VERIFICADA' | 'PRESUMIDA' | 'NO_VIGENTE' | 'NO_VERIFICADA' | 'DOCTRINAL';
   officialUrl: string | null;
   tier: 1 | 2 | 3 | 4 | 5 | null;
   doctrinal: boolean;
@@ -44,7 +48,8 @@ export interface SourceCard {
 }
 
 export const ETIQUETA = {
-  vigente: 'Norma vigente HN',
+  verificada: 'Vigencia verificada',
+  presumida: 'Vigencia presumida (marca del corpus, sin verificación humana)',
   noVigente: 'No vigente',
   noVerificada: 'Vigencia no verificada',
   doctrina: 'Doctrina — no vinculante',
@@ -57,7 +62,25 @@ const NUM = (a: string | null): number => {
   return m ? Number(m[0]) : Number.POSITIVE_INFINITY;
 };
 
-export function crearTarjeta(f: FuenteEntrada, opciones: { fuentesDoctrinales?: ReadonlySet<string> } = {}): SourceCard {
+/** Convierte el DTO v2 a la entrada de la vista; la forma antigua pasa tal cual. */
+export function normalizarEntrada(x: FuenteEntrada | CitaDTOv2): FuenteEntrada {
+  if (!esCitaDTOv2(x)) return x;
+  return {
+    fuente: x.instrument,
+    articulo: x.article,
+    texto: x.text,
+    hash: x.hash,
+    validityState: x.validity_state,
+    kind: x.kind === 'DOCTRINE' ? (x.article ? 'ARTICLE' : 'LAW') : x.kind,
+    doctrinal: x.kind === 'DOCTRINE',
+    versionLabel: x.version ?? null,
+    gaceta: x.gaceta ?? null,
+    url: x.official_url ?? null,
+  };
+}
+
+export function crearTarjeta(entrada: FuenteEntrada | CitaDTOv2, opciones: { fuentesDoctrinales?: ReadonlySet<string> } = {}): SourceCard {
+  const f = normalizarEntrada(entrada);
   const doctrinal = f.doctrinal === true || (opciones.fuentesDoctrinales?.has(f.fuente) ?? false);
   const kind: SourceCardKind = f.kind ?? (f.articulo ? 'ARTICLE' : 'LAW');
   const warnings: string[] = [];
@@ -68,10 +91,14 @@ export function crearTarjeta(f: FuenteEntrada, opciones: { fuentesDoctrinales?: 
     validity = 'DOCTRINAL';
     validityLabel = ETIQUETA.doctrina;
     warnings.push('Comentario o doctrina: no es derecho positivo vinculante.');
-  } else if (f.vigente === true) {
-    validity = 'VIGENTE';
-    validityLabel = ETIQUETA.vigente;
-  } else if (f.vigente === false) {
+  } else if (f.validityState === 'VERIFIED') {
+    validity = 'VERIFICADA';
+    validityLabel = ETIQUETA.verificada;
+  } else if (f.validityState === 'PRESUMED') {
+    validity = 'PRESUMIDA';
+    validityLabel = ETIQUETA.presumida;
+    warnings.push('La vigencia procede de la marca del corpus y no tiene verificación humana; confirme en la fuente oficial.');
+  } else if (f.validityState === 'NOT_IN_FORCE' || (f.validityState === undefined && f.vigente === false)) {
     validity = 'NO_VIGENTE';
     validityLabel = ETIQUETA.noVigente;
     warnings.push('Este texto está marcado como no vigente.');
@@ -146,7 +173,7 @@ export interface AnswerPanelModel {
 
 export interface PanelEntrada {
   answer: string;
-  fuentes: readonly FuenteEntrada[];
+  fuentes: readonly (FuenteEntrada | CitaDTOv2)[];
   /** ¿Hay análisis profundo disponible para esta consulta/plan? Solo lo indica quien lo calcula. */
   analisisProfundoDisponible?: boolean;
   fuentesDoctrinales?: ReadonlySet<string>;
