@@ -138,3 +138,4 @@ export function fijarValorPrecedencial(
   if (!PrecedentialVerificationSchema.safeParse(verificacion).success) return { ok: false, motivo: 'VERIFICACION_INVALIDA' };
   return { ok: true, valor: JurisprudenceRecordSchema.parse({ ...r, precedential_status: estado, precedential_verification: verificacion }) };
 }
+export * from './search';
