@@ -3,3 +3,8 @@ export * from './metrics';
 export * from './runner';
 export * from './seed-golden';
 export * as golden from './golden';
+export * from './legal-metrics';
+export * from './design-runner';
+export * from './golden/suites';
+export * from './golden/design-fixed';
+export { CASOS_CLO_APROBADOS } from './golden/approved';
