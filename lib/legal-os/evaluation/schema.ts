@@ -28,9 +28,15 @@ export const GoldenCase = z.object({
     expectedVersionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   }),
   review_state: z.enum(['PENDING_CLO_REVIEW', 'CLO_APPROVED']),
+  /**
+   * Suite declarada. DESIGN_FIXED: la decisión la determina el diseño del sistema (no afirma derecho).
+   * LEGAL_CLO_APPROVED: expectativa jurídica aprobada por el CLO. Ausente = se deriva de review_state (aprobado → LEGAL, si no → pendiente).
+   */
+  suite: z.enum(['DESIGN_FIXED', 'LEGAL_CLO_APPROVED']).optional(),
   /** De dónde sale la expectativa (archivo + id de caso, dictamen). Obligatorio: sin fuente no hay caso. */
   source_of_expectation: z.string().min(5),
-});
+}).refine((c) => c.suite !== 'LEGAL_CLO_APPROVED' || c.review_state === 'CLO_APPROVED', { message: 'suite LEGAL_CLO_APPROVED exige review_state CLO_APPROVED', path: ['suite'] })
+  .refine((c) => c.suite !== 'DESIGN_FIXED' || c.review_state !== 'CLO_APPROVED', { message: 'un caso aprobado por el CLO no es DESIGN_FIXED', path: ['suite'] });
 export type GoldenCase = z.infer<typeof GoldenCase>;
 
 export const RetrievedItem = z.object({ id: z.string(), instrumento: z.string().nullable().optional(), articulo: z.string().nullable().optional() });

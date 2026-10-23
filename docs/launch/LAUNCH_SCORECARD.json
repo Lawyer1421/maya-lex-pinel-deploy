@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "nota": "DESIGN_FIXED mide compuertas y enrutamiento con evidencia sintética; NO mide corrección jurídica. LEGAL_CLO_APPROVED sigue vacío. La latencia y el coste son simulados.",
+  "metricas": [
+    {
+      "metrica": "Exact legal reference accuracy",
+      "valor": null,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 0,
+      "base": "LEGAL_CLO_APPROVED",
+      "meta": "PENDING_FREDY",
+      "estado": "ND_NEEDS_CLO_APPROVED_CASES",
+      "nota": "Requiere casos LEGAL_CLO_APPROVED (hoy 0); no se puntúa derecho contra expectativas no aprobadas."
+    },
+    {
+      "metrica": "Retrieval recall",
+      "valor": null,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 0,
+      "base": "LEGAL_CLO_APPROVED",
+      "meta": "PENDING_FREDY",
+      "estado": "ND_NEEDS_CLO_APPROVED_CASES",
+      "nota": "Requiere casos LEGAL_CLO_APPROVED con artículos exigidos (hoy 0). (sin casos con artículos exigidos)"
+    },
+    {
+      "metrica": "Retrieval precision",
+      "valor": null,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 0,
+      "base": "LEGAL_CLO_APPROVED",
+      "meta": "PENDING_FREDY",
+      "estado": "ND_NEEDS_CLO_APPROVED_CASES",
+      "nota": "Requiere casos LEGAL_CLO_APPROVED con artículos exigidos (hoy 0)."
+    },
+    {
+      "metrica": "Citation validity (server validation)",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 7,
+      "denominador": 7,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Respuestas entregadas cuyas citas existen todas en la evidencia entregada. Sobre evidencia SINTÉTICA: mide la compuerta, no la corrección jurídica."
+    },
+    {
+      "metrica": "Version accuracy",
+      "valor": null,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 0,
+      "base": "LEGAL_CLO_APPROVED",
+      "meta": "PENDING_FREDY",
+      "estado": "ND_NEEDS_CLO_APPROVED_CASES",
+      "nota": "Requiere casos LEGAL_CLO_APPROVED con fecha de versión esperada (hoy 0)."
+    },
+    {
+      "metrica": "Abstention accuracy",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 114,
+      "denominador": 114,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Decisión ANSWER/ABSTAIN igual a la determinada por el diseño, aun con un recuperador adversarial que siempre devuelve evidencia."
+    },
+    {
+      "metrica": "Privacy rejection",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 34,
+      "denominador": 34,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Privacidad, inyección de prompt, cebo de datos personales, país no habilitado: rechazo antes de recuperar y de llamar al modelo."
+    },
+    {
+      "metrica": "Provenance rejection",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 21,
+      "denominador": 21,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Decreto citado sin respaldo / instrumento nombrado sin evidencia de ese instrumento: rechazados con su motivo."
+    },
+    {
+      "metrica": "Unsupported claim rate",
+      "valor": 0,
+      "unidad": "ratio",
+      "n": 7,
+      "denominador": 7,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Afirmaciones ENTREGADAS cuyas citas no están en la evidencia (0 por construcción: el servidor descarta el resto). No incluye lo que el modelo propuso y se descartó."
+    },
+    {
+      "metrica": "Latency p50 (SIMULATED)",
+      "valor": 2,
+      "unidad": "ticks",
+      "n": 114,
+      "denominador": 114,
+      "base": "SIMULATED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Ticks de un reloj inyectado que avanza 1 por evento de traza. NO son milisegundos de pared ni mide red/modelo reales."
+    },
+    {
+      "metrica": "Latency p95 (SIMULATED)",
+      "valor": 7,
+      "unidad": "ticks",
+      "n": 114,
+      "denominador": 114,
+      "base": "SIMULATED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Ídem: ticks simulados."
+    },
+    {
+      "metrica": "Estimated cost/query",
+      "valor": 0.000016919298245614032,
+      "unidad": "USD",
+      "n": 114,
+      "denominador": 114,
+      "base": "SIMULATED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Media del coste ESTIMADO por el enrutador sobre toda la suite (incluye consultas sin modelo, coste 0); 9 consultas llamaron al modelo falso. No hay llamadas reales."
+    },
+    {
+      "metrica": "Golden Set coverage (legal, CLO-approved / plantillas)",
+      "valor": 0,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 150,
+      "base": "LEGAL_CLO_APPROVED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "56 plantillas esperan al CLO; 94 están fijadas por diseño (DESIGN_FIXED)."
+    },
+    {
+      "metrica": "Core Corpus coverage (verified / Tier A)",
+      "valor": 0,
+      "unidad": "ratio",
+      "n": 0,
+      "denominador": 16,
+      "base": "CORPUS",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Verificado 0; en corpus sin verificar 56.3 %; ausente 12.5 %; solo descubierto 31.3 %."
+    }
+  ],
+  "cobertura": {
+    "golden": [
+      {
+        "materia": "Constitutional",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Civil",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 20,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "CivilProcedure",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Criminal",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 1,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "CriminalProcedure",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 1,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Commercial",
+        "plantillas": 10,
+        "designFixedPlantillas": 10,
+        "escenariosDisenoFijoAdicionales": 1,
+        "pendientesClo": 0,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Labor",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 2,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Family",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 1,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Notarial",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Administrative",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Tax",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Customs",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "AML",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Banking",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      },
+      {
+        "materia": "Property",
+        "plantillas": 10,
+        "designFixedPlantillas": 6,
+        "escenariosDisenoFijoAdicionales": 0,
+        "pendientesClo": 4,
+        "legalCloAprobados": 0
+      }
+    ],
+    "totales": {
+      "plantillas": 150,
+      "designFixed": 94,
+      "escenariosPipeline": 114,
+      "escenariosPolitica": 6,
+      "pendientesClo": 56,
+      "legalCloAprobados": 0
+    }
+  },
+  "corpus": {
+    "total": 16,
+    "porEstado": {
+      "AVAILABLE_VERIFIED": 0,
+      "AVAILABLE_PARTIAL": 8,
+      "OUTDATED": 0,
+      "MISSING": 2,
+      "DISCOVERED_UNVERIFIED": 5,
+      "PENDING_CLO": 1
+    },
+    "cobertura": {
+      "verificada": 0,
+      "enCorpusSinVerificar": 56.3,
+      "ausente": 12.5,
+      "soloDescubierta": 31.3
+    }
+  },
+  "incumplimientos": []
+}

@@ -50,6 +50,6 @@ export function aGoldenCase(t: GoldenTemplate): GoldenCase | null {
   return GoldenCase.parse({
     id: t.id, matter: t.matter, question: t.question,
     expected: { decision: 'ABSTAIN', mustCite: [], mustNotCite: [] },
-    review_state: 'PENDING_CLO_REVIEW', source_of_expectation: t.source_of_expectation,
+    review_state: 'PENDING_CLO_REVIEW', suite: 'DESIGN_FIXED', source_of_expectation: t.source_of_expectation,
   });
 }
