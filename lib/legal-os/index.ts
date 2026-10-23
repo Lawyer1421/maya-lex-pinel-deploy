@@ -17,3 +17,4 @@ export * as entitlements from './entitlements';
 export * as jurisprudence from './jurisprudence';
 export * as ux from './ux/source-cards';
 export * as pipeline from './pipeline';
+export * as shadow from './shadow';

@@ -19,6 +19,8 @@ export const ARCHIVOS_RUTA_Y_SHADOW: readonly string[] = [
   'lib/ai-gateway/shadow/privacy-gate.ts',
   'lib/ai-gateway/shadow/pii-gate.ts',
   'lib/ai-gateway/shadow/openai-adapter.ts',
+  'lib/legal-os/shadow/config.ts',
+  'lib/legal-os/shadow/dispatch.ts',
 ];
 
 /** Código de recuperación, resolvedor exacto, Evidence Gate y abstención que el rollback NO debe tocar. */

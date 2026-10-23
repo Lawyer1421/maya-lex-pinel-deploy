@@ -65,6 +65,7 @@ import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retriev
 // '@/app/api/chat/route') no requieran ningún cambio de import.
 import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
 import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';
+import { despacharLegalOsShadow } from '@/lib/legal-os/shadow';
 // Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md: mensajes distintos para
 // CONFIGURATION_ERROR/RETRIEVAL_ERROR (nunca "no existe la ley" cuando en
 // realidad el propio sistema no pudo consultarla) y el builder para el
@@ -464,6 +465,20 @@ export async function POST(req: NextRequest) {
       pregunta: ultimaPregunta as string,
       fragmentos: ragData.fragmentos,
       decision: evidenciaInsuficiente ? 'ABSTAIN' : 'ANSWER',
+      retrievalState: outcomeState,
+    });
+  } catch {
+    // El shadow es subordinado: se ignora cualquier error.
+  }
+
+  // Legal OS en SOMBRA (simulado: sin modelo, sin red, sin escrituras). Apagado salvo LEGAL_OS_SHADOW=1 (y nunca en producción sin
+  // LEGAL_OS_SHADOW_ALLOW_PROD=1). Usa la evidencia que producción YA recuperó; no altera estado, cuerpo, gate ni abstención.
+  try {
+    despacharLegalOsShadow({
+      queryId: consultaId,
+      pregunta: ultimaPregunta as string,
+      fragmentos: ragData.fragmentos,
+      decisionProduccion: evidenciaInsuficiente ? 'ABSTAIN' : 'ANSWER',
       retrievalState: outcomeState,
     });
   } catch {

@@ -59,6 +59,33 @@
       ]
     },
     {
+      "id": "legal-os-shadow-abstencion-de-produccion",
+      "descripcion": "Producción se abstiene y Legal OS shadow está encendido",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "fae6380da6721d4d016b48d3aee2f7e8a5ae2290f9b91f427f053aa7a758f17e",
+      "identicoALineaBase": true,
+      "estadosShadow": []
+    },
+    {
+      "id": "legal-os-shadow-encendido",
+      "descripcion": "Legal OS shadow ENCENDIDO (simulado): la respuesta de producción no cambia",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": []
+    },
+    {
+      "id": "legal-os-shadow-lanza",
+      "descripcion": "El despacho de Legal OS lanza de forma síncrona",
+      "status": 200,
+      "contentType": "text/event-stream",
+      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "identicoALineaBase": true,
+      "estadosShadow": []
+    },
+    {
       "id": "presupuesto-cero",
       "descripcion": "Presupuesto real 0: sin llamada",
       "status": 200,
@@ -140,7 +167,7 @@
     }
   ],
   "codigoHashes": {
-    "app/api/chat/route.ts": "a2950cd8b1f20b541330bfffcfccebadea68f3d90fbf870d09ff018458663d24",
+    "app/api/chat/route.ts": "f46e884c63b14ca9e85f258f1e39a7e877cb1c8a57420a11d7252690ff0738b0",
     "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
     "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
     "lib/ai-gateway/shadow/dispatcher.ts": "e21a751b26407f38da224609e5d1462ac5de9b311551a77b0b23454a91ec5b2a",
@@ -149,6 +176,8 @@
     "lib/ai-gateway/shadow/privacy-gate.ts": "abfc3714b4bc545cb208c0e41abc369764a76a4f09c50fce3c9bcfc55da7fbcf",
     "lib/ai-gateway/shadow/public-provenance-manifest.ts": "88a8be5e2f815afe607439ebf5b6fb6725b080fa432af8916478b940b4335957",
     "lib/ai-gateway/shadow/public-provenance.ts": "f7082d0328e4e0cd654e95cec5581952bc1727c66690564800cc4ca144988e1d",
-    "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1"
+    "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1",
+    "lib/legal-os/shadow/config.ts": "0227836ce354d2a6e28795af157f2fa4f487c228c79105ba8c167764c94d4f67",
+    "lib/legal-os/shadow/dispatch.ts": "4625dd89d45ce7db575d5565529d33cb6d9433b396afcb920f19b67777892c01"
   }
 }

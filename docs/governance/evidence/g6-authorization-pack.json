@@ -79,7 +79,7 @@
       "id": "PRODUCTION_INDEPENDENCE_DEMONSTRATED",
       "descripcion": "La respuesta HTTP de producción es idéntica con cualquier fallo del shadow (PRODUCTION_HTTP_RESPONSE_INDEPENDENT)",
       "estado": "MET",
-      "evidencia": "12 escenarios idénticos a la línea base (docs/governance/evidence/g6-production-independence.json)",
+      "evidencia": "15 escenarios idénticos a la línea base (docs/governance/evidence/g6-production-independence.json)",
       "responsable": "CLAUDE_CODE"
     },
     {
