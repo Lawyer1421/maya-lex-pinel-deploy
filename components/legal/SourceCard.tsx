@@ -1,7 +1,8 @@
 import type { SourceCard as TarjetaFuente } from '@/lib/legal-os/ux/source-cards';
 
 const COLOR: Record<TarjetaFuente['validity'], string> = {
-  VIGENTE: 'bg-jade/15 text-jade',
+  VERIFICADA: 'bg-jade/15 text-jade',
+  PRESUMIDA: 'bg-amber-500/15 text-amber-200',
   NO_VIGENTE: 'bg-red-500/15 text-red-300',
   NO_VERIFICADA: 'bg-amber-500/15 text-amber-200',
   DOCTRINAL: 'bg-white/10 text-white/70',
