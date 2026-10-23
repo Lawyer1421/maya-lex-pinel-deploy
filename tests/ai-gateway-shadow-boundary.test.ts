@@ -93,6 +93,7 @@ function mockShadow(opts: { enabled: boolean; responder?: () => Promise<unknown>
   }));
   // G3: con presupuesto 0 (valor real) no hay llamada; estas pruebas fijan un presupuesto solo para ejercer el flujo.
   vi.doMock('@/lib/ai-gateway/shadow/shadow-model-config', async (original) => ({ ...(await original<typeof import('@/lib/ai-gateway/shadow/shadow-model-config')>()), SHADOW_BUDGET_USD: 1 }));
+  vi.doMock('@/lib/ai-gateway/shadow/public-provenance', () => ({ evaluarProcedenciaFuerte: () => ({ estado: 'PROVENANCE_PASS' }) }));
   const responder = vi.fn(opts.responder ?? (async () => { throw new Error('sin respuesta grabada'); }));
   vi.doMock('@/lib/ai-gateway/shadow/adaptador-sombra', () => ({
     credencialDisponible: () => true,
@@ -287,7 +288,7 @@ describe('(f) el guard de red cubre los archivos de G2 y G3', () => {
       String.raw`(?:from|import|require)\s*\(?\s*['"](?:openai|axios|undici|(?:node:)?https?)['"]`,
     ].join('|'));
     const dir = join(RAIZ, 'lib', 'ai-gateway', 'shadow');
-    const nuevos = ['config.ts', 'pii-gate.ts', 'privacy-gate.ts', 'public-corpus-gate.ts', 'evidence-classification.ts', 'budget-guard.ts', 'circuit-breaker.ts', 'shadow-model-config.ts', 'adaptador-sombra.ts', 'dispatcher.ts'];
+    const nuevos = ['config.ts', 'pii-gate.ts', 'privacy-gate.ts', 'public-corpus-gate.ts', 'public-provenance.ts', 'public-provenance-manifest.ts', 'evidence-classification.ts', 'budget-guard.ts', 'circuit-breaker.ts', 'shadow-model-config.ts', 'adaptador-sombra.ts', 'dispatcher.ts'];
     for (const n of nuevos) {
       expect(statSync(join(dir, n)).isFile()).toBe(true);
       expect(readFileSync(join(dir, n), 'utf8'), n).not.toMatch(GUARD_RED);

@@ -7,8 +7,12 @@
  * Etapa A (identificadores): EMAIL, IDENTIDAD_RTN, TELEFONO, TARJETA_CUENTA, PASAPORTE, URL, NUMERO_LARGO.
  * Etapa B (cliente/expediente/documento privado): NOMBRE_CLIENTE, EXPEDIENTE_FOLIO, CLIENTE_O_PARTE,
  *   TRATAMIENTO_NOMBRE, DIRECCION, FORMA_SOCIETARIA.
+
+ * G4-B añade: NOMBRE_COMPLETO, NUMERO_EN_PALABRAS, NUMERO_JUDICIAL (etapa B/A) y variantes de teléfono y correo.
  * El orden de los patrones es estable: los de G2 van primero y conservan su categoría.
  */
+import { contieneNombreCompleto, contieneNumeroEnPalabras } from './nombres-propios';
+
 export type CategoriaPii =
   | 'EMAIL'
   | 'IDENTIDAD_RTN'
@@ -22,7 +26,10 @@ export type CategoriaPii =
   | 'CLIENTE_O_PARTE'
   | 'TRATAMIENTO_NOMBRE'
   | 'DIRECCION'
-  | 'FORMA_SOCIETARIA';
+  | 'FORMA_SOCIETARIA'
+  | 'NOMBRE_COMPLETO'
+  | 'NUMERO_EN_PALABRAS'
+  | 'NUMERO_JUDICIAL';
 
 export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   EMAIL: 'A',
@@ -38,6 +45,9 @@ export const ETAPA_POR_CATEGORIA: Readonly<Record<CategoriaPii, 'A' | 'B'>> = {
   TRATAMIENTO_NOMBRE: 'B',
   DIRECCION: 'B',
   FORMA_SOCIETARIA: 'B',
+  NOMBRE_COMPLETO: 'B',
+  NUMERO_EN_PALABRAS: 'A',
+  NUMERO_JUDICIAL: 'B',
 };
 
 const MAYUS = 'A-ZÁÉÍÓÚÑ';
@@ -78,6 +88,21 @@ const PATRONES: ReadonlyArray<readonly [CategoriaPii, RegExp]> = [
   // Dirección: palabra clave seguida de un número o de una palabra capitalizada.
   ['DIRECCION', new RegExp(String.raw`\b(?:[Cc]olonia|[Bb]arrio|[Rr]esidencial|[Aa]venida|[Cc]alle|[Bb]ulevar|[Bb]loque|[Aa]partamento|[Kk]m)\s+(?:[Nn]o\.?\s*)?(?:#\s*)?(?:\d|[${MAYUS}][${MINUS}]+)`)],
   ['FORMA_SOCIETARIA', /\b(?:S\.\s?A\.(?:\s?de\s?C\.\s?V\.)?|S\.\s?de\s?R\.\s?L\.?|Ltda\.?|Inc\.?|Corp\.?)(?=\W|$)/],
+
+  // ── G4-B ───────────────────────────────────────────────────────────────────
+  // Correo con espacios alrededor de «@» y del punto: «juan @ gmail . com».
+  ['EMAIL', /[\w.+-]+\s*@\s*[\w-]+\s*\.\s*[a-z]{2,}/i],
+  // Correo ofuscado con «at»/«dot» entre corchetes o palabras: «juan [at] gmail [dot] com», «juan at gmail dot com».
+  ['EMAIL', /[\w.+-]+\s+(?:at|arroba)\s+[\w-]+\s+(?:dot|punto)\s+[a-z]{2,}/i],
+  // Teléfono partido en pares («99 88 77 66»), con paréntesis «(504) 9988-7766» o precedido de una palabra clave.
+  ['TELEFONO', /(?<![\d-])\d{2}[\s.-]\d{2}[\s.-]\d{2}[\s.-]\d{2}(?![\d-])/],
+  ['TELEFONO', /\(\+?\d{2,4}\)\s*\d{3,4}[\s-]?\d{3,4}/],
+  ['TELEFONO', /\b(?:tel|tel[eé]fono|celular|cel|whatsapp|fono|contacto)\b[^\n]{0,20}\d{3}/i],
+  ['TARJETA_CUENTA', /\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/],
+  ['PASAPORTE', /\bpassport\b[^\n]{0,25}[A-Z0-9]{5,}/i],
+  // Número judicial: palabra procesal + número con guion (o largo), o código de tribunal tipo «SCA-0123-2021».
+  ['NUMERO_JUDICIAL', /\b(?:caso|proceso|juicio|recurso|amparo|auto|sentencia|resoluci[oó]n|demanda|denuncia|apelaci[oó]n|casaci[oó]n|querella)\s*(?:n[úu]m(?:ero)?\.?|no\.?|n[°º]|#)?\s*[:\-]?\s*\d[\d-]*\d(?!\w)/i],
+  ['NUMERO_JUDICIAL', /\b(?!PCSJ\b)[A-Z]{1,5}-\d{2,6}-\d{2,4}\b/],
 ];
 
 /** Devuelve la categoría detectada, o null si el texto no tiene señales de las etapas A o B. */
@@ -85,5 +110,8 @@ export function detectarPii(texto: string): CategoriaPii | null {
   for (const [categoria, patron] of PATRONES) {
     if (patron.test(texto)) return categoria;
   }
+  // Detección por diccionario (sin importar mayúsculas): pares nombre/apellido y dígitos escritos con palabras.
+  if (contieneNumeroEnPalabras(texto)) return 'NUMERO_EN_PALABRAS';
+  if (contieneNombreCompleto(texto)) return 'NOMBRE_COMPLETO';
   return null;
 }

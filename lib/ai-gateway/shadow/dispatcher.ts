@@ -5,7 +5,7 @@
  * Contrato con producción:
  *  - `despacharShadow` NUNCA lanza ni devuelve una promesa: la respuesta HTTP no la espera ni la cambia.
  *  - Cada compuerta es fail-closed y se evalúa en este orden; la primera que falla omite el despacho:
- *      kill switch → privacy gate → corpus público → credencial → circuit breaker → presupuesto → adaptador
+ *      kill switch → privacy gate → corpus público → procedencia fuerte → credencial → circuit breaker → presupuesto → adaptador
  *      → parseo estructurado → validador de citas → métricas.
  *  - El resultado sombra queda solo en el registro en memoria; no sale de aquí.
  *  - El registro guarda estados, códigos de razón y cifras (tokens, costo, latencia): nunca la pregunta, el
@@ -21,6 +21,7 @@ import { crearBudgetGuard } from './budget-guard';
 import { crearCircuitBreaker } from './circuit-breaker';
 import { validarSalida } from './citation-validator';
 import { evaluarCorpusPublico } from './public-corpus-gate';
+import { evaluarProcedenciaFuerte } from './public-provenance';
 import { clasificarFragmento } from './evidence-classification';
 import { estimarCostoUsd } from './pricing';
 import { privacyGate } from './privacy-gate';
@@ -32,6 +33,7 @@ export type EstadoDespacho =
   | 'SKIPPED_PII'
   | 'SKIPPED_PRIVACY'
   | 'SKIPPED_PUBLIC_CORPUS'
+  | 'SKIPPED_PUBLIC_PROVENANCE'
   | 'SKIPPED_NO_CREDENTIALS'
   | 'SKIPPED_NO_OUTCOME'
   | 'SKIPPED_CIRCUIT_OPEN'
@@ -154,6 +156,13 @@ export function despacharShadow(params: ParametrosDespacho): void {
     const corpus = evaluarCorpusPublico(params.fragmentos ?? []);
     if (corpus.estado !== 'PUBLIC_CORPUS_PASS') {
       anotar({ queryId, estado: 'SKIPPED_PUBLIC_CORPUS', motivo: corpus.razon });
+      return;
+    }
+
+    // 3b. Procedencia pública FUERTE (G4-A): manifiesto aprobado + hash de contenido. Vacío por defecto → no hay egress.
+    const procedencia = evaluarProcedenciaFuerte(params.fragmentos ?? []);
+    if (procedencia.estado !== 'PROVENANCE_PASS') {
+      anotar({ queryId, estado: 'SKIPPED_PUBLIC_PROVENANCE', motivo: procedencia.razon });
       return;
     }
 
