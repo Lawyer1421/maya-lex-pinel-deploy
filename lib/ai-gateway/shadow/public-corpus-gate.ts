@@ -25,13 +25,16 @@ export type ResultadoCorpusPublico =
   | { estado: 'PUBLIC_CORPUS_PASS' }
   | { estado: 'PUBLIC_CORPUS_REJECT'; razon: string };
 
+/** Texto con al menos un carácter que no sea espacio en blanco. */
+const textoNoVacio = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
+
 function motivoDeRechazo(f: FragmentoRAG): string | null {
   if (f.fuente_tipo !== 'codigo') return 'fuente_tipo';
   if (f.jurisdiccion !== 'HN') return 'jurisdiccion';
   if (f.es_norma_vigente !== true) return 'es_norma_vigente';
-  if (typeof f.id !== 'string' || f.id === '') return 'id';
-  if (typeof f.hash !== 'string' || f.hash === '') return 'hash';
-  if (typeof f.fuente !== 'string' || f.fuente === '') return 'fuente';
+  if (!textoNoVacio(f.id)) return 'id';
+  if (!textoNoVacio(f.hash)) return 'hash';
+  if (!textoNoVacio(f.fuente)) return 'fuente';
   if (FUENTES_DOCTRINALES.has(f.fuente)) return 'fuente_doctrinal';
   if (esFuenteDocumentalExcluida(f.fuente)) return 'fuente_documental_excluida';
   return null;

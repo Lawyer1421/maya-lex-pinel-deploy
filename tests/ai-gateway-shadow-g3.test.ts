@@ -147,6 +147,12 @@ describe('gate de corpus público (experimental, fail-closed)', () => {
     ['hash', { hash: undefined }],
     ['hash', { hash: '' }],
     ['fuente', { fuente: '' }],
+    ['id', { id: ' ' }],
+    ['id', { id: ' \t\n ' }],
+    ['hash', { hash: ' ' }],
+    ['hash', { hash: ' \t\n ' }],
+    ['fuente', { fuente: ' ' }],
+    ['fuente', { fuente: ' \t\n ' }],
     ['fuente_doctrinal', { fuente: 'CPC_COMENTADO_ROMERO_2024' }],
     ['fuente_documental_excluida', { fuente: 'doc_6cfb720b' }],
   ];
