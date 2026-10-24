@@ -10,7 +10,7 @@
 -- metadata->>'norm_id' (el identificador de instrumento que sí existe en los metadatos). Se informan además, por separado, las filas sin
 -- `fuente` (identidad documental real usada por el Exact Resolver), para no confundir las dos definiciones.
 --
--- Cada consulta es independiente: puede correrse sola. Consultas 1-5: una pasada sobre la tabla; la 6 solo recorre materia = '03_NOTARIAL'.
+-- Cada consulta es independiente: puede correrse sola. Consultas 1-5 y 7: una pasada sobre la tabla; la 6 solo recorre materia = '03_NOTARIAL'.
 
 -- 1. Totales y filas sin identidad de instrumento (tres definiciones, todas conteos).
 select
@@ -78,3 +78,16 @@ from public.biblioteca_vectores
 where materia = '03_NOTARIAL'
 group by 1
 order by filas_03_notarial desc;
+
+-- 7. Filas por fuente x país (jurisdiccion) x tipo de fuente (fuente_tipo). Solo conteos; `fuente` es el nombre de la fuente, no su contenido.
+--    Sirve para medir cuántas filas quedarían como PRIMARY o CONTEXT con la política de país (instrumento validado + país vacío o HN = candidato
+--    a PRIMARY; país explícito distinto de HN = CONTEXT) y para ver qué fuentes no declaran país ni tipo.
+select
+  coalesce(fuente, '(NULL)')         as fuente,
+  coalesce(jurisdiccion, '(NULL)')   as jurisdiccion,
+  coalesce(fuente_tipo, '(NULL)')    as fuente_tipo,
+  count(*)                           as filas
+from public.biblioteca_vectores
+group by 1, 2, 3
+order by filas desc
+limit 500;

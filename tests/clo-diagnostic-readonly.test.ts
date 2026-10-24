@@ -9,7 +9,7 @@ const SENTENCIAS = SIN_COMENTARIOS.split(';').map((x) => x.trim()).filter(Boolea
 
 describe('diagnóstico CLO de corpus (solo lectura)', () => {
   it('toda sentencia es un SELECT', () => {
-    expect(SENTENCIAS.length).toBeGreaterThanOrEqual(6);
+    expect(SENTENCIAS.length).toBeGreaterThanOrEqual(7);
     for (const s of SENTENCIAS) expect(s, s.slice(0, 60)).toMatch(/^select\b/i);
   });
   it('no contiene escrituras, DDL, copias ni llamadas con efectos', () => {
@@ -37,5 +37,12 @@ describe('diagnóstico CLO de corpus (solo lectura)', () => {
     expect(SQL).toMatch(/con_posible_dni/);
     expect(SQL).toMatch(/con_posible_rtn/);
     expect(SQL).toMatch(/con_numero_de_protocolo/);
+  });
+  it('incluye el conteo agrupado por fuente x jurisdiccion x fuente_tipo, solo con agregados', () => {
+    const q7 = SENTENCIAS.find((x) => /as fuente\b/i.test(x) && /as jurisdiccion\b/i.test(x) && /as fuente_tipo\b/i.test(x));
+    expect(q7).toBeDefined();
+    expect(q7).toMatch(/count\(\*\)/i);
+    expect(q7).toMatch(/group by 1, 2, 3/i);
+    expect(q7).not.toMatch(/\bcontenido\b|\bembedding\b|\bmetadata\b|\bnum_articulo\b/i);
   });
 });
