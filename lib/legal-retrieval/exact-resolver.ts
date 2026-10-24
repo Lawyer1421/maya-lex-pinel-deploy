@@ -20,6 +20,11 @@
 
 import type { FragmentoRAG } from './types';
 import { contieneArtefactoAnonimizacion, hashFragmento } from './primitives';
+import { RE_FUENTE_POR_INSTRUMENTO, identidadDeFuente, type InstrumentoNormalizado } from './instrument-identity';
+import { anotarFragmentosClo } from './clo-guards';
+
+export type { InstrumentoNormalizado };
+export { identidadDeFuente };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // RECUPERACIÓN DETERMINISTA POR ARTÍCULO EXACTO
@@ -148,19 +153,7 @@ export function detectarMateriaSemanticaAmpliada(query: string): string | null {
 // dato real (fuente, o metadata.documento_origen) confirma ese instrumento —
 // nunca por materia, número de artículo, fuente_tipo o vigencia solamente.
 
-export type InstrumentoNormalizado =
-  | 'CODIGO_PROCESAL_PENAL'
-  | 'CODIGO_PENAL'
-  | 'CODIGO_PROCESAL_CIVIL'
-  | 'CODIGO_CIVIL'
-  | 'CODIGO_TRABAJO'
-  | 'CODIGO_FAMILIA'
-  | 'CODIGO_NOTARIADO'
-  | 'REGLAMENTO_NOTARIADO'
-  | 'CODIGO_TRIBUTARIO'
-  | 'LEY_JUSTICIA_CONSTITUCIONAL'
-  | 'CONSTITUCION'
-  | 'CODIGO_COMERCIO';
+
 
 // Orden importa: las variantes "procesal" se evalúan primero para que
 // "Código Procesal Penal" nunca caiga en CODIGO_PENAL por contener "penal".
@@ -241,40 +234,7 @@ export function detectarIdentidadesDesdeTexto(texto: string): IdentidadEnTexto[]
     .map(({ instrumento, inicio, fin }) => ({ instrumento, inicio, fin }));
 }
 
-// Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
-// una fila real de la DB para confirmar que pertenece a ese instrumento.
-// Mismo patrón que la detección de texto — es intencional: la identidad de
-// un candidato se confirma con el mismo vocabulario con que el usuario lo pidió.
-const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> = {
-  CODIGO_PROCESAL_PENAL: /c[oó]digo\s+procesal\s+penal/i,
-  CODIGO_PROCESAL_CIVIL: /c[oó]digo\s+procesal\s+civil/i,
-  CODIGO_PENAL: /c[oó]digo\s+penal\b/i,
-  CODIGO_CIVIL: /c[oó]digo\s+civil\b/i,
-  CODIGO_TRABAJO: /c[oó]digo\s+(?:del?\s+)?trabajo/i,
-  CODIGO_FAMILIA: /c[oó]digo\s+de\s+familia/i,
-  // Negative lookbehind: la fuente real del Reglamento es literalmente
-  // "Reglamento del Código del Notariado (...)", que contiene "Código del
-  // Notariado" como subcadena. Sin esta exclusión, una fila del Reglamento
-  // confirmaría identidad para CODIGO_NOTARIADO igual que las filas del
-  // Código base — la misma clase de colisión de `fuente` que causó el bug
-  // P1 con Decreto 77-2006 (ver hallazgo de esta sesión).
-  CODIGO_NOTARIADO: /(?<!reglamento\s+(?:del?\s+)?)c[oó]digo\s+(?:del?\s+)?notariado/i,
-  REGLAMENTO_NOTARIADO: /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado/i,
-  CODIGO_TRIBUTARIO: /c[oó]digo\s+tributario/i,
-  // La fuente real es literalmente "Ley sobre Justicia Constitucional".
-  LEY_JUSTICIA_CONSTITUCIONAL: /ley\s+(?:sobre|de)\s+justicia\s+constitucional/i,
-  // La fuente real es "Constitucion de la Republica de Honduras (...)". El \b
-  // evita coincidir con "Ley sobre Justicia Constitucional" (otro instrumento
-  // ya presente en el corpus, materia 07_CONSTITUCIONAL) -- ver hallazgo P0
-  // de esta sesión: sin este aislamiento, ambas fuentes contienen la raíz
-  // "constituci" y podrían confundirse en la identidad documental.
-  CONSTITUCION: /constituci[oó]n\b/i,
-  // La fuente real es "Codigo de Comercio (Decreto No. 73-1950, Congreso
-  // Nacional de Honduras)". A diferencia del lote V2 (CONSTITUCION,
-  // CODIGO_FAMILIA, etc.), el contenido ingerido SÍ trae el encabezado real
-  // "Articulo N" -- no se agrega a INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL.
-  CODIGO_COMERCIO: /c[oó]digo\s+de\s+comercio/i,
-};
+
 
 /**
  * true solo si un dato REAL del registro (fuente, o metadata.documento_origen)
@@ -292,20 +252,6 @@ export function identidadDocumentalCoincide(row: FilaExactaDB, instrumento: Inst
   return false;
 }
 
-/**
- * Instrumento que declara una fuente real (sólo `fuente`, sin metadata), con
- * los mismos patrones de identidadDocumentalCoincide. Null si la fuente no
- * declara ninguno. Lo usa la ruta semántica, que no trae metadata por fila.
- * El orden de RE_FUENTE_POR_INSTRUMENTO es el de declaración: los patrones
- * están escritos para no solaparse (ver comentarios arriba).
- */
-export function identidadDeFuente(fuente: string): InstrumentoNormalizado | null {
-  if (!fuente) return null;
-  for (const [instrumento, patron] of Object.entries(RE_FUENTE_POR_INSTRUMENTO) as [InstrumentoNormalizado, RegExp][]) {
-    if (patron.test(fuente)) return instrumento;
-  }
-  return null;
-}
 
 /** Detecta un número de artículo explícito y, si el texto lo indica, la materia y el instrumento exacto. */
 export function detectarArticuloExacto(query: string): DeteccionArticulo | null {
@@ -507,7 +453,10 @@ export function resolverArticuloExacto(
     return { fragmentos: [], ambiguo: true };
   }
 
-  const fragmentos: FragmentoRAG[] = limpias.slice(0, 1).map((row) => ({
+  // Salvaguardas CLO (clo-guards.ts): cada fragmento sale con su papel. Un artículo bloqueado (Notariado arts. 11/17/27, Reglamento sin
+  // pliego CLO, fila sin instrumento, sentencia, práctica 03_NOTARIAL) se devuelve como CONTEXT, nunca PRIMARY; el llamador cuenta
+  // como evidencia suficiente solo los PRIMARY.
+  const fragmentos: FragmentoRAG[] = anotarFragmentosClo(limpias.slice(0, 1).map((row) => ({
     id: row.id,
     contenido: row.contenido,
     num_articulo: row.num_articulo,
@@ -516,8 +465,9 @@ export function resolverArticuloExacto(
     fuente_tipo: row.fuente_tipo,
     jurisdiccion: row.jurisdiccion,
     es_norma_vigente: row.es_norma_vigente,
+    materia: row.materia,
     hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
-  }));
+  })), { instrumentoConfirmado: instrumentoSolicitado });
 
   return { fragmentos, ambiguo: false };
 }

@@ -30,6 +30,13 @@ export interface FragmentoRAG {
   es_norma_vigente?: boolean | null;
   /** SHA-256(contenido+num_articulo+fuente) truncado a 8 hex — integridad verificable sin columna DB nueva (P0-4). */
   hash?: string;
+  /** Materia de la fila cuando la fuente la trae (ruta exacta). La ruta semántica no la devuelve: se usa el filtro de materia de la consulta. */
+  materia?: string | null;
+  /** Salvaguardas CLO (clo-guards.ts). Campos aditivos y opcionales: ningún consumidor previo los necesita. */
+  instrument_id?: string | null;
+  rol_evidencia?: 'PRIMARY' | 'CONTEXT';
+  bloqueos_clo?: string[];
+  avisos_clo?: string[];
 }
 
 export interface ResultadoRAG {
@@ -105,6 +112,8 @@ export interface RetrievalOutcome {
   errorCategory?: RetrievalErrorCategory;
   /** Código seguro para telemetría -- nunca texto de query, documentos, URLs con secretos ni PII. */
   errorCode?: string;
+  /** Códigos de bloqueo CLO (clo-guards.ts) que dejaron la evidencia sin ningún PRIMARY. Telemetría segura: solo códigos. */
+  cloBlocks?: string[];
 }
 
 export type VerificationStatus = 'VERIFIED' | 'UNVERIFIED' | 'QUARANTINED';
