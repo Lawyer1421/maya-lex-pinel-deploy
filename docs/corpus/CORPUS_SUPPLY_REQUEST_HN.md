@@ -190,3 +190,13 @@ Tipo de paquete por defecto: `OfficialSourcePackage`.
 ## Cómo marcar una entrega (formato recomendado por paquete)
 
 `package_id` · `instrument_id` (de esta lista) · `act_type` (ORIGINAL | AMENDMENT | ERRATA | DEROGATION | CONSOLIDATED) · `decree` · `gaceta_number` · `gaceta_date` · `effective_date` · `official_url` · `pdf_sha256` · `text_sha256` · `source_tier` · `text` · `notes`. Todo campo desconocido = `UNKNOWN`.
+
+---
+
+## Entregas recibidas
+
+| Tramo | Fecha | Paquetes | Resultado | Registro |
+|---|---|---|---|---|
+| HN-001 · Tramo A | 2026-10-24 | A01–A04 (P0-001, P0-001b, P0-002) | 4 × `NEEDS_SOURCE_BYTES` (solo metadatos; faltan URL exacta, bytes y texto). P0-001 y P0-002 siguen **abiertos**. | `docs/corpus/supply/HN-001-TRANCHE-A.md` |
+
+Un paquete que llega **sin texto ni hash** no se rechaza ni se inventa: se registra como manifiesto (`tools/corpus/process-manifests.ts`) y queda `NEEDS_SOURCE_BYTES` hasta que se aporten URL exacta, bytes y texto.

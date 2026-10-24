@@ -1,0 +1,37 @@
+{
+  "package_id": "HN-001-A02",
+  "instrument_id": "P0-001b",
+  "instrument": "Reforma al Código de Comercio",
+  "act_type": "AMENDMENT",
+  "decree": "284-2013",
+  "gaceta_number": "33,445",
+  "gaceta_date": "2014-06-05",
+  "effective_date": "CHECK_FROM_ACT_TEXT",
+  "official_sources": [
+    "Tribunal Superior de Cuentas / copia de La Gaceta"
+  ],
+  "text_available": false,
+  "pdf_sha256": "UNKNOWN",
+  "text_sha256": "UNKNOWN",
+  "verification_state": "UNVERIFIED",
+  "amends": "Decreto 73-50",
+  "amended_articles_claimed": [
+    "14",
+    "15",
+    "18",
+    "157",
+    "169",
+    "189",
+    "193",
+    "210",
+    "222",
+    "224",
+    "226",
+    "228"
+  ],
+  "amended_articles_evidence": "Artículo 13 del Decreto 284-2013 ordena expresamente reformar esos artículos del Código de Comercio contenido en el Decreto Legislativo 73-50.",
+  "notes": [
+    "No inferir reformas adicionales.",
+    "El proveedor no declaró text_available para este paquete: se registra false (no acreditado) hasta que aporte el texto o los bytes."
+  ]
+}

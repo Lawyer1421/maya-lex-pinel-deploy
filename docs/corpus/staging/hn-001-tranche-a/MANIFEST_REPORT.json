@@ -1,0 +1,181 @@
+[
+  {
+    "autoritativo": false,
+    "vigencia": "UNKNOWN",
+    "verification": "PENDING_VERIFICATION",
+    "package_id": "HN-001-A01",
+    "estado": "NEEDS_SOURCE_BYTES",
+    "razones": [],
+    "detalle": [],
+    "faltantes": [
+      "source_url (https, URL exacta del documento)",
+      "source_domain (host de esa URL)",
+      "retrieved_at (fecha/hora ISO real de la consulta)",
+      "retrieval_method",
+      "retriever",
+      "bytes_sha256 (sha256 del archivo original descargado)",
+      "extracted_text (texto íntegro, sin editar)",
+      "text_sha256 (sha256 de extracted_text, UTF-8)"
+    ],
+    "fuentes": [
+      {
+        "texto": "Congreso Nacional / Portal Único IAIP",
+        "registro": "CONGRESO_NACIONAL",
+        "verificacion": "PENDING_VERIFICATION",
+        "tier": 3,
+        "dominio": null
+      },
+      {
+        "texto": "SEN Honduras",
+        "registro": null,
+        "verificacion": "NOT_IN_REGISTRY",
+        "tier": null,
+        "dominio": null
+      }
+    ],
+    "advertencias": [
+      "Fecha de Gaceta solo CANDIDATA (1950-02-17); no acreditada con la edición original.",
+      "DISCREPANCIA SIN RESOLVER: 1950-05-01 (fuente externa (discrepancia no resuelta)). El receptor no elige; decide el CLO con la edición original de La Gaceta.",
+      "Fuente «Congreso Nacional / Portal Único IAIP»: CONGRESO_NACIONAL está PENDING_VERIFICATION (sin dominio verificado).",
+      "Fuente «SEN Honduras»: no está en el registro de fuentes oficiales → solo descubrimiento."
+    ],
+    "manifiesto": {
+      "package_id": "HN-001-A01",
+      "instrument_id": "P0-001",
+      "act_type": "ORIGINAL"
+    }
+  },
+  {
+    "autoritativo": false,
+    "vigencia": "UNKNOWN",
+    "verification": "PENDING_VERIFICATION",
+    "package_id": "HN-001-A02",
+    "estado": "NEEDS_SOURCE_BYTES",
+    "razones": [],
+    "detalle": [],
+    "faltantes": [
+      "source_url (https, URL exacta del documento)",
+      "source_domain (host de esa URL)",
+      "retrieved_at (fecha/hora ISO real de la consulta)",
+      "retrieval_method",
+      "retriever",
+      "bytes_sha256 (sha256 del archivo original descargado)",
+      "extracted_text (texto íntegro, sin editar)",
+      "text_sha256 (sha256 de extracted_text, UTF-8)"
+    ],
+    "fuentes": [
+      {
+        "texto": "Tribunal Superior de Cuentas / copia de La Gaceta",
+        "registro": "TSC",
+        "verificacion": "VERIFIED",
+        "tier": 4,
+        "dominio": "www.tsc.gob.hn"
+      }
+    ],
+    "advertencias": [
+      "Número/fecha de Gaceta declarados por el proveedor; sin acreditar contra la edición original.",
+      "Artículos reformados DECLARADOS (12): 14, 15, 18, 157, 169, 189, 193, 210, 222, 224, 226, 228; pendiente de contrastar con el texto. No se infieren otras reformas."
+    ],
+    "manifiesto": {
+      "package_id": "HN-001-A02",
+      "instrument_id": "P0-001b",
+      "act_type": "AMENDMENT"
+    }
+  },
+  {
+    "autoritativo": false,
+    "vigencia": "UNKNOWN",
+    "verification": "PENDING_VERIFICATION",
+    "package_id": "HN-001-A03",
+    "estado": "NEEDS_SOURCE_BYTES",
+    "razones": [],
+    "detalle": [],
+    "faltantes": [
+      "source_url (https, URL exacta del documento)",
+      "source_domain (host de esa URL)",
+      "retrieved_at (fecha/hora ISO real de la consulta)",
+      "retrieval_method",
+      "retriever",
+      "bytes_sha256 (sha256 del archivo original descargado)",
+      "extracted_text (texto íntegro, sin editar)",
+      "text_sha256 (sha256 de extracted_text, UTF-8)"
+    ],
+    "fuentes": [
+      {
+        "texto": "Poder Judicial / CEDIJ",
+        "registro": "PJ_CEDIJ_LEGISLACION",
+        "verificacion": "VERIFIED",
+        "tier": 2,
+        "dominio": "legislacion.poderjudicial.gob.hn"
+      },
+      {
+        "texto": "TSC official legal compilation",
+        "registro": "TSC",
+        "verificacion": "VERIFIED",
+        "tier": 4,
+        "dominio": "www.tsc.gob.hn"
+      }
+    ],
+    "advertencias": [
+      "Número/fecha de Gaceta declarados por el proveedor; sin acreditar contra la edición original."
+    ],
+    "manifiesto": {
+      "package_id": "HN-001-A03",
+      "instrument_id": "P0-002",
+      "act_type": "ORIGINAL"
+    }
+  },
+  {
+    "autoritativo": false,
+    "vigencia": "UNKNOWN",
+    "verification": "PENDING_VERIFICATION",
+    "package_id": "HN-001-A04",
+    "estado": "NEEDS_SOURCE_BYTES",
+    "razones": [],
+    "detalle": [],
+    "faltantes": [
+      "source_url (https, URL exacta del documento)",
+      "source_domain (host de esa URL)",
+      "retrieved_at (fecha/hora ISO real de la consulta)",
+      "retrieval_method",
+      "retriever",
+      "bytes_sha256 (sha256 del archivo original descargado)",
+      "extracted_text (texto íntegro, sin editar)",
+      "text_sha256 (sha256 de extracted_text, UTF-8)"
+    ],
+    "fuentes": [
+      {
+        "texto": "La Gaceta reproducida en repositorios oficiales",
+        "registro": "GACETA_OFICIAL",
+        "verificacion": "PENDING_VERIFICATION",
+        "tier": 1,
+        "dominio": null
+      },
+      {
+        "texto": "Poder Judicial/CEDIJ",
+        "registro": "PJ_CEDIJ_LEGISLACION",
+        "verificacion": "VERIFIED",
+        "tier": 2,
+        "dominio": "legislacion.poderjudicial.gob.hn"
+      },
+      {
+        "texto": "compilación oficial Portal Único",
+        "registro": null,
+        "verificacion": "NOT_IN_REGISTRY",
+        "tier": null,
+        "dominio": null
+      }
+    ],
+    "advertencias": [
+      "Número/fecha de Gaceta declarados por el proveedor; sin acreditar contra la edición original.",
+      "Efectos declarados sobre otros instrumentos (pista, sin artículos): Código de Familia; Código Penal; Código Civil; otras disposiciones (sin especificar).",
+      "Fuente «La Gaceta reproducida en repositorios oficiales»: GACETA_OFICIAL está PENDING_VERIFICATION (sin dominio verificado).",
+      "Fuente «compilación oficial Portal Único»: no está en el registro de fuentes oficiales → solo descubrimiento."
+    ],
+    "manifiesto": {
+      "package_id": "HN-001-A04",
+      "instrument_id": "P0-002",
+      "act_type": "AMENDMENT"
+    }
+  }
+]
