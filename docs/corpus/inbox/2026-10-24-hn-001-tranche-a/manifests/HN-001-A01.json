@@ -1,0 +1,32 @@
+{
+  "package_id": "HN-001-A01",
+  "instrument_id": "P0-001",
+  "instrument": "Código de Comercio",
+  "act_type": "ORIGINAL",
+  "decree": "73-50",
+  "gaceta_number": "UNKNOWN",
+  "gaceta_date": "UNKNOWN",
+  "gaceta_date_candidate": "1950-02-17",
+  "gaceta_date_discrepancies": [
+    {
+      "fecha": "1950-05-01",
+      "origen": "fuente externa (discrepancia no resuelta)"
+    }
+  ],
+  "effective_date": "UNKNOWN",
+  "official_sources": [
+    "Congreso Nacional / Portal Único IAIP",
+    "SEN Honduras"
+  ],
+  "text_available": true,
+  "pdf_sha256": "UNKNOWN",
+  "text_sha256": "UNKNOWN",
+  "verification_state": "UNVERIFIED",
+  "notes": [
+    "El documento oficial del Congreso identifica Código de Comercio, Norma 73-50.",
+    "La fuente SEN señala publicación en La Gaceta el 17-02-1950.",
+    "Existe discrepancia externa sobre la fecha 01-05-1950.",
+    "NO resolver automáticamente la discrepancia.",
+    "Mantener fecha/publicación pendiente de CLO o de la edición original de La Gaceta."
+  ]
+}

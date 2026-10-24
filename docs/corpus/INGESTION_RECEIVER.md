@@ -46,3 +46,13 @@ Todo candidato lleva `authoritative: false`, `vigencia: "UNKNOWN"`, `verificatio
 5. Probar localmente: `npx tsx tools/corpus/process-batch.ts docs/corpus/inbox/<lote> --out /tmp/prueba`.
 
 Ejemplo de lote sintético: `tools/corpus/examples/batch-synthetic/` (fuente no verificada → `SOURCE_HOLD`; sentencia → corpus de jurisprudencia; hash alterado → `REJECTED`).
+
+## Manifiestos de evidencia (paquetes sin bytes ni texto)
+
+Un paquete que llega solo con metadatos (sin URL exacta, texto ni hash) **no pasa por el receptor estricto** (que lo rechaza por esquema): se deposita en una subcarpeta `manifests/` del lote y se procesa con
+
+```sh
+npx tsx tools/corpus/process-manifests.ts docs/corpus/inbox/<lote>/manifests --out docs/corpus/staging/<lote>
+```
+
+Resultado máximo: `NEEDS_SOURCE_BYTES` (con la lista de lo que falta y una hoja CLO). No crea candidato ni QA; no resuelve discrepancias de fecha; no infiere reformas; no autoriza nada. Para avanzar, el proveedor entrega el `OfficialSourcePackage` completo. Ejemplo: `docs/corpus/supply/HN-001-TRANCHE-A.md`.

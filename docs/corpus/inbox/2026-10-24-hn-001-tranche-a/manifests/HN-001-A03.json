@@ -1,0 +1,23 @@
+{
+  "package_id": "HN-001-A03",
+  "instrument_id": "P0-002",
+  "instrument": "Código de la Niñez y la Adolescencia",
+  "act_type": "ORIGINAL",
+  "decree": "73-96",
+  "decree_date": "1996-05-30",
+  "gaceta_number": "28,053",
+  "gaceta_date": "1996-09-05",
+  "effective_date": "CHECK_FROM_ACT_TEXT",
+  "official_sources": [
+    "Poder Judicial / CEDIJ",
+    "TSC official legal compilation"
+  ],
+  "text_available": true,
+  "pdf_sha256": "UNKNOWN",
+  "text_sha256": "UNKNOWN",
+  "verification_state": "UNVERIFIED",
+  "notes": [
+    "Tratar D.73-96 como acto originario.",
+    "No confundirlo con D.35-2013."
+  ]
+}

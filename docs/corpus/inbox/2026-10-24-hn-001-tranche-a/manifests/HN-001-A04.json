@@ -1,0 +1,32 @@
+{
+  "package_id": "HN-001-A04",
+  "instrument_id": "P0-002",
+  "instrument": "Reforma integral del Código de la Niñez y la Adolescencia",
+  "act_type": "AMENDMENT",
+  "decree": "35-2013",
+  "decree_date": "2013-02-27",
+  "gaceta_number": "33,222",
+  "gaceta_date": "2013-09-06",
+  "effective_date": "CHECK_FROM_ACT_TEXT",
+  "official_sources": [
+    "La Gaceta reproducida en repositorios oficiales",
+    "Poder Judicial/CEDIJ",
+    "compilación oficial Portal Único"
+  ],
+  "text_available": true,
+  "pdf_sha256": "UNKNOWN",
+  "text_sha256": "UNKNOWN",
+  "verification_state": "UNVERIFIED",
+  "amends": "Decreto 73-96",
+  "legal_relationship": "D.35-2013 debe tratarse como reforma integral, NO como acto originario del Código de la Niñez.",
+  "cross_instrument_effects_claimed": [
+    "Código de Familia",
+    "Código Penal",
+    "Código Civil",
+    "otras disposiciones (sin especificar)"
+  ],
+  "notes": [
+    "El material oficial posterior describe D.35-2013 como reforma integral que afecta el Código de Niñez y Adolescencia, el Código de Familia, el Código Penal y el Código Civil, entre otras disposiciones.",
+    "Efectos sobre otros códigos: pista; no se infieren artículos."
+  ]
+}
