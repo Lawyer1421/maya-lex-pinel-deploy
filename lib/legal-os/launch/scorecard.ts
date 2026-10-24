@@ -14,6 +14,7 @@ import { GOLDEN_SETS } from '../evaluation/golden';
 import { MATERIAS } from '../evaluation/schema';
 import type { FilaLaunchCore } from './launch-core';
 import { resumirLaunchCore } from './launch-core';
+import { evaluarSkills, type FilaSkill, type ResumenSkills } from './skills-eval';
 
 export type BaseMetrica = 'DESIGN_FIXED' | 'LEGAL_CLO_APPROVED' | 'SIMULATED' | 'CORPUS';
 export type EstadoMetrica = 'MEASURED' | 'ND_NEEDS_CLO_APPROVED_CASES' | 'ND_NO_DATA';
@@ -45,6 +46,7 @@ export interface Scorecard {
   metricas: FilaMetrica[];
   cobertura: { golden: CoberturaMateria[]; totales: { plantillas: number; designFixed: number; escenariosPipeline: number; escenariosPolitica: number; pendientesClo: number; legalCloAprobados: number } };
   corpus: { total: number; porEstado: Record<string, number>; cobertura: Record<string, number> };
+  skills: { resumen: ResumenSkills; filas: FilaSkill[] };
   incumplimientos: string[];
 }
 
@@ -142,12 +144,20 @@ export async function construirScorecard(filasCore: readonly FilaLaunchCore[]): 
     { metrica: 'Core Corpus coverage (verified / Tier A)', valor: rc.total ? rc.porEstado.AVAILABLE_VERIFIED / rc.total : null, unidad: 'ratio', n: rc.porEstado.AVAILABLE_VERIFIED, denominador: rc.total, base: 'CORPUS', meta: 'PENDING_FREDY', estado: 'MEASURED', nota: `Verificado 0; en corpus sin verificar ${rc.cobertura.enCorpusSinVerificar} %; ausente ${rc.cobertura.ausente} %; solo descubierto ${rc.cobertura.soloDescubierta} %.` },
   );
 
+  const ev = await evaluarSkills();
+  metricas.push(
+    medida('Skills selected (shadow)', 'DESIGN_FIXED', ratio(ev.resumen.seleccionadas, ev.resumen.total), 'Skill de lanzamiento elegida por una pregunta temática representativa (skill_id). Mide cableado, no corrección jurídica.'),
+    medida('Skills evidence met (shadow)', 'DESIGN_FIXED', ratio(ev.resumen.evidencia_cumplida, ev.resumen.total), 'Con evidencia sintética del instrumento exigido, se cumple skill_evidence.met.'),
+    medida('Skills abstain on foreign evidence (shadow)', 'DESIGN_FIXED', ratio(ev.resumen.abstienen_con_evidencia_ajena, ev.resumen.con_instrumento_exigido), `Con evidencia de otro instrumento el pipeline se abstiene. ${ev.resumen.sin_instrumento_exigido} skills no exigen instrumento y quedan fuera del denominador.`),
+  );
+
   return {
     version: 1,
     nota: 'DESIGN_FIXED mide compuertas y enrutamiento con evidencia sintética; NO mide corrección jurídica. LEGAL_CLO_APPROVED sigue vacío. La latencia y el coste son simulados.',
     metricas,
     cobertura: { golden: porMateria, totales },
     corpus: { total: rc.total, porEstado: rc.porEstado, cobertura: rc.cobertura },
+    skills: { resumen: ev.resumen, filas: ev.filas },
     incumplimientos,
   };
 }
@@ -189,6 +199,14 @@ export function textoScorecard(s: Scorecard): string {
     `Instrumentos: ${s.corpus.total}. ` + Object.entries(s.corpus.porEstado).map(([k, v]) => `${k}: ${v}`).join(' · ') + '.',
     '',
     `Detalle en \`docs/corpus/LAUNCH_CORE_CORPUS_HN.md\`.`,
+    '',
+    '## Skills de lanzamiento en sombra',
+    '',
+    `Total ${s.skills.resumen.total} · seleccionadas ${s.skills.resumen.seleccionadas} · evidencia cumplida ${s.skills.resumen.evidencia_cumplida} · se abstienen con evidencia ajena ${s.skills.resumen.abstienen_con_evidencia_ajena}/${s.skills.resumen.con_instrumento_exigido} · OK ${s.skills.resumen.ok} · sin instrumento exigido ${s.skills.resumen.sin_instrumento_exigido}. Evidencia sintética: mide cableado, no derecho.`,
+    '',
+    '| skill_id | Elegida como | Evidencia cumplida | Abstiene (ajena) | Estado |',
+    '|---|---|---|---|---|',
+    ...s.skills.filas.map((f) => `| ${f.skill_id} | ${f.seleccionada_como ?? '—'} | ${f.evidencia_cumplida === null ? 'n/d' : f.evidencia_cumplida ? 'sí' : 'no'} | ${f.abstiene_con_evidencia_ajena === null ? 'n/a' : f.abstiene_con_evidencia_ajena ? 'sí' : 'no'} | ${f.estado} |`),
     '',
     `## Incumplimientos de la suite DESIGN_FIXED: ${s.incumplimientos.length}`,
     '',

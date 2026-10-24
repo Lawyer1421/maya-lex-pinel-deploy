@@ -155,6 +155,39 @@
       "meta": "PENDING_FREDY",
       "estado": "MEASURED",
       "nota": "Verificado 0; en corpus sin verificar 56.3 %; ausente 12.5 %; solo descubierto 31.3 %."
+    },
+    {
+      "metrica": "Skills selected (shadow)",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 19,
+      "denominador": 19,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Skill de lanzamiento elegida por una pregunta temática representativa (skill_id). Mide cableado, no corrección jurídica."
+    },
+    {
+      "metrica": "Skills evidence met (shadow)",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 19,
+      "denominador": 19,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Con evidencia sintética del instrumento exigido, se cumple skill_evidence.met."
+    },
+    {
+      "metrica": "Skills abstain on foreign evidence (shadow)",
+      "valor": 1,
+      "unidad": "ratio",
+      "n": 17,
+      "denominador": 17,
+      "base": "DESIGN_FIXED",
+      "meta": "PENDING_FREDY",
+      "estado": "MEASURED",
+      "nota": "Con evidencia de otro instrumento el pipeline se abstiene. 2 skills no exigen instrumento y quedan fuera del denominador."
     }
   ],
   "cobertura": {
@@ -305,6 +338,262 @@
       "ausente": 12.5,
       "soloDescubierta": 31.3
     }
+  },
+  "skills": {
+    "resumen": {
+      "total": 19,
+      "seleccionadas": 19,
+      "evidencia_cumplida": 19,
+      "con_instrumento_exigido": 17,
+      "abstienen_con_evidencia_ajena": 17,
+      "ok": 17,
+      "sin_instrumento_exigido": 2
+    },
+    "filas": [
+      {
+        "skill_id": "HN.ADMINISTRATIVE.APPEAL",
+        "pregunta": "¿Cómo se presenta un recurso de apelación en materia administrativa?",
+        "instrumentos_exigidos": [],
+        "seleccionada_como": "HN.ADMINISTRATIVE.APPEAL",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": null,
+        "motivo_abstencion_ajena": null,
+        "estado": "SIN_INSTRUMENTO_EXIGIDO"
+      },
+      {
+        "skill_id": "HN.AML.COMPLIANCE",
+        "pregunta": "¿Qué exige la debida diligencia para la prevención del lavado de activos?",
+        "instrumentos_exigidos": [],
+        "seleccionada_como": "HN.AML.COMPLIANCE",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": null,
+        "motivo_abstencion_ajena": null,
+        "estado": "SIN_INSTRUMENTO_EXIGIDO"
+      },
+      {
+        "skill_id": "HN.CIVIL.CONTRACTS",
+        "pregunta": "¿Qué regula el Código Civil sobre las obligaciones y los contratos?",
+        "instrumentos_exigidos": [
+          "CODIGO_CIVIL"
+        ],
+        "seleccionada_como": "HN.CIVIL.CONTRACTS",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.CIVIL.CONTRACTS.SALE",
+        "pregunta": "¿Qué regula el Código Civil sobre la compraventa?",
+        "instrumentos_exigidos": [
+          "CODIGO_CIVIL"
+        ],
+        "seleccionada_como": "HN.CIVIL.CONTRACTS.SALE",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.CIVIL.PROPERTY",
+        "pregunta": "¿Qué regula el Código Civil sobre la posesión y la propiedad de un inmueble?",
+        "instrumentos_exigidos": [
+          "CODIGO_CIVIL"
+        ],
+        "seleccionada_como": "HN.CIVIL.PROPERTY",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.CIVIL.SUCCESSION",
+        "pregunta": "¿Qué regula el Código Civil sobre la herencia y la sucesión?",
+        "instrumentos_exigidos": [
+          "CODIGO_CIVIL"
+        ],
+        "seleccionada_como": "HN.CIVIL.SUCCESSION",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.COMMERCIAL.CONTRACTS",
+        "pregunta": "¿Qué regula el Código de Comercio sobre los contratos mercantiles?",
+        "instrumentos_exigidos": [
+          "CODIGO_COMERCIO"
+        ],
+        "seleccionada_como": "HN.COMMERCIAL.CONTRACTS",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.COMMERCIAL.NEGOTIABLE_INSTRUMENTS",
+        "pregunta": "¿Qué regula el Código de Comercio sobre la letra de cambio?",
+        "instrumentos_exigidos": [
+          "CODIGO_COMERCIO"
+        ],
+        "seleccionada_como": "HN.COMMERCIAL.NEGOTIABLE_INSTRUMENTS",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.CONSTITUTIONAL.ARTICLE_LOOKUP",
+        "pregunta": "¿Qué dice el artículo 5 de la Constitución de la República?",
+        "instrumentos_exigidos": [
+          "CONSTITUCION"
+        ],
+        "seleccionada_como": "HN.CONSTITUTIONAL.ARTICLE_LOOKUP",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.FAMILY.CHILDREN",
+        "pregunta": "¿Qué regula el Código de Familia sobre la custodia y los alimentos de los menores?",
+        "instrumentos_exigidos": [
+          "CODIGO_FAMILIA"
+        ],
+        "seleccionada_como": "HN.FAMILY.CHILDREN",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.FAMILY.DIVORCE",
+        "pregunta": "¿Qué regula el Código de Familia sobre el divorcio?",
+        "instrumentos_exigidos": [
+          "CODIGO_FAMILIA"
+        ],
+        "seleccionada_como": "HN.FAMILY.DIVORCE",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.LABOR.TERMINATION",
+        "pregunta": "¿Qué regula el Código del Trabajo sobre el despido?",
+        "instrumentos_exigidos": [
+          "CODIGO_TRABAJO"
+        ],
+        "seleccionada_como": "HN.LABOR.TERMINATION",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.NOTARIAL.PUBLIC_DEED",
+        "pregunta": "Redacta un borrador de escritura pública conforme al Código del Notariado.",
+        "instrumentos_exigidos": [
+          "CODIGO_NOTARIADO"
+        ],
+        "seleccionada_como": "HN.NOTARIAL.PUBLIC_DEED",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.PENAL.ARTICLE_LOOKUP",
+        "pregunta": "¿Qué dice el artículo 10 del Código Penal?",
+        "instrumentos_exigidos": [
+          "CODIGO_PENAL"
+        ],
+        "seleccionada_como": "HN.PENAL.ARTICLE_LOOKUP",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.PENAL.CRIMES.FRAUD",
+        "pregunta": "¿Cómo regula el Código Penal el delito de fraude?",
+        "instrumentos_exigidos": [
+          "CODIGO_PENAL"
+        ],
+        "seleccionada_como": "HN.PENAL.CRIMES.FRAUD",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.PENAL.OFFENSE_ANALYSIS",
+        "pregunta": "Analiza la tipicidad y las agravantes de un delito según el Código Penal.",
+        "instrumentos_exigidos": [
+          "CODIGO_PENAL"
+        ],
+        "seleccionada_como": "HN.PENAL.OFFENSE_ANALYSIS",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.PROCEDURAL_CIVIL.CLAIM",
+        "pregunta": "¿Cómo regula el Código Procesal Civil la demanda?",
+        "instrumentos_exigidos": [
+          "CODIGO_PROCESAL_CIVIL"
+        ],
+        "seleccionada_como": "HN.PROCEDURAL_CIVIL.CLAIM",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.PROCEDURAL_PENAL",
+        "pregunta": "¿Qué regula el Código Procesal Penal sobre las medidas cautelares en el proceso penal?",
+        "instrumentos_exigidos": [
+          "CODIGO_PROCESAL_PENAL"
+        ],
+        "seleccionada_como": "HN.PROCEDURAL_PENAL",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      },
+      {
+        "skill_id": "HN.TAX.ARTICLE_LOOKUP",
+        "pregunta": "¿Qué dice el artículo 20 del Código Tributario?",
+        "instrumentos_exigidos": [
+          "CODIGO_TRIBUTARIO"
+        ],
+        "seleccionada_como": "HN.TAX.ARTICLE_LOOKUP",
+        "seleccionada": true,
+        "evidencia_cumplida": true,
+        "abstiene_con_evidencia_ajena": true,
+        "motivo_abstencion_ajena": "INSTRUMENTO_SIN_EVIDENCIA",
+        "estado": "OK"
+      }
+    ]
   },
   "incumplimientos": []
 }
