@@ -35,8 +35,8 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   // confirmaría identidad para CODIGO_NOTARIADO igual que las filas del
   // Código base — la misma clase de colisión de `fuente` que causó el bug
   // P1 con Decreto 77-2006 (ver hallazgo de esta sesión).
-  CODIGO_NOTARIADO: /(?<!reglamento\s+(?:del?\s+)?)c[oó]digo\s+(?:del?\s+)?notariado/i,
-  REGLAMENTO_NOTARIADO: /reglamento\s+(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado/i,
+  CODIGO_NOTARIADO: /(?<!reglamento\s+(?:(?:del?|al|para)\s+(?:el\s+)?)?)c[oó]digo\s+(?:del?\s+)?notariado/i,
+  REGLAMENTO_NOTARIADO: /reglamento\s+(?:(?:del?|al|para)\s+(?:el\s+)?)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado/i,
   CODIGO_TRIBUTARIO: /c[oó]digo\s+tributario/i,
   // La fuente real es literalmente "Ley sobre Justicia Constitucional".
   LEY_JUSTICIA_CONSTITUCIONAL: /ley\s+(?:sobre|de)\s+justicia\s+constitucional/i,

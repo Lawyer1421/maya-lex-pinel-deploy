@@ -428,7 +428,7 @@ export async function buscarRAG(
       const fragmentos = evidenciaFinal(elegibles, intencion);
       const resultado = {
         ...bruto,
-        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica }),
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica, coleccion }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,
@@ -454,7 +454,7 @@ export async function buscarRAG(
       const fragmentos = evidenciaFinal(combinados, intencion);
       const resultado = {
         ...bruto,
-        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica }),
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica, coleccion }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,

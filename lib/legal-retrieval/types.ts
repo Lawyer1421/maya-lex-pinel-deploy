@@ -34,6 +34,12 @@ export interface FragmentoRAG {
   materia?: string | null;
   /** Salvaguardas CLO (clo-guards.ts). Campos aditivos y opcionales: ningún consumidor previo los necesita. */
   instrument_id?: string | null;
+  /** Instrumento que pidió la consulta exacta y colección consultada (los sella la ruta; solo pueden AGREGAR bloqueos). */
+  instrumento_solicitado?: string;
+  coleccion_origen?: string;
+  /** Identidad documental declarada por la metadata de la fila (ruta exacta): se evalúa con los mismos patrones anclados que `fuente`. */
+  documento_origen?: string;
+  norm_id?: string;
   rol_evidencia?: 'PRIMARY' | 'CONTEXT';
   bloqueos_clo?: string[];
   avisos_clo?: string[];
