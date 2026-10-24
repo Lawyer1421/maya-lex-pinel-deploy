@@ -34,11 +34,11 @@
   "envolventePrimerCanary": {
     "privadosEvaluados": 841,
     "aceptadosPorLaEnvolvente": 0,
-    "goldenElegibles": 5,
+    "goldenElegibles": 6,
     "goldenTotal": 8
   },
   "codigoHashes": {
-    "lib/ai-gateway/canary/first-canary-envelope.ts": "1c97c0808eb6c4c7828914b578e677ae3877ed571f4418fa807152ff7fd784ef",
+    "lib/ai-gateway/canary/first-canary-envelope.ts": "5af8970bbe11486d26e7e4ba110d7dd08e93206bcc19823cb4bc4a0750d148b0",
     "lib/ai-gateway/shadow/entidades-publicas.ts": "e17a63c485ba4995af85a791a463985ebf75c5d56cc84621f4e73b7ad93e4679",
     "lib/ai-gateway/shadow/nombres-inequivocos.ts": "b4bcd42c14ded1ab7c5e88bf08ff44774487c2a93e914f98314aa59932c64422",
     "lib/ai-gateway/shadow/nombres-propios.ts": "f95552c79f49d6c462c0825c275de63a259c43c71b0dae0dab65ee9afd818887",
