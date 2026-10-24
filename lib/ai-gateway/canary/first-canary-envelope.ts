@@ -34,10 +34,26 @@ const CONSULTA = [
 /** Instrumentos del registro (frases cerradas). */
 export const INSTRUMENTOS_ENVOLVENTE: readonly string[] = [
   'codigo penal', 'codigo procesal penal', 'codigo civil', 'codigo procesal civil', 'codigo de comercio', 'codigo de trabajo', 'codigo de familia',
-  'codigo tributario', 'codigo del notariado', 'ley del notariado', 'constitucion de la republica', 'constitucion', 'ley de procedimiento administrativo',
+  'codigo tributario', 'codigo del notariado', 'constitucion de la republica', 'constitucion', 'ley de procedimiento administrativo',
   'ley de municipalidades', 'ley de propiedad', 'ley electoral', 'ley de justicia constitucional', 'codigo de la ninez y la adolescencia',
-  'reglamento de la ley del notariado', 'ley organica del poder judicial',
+  'ley organica del poder judicial',
 ];
+
+/**
+ * Denominaciones que NO son el nombre de un instrumento (dictamen CLO 21-oct-2026, issue #74, caso D1): solo pueden aparecer como término a
+ * corregir hacia la denominación oficial, nunca como instrumento válido del registro. Normalizadas (sin tildes, minúsculas).
+ */
+export const TERMINOS_A_CORREGIR: Readonly<Record<string, string>> = Object.freeze({
+  'ley del notariado': 'Código del Notariado (D.353-2005)',
+  'reglamento de la ley del notariado': 'Reglamento del Código del Notariado (PCSJ-17-2012)',
+});
+
+/** El término a corregir que contiene la pregunta (el más largo primero), con su denominación oficial, o null. */
+export function terminoACorregir(pregunta: string): { termino: string; correccion: string } | null {
+  const t = ` ${normalizar(pregunta).replace(/[.,]+(?=\s|$)/g, ' ').replace(/\s+/g, ' ')} `;
+  const hallado = Object.keys(TERMINOS_A_CORREGIR).sort((a, b) => b.length - a.length).find((k) => t.includes(` ${k} `));
+  return hallado ? { termino: hallado, correccion: TERMINOS_A_CORREGIR[hallado] } : null;
+}
 
 const PALABRAS = new Set<string>([...FUNCION, ...CONSULTA, ...INSTRUMENTOS_ENVOLVENTE.flatMap((i) => i.split(' '))]);
 const NUMERO_ARTICULO = /^\d{1,4}(?:-[a-z]{1,3})?$/;
@@ -46,7 +62,7 @@ const ANIO = /^(?:19|20)\d{2}$/;
 
 export type MotivoEnvolvente =
   | 'PRIVACY_GATE' | 'VACIA' | 'DEMASIADO_LARGA' | 'CARACTERES_NO_PERMITIDOS' | 'PALABRA_FUERA_DEL_VOCABULARIO' | 'NUMERO_NO_PERMITIDO'
-  | 'SIN_ANCLA_NORMATIVA' | 'SIN_INTERROGATIVO' | 'INSTRUMENTO_DESCONOCIDO';
+  | 'SIN_ANCLA_NORMATIVA' | 'SIN_INTERROGATIVO' | 'INSTRUMENTO_DESCONOCIDO' | 'TERMINO_A_CORREGIR';
 
 export type ResultadoEnvolvente = { elegible: true; tokens: number } | { elegible: false; motivo: MotivoEnvolvente };
 
@@ -80,6 +96,8 @@ export function evaluarEnvolvente(pregunta: unknown): ResultadoEnvolvente {
   const texto = ` ${tokens.join(' ')} `;
   if (!ancla && !/ (?:articulo|decreto|ley|codigo|constitucion)/.test(texto)) return { elegible: false, motivo: 'SIN_ANCLA_NORMATIVA' };
   if (!/^(?:que|cual|cuales|cuando|como|si|existe|sigue|esta|es) /.test(tokens.join(' '))) return { elegible: false, motivo: 'SIN_INTERROGATIVO' };
+  // «Ley del Notariado» no es un instrumento: se corrige hacia el Código del Notariado y la consulta no entra al canary tal cual.
+  if (terminoACorregir(pregunta)) return { elegible: false, motivo: 'TERMINO_A_CORREGIR' };
   // «código»/«ley» deben formar un instrumento del registro; «decreto N-YYYY» se admite por número.
   const sinNumeros = ` ${tokens.filter((x) => !/\d/.test(x)).join(' ')} `;
   const menciona = /\b(?:codigo|ley|constitucion|reglamento)\b/.test(sinNumeros);

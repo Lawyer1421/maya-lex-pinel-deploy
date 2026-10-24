@@ -1,8 +1,10 @@
 /** G6-D — envolvente de privacidad del primer canary: vocabulario cerrado, fail-closed por construcción. */
 import { describe, expect, it } from 'vitest';
 import {
-  CONDICIONES_ENVOLVENTE, INSTRUMENTOS_ENVOLVENTE, condicionesEnvolvente, evaluarEnvolvente, todasLasCondicionesEnvolvente,
+  CONDICIONES_ENVOLVENTE, INSTRUMENTOS_ENVOLVENTE, TERMINOS_A_CORREGIR, condicionesEnvolvente, evaluarEnvolvente, terminoACorregir, todasLasCondicionesEnvolvente,
 } from '@/lib/ai-gateway/canary/first-canary-envelope';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { GOLDEN_G1 } from './golden/gateway-g1-casos';
 import { BENCH_PII } from './privacy/benchmark-privacidad';
 import { generarAdversariales } from './privacy/benchmark-adversarial';
@@ -99,4 +101,34 @@ describe('G6-D las 13 condiciones del mandato, una por una', () => {
       expect(todasLasCondicionesEnvolvente(q)).toBe(false);
     });
   }
+});
+
+describe('«Ley del Notariado» solo como término a corregir (dictamen CLO 21-oct-2026, caso D1)', () => {
+  it('no es un instrumento válido del registro de la envolvente', () => {
+    expect(INSTRUMENTOS_ENVOLVENTE.some((i) => i.includes('ley del notariado'))).toBe(false);
+    expect(INSTRUMENTOS_ENVOLVENTE).toContain('codigo del notariado');
+  });
+  it('se corrige hacia «Código del Notariado (D.353-2005)»', () => {
+    expect(TERMINOS_A_CORREGIR['ley del notariado']).toBe('Código del Notariado (D.353-2005)');
+    expect(terminoACorregir('¿Qué regula la Ley del Notariado?')).toEqual({ termino: 'ley del notariado', correccion: 'Código del Notariado (D.353-2005)' });
+    expect(terminoACorregir('¿Qué dice el artículo 500 del Código del Notariado?')).toBeNull();
+  });
+  it('una pregunta con «Ley del Notariado» no es elegible: motivo TERMINO_A_CORREGIR', () => {
+    for (const q of ['¿Qué regula la Ley del Notariado?', '¿Qué dice el artículo 5 de la Ley del Notariado?']) {
+      expect(evaluarEnvolvente(q), q).toEqual({ elegible: false, motivo: 'TERMINO_A_CORREGIR' });
+    }
+  });
+  it('«Reglamento de la Ley del Notariado» tampoco es un instrumento: no es elegible y se corrige hacia el Reglamento del Código', () => {
+    const q = '¿Qué dice el artículo 5 del Reglamento de la Ley del Notariado?';
+    expect(evaluarEnvolvente(q).elegible).toBe(false);
+    expect(terminoACorregir(q)).toEqual({ termino: 'reglamento de la ley del notariado', correccion: 'Reglamento del Código del Notariado (PCSJ-17-2012)' });
+  });
+  it('el nombre correcto sigue siendo elegible', () => {
+    expect(evaluarEnvolvente('¿Qué dice el artículo 500 del Código del Notariado?').elegible).toBe(true);
+  });
+  it('en el código fuente, «ley del notariado» solo figura en el mapa de términos a corregir', () => {
+    const fuente = readFileSync(join(process.cwd(), 'lib/ai-gateway/canary/first-canary-envelope.ts'), 'utf8');
+    const sinMapa = fuente.replace(/export const TERMINOS_A_CORREGIR[\s\S]*?\}\);/, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(sinMapa).not.toMatch(/ley del notariado/i);
+  });
 });
