@@ -29,6 +29,7 @@
 // tests) no requieran ningún cambio.
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
+import { anotarFragmentosClo, resumenEvidenciaClo } from '@/lib/legal-retrieval/clo-guards';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
 import {
   clasificarIntencionInstrumental,
@@ -328,15 +329,19 @@ export async function buscarRAG(
         // confirmada, y en comparaciones, cada instrumento). Si no, cae a la
         // abstención de abajo.
         if (exacto.fragmentos.length > 0 && evidenciaCubreIntencion(exacto.fragmentos, intencion)) {
+          // Salvaguardas CLO: solo los PRIMARY cuentan como evidencia. Un artículo bloqueado (Notariado 11/17/27, Reglamento sin pliego
+          // CLO, fila sin instrumento, etc.) se conserva como CONTEXT con su aviso, pero NO hay evidencia suficiente: abstención.
+          const fragmentosExactos = anotarFragmentosClo(exacto.fragmentos);
+          const clo = resumenEvidenciaClo(fragmentosExactos);
           return {
-            fragmentos: exacto.fragmentos,
+            fragmentos: fragmentosExactos,
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
             intencionInstrumental: intencion.estado,
             articulosSolicitados: intencion.articulos,
-            outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
-              evidenceCount: exacto.fragmentos.length, exactAttempted: true,
-            }),
+            outcome: clo.suficiente
+              ? buildRetrievalOutcome('EXACT_SUCCESS', { evidenceCount: clo.primarios, exactAttempted: true })
+              : buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true, cloBlocks: clo.bloqueos }),
           };
         }
         // Comparación con evidencia exacta parcial: continúa a semántica y la
@@ -423,18 +428,20 @@ export async function buscarRAG(
       const fragmentos = evidenciaFinal(elegibles, intencion);
       const resultado = {
         ...bruto,
-        fragmentos,
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,
       };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
+      // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
+      const clo = resumenEvidenciaClo(resultado.fragmentos);
       return {
         ...resultado,
         outcome: buildRetrievalOutcome(
-          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
-          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+          clo.suficiente ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: clo.primarios, exactAttempted: exactoIntentado, semanticAttempted: true, cloBlocks: clo.suficiente ? [] : clo.bloqueos },
         ),
       };
     }
@@ -447,7 +454,7 @@ export async function buscarRAG(
       const fragmentos = evidenciaFinal(combinados, intencion);
       const resultado = {
         ...bruto,
-        fragmentos,
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,
@@ -458,11 +465,13 @@ export async function buscarRAG(
       // error, así que este camino nunca lo convierte en RETRIEVAL_ERROR.
       // `degraded` permanece false (ver types.ts: no instrumentado en esta
       // fase, límite de alcance explícito, no un bug).
+      // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
+      const clo = resumenEvidenciaClo(resultado.fragmentos);
       return {
         ...resultado,
         outcome: buildRetrievalOutcome(
-          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
-          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+          clo.suficiente ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: clo.primarios, exactAttempted: exactoIntentado, semanticAttempted: true, cloBlocks: clo.suficiente ? [] : clo.bloqueos },
         ),
       };
     }

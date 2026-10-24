@@ -13,7 +13,7 @@ import { hashFragmento, type FragmentoRAG } from '@/lib/rag/search';
 
 function frag(overrides: Partial<FragmentoRAG>): FragmentoRAG {
   const base: FragmentoRAG = {
-    id: 'x', contenido: 'texto', num_articulo: '1', fuente: 'Poder Judicial de Honduras',
+    id: 'x', contenido: 'texto', num_articulo: '1', fuente: 'Código Procesal Penal de Honduras (Decreto 9-99-E)',
     relevancia: 0.9, fuente_tipo: 'norma', jurisdiccion: 'HN', es_norma_vigente: true,
   };
   const f = { ...base, ...overrides };
@@ -23,17 +23,17 @@ function frag(overrides: Partial<FragmentoRAG>): FragmentoRAG {
 describe('construirCitas — P0-2 pipeline de citas exactas', () => {
   it('Art. 1 CPC — norma vigente TSC entra con hash de 8 chars', () => {
     const citas = construirCitas([
-      frag({ num_articulo: '1', fuente: 'TSC', contenido: 'Derecho de acceso a los juzgados...' }),
+      frag({ num_articulo: '1', fuente: 'Codigo Procesal Civil', contenido: 'Derecho de acceso a los juzgados...' }),
     ]);
     expect(citas).toHaveLength(1);
     expect(citas[0].articulo).toBe('1');
-    expect(citas[0].fuente).toBe('TSC');
+    expect(citas[0].fuente).toBe('Codigo Procesal Civil');
     expect(citas[0].hash).toMatch(/^[0-9a-f]{8}$/);
   });
 
   it('Art. 173 CPP — Poder Judicial, doctrina comparada NO entra como cita', () => {
     const citas = construirCitas([
-      frag({ num_articulo: '173', fuente: 'Poder Judicial de Honduras' }),
+      frag({ num_articulo: '173', fuente: 'Código Procesal Penal de Honduras (Decreto 9-99-E)' }),
       frag({ num_articulo: '173', fuente: 'Doctrina Comparada', es_norma_vigente: false }),
     ]);
     expect(citas).toHaveLength(1);
@@ -41,8 +41,8 @@ describe('construirCitas — P0-2 pipeline de citas exactas', () => {
   });
 
   it('deduplica por (articulo, fuente) y limita a 5 citas', () => {
-    const dup = frag({ num_articulo: '22', fuente: 'TSC' });
-    const muchas = Array.from({ length: 8 }, (_, i) => frag({ num_articulo: String(i), fuente: 'TSC' }));
+    const dup = frag({ num_articulo: '22', fuente: 'Codigo Procesal Civil' });
+    const muchas = Array.from({ length: 8 }, (_, i) => frag({ num_articulo: String(i), fuente: 'Codigo Procesal Civil' }));
     const citas = construirCitas([dup, dup, ...muchas]);
     expect(citas.length).toBeLessThanOrEqual(5);
     const claves = citas.map((c) => `${c.articulo}|${c.fuente}`);
@@ -56,16 +56,14 @@ describe('construirCitas — P0-2 pipeline de citas exactas', () => {
   });
 
   it('fragmento sin num_articulo (metadato opcional ausente) no rompe ni inventa un número', () => {
-    const citas = construirCitas([frag({ num_articulo: null, fuente: 'TSC' })]);
+    const citas = construirCitas([frag({ num_articulo: null, fuente: 'Codigo Procesal Civil' })]);
     expect(citas).toHaveLength(1);
     expect(citas[0].articulo).toBeNull();
     expect(citas[0].hash).toMatch(/^[0-9a-f]{8}$/);
   });
 
-  it('fuente vacía se preserva tal cual — nunca se inventa una fuente ausente', () => {
-    const citas = construirCitas([frag({ num_articulo: '5', fuente: '' })]);
-    expect(citas).toHaveLength(1);
-    expect(citas[0].fuente).toBe('');
+  it('fuente vacía: sin instrumento identificado no es cita (salvaguarda CLO) — nunca se inventa una fuente ausente', () => {
+    expect(construirCitas([frag({ num_articulo: '5', fuente: '' })])).toEqual([]);
   });
 
   it('entrada vacía o sin fragmentos vigentes → array vacío, sin lanzar excepción', () => {
@@ -76,18 +74,18 @@ describe('construirCitas — P0-2 pipeline de citas exactas', () => {
   it('CPC_COMENTADO_ROMERO_2024 (doctrina) NUNCA entra como cita, incluso si llega marcado es_norma_vigente=true por error de ingesta', () => {
     const citas = construirCitas([
       frag({ num_articulo: '5', fuente: 'CPC_COMENTADO_ROMERO_2024', es_norma_vigente: true }),
-      frag({ num_articulo: '5', fuente: 'TSC', es_norma_vigente: true }),
+      frag({ num_articulo: '5', fuente: 'Codigo Procesal Civil', es_norma_vigente: true }),
     ]);
     expect(citas).toHaveLength(1);
-    expect(citas[0].fuente).toBe('TSC');
+    expect(citas[0].fuente).toBe('Codigo Procesal Civil');
     expect(citas.some((c) => c.fuente === 'CPC_COMENTADO_ROMERO_2024')).toBe(false);
   });
 
   it('preserva el orden de aparición de los fragmentos de entrada', () => {
     const citas = construirCitas([
-      frag({ num_articulo: '10', fuente: 'TSC' }),
-      frag({ num_articulo: '20', fuente: 'TSC' }),
-      frag({ num_articulo: '30', fuente: 'TSC' }),
+      frag({ num_articulo: '10', fuente: 'Codigo Procesal Civil' }),
+      frag({ num_articulo: '20', fuente: 'Codigo Procesal Civil' }),
+      frag({ num_articulo: '30', fuente: 'Codigo Procesal Civil' }),
     ]);
     expect(citas.map((c) => c.articulo)).toEqual(['10', '20', '30']);
   });

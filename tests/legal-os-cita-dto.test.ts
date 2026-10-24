@@ -12,7 +12,7 @@ import { AnswerPanel } from '@/components/legal/AnswerPanel';
 
 const RAIZ = join(__dirname, '..');
 const frag = (o: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
-  id: 'f1', contenido: 'Texto sintético del artículo.', num_articulo: '7', fuente: 'Código Sintético', relevancia: 1, es_norma_vigente: true, hash: 'abcd1234', ...o,
+  id: 'f1', contenido: 'Texto sintético del artículo.', num_articulo: '7', fuente: 'Codigo Penal', relevancia: 1, es_norma_vigente: true, hash: 'abcd1234', ...o,
 });
 
 /** Simula lo que haría el servidor: construirCitas → DTO v2 → JSON del evento SSE `done` → parse del cliente. */

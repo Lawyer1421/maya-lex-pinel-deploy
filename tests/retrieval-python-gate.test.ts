@@ -54,8 +54,12 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    // El fragmento del Código (instrumento incompatible) se excluye. Salvaguarda CLO (d): el Reglamento queda como CONTEXT (sin pliego CLO),
+    // así que no hay evidencia suficiente.
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_REGLAMENTO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+    expect(resultado.outcome?.evidenceCount).toBe(0);
   });
 
   it('sin evidencia elegible: OFFICIAL_FALLBACK_REQUIRED, no se acepta nada por materia', async () => {
