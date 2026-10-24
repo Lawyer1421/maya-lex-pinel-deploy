@@ -8,6 +8,7 @@
  */
 import { detectarArticuloExacto, detectarInstrumentoDesdeTexto, identidadDeFuente } from '../../legal-retrieval/exact-resolver';
 import { FUENTES_DOCTRINALES } from '../../legal-retrieval/evidence-engine';
+import { clasificarFragmentoClo } from '../../legal-retrieval/clo-guards';
 import type { FragmentoRAG } from '../../legal-retrieval/types';
 import { crearSinkEnMemoria, type TraceSink } from '../observability';
 import { ejecutarPipeline, type ChunkEvidencia, type DependenciasPipeline } from '../pipeline';
@@ -44,6 +45,11 @@ export function evidenciaDeProduccion(fragmentos: readonly FragmentoRAG[]): { ch
   let excluidas = 0;
   fragmentos.forEach((f, i) => {
     if (FUENTES_DOCTRINALES.has(f.fuente) || /^doc_/i.test(f.fuente)) {
+      excluidas++;
+      return;
+    }
+    // Salvaguardas CLO: igual que producción, solo un fragmento PRIMARY cuenta como evidencia; un CONTEXT no.
+    if (clasificarFragmentoClo(f).rol !== 'PRIMARY') {
       excluidas++;
       return;
     }
