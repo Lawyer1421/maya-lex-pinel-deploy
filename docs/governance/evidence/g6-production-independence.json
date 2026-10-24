@@ -170,7 +170,7 @@
     "app/api/chat/route.ts": "f46e884c63b14ca9e85f258f1e39a7e877cb1c8a57420a11d7252690ff0738b0",
     "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
     "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
-    "lib/ai-gateway/shadow/dispatcher.ts": "e21a751b26407f38da224609e5d1462ac5de9b311551a77b0b23454a91ec5b2a",
+    "lib/ai-gateway/shadow/dispatcher.ts": "e96aa33bee03b4f0d3934261b1e3fd7d3c152e9ef4f4e24e323f98ec1383ce69",
     "lib/ai-gateway/shadow/openai-adapter.ts": "89d27f3af8b7b1dc9e5be8e925ce0cde2da67d82bc7d839feb52791ab99709aa",
     "lib/ai-gateway/shadow/pii-gate.ts": "bf8699c5ae09dac585eb87f1205d936696ae399c407cd95167ded82fcb05fd25",
     "lib/ai-gateway/shadow/privacy-gate.ts": "abfc3714b4bc545cb208c0e41abc369764a76a4f09c50fce3c9bcfc55da7fbcf",
@@ -179,6 +179,6 @@
     "lib/ai-gateway/shadow/shadow-model-config.ts": "d13e86352f69381cd4fcdaab772574847179501f42eaf210040defef58d27bc1",
     "lib/legal-os/learning/from-shadow.ts": "7e6dd960d3e732cb4b29ad4d521f09483d343edd6d8681b1555f3a902263ab59",
     "lib/legal-os/shadow/config.ts": "0227836ce354d2a6e28795af157f2fa4f487c228c79105ba8c167764c94d4f67",
-    "lib/legal-os/shadow/dispatch.ts": "d90d1744579372b0c89dbd146e9fb9fa38d9bd1e49fdfe93b8a0e3177320c4f8"
+    "lib/legal-os/shadow/dispatch.ts": "09b5c8acc0cc005fcc3afb7b56a6d9452cf003025f34b72ac3f0601ab30db194"
   }
 }

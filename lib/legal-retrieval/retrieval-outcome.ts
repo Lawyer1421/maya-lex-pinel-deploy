@@ -46,6 +46,7 @@ export function buildRetrievalOutcome(
   };
   if (opts.errorCategory) outcome.errorCategory = opts.errorCategory;
   if (opts.errorCode) outcome.errorCode = opts.errorCode;
+  if (opts.cloBlocks && opts.cloBlocks.length > 0) outcome.cloBlocks = opts.cloBlocks;
   return outcome;
 }
 

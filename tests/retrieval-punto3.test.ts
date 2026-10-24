@@ -262,17 +262,17 @@ describe('POST simulado — punto 3', () => {
     expect(llamadasModelo.length).toBe(0);
   });
 
-  it('PCSJ-17-2012 con el reglamento en el corpus: se usa el reglamento', async () => {
+  it('PCSJ-17-2012 con el reglamento en el corpus: se identifica el reglamento pero, sin pliego CLO, no es evidencia suficiente (abstención)', async () => {
     // El pase procedimental (RUTA_C) consulta otra colección: no debe devolver la norma normativa.
     mockDependencias([], (coleccion) => (coleccion === 'mayalex_procedimental' ? [] : [reglamentoArticulo, cnArticulo]));
     const { POST } = await import('@/app/api/chat/route');
     const res = await POST(fakeReq({ messages: [{ role: 'user', content: '¿Qué dice la Resolución PCSJ-17-2012?' }], mode: 'analisis' }));
-    await leerSSE(res);
+    const eventos = await leerSSE(res);
+    const done = eventos.find((e) => e.type === 'done');
 
-    expect(llamadasModelo.length).toBe(1);
-    const system = textoDeSystem((llamadasModelo[0][0] as { system: unknown }).system);
-    expect(fuentesEnSystem(system)).toEqual([FUENTE_REGLAMENTO]);
-    expect(system).toContain('Usar exclusivamente');
+    // Salvaguarda CLO (d): el Reglamento PCSJ-17-2012 es CONTEXT hasta que haya pliego CLO; el modelo no se invoca.
+    expect(done?.codigo).toBe('CORPUS_EVIDENCE_NOT_FOUND');
+    expect(llamadasModelo.length).toBe(0);
   });
 
   it('acuerdo de la junta directiva: búsqueda temática con pie de NONE', async () => {

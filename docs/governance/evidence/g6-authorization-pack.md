@@ -14,7 +14,7 @@ Condiciones: 12/15 MET.
 | CLO_PILOT_APPROVED | NOT_MET | CLO | 0/2 candidatos APPROVED; el resto PENDING_CLO_APPROVAL (docs/governance/evidence/g6-clo-pilot-pack.md) |
 | EFFECTIVE_MANIFEST_GT_ZERO | NOT_MET | CLO | MANIFIESTO_PROCEDENCIA_PUBLICA.length = 0 |
 | PRIVACY_METRICS_CURRENT | MET | CLAUDE_CODE | docs/governance/evidence/g6-privacy-metrics.json (hashes del gate y de los benchmarks) |
-| FIRST_CANARY_PRIVACY_POLICY_SATISFIED | MET | CLAUDE_CODE | 0/841 privados aceptados; 7/8 preguntas del Golden Set elegibles |
+| FIRST_CANARY_PRIVACY_POLICY_SATISFIED | MET | CLAUDE_CODE | 0/841 privados aceptados; 6/8 preguntas del Golden Set elegibles |
 | RESIDUAL_RISK_QUANTIFIED | MET | CLAUDE_CODE | holdout 3: 6/39 privados no detectados (15.4 %); el primer canary NO depende de este gate: lo acota la envolvente |
 | SERVERLESS_CERTIFIED | NOT_MET | ADMIN_VERCEL | 8/9 puntos VERIFIED (lib/ai-gateway/canary/serverless-certification.ts) |
 | ROLLBACK_TESTED | MET | CLAUDE_CODE | docs/governance/evidence/g6-rollback-evidence.json |

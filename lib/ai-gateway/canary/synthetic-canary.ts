@@ -29,7 +29,7 @@ export interface SolicitudSintetica {
 
 const TEXTO = 'Derogar el Decreto No 144-83, de fecha 23 de Agosto de 1983, contentivo del Código Penal y todas sus reformas.';
 const FRAGMENTO: FragmentoRAG = {
-  id: 'sintetico:cp_d130_a634', contenido: TEXTO, num_articulo: '634', fuente: 'Codigo Penal D130-2017', relevancia: 1,
+  id: 'sintetico:cp_d130_a634', contenido: TEXTO, num_articulo: '634', fuente: 'Codigo Penal (Decreto 130-2017)', relevancia: 1,
   fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234',
 };
 const OFICIAL = { url: 'https://example.invalid/sintetica.pdf', gaceta: '00,000', pdfSha256: '1'.repeat(64) };

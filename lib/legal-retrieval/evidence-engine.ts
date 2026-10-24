@@ -33,6 +33,7 @@
 import type { FragmentoRAG, ResultadoRAG } from './types';
 import { esRegistroNoVigenteExcluido } from './semantic-retriever';
 import { detectarArticuloExacto } from './exact-resolver';
+import { clasificarFragmentoClo, esCitableComoNorma } from './clo-guards';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CITAS ESTRUCTURADAS PARA TRAZABILIDAD EN UI (P0-4)
@@ -82,6 +83,8 @@ export function construirCitas(fragmentos: FragmentoRAG[]): Cita[] {
   for (const f of fragmentos) {
     if (FUENTES_DOCTRINALES.has(f.fuente)) continue;
     if (f.es_norma_vigente !== true) continue;
+    // Salvaguardas CLO: solo un fragmento PRIMARY (instrumento identificado, no sentencia/doctrina/práctica, no bloqueado) es cita formal.
+    if (!esCitableComoNorma(f)) continue;
     const clave = `${f.num_articulo ?? ''}|${f.fuente}`;
     if (vistos.has(clave)) continue;
     vistos.add(clave);
@@ -125,7 +128,21 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     '',
   ];
 
-  for (const [i, f] of resultado.fragmentos.entries()) {
+  // Salvaguardas CLO: la jurisprudencia y la doctrina van en su propio bloque, nunca mezcladas con la legislación.
+  const esBloqueJuris = (f: FragmentoRAG): boolean => {
+    const t = clasificarFragmentoClo(f).tipoFuente;
+    return t === 'JURISPRUDENCIA' || t === 'DOCTRINA';
+  };
+  const ordenados = [
+    ...resultado.fragmentos.filter((f) => !esBloqueJuris(f)),
+    ...resultado.fragmentos.filter((f) => esBloqueJuris(f)),
+  ];
+  const primeraJuris = resultado.fragmentos.filter((f) => !esBloqueJuris(f)).length;
+  for (const [i, f] of ordenados.entries()) {
+    if (i === primeraJuris && i < ordenados.length) {
+      lineas.push('── JURISPRUDENCIA / DOCTRINA (NO ES LEGISLACIÓN NI DERECHO POSITIVO DE HONDURAS) ──');
+      lineas.push('');
+    }
     // Salvaguarda D6(a) (2026-08-27), corregida D6(a-bis) (2026-08-28): esta
     // etiqueta NUNCA debe quedar en null. Un artículo de código hondureño
     // confirmado NO vigente (derogado — dossier DEROGACION_ADOPCION_102-2018)
@@ -142,9 +159,15 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     // cadena: debe ganar incluso si es_norma_vigente llegara mal poblado
     // como true por error de ingesta futura (mismo principio que en
     // construirCitas() -- ver comentario junto a la constante).
+    // Salvaguardas CLO: una sentencia o doctrina nunca recibe la etiqueta de norma, aunque llegue con es_norma_vigente mal poblado; un fragmento
+    // CONTEXT (sin instrumento identificado, artículo bloqueado, práctica notarial, instrumento sin pliego CLO) no se etiqueta como norma vigente.
+    const clo = clasificarFragmentoClo(f);
+    const esJurisprudenciaODoctrina = clo.tipoFuente === 'JURISPRUDENCIA' || clo.tipoFuente === 'DOCTRINA';
     const etiqueta = FUENTES_DOCTRINALES.has(f.fuente)
       ? `FUENTE DOCTRINAL / COMENTARIO ACADÉMICO - NO VINCULANTE: ${f.fuente}`
-      : f.es_norma_vigente === true
+      : f.es_norma_vigente === true && !esJurisprudenciaODoctrina && clo.rol === 'CONTEXT'
+        ? `CONTEXTO (${clo.bloqueos.join(', ')}) — NO CITAR COMO NORMA`
+        : f.es_norma_vigente === true && !esJurisprudenciaODoctrina
         ? 'NORMA VIGENTE HONDURAS'
         : f.jurisdiccion && f.jurisdiccion !== 'HN'
           ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
@@ -166,6 +189,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
     } else {
       lineas.push(`[FRAGMENTO ${i + 1}${art}${tag} | similitud de recuperación: ${pct}%${marcaComplementario}]`);
     }
+    for (const aviso of clo.avisos) lineas.push(`AVISO: ${aviso}`);
     lineas.push(`Fuente documental: ${f.fuente}`);
     lineas.push(f.contenido.trim());
     lineas.push('');
