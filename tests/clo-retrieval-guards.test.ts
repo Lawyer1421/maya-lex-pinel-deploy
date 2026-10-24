@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  anotarFragmentosClo, clasificarFragmentoClo, instrumentIdDeFragmento, normalizarNumeroArticulo, resumenEvidenciaClo,
+  anotarFragmentosClo, clasificarFragmentoClo, instrumentIdDeFragmento, normalizarNumeroArticulo, normalizarPais, resumenEvidenciaClo,
 } from '@/lib/legal-retrieval/clo-guards';
 import { construirCitas, formatearContextoRAG } from '@/lib/legal-retrieval/evidence-engine';
 import { detectarInstrumentoDesdeTexto, identidadDeFuente, resolverArticuloExacto, type FilaExactaDB } from '@/lib/legal-retrieval/exact-resolver';
@@ -489,5 +489,209 @@ describe('B-2: el pipeline shadow cuenta solo PRIMARY, igual que producción', (
     const r = clasificarFragmento(frag({ fuente: 'Documento sin instrumento', es_norma_vigente: true }));
     expect(r).toEqual({ clasificacionProduccion: 'SIN_CLASIFICAR', citable: false });
     expect(clasificarFragmento(frag())).toEqual({ clasificacionProduccion: 'NORMA_VIGENTE_HONDURAS', citable: true });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Re-auditoría (CHANGES_REQUIRED @ f6660c0): H-1 política de país (CLO 24-oct-2026), H-2 unión de bloqueos, residuos BAJO.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Los 11 instrumentos del Exact Resolver con datos: instrumento, fuente real del corpus y consulta que lo nombra. */
+const ONCE: Array<{ id: string; fuente: string; consulta: string; materia: string }> = [
+  { id: 'CONSTITUCION', fuente: 'Constitucion de la Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)', consulta: 'Artículo 18 de la Constitución de la República', materia: '00_CONSTITUCIONAL' },
+  { id: 'CODIGO_PENAL', fuente: 'Codigo Penal', consulta: 'Artículo 18 del Código Penal', materia: '01_PENAL' },
+  { id: 'CODIGO_PROCESAL_PENAL', fuente: 'Código Procesal Penal de Honduras (Decreto 9-99-E)', consulta: 'Artículo 18 del Código Procesal Penal', materia: '01_PENAL' },
+  { id: 'CODIGO_CIVIL', fuente: 'Código Civil de Honduras (Decreto del Poder Ejecutivo del 8 de febrero de 1906)', consulta: 'Artículo 18 del Código Civil', materia: '02_CIVIL' },
+  { id: 'CODIGO_PROCESAL_CIVIL', fuente: 'Codigo Procesal Civil', consulta: 'Artículo 18 del Código Procesal Civil', materia: '02_CIVIL' },
+  { id: 'CODIGO_TRABAJO', fuente: 'Codigo del Trabajo', consulta: 'Artículo 18 del Código del Trabajo', materia: '05_LABORAL' },
+  { id: 'CODIGO_FAMILIA', fuente: 'Codigo de Familia', consulta: 'Artículo 18 del Código de Familia', materia: '06_FAMILIA' },
+  { id: 'CODIGO_NOTARIADO', fuente: CODIGO_NOTARIADO, consulta: 'Artículo 18 del Código del Notariado', materia: '03_NOTARIAL' },
+  { id: 'REGLAMENTO_NOTARIADO', fuente: REGLAMENTO, consulta: 'Artículo 18 del reglamento notarial', materia: '03_NOTARIAL' },
+  { id: 'CODIGO_TRIBUTARIO', fuente: 'Codigo Tributario (Decreto 170-2016 - Consolidado SAR corte 2019)', consulta: 'Artículo 18 del Código Tributario', materia: '08_TRIBUTARIO' },
+  { id: 'LEY_JUSTICIA_CONSTITUCIONAL', fuente: 'Ley sobre Justicia Constitucional', consulta: 'Artículo 18 de la Ley sobre Justicia Constitucional', materia: '07_CONSTITUCIONAL' },
+];
+const PAISES_HN: Array<string | null> = ['HN', null, '', 'Honduras', 'HND', 'hn', ' HN ', 'honduras'];
+const PAISES_EXTRANJEROS = ['ES', 'SV', 'PE', 'España', 'MX'];
+
+describe('H-1: política de país derivada del instrument_id validado (decisión CLO 24-oct-2026), por buscarRAG', () => {
+  let filas: FilaExactaDB[] = [];
+  let buscarRAG: typeof import('@/lib/rag/search').buscarRAG;
+  const ORIGINAL_ENV = { ...process.env };
+
+  beforeAll(async () => {
+    vi.resetModules();
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
+    const chain: any = {
+      select: vi.fn(() => chain), eq: vi.fn(() => chain),
+      then: (resolve: (v: { data: unknown[]; error: null }) => void) => resolve({ data: filas, error: null }),
+    };
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ from: vi.fn(() => chain) }) }));
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+    ({ buscarRAG } = await import('@/lib/rag/search'));
+  });
+  afterAll(() => { process.env = { ...ORIGINAL_ENV }; vi.doUnmock('@/lib/supabase'); vi.doUnmock('@/lib/rag/embed'); });
+
+  const conPais = (i: (typeof ONCE)[number], jurisdiccion: string | null): FilaExactaDB =>
+    fila({ fuente: i.fuente, num_articulo: '18', contenido: 'ARTICULO 18.- Texto.', materia: i.materia, jurisdiccion });
+
+  for (const i of ONCE) {
+    const bloqueadoPorOtraRegla = i.id === 'REGLAMENTO_NOTARIADO'; // (d) sigue vigente: no por el país
+    it(`${i.id} con jurisdiccion HN / null / '' / 'Honduras' / 'HND': ${bloqueadoPorOtraRegla ? 'solo CONTEXT por la regla (d), nunca por el país' : 'EXACT_SUCCESS'}`, async () => {
+      for (const j of PAISES_HN) {
+        filas = [conPais(i, j)];
+        const r = await buscarRAG(i.consulta, 5, 'mayalex_normativos');
+        expect(r.fragmentos[0]?.instrument_id, `${i.id}/${String(j)}`).toBe(i.id);
+        if (bloqueadoPorOtraRegla) {
+          expect(r.outcome?.state, String(j)).toBe('NO_VERIFIED_EVIDENCE');
+          expect(r.outcome?.cloBlocks).toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
+          expect(r.outcome?.cloBlocks).not.toContain('JURISDICCION_NO_HONDURENA');
+        } else {
+          expect(r.outcome?.state, `${i.id}/${String(j)}`).toBe('EXACT_SUCCESS');
+          expect(r.outcome?.evidenceCount).toBe(1);
+          expect(r.fragmentos[0].rol_evidencia).toBe('PRIMARY');
+        }
+      }
+    });
+    it(`${i.id} con jurisdiccion ES / SV / PE / España / MX: nunca PRIMARY (conflicto = CONTEXT con aviso), aunque la fuente coincida`, async () => {
+      for (const j of PAISES_EXTRANJEROS) {
+        filas = [conPais(i, j)];
+        const r = await buscarRAG(i.consulta, 5, 'mayalex_normativos');
+        expect(r.outcome?.state, `${i.id}/${j}`).toBe('NO_VERIFIED_EVIDENCE');
+        expect(r.outcome?.evidenceCount).toBe(0);
+        expect(r.outcome?.cloBlocks).toContain('JURISDICCION_NO_HONDURENA');
+        expect(r.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+        expect(r.fragmentos[0].avisos_clo?.join(' ')).toMatch(/otro país|NO es derecho de Honduras/);
+      }
+    });
+  }
+
+  it('el país se normaliza: Honduras / HND / hn / " HN " son HN; vacío es "no declarado"; lo demás es otro país', () => {
+    for (const v of ['HN', 'hn', ' HN ', 'Honduras', 'HONDURAS', 'HND', 'hnd']) expect(normalizarPais(v), v).toBe('HN');
+    for (const v of [null, undefined, '', '   ']) expect(normalizarPais(v)).toBeNull();
+    expect(normalizarPais('ES')).toBe('ES');
+    expect(normalizarPais('España')).toBe('ESPANA');
+  });
+
+  it('sin instrument_id validado + jurisdiccion null o vacía → CONTEXT (sigue la regla a)', () => {
+    for (const jurisdiccion of [null, undefined, '', 'HN']) {
+      const c = clasificarFragmentoClo(frag({ fuente: 'Documento sin instrumento', jurisdiccion }));
+      expect(c.rol, String(jurisdiccion)).toBe('CONTEXT');
+      expect(c.bloqueos).toContain('SIN_INSTRUMENT_ID');
+    }
+  });
+
+  it('las sentencias siguen en su tipo propio (JURISPRUDENCIA) sin importar el país, con o sin instrumento en la fuente', () => {
+    for (const jurisdiccion of ['HN', null, '', 'Honduras', 'ES', 'SV', 'PE']) {
+      const c = clasificarFragmentoClo(frag({ fuente: 'Codigo Penal', fuente_tipo: 'sentencia', jurisdiccion }));
+      expect(c.tipoFuente, String(jurisdiccion)).toBe('JURISPRUDENCIA');
+      expect(c.rol).toBe('CONTEXT');
+    }
+  });
+});
+
+describe('H-2: el payload nunca puede quitar un bloqueo — unión de señales 03_NOTARIAL / protocolo / práctica', () => {
+  const ORIGINAL_ENV = { ...process.env };
+  afterEach(() => { process.env = { ...ORIGINAL_ENV }; vi.unstubAllGlobals(); });
+
+  async function buscarPorPython(fragmento: Record<string, unknown>, materia?: string) {
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'python';
+    process.env.PYTHON_RAG_URL = 'http://python-rag.test';
+    delete process.env.VERCEL;
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true, text: async () => '',
+      json: async () => ({ fragmentos: [{ contenido: 'Texto.', num_articulo: '5', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, ...fragmento }], articulos_encontrados: ['5'] }),
+    })));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    return buscarRAG('¿Cómo se redacta el protocolo notarial?', 5, 'mayalex_normativos', materia);
+  }
+
+  it('ruta Python: materia 03_NOTARIAL en la consulta + materia:"02_CIVIL" en el payload → sigue bloqueado (práctica)', async () => {
+    const r = await buscarPorPython({ fuente: 'Escritura modelo', materia: '02_CIVIL' }, '03_NOTARIAL');
+    expect(r.fragmentos[0].bloqueos_clo).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(r.outcome?.evidenceCount).toBe(0);
+    expect(r.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+  });
+  it('ruta Python: una fuente con identidad que no es norma notarial tampoco se libra con un materia falso', async () => {
+    const r = await buscarPorPython({ fuente: 'Codigo Penal', materia: '01_PENAL' }, '03_NOTARIAL');
+    expect(r.fragmentos[0].bloqueos_clo).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(r.outcome?.evidenceCount).toBe(0);
+  });
+  it('ruta Python: el Código del Notariado (identidad normativa notarial) sigue siendo PRIMARY bajo el filtro 03_NOTARIAL', async () => {
+    const r = await buscarPorPython({ fuente: CODIGO_NOTARIADO, materia: '02_CIVIL', num_articulo: '18' }, '03_NOTARIAL');
+    expect(r.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(r.outcome?.evidenceCount).toBe(1);
+  });
+  it('ruta Python: la señal de materia 03_NOTARIAL viene en el payload y la consulta no filtra → bloquea', async () => {
+    const r = await buscarPorPython({ fuente: 'Escritura modelo', materia: '03_NOTARIAL' });
+    expect(r.fragmentos[0].bloqueos_clo).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(r.outcome?.evidenceCount).toBe(0);
+  });
+  it('unidad: cualquier señal bloquea (fila, consulta o metadatos); el sellado conserva la señal bloqueante', () => {
+    expect(clasificarFragmentoClo(frag({ fuente: 'Escritura modelo', materia: '02_CIVIL' }), { materia: '03_NOTARIAL' }).bloqueos).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(clasificarFragmentoClo(frag({ fuente: 'Escritura modelo', materia: '03_NOTARIAL' }), { materia: '02_CIVIL' }).bloqueos).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(clasificarFragmentoClo({ ...frag({ fuente: 'Escritura modelo' }), metadata: { materia: '03_NOTARIAL' } }).bloqueos).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    expect(clasificarFragmentoClo({ ...frag({ fuente: 'Escritura modelo' }), metadata: { sub_tipo: 'testamento' } }).bloqueos).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    const sellado = anotarFragmentosClo([frag({ fuente: 'Escritura modelo', materia: '02_CIVIL' })], { materia: '03_NOTARIAL' })[0];
+    expect(sellado.materia).toBe('03_NOTARIAL');
+    expect(resumenEvidenciaClo([sellado]).suficiente).toBe(false); // sin ctx: no depende de que se repita
+  });
+});
+
+describe('Residuos BAJO: doctrina «comentada/anotada/concordada» y «Artículo 017.-»', () => {
+  const ORIGINAL_ENV = { ...process.env };
+  afterEach(() => { process.env = { ...ORIGINAL_ENV }; });
+
+  it.each([
+    'Constitución de la República de Honduras, comentada por X',
+    'Constitucion de la Republica de Honduras anotada',
+    'Código Penal concordado y comentado (Decreto 130-2017)',
+    'Codigo Civil comentado',
+  ])('%s es doctrina → CONTEXT aunque fuente_tipo sea codigo y el país HN', (fuente) => {
+    const c = clasificarFragmentoClo(frag({ fuente, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true }));
+    expect(c.tipoFuente).toBe('DOCTRINA');
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('DOCTRINA_NO_ES_NORMA');
+    expect(construirCitas([frag({ fuente, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true })])).toEqual([]);
+  });
+
+  it('por buscarRAG semántica: «Constitución…, comentada por X» no es evidencia', async () => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
+    const rpc = vi.fn(async () => ({ data: [{ id: 'k', contenido: 'Texto.', num_articulo: '1', fuente: 'Constitución de la República de Honduras, comentada por X', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, similarity: 0.9 }], error: null }));
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ rpc }) }));
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('¿Qué dice la Constitución sobre el domicilio?', 5, 'mayalex_normativos');
+    expect(r.outcome?.evidenceCount).toBe(0);
+    expect(r.fragmentos[0].bloqueos_clo).toContain('DOCTRINA_NO_ES_NORMA');
+  });
+
+  it.each(['Artículo 017.-', 'Artículo 017.- ', 'ARTICULO 17.-', 'Art. 017.-', 'artículo 17 .-', 'Artículo 17—'])('%j se reconoce como el artículo 17', (n) => {
+    expect(normalizarNumeroArticulo(n)).toBe('17');
+  });
+  it('«Artículo 017.-» en el Código del Notariado se bloquea como HUECO, también por buscarRAG', async () => {
+    expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: 'Artículo 017.-' })).bloqueos).toContain('NOTARIADO_HUECO');
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
+    const chain: any = {
+      select: vi.fn(() => chain), eq: vi.fn(() => chain),
+      then: (resolve: (v: { data: unknown[]; error: null }) => void) => resolve({ data: [fila({ num_articulo: 'Artículo 017.-', contenido: 'ARTICULO 17.- Texto.' })], error: null }),
+    };
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ from: vi.fn(() => chain) }) }));
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('Artículo 17 del Código del Notariado', 5, 'mayalex_normativos');
+    expect(r.outcome?.state).toBe('NO_VERIFIED_EVIDENCE');
+    expect(r.outcome?.cloBlocks).toContain('NOTARIADO_HUECO');
   });
 });

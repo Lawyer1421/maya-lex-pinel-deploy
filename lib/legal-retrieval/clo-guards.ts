@@ -12,7 +12,10 @@
  *  - fuente_tipo normativo conocido (codigo, ley, norma, decreto, reglamento, constitucion) y país HN.
  *  - ningún bloqueo: (b) sentencias/doctrina; (c) artículos del Código del Notariado D.353-2005 bloqueados; (d) instrumentos sin pliego CLO
  *    (Reglamento PCSJ-17-2012) o sin cotejo (D.77-2006); (e) protocolo y práctica 03_NOTARIAL y capa documental.
- * Los campos `materia`, `instrumento_solicitado` y `coleccion_origen` que sella la ruta solo pueden AGREGAR bloqueos, nunca quitarlos.
+ * Los campos `materia`, `instrumento_solicitado` y `coleccion_origen` que sella la ruta solo pueden AGREGAR bloqueos, nunca quitarlos: las señales de
+ * materia/colección se UNEN (fila, consulta y metadatos); si CUALQUIERA es 03_NOTARIAL o capa documental, bloquea, y una carga externa no puede quitarlo.
+ * Política de país (decisión CLO 24-oct-2026): el país se deriva del instrument_id VALIDADO contra INSTRUMENT_IDS (todos son instrumentos hondureños),
+ * no de la columna `jurisdiccion`. Instrumento validado + país vacío → puede ser PRIMARY; país explícito distinto de HN → conflicto → CONTEXT con aviso.
  *
  * Quitar un bloqueo es una decisión del CLO, no un ajuste de código.
  */
@@ -133,10 +136,10 @@ export function normalizarNumeroArticulo(n: string | number | null | undefined):
   let s = norm(String(n)).replace(/[º°ª]/g, '');
   for (let i = 0; i < 4; i++) {
     const antes = s;
-    s = s.replace(/^[\s.,:;-]*(?:articulo|arto|art|numero|num|no|n)\b[\s.:;-]*/, '').replace(/^[\s.,:;]+/, '');
+    s = s.replace(/^[\s.,:;\-–—]*(?:articulo|arto|art|numero|num|no|n)\b[\s.:;\-–—]*/, '').replace(/^[\s.,:;\-–—]+/, '');
     if (s === antes) break;
   }
-  s = s.replace(/[\s.,:;]+$/g, '').replace(/^0+(?=\d)/, '');
+  s = s.replace(/[\s.,:;\-–—]+$/g, '').replace(/^0+(?=\d)/, '');
   return /^\d{1,4}(?:-?[a-z]{1,3})?$/.test(s) ? s.toUpperCase() : null;
 }
 
@@ -198,26 +201,45 @@ export function instrumentIdDeFragmento(f: Pick<FragmentoClasificable, 'fuente' 
   return null;
 }
 
+
+/** País normalizado: 'HN' para HN/Honduras/HND (sin importar mayúsculas, tildes ni espacios); null si no se declara; el texto normalizado en mayúsculas si es otro. */
+export function normalizarPais(v: unknown): string | null {
+  const t = norm(v).toUpperCase();
+  if (t === '') return null;
+  return t === 'HN' || t === 'HND' || t === 'HONDURAS' || t === 'REPUBLICA DE HONDURAS' ? 'HN' : t;
+}
+
+const esMateriaNotarial = (v: unknown): boolean => norm(v).toUpperCase() === MATERIA_NOTARIAL;
+const esColeccionDocumental = (v: unknown): boolean => norm(v) === COLECCION_DOCUMENTAL;
+/** sub_tipo de las filas de protocolo y práctica (capa `mayalex_instrumentos`). */
+const SUBTIPOS_PRACTICA: ReadonlySet<string> = new Set(['instrumento_notarial', 'autenticacion', 'poder', 'hipoteca', 'testamento', 'matrimonio_divorcio', 'compraventa']);
+/** Fuente comentada, anotada o concordada: doctrina aunque venga marcada como código. */
+const RE_FUENTE_DOCTRINAL = /\b(?:comentad[ao]s?|anotad[ao]s?|concordad[ao]s?)\b/;
+
 export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoClasificacion = {}): ClasificacionClo {
   const instrumentId = instrumentIdDeFragmento(f);
-  const materia = norm(f.materia ?? ctx.materia ?? '').toUpperCase();
-  const coleccion = norm(f.coleccion_origen ?? ctx.coleccion ?? '');
+  const meta = f.metadata && typeof f.metadata === 'object' ? f.metadata : null;
+  // Señales de materia y colección: UNIÓN de la fila, la consulta y los metadatos. Una carga externa nunca puede quitar un bloqueo.
+  const senalNotarial = esMateriaNotarial(f.materia) || esMateriaNotarial(ctx.materia) || esMateriaNotarial(meta?.materia)
+    || SUBTIPOS_PRACTICA.has(norm(meta?.sub_tipo)) || norm(meta?.tipo_fuente) === 'instrumento';
+  const senalDocumental = esColeccionDocumental(f.coleccion_origen) || esColeccionDocumental(ctx.coleccion);
   const solicitado = (f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? null) as string | null;
   const tipo = norm(f.fuente_tipo);
-  const pais = norm(f.jurisdiccion).toUpperCase();
+  const pais = normalizarPais(f.jurisdiccion);
   const bloqueos: CodigoBloqueoClo[] = [];
 
-  // (b) Las sentencias tienen su propio tipo de fuente. Se reconocen por familia de palabras (sentencia, jurisprudencia, fallo, casación…),
-  // sin distinguir mayúsculas ni tildes. Una sentencia no hondureña (o sin país) jamás es derecho de Honduras.
+  // (b) Las sentencias tienen su propio tipo de fuente, sin importar el país. Se reconocen por familia de palabras (sentencia, jurisprudencia,
+  // fallo, casación…), sin distinguir mayúsculas ni tildes. Una sentencia no hondureña (o sin país) jamás es derecho de Honduras.
   const esSentencia = /sentencia|jurisprudencia|fallo|casacion|amparo|inconstitucionalidad|exhibicion personal|habeas/.test(tipo);
-  const esDoctrina = !esSentencia && /doctrina|comentario|glosa|libro|monografia/.test(tipo);
+  // Doctrina: por tipo, o por una fuente «comentada/anotada/concordada» aunque fuente_tipo diga 'codigo'.
+  const esDoctrina = !esSentencia && (/doctrina|comentario|glosa|libro|monografia/.test(tipo) || RE_FUENTE_DOCTRINAL.test(norm(f.fuente)));
   if (esSentencia) bloqueos.push(pais === 'HN' ? 'SENTENCIA_NO_ES_NORMA' : 'SENTENCIA_NO_HONDURENA');
   else if (esDoctrina) bloqueos.push('DOCTRINA_NO_ES_NORMA');
 
   // (e) Protocolo y práctica notarial (03_NOTARIAL) y capa documental: sin identidad normativa propia, nunca norma.
   const esNormativoNotarial = instrumentId !== null && INSTRUMENTOS_NORMATIVOS_NOTARIALES.has(instrumentId);
-  const esPracticaNotarial = !esSentencia && !esDoctrina && materia === MATERIA_NOTARIAL && !esNormativoNotarial;
-  const esCapaDocumental = !esSentencia && !esDoctrina && !esPracticaNotarial && coleccion === COLECCION_DOCUMENTAL && instrumentId === null;
+  const esPracticaNotarial = !esSentencia && !esDoctrina && senalNotarial && !esNormativoNotarial;
+  const esCapaDocumental = !esSentencia && !esDoctrina && !esPracticaNotarial && senalDocumental && instrumentId === null;
   if (esPracticaNotarial) bloqueos.push('PRACTICA_NOTARIAL_NO_NORMA');
   if (esCapaDocumental) bloqueos.push('CAPA_DOCUMENTAL_NO_NORMA');
 
@@ -225,9 +247,11 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
   if (claseNorma) {
     // (a) Sin instrumento identificado no hay PRIMARY.
     if (instrumentId === null) bloqueos.push('SIN_INSTRUMENT_ID');
-    // Fail-closed: una norma exige un fuente_tipo normativo conocido y país HN. Null, vacío, desconocido u otro país → CONTEXT.
+    // Fail-closed: una norma exige un fuente_tipo normativo conocido. Null, vacío o desconocido → CONTEXT.
     if (!TIPOS_FUENTE_NORMATIVOS.has(tipo)) bloqueos.push('FUENTE_TIPO_NO_VERIFICADO');
-    if (pais !== 'HN') bloqueos.push('JURISDICCION_NO_HONDURENA');
+    // Política de país (CLO 24-oct-2026): un instrumento validado contra INSTRUMENT_IDS es hondureño por definición; su país se deriva de ahí,
+    // no de la columna `jurisdiccion`. País vacío con instrumento validado → no bloquea. País explícito distinto de HN → conflicto → CONTEXT.
+    if (pais !== null && pais !== 'HN') bloqueos.push('JURISDICCION_NO_HONDURENA');
   }
 
   // La fuente real es otro instrumento distinto del solicitado.
@@ -262,10 +286,13 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
  */
 export function anotarFragmentosClo<T extends FragmentoRAG>(fragmentos: readonly T[], ctx: ContextoClasificacion = {}): T[] {
   return fragmentos.map((f) => {
+    // Sellado por UNIÓN: si la fila o la consulta señalan 03_NOTARIAL o la capa documental, esa señal es la que queda.
+    const materiaSellada = esMateriaNotarial(ctx.materia) ? ctx.materia : esMateriaNotarial(f.materia) ? f.materia : f.materia ?? ctx.materia ?? null;
+    const coleccionSellada = esColeccionDocumental(ctx.coleccion) ? ctx.coleccion : esColeccionDocumental(f.coleccion_origen) ? f.coleccion_origen : f.coleccion_origen ?? ctx.coleccion ?? undefined;
     const sellado: T = {
       ...f,
-      materia: f.materia ?? ctx.materia ?? null,
-      coleccion_origen: f.coleccion_origen ?? ctx.coleccion ?? undefined,
+      materia: materiaSellada ?? null,
+      coleccion_origen: coleccionSellada ?? undefined,
       instrumento_solicitado: f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? undefined,
     };
     const c = clasificarFragmentoClo(sellado);
