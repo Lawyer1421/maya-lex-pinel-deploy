@@ -37,6 +37,9 @@ export const INSTRUMENTOS_ENVOLVENTE: readonly string[] = [
   'codigo tributario', 'codigo del notariado', 'constitucion de la republica', 'constitucion', 'ley de procedimiento administrativo',
   'ley de municipalidades', 'ley de propiedad', 'ley electoral', 'ley de justicia constitucional', 'codigo de la ninez y la adolescencia',
   'ley organica del poder judicial',
+  // Reglamento del Código del Notariado (Resolución PCSJ-17-2012): identidad válida (dictamen CLO 24-oct-2026); se resuelve al Reglamento, nunca al Código.
+  'reglamento del codigo del notariado', 'reglamento al codigo del notariado', 'reglamento para el codigo del notariado',
+  'reglamento para codigo del notariado',
 ];
 
 /**
