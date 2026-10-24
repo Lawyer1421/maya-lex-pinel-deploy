@@ -171,7 +171,7 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   // Alias P1 (intención instrumental explícita): "reglamento notarial" y
   // "reglamento de la función notarial" son el Reglamento. "ley notarial" NO
   // es alias de ningún instrumento: no se asimila al Código del Notariado.
-  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:(?:del?\s+)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b|(?:de\s+la\s+)?(?:funci[oó]n\s+)?notarial\b)/i],
+  ['REGLAMENTO_NOTARIADO', /reglamento\s+(?:(?:(?:del?|al|para)\s+(?:el\s+)?)?(?:c[oó]digo\s+(?:del?\s+)?)?notariado\b|(?:de\s+la\s+)?(?:funci[oó]n\s+)?notarial\b)/i],
   ['CODIGO_NOTARIADO', /c[oó]digo\s+(?:(?:del?\s+)?notariado\b|notarial\b)/i],
   ['CODIGO_TRIBUTARIO', /c[oó]digo\s+tributario\b/i],
   ['CODIGO_COMERCIO', /c[oó]digo\s+de\s+comercio\b/i],
@@ -466,8 +466,12 @@ export function resolverArticuloExacto(
     jurisdiccion: row.jurisdiccion,
     es_norma_vigente: row.es_norma_vigente,
     materia: row.materia,
+    instrumento_solicitado: instrumentoSolicitado,
+    // La metadata de la fila participa en la identidad documental (mismos patrones anclados que `fuente`), sin viajar entera.
+    ...(typeof row.metadata?.documento_origen === 'string' ? { documento_origen: row.metadata.documento_origen } : {}),
+    ...(typeof row.metadata?.norm_id === 'string' ? { norm_id: row.metadata.norm_id } : {}),
     hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
-  })), { instrumentoConfirmado: instrumentoSolicitado });
+  })));
 
   return { fragmentos, ambiguo: false };
 }

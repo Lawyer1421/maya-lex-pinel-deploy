@@ -3,7 +3,9 @@ import {
   anotarFragmentosClo, clasificarFragmentoClo, instrumentIdDeFragmento, normalizarNumeroArticulo, resumenEvidenciaClo,
 } from '@/lib/legal-retrieval/clo-guards';
 import { construirCitas, formatearContextoRAG } from '@/lib/legal-retrieval/evidence-engine';
-import { resolverArticuloExacto, type FilaExactaDB } from '@/lib/legal-retrieval/exact-resolver';
+import { detectarInstrumentoDesdeTexto, identidadDeFuente, resolverArticuloExacto, type FilaExactaDB } from '@/lib/legal-retrieval/exact-resolver';
+import { clasificacionDesdeEtiqueta, clasificarFragmento } from '@/lib/ai-gateway/shadow/evidence-classification';
+import { evidenciaDeProduccion } from '@/lib/legal-os/shadow/dispatch';
 import type { FragmentoRAG } from '@/lib/legal-retrieval/types';
 
 /**
@@ -267,5 +269,225 @@ describe('integración con buscarRAG (semántica): solo los PRIMARY son evidenci
     const r = await buscarRAG('Artículo 18 del Código del Notariado', 5, 'mayalex_normativos');
     expect(r.outcome?.state).toBe('EXACT_SUCCESS');
     expect(r.outcome?.evidenceCount).toBe(1);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Correcciones del dictamen del Auditor (CHANGES_REQUIRED @ 56f31d9): A-1, A-2, A-3, M-1…M-4, B-1, B-2.
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('A-1: el D.77-2006 jamás pasa como Código del Notariado, ni por buscarRAG', () => {
+  const ORIGINAL_ENV = { ...process.env };
+  beforeEach(() => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
+  });
+  afterEach(() => { process.env = { ...ORIGINAL_ENV }; });
+
+  function mockearFilas(filas: FilaExactaDB[]): void {
+    const chain: any = {
+      select: vi.fn(() => chain), eq: vi.fn(() => chain),
+      then: (resolve: (v: { data: unknown[]; error: null }) => void) => resolve({ data: filas, error: null }),
+    };
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ from: vi.fn(() => chain) }) }));
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+  }
+
+  it('buscarRAG("Artículo 5 del Código del Notariado") con una fila del D.77-2006: NO_VERIFIED_EVIDENCE, evidenceCount 0, CONTEXT', async () => {
+    mockearFilas([fila({ fuente: D77, num_articulo: '5', contenido: 'ARTICULO 5.- Texto.' })]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('Artículo 5 del Código del Notariado', 5, 'mayalex_normativos');
+    expect(r.outcome?.state).toBe('NO_VERIFIED_EVIDENCE');
+    expect(r.outcome?.evidenceCount).toBe(0);
+    expect(r.outcome?.cloBlocks).toEqual(expect.arrayContaining(['INSTRUMENTO_DISTINTO_DEL_SOLICITADO', 'INSTRUMENTO_TEXTO_NO_COTEJADO']));
+    expect(r.fragmentos.every((f) => f.rol_evidencia === 'CONTEXT')).toBe(true);
+    expect(construirCitas(r.fragmentos)).toEqual([]);
+  });
+
+  it('el D.77-2006 pedido por su propio nombre sigue siendo solo CONTEXT (texto no cotejado)', () => {
+    const c = clasificarFragmentoClo(frag({ fuente: 'Decreto 77-2006, Congreso Nacional de Honduras', num_articulo: '3' }));
+    expect(c.instrumentId).toBe('DECRETO_77_2006');
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('INSTRUMENTO_TEXTO_NO_COTEJADO');
+  });
+
+  it('el Reglamento por buscarRAG exacta con el alias «al/para el Código»: sigue siendo el Reglamento y solo CONTEXT', async () => {
+    mockearFilas([fila({ fuente: REGLAMENTO, num_articulo: '9', contenido: 'ARTICULO 9.- Texto.' })]);
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('Artículo 9 del reglamento al Código del Notariado', 5, 'mayalex_normativos');
+    expect(r.outcome?.state).toBe('NO_VERIFIED_EVIDENCE');
+    expect(r.fragmentos[0]?.instrument_id).toBe('REGLAMENTO_NOTARIADO');
+  });
+});
+
+describe('A-2: (b) falla cerrado — fuente_tipo normalizado y país obligatorio', () => {
+  it.each(['Sentencia', 'SENTENCIA', ' sentencia ', 'jurisprudencia', 'Jurisprudencia Constitucional', 'fallo', 'Casación'])('fuente_tipo %j es jurisprudencia, no norma', (fuente_tipo) => {
+    const c = clasificarFragmentoClo(frag({ fuente_tipo, jurisdiccion: 'ES', es_norma_vigente: true }));
+    expect(c.tipoFuente).toBe('JURISPRUDENCIA');
+    expect(c.rol).toBe('CONTEXT');
+  });
+  it('fuente_tipo null, vacío o desconocido no se acredita como norma', () => {
+    for (const fuente_tipo of [null, undefined, '', 'raro']) {
+      const c = clasificarFragmentoClo(frag({ fuente_tipo }));
+      expect(c.rol, String(fuente_tipo)).toBe('CONTEXT');
+      expect(c.bloqueos).toContain('FUENTE_TIPO_NO_VERIFICADO');
+    }
+  });
+  it('«Código Civil de España» (ES o sin país) no es derecho hondureño ni siquiera con es_norma_vigente=true', () => {
+    for (const jurisdiccion of ['ES', 'es', null, undefined, '']) {
+      const c = clasificarFragmentoClo(frag({ fuente: 'Código Civil de España', jurisdiccion, es_norma_vigente: true }));
+      expect(c.rol, String(jurisdiccion)).toBe('CONTEXT');
+    }
+    // aun con la fuente correcta, un país distinto de HN no es PRIMARY
+    const c = clasificarFragmentoClo(frag({ fuente: 'Codigo Civil', jurisdiccion: 'ES' }));
+    expect(c.bloqueos).toContain('JURISDICCION_NO_HONDURENA');
+    expect(c.rol).toBe('CONTEXT');
+  });
+  it('«Código Civil de España» no identifica el Código Civil hondureño', () => {
+    expect(instrumentIdDeFragmento({ fuente: 'Código Civil de España' })).toBeNull();
+    expect(instrumentIdDeFragmento({ fuente: 'Código Civil de Honduras (Decreto del Poder Ejecutivo del 8 de febrero de 1906)' })).toBe('CODIGO_CIVIL');
+  });
+});
+
+describe('A-3: (a)/(e) no dependen de regex sobre texto libre ni de que llegue la materia', () => {
+  it('«Escritura de constitución de sociedad» no identifica la Constitución', () => {
+    for (const fuente of ['Escritura de constitución de sociedad', 'Acta de constitución de sociedad mercantil', 'Modelo de constitución en mora']) {
+      expect(instrumentIdDeFragmento({ fuente }), fuente).toBeNull();
+      expect(clasificarFragmentoClo(frag({ fuente })).rol).toBe('CONTEXT');
+    }
+    expect(instrumentIdDeFragmento({ fuente: 'Constitucion de la Republica de Honduras (Decreto 131-1982 - Consolidado TSC corte 2004)' })).toBe('CONSTITUCION');
+  });
+  it('la materia se normaliza: «03_notarial», « 03_NOTARIAL » y variantes de mayúsculas aplican (e)', () => {
+    for (const materia of ['03_NOTARIAL', '03_notarial', ' 03_NOTARIAL ', '03_Notarial']) {
+      const c = clasificarFragmentoClo(frag({ fuente: 'Escritura modelo', materia }));
+      expect(c.bloqueos, materia).toContain('PRACTICA_NOTARIAL_NO_NORMA');
+    }
+  });
+  it('sin materia, la colección documental «mayalex_instrumentos» sin identidad normativa nunca es norma', () => {
+    const c = clasificarFragmentoClo(frag({ fuente: 'Escritura modelo' }), { coleccion: 'mayalex_instrumentos' });
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('CAPA_DOCUMENTAL_NO_NORMA');
+  });
+  it('por buscarRAG semántica: una fila «de constitución de sociedad» NO produce SEMANTIC_SUCCESS', async () => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
+    const rpc = vi.fn(async () => ({ data: [{ id: 'e', contenido: 'Texto.', num_articulo: '3', fuente: 'Escritura de constitución de sociedad', fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, similarity: 0.9 }], error: null }));
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ rpc }) }));
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('¿Cómo se otorga una escritura de constitución de sociedad?', 5, 'mayalex_normativos');
+    expect(r.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+    expect(r.outcome?.evidenceCount).toBe(0);
+    expect(r.fragmentos[0]?.instrument_id).toBeNull();
+  });
+});
+
+describe('M-1: el instrument_id declarado o el rol que traiga una carga externa se ignoran', () => {
+  it.each(['   ', 'UNKNOWN', 'null', '', 'CODIGO_CIVIL', 'codigo_penal'])('instrument_id %j en el fragmento no confiere identidad', (instrument_id) => {
+    const c = clasificarFragmentoClo(frag({ fuente: 'Documento sin instrumento', instrument_id }));
+    expect(c.instrumentId).toBeNull();
+    expect(c.rol).toBe('CONTEXT');
+  });
+  it('un rol_evidencia=PRIMARY falsificado se recalcula; resumen y citas no lo creen', () => {
+    const f = frag({ fuente: 'Documento sin instrumento', rol_evidencia: 'PRIMARY', bloqueos_clo: [], instrument_id: 'CODIGO_CIVIL' });
+    expect(resumenEvidenciaClo([f]).suficiente).toBe(false);
+    expect(construirCitas([f])).toEqual([]);
+    expect(anotarFragmentosClo([f])[0].rol_evidencia).toBe('CONTEXT');
+  });
+  it('por buscarRAG con backend Python: una carga con instrument_id/rol falsificados no es evidencia', async () => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+    process.env.RAG_BACKEND = 'python';
+    process.env.PYTHON_RAG_URL = 'http://python-rag.test';
+    delete process.env.VERCEL;
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true, text: async () => '',
+      json: async () => ({ fragmentos: [{ contenido: 'Texto.', num_articulo: '5', fuente: 'Documento sin instrumento', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, instrument_id: 'CODIGO_CIVIL', rol_evidencia: 'PRIMARY' }], articulos_encontrados: ['5'] }),
+    })));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('¿Qué obligaciones hay?', 5, 'mayalex_normativos');
+    expect(r.outcome?.evidenceCount).toBe(0);
+    expect(r.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+    expect(r.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('M-2: (c) normaliza el número de artículo y exige uno verificable', () => {
+  it.each(['Arto. 17', '17º', '17°', 'N° 17', 'No. 17', 'Art.º 17', 'Artículo 17', 'ARTÍCULO 017', ' 17. '])('%j es el artículo 17 (HUECO)', (num_articulo) => {
+    expect(normalizarNumeroArticulo(num_articulo)).toBe('17');
+    expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo })).bloqueos).toContain('NOTARIADO_HUECO');
+  });
+  it('un num_articulo nulo, vacío o ilegible en el Código del Notariado no es PRIMARY', () => {
+    for (const num_articulo of [null, undefined, '', 'sin número', 'abc']) {
+      const c = clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo }));
+      expect(c.rol, String(num_articulo)).toBe('CONTEXT');
+      expect(c.bloqueos).toContain('NOTARIADO_ARTICULO_NO_VERIFICABLE');
+    }
+  });
+  it('se conserva el sufijo de letra de los artículos bis', () => {
+    expect(normalizarNumeroArticulo('123-A')).toBe('123-A');
+    expect(normalizarNumeroArticulo('Art. 173-b')).toBe('173-B');
+  });
+});
+
+describe('M-3: «Reglamento al/para el Código del Notariado» y su norm_id son el Reglamento, nunca el Código', () => {
+  it.each([
+    'Reglamento al Código del Notariado (Resolución PCSJ-17-2012)',
+    'Reglamento para el Código del Notariado (Resolución PCSJ-17-2012)',
+    'Reglamento del Código del Notariado (Resolución PCSJ-17-2012)',
+  ])('%s', (fuente) => {
+    expect(identidadDeFuente(fuente)).toBe('REGLAMENTO_NOTARIADO');
+    expect(instrumentIdDeFragmento({ fuente })).toBe('REGLAMENTO_NOTARIADO');
+    expect(clasificarFragmentoClo(frag({ fuente, num_articulo: '9' })).rol).toBe('CONTEXT');
+  });
+  it('el detector de la consulta resuelve «reglamento al/para el Código del Notariado» al Reglamento', () => {
+    expect(detectarInstrumentoDesdeTexto('artículo 3 del reglamento al Código del Notariado')).toBe('REGLAMENTO_NOTARIADO');
+    expect(detectarInstrumentoDesdeTexto('artículo 3 del reglamento para el Código del Notariado')).toBe('REGLAMENTO_NOTARIADO');
+    expect(detectarInstrumentoDesdeTexto('artículo 3 del Código del Notariado')).toBe('CODIGO_NOTARIADO');
+  });
+  it('un norm_id desconocido (p. ej. *reglamento_codigo_notariado*) no identifica nada: jamás cae al Código', () => {
+    const fuente = 'Documento sin instrumento';
+    expect(instrumentIdDeFragmento({ fuente, norm_id: 'mayalex_normativos:reglamento_codigo_notariado' })).toBeNull();
+    expect(instrumentIdDeFragmento({ fuente, norm_id: 'mayalex_normativos:reglamento_notariado_2012' })).toBe('REGLAMENTO_NOTARIADO');
+    expect(instrumentIdDeFragmento({ fuente, norm_id: 'mayalex_normativos:codigo_notariado_2005' })).toBe('CODIGO_NOTARIADO');
+  });
+});
+
+describe('M-4 (dictamen CLO 24-oct-2026): Código del Notariado arts. 72, 73, 84, 87 y 93 solo CONTEXT', () => {
+  it.each(['72', '73', '84', '87', '93'])('art. %s', (num_articulo) => {
+    const c = clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo }));
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('NOTARIADO_SOLO_CONTEXT_CLO');
+  });
+  it('otros artículos (incluido 71 y 74) siguen siendo PRIMARY', () => {
+    for (const n of ['71', '74', '18']) expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: n })).rol).toBe('PRIMARY');
+  });
+});
+
+describe('B-2: el pipeline shadow cuenta solo PRIMARY, igual que producción', () => {
+  it('evidenciaDeProduccion excluye los CONTEXT', () => {
+    const primary = frag({ id: 'p', fuente: CODIGO_PENAL });
+    const contexto = [
+      frag({ id: 'c1', fuente: 'Documento sin instrumento' }),
+      frag({ id: 'c2', fuente: REGLAMENTO, num_articulo: '9' }),
+      frag({ id: 'c3', fuente: CODIGO_NOTARIADO, num_articulo: '17' }),
+      frag({ id: 'c4', fuente_tipo: 'sentencia', jurisdiccion: 'ES', fuente: 'Sentencia X' }),
+    ];
+    const { chunks, excluidas } = evidenciaDeProduccion([primary, ...contexto]);
+    expect(chunks.map((c) => c.id)).toEqual(['p']);
+    expect(excluidas).toBe(4);
+  });
+  it('el gateway reconoce la etiqueta de CONTEXT como no clasificada y no citable', () => {
+    expect(clasificacionDesdeEtiqueta('CONTEXTO (SIN_INSTRUMENT_ID) — NO CITAR COMO NORMA')).toBe('SIN_CLASIFICAR');
+    const r = clasificarFragmento(frag({ fuente: 'Documento sin instrumento', es_norma_vigente: true }));
+    expect(r).toEqual({ clasificacionProduccion: 'SIN_CLASIFICAR', citable: false });
+    expect(clasificarFragmento(frag())).toEqual({ clasificacionProduccion: 'NORMA_VIGENTE_HONDURAS', citable: true });
   });
 });
