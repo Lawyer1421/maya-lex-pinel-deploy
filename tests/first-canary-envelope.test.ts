@@ -132,3 +132,17 @@ describe('«Ley del Notariado» solo como término a corregir (dictamen CLO 21-o
     expect(sinMapa).not.toMatch(/ley del notariado/i);
   });
 });
+
+describe('B-1 (dictamen CLO 24-oct-2026): «Reglamento del Código del Notariado» es identidad válida en el canary', () => {
+  for (const q of [
+    '¿Qué establece el artículo 12-BIS del Reglamento del Código del Notariado?',
+    '¿Qué dice el artículo 9 del Reglamento al Código del Notariado?',
+    '¿Qué dice el artículo 9 del Reglamento para el Código del Notariado?',
+  ]) it(`elegible: ${q}`, () => expect(evaluarEnvolvente(q).elegible, q).toBe(true));
+  it('el Golden G1 solo pierde el caso «Ley del Notariado» (rechazado a propósito): 6 de 8 elegibles, antes 7 de 8', () => {
+    const elegibles = GOLDEN_G1.filter((c) => ok(c.input.sanitizedQuestion)).map((c) => c.id);
+    expect(elegibles).toHaveLength(6);
+    expect(elegibles).toContain('G1-ABS-REGLAMENTO-ART-12-BIS');
+    expect(elegibles).not.toContain('G1-NOT-LEY-DEL-NOTARIADO');
+  });
+});
