@@ -1,0 +1,17 @@
+{
+  "source_url": "https://example.invalid/sintetico/sentencia.pdf",
+  "source_domain": "example.invalid",
+  "retrieved_at": "2026-10-01T12:00:00Z",
+  "decree": "UNKNOWN",
+  "gaceta": "UNKNOWN",
+  "gaceta_date": "UNKNOWN",
+  "retrieval_method": "MANUAL_BROWSER",
+  "source_tier": null,
+  "retriever": "human",
+  "verification_state": "UNVERIFIED",
+  "document_name": "Sentencia Sintética del Lote de Prueba",
+  "document_type": "JUDGMENT",
+  "bytes_sha256": "eb5972366748402264e74a0ac771f2a4c8c218b2f1ad6ee61b27c4add924d868",
+  "text_sha256": "cb5ce8128e152526085fab37751bd1c91da42f6be8021d3901ec9a60f38742f8",
+  "extracted_text": "SENTENCIA SINTÉTICA de prueba. La sala ficticia resuelve un caso ficticio con fundamentos ficticios, solo para probar que la jurisprudencia viaja por un corpus separado."
+}

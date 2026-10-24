@@ -1,0 +1,17 @@
+{
+  "source_url": "https://example.invalid/sintetico/ley-sintetica.pdf",
+  "source_domain": "example.invalid",
+  "retrieved_at": "2026-10-01T12:00:00Z",
+  "decree": "UNKNOWN",
+  "gaceta": "UNKNOWN",
+  "gaceta_date": "UNKNOWN",
+  "retrieval_method": "MANUAL_BROWSER",
+  "source_tier": null,
+  "retriever": "human",
+  "verification_state": "UNVERIFIED",
+  "document_name": "Ley Sintética del Lote de Prueba",
+  "document_type": "LAW",
+  "bytes_sha256": "2d4bfca022009cc8077571be69a39db647bbd31234a784b63de8e388c158aff7",
+  "text_sha256": "326d0640856a75b03f51c092baa691bd0e265bcf560bf729c91ec8ab4369b292",
+  "extracted_text": "PREÁMBULO SINTÉTICO de prueba para el receptor de lotes.\nARTÍCULO 1.- Texto SINTÉTICO de prueba del primer artículo de la ley ficticia.\nARTÍCULO 2.- Texto SINTÉTICO de prueba del segundo artículo de la ley ficticia.\nARTÍCULO 3.- Texto SINTÉTICO de prueba del tercer artículo de la ley ficticia."
+}
