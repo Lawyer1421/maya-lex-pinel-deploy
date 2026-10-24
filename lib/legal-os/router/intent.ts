@@ -15,11 +15,12 @@ const RE_FUERA_DE_ALCANCE = /\b(receta|f[uú]tbol|clima|horóscopo|horoscopo|chi
 
 const MATERIAS: ReadonlyArray<[RegExp, string]> = [
   [/\b(penal|delito|cpp|proceso penal)\b/i, 'penal'],
+  // «Mercantil/comercio» antes que «contrato»: «contratos mercantiles» es materia comercial, no civil.
+  [/\b(mercantil|comercio|sociedad an[oó]nima|letra de cambio|cheque)\b/i, 'comercial'],
   [/\b(civil|cpc|contrato|obligaci|herencia|sucesi)/i, 'civil'],
   [/\b(trabajo|laboral|despido|salario|prestaciones)\b/i, 'laboral'],
   [/\b(familia|divorcio|pensi[oó]n alimenticia|adopci)/i, 'familia'],
   [/\b(notari|escritura p[uú]blica|protocolo)/i, 'notarial'],
-  [/\b(mercantil|comercio|sociedad an[oó]nima|letra de cambio|cheque)\b/i, 'comercial'],
   [/\b(tributari|impuesto|sar\b|isv|renta)/i, 'tributario'],
   [/\b(constituci|amparo|inconstitucional|habeas)/i, 'constitucional'],
   [/\b(administrativ|contencioso)/i, 'administrativo'],

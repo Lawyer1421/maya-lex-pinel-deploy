@@ -126,10 +126,11 @@ export function crearRegistroSkills() {
         soloInstrumento.push(s.skill_id);
       }
     }
-    // Con pista temática manda la de más puntos (desempate: id más corto, luego alfabético). Sin pista, el instrumento nombrado
+    // Con pista temática manda la de más puntos (desempate: la más específica, luego alfabético). Sin pista, el instrumento nombrado
     // solo basta si identifica UNA única skill; si hay varias candidatas no se adivina: ninguna.
     if (conPista.length > 0) {
-      conPista.sort((a, b) => b.puntos - a.puntos || a.id.length - b.id.length || (a.id < b.id ? -1 : 1));
+      // Con igual puntaje gana la skill MÁS ESPECÍFICA (más segmentos en el id; p. ej. CIVIL.CONTRACTS.SALE sobre CIVIL.CONTRACTS), luego orden alfabético.
+      conPista.sort((a, b) => b.puntos - a.puntos || b.id.split('.').length - a.id.split('.').length || (a.id < b.id ? -1 : 1));
       return conPista[0].id;
     }
     return soloInstrumento.length === 1 ? soloInstrumento[0] : null;
