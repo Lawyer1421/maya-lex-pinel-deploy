@@ -36,7 +36,7 @@
       "id": "FIRST_CANARY_PRIVACY_POLICY_SATISFIED",
       "descripcion": "La envolvente del primer canary rechaza todos los casos privados de todos los conjuntos",
       "estado": "MET",
-      "evidencia": "0/841 privados aceptados; 7/8 preguntas del Golden Set elegibles",
+      "evidencia": "0/841 privados aceptados; 5/8 preguntas del Golden Set elegibles",
       "responsable": "CLAUDE_CODE"
     },
     {

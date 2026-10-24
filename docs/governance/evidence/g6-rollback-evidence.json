@@ -134,12 +134,12 @@
   "limiteConocido": "El kill switch del shadow es una constante de código: el retorno a «apagado» en un despliegue real es revertir y redesplegar (promover el despliegue anterior). No hay interruptor en caliente.",
   "codigoHashes": {
     "app/api/chat/route.ts": "f46e884c63b14ca9e85f258f1e39a7e877cb1c8a57420a11d7252690ff0738b0",
-    "lib/legal-retrieval/evidence-engine.ts": "05a70d3912505786b18a5b1487cb4658550c5654de377a6d3d57a442eda20501",
-    "lib/legal-retrieval/exact-resolver.ts": "81eada250fd8f6a2648da12ab0b8877ea02f6c79f4835d18f1bb376a147aca8b",
+    "lib/legal-retrieval/evidence-engine.ts": "6c65154b83e10db1f8844bea52abf5d2fb1a0a7764ae42084d9a2f28c8c6c5ff",
+    "lib/legal-retrieval/exact-resolver.ts": "3598ccfcf4129e39dd311492ba647970ba7ec8a960a5c8b58b5cfeb3c4ec7134",
     "lib/legal-retrieval/instrument-gate.ts": "5abf4434aa7be4df60f5c778ec9e764912424a5ecd46f351221c28fb1e101717",
     "lib/legal-retrieval/primitives.ts": "8b45f9e318f5fabf5a469342196afba67851e2c1aaac25716a983a59c1f2737d",
     "lib/legal-retrieval/semantic-retriever.ts": "6555ca2d880e11880ab611a3d77fe283ae34c95842dea8a748a53f202149d8b1",
-    "lib/legal-retrieval/types.ts": "396adfe61d9594b18ac30ce7c1d87150b20430ffffcfa07725c00b94a88ddd43",
-    "lib/rag/search.ts": "d891491136e255845c12945644260ef7da3729d357c73dc0a1fadc8bf71b4b84"
+    "lib/legal-retrieval/types.ts": "463b0950d61d143a4b286811a2bf0aae5dc4553af15728280afa05516736a9f0",
+    "lib/rag/search.ts": "4b59d08a995927eea54ad4953e43acb8d58c840ff17d4924c115d5454266c0a3"
   }
 }
