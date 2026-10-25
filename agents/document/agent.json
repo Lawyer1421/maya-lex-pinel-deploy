@@ -1,0 +1,36 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "document",
+  "name": "Document Agent",
+  "role": "Ingesta, OCR, conversión y clasificación de documentos (PDF, DOCX, imágenes).",
+  "routing_keywords": [
+    "pdf",
+    "docx",
+    "ocr",
+    "escanear",
+    "convertir",
+    "ingesta",
+    "clasificar documento"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "inbox"
+    ],
+    "knowledge_write": [
+      "inbox"
+    ],
+    "tools": [
+      "file.parse",
+      "rag.index"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "requires_approval"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "technology",
+  "name": "Technology Agent",
+  "role": "Ingeniería: código, Docker, Git, despliegues, páginas web y apps derivadas de los agentes de ChatGPT del usuario.",
+  "routing_keywords": [
+    "código",
+    "codigo",
+    "docker",
+    "git",
+    "deploy",
+    "vercel",
+    "railway",
+    "api",
+    "bug",
+    "página web",
+    "pagina web",
+    "app"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "technology"
+    ],
+    "knowledge_write": [],
+    "tools": [
+      "git.read"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "requires_approval"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "academic",
+  "name": "Academic Agent",
+  "role": "Docencia universitaria: planes de clase, sílabos, rúbricas, exámenes y material didáctico (Empresa y Derecho, Comercio Internacional, Integración Económica).",
+  "routing_keywords": [
+    "clase",
+    "sílabo",
+    "silabo",
+    "examen",
+    "rúbrica",
+    "rubrica",
+    "estudiantes",
+    "unah",
+    "docente",
+    "curso"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "academic"
+    ],
+    "knowledge_write": [
+      "academic"
+    ],
+    "tools": [
+      "rag.search"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  }
+}

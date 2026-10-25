@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Private data: never in Git (see SECURITY.md §3)
+knowledge/private/
+storage/*
+!storage/README.md
+!storage/audit/.gitkeep
+!storage/uploads/.gitkeep
+
+# Local runtime
+node_modules/
+*.log
+.DS_Store
+docker/volumes/
+supabase/.temp/

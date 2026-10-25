@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fredy Private AI Workspace</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>Fredy Private AI Workspace</h1>
+  <span id="net" class="badge">…</span>
+</header>
+<main>
+  <section id="chat-panel">
+    <h2>Consulta / Query</h2>
+    <div class="row">
+      <label>Agente / Agent <select id="agent"></select></label>
+      <label>Proveedor / Provider <select id="provider"></select></label>
+      <label>Sensibilidad / Sensitivity
+        <select id="sensitivity">
+          <option value="PRIVILEGED">PRIVILEGED (default)</option>
+          <option value="INTERNAL">INTERNAL</option>
+          <option value="PUBLIC">PUBLIC</option>
+        </select>
+      </label>
+    </div>
+    <label id="approve-row" hidden><input type="checkbox" id="approve"> Autorizo enviar este mensaje a un servicio EXTERNO / I approve sending this to an EXTERNAL service</label>
+    <textarea id="prompt" rows="5" placeholder="Escribe tu consulta… / Type your query…"></textarea>
+    <button id="send">Enviar / Send</button>
+    <pre id="answer" aria-live="polite"></pre>
+  </section>
+  <aside>
+    <h2>Agentes / Agents</h2><ul id="agents"></ul>
+    <h2>Auditoría / Audit <span id="chain" class="badge"></span></h2><pre id="audit"></pre>
+  </aside>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

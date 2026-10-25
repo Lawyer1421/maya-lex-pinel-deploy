@@ -1,0 +1,38 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "research",
+  "name": "Research Agent",
+  "role": "Investigación y síntesis con citación de fuentes; distingue hecho, inferencia y opinión.",
+  "routing_keywords": [
+    "investiga",
+    "fuentes",
+    "compara",
+    "análisis político",
+    "analisis politico",
+    "estado del arte",
+    "resumen de"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "research",
+      "legal",
+      "academic"
+    ],
+    "knowledge_write": [
+      "research"
+    ],
+    "tools": [
+      "rag.search"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  },
+  "note": "El acceso web se concederá en Fase 3 como allowlist con aprobación (DECISIONS.md D-06)."
+}

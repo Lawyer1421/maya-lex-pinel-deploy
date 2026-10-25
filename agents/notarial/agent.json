@@ -1,0 +1,38 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false,
+    "note": "Datos de clientes: sin memoria persistente en v0."
+  },
+  "delegates_to": [],
+  "id": "notarial",
+  "name": "Notarial Agent",
+  "role": "Derecho notarial: escrituras, protocolos, actas, poderes, autenticas y fe pública. Verifica requisitos formales y arroja listas de comprobación.",
+  "routing_keywords": [
+    "escritura",
+    "notari",
+    "protocolo",
+    "poder",
+    "acta",
+    "autentica",
+    "testimonio",
+    "compraventa",
+    "fideicomiso"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "notarial",
+      "legal"
+    ],
+    "knowledge_write": [],
+    "tools": [
+      "rag.search",
+      "template.fill"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  }
+}

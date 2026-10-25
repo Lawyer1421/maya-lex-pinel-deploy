@@ -1,0 +1,32 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [
+    "legal",
+    "notarial",
+    "academic",
+    "editorial",
+    "research",
+    "document",
+    "technology"
+  ],
+  "id": "master",
+  "name": "Master Agent",
+  "role": "Orquestador: enruta la solicitud al agente especialista adecuado, nunca ejecuta acciones destructivas ni externas por sí mismo.",
+  "routing_keywords": [],
+  "permissions": {
+    "knowledge_read": [],
+    "knowledge_write": [],
+    "tools": [
+      "route",
+      "audit.read"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "editorial",
+  "name": "Editorial Agent",
+  "role": "Escritura y edición de libros, artículos y letras de canciones; guía de estilo y mejora del inglés americano.",
+  "routing_keywords": [
+    "libro",
+    "capítulo",
+    "capitulo",
+    "canción",
+    "cancion",
+    "letra",
+    "artículo",
+    "articulo",
+    "kdp",
+    "editorial"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "editorial"
+    ],
+    "knowledge_write": [
+      "editorial"
+    ],
+    "tools": [
+      "rag.search"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  }
+}

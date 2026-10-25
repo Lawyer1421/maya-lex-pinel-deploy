@@ -1,0 +1,37 @@
+{
+  "status": "designed",
+  "memory": {
+    "scope": "agent-private",
+    "retention": "session",
+    "long_term": false
+  },
+  "delegates_to": [],
+  "id": "legal",
+  "name": "Legal Agent",
+  "role": "Análisis jurídico (civil, penal, mercantil, laboral, constitucional) con enfoque en Honduras. Prepara borradores y estructura argumentos; el abogado decide.",
+  "routing_keywords": [
+    "demanda",
+    "contrato",
+    "sentencia",
+    "recurso",
+    "amparo",
+    "penal",
+    "civil",
+    "mercantil",
+    "laboral",
+    "juicio",
+    "casación"
+  ],
+  "permissions": {
+    "knowledge_read": [
+      "legal"
+    ],
+    "knowledge_write": [],
+    "tools": [
+      "rag.search"
+    ],
+    "network": "none",
+    "external_providers": false,
+    "destructive_actions": "forbidden"
+  }
+}

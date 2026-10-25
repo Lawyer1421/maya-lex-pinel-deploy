@@ -1,0 +1,36 @@
+# Run from repo root:  docker compose -f docker/docker-compose.yml --env-file .env up --build
+# Every published port is bound to 127.0.0.1. Nothing is reachable from the network.
+name: fpw
+
+services:
+  workspace:
+    build: { context: .., dockerfile: docker/Dockerfile }
+    ports: ["127.0.0.1:${FPW_PORT:-3000}:3000"]
+    environment:
+      FPW_ALLOW_EXTERNAL: ${FPW_ALLOW_EXTERNAL:-false}
+      FPW_EXTERNAL_ALLOWLIST: ${FPW_EXTERNAL_ALLOWLIST:-}
+      FPW_OLLAMA_URL: ${FPW_OLLAMA_URL:-http://host.docker.internal:11434}
+      FPW_OLLAMA_MODEL: ${FPW_OLLAMA_MODEL:-llama3.1}
+      FPW_DEFAULT_PROVIDER: ${FPW_DEFAULT_PROVIDER:-echo}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes: ["../storage/audit:/app/storage/audit"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+  # Phase 1 (profile "db"): plain PostgreSQL + pgvector. The full Supabase stack is decision D-02.
+  db:
+    profiles: ["db"]
+    image: pgvector/pgvector:pg16
+    ports: ["127.0.0.1:54322:5432"]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: fpw
+    volumes:
+      - fpw-db:/var/lib/postgresql/data
+      - ../database/migrations:/docker-entrypoint-initdb.d:ro
+    security_opt: ["no-new-privileges:true"]
+
+volumes:
+  fpw-db:
