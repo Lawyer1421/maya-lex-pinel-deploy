@@ -1,0 +1,33 @@
+{
+  "retrieved_at": null,
+  "bytes_obtenidos": null,
+  "sha256_obtenido": null,
+  "pages": null,
+  "text_sha256": null,
+  "parser": null,
+  "counts": {
+    "candidatos": "NO_VERIFICADO",
+    "aceptados": "NO_VERIFICADO",
+    "rechazados": "NO_VERIFICADO",
+    "finales": "NO_VERIFICADO",
+    "excluidos": "NO_VERIFICADO",
+    "curacion": "NO_VERIFICADO"
+  },
+  "articulos": [],
+  "filas": [],
+  "es_norma_vigente": false,
+  "pdf_versionado_en_repo": false,
+  "fuente_http_estado": "HTTP 403 en CONNECT tunnel (proxy del entorno), 2026-10-26",
+  "schema_bloqueo": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "instrumento": "Ley de Garantías Mobiliarias (D.182-2009)",
+  "source_url": "https://www.tsc.gob.hn/web/leyes/Ley%20de%20Garantias%20Mobiliarias.pdf",
+  "sha256_esperado": "66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da5f97095c7a3856f267",
+  "estado": "BLOCKED_SOURCE_UNREACHABLE",
+  "estado_previsto_si_sha_ok": "NEEDS_TEXT_LAYER",
+  "reglas": {
+    "alcance": "solo manifiesto; sin SQL ni filas"
+  }
+}

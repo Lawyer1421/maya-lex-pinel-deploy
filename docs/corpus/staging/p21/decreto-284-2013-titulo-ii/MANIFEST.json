@@ -1,0 +1,40 @@
+{
+  "retrieved_at": null,
+  "bytes_obtenidos": null,
+  "sha256_obtenido": null,
+  "pages": null,
+  "text_sha256": null,
+  "parser": null,
+  "counts": {
+    "candidatos": "NO_VERIFICADO",
+    "aceptados": "NO_VERIFICADO",
+    "rechazados": "NO_VERIFICADO",
+    "finales": "NO_VERIFICADO",
+    "excluidos": "NO_VERIFICADO",
+    "curacion": "NO_VERIFICADO"
+  },
+  "articulos": [],
+  "filas": [],
+  "es_norma_vigente": false,
+  "pdf_versionado_en_repo": false,
+  "fuente_http_estado": "HTTP 403 en CONNECT tunnel (proxy del entorno), 2026-10-26",
+  "schema_bloqueo": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "instrumento": "Decreto 284-2013, Título II (arts. 15–25)",
+  "gaceta": "La Gaceta 33,445 (5-jun-2014)",
+  "id_prefix": "mayalex_normativos:decreto_284_2013_titulo_ii",
+  "source_url": "https://enag.gob.hn/index.php/gaceta-digital/20140605-33445/download",
+  "sha256_esperado": "3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb",
+  "pages_esperadas": 72,
+  "estado": "BLOCKED_SOURCE_UNREACHABLE",
+  "reglas": {
+    "recorte": "desde «DECRETO No.284-2013»; Título II = desde «TÍTULO II» hasta «TÍTULO III»",
+    "articulos_esperados": "15..25 (11)",
+    "si_difiere": "no forzar; reportar",
+    "autonomo": true,
+    "no_vincular_como_restauracion_de": "Notariado arts. 60–71",
+    "vigencia": "TRUE_PRESUNTA solo como metadata"
+  }
+}

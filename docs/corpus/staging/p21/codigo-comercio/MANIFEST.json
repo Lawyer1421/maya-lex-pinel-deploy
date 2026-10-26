@@ -1,0 +1,46 @@
+{
+  "retrieved_at": null,
+  "bytes_obtenidos": null,
+  "sha256_obtenido": null,
+  "pages": null,
+  "text_sha256": null,
+  "parser": null,
+  "counts": {
+    "candidatos": "NO_VERIFICADO",
+    "aceptados": "NO_VERIFICADO",
+    "rechazados": "NO_VERIFICADO",
+    "finales": "NO_VERIFICADO",
+    "excluidos": "NO_VERIFICADO",
+    "curacion": "NO_VERIFICADO"
+  },
+  "articulos": [],
+  "filas": [],
+  "es_norma_vigente": false,
+  "pdf_versionado_en_repo": false,
+  "fuente_http_estado": "HTTP 403 en CONNECT tunnel (proxy del entorno), 2026-10-26",
+  "schema_bloqueo": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "instrumento": "Código de Comercio (Decreto 73-50)",
+  "fecha_instrumento": "no verificada; las fuentes discrepan",
+  "id_prefix": "mayalex_normativos:codigo_comercio_bch",
+  "source_url": "https://www.bch.hn/administrativas/JUR/Marco%20Legal%20OM%202/codigo_comercio.pdf",
+  "sha256_esperado": "57c42a07b7540168fa74287212fa897505d0283d9e314606b25dd9106ce7f74a",
+  "bytes_esperados": 751606,
+  "pages_esperadas": 419,
+  "estado": "BLOCKED_SOURCE_UNREACHABLE",
+  "reglas": {
+    "roles": "PRIMARY por defecto; CONTEXT con warning para prenda arts 1278, 1289-1307 y 1313 (desplazado_por=D.182-2009)",
+    "excluidos_brecha": [
+      "418",
+      "1662"
+    ],
+    "reformas_solo_relacion_metadata": [
+      "D.255-2002 art. 8",
+      "D.284-2013 arts. 13 y 37",
+      "D.127-2026 = NO_VERIFICADA"
+    ],
+    "glifo_ordinal": "portar fix «Articulo º/° N» desde fix/comercio-glifo-ordinal (c529f99, c5f7603, 139a9b6) solo con la fuente BCH verificada; no reutilizar el conteo 1698 (otra fuente)"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "retrieved_at": null,
+  "bytes_obtenidos": null,
+  "sha256_obtenido": null,
+  "pages": null,
+  "text_sha256": null,
+  "parser": null,
+  "counts": {
+    "candidatos": "NO_VERIFICADO",
+    "aceptados": "NO_VERIFICADO",
+    "rechazados": "NO_VERIFICADO",
+    "finales": "NO_VERIFICADO",
+    "excluidos": "NO_VERIFICADO",
+    "curacion": "NO_VERIFICADO"
+  },
+  "articulos": [],
+  "filas": [],
+  "es_norma_vigente": false,
+  "pdf_versionado_en_repo": false,
+  "fuente_http_estado": "HTTP 403 en CONNECT tunnel (proxy del entorno), 2026-10-26",
+  "schema_bloqueo": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "instrumento": "Código del Notariado (D.353-2005), arts. 72, 72-A y 73 en texto D.59-2015",
+  "gaceta": "La Gaceta 33,801 (6-ago-2015)",
+  "id_prefix": "mayalex_normativos:codigo_notariado_d59_2015",
+  "source_url": "https://drive.google.com/file/d/1y6ZmCoEhHKCejag8QMvxjoAZuNILKNw0/view",
+  "sha256_esperado": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+  "fuente_texto": {
+    "nombre": "COTEJO-D59-2015-literal.md",
+    "source_url": "https://drive.google.com/file/d/1YZnjONI2E8VlXAbGMj-ZQ-lpIC8jjXiA/view",
+    "sha256_esperado": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d"
+  },
+  "estado": "BLOCKED_SOURCE_UNREACHABLE",
+  "reglas": {
+    "articulos_permitidos": [
+      "72",
+      "72-A",
+      "73"
+    ],
+    "rol": "CONTEXT (elegible_primary=false); 72-A además PENDING_CLO",
+    "no_cargar": {
+      "11": "TEXTO_DIVERGENTE",
+      "17": "HUECO",
+      "27": "TEXTO_DIVERGENTE"
+    },
+    "versiones": "filas 2005 y 2015 son distintas",
+    "texto_origen": "solo COTEJO-D59-2015-literal.md, nunca OCR crudo",
+    "denominacion": "siempre «Código del Notariado (Decreto 353-2005)»",
+    "fuera_de_alcance": "Reglamento PCSJ-17-2012"
+  }
+}
