@@ -23,7 +23,7 @@
       "en_SHA256SUMS": true
     }
   ],
-  "retrieved_at": "2026-10-27T14:09:08.461Z",
+  "retrieved_at": "2026-10-27T14:26:26.844Z",
   "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
   "text_sha256": "f3d8ec3793be772ac5932d9c3b7e1ca758cbd6409039269690988456869bae64",
   "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
@@ -41,24 +41,25 @@
       "1541"
     ],
     "duplicados_no_resueltos": [],
+    "gap_in_source": [
+      417,
+      1000,
+      1236,
+      1237,
+      1238,
+      1239,
+      1240,
+      1241,
+      1242,
+      1243,
+      1244,
+      1245,
+      1661
+    ],
+    "excluidos_textos": 4,
     "curacion": {
       "glifos_ordinales_normalizados": 1705,
-      "prenda_context": 21,
-      "huecos_numeracion": [
-        417,
-        1000,
-        1236,
-        1237,
-        1238,
-        1239,
-        1240,
-        1241,
-        1242,
-        1243,
-        1244,
-        1245,
-        1661
-      ]
+      "prenda_context": 21
     }
   },
   "articulos": [
@@ -15392,14 +15393,133 @@
   "es_norma_vigente": false,
   "pdf_versionado_en_repo": false,
   "notas": [
-    "huecos de numeración sin excluir: 417,1000,1236,1237,1238,1239,1240,1241,1242,1243,1244,1245,1661"
+    "numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta",
+    "GAP_IN_SOURCE: 417,1000,1236,1237,1238,1239,1240,1241,1242,1243,1244,1245,1661"
   ],
+  "gap_in_source": [
+    {
+      "num_articulo": "417",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1000",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1236",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1237",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1238",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1239",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1240",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1241",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1242",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1243",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1244",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1245",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    },
+    {
+      "num_articulo": "1661",
+      "estado": "GAP_IN_SOURCE",
+      "nota": "ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena"
+    }
+  ],
+  "excluidos_detalle": [
+    {
+      "num_articulo": "418",
+      "ocurrencia": 1,
+      "estado": "EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)",
+      "sha256": "3fcf576f771998ba4e48b0258caa87185bc161311c35e05c4583e4e7e71454e4",
+      "chars": 112,
+      "vista_previa": "Articulo 418 Podrá pedirse y deberá de decretarse la cancelación parcial cuando se reduzca"
+    },
+    {
+      "num_articulo": "418",
+      "ocurrencia": 2,
+      "estado": "EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)",
+      "sha256": "364c7b009c503251f40c8529552be71d60bbb836240dd333277e0e5487498a84",
+      "chars": 203,
+      "vista_previa": "Articulo 418 Las anotaciones preventivas se cancelarán cuando se extinga el derecho que pr"
+    },
+    {
+      "num_articulo": "1662",
+      "ocurrencia": 1,
+      "estado": "EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)",
+      "sha256": "a9acf5e27bc23ced5a235814cbae12c208cac6b371c574a754b7c646926366d1",
+      "chars": 1090,
+      "vista_previa": "Articulo 1662 El síndico tendrá los siguientes derechos y obligaciones: I.- Practicar el i"
+    },
+    {
+      "num_articulo": "1662",
+      "ocurrencia": 2,
+      "estado": "EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)",
+      "sha256": "0b74a03bf36c5f206808bc9ba1f66a730c18ebc22f5be98b2f03b4a4ac2f487e",
+      "chars": 136,
+      "vista_previa": "Articulo 1662 Los acreedores podrán acordar la designación de una intervención que vigilar"
+    }
+  ],
+  "deduplicados_detalle": [
+    {
+      "num_articulo": "1511",
+      "conservada": "A",
+      "identicas": true,
+      "sha256_conservada": "3dc816ab10c6a6760cd330ecc38db1ef5c487446431df8fa4e0e1dbabdf72ec8",
+      "sha256_descartada": "3dc816ab10c6a6760cd330ecc38db1ef5c487446431df8fa4e0e1dbabdf72ec8"
+    },
+    {
+      "num_articulo": "1541",
+      "conservada": "B",
+      "identicas": false,
+      "sha256_conservada": "02ce161603500ad4ea5069439ae8e23d66f402dd4b0deac05ab87693de95debb",
+      "sha256_descartada": "b487390bdac7218323f76da632b42f1a501bbadcb8ac676efc2017efc0a86c42"
+    }
+  ],
+  "nota_numeracion": "numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta",
+  "dictamen_clo": "CLO 27-oct-2026: cotejadas BCH (57c42a07…) y DGMM (cd8b55fb…); mismos defectos en ambas copias (es la fuente, no el parser).",
   "citado_como": "Decreto 73-50",
   "fecha_instrumento": "no verificada; las fuentes discrepan",
   "reformas_solo_metadata": [
     "D.255-2002 art. 8",
     "D.284-2013 arts. 13 y 37",
     "D.127-2026 = NO_VERIFICADA"
-  ],
-  "observacion": "Los números 417 y 1661 faltan y 418 y 1662 aparecen duplicados con texto distinto: sospecha de numeración desplazada en la fuente; NO se resuelve (adjudicación visual pendiente de CLO)."
+  ]
 }

@@ -31,6 +31,10 @@ const OUT = resolve(args.includes('--out') ? args[args.indexOf('--out') + 1] : '
 const retrievedAt = new Date().toISOString();
 
 const log: string[] = [];
+const anexos: string[] = [];
+const BT = String.fromCharCode(96);
+const FENCE = BT + BT + BT;
+const code = (x: string) => BT + x + BT;
 const say = (s = '') => { log.push(s); console.log(s); };
 
 // ── Verificación de hashes ───────────────────────────────────────────────────
@@ -82,14 +86,23 @@ function parseComercio(): Resultado {
   for (const c of acept) grupos.set(c.numArticulo, [...(grupos.get(c.numArticulo) ?? []), c]);
   const EXCLUIR = ['418', '1662'];
   const excluidos: string[] = [], dedup: string[] = [], noResueltos: string[] = [];
+  const excluidosDetalle: Array<{ num_articulo: string; ocurrencia: number; estado: string; sha256: string; chars: number; vista_previa: string }> = [];
+  const dedupDetalle: Array<{ num_articulo: string; conservada: 'A' | 'B'; identicas: boolean; sha256_conservada: string; sha256_descartada: string; texto_conservado: string; texto_descartado: string }> = [];
   const finalesTxt = new Map<string, string>();
   for (const [n, occ] of grupos) {
-    if (EXCLUIR.includes(n)) { excluidos.push(n); continue; }
+    if (EXCLUIR.includes(n)) {
+      excluidos.push(n);
+      occ.forEach((o, i) => excluidosDetalle.push({ num_articulo: n, ocurrencia: i + 1, estado: 'EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)', sha256: sha256(o.contenido), chars: o.contenido.length, vista_previa: o.contenido.replace(/\s+/g, ' ').slice(0, 90) }));
+      continue;
+    }
     if (occ.length === 1) { finalesTxt.set(n, occ[0].contenido); continue; }
     const [a, b] = occ;
     if (occ.length === 2 && sinAcentos(a.contenido) === sinAcentos(b.contenido)) {
       dedup.push(n);
-      finalesTxt.set(n, a.contenido === b.contenido ? a.contenido : (/[áéíóú]/i.test(a.contenido) && a.contenido.replace(/[^áéíóúÁÉÍÓÚ]/g, '').length >= b.contenido.replace(/[^áéíóúÁÉÍÓÚ]/g, '').length ? a.contenido : b.contenido));
+      const conservaA = a.contenido === b.contenido || (/[áéíóú]/i.test(a.contenido) && a.contenido.replace(/[^áéíóúÁÉÍÓÚ]/g, '').length >= b.contenido.replace(/[^áéíóúÁÉÍÓÚ]/g, '').length);
+      const [keep, drop] = conservaA ? [a, b] : [b, a];
+      finalesTxt.set(n, keep.contenido);
+      dedupDetalle.push({ num_articulo: n, conservada: conservaA ? 'A' : 'B', identicas: a.contenido === b.contenido, sha256_conservada: sha256(keep.contenido), sha256_descartada: sha256(drop.contenido), texto_conservado: keep.contenido, texto_descartado: drop.contenido });
     } else noResueltos.push(n);
   }
   const PRENDA = new Set(['1278', ...Array.from({ length: 19 }, (_, i) => String(1289 + i)), '1313']);
@@ -100,6 +113,10 @@ function parseComercio(): Resultado {
   });
   const max = Math.max(...nums.map(Number)); const huecos: number[] = [];
   for (let i = 1; i <= max; i++) if (!finalesTxt.has(String(i)) && !EXCLUIR.includes(String(i))) huecos.push(i);
+  const GAP_ESPERADO = [417, 1000, ...Array.from({ length: 10 }, (_, i) => 1236 + i), 1661];
+  if (JSON.stringify(huecos) !== JSON.stringify(GAP_ESPERADO)) throw new Error(`GAP_IN_SOURCE inesperado: ${huecos.join(',')}`);
+  const gapIn = huecos.map((n) => ({ num_articulo: String(n), estado: 'GAP_IN_SOURCE', nota: 'ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena' }));
+  const NOTA_NUM = 'numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta';
   const ctxPresentes = nums.filter((n) => PRENDA.has(n)); const ctxAusentes = [...PRENDA].filter((n) => !finalesTxt.has(n));
   say('\n=== A. Código de Comercio (Decreto 73-50) — dry-run ===');
   say(`páginas=${pdfInfoPages(verif.A.ruta)} glifos «Articulo º/° N» normalizados=${glifos}`);
@@ -107,10 +124,27 @@ function parseComercio(): Resultado {
   say(`duplicados=${[...grupos].filter(([, o]) => o.length > 1).map(([n, o]) => `${n}x${o.length}`).join(',')}`);
   say(`excluidos CLO (ambas ocurrencias)=${excluidos.sort(porNumero).join(',')}; deduplicados (sin pérdida de texto)=${dedup.join(',')}; no resueltos=${noResueltos.join(',') || '(ninguno)'}`);
   say(`finales=${filas.length} (PRIMARY=${filas.filter((f) => f.role === 'PRIMARY').length}, CONTEXT prenda=${filas.filter((f) => f.role === 'CONTEXT').length}); prenda esperada=${PRENDA.size}, presente=${ctxPresentes.length}, ausente=${ctxAusentes.join(',') || '(ninguna)'}`);
-  say(`huecos de numeración (no excluidos) 1..${max}: ${huecos.length} → ${huecos.join(',')}`);
+  say(`GAP_IN_SOURCE (ausentes en BCH y DGMM) 1..${max}: ${huecos.length} → ${huecos.join(',')}`);
+  say(`418 y 1662: ${excluidosDetalle.length} textos EXCLUIDOS (2 por número); ${NOTA_NUM}`);
+  anexos.push([
+    '## Código de Comercio — excluidos 418 y 1662 y GAP_IN_SOURCE (dictamen CLO 27-oct-2026)', '',
+    `CLO cotejó BCH (${code('57c42a07…')}) y DGMM (${code('cd8b55fb…')}): ambas copias tienen los mismos defectos; es la fuente, no el parser.`, '',
+    `**Nota:** ${NOTA_NUM}.`, '',
+    '### Los CUATRO textos excluidos (no PRIMARY, no CONTEXT, no renumerados)', '',
+    '| Art. | Ocurrencia | Caracteres | SHA-256 | Vista previa |', '| --- | --- | --- | --- | --- |',
+    ...excluidosDetalle.map((e) => `| ${e.num_articulo} | ${e.ocurrencia} | ${e.chars} | ${code(e.sha256)} | ${e.vista_previa.replace(/\|/g, '/')} |`), '',
+    '### GAP_IN_SOURCE (ausentes en BCH y DGMM; no se inventan ni se rellenan)', '',
+    `${huecos.join(', ')} (${huecos.length} números: 417, 1000, 1236–1245 y 1661)`, '',
+    '### Deduplicados 1511 y 1541 (texto documentado)', '',
+    ...dedupDetalle.flatMap((d) => [
+      `**Art. ${d.num_articulo}** — ${d.identicas ? 'las dos ocurrencias son idénticas' : 'las ocurrencias difieren solo en acentuación del OCR'}; se conserva la ocurrencia ${d.conservada} (SHA-256 ${code(d.sha256_conservada)}).`, '',
+      'Conservada:', '', FENCE + 'text', d.texto_conservado, FENCE, '',
+      ...(d.identicas ? [] : [`Descartada (SHA-256 ${code(d.sha256_descartada)}):`, '', FENCE + 'text', d.texto_descartado, FENCE, '']),
+    ]),
+  ].join('\n'));
   return { ...base, estado: noResueltos.length ? 'BLOCKED_DUPLICADOS_NO_RESUELTOS' : 'READY_FOR_STAGING_REVIEW', pages: pdfInfoPages(verif.A.ruta), textSha: sha256(limpio),
-    counts: { candidatos: cands.length, aceptados: acept.length, rechazados: rech.length, finales: filas.length, excluidos: excluidos.sort(porNumero), deduplicados: dedup, duplicados_no_resueltos: noResueltos, curacion: { glifos_ordinales_normalizados: glifos, prenda_context: ctxPresentes.length, huecos_numeracion: huecos } },
-    filas, notas: [`huecos de numeración sin excluir: ${huecos.join(',')}`], extraManifest: { citado_como: 'Decreto 73-50', fecha_instrumento: 'no verificada; las fuentes discrepan', reformas_solo_metadata: ['D.255-2002 art. 8', 'D.284-2013 arts. 13 y 37', 'D.127-2026 = NO_VERIFICADA'], observacion: 'Los números 417 y 1661 faltan y 418 y 1662 aparecen duplicados con texto distinto: sospecha de numeración desplazada en la fuente; NO se resuelve (adjudicación visual pendiente de CLO).' } };
+    counts: { candidatos: cands.length, aceptados: acept.length, rechazados: rech.length, finales: filas.length, excluidos: excluidos.sort(porNumero), deduplicados: dedup, duplicados_no_resueltos: noResueltos, gap_in_source: huecos, excluidos_textos: excluidosDetalle.length, curacion: { glifos_ordinales_normalizados: glifos, prenda_context: ctxPresentes.length } },
+    filas, notas: [NOTA_NUM, `GAP_IN_SOURCE: ${huecos.join(',')}`], extraManifest: { gap_in_source: gapIn, excluidos_detalle: excluidosDetalle, deduplicados_detalle: dedupDetalle.map((d) => ({ ...d, texto_conservado: undefined, texto_descartado: undefined })), nota_numeracion: NOTA_NUM, dictamen_clo: 'CLO 27-oct-2026: cotejadas BCH (57c42a07…) y DGMM (cd8b55fb…); mismos defectos en ambas copias (es la fuente, no el parser).', citado_como: 'Decreto 73-50', fecha_instrumento: 'no verificada; las fuentes discrepan', reformas_solo_metadata: ['D.255-2002 art. 8', 'D.284-2013 arts. 13 y 37', 'D.127-2026 = NO_VERIFICADA']} };
 }
 
 // ── B: Código del Notariado, arts. 72, 72-A y 73 (texto D.59-2015, de COTEJO) ─
@@ -144,6 +178,11 @@ function parseNotariado(): Resultado {
   say(`Gaceta 33,801: páginas=${pdfInfoPages(verif.B1.ruta)} (fuente de verificación; el texto sale SOLO del COTEJO, no del OCR)`);
   filas.forEach((f) => say(`art. ${f.num_articulo}: ${f.contenido.length} chars, role=${f.role}, sha256=${f.hash_sha256}`));
   say('no cargados: 11 (TEXTO_DIVERGENTE), 17 (HUECO), 27 (TEXTO_DIVERGENTE)');
+  anexos.push([
+    '## Código del Notariado — art. 72-A, texto literal según el COTEJO (para adjudicación de CLO)', '',
+    `Rol: CONTEXT · estado editorial: PENDING_CLO · ${code('elegible_primary=false')}. Fuente del texto: ${code('B2_COTEJO-D59-2015-literal.md')} (SHA-256 ${code(verif.B2.obtenido)}), La Gaceta 33,801 (6-ago-2015), D.59-2015. SHA-256 del texto cargado: ${code(filas[1].hash_sha256)} (${filas[1].contenido.length} caracteres). Las únicas diferencias con el COTEJO son la retirada de marcas Markdown (negritas, citas ${code('>')}, rótulos de columna) y la unión de oraciones partidas entre columnas.`, '',
+    FENCE + 'text', filas[1].contenido, FENCE, '',
+  ].join('\n'));
   return { ...base, estado: 'READY_FOR_STAGING_REVIEW', pages: pdfInfoPages(verif.B1.ruta), textSha: verif.B2.obtenido,
     counts: { candidatos: 3, aceptados: 3, rechazados: 0, finales: 3, excluidos: ['11', '17', '27'], curacion: { pending_clo: ['72-A'], solo_context: ['72', '72-A', '73'] } }, filas,
     notas: ['La cadena oculta de la capa de texto en A.4 (señalada en el COTEJO) no forma parte del texto cargado.'], extraManifest: { texto_origen: 'B2_COTEJO-D59-2015-literal.md (transcripción literal verificada visualmente); nunca OCR crudo', no_cargar: { '11': 'TEXTO_DIVERGENTE', '17': 'HUECO', '27': 'TEXTO_DIVERGENTE' }, versiones: 'las filas 2005 y 2015 son filas distintas', reglamento_pcsj_17_2012: 'fuera de alcance' } };
@@ -284,6 +323,7 @@ ${resumenSql.map(([a, h]) => `| ${a} | \`${h}\` |`).join('\n')}
 ${log.join('\n')}
 \`\`\`
 
+${anexos.join('\n')}
 ## Brecha de esquema (BLOCKED_SCHEMA + EMBEDDINGS_PENDING)
 
 Columnas que usa el INSERT de \`load.staging.sql\` y dónde están definidas en el repo:

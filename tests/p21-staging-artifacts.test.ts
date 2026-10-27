@@ -166,6 +166,65 @@ describe('P21 reglas CLO por instrumento', () => {
   });
 });
 
+describe('P21 Comercio — dictamen CLO 27-oct-2026 (418/1662 y GAP_IN_SOURCE)', () => {
+  const GAP = ['417', '1000', ...Array.from({ length: 10 }, (_, i) => String(1236 + i)), '1661'];
+  const m = manifest('codigo-comercio');
+  it('ningún número GAP_IN_SOURCE ni 418/1662 aparece como fila (manifiesto, ids ni tuplas SQL)', () => {
+    const sql = leer('codigo-comercio', 'load.staging.sql');
+    for (const n of [...GAP, '418', '1662']) {
+      expect(m.articulos).not.toContain(n);
+      expect(m.filas.map((f: { num_articulo: string }) => f.num_articulo)).not.toContain(n);
+      expect(m.filas.map((f: { id: string }) => f.id)).not.toContain(`${m.id_prefix}_a${n}`);
+      expect(sql).not.toContain(`'${m.id_prefix}_a${n}'`);
+    }
+  });
+  it('GAP_IN_SOURCE registrado en el manifiesto (13 números) y en DRY_RUN_COUNTS.md', () => {
+    expect(m.counts.gap_in_source.map(String)).toEqual(GAP);
+    expect(m.gap_in_source.map((g: { num_articulo: string }) => g.num_articulo)).toEqual(GAP);
+    expect(m.gap_in_source.every((g: { estado: string }) => g.estado === 'GAP_IN_SOURCE')).toBe(true);
+    const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
+    expect(md).toContain('GAP_IN_SOURCE (ausentes en BCH y DGMM; no se inventan ni se rellenan)');
+    expect(md).toContain('417, 1000, 1236, 1237, 1238, 1239, 1240, 1241, 1242, 1243, 1244, 1245, 1661');
+  });
+  it('418 y 1662: los CUATRO textos excluidos, con nota de numeración defectuosa', () => {
+    expect(m.excluidos_detalle).toHaveLength(4);
+    expect(m.counts.excluidos_textos).toBe(4);
+    expect(m.excluidos_detalle.map((e: { num_articulo: string }) => e.num_articulo)).toEqual(['418', '418', '1662', '1662']);
+    const hashesFilas = new Set(m.filas.map((f: { hash_sha256: string }) => f.hash_sha256));
+    for (const e of m.excluidos_detalle) {
+      expect(e.estado).toMatch(/^EXCLUIDO/);
+      expect(hashesFilas.has(e.sha256)).toBe(false);
+    }
+    expect(m.nota_numeracion).toBe('numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta');
+    expect(m.notas).toContain(m.nota_numeracion);
+    expect(m.dictamen_clo).toContain('es la fuente, no el parser');
+  });
+  it('1698 finales (1677 PRIMARY, 21 CONTEXT de prenda) y dedup 1511/1541 documentados con su texto', () => {
+    expect(m.filas).toHaveLength(1698);
+    expect(m.filas.filter((f: { role: string }) => f.role === 'PRIMARY')).toHaveLength(1677);
+    expect(m.filas.filter((f: { role: string }) => f.role === 'CONTEXT')).toHaveLength(21);
+    expect(m.counts.deduplicados).toEqual(['1511', '1541']);
+    expect(m.deduplicados_detalle.map((d: { num_articulo: string }) => d.num_articulo)).toEqual(['1511', '1541']);
+    const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
+    expect(md).toContain('### Deduplicados 1511 y 1541 (texto documentado)');
+    expect(md).toContain('La apelación contra el reconocimiento de crédito ajeno');
+    expect(md).toContain('Se considerara que se ha realizado todo el activo');
+    expect(md).toContain('Se considerará que se ha realizado todo el activo');
+  });
+});
+
+describe('P21 Notariado — art. 72-A literal para adjudicación de CLO', () => {
+  it('DRY_RUN_COUNTS.md pega el texto del 72-A y la fila sigue CONTEXT + PENDING_CLO', () => {
+    const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
+    expect(md).toContain('## Código del Notariado — art. 72-A, texto literal según el COTEJO (para adjudicación de CLO)');
+    expect(md).toContain('ARTÍCULO 72-A.- Los órganos de la UNIÓN DE NOTARIOS DE HONDURAS (UNH), se deben elegir democráticamente');
+    expect(md).toContain('D. DE LOS CAPÍTULOS:');
+    const f = manifest('codigo-notariado-d59-2015').filas.find((x: { num_articulo: string }) => x.num_articulo === '72-A');
+    expect(f.role).toBe('CONTEXT');
+    expect(f.warnings).toContain('PENDING_CLO');
+  });
+});
+
 describe('P21 DRY_RUN_COUNTS.md', () => {
   const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
   it('documenta la brecha de esquema y no crea migración', () => {
