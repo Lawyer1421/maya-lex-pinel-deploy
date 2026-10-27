@@ -1,6 +1,6 @@
 {
   "instrumento": "Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015",
-  "estado": "READY_FOR_STAGING_REVIEW",
+  "estado": "CLO_CLEARED_FOR_STAGING_PREP",
   "estados_adicionales": [
     "BLOCKED_SCHEMA",
     "EMBEDDINGS_PENDING"
@@ -33,7 +33,7 @@
       "en_SHA256SUMS": true
     }
   ],
-  "retrieved_at": "2026-10-27T14:26:26.844Z",
+  "retrieved_at": "2026-10-27T23:03:42.887Z",
   "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
   "text_sha256": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
   "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
@@ -48,7 +48,7 @@
       "27"
     ],
     "curacion": {
-      "pending_clo": [
+      "clo_adjudicado_context": [
         "72-A"
       ],
       "solo_context": [
@@ -70,6 +70,7 @@
       "role": "CONTEXT",
       "hash_sha256": "9d32eae4945526fc28154d70821378f5dabac2f3369f356f870cc2c3db9fbaa7",
       "chars": 601,
+      "vigencia": "NO_VERIFICADO",
       "warnings": [
         "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
       ]
@@ -80,9 +81,11 @@
       "role": "CONTEXT",
       "hash_sha256": "ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014",
       "chars": 10132,
+      "vigencia": "UNKNOWN",
       "warnings": [
         "Solo CONTEXT (CLO)",
-        "PENDING_CLO"
+        "CLO: adjudicado como CONTEXT (27-oct-2026)",
+        "es_norma_vigente=UNKNOWN: vigencia posterior al D.59-2015 no cotejada"
       ]
     },
     {
@@ -91,6 +94,7 @@
       "role": "CONTEXT",
       "hash_sha256": "2a186336de1d842549d1f691face3bdc73529e67df2fd26ecdad1dcf07ef6dd5",
       "chars": 819,
+      "vigencia": "NO_VERIFICADO",
       "warnings": [
         "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
       ]

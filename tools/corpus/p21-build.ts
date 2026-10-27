@@ -142,7 +142,7 @@ function parseComercio(): Resultado {
       ...(d.identicas ? [] : [`Descartada (SHA-256 ${code(d.sha256_descartada)}):`, '', FENCE + 'text', d.texto_descartado, FENCE, '']),
     ]),
   ].join('\n'));
-  return { ...base, estado: noResueltos.length ? 'BLOCKED_DUPLICADOS_NO_RESUELTOS' : 'READY_FOR_STAGING_REVIEW', pages: pdfInfoPages(verif.A.ruta), textSha: sha256(limpio),
+  return { ...base, estado: noResueltos.length ? 'BLOCKED_DUPLICADOS_NO_RESUELTOS' : 'CLO_CLEARED_FOR_STAGING_PREP', pages: pdfInfoPages(verif.A.ruta), textSha: sha256(limpio),
     counts: { candidatos: cands.length, aceptados: acept.length, rechazados: rech.length, finales: filas.length, excluidos: excluidos.sort(porNumero), deduplicados: dedup, duplicados_no_resueltos: noResueltos, gap_in_source: huecos, excluidos_textos: excluidosDetalle.length, curacion: { glifos_ordinales_normalizados: glifos, prenda_context: ctxPresentes.length } },
     filas, notas: [NOTA_NUM, `GAP_IN_SOURCE: ${huecos.join(',')}`], extraManifest: { gap_in_source: gapIn, excluidos_detalle: excluidosDetalle, deduplicados_detalle: dedupDetalle.map((d) => ({ ...d, texto_conservado: undefined, texto_descartado: undefined })), nota_numeracion: NOTA_NUM, dictamen_clo: 'CLO 27-oct-2026: cotejadas BCH (57c42a07…) y DGMM (cd8b55fb…); mismos defectos en ambas copias (es la fuente, no el parser).', citado_como: 'Decreto 73-50', fecha_instrumento: 'no verificada; las fuentes discrepan', reformas_solo_metadata: ['D.255-2002 art. 8', 'D.284-2013 arts. 13 y 37', 'D.127-2026 = NO_VERIFICADA']} };
 }
@@ -171,20 +171,24 @@ function parseNotariado(): Resultado {
   const t72 = art(texto.slice(p72, p72a)), t72a = art(texto.slice(p72a, p73)), t73 = art(texto.slice(p73));
   const filas = [
     mkFila(base.id_prefix, '72', 'CONTEXT', t72, ['Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO'], { elegible_primary: false, version: 'D.59-2015', gaceta: 'La Gaceta 33,801 (6-ago-2015)' }),
-    mkFila(base.id_prefix, '72-A', 'CONTEXT', t72a, ['Solo CONTEXT (CLO)', 'PENDING_CLO'], { elegible_primary: false, estado_editorial: 'PENDING_CLO', version: 'D.59-2015', gaceta: 'La Gaceta 33,801 (6-ago-2015)' }),
+    mkFila(base.id_prefix, '72-A', 'CONTEXT', t72a, ['Solo CONTEXT (CLO)', 'CLO: adjudicado como CONTEXT (27-oct-2026)', 'es_norma_vigente=UNKNOWN: vigencia posterior al D.59-2015 no cotejada'], { elegible_primary: false, estado_editorial: 'CONTEXT_ADJUDICADO_CLO', vigencia_state: 'UNKNOWN', es_norma_vigente_clo: 'UNKNOWN', vigencia_nota: 'vigencia posterior al D.59-2015 no cotejada', version: 'D.59-2015', gaceta: 'La Gaceta 33,801 (6-ago-2015)' }),
     mkFila(base.id_prefix, '73', 'CONTEXT', t73, ['Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO'], { elegible_primary: false, version: 'D.59-2015', gaceta: 'La Gaceta 33,801 (6-ago-2015)' }),
   ];
+  // CLO 27-oct-2026: el 72-A debe ir COMPLETO, de «ARTÍCULO 72-A.-» hasta justo antes de «ARTÍCULO 73.-».
+  const a72a = filas[1].contenido;
+  const marcas = ['A. DE LA ASAMBLEA GENERAL', 'B. DE LA JUNTA DIRECTIVA', 'C. DEL TRIBUNAL DE HONOR', 'D. DE LOS CAPÍTULOS'];
+  if (!a72a.startsWith('ARTÍCULO 72-A.-') || !marcas.every((m) => a72a.includes(m)) || !a72a.trimEnd().endsWith('el Reglamento establezca') || /ARTÍCULO 73/.test(a72a) || a72a.length < 10000 || a72a.length > 10300) throw new Error(`art. 72-A truncado o fuera de rango (${a72a.length} chars)`);
   say('\n=== B. Código del Notariado, arts. 72, 72-A, 73 (D.59-2015) — dry-run ===');
   say(`Gaceta 33,801: páginas=${pdfInfoPages(verif.B1.ruta)} (fuente de verificación; el texto sale SOLO del COTEJO, no del OCR)`);
   filas.forEach((f) => say(`art. ${f.num_articulo}: ${f.contenido.length} chars, role=${f.role}, sha256=${f.hash_sha256}`));
   say('no cargados: 11 (TEXTO_DIVERGENTE), 17 (HUECO), 27 (TEXTO_DIVERGENTE)');
   anexos.push([
-    '## Código del Notariado — art. 72-A, texto literal según el COTEJO (para adjudicación de CLO)', '',
-    `Rol: CONTEXT · estado editorial: PENDING_CLO · ${code('elegible_primary=false')}. Fuente del texto: ${code('B2_COTEJO-D59-2015-literal.md')} (SHA-256 ${code(verif.B2.obtenido)}), La Gaceta 33,801 (6-ago-2015), D.59-2015. SHA-256 del texto cargado: ${code(filas[1].hash_sha256)} (${filas[1].contenido.length} caracteres). Las únicas diferencias con el COTEJO son la retirada de marcas Markdown (negritas, citas ${code('>')}, rótulos de columna) y la unión de oraciones partidas entre columnas.`, '',
+    '## Código del Notariado — art. 72-A, texto literal según el COTEJO (adjudicado por CLO como CONTEXT)', '',
+    `Rol: CONTEXT (adjudicado por CLO, 27-oct-2026) · es_norma_vigente: UNKNOWN (vigencia posterior al D.59-2015 no cotejada) · ${code('elegible_primary=false')}. Fuente del texto: ${code('B2_COTEJO-D59-2015-literal.md')} (SHA-256 ${code(verif.B2.obtenido)}), La Gaceta 33,801 (6-ago-2015), D.59-2015. SHA-256 del texto cargado: ${code(filas[1].hash_sha256)} (${filas[1].contenido.length} caracteres). Las únicas diferencias con el COTEJO son la retirada de marcas Markdown (negritas, citas ${code('>')}, rótulos de columna) y la unión de oraciones partidas entre columnas.`, '',
     FENCE + 'text', filas[1].contenido, FENCE, '',
   ].join('\n'));
-  return { ...base, estado: 'READY_FOR_STAGING_REVIEW', pages: pdfInfoPages(verif.B1.ruta), textSha: verif.B2.obtenido,
-    counts: { candidatos: 3, aceptados: 3, rechazados: 0, finales: 3, excluidos: ['11', '17', '27'], curacion: { pending_clo: ['72-A'], solo_context: ['72', '72-A', '73'] } }, filas,
+  return { ...base, estado: 'CLO_CLEARED_FOR_STAGING_PREP', pages: pdfInfoPages(verif.B1.ruta), textSha: verif.B2.obtenido,
+    counts: { candidatos: 3, aceptados: 3, rechazados: 0, finales: 3, excluidos: ['11', '17', '27'], curacion: { clo_adjudicado_context: ['72-A'], solo_context: ['72', '72-A', '73'] } }, filas,
     notas: ['La cadena oculta de la capa de texto en A.4 (señalada en el COTEJO) no forma parte del texto cargado.'], extraManifest: { texto_origen: 'B2_COTEJO-D59-2015-literal.md (transcripción literal verificada visualmente); nunca OCR crudo', no_cargar: { '11': 'TEXTO_DIVERGENTE', '17': 'HUECO', '27': 'TEXTO_DIVERGENTE' }, versiones: 'las filas 2005 y 2015 son filas distintas', reglamento_pcsj_17_2012: 'fuera de alcance' } };
 }
 
@@ -224,7 +228,7 @@ function parseD284(): Resultado {
   say(`artículos hallados=${nums.length} → ${nums.join(',')} ; esperado 11 (15..25): ${coincide ? 'COINCIDE' : 'DIFIERE — no se fuerza'}`);
   const filas = coincide ? arts.map((a) => mkFila(base.id_prefix, a.n, 'PRIMARY', a.t, [], { vigencia_metadata: 'TRUE_PRESUNTA (solo metadata)', gaceta: 'La Gaceta 33,445 (5-jun-2014)' })) : [];
   filas.forEach((f) => say(`art. ${f.num_articulo}: ${f.contenido.length} chars, sha256=${f.hash_sha256}`));
-  return { ...base, estado: coincide ? 'READY_FOR_STAGING_REVIEW' : 'BLOCKED_CONTEO_DIFIERE', pages: paginas, textSha: sha256(texto),
+  return { ...base, estado: coincide ? 'CLO_CLEARED_FOR_STAGING_PREP' : 'BLOCKED_CONTEO_DIFIERE', pages: paginas, textSha: sha256(texto),
     counts: { candidatos: nums.length, aceptados: nums.length, rechazados: 0, finales: filas.length, excluidos: [], curacion: { recorte: 'desde «DECRETO No.284-2013»; Título II = «TÍTULO II» → «TÍTULO III» (extracción por columna, pdftotext -x/-W)' } }, filas,
     notas: ['Extracción por columna (la Gaceta imprime a dos columnas).'], extraManifest: { autonomo: true, no_vincular_como_restauracion_de: 'Código del Notariado arts. 60–71', vigencia: 'TRUE_PRESUNTA solo como metadata', materia_nota: 'materia 10_LEYES_REGLAMENTOS provisional (no 03_NOTARIAL) hasta decisión CLO' } };
 }
@@ -276,7 +280,7 @@ for (const r of resultados) {
     source_url: main.source_url, sha256_esperado: main.sha256_esperado, sha256_obtenido: main.sha256_obtenido, bytes: main.bytes, pages: r.pages,
     fuentes, retrieved_at: retrievedAt, retrieved_via: 'archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno', text_sha256: r.textSha, parser: PARSER,
     counts: r.counts, articulos: r.filas.map((f) => f.num_articulo),
-    filas: r.filas.map((f) => ({ id: f.id, num_articulo: f.num_articulo, role: f.role, hash_sha256: f.hash_sha256, chars: f.contenido.length, warnings: f.warnings })),
+    filas: r.filas.map((f) => ({ id: f.id, num_articulo: f.num_articulo, role: f.role, hash_sha256: f.hash_sha256, chars: f.contenido.length, vigencia: (f.extra.es_norma_vigente_clo as string | undefined) ?? 'NO_VERIFICADO', warnings: f.warnings })),
     es_norma_vigente: false, pdf_versionado_en_repo: false, notas: r.notas, ...r.extraManifest,
   };
   writeFileSync(join(d, 'MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n');

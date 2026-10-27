@@ -1,6 +1,6 @@
 # P21 — DRY_RUN_COUNTS (staging `aicakncgtuiiuomflkqj`; NO APLICADO)
 
-Generado por `npx tsx tools/corpus/p21-build.ts --local <carpeta>` (sin BD, sin red, sin variables de entorno) el 2026-10-27T14:26:26.844Z.
+Generado por `npx tsx tools/corpus/p21-build.ts --local <carpeta>` (sin BD, sin red, sin variables de entorno) el 2026-10-27T23:03:42.887Z.
 Las fuentes se verificaron por SHA-256 recalculado sobre archivos locales entregados por CLO; los PDF no se versionan en el repo.
 
 ## SHA-256 de las fuentes
@@ -17,9 +17,9 @@ Las fuentes se verificaron por SHA-256 recalculado sobre archivos locales entreg
 
 | Instrumento | Estado | Candidatos | Aceptados | Rechazados | Finales | Excluidos |
 | --- | --- | --- | --- | --- | --- | --- |
-| Código de Comercio (Decreto 73-50) | READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 1790 | 1704 | 86 | 1698 | 418, 1662 |
-| Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015 | READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 3 | 3 | 0 | 3 | 11, 17, 27 |
-| Decreto 284-2013, Título II (arts. 15 a 25) | READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 11 | 11 | 0 | 11 | — |
+| Código de Comercio (Decreto 73-50) | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 1790 | 1704 | 86 | 1698 | 418, 1662 |
+| Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015 | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 3 | 3 | 0 | 3 | 11, 17, 27 |
+| Decreto 284-2013, Título II (arts. 15 a 25) | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 11 | 11 | 0 | 11 | — |
 | Ley de Garantías Mobiliarias (D.182-2009) | NEEDS_TEXT_LAYER | 0 | 0 | 0 | 0 | — |
 
 Esperado: Comercio sin 418 ni 1662; Notariado 3 filas (72, 72-A, 73) sin 11/17/27; D.284-2013 Título II = 11 artículos (15..25); Garantías Mobiliarias sin filas (NEEDS_TEXT_LAYER).
@@ -29,9 +29,9 @@ Observación Comercio: el conteo final (1698) coincide con el de una corrida ant
 
 | Archivo | SHA-256 |
 | --- | --- |
-| codigo-comercio/load.staging.sql | `1466f2ecbc832cf46fa08c5d55c8f88d02a0afdee41f223e832e9fa4d5ab9973` |
-| codigo-notariado-d59-2015/load.staging.sql | `0e998b2bc9db600abf4292f9594c705881cad856ab9a9599f13674919f6b7d02` |
-| decreto-284-2013-titulo-ii/load.staging.sql | `9b43983751476e8a536426741ffd3bad03ec1b67baa08e54c4e93e1c83ecaca2` |
+| codigo-comercio/load.staging.sql | `2f3ee8bb7459ead9a02bfbd41d469a478bd73bb786914c289ff3c4207b1958ab` |
+| codigo-notariado-d59-2015/load.staging.sql | `a50b8fef74718faf030f644db1c45e1c79e15bc368f0da7e27f5e49cf87fc4fa` |
+| decreto-284-2013-titulo-ii/load.staging.sql | `1e06dfe3df464d8fdf6f02e2dba5b1302aa1420fcadaf436a9f42dc554efecf5` |
 
 ## Salida literal de los dry-runs
 
@@ -135,9 +135,9 @@ carecen de valor económico, o que el que tienen, quedara íntegramente absorbid
 por las cargas que pesan sobre ellos.
 ```
 
-## Código del Notariado — art. 72-A, texto literal según el COTEJO (para adjudicación de CLO)
+## Código del Notariado — art. 72-A, texto literal según el COTEJO (adjudicado por CLO como CONTEXT)
 
-Rol: CONTEXT · estado editorial: PENDING_CLO · `elegible_primary=false`. Fuente del texto: `B2_COTEJO-D59-2015-literal.md` (SHA-256 `7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d`), La Gaceta 33,801 (6-ago-2015), D.59-2015. SHA-256 del texto cargado: `ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014` (10132 caracteres). Las únicas diferencias con el COTEJO son la retirada de marcas Markdown (negritas, citas `>`, rótulos de columna) y la unión de oraciones partidas entre columnas.
+Rol: CONTEXT (adjudicado por CLO, 27-oct-2026) · es_norma_vigente: UNKNOWN (vigencia posterior al D.59-2015 no cotejada) · `elegible_primary=false`. Fuente del texto: `B2_COTEJO-D59-2015-literal.md` (SHA-256 `7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d`), La Gaceta 33,801 (6-ago-2015), D.59-2015. SHA-256 del texto cargado: `ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014` (10132 caracteres). Las únicas diferencias con el COTEJO son la retirada de marcas Markdown (negritas, citas `>`, rótulos de columna) y la unión de oraciones partidas entre columnas.
 
 ```text
 ARTÍCULO 72-A.- Los órganos de la UNIÓN DE NOTARIOS DE HONDURAS (UNH), se deben elegir democráticamente conforme la presente Ley y a su Reglamento, lo constituyen:

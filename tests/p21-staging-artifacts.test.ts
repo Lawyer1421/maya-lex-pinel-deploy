@@ -82,7 +82,7 @@ describe('P21 MANIFEST.json (común)', () => {
         expect(f.hash_sha256).toMatch(/^[0-9a-f]{64}$/);
         expect(['PRIMARY', 'CONTEXT']).toContain(f.role);
       }
-      expect(m.estado).toBe('READY_FOR_STAGING_REVIEW');
+      expect(m.estado).toBe('CLO_CLEARED_FOR_STAGING_PREP');
       expect(m.estados_adicionales).toEqual(['BLOCKED_SCHEMA', 'EMBEDDINGS_PENDING']);
     }
   });
@@ -100,13 +100,15 @@ describe('P21 MANIFEST.json (común)', () => {
 });
 
 describe('P21 reglas CLO por instrumento', () => {
-  it('Notariado: solo 72, 72-A y 73, todos CONTEXT; sin 11/17/27; 72-A PENDING_CLO; nunca «Ley del Notariado»', () => {
+  it('Notariado: solo 72, 72-A y 73, todos CONTEXT; sin 11/17/27; 72-A adjudicado CONTEXT; nunca «Ley del Notariado»', () => {
     const m = manifest('codigo-notariado-d59-2015');
     expect(m.articulos).toEqual(['72', '72-A', '73']);
     expect(m.filas.every((f: { role: string }) => f.role === 'CONTEXT')).toBe(true);
     expect(Object.keys(m.no_cargar).sort()).toEqual(['11', '17', '27']);
     for (const a of ['11', '17', '27']) expect(m.articulos).not.toContain(a);
-    expect(m.counts.curacion.pending_clo).toEqual(['72-A']);
+    expect(m.counts.curacion.clo_adjudicado_context).toEqual(['72-A']);
+    expect(JSON.stringify(m)).not.toContain('PENDING_CLO');
+    expect(leer('codigo-notariado-d59-2015', 'load.staging.sql')).not.toContain('PENDING_CLO');
     const sql = leer('codigo-notariado-d59-2015', 'load.staging.sql');
     expect(sql).toContain('"elegible_primary":false');
     expect(sql).not.toMatch(/Ley del Notariado/);
@@ -214,14 +216,66 @@ describe('P21 Comercio — dictamen CLO 27-oct-2026 (418/1662 y GAP_IN_SOURCE)',
 });
 
 describe('P21 Notariado — art. 72-A literal para adjudicación de CLO', () => {
-  it('DRY_RUN_COUNTS.md pega el texto del 72-A y la fila sigue CONTEXT + PENDING_CLO', () => {
+  it('DRY_RUN_COUNTS.md pega el texto del 72-A y la fila es CONTEXT adjudicado por CLO (sin PENDING_CLO)', () => {
     const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
-    expect(md).toContain('## Código del Notariado — art. 72-A, texto literal según el COTEJO (para adjudicación de CLO)');
+    expect(md).toContain('## Código del Notariado — art. 72-A, texto literal según el COTEJO (adjudicado por CLO como CONTEXT)');
     expect(md).toContain('ARTÍCULO 72-A.- Los órganos de la UNIÓN DE NOTARIOS DE HONDURAS (UNH), se deben elegir democráticamente');
     expect(md).toContain('D. DE LOS CAPÍTULOS:');
     const f = manifest('codigo-notariado-d59-2015').filas.find((x: { num_articulo: string }) => x.num_articulo === '72-A');
     expect(f.role).toBe('CONTEXT');
-    expect(f.warnings).toContain('PENDING_CLO');
+    expect(f.warnings.join(' ')).not.toContain('PENDING_CLO');
+    expect(f.vigencia).toBe('UNKNOWN');
+  });
+});
+
+describe('P21 Notariado 72-A — adjudicado CONTEXT, completo y con vigencia UNKNOWN (CLO 27-oct-2026)', () => {
+  const sql = leer('codigo-notariado-d59-2015', 'load.staging.sql');
+  const m = manifest('codigo-notariado-d59-2015');
+  // Reconstruye el contenido de una tupla comentada del SQL (sin el prefijo «--   »).
+  const contenidoSql = (num: string, siguiente: string): string => {
+    const ini = sql.indexOf(`--   ('${m.id_prefix}_a${num}',`);
+    const fin = sql.indexOf(`--   ('${m.id_prefix}_a${siguiente}',`);
+    const bloque = sql.slice(ini, fin < 0 ? undefined : fin).split('\n').map((l) => l.replace(/^--   /, '')).join('\n');
+    const desde = bloque.indexOf(", '03_NOTARIAL', '") + ", '03_NOTARIAL', '".length;
+    const hasta = bloque.indexOf(`', '${num.toUpperCase()}', `);
+    return bloque.slice(desde, hasta).replace(/''/g, "'");
+  };
+  const a72a = contenidoSql('72-a', '73');
+  it('el texto va completo: de «ARTÍCULO 72-A.-» hasta justo antes de «ARTÍCULO 73.-» (~10.100 caracteres)', () => {
+    expect(a72a.startsWith('ARTÍCULO 72-A.-')).toBe(true);
+    for (const t of ['A. DE LA ASAMBLEA GENERAL', 'B. DE LA JUNTA DIRECTIVA', 'C. DEL TRIBUNAL DE HONOR', 'D. DE LOS CAPÍTULOS']) expect(a72a).toContain(t);
+    expect(a72a.trimEnd().endsWith('el Reglamento establezca')).toBe(true);
+    expect(a72a).not.toContain('ARTÍCULO 73');
+    expect(a72a.length).toBeGreaterThanOrEqual(10000);
+    expect(a72a.length).toBeLessThanOrEqual(10300);
+    const fila = m.filas.find((f: { num_articulo: string }) => f.num_articulo === '72-A');
+    expect(fila.chars).toBe(a72a.length);
+    expect(createHash('sha256').update(a72a).digest('hex')).toBe(fila.hash_sha256);
+  });
+  it('sigue siendo CONTEXT (nunca PRIMARY), elegible_primary=false y vigencia UNKNOWN', () => {
+    const fila = m.filas.find((f: { num_articulo: string }) => f.num_articulo === '72-A');
+    expect(fila.role).toBe('CONTEXT');
+    expect(fila.vigencia).toBe('UNKNOWN');
+    const inicio = sql.indexOf(`--   ('${m.id_prefix}_a72-a',`);
+    const tupla = sql.slice(inicio, sql.indexOf(`--   ('${m.id_prefix}_a73',`));
+    expect(tupla).toContain('"rol":"CONTEXT"');
+    expect(tupla).not.toContain('"rol":"PRIMARY"');
+    expect(tupla).toContain('"elegible_primary":false');
+    expect(tupla).toContain('"es_norma_vigente_clo":"UNKNOWN"');
+    expect(tupla).toContain('vigencia posterior al D.59-2015 no cotejada');
+    expect(tupla.trimEnd().endsWith(', false),') || tupla.includes(", 'HN', 'codigo', false)")).toBe(true);
+  });
+  it('el 72 y el 73 completos y también CONTEXT', () => {
+    expect(contenidoSql('72', '72-a').startsWith('ARTÍCULO 72.-')).toBe(true);
+    expect(contenidoSql('73', '__fin__').startsWith('ARTÍCULO 73.-')).toBe(true);
+    expect(m.filas.map((f: { role: string }) => f.role)).toEqual(['CONTEXT', 'CONTEXT', 'CONTEXT']);
+  });
+});
+
+describe('P21 estados de los manifiestos tras el dictamen CLO', () => {
+  it('Comercio, Notariado y D.284 = CLO_CLEARED_FOR_STAGING_PREP; Garantías = NEEDS_TEXT_LAYER', () => {
+    for (const d of DIRS) expect(manifest(d).estado).toBe('CLO_CLEARED_FOR_STAGING_PREP');
+    expect(manifest('ley-garantias-mobiliarias').estado).toBe('NEEDS_TEXT_LAYER');
   });
 });
 

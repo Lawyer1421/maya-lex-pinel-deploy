@@ -2,7 +2,7 @@
 -- Instrumento: Código de Comercio (Decreto 73-50)
 -- id_prefix: mayalex_normativos:codigo_comercio_bch_d73_50
 -- Fuentes verificadas (SHA-256): A=57c42a07b7540168fa74287212fa897505d0283d9e314606b25dd9106ce7f74a
--- Filas: 1698. Estado: READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
+-- Filas: 1698. Estado: CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
 --   * jurisdiccion, fuente_tipo y es_norma_vigente no tienen DDL en supabase/vectores.sql ni en supabase/migrations.
 --   * embedding es NOT NULL y no hay embeddings generados localmente (se escribe NULL como marcador).
 -- TODO el INSERT está COMENTADO (cada línea con «-- »). No descomentar sin CLO + verificación de esquema en staging.

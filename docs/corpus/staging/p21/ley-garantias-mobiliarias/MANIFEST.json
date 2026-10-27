@@ -20,7 +20,7 @@
       "en_SHA256SUMS": true
     }
   ],
-  "retrieved_at": "2026-10-27T14:26:26.844Z",
+  "retrieved_at": "2026-10-27T23:03:42.887Z",
   "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
   "text_sha256": null,
   "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",

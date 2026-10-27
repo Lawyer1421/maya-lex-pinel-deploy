@@ -2,7 +2,7 @@
 -- Instrumento: Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015
 -- id_prefix: mayalex_normativos:codigo_notariado_d59_2015
 -- Fuentes verificadas (SHA-256): B1=8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7 B2=7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d
--- Filas: 3. Estado: READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
+-- Filas: 3. Estado: CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
 --   * jurisdiccion, fuente_tipo y es_norma_vigente no tienen DDL en supabase/vectores.sql ni en supabase/migrations.
 --   * embedding es NOT NULL y no hay embeddings generados localmente (se escribe NULL como marcador).
 -- TODO el INSERT está COMENTADO (cada línea con «-- »). No descomentar sin CLO + verificación de esquema en staging.
@@ -114,7 +114,7 @@
 --   3) Formular el Código de Ética Notarial y someterlo a la aprobación de la Asamblea General.
 --   
 --   D. DE LOS CAPÍTULOS:
---   Para el mejor funcionamiento de la Unión de Notarios de Honduras (UNH), la Junta Directiva puede crear Capítulos en distintos lugares del territorio nacional, con las facultades y atribuciones que el Reglamento establezca', '72-A', 'Código del Notariado de Honduras (Decreto 353-2005)', '{"norm_id":"mayalex_normativos:codigo_notariado_d59_2015","instrumento":"Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015","rol":"CONTEXT","hash_texto_sha256":"ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014","vigencia_state":"NO_VERIFICADO","verificado":false,"warnings":["Solo CONTEXT (CLO)","PENDING_CLO"],"elegible_primary":false,"estado_editorial":"PENDING_CLO","version":"D.59-2015","gaceta":"La Gaceta 33,801 (6-ago-2015)"}'::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', 'codigo', false),
+--   Para el mejor funcionamiento de la Unión de Notarios de Honduras (UNH), la Junta Directiva puede crear Capítulos en distintos lugares del territorio nacional, con las facultades y atribuciones que el Reglamento establezca', '72-A', 'Código del Notariado de Honduras (Decreto 353-2005)', '{"norm_id":"mayalex_normativos:codigo_notariado_d59_2015","instrumento":"Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015","rol":"CONTEXT","hash_texto_sha256":"ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014","vigencia_state":"UNKNOWN","verificado":false,"warnings":["Solo CONTEXT (CLO)","CLO: adjudicado como CONTEXT (27-oct-2026)","es_norma_vigente=UNKNOWN: vigencia posterior al D.59-2015 no cotejada"],"elegible_primary":false,"estado_editorial":"CONTEXT_ADJUDICADO_CLO","es_norma_vigente_clo":"UNKNOWN","vigencia_nota":"vigencia posterior al D.59-2015 no cotejada","version":"D.59-2015","gaceta":"La Gaceta 33,801 (6-ago-2015)"}'::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', 'codigo', false),
 --   ('mayalex_normativos:codigo_notariado_d59_2015_a73', 'mayalex_normativos', '03_NOTARIAL', 'ARTÍCULO 73.- Constituye el patrimonio de la Unión de Notarios de Honduras (UNH):
 --   1) Los bienes y valores que adquiera;
 --   2) Las cuotas ordinarias y extraordinarias fijadas por la Asamblea General;

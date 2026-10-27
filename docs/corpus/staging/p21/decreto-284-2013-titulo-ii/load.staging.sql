@@ -2,7 +2,7 @@
 -- Instrumento: Decreto 284-2013, Título II (arts. 15 a 25)
 -- id_prefix: mayalex_normativos:decreto_284_2013_titulo_ii
 -- Fuentes verificadas (SHA-256): C=3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb
--- Filas: 11. Estado: READY_FOR_STAGING_REVIEW + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
+-- Filas: 11. Estado: CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
 --   * jurisdiccion, fuente_tipo y es_norma_vigente no tienen DDL en supabase/vectores.sql ni en supabase/migrations.
 --   * embedding es NOT NULL y no hay embeddings generados localmente (se escribe NULL como marcador).
 -- TODO el INSERT está COMENTADO (cada línea con «-- »). No descomentar sin CLO + verificación de esquema en staging.
