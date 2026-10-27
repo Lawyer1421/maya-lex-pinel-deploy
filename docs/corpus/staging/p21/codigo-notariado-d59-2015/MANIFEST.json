@@ -1,53 +1,112 @@
 {
-  "retrieved_at": null,
-  "bytes_obtenidos": null,
-  "sha256_obtenido": null,
-  "pages": null,
-  "text_sha256": null,
-  "parser": null,
-  "counts": {
-    "candidatos": "NO_VERIFICADO",
-    "aceptados": "NO_VERIFICADO",
-    "rechazados": "NO_VERIFICADO",
-    "finales": "NO_VERIFICADO",
-    "excluidos": "NO_VERIFICADO",
-    "curacion": "NO_VERIFICADO"
-  },
-  "articulos": [],
-  "filas": [],
-  "es_norma_vigente": false,
-  "pdf_versionado_en_repo": false,
-  "fuente_http_estado": "HTTP 403 en CONNECT tunnel (proxy del entorno), 2026-10-26",
-  "schema_bloqueo": [
+  "instrumento": "Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015",
+  "estado": "READY_FOR_STAGING_REVIEW",
+  "estados_adicionales": [
     "BLOCKED_SCHEMA",
     "EMBEDDINGS_PENDING"
   ],
-  "instrumento": "Código del Notariado (D.353-2005), arts. 72, 72-A y 73 en texto D.59-2015",
-  "gaceta": "La Gaceta 33,801 (6-ago-2015)",
   "id_prefix": "mayalex_normativos:codigo_notariado_d59_2015",
   "source_url": "https://drive.google.com/file/d/1y6ZmCoEhHKCejag8QMvxjoAZuNILKNw0/view",
   "sha256_esperado": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
-  "fuente_texto": {
-    "nombre": "COTEJO-D59-2015-literal.md",
-    "source_url": "https://drive.google.com/file/d/1YZnjONI2E8VlXAbGMj-ZQ-lpIC8jjXiA/view",
-    "sha256_esperado": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d"
-  },
-  "estado": "BLOCKED_SOURCE_UNREACHABLE",
-  "reglas": {
-    "articulos_permitidos": [
-      "72",
-      "72-A",
-      "73"
-    ],
-    "rol": "CONTEXT (elegible_primary=false); 72-A además PENDING_CLO",
-    "no_cargar": {
-      "11": "TEXTO_DIVERGENTE",
-      "17": "HUECO",
-      "27": "TEXTO_DIVERGENTE"
+  "sha256_obtenido": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+  "bytes": 790648,
+  "pages": 32,
+  "fuentes": [
+    {
+      "id": "B1",
+      "archivo": "B1_gaceta33801.pdf",
+      "source_url": "https://drive.google.com/file/d/1y6ZmCoEhHKCejag8QMvxjoAZuNILKNw0/view",
+      "sha256_esperado": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+      "sha256_obtenido": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+      "bytes": 790648,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
     },
-    "versiones": "filas 2005 y 2015 son distintas",
-    "texto_origen": "solo COTEJO-D59-2015-literal.md, nunca OCR crudo",
-    "denominacion": "siempre «Código del Notariado (Decreto 353-2005)»",
-    "fuera_de_alcance": "Reglamento PCSJ-17-2012"
-  }
+    {
+      "id": "B2",
+      "archivo": "B2_COTEJO-D59-2015-literal.md",
+      "source_url": "https://drive.google.com/file/d/1YZnjONI2E8VlXAbGMj-ZQ-lpIC8jjXiA/view",
+      "sha256_esperado": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+      "sha256_obtenido": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+      "bytes": 21102,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
+    }
+  ],
+  "retrieved_at": "2026-10-27T14:09:08.461Z",
+  "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
+  "text_sha256": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+  "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
+  "counts": {
+    "candidatos": 3,
+    "aceptados": 3,
+    "rechazados": 0,
+    "finales": 3,
+    "excluidos": [
+      "11",
+      "17",
+      "27"
+    ],
+    "curacion": {
+      "pending_clo": [
+        "72-A"
+      ],
+      "solo_context": [
+        "72",
+        "72-A",
+        "73"
+      ]
+    }
+  },
+  "articulos": [
+    "72",
+    "72-A",
+    "73"
+  ],
+  "filas": [
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a72",
+      "num_articulo": "72",
+      "role": "CONTEXT",
+      "hash_sha256": "9d32eae4945526fc28154d70821378f5dabac2f3369f356f870cc2c3db9fbaa7",
+      "chars": 601,
+      "warnings": [
+        "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
+      ]
+    },
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a72-a",
+      "num_articulo": "72-A",
+      "role": "CONTEXT",
+      "hash_sha256": "ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014",
+      "chars": 10132,
+      "warnings": [
+        "Solo CONTEXT (CLO)",
+        "PENDING_CLO"
+      ]
+    },
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a73",
+      "num_articulo": "73",
+      "role": "CONTEXT",
+      "hash_sha256": "2a186336de1d842549d1f691face3bdc73529e67df2fd26ecdad1dcf07ef6dd5",
+      "chars": 819,
+      "warnings": [
+        "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
+      ]
+    }
+  ],
+  "es_norma_vigente": false,
+  "pdf_versionado_en_repo": false,
+  "notas": [
+    "La cadena oculta de la capa de texto en A.4 (señalada en el COTEJO) no forma parte del texto cargado."
+  ],
+  "texto_origen": "B2_COTEJO-D59-2015-literal.md (transcripción literal verificada visualmente); nunca OCR crudo",
+  "no_cargar": {
+    "11": "TEXTO_DIVERGENTE",
+    "17": "HUECO",
+    "27": "TEXTO_DIVERGENTE"
+  },
+  "versiones": "las filas 2005 y 2015 son filas distintas",
+  "reglamento_pcsj_17_2012": "fuera de alcance"
 }
