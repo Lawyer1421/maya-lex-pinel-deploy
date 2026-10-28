@@ -1,61 +1,28 @@
 /**
- * GET/POST /api/rag
- * MAYA PENAL — Endpoint de búsqueda RAG
+ * /api/rag — DESHABILITADO SIEMPRE (orden CLO 28-oct-2026, P25). Sin interruptor por variable de entorno.
  *
- * GET /api/rag?q=artículo+294+CPP&k=5
- * POST /api/rag { consulta, k, coleccion }
+ * Motivo: sin autenticación ni límite de uso, el middleware lo deja pasar, usa service_role (salta RLS), el llamador elige cualquier colección,
+ * devuelve el texto completo y consume el token de HuggingFace. Ver docs/security/API_RAG_DISABLED.md.
  *
- * Response:
- *   { fragmentos, articulos_encontrados, backend, contexto_formateado }
+ * Este archivo NO importa nada: ni el cliente de Supabase con service_role, ni la búsqueda (lib/rag/search), ni el embedding. La lógica original
+ * quedó en lib/rag/api-rag-legacy.ts, sin enrutar. Todos los métodos HTTP responden 410 Gone en JSON.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { buscarRAG, formatearContextoRAG } from '@/lib/rag/search';
+export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const q = searchParams.get('q');
-  const k = parseInt(searchParams.get('k') ?? '5', 10);
-  const coleccion = searchParams.get('coleccion') ?? 'cpp_honduras';
+const CUERPO = { error: 'endpoint deshabilitado por seguridad', code: 'API_RAG_DESHABILITADO' } as const;
 
-  if (!q || q.trim().length < 5) {
-    return NextResponse.json(
-      { error: 'Parámetro q requerido (mínimo 5 caracteres)' },
-      { status: 400 }
-    );
-  }
-
-  const resultado = await buscarRAG(q, k, coleccion);
-  const contexto = formatearContextoRAG(resultado);
-
-  return NextResponse.json({
-    ...resultado,
-    contexto_formateado: contexto,
+function gone(_req?: Request): Response {
+  return new Response(JSON.stringify(CUERPO), {
+    status: 410,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }
 
-export async function POST(req: NextRequest) {
-  let body: { consulta?: string; k?: number; coleccion?: string };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
-  }
-
-  const { consulta, k = 5, coleccion = 'cpp_honduras' } = body;
-
-  if (!consulta || consulta.trim().length < 5) {
-    return NextResponse.json(
-      { error: 'consulta requerida (mínimo 5 caracteres)' },
-      { status: 400 }
-    );
-  }
-
-  const resultado = await buscarRAG(consulta, k, coleccion);
-  const contexto = formatearContextoRAG(resultado);
-
-  return NextResponse.json({
-    ...resultado,
-    contexto_formateado: contexto,
-  });
-}
+export const GET = gone;
+export const POST = gone;
+export const PUT = gone;
+export const PATCH = gone;
+export const DELETE = gone;
+export const HEAD = gone;
+export const OPTIONS = gone;
