@@ -1,6 +1,6 @@
 # P21 — DRY_RUN_COUNTS (staging `aicakncgtuiiuomflkqj`; NO APLICADO)
 
-Generado por `npx tsx tools/corpus/p21-build.ts --local <carpeta>` (sin BD, sin red, sin variables de entorno) el 2026-10-27T23:03:42.887Z.
+Generado por `npx tsx tools/corpus/p21-build.ts --local <carpeta>` (sin BD, sin red, sin variables de entorno) el 2026-10-28T16:40:45.816Z.
 Las fuentes se verificaron por SHA-256 recalculado sobre archivos locales entregados por CLO; los PDF no se versionan en el repo.
 
 ## SHA-256 de las fuentes
@@ -17,7 +17,7 @@ Las fuentes se verificaron por SHA-256 recalculado sobre archivos locales entreg
 
 | Instrumento | Estado | Candidatos | Aceptados | Rechazados | Finales | Excluidos |
 | --- | --- | --- | --- | --- | --- | --- |
-| Código de Comercio (Decreto 73-50) | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 1790 | 1704 | 86 | 1698 | 418, 1662 |
+| Código de Comercio (Decreto 73-50) | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 1790 | 1704 | 86 | 1699 | 418, 1662 |
 | Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015 | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 3 | 3 | 0 | 3 | 11, 17, 27 |
 | Decreto 284-2013, Título II (arts. 15 a 25) | CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING | 11 | 11 | 0 | 11 | — |
 | Ley de Garantías Mobiliarias (D.182-2009) | NEEDS_TEXT_LAYER | 0 | 0 | 0 | 0 | — |
@@ -29,9 +29,9 @@ Observación Comercio: el conteo final (1698) coincide con el de una corrida ant
 
 | Archivo | SHA-256 |
 | --- | --- |
-| codigo-comercio/load.staging.sql | `2f3ee8bb7459ead9a02bfbd41d469a478bd73bb786914c289ff3c4207b1958ab` |
-| codigo-notariado-d59-2015/load.staging.sql | `a50b8fef74718faf030f644db1c45e1c79e15bc368f0da7e27f5e49cf87fc4fa` |
-| decreto-284-2013-titulo-ii/load.staging.sql | `1e06dfe3df464d8fdf6f02e2dba5b1302aa1420fcadaf436a9f42dc554efecf5` |
+| codigo-comercio/load.staging.sql | `cdf7c5cef933638c2e47f126008080aa93fe68395cef87220a2d0222556af53b` |
+| codigo-notariado-d59-2015/load.staging.sql | `772c0b1419bfc2874ff8a65c27e168ef0894aab30b4350af3426749be03aa8e9` |
+| decreto-284-2013-titulo-ii/load.staging.sql | `7dcc2e31d9fd047f41a10b9646106f710e9043a440e3976a7ef5dd17ff687056` |
 
 ## Salida literal de los dry-runs
 
@@ -45,12 +45,14 @@ D D_lgm.pdf: 3648369 bytes sha256=66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da
 
 === A. Código de Comercio (Decreto 73-50) — dry-run ===
 páginas=419 glifos «Articulo º/° N» normalizados=1705
-candidatos=1790 aceptados=1704 rechazados=86 números únicos aceptados=1700
+candidatos=1790 aceptados=1704 rechazados=86 rescatados por el parser (encabezado solo en su línea)=1714 números únicos aceptados=1700
 duplicados=418x2,1511x2,1541x2,1662x2
 excluidos CLO (ambas ocurrencias)=418,1662; deduplicados (sin pérdida de texto)=1511,1541; no resueltos=(ninguno)
-finales=1698 (PRIMARY=1677, CONTEXT prenda=21); prenda esperada=21, presente=21, ausente=(ninguna)
-GAP_IN_SOURCE (ausentes en BCH y DGMM) 1..1713: 13 → 417,1000,1236,1237,1238,1239,1240,1241,1242,1243,1244,1245,1661
+finales=1699 (rol PRIMARY=1644, rol CONTEXT=55 [prenda=20; reformas/derogaciones=35]); es_norma_vigente: FALSE=4, NULL=1695, TRUE=0
+prenda esperada=20, presente=20, ausente=(ninguna); 1278 NO es prenda (contrato de edición)
+GAP_IN_SOURCE (ausentes en BCH y DGMM) 1..1714: 13 → 417,1000,1236,1237,1238,1239,1240,1241,1242,1243,1244,1245,1661
 418 y 1662: 4 textos EXCLUIDOS (2 por número); numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta
+pares (artículo, reformador): 35 [D.284 art. 37 → 4, D.284 art. 13 → 12, D.255 art. 8 → 19]; + 1 par aparte D.255 art. 37 → art. 21; artículos con DOS reformadores: 15
 
 === B. Código del Notariado, arts. 72, 72-A, 73 (D.59-2015) — dry-run ===
 Gaceta 33,801: páginas=32 (fuente de verificación; el texto sale SOLO del COTEJO, no del OCR)
@@ -78,6 +80,93 @@ art. 25: 120 chars, sha256=931e6372a1f82401cacc079213fe8d7cbc5ccef8ab0e08387eb77
 páginas=20; caracteres de capa de texto (sin espacios)=0
 capa de texto AUSENTE → NEEDS_TEXT_LAYER (solo manifiesto; sin filas ni SQL)
 ```
+
+## Código de Comercio — dictamen CLO 28-oct-2026 (anexo): las 35 filas (artículo, instrumento reformador, valor anterior, valor nuevo, rol)
+
+Significado de es_norma_vigente (CLO): TRUE elegible · FALSE excluido · NULL solo CONTEXT. Valor anterior = lo que traía el SQL del commit anterior (todas las filas con `false`, rol según el grupo).
+
+| # | Art. | Instrumento reformador | Valor anterior | Valor nuevo |
+| --- | --- | --- | --- | --- |
+| 1 | 15 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 2 | 22 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 3 | 24 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 4 | 36 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 5 | 89 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 6 | 92 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 7 | 308 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 8 | 309 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 9 | 310 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 10 | 388 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 11 | 398 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 12 | 403 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 13 | 431 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 14 | 432 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 15 | 433 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 16 | 435 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 17 | 441 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 18 | 446 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 19 | 448 | D.255-2002 (Gaceta 29,856) art. 8 (REFORMA (posible)) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 20 | 14 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 21 | 15 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 22 | 18 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 23 | 157 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 24 | 169 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 25 | 189 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 26 | 193 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 27 | 210 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 28 | 222 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 29 | 224 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 30 | 226 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 31 | 228 | D.284-2013 (Gaceta 33,445) art. 13 (REFORMA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=NULL · rol CONTEXT |
+| 32 | 380 | D.284-2013 (Gaceta 33,445) art. 37 (DEROGA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=FALSE (excluido como fundamento) · rol CONTEXT |
+| 33 | 381 | D.284-2013 (Gaceta 33,445) art. 37 (DEROGA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=FALSE (excluido como fundamento) · rol CONTEXT |
+| 34 | 382 | D.284-2013 (Gaceta 33,445) art. 37 (DEROGA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=FALSE (excluido como fundamento) · rol CONTEXT |
+| 35 | 383 | D.284-2013 (Gaceta 33,445) art. 37 (DEROGA) | es_norma_vigente=false · rol PRIMARY | es_norma_vigente=FALSE (excluido como fundamento) · rol CONTEXT |
+
+Par adicional, fuera de las 35: art. 21 — D.255-2002 art. 37 (DEROGA, posible) → es_norma_vigente=NULL · rol CONTEXT. Artículos con dos reformadores (una sola fila cada uno, con ambos en `metadata.reformadores`): 15.
+
+Origen de las listas: D.284-2013 arts. 13 y 37 se leyeron en la Gaceta 33,445 (fuente C, SHA-256 verificado). La lista de 19 del D.255-2002 art. 8 **no** viene de una fuente cotejada con imagen: se tomó de copias secundarias (leyes.hn; la copia de bibliotecalegalhn.com difiere: «91» en vez de «92» y sin «441»). Nota fijada en las filas: «posible reforma/derogación por D.255-2002 (Gaceta 29,856), no cotejada con imagen».
+
+### 338 frente a 388 (reporte, sin decisión)
+
+En las dos copias del D.255-2002 art. 8 que se pudieron leer aparece **388**; el número **338** no aparece en ninguna lista leída. Qué dice cada artículo en la copia BCH:
+
+```text
+Articulo 338
+
+El acuerdo sobre distribución parcial deberá publicarse en la misma forma y para
+los mismos efectos que el acuerdo de reducción del capital.
+
+Articulo 388
+
+La Secretaria de Hacienda, Crédito Público y Comercio fijará los derechos de
+registro.
+```
+
+No se decide: se marca el 388 (el que aparece en las copias leídas) y el 338 queda sin marca de reforma hasta que el CLO adjudique.
+
+### Art. 1278 (sacado de la prenda desplazada)
+
+Encabezado y primeras líneas según la copia BCH:
+
+```text
+Articulo 1278
+
+El autor conservará el derecho de hacer a su obra las correcciones, enmiendas o
+mejoras que estime convenientes, antes de que la obra entre en prensa; sin
+embargo, cuando las correcciones o mejoras hagan más onerosa la impresión,
+estará obligado a resarcir al editor del daño que éste sufra.
+```
+
+Trata del **contrato de edición** (derechos del autor sobre su obra y obligaciones del editor), no de la prenda. Se retiró de la lista de prenda desplazada y queda con su rol por defecto; no se reclasificó nada más. La lista de prenda desplazada por D.182-2009 queda en 1289–1307 y 1313 (20 artículos).
+
+### Art. 1714 (por qué faltaba en el dry-run)
+
+Está en la copia BCH (último artículo del Código). El parser lo **rechazó** porque su cuerpo empieza en minúscula («la caducidad…», error de OCR) y el filtro de encabezado real exige mayúscula tras el número. Se rescata solo porque el encabezado está solo en su línea y el conjunto rescatado es exactamente {1714}. Primeras líneas: Articulo 1714 |  | la caducidad no podrá ser estimada de oficio, a no ser que se trate de materia. Vigencia NULL (sin acreditar), rol PRIMARY al acreditarse.
+
+### Registro de cobertura sin duplicados
+
+Se interpretó «registro de cobertura» como las listas de cobertura del manifiesto de Comercio: (a) `excluidos_detalle` traía una entrada por ocurrencia (418 ×2, 1662 ×2) y ahora trae **una por número** con las dos ocurrencias dentro (no se pierde ninguna huella SHA-256); (b) el/los artículo(s) 15, que aparecen en las listas de D.284 art. 13 **y** de D.255 art. 8, quedan en **una sola fila** con ambos reformadores. No se encontró otro registro de cobertura con filas duplicadas en `main`; si el CLO se refería a otro, indicar cuál.
 
 ## Código de Comercio — excluidos 418 y 1662 y GAP_IN_SOURCE (dictamen CLO 27-oct-2026)
 

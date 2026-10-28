@@ -60,13 +60,14 @@ const pdfInfoPages = (ruta: string): number => Number(execFileSync('pdfinfo', [r
 const pdfText = (ruta: string, extra: string[] = []): string => execFileSync('pdftotext', [...extra, '-enc', 'UTF-8', ruta, '-'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 
 // ── Modelo de fila ───────────────────────────────────────────────────────────
-interface Fila { id: string; num_articulo: string; role: 'PRIMARY' | 'CONTEXT'; contenido: string; hash_sha256: string; warnings: string[]; extra: Record<string, unknown> }
+interface Fila { id: string; num_articulo: string; role: 'PRIMARY' | 'CONTEXT'; contenido: string; hash_sha256: string; warnings: string[]; extra: Record<string, unknown>; esVigente: boolean | null }
 interface Resultado {
   clave: string; dir: string; instrumento: string; fuenteKeys: Clave[]; estado: string; id_prefix: string; fuente: string; materia: string; fuente_tipo: string;
   pages: number | null; textSha: string | null; counts: Record<string, unknown>; filas: Fila[]; notas: string[]; extraManifest: Record<string, unknown>; conSql: boolean;
 }
-const mkFila = (prefix: string, num: string, role: Fila['role'], contenido: string, warnings: string[] = [], extra: Record<string, unknown> = {}): Fila =>
-  ({ id: `${prefix}_a${num.toLowerCase()}`, num_articulo: num, role, contenido, hash_sha256: sha256(contenido), warnings, extra });
+// es_norma_vigente (significado CLO 28-oct-2026): TRUE elegible · FALSE excluido · NULL solo CONTEXT. Ninguna fila P21 tiene vigencia acreditada → NULL salvo la decisión expresa del CLO.
+const mkFila = (prefix: string, num: string, role: Fila['role'], contenido: string, warnings: string[] = [], extra: Record<string, unknown> = {}, esVigente: boolean | null = null): Fila =>
+  ({ id: `${prefix}_a${num.toLowerCase()}`, num_articulo: num, role, contenido, hash_sha256: sha256(contenido), warnings, extra, esVigente });
 const porNumero = (a: string, b: string) => parseInt(a, 10) - parseInt(b, 10) || a.localeCompare(b);
 const sinAcentos = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -105,11 +106,61 @@ function parseComercio(): Resultado {
       dedupDetalle.push({ num_articulo: n, conservada: conservaA ? 'A' : 'B', identicas: a.contenido === b.contenido, sha256_conservada: sha256(keep.contenido), sha256_descartada: sha256(drop.contenido), texto_conservado: keep.contenido, texto_descartado: drop.contenido });
     } else noResueltos.push(n);
   }
-  const PRENDA = new Set(['1278', ...Array.from({ length: 19 }, (_, i) => String(1289 + i)), '1313']);
+  // Rescate del art. 1714 (CLO 28-oct-2026): la fuente lo trae («Articulo º 1714» al final) pero el cuerpo empieza en minúscula («la caducidad…», OCR) y el filtro de
+  // encabezado real exige mayúscula tras el número, así que el parser lo rechazó. Solo se rescatan encabezados que estén solos en su línea, rechazados por esa causa,
+  // y el conjunto debe ser EXACTAMENTE el esperado: cualquier otro número detiene el build para revisión.
+  const RESCATE_ESPERADO = ['1714'];
+  const rechazadosNums = new Set(rech.map((r) => r.numArticulo));
+  const encabezadosSolos = [...limpio.matchAll(/^Articulo (\d+)[ \t]*$/gm)].map((m) => ({ n: m[1], idx: m.index! }));
+  const rescatados: string[] = [];
+  encabezadosSolos.forEach((h, i) => {
+    if (grupos.has(h.n) || EXCLUIR.includes(h.n) || !rechazadosNums.has(h.n)) return;
+    const fin = encabezadosSolos[i + 1]?.idx ?? limpio.length;
+    const cuerpo = limpio.slice(h.idx, fin).replace(/^Articulo \d+[ \t]*\n/, '').trim();
+    if (!cuerpo) return;
+    finalesTxt.set(h.n, limpio.slice(h.idx, fin).trim());
+    rescatados.push(h.n);
+  });
+  if (JSON.stringify(rescatados) !== JSON.stringify(RESCATE_ESPERADO)) throw new Error(`rescate inesperado: ${rescatados.join(',')}`);
+  const causa1714 = limpio.slice(encabezadosSolos.find((h) => h.n === '1714')!.idx).split('\n').slice(0, 3).join(' | ');
+
+  // Prenda desplazada por D.182-2009: 1289–1307 y 1313. El 1278 NO es prenda (es el contrato de edición); CLO 28-oct-2026.
+  const PRENDA = new Set([...Array.from({ length: 19 }, (_, i) => String(1289 + i)), '1313']);
+  // Grupos CLO 28-oct-2026 (anexo 1). Una fila puede tener varios reformadores.
+  const D284_ART13 = ['14', '15', '18', '157', '169', '189', '193', '210', '222', '224', '226', '228']; // texto del art. 13, Gaceta 33,445 (fuente C, verificado)
+  const D284_ART37_DEROGA = ['380', '381', '382', '383']; // texto del art. 37, Gaceta 33,445 (fuente C, verificado)
+  // Lista del art. 8 del D.255-2002 (Gaceta 29,856): NO viene de una fuente cotejada con imagen sino de copias secundarias (leyes.hn: 19 números). bibliotecalegalhn.com difiere (91 en vez de 92; sin 441).
+  const D255_ART8 = ['15', '22', '24', '36', '89', '92', '308', '309', '310', '388', '398', '403', '431', '432', '433', '435', '441', '446', '448'];
+  const D255_ART37_ART21 = ['21']; // «art. 37 que dice derogar su art. 21» (CLO): posible derogación, no cotejada
+  const NOTA_D284_13 = 'texto anterior a la reforma del D.284-2013; no es el texto vigente';
+  const NOTA_D284_37 = 'derogado por D.284-2013 art. 37 (Gaceta 33,445), verificado; excluido como fundamento';
+  const NOTA_D255 = 'posible reforma/derogación por D.255-2002 (Gaceta 29,856), no cotejada con imagen';
+  interface Reformador { instrumento: string; articulo_reformador: string; efecto: string }
+  const reformadores = new Map<string, Reformador[]>();
+  const addRef = (nums2: string[], r: Reformador) => nums2.forEach((n) => reformadores.set(n, [...(reformadores.get(n) ?? []), r]));
+  addRef(D284_ART37_DEROGA, { instrumento: 'D.284-2013 (Gaceta 33,445)', articulo_reformador: '37', efecto: 'DEROGA' });
+  addRef(D284_ART13, { instrumento: 'D.284-2013 (Gaceta 33,445)', articulo_reformador: '13', efecto: 'REFORMA' });
+  addRef(D255_ART8, { instrumento: 'D.255-2002 (Gaceta 29,856)', articulo_reformador: '8', efecto: 'REFORMA (posible)' });
+  addRef(D255_ART37_ART21, { instrumento: 'D.255-2002 (Gaceta 29,856)', articulo_reformador: '37', efecto: 'DEROGA (posible)' });
+  const faltantesReformas = [...reformadores.keys()].filter((n) => !finalesTxt.has(n));
+  if (faltantesReformas.length) throw new Error(`artículos reformados/derogados ausentes en las filas: ${faltantesReformas.join(',')}`);
   const nums = [...finalesTxt.keys()].sort(porNumero);
   const filas = nums.map((n) => {
-    const ctx = PRENDA.has(n);
-    return mkFila(base.id_prefix, n, ctx ? 'CONTEXT' : 'PRIMARY', finalesTxt.get(n)!, ctx ? ['Prenda: desplazado_por D.182-2009 (Ley de Garantías Mobiliarias); no citar como norma vigente'] : [], ctx ? { desplazado_por: 'D.182-2009' } : {});
+    const refs = reformadores.get(n) ?? [];
+    const falso = D284_ART37_DEROGA.includes(n);
+    const notas: string[] = [];
+    if (falso) notas.push(NOTA_D284_37);
+    if (D284_ART13.includes(n)) notas.push(NOTA_D284_13);
+    if (D255_ART8.includes(n) || D255_ART37_ART21.includes(n)) notas.push(NOTA_D255);
+    const prenda = PRENDA.has(n);
+    const ctx = falso || prenda || refs.length > 0;
+    const warnings = [...notas, ...(prenda ? ['Prenda: desplazado_por D.182-2009 (Ley de Garantías Mobiliarias); no citar como norma vigente'] : [])];
+    const extra: Record<string, unknown> = {};
+    if (prenda) extra.desplazado_por = 'D.182-2009';
+    if (refs.length) { extra.reformadores = refs; extra.nota = notas.join(' · '); }
+    if (falso) extra.excluido_como_fundamento = true;
+    if (n === '1714') extra.rescatado_por_parser = 'cuerpo en minúscula tras el encabezado (OCR); vigencia no acreditada';
+    return mkFila(base.id_prefix, n, ctx ? 'CONTEXT' : 'PRIMARY', finalesTxt.get(n)!, warnings, extra, falso ? false : null);
   });
   const max = Math.max(...nums.map(Number)); const huecos: number[] = [];
   for (let i = 1; i <= max; i++) if (!finalesTxt.has(String(i)) && !EXCLUIR.includes(String(i))) huecos.push(i);
@@ -118,15 +169,56 @@ function parseComercio(): Resultado {
   const gapIn = huecos.map((n) => ({ num_articulo: String(n), estado: 'GAP_IN_SOURCE', nota: 'ausente en BCH y DGMM (cotejo CLO, 27-oct-2026); no se inventa ni se rellena' }));
   const NOTA_NUM = 'numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta';
   const ctxPresentes = nums.filter((n) => PRENDA.has(n)); const ctxAusentes = [...PRENDA].filter((n) => !finalesTxt.has(n));
+  // Registro de cobertura sin filas duplicadas: una entrada por número excluido con TODAS sus ocurrencias (no se pierde ninguna huella).
+  const excluidosPorNumero = EXCLUIR.map((n) => ({
+    num_articulo: n, estado: 'EXCLUIDO (ni PRIMARY ni CONTEXT; sin renumerar)',
+    ocurrencias: excluidosDetalle.filter((e) => e.num_articulo === n).map((e) => ({ ocurrencia: e.ocurrencia, sha256: e.sha256, chars: e.chars, vista_previa: e.vista_previa })),
+  }));
+  // Tabla de pares (artículo, reformador): una línea por par, como pidió el CLO (35 = 4 + 12 + 19; el par art. 37 D.255 → art. 21 se informa aparte).
+  const filaPor = new Map(filas.map((f) => [f.num_articulo, f] as const));
+  const paresTabla: Array<{ articulo: string; reformador: string; anterior: string; nuevo: string; rol: string }> = [];
+  for (const [n, rs] of reformadores) for (const r of rs) {
+    const f = filaPor.get(n)!;
+    paresTabla.push({ articulo: n, reformador: `${r.instrumento} art. ${r.articulo_reformador} (${r.efecto})`, anterior: 'es_norma_vigente=false · rol PRIMARY', nuevo: `es_norma_vigente=${f.esVigente === null ? 'NULL' : String(f.esVigente).toUpperCase()}${f.extra.excluido_como_fundamento ? ' (excluido como fundamento)' : ''} · rol ${f.role}`, rol: f.role });
+  }
+  const orden = (a: { reformador: string; articulo: string }, b: { reformador: string; articulo: string }) => a.reformador.localeCompare(b.reformador) || parseInt(a.articulo, 10) - parseInt(b.articulo, 10);
+  paresTabla.sort(orden);
+  const pares35 = paresTabla.filter((x) => !x.reformador.includes('art. 37 (DEROGA (posible))'));
+  if (pares35.length !== 35) throw new Error(`se esperaban 35 pares (4+12+19), hay ${pares35.length}`);
+  const dobles = [...reformadores].filter(([, rs]) => rs.length > 1).map(([n]) => n);
+  const PRIMARYn = filas.filter((f) => f.role === 'PRIMARY').length, CONTEXTn = filas.filter((f) => f.role === 'CONTEXT').length;
+  const FALSEn = filas.filter((f) => f.esVigente === false).length;
   say('\n=== A. Código de Comercio (Decreto 73-50) — dry-run ===');
   say(`páginas=${pdfInfoPages(verif.A.ruta)} glifos «Articulo º/° N» normalizados=${glifos}`);
-  say(`candidatos=${cands.length} aceptados=${acept.length} rechazados=${rech.length} números únicos aceptados=${grupos.size}`);
+  say(`candidatos=${cands.length} aceptados=${acept.length} rechazados=${rech.length} rescatados por el parser (encabezado solo en su línea)=${rescatados.join(',')} números únicos aceptados=${grupos.size}`);
   say(`duplicados=${[...grupos].filter(([, o]) => o.length > 1).map(([n, o]) => `${n}x${o.length}`).join(',')}`);
   say(`excluidos CLO (ambas ocurrencias)=${excluidos.sort(porNumero).join(',')}; deduplicados (sin pérdida de texto)=${dedup.join(',')}; no resueltos=${noResueltos.join(',') || '(ninguno)'}`);
-  say(`finales=${filas.length} (PRIMARY=${filas.filter((f) => f.role === 'PRIMARY').length}, CONTEXT prenda=${filas.filter((f) => f.role === 'CONTEXT').length}); prenda esperada=${PRENDA.size}, presente=${ctxPresentes.length}, ausente=${ctxAusentes.join(',') || '(ninguna)'}`);
+  say(`finales=${filas.length} (rol PRIMARY=${PRIMARYn}, rol CONTEXT=${CONTEXTn} [prenda=${ctxPresentes.length}; reformas/derogaciones=${[...reformadores.keys()].length}]); es_norma_vigente: FALSE=${FALSEn}, NULL=${filas.length - FALSEn}, TRUE=0`);
+  say(`prenda esperada=${PRENDA.size}, presente=${ctxPresentes.length}, ausente=${ctxAusentes.join(',') || '(ninguna)'}; 1278 NO es prenda (contrato de edición)`);
   say(`GAP_IN_SOURCE (ausentes en BCH y DGMM) 1..${max}: ${huecos.length} → ${huecos.join(',')}`);
   say(`418 y 1662: ${excluidosDetalle.length} textos EXCLUIDOS (2 por número); ${NOTA_NUM}`);
+  say(`pares (artículo, reformador): 35 [D.284 art. 37 → 4, D.284 art. 13 → 12, D.255 art. 8 → 19]; + 1 par aparte D.255 art. 37 → art. 21; artículos con DOS reformadores: ${dobles.join(',')}`);
+  const t1278 = (() => { const m = /^Articulo 1278[ \t]*$/m.exec(limpio); return m ? limpio.slice(m.index, m.index + 700).split('\n').slice(0, 7).join('\n').trim() : '(no localizado)'; })();
+  const t388 = (() => { const m = /^Articulo 388[ \t]*$/m.exec(limpio); return m ? limpio.slice(m.index, m.index + 260).split('\n').slice(0, 4).join('\n').trim() : '(no localizado)'; })();
+  const t338 = (() => { const m = /^Articulo 338[ \t]*$/m.exec(limpio); return m ? limpio.slice(m.index, m.index + 330).split('\n').slice(0, 5).join('\n').trim() : '(no localizado)'; })();
   anexos.push([
+    '## Código de Comercio — dictamen CLO 28-oct-2026 (anexo): las 35 filas (artículo, instrumento reformador, valor anterior, valor nuevo, rol)', '',
+    'Significado de es_norma_vigente (CLO): TRUE elegible · FALSE excluido · NULL solo CONTEXT. Valor anterior = lo que traía el SQL del commit anterior (todas las filas con `false`, rol según el grupo).', '',
+    '| # | Art. | Instrumento reformador | Valor anterior | Valor nuevo |', '| --- | --- | --- | --- | --- |',
+    ...pares35.map((x, k) => `| ${k + 1} | ${x.articulo} | ${x.reformador} | ${x.anterior} | ${x.nuevo} |`), '',
+    `Par adicional, fuera de las 35: art. 21 — D.255-2002 art. 37 (DEROGA, posible) → es_norma_vigente=NULL · rol CONTEXT. Artículos con dos reformadores (una sola fila cada uno, con ambos en \`metadata.reformadores\`): ${dobles.join(', ')}.`, '',
+    `Origen de las listas: D.284-2013 arts. 13 y 37 se leyeron en la Gaceta 33,445 (fuente C, SHA-256 verificado). La lista de 19 del D.255-2002 art. 8 **no** viene de una fuente cotejada con imagen: se tomó de copias secundarias (leyes.hn; la copia de bibliotecalegalhn.com difiere: «91» en vez de «92» y sin «441»). Nota fijada en las filas: «${NOTA_D255}».`, '',
+    '### 338 frente a 388 (reporte, sin decisión)', '',
+    'En las dos copias del D.255-2002 art. 8 que se pudieron leer aparece **388**; el número **338** no aparece en ninguna lista leída. Qué dice cada artículo en la copia BCH:', '',
+    FENCE + 'text', t338, '', t388, FENCE, '',
+    'No se decide: se marca el 388 (el que aparece en las copias leídas) y el 338 queda sin marca de reforma hasta que el CLO adjudique.', '',
+    '### Art. 1278 (sacado de la prenda desplazada)', '',
+    'Encabezado y primeras líneas según la copia BCH:', '', FENCE + 'text', t1278, FENCE, '',
+    'Trata del **contrato de edición** (derechos del autor sobre su obra y obligaciones del editor), no de la prenda. Se retiró de la lista de prenda desplazada y queda con su rol por defecto; no se reclasificó nada más. La lista de prenda desplazada por D.182-2009 queda en 1289–1307 y 1313 (20 artículos).', '',
+    '### Art. 1714 (por qué faltaba en el dry-run)', '',
+    `Está en la copia BCH (último artículo del Código). El parser lo **rechazó** porque su cuerpo empieza en minúscula («la caducidad…», error de OCR) y el filtro de encabezado real exige mayúscula tras el número. Se rescata solo porque el encabezado está solo en su línea y el conjunto rescatado es exactamente {1714}. Primeras líneas: ${causa1714}. Vigencia NULL (sin acreditar), rol PRIMARY al acreditarse.`, '',
+    '### Registro de cobertura sin duplicados', '',
+    `Se interpretó «registro de cobertura» como las listas de cobertura del manifiesto de Comercio: (a) \`excluidos_detalle\` traía una entrada por ocurrencia (418 ×2, 1662 ×2) y ahora trae **una por número** con las dos ocurrencias dentro (no se pierde ninguna huella SHA-256); (b) el/los artículo(s) ${dobles.join(', ')}, que aparecen en las listas de D.284 art. 13 **y** de D.255 art. 8, quedan en **una sola fila** con ambos reformadores. No se encontró otro registro de cobertura con filas duplicadas en \`main\`; si el CLO se refería a otro, indicar cuál.`, '',
     '## Código de Comercio — excluidos 418 y 1662 y GAP_IN_SOURCE (dictamen CLO 27-oct-2026)', '',
     `CLO cotejó BCH (${code('57c42a07…')}) y DGMM (${code('cd8b55fb…')}): ambas copias tienen los mismos defectos; es la fuente, no el parser.`, '',
     `**Nota:** ${NOTA_NUM}.`, '',
@@ -143,8 +235,23 @@ function parseComercio(): Resultado {
     ]),
   ].join('\n'));
   return { ...base, estado: noResueltos.length ? 'BLOCKED_DUPLICADOS_NO_RESUELTOS' : 'CLO_CLEARED_FOR_STAGING_PREP', pages: pdfInfoPages(verif.A.ruta), textSha: sha256(limpio),
-    counts: { candidatos: cands.length, aceptados: acept.length, rechazados: rech.length, finales: filas.length, excluidos: excluidos.sort(porNumero), deduplicados: dedup, duplicados_no_resueltos: noResueltos, gap_in_source: huecos, excluidos_textos: excluidosDetalle.length, curacion: { glifos_ordinales_normalizados: glifos, prenda_context: ctxPresentes.length } },
-    filas, notas: [NOTA_NUM, `GAP_IN_SOURCE: ${huecos.join(',')}`], extraManifest: { gap_in_source: gapIn, excluidos_detalle: excluidosDetalle, deduplicados_detalle: dedupDetalle.map((d) => ({ ...d, texto_conservado: undefined, texto_descartado: undefined })), nota_numeracion: NOTA_NUM, dictamen_clo: 'CLO 27-oct-2026: cotejadas BCH (57c42a07…) y DGMM (cd8b55fb…); mismos defectos en ambas copias (es la fuente, no el parser).', citado_como: 'Decreto 73-50', fecha_instrumento: 'no verificada; las fuentes discrepan', reformas_solo_metadata: ['D.255-2002 art. 8', 'D.284-2013 arts. 13 y 37', 'D.127-2026 = NO_VERIFICADA']} };
+    counts: { candidatos: cands.length, aceptados: acept.length, rechazados: rech.length, rescatados_por_parser: rescatados, finales: filas.length, finales_por_rol: { PRIMARY: PRIMARYn, CONTEXT: CONTEXTn }, es_norma_vigente: { TRUE: 0, FALSE: FALSEn, NULL: filas.length - FALSEn }, excluidos: excluidos.sort(porNumero), deduplicados: dedup, duplicados_no_resueltos: noResueltos, gap_in_source: huecos, excluidos_textos: excluidosDetalle.length, curacion: { glifos_ordinales_normalizados: glifos, prenda_context: ctxPresentes.length } },
+    filas, notas: [NOTA_NUM, `GAP_IN_SOURCE: ${huecos.join(',')}`], extraManifest: {
+      gap_in_source: gapIn, excluidos_detalle: excluidosPorNumero, deduplicados_detalle: dedupDetalle.map((d) => ({ ...d, texto_conservado: undefined, texto_descartado: undefined })), nota_numeracion: NOTA_NUM,
+      dictamen_clo: 'CLO 27-oct-2026: cotejadas BCH (57c42a07…) y DGMM (cd8b55fb…); mismos defectos en ambas copias (es la fuente, no el parser). CLO 28-oct-2026: anexo 1 (vigencia, reformas, 1714, 1278).',
+      citado_como: 'Decreto 73-50', fecha_instrumento: 'no verificada; las fuentes discrepan',
+      reformas: {
+        d284_2013_art37_deroga: { articulos: D284_ART37_DEROGA, es_norma_vigente: false, nota: NOTA_D284_37, verificado_en: 'Gaceta 33,445 (fuente C)' },
+        d284_2013_art13_reforma: { articulos: D284_ART13, es_norma_vigente: null, rol: 'CONTEXT', nota: NOTA_D284_13, verificado_en: 'Gaceta 33,445 (fuente C)' },
+        d255_2002_art8_reforma: { articulos: D255_ART8, es_norma_vigente: null, rol: 'CONTEXT', nota: NOTA_D255, fuente_de_la_lista: 'copias secundarias (leyes.hn); bibliotecalegalhn.com difiere (91 en vez de 92; sin 441); NO cotejada con imagen' },
+        d255_2002_art37_deroga_art21: { articulos: D255_ART37_ART21, es_norma_vigente: null, rol: 'CONTEXT', nota: NOTA_D255, fuente_de_la_lista: 'indicación del CLO (28-oct-2026); no hallada ni cotejada en las fuentes leídas' },
+        articulos_con_dos_reformadores: dobles, pares_articulo_reformador: 35,
+        d127_2026: 'NO_VERIFICADA',
+      },
+      discrepancia_338_388: { observado_en_las_copias_leidas_del_D255_art8: '388', aparece_338: false, decision: 'ninguna; el CLO adjudica', texto_338_bch: t338, texto_388_bch: t388 },
+      prenda_desplazada_d182_2009: { articulos: [...PRENDA].sort(porNumero), excluido_de_la_lista: { '1278': { motivo: 'trata del contrato de edición, no de la prenda', primeras_lineas: t1278 } } },
+      art_1714: { rescatado_por_parser: true, causa: 'cuerpo en minúscula tras el encabezado (OCR) rechazado por el filtro de mayúscula', es_norma_vigente: null },
+    } };
 }
 
 // ── B: Código del Notariado, arts. 72, 72-A y 73 (texto D.59-2015, de COTEJO) ─
@@ -226,11 +333,11 @@ function parseD284(): Resultado {
   say('\n=== C. Decreto 284-2013, Título II — dry-run ===');
   say(`Gaceta 33,445: páginas=${paginas}; decreto inicia en pág. ${pIni}`);
   say(`artículos hallados=${nums.length} → ${nums.join(',')} ; esperado 11 (15..25): ${coincide ? 'COINCIDE' : 'DIFIERE — no se fuerza'}`);
-  const filas = coincide ? arts.map((a) => mkFila(base.id_prefix, a.n, 'PRIMARY', a.t, [], { vigencia_metadata: 'TRUE_PRESUNTA (solo metadata)', gaceta: 'La Gaceta 33,445 (5-jun-2014)' })) : [];
+  const filas = coincide ? arts.map((a) => mkFila(base.id_prefix, a.n, 'PRIMARY', a.t, [], { vigencia_metadata: 'NULL (sin vigencia acreditada; antes TRUE_PRESUNTA)', gaceta: 'La Gaceta 33,445 (5-jun-2014)' })) : [];
   filas.forEach((f) => say(`art. ${f.num_articulo}: ${f.contenido.length} chars, sha256=${f.hash_sha256}`));
   return { ...base, estado: coincide ? 'CLO_CLEARED_FOR_STAGING_PREP' : 'BLOCKED_CONTEO_DIFIERE', pages: paginas, textSha: sha256(texto),
     counts: { candidatos: nums.length, aceptados: nums.length, rechazados: 0, finales: filas.length, excluidos: [], curacion: { recorte: 'desde «DECRETO No.284-2013»; Título II = «TÍTULO II» → «TÍTULO III» (extracción por columna, pdftotext -x/-W)' } }, filas,
-    notas: ['Extracción por columna (la Gaceta imprime a dos columnas).'], extraManifest: { autonomo: true, no_vincular_como_restauracion_de: 'Código del Notariado arts. 60–71', vigencia: 'TRUE_PRESUNTA solo como metadata', materia_nota: 'materia 10_LEYES_REGLAMENTOS provisional (no 03_NOTARIAL) hasta decisión CLO' } };
+    notas: ['Extracción por columna (la Gaceta imprime a dos columnas).'], extraManifest: { autonomo: true, no_vincular_como_restauracion_de: 'Código del Notariado arts. 60–71', vigencia: 'NULL: sin vigencia acreditada (el valor TRUE_PRESUNTA ya no se usa; CLO 28-oct-2026)', materia_nota: 'materia 10_LEYES_REGLAMENTOS provisional (no 03_NOTARIAL) hasta decisión CLO' } };
 }
 
 // ── D: Ley de Garantías Mobiliarias (escaneo; solo manifiesto) ───────────────
@@ -256,11 +363,12 @@ function sqlDe(r: Resultado, sourceShas: string): string {
     '--   * jurisdiccion, fuente_tipo y es_norma_vigente no tienen DDL en supabase/vectores.sql ni en supabase/migrations.',
     '--   * embedding es NOT NULL y no hay embeddings generados localmente (se escribe NULL como marcador).',
     '-- TODO el INSERT está COMENTADO (cada línea con «-- »). No descomentar sin CLO + verificación de esquema en staging.',
-    '-- es_norma_vigente = false en todas las filas. Sin DDL ni borrados: solo INSERT aditivo e idempotente.', '',
+    '-- es_norma_vigente (significado CLO): TRUE elegible · FALSE excluido · NULL solo CONTEXT. Ninguna fila P21 tiene vigencia acreditada: NULL, salvo las excluidas por decisión expresa (FALSE).',
+    '-- Sin DDL ni borrados: solo INSERT aditivo e idempotente.', '',
     '-- BEGIN;', `-- INSERT INTO public.biblioteca_vectores (${COLS})`, '-- VALUES'];
   const filas = r.filas.map((f, i) => {
-    const meta = { norm_id: r.id_prefix, instrumento: r.instrumento, rol: f.role, hash_texto_sha256: f.hash_sha256, vigencia_state: 'NO_VERIFICADO', verificado: false, warnings: f.warnings, ...f.extra };
-    const v = `(${lit(f.id)}, 'mayalex_normativos', ${lit(r.materia)}, ${lit(f.contenido)}, ${lit(f.num_articulo)}, ${lit(r.fuente)}, ${lit(JSON.stringify(meta))}::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', ${lit(r.fuente_tipo)}, false)${i === r.filas.length - 1 ? '' : ','}`;
+    const meta = { norm_id: r.id_prefix, instrumento: r.instrumento, rol: f.role, hash_texto_sha256: f.hash_sha256, vigencia_state: f.esVigente === false ? 'EXCLUIDA_CLO' : 'NO_VERIFICADO', verificado: false, warnings: f.warnings, ...f.extra };
+    const v = `(${lit(f.id)}, 'mayalex_normativos', ${lit(r.materia)}, ${lit(f.contenido)}, ${lit(f.num_articulo)}, ${lit(r.fuente)}, ${lit(JSON.stringify(meta))}::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', ${lit(r.fuente_tipo)}, ${f.esVigente === false ? 'false' : 'NULL'})${i === r.filas.length - 1 ? '' : ','}`;
     return v.split('\n').map((l) => `--   ${l}`).join('\n');
   });
   const pie = ['-- ON CONFLICT (id) DO NOTHING;', '-- COMMIT;', '', '-- Verificación posterior (comentada):',
@@ -280,8 +388,9 @@ for (const r of resultados) {
     source_url: main.source_url, sha256_esperado: main.sha256_esperado, sha256_obtenido: main.sha256_obtenido, bytes: main.bytes, pages: r.pages,
     fuentes, retrieved_at: retrievedAt, retrieved_via: 'archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno', text_sha256: r.textSha, parser: PARSER,
     counts: r.counts, articulos: r.filas.map((f) => f.num_articulo),
-    filas: r.filas.map((f) => ({ id: f.id, num_articulo: f.num_articulo, role: f.role, hash_sha256: f.hash_sha256, chars: f.contenido.length, vigencia: (f.extra.es_norma_vigente_clo as string | undefined) ?? 'NO_VERIFICADO', warnings: f.warnings })),
-    es_norma_vigente: false, pdf_versionado_en_repo: false, notas: r.notas, ...r.extraManifest,
+    filas: r.filas.map((f) => ({ id: f.id, num_articulo: f.num_articulo, role: f.role, hash_sha256: f.hash_sha256, chars: f.contenido.length, es_norma_vigente: f.esVigente, vigencia: (f.extra.es_norma_vigente_clo as string | undefined) ?? (f.esVigente === false ? 'FALSE' : 'NULL'), ...(f.extra.reformadores ? { reformadores: f.extra.reformadores } : {}), ...(f.extra.desplazado_por ? { desplazado_por: f.extra.desplazado_por } : {}), ...(f.extra.nota ? { nota: f.extra.nota } : {}), ...(f.extra.excluido_como_fundamento ? { excluido_como_fundamento: true } : {}), warnings: f.warnings })),
+    es_norma_vigente: { significado_clo: 'TRUE elegible · FALSE excluido · NULL solo CONTEXT', TRUE: r.filas.filter((f) => f.esVigente === true).length, FALSE: r.filas.filter((f) => f.esVigente === false).length, NULL: r.filas.filter((f) => f.esVigente === null).length },
+    pdf_versionado_en_repo: false, notas: r.notas, ...r.extraManifest,
   };
   writeFileSync(join(d, 'MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n');
   if (r.conSql && r.filas.length) {

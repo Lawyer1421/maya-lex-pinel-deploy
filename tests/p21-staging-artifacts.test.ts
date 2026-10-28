@@ -46,7 +46,7 @@ describe('P21 load.staging.sql (A, B, C)', () => {
 });
 
 describe('P21 MANIFEST.json (común)', () => {
-  it('SHA-256 obtenido = esperado, bytes reales, es_norma_vigente=false, PDF no versionados', () => {
+  it('SHA-256 obtenido = esperado, bytes reales, es_norma_vigente sin TRUE (CLO), PDF no versionados', () => {
     for (const d of [...DIRS, 'ley-garantias-mobiliarias']) {
       const m = manifest(d);
       expect(m.source_url).toMatch(/^https:\/\//);
@@ -60,7 +60,9 @@ describe('P21 MANIFEST.json (común)', () => {
         expect(f.bytes).toBeGreaterThan(0);
       }
       expect(m.retrieved_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-      expect(m.es_norma_vigente).toBe(false);
+      // Significado CLO: TRUE elegible · FALSE excluido · NULL solo CONTEXT. Ninguna fila P21 tiene vigencia acreditada → ningún TRUE.
+      expect(m.es_norma_vigente.TRUE).toBe(0);
+      expect(m.es_norma_vigente.significado_clo).toBe('TRUE elegible · FALSE excluido · NULL solo CONTEXT');
       expect(m.pdf_versionado_en_repo).toBe(false);
     }
     const versionados = execFileSync('git', ['ls-files'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).split('\n');
@@ -133,16 +135,17 @@ describe('P21 reglas CLO por instrumento', () => {
     expect(m.counts.duplicados_no_resueltos).toEqual([]);
     expect(m.source_url).toContain('bch.hn');
   });
-  it('Comercio: prenda (1278, 1289–1307, 1313) en CONTEXT con desplazado_por=D.182-2009; el resto PRIMARY', () => {
+  it('Comercio: prenda (1289–1307 y 1313; el 1278 NO es prenda) en CONTEXT con desplazado_por=D.182-2009', () => {
     const m = manifest('codigo-comercio');
-    const prenda = new Set(['1278', ...Array.from({ length: 19 }, (_, i) => String(1289 + i)), '1313']);
-    for (const f of m.filas as Array<{ num_articulo: string; role: string; warnings: string[] }>) {
+    const prenda = new Set([...Array.from({ length: 19 }, (_, i) => String(1289 + i)), '1313']);
+    expect(m.prenda_desplazada_d182_2009.articulos).toEqual([...prenda].sort((a, b) => Number(a) - Number(b)));
+    for (const f of m.filas as Array<{ num_articulo: string; role: string; warnings: string[]; desplazado_por?: string }>) {
       if (prenda.has(f.num_articulo)) {
         expect(f.role).toBe('CONTEXT');
+        expect(f.desplazado_por).toBe('D.182-2009');
         expect(f.warnings.join(' ')).toContain('D.182-2009');
-      } else expect(f.role).toBe('PRIMARY');
+      } else expect(f.desplazado_por).toBeUndefined();
     }
-    expect(m.filas.filter((f: { role: string }) => f.role === 'CONTEXT').length).toBe(prenda.size);
   });
   it('Comercio: glifo «Articulo º/° N» normalizado (sin encabezados con glifo en las filas)', () => {
     const m = manifest('codigo-comercio');
@@ -155,7 +158,10 @@ describe('P21 reglas CLO por instrumento', () => {
     expect(m.autonomo).toBe(true);
     expect(m.no_vincular_como_restauracion_de).toMatch(/60–71/);
     const sql = leer('decreto-284-2013-titulo-ii', 'load.staging.sql');
-    expect(sql).toContain('TRUE_PRESUNTA (solo metadata)');
+    expect(sql).not.toContain('"vigencia_state":"TRUE_PRESUNTA"');
+    expect(sql).toContain('NULL (sin vigencia acreditada; antes TRUE_PRESUNTA)');
+    expect(JSON.stringify(m)).not.toMatch(/TRUE_PRESUNTA solo como metadata/);
+    for (const f of m.filas) expect(f.es_norma_vigente).toBeNull();
     expect(sql).not.toContain('TÍTULO III');
   });
   it('Garantías Mobiliarias: escaneo sin texto → solo manifiesto NEEDS_TEXT_LAYER, sin filas', () => {
@@ -188,23 +194,25 @@ describe('P21 Comercio — dictamen CLO 27-oct-2026 (418/1662 y GAP_IN_SOURCE)',
     expect(md).toContain('GAP_IN_SOURCE (ausentes en BCH y DGMM; no se inventan ni se rellenan)');
     expect(md).toContain('417, 1000, 1236, 1237, 1238, 1239, 1240, 1241, 1242, 1243, 1244, 1245, 1661');
   });
-  it('418 y 1662: los CUATRO textos excluidos, con nota de numeración defectuosa', () => {
-    expect(m.excluidos_detalle).toHaveLength(4);
+  it('418 y 1662: los CUATRO textos excluidos (una entrada por número, con sus dos ocurrencias), con nota de numeración defectuosa', () => {
+    expect(m.excluidos_detalle).toHaveLength(2);
     expect(m.counts.excluidos_textos).toBe(4);
-    expect(m.excluidos_detalle.map((e: { num_articulo: string }) => e.num_articulo)).toEqual(['418', '418', '1662', '1662']);
+    expect(m.excluidos_detalle.map((e: { num_articulo: string }) => e.num_articulo)).toEqual(['418', '1662']);
     const hashesFilas = new Set(m.filas.map((f: { hash_sha256: string }) => f.hash_sha256));
+    let ocurrencias = 0;
     for (const e of m.excluidos_detalle) {
       expect(e.estado).toMatch(/^EXCLUIDO/);
-      expect(hashesFilas.has(e.sha256)).toBe(false);
+      expect(e.ocurrencias).toHaveLength(2);
+      for (const o of e.ocurrencias) { ocurrencias += 1; expect(o.sha256).toMatch(/^[0-9a-f]{64}$/); expect(hashesFilas.has(o.sha256)).toBe(false); }
     }
+    expect(ocurrencias).toBe(4);
     expect(m.nota_numeracion).toBe('numeración defectuosa en la fuente; la posición sugiere 417 y 1661, no verificado contra Gaceta');
     expect(m.notas).toContain(m.nota_numeracion);
     expect(m.dictamen_clo).toContain('es la fuente, no el parser');
   });
-  it('1698 finales (1677 PRIMARY, 21 CONTEXT de prenda) y dedup 1511/1541 documentados con su texto', () => {
-    expect(m.filas).toHaveLength(1698);
-    expect(m.filas.filter((f: { role: string }) => f.role === 'PRIMARY')).toHaveLength(1677);
-    expect(m.filas.filter((f: { role: string }) => f.role === 'CONTEXT')).toHaveLength(21);
+  it('1699 finales (incluye el 1714); dedup 1511/1541 documentados con su texto', () => {
+    expect(m.filas).toHaveLength(1699);
+    expect(m.counts.finales).toBe(1699);
     expect(m.counts.deduplicados).toEqual(['1511', '1541']);
     expect(m.deduplicados_detalle.map((d: { num_articulo: string }) => d.num_articulo)).toEqual(['1511', '1541']);
     const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
@@ -212,19 +220,6 @@ describe('P21 Comercio — dictamen CLO 27-oct-2026 (418/1662 y GAP_IN_SOURCE)',
     expect(md).toContain('La apelación contra el reconocimiento de crédito ajeno');
     expect(md).toContain('Se considerara que se ha realizado todo el activo');
     expect(md).toContain('Se considerará que se ha realizado todo el activo');
-  });
-});
-
-describe('P21 Notariado — art. 72-A literal para adjudicación de CLO', () => {
-  it('DRY_RUN_COUNTS.md pega el texto del 72-A y la fila es CONTEXT adjudicado por CLO (sin PENDING_CLO)', () => {
-    const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
-    expect(md).toContain('## Código del Notariado — art. 72-A, texto literal según el COTEJO (adjudicado por CLO como CONTEXT)');
-    expect(md).toContain('ARTÍCULO 72-A.- Los órganos de la UNIÓN DE NOTARIOS DE HONDURAS (UNH), se deben elegir democráticamente');
-    expect(md).toContain('D. DE LOS CAPÍTULOS:');
-    const f = manifest('codigo-notariado-d59-2015').filas.find((x: { num_articulo: string }) => x.num_articulo === '72-A');
-    expect(f.role).toBe('CONTEXT');
-    expect(f.warnings.join(' ')).not.toContain('PENDING_CLO');
-    expect(f.vigencia).toBe('UNKNOWN');
   });
 });
 
@@ -263,7 +258,7 @@ describe('P21 Notariado 72-A — adjudicado CONTEXT, completo y con vigencia UNK
     expect(tupla).toContain('"elegible_primary":false');
     expect(tupla).toContain('"es_norma_vigente_clo":"UNKNOWN"');
     expect(tupla).toContain('vigencia posterior al D.59-2015 no cotejada');
-    expect(tupla.trimEnd().endsWith(', false),') || tupla.includes(", 'HN', 'codigo', false)")).toBe(true);
+    expect(tupla).toContain(", 'HN', 'codigo', NULL)");
   });
   it('el 72 y el 73 completos y también CONTEXT', () => {
     expect(contenidoSql('72', '72-a').startsWith('ARTÍCULO 72.-')).toBe(true);
@@ -276,6 +271,106 @@ describe('P21 estados de los manifiestos tras el dictamen CLO', () => {
   it('Comercio, Notariado y D.284 = CLO_CLEARED_FOR_STAGING_PREP; Garantías = NEEDS_TEXT_LAYER', () => {
     for (const d of DIRS) expect(manifest(d).estado).toBe('CLO_CLEARED_FOR_STAGING_PREP');
     expect(manifest('ley-garantias-mobiliarias').estado).toBe('NEEDS_TEXT_LAYER');
+  });
+});
+
+describe('P21 anexo 1 del CLO (28-oct-2026): vigencia, reformas, 1714 y 1278', () => {
+  const m = manifest('codigo-comercio');
+  const sql = leer('codigo-comercio', 'load.staging.sql');
+  const fila = (n: string) => m.filas.find((f: { num_articulo: string }) => f.num_articulo === n);
+  const NOTA_D284_13 = 'texto anterior a la reforma del D.284-2013; no es el texto vigente';
+  const NOTA_D255 = 'posible reforma/derogación por D.255-2002 (Gaceta 29,856), no cotejada con imagen';
+
+  it('1) arts. 380–383: es_norma_vigente=FALSE, excluidos como fundamento (derogados por D.284-2013 art. 37)', () => {
+    for (const n of ['380', '381', '382', '383']) {
+      const f = fila(n);
+      expect(f.es_norma_vigente, n).toBe(false);
+      expect(f.excluido_como_fundamento).toBe(true);
+      expect(f.role).toBe('CONTEXT');
+      expect(f.reformadores[0]).toMatchObject({ instrumento: 'D.284-2013 (Gaceta 33,445)', articulo_reformador: '37', efecto: 'DEROGA' });
+      const tupla = sql.slice(sql.indexOf(`--   ('${m.id_prefix}_a${n}',`), sql.indexOf(`--   ('${m.id_prefix}_a${Number(n) + 1}',`));
+      expect(tupla).toContain(", 'HN', 'codigo', false)");
+    }
+    expect(m.es_norma_vigente.FALSE).toBe(4);
+  });
+  it('2) los 12 artículos reformados por D.284-2013 art. 13: CONTEXT, NULL, con la nota; nunca PRIMARY', () => {
+    for (const n of ['14', '15', '18', '157', '169', '189', '193', '210', '222', '224', '226', '228']) {
+      const f = fila(n);
+      expect(f.role, n).toBe('CONTEXT');
+      expect(f.es_norma_vigente).toBeNull();
+      expect(f.nota).toContain(NOTA_D284_13);
+    }
+  });
+  it('3) los 19 del D.255-2002 art. 8 y el art. 21 (art. 37): CONTEXT, NULL, sin FALSE; la nota exacta', () => {
+    const D255 = ['15', '22', '24', '36', '89', '92', '308', '309', '310', '388', '398', '403', '431', '432', '433', '435', '441', '446', '448'];
+    expect(m.reformas.d255_2002_art8_reforma.articulos).toEqual(D255);
+    for (const n of [...D255, '21']) {
+      const f = fila(n);
+      expect(f.role, n).toBe('CONTEXT');
+      expect(f.es_norma_vigente, n).toBeNull();
+      expect(f.nota).toContain(NOTA_D255);
+    }
+    expect(m.reformas.d255_2002_art37_deroga_art21.articulos).toEqual(['21']);
+    // 338 y 388: se reporta cuál aparece en la fuente, sin decidir
+    expect(m.discrepancia_338_388.observado_en_las_copias_leidas_del_D255_art8).toBe('388');
+    expect(m.discrepancia_338_388.aparece_338).toBe(false);
+    expect(m.discrepancia_338_388.decision).toMatch(/ninguna/);
+    expect(fila('338').role).toBe('PRIMARY');
+    expect(fila('338').reformadores).toBeUndefined();
+  });
+  it('3b) 35 pares (artículo, reformador) = 4 + 12 + 19; el 15 tiene dos reformadores en UNA sola fila', () => {
+    expect(m.reformas.pares_articulo_reformador).toBe(35);
+    expect(m.reformas.articulos_con_dos_reformadores).toEqual(['15']);
+    expect(m.filas.filter((f: { num_articulo: string }) => f.num_articulo === '15')).toHaveLength(1);
+    expect(fila('15').reformadores).toHaveLength(2);
+    const md = readFileSync(join(BASE, 'DRY_RUN_COUNTS.md'), 'utf8');
+    expect(md).toContain('las 35 filas (artículo, instrumento reformador, valor anterior, valor nuevo, rol)');
+    expect(md.split('\n').filter((l) => /^\| \d+ \| \d+ \| D\.(255|284)-/.test(l))).toHaveLength(35);
+  });
+  it('4) ningún TRUE_PRESUNTA queda en los manifiestos ni en los SQL', () => {
+    for (const d of [...DIRS, 'ley-garantias-mobiliarias']) {
+      expect(leer(d, 'MANIFEST.json')).not.toMatch(/"TRUE_PRESUNTA"|TRUE_PRESUNTA solo/);
+      if (d !== 'ley-garantias-mobiliarias') expect(leer(d, 'load.staging.sql')).not.toContain('"vigencia_state":"TRUE_PRESUNTA"');
+    }
+  });
+  it('5) art. 1714 incluido (NULL, sin vigencia acreditada), conteo final 1699, sin otros rescates', () => {
+    const f = fila('1714');
+    expect(f).toBeDefined();
+    expect(f.es_norma_vigente).toBeNull();
+    expect(m.counts.rescatados_por_parser).toEqual(['1714']);
+    expect(m.filas).toHaveLength(1699);
+    expect(m.art_1714.rescatado_por_parser).toBe(true);
+    expect(sql).toContain(`'${m.id_prefix}_a1714'`);
+    // los GAP_IN_SOURCE siguen sin filas
+    for (const n of m.counts.gap_in_source) expect(fila(String(n))).toBeUndefined();
+  });
+  it('6) art. 1278: contrato de edición, fuera de la lista de prenda desplazada', () => {
+    expect(m.prenda_desplazada_d182_2009.articulos).not.toContain('1278');
+    expect(m.prenda_desplazada_d182_2009.articulos).toHaveLength(20);
+    expect(m.prenda_desplazada_d182_2009.excluido_de_la_lista['1278'].motivo).toMatch(/edición/);
+    expect(m.prenda_desplazada_d182_2009.excluido_de_la_lista['1278'].primeras_lineas).toContain('Articulo 1278');
+    expect(m.prenda_desplazada_d182_2009.excluido_de_la_lista['1278'].primeras_lineas).toContain('El autor conservará el derecho de hacer a su obra las correcciones');
+    expect(fila('1278').desplazado_por).toBeUndefined();
+    expect(fila('1278').role).toBe('PRIMARY');
+  });
+  it('7) sin filas duplicadas en la cobertura: una entrada por número excluido y una fila por artículo', () => {
+    const nums = m.filas.map((f: { num_articulo: string }) => f.num_articulo);
+    expect(new Set(nums).size).toBe(nums.length);
+    expect(new Set(m.excluidos_detalle.map((e: { num_articulo: string }) => e.num_articulo)).size).toBe(m.excluidos_detalle.length);
+    expect(new Set(m.gap_in_source.map((g: { num_articulo: string }) => g.num_articulo)).size).toBe(m.gap_in_source.length);
+  });
+  it('8) significado CLO de es_norma_vigente documentado frente a la «marca operativa» del registro canónico', () => {
+    const doc = leer('.', 'ES_NORMA_VIGENTE_SEMANTICA.md');
+    expect(doc).toContain('TRUE elegible');
+    expect(doc).toContain('Marca operativa');
+    expect(doc).toContain('MAYALEX_CANONICAL_ADJUDICATION_REGISTER_V1');
+    expect(doc).toContain('Dónde chocaba');
+  });
+  it('0 líneas SQL activas: toda línea de los tres load.staging.sql es comentario o está en blanco', () => {
+    for (const d of DIRS) {
+      const vivas = leer(d, 'load.staging.sql').split('\n').filter((l) => l.trim() !== '' && !l.startsWith('--'));
+      expect(vivas, d).toEqual([]);
+    }
   });
 });
 
