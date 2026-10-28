@@ -26,6 +26,22 @@
 | **`fuente_tipo`** | — | **sin DDL en el repo** |
 | **`es_norma_vigente`** | — | **sin DDL en el repo** |
 
+### 1.1 Lo que `supabase/vectores.sql` ya define: índices, RLS y políticas
+
+`supabase/vectores.sql` no define solo las columnas base; también define, **de forma idempotente**, estos objetos. No hace falta proponerlos de nuevo:
+
+| Objeto | Definición en `supabase/vectores.sql` |
+| --- | --- |
+| Índice `idx_biblio_coleccion` | `create index if not exists … on biblioteca_vectores(coleccion)` |
+| Índice `idx_biblio_materia` | `create index if not exists … on biblioteca_vectores(materia)` |
+| Índice HNSW sobre `embedding` | **no** está en el archivo: «lo crea el seeder al final» (`scripts/seed_vectores.py`); confirmar con `pg_indexes` en cada proyecto |
+| RLS | `alter table biblioteca_vectores enable row level security` (sin `FORCE`) |
+| Política `service_only_biblioteca` | `using ((select auth.role()) = 'service_role') with check ((select auth.role()) = 'service_role')`: solo `service_role` lee y escribe |
+| Privilegios | `grant select, insert, update, delete on biblioteca_vectores to service_role` (el comentario del archivo explica que `BYPASSRLS` no sustituye al `GRANT` de tabla) |
+| RPC base `buscar_biblioteca` | `security invoker`, `stable`, devuelve 4 columnas (`contenido`, `num_articulo`, `fuente`, `similarity`); `grant execute … to service_role` |
+
+Consecuencias para este documento: (a) la propuesta de las tres columnas **no** toca índices, RLS ni políticas; (b) no hay política para otro rol, de modo que la propuesta de un rol de recuperación limitado (ver `docs/retrieval/CLO_ANEXOS_2_3_INVENTARIO_Y_PROPUESTAS.md` en #106) tendría que **agregar** una política `FOR SELECT`, no reemplazar esta; (c) la función de búsqueda que usa el código (con `id`, `fuente_tipo`, `jurisdiccion` y `es_norma_vigente`) es otra distinta de la de 4 columnas de este archivo: la de `supabase/migrations/20260925055249_revision_pendiente_instrumentos.sql` devuelve 8 columnas y filtra `revision_pendiente`.
+
 ## 2. Qué asume el código de las tres columnas faltantes
 
 | Columna | Tipo que usa el código | ¿Nulable? | Evidencia (`archivo:línea`) |

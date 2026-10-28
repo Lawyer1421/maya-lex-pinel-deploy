@@ -33,4 +33,12 @@ describe('docs/schema — esquema de biblioteca_vectores (PROPUESTA_NO_APLICADA)
     expect(sinComentarios).not.toMatch(/\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|GRANT|COMMENT)\b/i);
     expect(existsSync(join(root, 'docs/schema/biblioteca-vectores-columns-readonly.sql'))).toBe(true);
   });
+  it('documenta que supabase/vectores.sql ya define índices, RLS y políticas (y es verdad en el archivo)', () => {
+    const v = readFileSync(join(root, 'supabase/vectores.sql'), 'utf8');
+    for (const objeto of ['idx_biblio_coleccion', 'idx_biblio_materia', 'service_only_biblioteca', 'enable row level security', 'grant select, insert, update, delete on biblioteca_vectores to service_role']) {
+      expect(v.toLowerCase(), objeto).toContain(objeto.toLowerCase());
+      expect(md.toLowerCase(), objeto).toContain(objeto.toLowerCase().replace('enable row level security', 'enable row level security'));
+    }
+    expect(md).toContain('Lo que `supabase/vectores.sql` ya define');
+  });
 });
