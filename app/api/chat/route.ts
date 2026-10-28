@@ -93,6 +93,7 @@ import {
 } from '@/lib/websearch/tavily';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
+import { clasificarFuenteExterna } from '@/lib/legal-retrieval/clo-guards';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -347,6 +348,8 @@ export async function POST(req: NextRequest) {
     // corte por similitud pgvector. Se resuelve una vez por request y solo
     // cuando el RAG realmente corre (RUTA != D).
     const rerankHabilitado = await isFlagEnabledForUser('flag_rerank', verifiedEmail);
+    // flag_corpus_p21 (CLO 28-oct-2026): gate del corpus P21. Fila ausente o error de lectura = apagado; con el flag apagado esas filas no se recuperan.
+    const corpusP21Habilitado = await isFlagEnabledForUser('flag_corpus_p21', verifiedEmail);
 
     // Colección principal + pasada procedimental de RUTA_C civil (sólo añade
     // fragmentos elegibles y verificables; ver evidenciaProcedimentalPermitida).
@@ -358,6 +361,7 @@ export async function POST(req: NextRequest) {
       materiaFiltro,
       pasadaProcedimental: ruta === 'C' && !esPenal,
       rerank: rerankHabilitado,
+      corpusP21: corpusP21Habilitado,
     });
   })();
 
@@ -379,6 +383,9 @@ export async function POST(req: NextRequest) {
           ` | mode=${mode} | ruta=${ruta}`
         );
         // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
+        // CLO 28-oct-2026 (Anexo 2.6): el contexto web pasa por el clasificador y NUNCA es PRIMARY: no entra a las citas ni cuenta como evidencia.
+        const claseWeb = clasificarFuenteExterna('WEB');
+        console.info(`[RAG][CLO] externo=WEB rol=${claseWeb.rol} motivos=${claseWeb.bloqueos.join(',')}`);
         return '\n\n' + formatearContextoWeb(resultadosWeb);
       }
       // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
@@ -498,6 +505,9 @@ export async function POST(req: NextRequest) {
       const resultadosPlantilla = await buscarPlantilla(ultimaPregunta as string, { limite: 2 });
       const contextoPlantilla = formatearContextoPlantilla(resultadosPlantilla);
       if (contextoPlantilla) {
+        // CLO 28-oct-2026 (Anexo 2.6): las plantillas notariales (modo documento) pasan por el clasificador y NUNCA son PRIMARY.
+        const clasePlantilla = clasificarFuenteExterna('PLANTILLA_NOTARIAL');
+        console.info(`[RAG][CLO] externo=PLANTILLA_NOTARIAL rol=${clasePlantilla.rol} motivos=${clasePlantilla.bloqueos.join(',')}`);
         dinamicoSystem += (dinamicoSystem ? '\n\n' : '') + contextoPlantilla;
         console.log(
           `[Plantillas] Inyectada(s) ${resultadosPlantilla.filter(r => r.similarity >= 0.75).length} plantilla(s)` +

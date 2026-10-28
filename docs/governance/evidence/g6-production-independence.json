@@ -167,7 +167,7 @@
     }
   ],
   "codigoHashes": {
-    "app/api/chat/route.ts": "f46e884c63b14ca9e85f258f1e39a7e877cb1c8a57420a11d7252690ff0738b0",
+    "app/api/chat/route.ts": "72c01898d09d22868bab060c987b3699cf130351791e6f31830bb4bc819929a0",
     "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
     "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
     "lib/ai-gateway/shadow/dispatcher.ts": "e96aa33bee03b4f0d3934261b1e3fd7d3c152e9ef4f4e24e323f98ec1383ce69",

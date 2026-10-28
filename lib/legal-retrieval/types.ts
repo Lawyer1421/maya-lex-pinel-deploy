@@ -40,6 +40,8 @@ export interface FragmentoRAG {
   /** Identidad documental declarada por la metadata de la fila (ruta exacta): se evalúa con los mismos patrones anclados que `fuente`. */
   documento_origen?: string;
   norm_id?: string;
+  /** Campos de metadata de la fila que el clasificador CLO lee en todas las rutas (rol declarado, norma desplazada). Solo pueden DEGRADAR a CONTEXT. */
+  metadata_clo?: { rol?: unknown; desplazado_por?: unknown; elegible_primary?: unknown; norm_id?: unknown; p21?: unknown } | null;
   rol_evidencia?: 'PRIMARY' | 'CONTEXT';
   bloqueos_clo?: string[];
   avisos_clo?: string[];
