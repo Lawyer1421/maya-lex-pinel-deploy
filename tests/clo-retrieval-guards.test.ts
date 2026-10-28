@@ -125,7 +125,7 @@ describe('(c) Código del Notariado D.353-2005: arts. 17 (HUECO), 11 y 27 (TEXTO
     expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: ' 017 ' })).bloqueos).toContain('NOTARIADO_HUECO');
   });
   it('otros artículos del Código del Notariado siguen siendo PRIMARY; 17/11/27 de otros instrumentos no se tocan', () => {
-    expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: '18' })).rol).toBe('PRIMARY');
+    expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: '18', materia: '03_NOTARIAL' })).rol).toBe('PRIMARY');
     for (const n of ['17', '11', '27']) expect(clasificarFragmentoClo(frag({ fuente: CODIGO_PENAL, num_articulo: n })).rol).toBe('PRIMARY');
   });
   it('el Exact Resolver devuelve el art. 17/11/27 como CONTEXT, nunca PRIMARY, y no es evidencia suficiente', () => {
@@ -467,7 +467,7 @@ describe('M-4 (dictamen CLO 24-oct-2026): Código del Notariado arts. 72, 73, 84
     expect(c.bloqueos).toContain('NOTARIADO_SOLO_CONTEXT_CLO');
   });
   it('otros artículos (incluido 71 y 74) siguen siendo PRIMARY', () => {
-    for (const n of ['71', '74', '18']) expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: n })).rol).toBe('PRIMARY');
+    for (const n of ['71', '74', '18']) expect(clasificarFragmentoClo(frag({ fuente: CODIGO_NOTARIADO, num_articulo: n, materia: '03_NOTARIAL' })).rol).toBe('PRIMARY');
   });
 });
 
@@ -513,7 +513,7 @@ const ONCE: Array<{ id: string; fuente: string; consulta: string; materia: strin
 const PAISES_HN: Array<string | null> = ['HN', null, '', 'Honduras', 'HND', 'hn', ' HN ', 'honduras'];
 const PAISES_EXTRANJEROS = ['ES', 'SV', 'PE', 'España', 'MX'];
 
-describe('H-1: política de país derivada del instrument_id validado (decisión CLO 24-oct-2026), por buscarRAG', () => {
+describe('H-1: política de país por jurisdicción normalizada (CLO 28-oct-2026: nula ≠ HN), por buscarRAG', () => {
   let filas: FilaExactaDB[] = [];
   let buscarRAG: typeof import('@/lib/rag/search').buscarRAG;
   const ORIGINAL_ENV = { ...process.env };
@@ -543,7 +543,12 @@ describe('H-1: política de país derivada del instrument_id validado (decisión
         filas = [conPais(i, j)];
         const r = await buscarRAG(i.consulta, 5, 'mayalex_normativos');
         expect(r.fragmentos[0]?.instrument_id, `${i.id}/${String(j)}`).toBe(i.id);
-        if (bloqueadoPorOtraRegla) {
+        if (normalizarPais(j) === null) {
+          // CLO 28-oct-2026 (Anexo 2.1): jurisdicción nula o vacía NO es HN → nunca PRIMARY.
+          expect(r.outcome?.state, `${i.id}/${String(j)}`).toBe('NO_VERIFIED_EVIDENCE');
+          expect(r.outcome?.evidenceCount).toBe(0);
+          expect(r.outcome?.cloBlocks).toContain('JURISDICCION_NO_ACREDITADA');
+        } else if (bloqueadoPorOtraRegla) {
           expect(r.outcome?.state, String(j)).toBe('NO_VERIFIED_EVIDENCE');
           expect(r.outcome?.cloBlocks).toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
           expect(r.outcome?.cloBlocks).not.toContain('JURISDICCION_NO_HONDURENA');

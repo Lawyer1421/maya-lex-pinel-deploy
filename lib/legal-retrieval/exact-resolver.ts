@@ -54,7 +54,8 @@ export interface DeteccionArticulo {
   instrumento: InstrumentoNormalizado | null;
 }
 
-const RE_ARTICULO_NUM = /\bart(?:[ií]culo|\.)?\s*(\d+)\b/i;
+// CLO 28-oct-2026 (Anexo 2.3): «72-A», «72A» y «73-A» son artículos propios, no el 72 ni el 73. El sufijo de letra va pegado al número (con o sin guion).
+const RE_ARTICULO_NUM = /\bart(?:[ií]culo|\.)?\s*(\d+)(?:-?([A-Za-z])(?![A-Za-z0-9]))?(?![A-Za-z0-9])/i;
 const RE_MATERIA_PENAL = /\b(penal|cpp|c[oó]digo\s+procesal\s+penal)\b/i;
 const RE_MATERIA_CIVIL = /\b(civil|cpc|c[oó]digo\s+procesal\s+civil)\b/i;
 
@@ -258,7 +259,7 @@ export function detectarArticuloExacto(query: string): DeteccionArticulo | null 
   const m = RE_ARTICULO_NUM.exec(query);
   if (!m) return null;
   return {
-    numero: m[1],
+    numero: m[2] ? `${m[1]}-${m[2].toUpperCase()}` : m[1],
     materiaDetectada: detectarMateriaDesdeTexto(query),
     instrumento: detectarInstrumentoDesdeTexto(query),
   };
@@ -470,6 +471,8 @@ export function resolverArticuloExacto(
     // La metadata de la fila participa en la identidad documental (mismos patrones anclados que `fuente`), sin viajar entera.
     ...(typeof row.metadata?.documento_origen === 'string' ? { documento_origen: row.metadata.documento_origen } : {}),
     ...(typeof row.metadata?.norm_id === 'string' ? { norm_id: row.metadata.norm_id } : {}),
+    // Rol declarado y norma desplazada de la metadata de la fila: el clasificador CLO los lee y solo pueden degradar a CONTEXT.
+    metadata_clo: { rol: row.metadata?.rol, desplazado_por: row.metadata?.desplazado_por, elegible_primary: row.metadata?.elegible_primary, norm_id: row.metadata?.norm_id, p21: row.metadata?.p21 },
     hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
   })));
 

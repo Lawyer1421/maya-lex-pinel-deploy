@@ -136,7 +136,8 @@ describe('lenguaje genérico "ley" (NONE) y referencias específicas (Supabase)'
     const resultado = await buscarRAG('Conforme a la ley hondureña aplicable, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    // CLO 28-oct-2026 (Anexo 2.5): la RPC semántica no devuelve materia; un instrumento notarial sin materia verificada es solo CONTEXT.
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
   });
 
   it('"ley notarial hondureña": referencia específica, fail-close', async () => {

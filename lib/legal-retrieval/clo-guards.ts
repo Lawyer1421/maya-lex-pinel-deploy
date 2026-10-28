@@ -14,8 +14,10 @@
  *    (Reglamento PCSJ-17-2012) o sin cotejo (D.77-2006); (e) protocolo y práctica 03_NOTARIAL y capa documental.
  * Los campos `materia`, `instrumento_solicitado` y `coleccion_origen` que sella la ruta solo pueden AGREGAR bloqueos, nunca quitarlos: las señales de
  * materia/colección se UNEN (fila, consulta y metadatos); si CUALQUIERA es 03_NOTARIAL o capa documental, bloquea, y una carga externa no puede quitarlo.
- * Política de país (decisión CLO 24-oct-2026): el país se deriva del instrument_id VALIDADO contra INSTRUMENT_IDS (todos son instrumentos hondureños),
- * no de la columna `jurisdiccion`. Instrumento validado + país vacío → puede ser PRIMARY; país explícito distinto de HN → conflicto → CONTEXT con aviso.
+ * Política de país (CLO 28-oct-2026, Anexo 2 — reemplaza la del 24-oct): la jurisdicción se NORMALIZA ('hn', 'HN', 'Honduras' = HN) y debe ser HN para ser
+ * PRIMARY. Jurisdicción nula o vacía NO es HN: nunca PRIMARY. País explícito distinto de HN → conflicto → CONTEXT.
+ * Significado de es_norma_vigente (CLO 28-oct-2026, Anexo 1.8): TRUE = elegible como fundamento; FALSE = excluido; NULL (o ausente) = solo CONTEXT.
+ * Rol y norma desplazada declarados en la metadata de la fila (`rol`, `desplazado_por`, `elegible_primary`) solo pueden DEGRADAR a CONTEXT, en todas las rutas.
  *
  * Quitar un bloqueo es una decisión del CLO, no un ajuste de código.
  */
@@ -52,7 +54,15 @@ export type CodigoBloqueoClo =
   | 'INSTRUMENTO_TEXTO_NO_COTEJADO'
   | 'PRACTICA_NOTARIAL_NO_NORMA'
   | 'CAPA_DOCUMENTAL_NO_NORMA'
-  | 'INSTRUMENTO_DISTINTO_DEL_SOLICITADO';
+  | 'INSTRUMENTO_DISTINTO_DEL_SOLICITADO'
+  | 'JURISDICCION_NO_ACREDITADA'
+  | 'VIGENCIA_FALSE_EXCLUIDA'
+  | 'VIGENCIA_NO_ACREDITADA'
+  | 'ROL_DECLARADO_CONTEXT'
+  | 'NORMA_DESPLAZADA'
+  | 'MATERIA_NO_VERIFICADA'
+  | 'CORPUS_P21_APAGADO'
+  | 'FUENTE_EXTERNA_NO_NORMA';
 
 export const MATERIA_NOTARIAL = '03_NOTARIAL';
 export const COLECCION_DOCUMENTAL = 'mayalex_instrumentos';
@@ -64,6 +74,8 @@ export const NOTARIADO_ARTICULOS_BLOQUEADOS: Readonly<Record<string, CodigoBloqu
   '27': 'NOTARIADO_TEXTO_DIVERGENTE',
   // Decisión CLO 24-oct-2026: solo CONTEXT, nunca PRIMARY.
   '72': 'NOTARIADO_SOLO_CONTEXT_CLO',
+  // CLO 28-oct-2026 (adjudicación P21): el 72-A es un artículo propio, solo CONTEXT.
+  '72-A': 'NOTARIADO_SOLO_CONTEXT_CLO',
   '73': 'NOTARIADO_SOLO_CONTEXT_CLO',
   '84': 'NOTARIADO_SOLO_CONTEXT_CLO',
   '87': 'NOTARIADO_SOLO_CONTEXT_CLO',
@@ -101,11 +113,19 @@ const AVISOS: Readonly<Record<CodigoBloqueoClo, string>> = Object.freeze({
   PRACTICA_NOTARIAL_NO_NORMA: 'Material de protocolo y práctica notarial (03_NOTARIAL): no es norma y nunca se cita como tal.',
   CAPA_DOCUMENTAL_NO_NORMA: 'Capa documental del corpus (documentos, no instrumentos normativos): no es norma y nunca se cita como tal.',
   INSTRUMENTO_DISTINTO_DEL_SOLICITADO: 'La fuente real de la fila es otro instrumento distinto del solicitado: solo contexto, no es el artículo pedido.',
+  JURISDICCION_NO_ACREDITADA: 'Jurisdicción ausente: no se acredita que sea derecho de Honduras; solo contexto, nunca fundamento.',
+  VIGENCIA_FALSE_EXCLUIDA: 'Norma marcada como no vigente o excluida (es_norma_vigente=FALSE): no se usa como fundamento ni se cita como vigente.',
+  VIGENCIA_NO_ACREDITADA: 'Vigencia no acreditada (es_norma_vigente nulo o ausente): solo contexto; no se afirma que sea el texto vigente.',
+  ROL_DECLARADO_CONTEXT: 'La fila declara en su metadata que solo es contexto: nunca fundamento.',
+  NORMA_DESPLAZADA: 'Norma desplazada por otra posterior: solo contexto; no es el texto vigente.',
+  MATERIA_NO_VERIFICADA: 'Instrumento notarial sin materia verificada por la ruta: no se acredita que sea norma; solo contexto.',
+  CORPUS_P21_APAGADO: 'Corpus P21 desactivado (flag_corpus_p21 apagado): solo contexto, nunca fundamento.',
+  FUENTE_EXTERNA_NO_NORMA: 'Contenido externo (web o plantilla): no es el corpus normativo; solo contexto, nunca fundamento.',
 });
 
 /** Campos mínimos de un fragmento (FragmentoRAG o una fila de la base con `materia` y `metadata`). */
 export type FragmentoClasificable = Pick<FragmentoRAG, 'fuente' | 'fuente_tipo' | 'jurisdiccion'> &
-  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id'>> & { metadata?: Record<string, unknown> | null };
+  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id' | 'es_norma_vigente' | 'id' | 'metadata_clo'>> & { metadata?: Record<string, unknown> | null };
 
 export interface ContextoClasificacion {
   /** Materia conocida de la consulta/fila cuando el fragmento no la trae (p. ej. filtro de materia de la RPC semántica). */
@@ -114,6 +134,8 @@ export interface ContextoClasificacion {
   coleccion?: string | null;
   /** Instrumento que pidió la consulta exacta. Solo AGREGA un bloqueo si la fuente real es otro instrumento; nunca confiere identidad. */
   instrumentoSolicitado?: InstrumentId | null;
+  /** flag_corpus_p21 resuelto por el llamador. Ausente = apagado: las filas P21 solo son CONTEXT. */
+  corpusP21Habilitado?: boolean;
 }
 
 export interface ClasificacionClo {
@@ -128,7 +150,7 @@ const norm = (s: unknown): string =>
   (typeof s === 'string' ? s : '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 /**
- * Número de artículo normalizado: "Art. 017." / "Arto. 17" / "17º" / "17°" / "N° 17" / "Artículo 17" → "17"; "123-A" se conserva en mayúscula.
+ * Número de artículo normalizado: "Art. 017." / "Arto. 17" / "17º" / "17°" / "N° 17" / "Artículo 17" → "17"; "123-A" / "72A" / "72-a" → "72-A" (forma canónica con guion y mayúscula).
  * Null si no hay un número reconocible (se trata como no verificable, nunca se adivina).
  */
 export function normalizarNumeroArticulo(n: string | number | null | undefined): string | null {
@@ -140,7 +162,8 @@ export function normalizarNumeroArticulo(n: string | number | null | undefined):
     if (s === antes) break;
   }
   s = s.replace(/[\s.,:;\-–—]+$/g, '').replace(/^0+(?=\d)/, '');
-  return /^\d{1,4}(?:-?[a-z]{1,3})?$/.test(s) ? s.toUpperCase() : null;
+  const m = /^(\d{1,4})(?:-?([a-z]{1,3}))?$/.exec(s);
+  return m ? (m[2] ? `${m[1]}-${m[2].toUpperCase()}` : m[1]) : null;
 }
 
 // Patrones ANCLADOS al inicio de la fuente normalizada (sin tildes, minúsculas): el nombre del instrumento debe ser lo primero que dice la
@@ -209,6 +232,22 @@ export function normalizarPais(v: unknown): string | null {
   return t === 'HN' || t === 'HND' || t === 'HONDURAS' || t === 'REPUBLICA DE HONDURAS' ? 'HN' : t;
 }
 
+/** Prefijos de id del corpus P21 (docs/corpus/staging/p21). Con flag_corpus_p21 apagado estas filas no se recuperan ni son PRIMARY. */
+export const PREFIJOS_CORPUS_P21: readonly string[] = Object.freeze([
+  'mayalex_normativos:codigo_comercio_bch_d73_50',
+  'mayalex_normativos:codigo_notariado_d59_2015',
+  'mayalex_normativos:decreto_284_2013_titulo_ii',
+]);
+export function esFilaCorpusP21(f: Pick<FragmentoClasificable, 'id' | 'norm_id' | 'metadata' | 'metadata_clo'>): boolean {
+  const meta = f.metadata && typeof f.metadata === 'object' ? f.metadata : null;
+  const candidatos = [f.id, f.norm_id, meta?.norm_id, f.metadata_clo?.norm_id].filter((x): x is string => typeof x === 'string');
+  return candidatos.some((c) => PREFIJOS_CORPUS_P21.some((p) => c.startsWith(p))) || meta?.p21 === true || f.metadata_clo?.p21 === true;
+}
+/** Quita las filas P21 cuando el corpus está apagado (el llamador pasa el flag resuelto). Encendido: devuelve la lista tal cual. */
+export function filtrarCorpusP21<T extends FragmentoClasificable>(fragmentos: readonly T[], habilitado: boolean | undefined): T[] {
+  return habilitado === true ? [...fragmentos] : fragmentos.filter((f) => !esFilaCorpusP21(f));
+}
+
 const esMateriaNotarial = (v: unknown): boolean => norm(v).toUpperCase() === MATERIA_NOTARIAL;
 const esColeccionDocumental = (v: unknown): boolean => norm(v) === COLECCION_DOCUMENTAL;
 /** sub_tipo de las filas de protocolo y práctica (capa `mayalex_instrumentos`). */
@@ -237,8 +276,11 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
   else if (esDoctrina) bloqueos.push('DOCTRINA_NO_ES_NORMA');
 
   // (e) Protocolo y práctica notarial (03_NOTARIAL) y capa documental: sin identidad normativa propia, nunca norma.
-  const esNormativoNotarial = instrumentId !== null && INSTRUMENTOS_NORMATIVOS_NOTARIALES.has(instrumentId);
-  const esPracticaNotarial = !esSentencia && !esDoctrina && senalNotarial && !esNormativoNotarial;
+  // CLO 28-oct-2026 (Anexo 2.4): decide el TIPO de fuente, nunca el nombre. Una fila 03_NOTARIAL cuya fuente diga «Código del Notariado…» sigue
+  // siendo práctica salvo que su fuente_tipo sea normativo; las señales fuertes de práctica (sub_tipo, tipo_fuente=instrumento) mandan siempre.
+  const esNormativoNotarial = instrumentId !== null && INSTRUMENTOS_NORMATIVOS_NOTARIALES.has(instrumentId) && TIPOS_FUENTE_NORMATIVOS.has(tipo);
+  const senalPracticaFuerte = SUBTIPOS_PRACTICA.has(norm(meta?.sub_tipo)) || norm(meta?.tipo_fuente) === 'instrumento';
+  const esPracticaNotarial = !esSentencia && !esDoctrina && senalNotarial && (!esNormativoNotarial || senalPracticaFuerte);
   const esCapaDocumental = !esSentencia && !esDoctrina && !esPracticaNotarial && senalDocumental && instrumentId === null;
   if (esPracticaNotarial) bloqueos.push('PRACTICA_NOTARIAL_NO_NORMA');
   if (esCapaDocumental) bloqueos.push('CAPA_DOCUMENTAL_NO_NORMA');
@@ -249,9 +291,21 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
     if (instrumentId === null) bloqueos.push('SIN_INSTRUMENT_ID');
     // Fail-closed: una norma exige un fuente_tipo normativo conocido. Null, vacío o desconocido → CONTEXT.
     if (!TIPOS_FUENTE_NORMATIVOS.has(tipo)) bloqueos.push('FUENTE_TIPO_NO_VERIFICADO');
-    // Política de país (CLO 24-oct-2026): un instrumento validado contra INSTRUMENT_IDS es hondureño por definición; su país se deriva de ahí,
-    // no de la columna `jurisdiccion`. País vacío con instrumento validado → no bloquea. País explícito distinto de HN → conflicto → CONTEXT.
-    if (pais !== null && pais !== 'HN') bloqueos.push('JURISDICCION_NO_HONDURENA');
+    // Política de país (CLO 28-oct-2026): la jurisdicción normalizada debe ser HN. Nula o vacía → no acreditada (nunca PRIMARY); otro país → conflicto.
+    if (pais === null) bloqueos.push('JURISDICCION_NO_ACREDITADA');
+    else if (pais !== 'HN') bloqueos.push('JURISDICCION_NO_HONDURENA');
+    // Significado CLO de es_norma_vigente: TRUE elegible · FALSE excluido · NULL (o ausente) solo CONTEXT.
+    if (f.es_norma_vigente === false) bloqueos.push('VIGENCIA_FALSE_EXCLUIDA');
+    else if (f.es_norma_vigente !== true) bloqueos.push('VIGENCIA_NO_ACREDITADA');
+    // Metadata de la fila (todas las rutas): rol declarado y norma desplazada solo pueden degradar.
+    const mc = { ...(meta ?? {}), ...(f.metadata_clo ?? {}) } as Record<string, unknown>;
+    if ((typeof mc.rol === 'string' && mc.rol.toUpperCase() !== 'PRIMARY') || mc.elegible_primary === false) bloqueos.push('ROL_DECLARADO_CONTEXT');
+    if (mc.desplazado_por !== undefined && mc.desplazado_por !== null && String(mc.desplazado_por).trim() !== '') bloqueos.push('NORMA_DESPLAZADA');
+    // Instrumentos de la familia notarial exigen materia conocida por la ruta (fila o consulta). La metadata de la carga no cuenta: la RPC
+    // semántica nunca devuelve materia y una carga no puede ascender la fila a PRIMARY.
+    if (instrumentId !== null && INSTRUMENTOS_NORMATIVOS_NOTARIALES.has(instrumentId) && !(norm(f.materia) || norm(ctx.materia))) bloqueos.push('MATERIA_NO_VERIFICADA');
+    // Gate del corpus P21: con flag_corpus_p21 apagado (o sin resolver) las filas P21 no son fundamento.
+    if (ctx.corpusP21Habilitado !== true && esFilaCorpusP21(f)) bloqueos.push('CORPUS_P21_APAGADO');
   }
 
   // La fuente real es otro instrumento distinto del solicitado.
@@ -295,7 +349,7 @@ export function anotarFragmentosClo<T extends FragmentoRAG>(fragmentos: readonly
       coleccion_origen: coleccionSellada ?? undefined,
       instrumento_solicitado: f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? undefined,
     };
-    const c = clasificarFragmentoClo(sellado);
+    const c = clasificarFragmentoClo(sellado, { corpusP21Habilitado: ctx.corpusP21Habilitado });
     return { ...sellado, instrument_id: c.instrumentId, rol_evidencia: c.rol, bloqueos_clo: c.bloqueos, avisos_clo: c.avisos };
   });
 }
@@ -323,4 +377,26 @@ export function resumenEvidenciaClo(fragmentos: readonly FragmentoRAG[], ctx: Co
 /** true si el fragmento puede presentarse como cita formal (norma PRIMARY). */
 export function esCitableComoNorma(f: FragmentoRAG, ctx: ContextoClasificacion = {}): boolean {
   return clasificarFragmentoClo(f, ctx).rol === 'PRIMARY';
+}
+
+/**
+ * Contenido externo al corpus (contexto web de Tavily, plantillas notariales del modo documento): pasa por el clasificador y NUNCA es PRIMARY.
+ * No es una fila del corpus: no tiene instrumento, vigencia ni jurisdicción acreditados.
+ */
+export function clasificarFuenteExterna(tipo: 'WEB' | 'PLANTILLA_NOTARIAL'): ClasificacionClo {
+  const bloqueos: CodigoBloqueoClo[] = ['FUENTE_EXTERNA_NO_NORMA'];
+  return { instrumentId: null, tipoFuente: tipo === 'WEB' ? 'DOCUMENTAL' : 'PRACTICA_NOTARIAL', rol: 'CONTEXT', bloqueos, avisos: bloqueos.map((b) => AVISOS[b]) };
+}
+
+export interface LineaLogClo { id: string | null; rol: RolEvidencia; instrument_id: InstrumentId | null; motivos: CodigoBloqueoClo[]; vigencia: 'TRUE' | 'FALSE' | 'NULL' }
+
+/**
+ * Una línea por fragmento para los logs: motivo(s) CLO y estado de vigencia. SIN texto del fragmento, de la pregunta ni de ningún cliente:
+ * solo el id del corpus, el rol, el instrumento, los códigos de bloqueo y el estado de es_norma_vigente.
+ */
+export function resumenLogClo(fragmentos: readonly FragmentoRAG[], ctx: ContextoClasificacion = {}): LineaLogClo[] {
+  return fragmentos.map((f) => {
+    const c = clasificarFragmentoClo(f, ctx);
+    return { id: typeof f.id === 'string' ? f.id : null, rol: c.rol, instrument_id: c.instrumentId, motivos: c.bloqueos, vigencia: f.es_norma_vigente === true ? 'TRUE' : f.es_norma_vigente === false ? 'FALSE' : 'NULL' };
+  });
 }

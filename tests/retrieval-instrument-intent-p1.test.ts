@@ -303,7 +303,7 @@ describe('buscarRAG (semántica) — referencias no resueltas', () => {
     const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('sin clase explícita, la materia notarial conserva su autorización (comportamiento previo)', async () => {

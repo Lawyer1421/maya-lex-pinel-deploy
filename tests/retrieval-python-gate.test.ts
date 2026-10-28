@@ -89,7 +89,7 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('temático "arrendamiento ley civil" (NONE): conserva la evidencia pertinente, igual que Supabase', async () => {
@@ -140,7 +140,7 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     const resultado = await buscarRAG('Según la ley de Honduras, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('referencia específica "ley notarial hondureña": fail-close, igual que Supabase', async () => {
