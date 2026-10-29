@@ -173,8 +173,8 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
           ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
           : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
             ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
-            : esRegistroNoVigenteExcluido(f)
-              ? 'NO VIGENTE — NO CITAR COMO NORMA'
+            : f.es_norma_vigente === false || esRegistroNoVigenteExcluido(f)
+              ? 'NORMA NO VIGENTE, NO CITAR'
               : 'FUENTE SIN CLASIFICAR — NO CITAR COMO NORMA VIGENTE';
     const art = f.num_articulo ? ` — Art. ${f.num_articulo}` : '';
     const tag = ` [${etiqueta}]`;

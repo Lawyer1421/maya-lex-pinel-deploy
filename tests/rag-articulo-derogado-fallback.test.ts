@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 /**
  * GAP 2 (Operación "Facultades Completas", 2026-08-28) fue REEMPLAZADO por la decisión CLO del 28-oct-2026 (Anexo 2.2): se eliminó el segundo
  * paso con es_norma_vigente=false de buscarArticuloExacto. Ninguna fila FALSE produce EXACT_SUCCESS: FALSE significa «excluida».
- * Siguen vigentes las reglas que no chocan: con fila vigente solo se consulta una vez; las etiquetas [NO VIGENTE — NO CITAR COMO NORMA]
+ * Siguen vigentes las reglas que no chocan: con fila vigente solo se consulta una vez; las etiquetas [NORMA NO VIGENTE, NO CITAR]
  * de formatearContextoRAG para cualquier fragmento FALSE que llegue por otra vía; los tres filtros de resolverArticuloExacto.
  */
 
@@ -78,14 +78,14 @@ describe('buscarArticuloExacto — sin segundo paso con es_norma_vigente=false (
     vi.doUnmock('@/lib/rag/embed');
   });
 
-  it('un fragmento FALSE que llegue por otra vía recibe [NO VIGENTE — NO CITAR COMO NORMA] y nunca es PRIMARY', async () => {
+  it('un fragmento FALSE que llegue por otra vía recibe [NORMA NO VIGENTE, NO CITAR] y nunca es PRIMARY', async () => {
     const { resolverArticuloExacto, formatearContextoRAG } = await import('@/lib/rag/search');
     const r = resolverArticuloExacto([filaDerogada()] as any, '123-A', 'CODIGO_FAMILIA' as any);
     expect(r.fragmentos).toHaveLength(1);
     expect(r.fragmentos[0].rol_evidencia).toBe('CONTEXT');
     expect(r.fragmentos[0].bloqueos_clo).toContain('VIGENCIA_FALSE_EXCLUIDA');
     const ctx = formatearContextoRAG({ fragmentos: r.fragmentos, articulos_encontrados: ['123-A'], backend: 'supabase' });
-    expect(ctx).toContain('[NO VIGENTE — NO CITAR COMO NORMA]');
+    expect(ctx).toContain('[NORMA NO VIGENTE, NO CITAR]');
   });
 
   it('si SÍ hay fila vigente, solo se hace UNA consulta y se devuelve la vigente', async () => {

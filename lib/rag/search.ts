@@ -29,6 +29,7 @@
 // tests) no requieran ningún cambio.
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
+import { objetivosDeConsulta } from '@/lib/legal-retrieval/r3-objetivos';
 import { anotarFragmentosClo, filtrarCorpusP21, resumenEvidenciaClo, resumenLogClo } from '@/lib/legal-retrieval/clo-guards';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
 import {
@@ -294,6 +295,8 @@ export async function buscarRAG(
   // MULTI_SPECIFIC_RESOLVED, SPECIFIC_UNRESOLVED). Gobierna la ruta exacta y la
   // semántica; ver lib/legal-retrieval/instrument-gate.ts.
   const intencion = clasificarIntencionInstrumental(consulta);
+  // R3 (CLO 29-oct-2026): suficiencia solo con un PRIMARY vigente (TRUE) del mismo instrumento y artículo consultados.
+  const objetivosR3 = objetivosDeConsulta(consulta);
 
   let exactoIntentado = false;
   // Comparación con evidencia exacta parcial (cobertura incompleta): los
@@ -335,7 +338,7 @@ export async function buscarRAG(
           // Salvaguardas CLO: solo los PRIMARY cuentan como evidencia. Un artículo bloqueado (Notariado 11/17/27, Reglamento sin pliego
           // CLO, fila sin instrumento, etc.) se conserva como CONTEXT con su aviso, pero NO hay evidencia suficiente: abstención.
           const fragmentosExactos = anotarFragmentosClo(exacto.fragmentos, ctxClo);
-          const clo = resumenEvidenciaClo(fragmentosExactos, ctxClo);
+          const clo = resumenEvidenciaClo(fragmentosExactos, ctxClo, objetivosR3);
           logClo('exact', fragmentosExactos, ctxClo);
           return {
             fragmentos: fragmentosExactos,
@@ -440,7 +443,7 @@ export async function buscarRAG(
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
       // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
-      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
+      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion }, objetivosR3);
       logClo('semantic', resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
       return {
         ...resultado,
@@ -471,7 +474,7 @@ export async function buscarRAG(
       // `degraded` permanece false (ver types.ts: no instrumentado en esta
       // fase, límite de alcance explícito, no un bug).
       // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
-      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
+      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion }, objetivosR3);
       logClo('semantic', resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
       return {
         ...resultado,

@@ -114,7 +114,7 @@ const AVISOS: Readonly<Record<CodigoBloqueoClo, string>> = Object.freeze({
   CAPA_DOCUMENTAL_NO_NORMA: 'Capa documental del corpus (documentos, no instrumentos normativos): no es norma y nunca se cita como tal.',
   INSTRUMENTO_DISTINTO_DEL_SOLICITADO: 'La fuente real de la fila es otro instrumento distinto del solicitado: solo contexto, no es el artículo pedido.',
   JURISDICCION_NO_ACREDITADA: 'Jurisdicción ausente: no se acredita que sea derecho de Honduras; solo contexto, nunca fundamento.',
-  VIGENCIA_FALSE_EXCLUIDA: 'Norma marcada como no vigente o excluida (es_norma_vigente=FALSE): no se usa como fundamento ni se cita como vigente.',
+  VIGENCIA_FALSE_EXCLUIDA: 'NORMA NO VIGENTE, NO CITAR: marcada como no vigente o excluida (es_norma_vigente=FALSE); no se usa como fundamento ni se cita como vigente.',
   VIGENCIA_NO_ACREDITADA: 'Vigencia no acreditada (es_norma_vigente nulo o ausente): solo contexto; no se afirma que sea el texto vigente.',
   ROL_DECLARADO_CONTEXT: 'La fila declara en su metadata que solo es contexto: nunca fundamento.',
   NORMA_DESPLAZADA: 'Norma desplazada por otra posterior: solo contexto; no es el texto vigente.',
@@ -354,24 +354,158 @@ export function anotarFragmentosClo<T extends FragmentoRAG>(fragmentos: readonly
   });
 }
 
+/**
+ * R3 — SUFICIENCIA (texto oficial del CLO, 29-oct-2026):
+ *   «Hay suficiencia solo si existe al menos una cita DIRECT validada a un fragmento con rol PRIMARY y es_norma_vigente = TRUE, del mismo
+ *   instrumento y del mismo artículo consultados. Un conteo de PRIMARY no basta. Si no hay esa cita, hay abstención. NULL = solo CONTEXT;
+ *   FALSE = excluido, rotulado "NORMA NO VIGENTE, NO CITAR".»
+ * Complemento: la cita DIRECT debe respaldar la afirmación CONCRETA que hace la respuesta. No se impone un mínimo de fragmentos.
+ *
+ * Dos niveles, ambos aquí (clasificador compartido):
+ *  1. Recuperación (`resumenEvidenciaClo`): condición NECESARIA. Existe un fragmento PRIMARY con vigencia TRUE que además coincide con el
+ *     instrumento y el artículo consultados (si la consulta los nombra). Un PRIMARY de otro artículo o instrumento no cuenta.
+ *  2. Respuesta (`evaluarSuficienciaR3`): condición COMPLETA. Una afirmación de la respuesta con cita DIRECT a un fragmento que cumple (1) y
+ *     cuyo contenido respalda lo que la afirmación dice (cifras, artículos y términos propios de la afirmación aparecen en el fragmento).
+ * Consulta temática (no nombra instrumento ni artículo): no hay objetivo que comparar; rigen PRIMARY + TRUE y la cita DIRECT que respalda.
+ */
+export interface ObjetivoConsulta {
+  /** Instrumento consultado, si la consulta lo nombra. */
+  instrumentId: InstrumentId | null;
+  /** Artículo consultado (normalizado), si la consulta lo nombra. */
+  articulo: string | null;
+}
+
+/** ¿El fragmento cumple la parte de fragmento de R3? PRIMARY + es_norma_vigente=TRUE + mismo instrumento y artículo consultados. */
+export function fragmentoCumpleR3(f: FragmentoRAG, objetivos: readonly ObjetivoConsulta[] = [], ctx: ContextoClasificacion = {}): boolean {
+  if (f.es_norma_vigente !== true) return false;
+  if (clasificarFragmentoClo(f, ctx).rol !== 'PRIMARY') return false;
+  if (objetivos.length === 0) return true;
+  const id = instrumentIdDeFragmento(f);
+  const art = normalizarNumeroArticulo(f.num_articulo);
+  return objetivos.some((o) => (o.instrumentId === null || o.instrumentId === id) && (o.articulo === null || normalizarNumeroArticulo(o.articulo) === art));
+}
+
 export interface ResumenEvidenciaClo {
   primarios: number;
   contexto: number;
-  /** true solo con al menos un PRIMARY. Lo único que cuenta como evidencia para el Evidence Gate. */
+  /**
+   * R3 a nivel de recuperación (condición NECESARIA): true solo si algún fragmento cumple `fragmentoCumpleR3`. NO es un conteo de PRIMARY:
+   * un PRIMARY de otro artículo o instrumento, o con vigencia nula, no basta. La suficiencia completa la da `evaluarSuficienciaR3`.
+   */
   suficiente: boolean;
   bloqueos: CodigoBloqueoClo[];
 }
 
 /** Cuenta PRIMARY y CONTEXT recalculando la clasificación: nunca confía en un `rol_evidencia` que venga en el fragmento. */
-export function resumenEvidenciaClo(fragmentos: readonly FragmentoRAG[], ctx: ContextoClasificacion = {}): ResumenEvidenciaClo {
+export function resumenEvidenciaClo(fragmentos: readonly FragmentoRAG[], ctx: ContextoClasificacion = {}, objetivos: readonly ObjetivoConsulta[] = []): ResumenEvidenciaClo {
   let primarios = 0;
+  let cumple = false;
   const bloqueos = new Set<CodigoBloqueoClo>();
   for (const f of fragmentos) {
     const c = clasificarFragmentoClo(f, ctx);
     if (c.rol === 'PRIMARY') primarios += 1;
     for (const b of c.bloqueos) bloqueos.add(b);
+    if (!cumple && fragmentoCumpleR3(f, objetivos, ctx)) cumple = true;
   }
-  return { primarios, contexto: fragmentos.length - primarios, suficiente: primarios > 0, bloqueos: [...bloqueos] };
+  return { primarios, contexto: fragmentos.length - primarios, suficiente: cumple, bloqueos: [...bloqueos] };
+}
+
+// ── Respaldo de la afirmación concreta ──────────────────────────────────────────────────────────────────────────────────────────────────
+const PALABRAS_NUMERO: Readonly<Record<string, string>> = Object.freeze({
+  dos: '2', tres: '3', cuatro: '4', cinco: '5', seis: '6', siete: '7', ocho: '8', nueve: '9', diez: '10', quince: '15', veinte: '20',
+  treinta: '30', cuarenta: '40', cincuenta: '50', sesenta: '60', noventa: '90', cien: '100', ciento: '100',
+});
+const VACIAS = new Set([
+  'sobre', 'entre', 'cuando', 'donde', 'segun', 'ademas', 'tambien', 'dicho', 'dicha', 'dichos', 'dichas', 'este', 'esta', 'estos', 'estas', 'cual', 'cuales', 'puede',
+  'pueden', 'debe', 'deben', 'ser', 'sera', 'seran', 'tiene', 'tienen', 'hacer', 'haber', 'hasta', 'desde', 'para', 'porque', 'mediante', 'durante', 'dentro', 'misma',
+  'mismo', 'otros', 'otras', 'cada', 'todo', 'toda', 'todos', 'todas', 'norma', 'normas', 'articulo', 'articulos', 'codigo', 'ley', 'establece', 'dispone', 'regula',
+  'prevé', 'preve', 'señala', 'senala', 'indica', 'conforme', 'respecto', 'caso', 'casos', 'derecho', 'general', 'honduras', 'hondureno', 'hondurena',
+]);
+const UMBRAL_TERMINOS = 0.5;
+
+/**
+ * ¿El contenido del fragmento respalda la afirmación concreta? Comprobación determinista y conservadora (ante la duda, NO respalda):
+ *  - toda cifra de la afirmación (dígitos o número en palabras) aparece en el fragmento;
+ *  - todo «artículo N» que cite la afirmación es el del fragmento o figura en su texto;
+ *  - al menos la mitad de los términos propios de la afirmación (≥ 5 letras, sin vacías) tienen su raíz (5 letras) en el fragmento.
+ * No sustituye la lectura jurídica: es la barrera mínima para que una cita DIRECT no avale una afirmación que el texto no dice.
+ */
+export function afirmacionRespaldadaPorFragmento(afirmacion: string, f: Pick<FragmentoRAG, 'contenido' | 'num_articulo'>): boolean {
+  const a = norm(afirmacion);
+  const t = norm(f.contenido);
+  if (a === '' || t === '') return false;
+  const artFragmento = normalizarNumeroArticulo(f.num_articulo);
+
+  // Referencias «artículo N» de la afirmación.
+  for (const m of a.matchAll(/\bart(?:iculo|\.)?\s*(\d+(?:-?[a-z])?)\b/g)) {
+    const n = normalizarNumeroArticulo(m[1]);
+    if (n === null) return false;
+    if (n !== artFragmento && !new RegExp(`(?<![\\d])${n.replace('-', '-?')}(?![\\d])`, 'i').test(t)) return false;
+  }
+  // Cifras: dígitos (fuera de las referencias a artículo) y números en palabras.
+  const sinRefs = a.replace(/\bart(?:iculo|\.)?\s*\d+(?:-?[a-z])?\b/g, ' ');
+  for (const m of sinRefs.matchAll(/\d+/g)) {
+    if (!new RegExp(`(?<!\\d)${m[0]}(?!\\d)`).test(t)) return false;
+  }
+  for (const m of sinRefs.matchAll(/[a-zñ]+/g)) {
+    const dig = PALABRAS_NUMERO[m[0]];
+    if (dig && !new RegExp(`\\b${m[0]}\\b|(?<!\\d)${dig}(?!\\d)`).test(t)) return false;
+  }
+  // Términos propios.
+  const terminos = [...new Set([...sinRefs.matchAll(/[a-zñ]{5,}/g)].map((m) => m[0]).filter((w) => !VACIAS.has(w) && !(w in PALABRAS_NUMERO)))];
+  if (terminos.length === 0) return true;
+  const presentes = terminos.filter((w) => t.includes(w.slice(0, 5))).length;
+  return presentes / terminos.length >= UMBRAL_TERMINOS;
+}
+
+export interface AfirmacionCitada {
+  claim_id: string;
+  texto: string;
+  citas: readonly { fragmentoId: string; soporte: 'DIRECT' | 'INDIRECT' }[];
+}
+
+export type MotivoR3 = 'OK' | 'SIN_AFIRMACIONES' | 'SIN_CITA_DIRECT' | 'SIN_PRIMARY_VIGENTE' | 'OTRO_INSTRUMENTO_O_ARTICULO' | 'AFIRMACION_NO_RESPALDADA';
+
+export interface ResultadoR3 {
+  suficiente: boolean;
+  motivo: MotivoR3;
+  /** Afirmaciones que cumplen R3 y los fragmentos que las respaldan. Solo estas pueden mostrarse y citarse. */
+  afirmacionesValidas: { claim_id: string; fragmentoIds: string[] }[];
+}
+
+/**
+ * R3 completa sobre una respuesta. Cada afirmación vale solo si tiene una cita DIRECT a un fragmento que cumple `fragmentoCumpleR3` y que
+ * respalda la afirmación concreta. Sin ninguna afirmación válida: abstención (`suficiente=false`). No impone un mínimo de fragmentos.
+ */
+export function evaluarSuficienciaR3(
+  fragmentos: readonly FragmentoRAG[],
+  afirmaciones: readonly AfirmacionCitada[],
+  objetivos: readonly ObjetivoConsulta[] = [],
+  ctx: ContextoClasificacion = {},
+): ResultadoR3 {
+  if (afirmaciones.length === 0) return { suficiente: false, motivo: 'SIN_AFIRMACIONES', afirmacionesValidas: [] };
+  const porId = new Map<string, FragmentoRAG>();
+  for (const f of fragmentos) if (typeof f.id === 'string' && !porId.has(f.id)) porId.set(f.id, f);
+  const validas: ResultadoR3['afirmacionesValidas'] = [];
+  let hayDirect = false, hayVigentePrimary = false, hayMismoObjetivo = false;
+  for (const a of afirmaciones) {
+    const ids: string[] = [];
+    for (const c of a.citas) {
+      if (c.soporte !== 'DIRECT') continue;
+      hayDirect = true;
+      const f = porId.get(c.fragmentoId);
+      if (!f) continue;
+      if (f.es_norma_vigente !== true || clasificarFragmentoClo(f, ctx).rol !== 'PRIMARY') continue;
+      hayVigentePrimary = true;
+      if (!fragmentoCumpleR3(f, objetivos, ctx)) continue;
+      hayMismoObjetivo = true;
+      if (afirmacionRespaldadaPorFragmento(a.texto, f)) ids.push(c.fragmentoId);
+    }
+    if (ids.length > 0) validas.push({ claim_id: a.claim_id, fragmentoIds: [...new Set(ids)] });
+  }
+  if (validas.length > 0) return { suficiente: true, motivo: 'OK', afirmacionesValidas: validas };
+  const motivo: MotivoR3 = !hayDirect ? 'SIN_CITA_DIRECT' : !hayVigentePrimary ? 'SIN_PRIMARY_VIGENTE' : !hayMismoObjetivo ? 'OTRO_INSTRUMENTO_O_ARTICULO' : 'AFIRMACION_NO_RESPALDADA';
+  return { suficiente: false, motivo, afirmacionesValidas: [] };
 }
 
 /** true si el fragmento puede presentarse como cita formal (norma PRIMARY). */
