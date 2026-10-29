@@ -53,6 +53,10 @@ export const KNOWN_FLAGS = [
   // false = MCP deshabilitado para todos, incluso pro/admin. Sembrarla es
   // decisión del fundador, separada del deploy.
   'flag_mcp_enabled',
+  // P26 Luna (lib/luna/*) — gate por usuario del motor de respuestas sobre la Responses API de OpenAI. Doble llave: además
+  // exige LUNA_ENABLED=1 en el entorno. Sin fila sembrada: fila ausente = false = Luna apagada para todos. Sembrar la fila
+  // (enabled + allowed_emails para un canario) es decisión del propietario, separada del merge y del deploy.
+  'flag_luna_responses',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];

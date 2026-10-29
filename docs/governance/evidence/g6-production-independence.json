@@ -167,11 +167,11 @@
     }
   ],
   "codigoHashes": {
-    "app/api/chat/route.ts": "f46e884c63b14ca9e85f258f1e39a7e877cb1c8a57420a11d7252690ff0738b0",
+    "app/api/chat/route.ts": "1e9d2c33567f19b32560827691bfd4769f839778008314fec3eb0f6ebe352be0",
     "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
     "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
     "lib/ai-gateway/shadow/dispatcher.ts": "e21a751b26407f38da224609e5d1462ac5de9b311551a77b0b23454a91ec5b2a",
-    "lib/ai-gateway/shadow/openai-adapter.ts": "89d27f3af8b7b1dc9e5be8e925ce0cde2da67d82bc7d839feb52791ab99709aa",
+    "lib/ai-gateway/shadow/openai-adapter.ts": "729dff988b24df7b5eab80b629c86721a65a077616c3922cf5612e7730d3f428",
     "lib/ai-gateway/shadow/pii-gate.ts": "bf8699c5ae09dac585eb87f1205d936696ae399c407cd95167ded82fcb05fd25",
     "lib/ai-gateway/shadow/privacy-gate.ts": "abfc3714b4bc545cb208c0e41abc369764a76a4f09c50fce3c9bcfc55da7fbcf",
     "lib/ai-gateway/shadow/public-provenance-manifest.ts": "88a8be5e2f815afe607439ebf5b6fb6725b080fa432af8916478b940b4335957",

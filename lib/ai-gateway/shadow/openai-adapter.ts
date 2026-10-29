@@ -30,6 +30,14 @@ export function credencialDisponible(): boolean {
   return typeof clave === 'string' && clave.trim() !== '';
 }
 
+/**
+ * Cliente oficial del SDK, SOLO servidor y sin reintentos. Único punto donde se crea un cliente OpenAI en toda la base de
+ * código (lo usan el modo sombra y Luna, P26): así la credencial y el import del SDK siguen viviendo en este archivo.
+ */
+export function crearClienteOpenAI(): ClienteResponses & { models: { retrieve(modelId: string, opciones?: { signal?: AbortSignal }): Promise<{ id: string }> } } {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 }) as unknown as ClienteResponses & { models: { retrieve(modelId: string, opciones?: { signal?: AbortSignal }): Promise<{ id: string }> } };
+}
+
 export const INSTRUCCIONES_SOMBRA = [
   'Eres un verificador jurídico. Responde SOLO con la evidencia entregada en "evidence"; no uses conocimiento externo.',
   'Cada afirmación (claim) debe citar al menos un chunk_id de la evidencia. Si la evidencia no basta, responde ABSTAIN con un motivo.',
@@ -91,7 +99,7 @@ export function crearAdaptadorOpenAI(opciones: OpcionesAdaptadorOpenAI = {}): Sh
     modelo: MODELO_GATEWAY,
     async responder(input, opcionesLlamada) {
       const cliente: ClienteResponses =
-        opciones.crearCliente?.() ?? (new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 }) as unknown as ClienteResponses);
+        opciones.crearCliente?.() ?? crearClienteOpenAI();
       const inicio = ahora();
       const respuesta = await cliente.responses.create(construirSolicitud(input), { signal: opcionesLlamada?.signal });
       const uso = respuesta.usage;
