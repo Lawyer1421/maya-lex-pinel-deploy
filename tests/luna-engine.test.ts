@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { FragmentoRAG } from '@/lib/legal-retrieval/types';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
 import type { ClienteLuna } from '@/lib/luna/adapter';
+import type { ContadorCostos } from '@/lib/luna/cost-counter';
 import { construirSolicitudLuna } from '@/lib/luna/adapter';
 import { planDesdeTier, resolverConfigPlan, lunaHabilitadaPorEntorno } from '@/lib/luna/config';
 import { autorizarEvidencia } from '@/lib/luna/evidence';
@@ -31,11 +32,12 @@ const ANSWER = (chunk = 'mayalex_normativos:cpp_a173') => ({
 
 function motor(c: ClienteLuna, env: Record<string, string | undefined> = ENV_ON) {
   const registros: RegistroLuna[] = [];
-  const m = crearMotorLuna({ env, crearCliente: () => c, registrar: (r) => registros.push(r) });
+  const contador: ContadorCostos = { global: true, reservar: async () => true, liquidar: async () => {} };
+  const m = crearMotorLuna({ env, crearCliente: () => c, registrar: (r) => registros.push(r), contador });
   return { m, registros };
 }
 const entrada = (x: Partial<Parameters<ReturnType<typeof crearMotorLuna>['responder']>[0]> = {}) =>
-  ({ queryId: 'q1', pregunta: PREGUNTA, fragmentos: [frag()], tier: 'free', ...x });
+  ({ queryId: 'q1', pregunta: PREGUNTA, fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' as const, ...x });
 
 describe('Luna — configuración por plan', () => {
   it('mapea tiers de cuota a planes', () => {
@@ -83,17 +85,31 @@ describe('Luna — solicitud a la Responses API', () => {
   });
 });
 
-describe('Luna — evidencia autorizada (solo lectura)', () => {
-  it('omite no vigentes, doctrina y comparada; no muta el corpus recuperado', () => {
-    const base = [frag(), frag({ id: 'x2', es_norma_vigente: false }), frag({ id: 'x3', es_norma_vigente: null }), frag({ id: 'x4', jurisdiccion: 'ES' }), frag({ id: 'x5', fuente_tipo: 'doctrina' })];
+describe('Luna — evidencia autorizada (clasificador CLO compartido del #106, solo lectura)', () => {
+  it('solo PRIMARY sale: vigencia FALSE/NULL, jurisdicción no HN o ausente, fuente no normativa y desplazadas quedan fuera; no muta el corpus', () => {
+    const base = [
+      frag(),
+      frag({ id: 'x2', es_norma_vigente: false }),
+      frag({ id: 'x3', es_norma_vigente: null }),
+      frag({ id: 'x4', jurisdiccion: 'ES' }),
+      frag({ id: 'x5', jurisdiccion: null }),
+      frag({ id: 'x6', fuente_tipo: 'doctrina' }),
+      frag({ id: 'x7', fuente: 'Escritura de constitución de sociedad' }),
+    ];
     const copia = JSON.parse(JSON.stringify(base));
     const r = autorizarEvidencia(base, 10);
     expect(r.evidencia.map((e) => e.chunk_id)).toEqual(['mayalex_normativos:cpp_a173']);
     expect(base).toEqual(copia);
   });
-  it('respeta el tope por plan', () => {
-    const muchos = Array.from({ length: 9 }, (_, i) => frag({ id: `f${i}`, hash: `h${i}`, num_articulo: String(i) }));
+  it('un rol_evidencia PRIMARY que venga en la carga no se respeta: se recalcula', () => {
+    const f = { ...frag({ id: 'y1', es_norma_vigente: null }), rol_evidencia: 'PRIMARY' } as FragmentoRAG;
+    expect(autorizarEvidencia([f], 5).evidencia).toEqual([]);
+  });
+  it('sin id no hay chunk; ids duplicados se envían una vez; respeta el tope por plan', () => {
+    const muchos = Array.from({ length: 9 }, (_, i) => frag({ id: `f${i}`, hash: `h${i}`, num_articulo: String(i + 1) }));
     expect(autorizarEvidencia(muchos, 4).evidencia).toHaveLength(4);
+    expect(autorizarEvidencia([frag({ id: undefined })], 4).evidencia).toEqual([]);
+    expect(autorizarEvidencia([frag(), frag()], 4).evidencia).toHaveLength(1);
   });
 });
 
@@ -105,6 +121,7 @@ describe('Luna — motor', () => {
     expect(r.estado).toBe('ANSWER');
     if (r.estado !== 'ANSWER') return;
     expect(r.texto).toContain('Codigo Procesal Penal, art. 173');
+    expect(r.chunkIdsValidados).toEqual(['mayalex_normativos:cpp_a173']);
     expect(r.texto).toContain('NO OFICIAL');
     expect(r.referencias).toEqual([{ chunk_id: 'mayalex_normativos:cpp_a173', instrumento: 'Codigo Procesal Penal', articulo: '173' }]);
     expect(r.uso.costoEstimadoUsd).toBeGreaterThan(0);
