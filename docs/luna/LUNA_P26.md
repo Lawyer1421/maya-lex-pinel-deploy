@@ -1,9 +1,15 @@
 # MayaLex Luna (P26) — motor de respuestas sobre la Responses API de OpenAI
 
+> **DEPENDENCIA: el PR #110 depende del PR #106 y se fusiona DESPUÉS.** Luna consume el clasificador compartido (`lib/legal-retrieval/clo-guards.ts`) y la rama del #110 incluye un merge de `feature/clo-retrieval-guards`; al fusionarse el #106 en `main`, el diff del #110 queda reducido a Luna. No se duplican reglas del #106 en `lib/luna` (una prueba lo impide).
+>
+> **Actualización CLO 29-oct:** modalidad explícita «consulta jurídica general» con aviso de privacidad (`lib/luna/consent.ts`), privacidad estricta (`lib/luna/privacy.ts`), SSE solo con citas validadas (`lib/luna/citas.ts`), contador global de costos (`lib/luna/cost-counter.ts`, DDL = `PROPUESTA_NO_APLICADA_luna_costos.sql`), script de prueba real sin ejecutar (`scripts/luna-verify-model.ts`). La búsqueda externa en fuentes oficiales NO está en este PR: solo diseño (`DISENO_FUENTES_OFICIALES_EXTERNAS.md`).
+
 Estado: **implementado, APAGADO por defecto, sin activar.** No hay migraciones, no se toca `biblioteca_vectores`, `/api/rag` sigue cerrado (PR #109), y `/api/chat` conserva su comportamiento cuando Luna está apagada o no responde.
 
 ## Qué hace
 `/api/chat` conserva autenticación, cuota (`reserveRateLimit`), recuperación (resolutor exacto → semántico), Evidence Gate y fallback a fuentes oficiales. Si Luna está encendida, recibe **solo** la pregunta (tras el privacy gate) y la evidencia autorizada, y devuelve una respuesta estructurada (JSON Schema estricto) cuyas afirmaciones se validan: cada claim debe citar un `chunk_id` entregado y tener respaldo `DIRECT` en un fragmento citable. Las referencias del texto final se resuelven desde la evidencia, no desde lo que diga el modelo. Si la evidencia no basta, Luna se abstiene y dice **qué falta**.
+
+Luna solo corre si: el usuario envía `luna:{modalidad:'consulta_juridica_general', aceptado:true, aviso_version:'<vigente>'}` **y** `LUNA_ENABLED=1` **y** `flag_luna_responses` para él **y** la recuperación terminó en `EXACT_SUCCESS`/`SEMANTIC_SUCCESS`. Solo fragmentos **PRIMARY** según el clasificador del #106 salen hacia OpenAI (CONTEXT, vigencia FALSE/NULL, desplazadas, otra jurisdicción o instrumento distinto del pedido: nunca). La suficiencia no se declara por conteo de PRIMARY: exige además una claim con cita DIRECT validada; si no, no hay respuesta de Luna. *Nota:* el «R3» de suficiencia citado en la orden no está definido en el repositorio; el clasificador del #106 expone `suficiente = primarios > 0`, que aquí NO se usa como criterio único. Pendiente que el CLO confirme el texto de R3.
 
 Orden (Fase C): 1) resolutor exacto + corpus interno (solo lectura) · 2) recuperación semántica existente · 3) si no hay evidencia, fallback oficial existente (CEDIJ, solo metadatos, tras `flag_official_source_fallback`) · 4) verificación de instrumento/artículo/vigencia vía compuerta de corpus público · 5) respuesta o abstención. La búsqueda externa nunca modifica el corpus; `lib/luna/incorporation-queue.ts` solo define el tipo del candidato futuro (en memoria, sin escritura).
 
@@ -17,14 +23,30 @@ Orden (Fase C): 1) resolutor exacto + corpus interno (solo lectura) · 2) recupe
 | Académico (`academico`) | low | 1 400 | 16 000 | 8 | USD 0.008 | USD 3 |
 | Premium (`pro`,`admin`) | medium | 2 500 | 24 000 | 12 | USD 0.020 | USD 5 |
 
-Costo del **peor caso** por consulta (entrada completa como escritura de caché + salida máxima, tarifas `gpt-6-luna` Standard de `shadow-model-config.ts`): free ≈ USD 0.0013 · académico ≈ USD 0.0027 · premium ≈ USD 0.0043. Una consulta típica (≈1 000 tokens de entrada, ≈150 de salida) cuesta ≈ USD 0.0002. El límite diario de consultas por usuario sigue siendo el de cuotas existente (free: `FREE_LIMIT_DEFAULT`).
+Costos **ESTIMADOS** hasta la prueba real (tarifas del 2026-10-23, vigencia 7 días). Costo del **peor caso** por consulta (entrada completa como escritura de caché + salida máxima, tarifas `gpt-6-luna` Standard de `shadow-model-config.ts`): free ≈ USD 0.0013 · académico ≈ USD 0.0027 · premium ≈ USD 0.0043. Una consulta típica (≈1 000 tokens de entrada, ≈150 de salida) cuesta ≈ USD 0.0002. El límite diario de consultas por usuario sigue siendo el de cuotas existente (free: `FREE_LIMIT_DEFAULT`).
 
 Sobrescrituras de entorno (opcionales): `LUNA_MODEL_ID`, `LUNA_MODEL_ID_<PLAN>`, `LUNA_BUDGET_USD_<PLAN>`, `LUNA_MAX_QUERY_USD_<PLAN>`. Un modelo sin tarifa registrada se **rechaza** (se usa el predeterminado).
 
 ## Compuertas (todas fail-closed)
-`LUNA_ENABLED=1` → `OPENAI_API_KEY` → privacy gate (PII/longitud ≤ 500) → evidencia autorizada (cada fragmento: `codigo`, HN, `es_norma_vigente=true`, id y hash, no doctrinal, citable) → tope de entrada → tope de costo por consulta → circuit breaker → presupuesto → **modelo disponible en la cuenta** (`GET /v1/models/{id}`, caché 10 min) → llamada con timeout → parseo estricto → validador de citas. Cualquier `SKIPPED/ERROR` deja que la consulta siga por el proveedor vigente.
+modalidad+aviso (ruta) → `LUNA_ENABLED=1` → bandera → `OPENAI_API_KEY` → estado de recuperación → **privacidad estricta** (gate base + primera persona, montos, fechas y números de caso) → evidencia PRIMARY (clasificador #106) → tope de entrada → tope de costo por consulta → **auditoría del payload** (solo `question`+`evidence`, `store:false`, sin campos extra, escaneo de PII sobre la pregunta enviada) → circuit breaker → presupuesto local → **contador GLOBAL** → **modelo disponible en la cuenta** (`GET /v1/models/{id}`, caché 10 min) → llamada con timeout → parseo estricto → validador de citas. Cualquier `SKIPPED/ERROR` deja que la consulta siga por el proveedor vigente.
 
 La solicitud usa `store:false`, sin tools, sin web/file search, sin `previous_response_id`, `maxRetries:0`. `store:false` no equivale a Zero Data Retention (retención de monitoreo de abuso hasta 30 días): por eso solo sale texto de normas públicas y una pregunta ya filtrada.
+
+## Contador global de costos
+El `budget-guard` en memoria es por instancia y **no cuenta como límite global**. El límite global es `lib/luna/cost-counter.ts` sobre dos RPC (`luna_reservar_costo`, `luna_liquidar_costo`) cuyo DDL está en `docs/luna/PROPUESTA_NO_APLICADA_luna_costos.sql` — **PROPUESTA_NO_APLICADA** (no es migración, no se ejecutó, requiere autorización expresa de Fredy). Sin ese DDL, Luna falla cerrada (`PRESUPUESTO_GLOBAL_AGOTADO`). Para la cuenta de prueba existe `LUNA_COST_COUNTER=local_canary_only` (en memoria, una instancia, **no global**, registrado como `contador=LOCAL_CANARY_NO_GLOBAL`).
+
+## Kill switch
+Apagar `flag_luna_responses` (`enabled=false` en `feature_flags`) corta Luna en la solicitud siguiente: la bandera se lee de la base en cada solicitud (sin caché), sin redeploy y sin tocar datos (probado en `tests/chat-luna.test.ts`, «KILL SWITCH»). `LUNA_ENABLED` es el corte global de entorno y sí requiere redeploy.
+
+## Prueba real del modelo (NO ejecutada)
+`scripts/luna-verify-model.ts` verifica con datos sintéticos: modelo en la cuenta, `reasoning.effort` none/low/medium, JSON Schema estricto, `store:false`, tokens y costo estimado. Exige `LUNA_VERIFY_CONFIRM=SI_FREDY` y una clave de PRUEBA; sin ellas sale con código 2 sin abrir red (probado). **No se ejecuta sin el sí de Fredy.**
+
+## Habilitación por etapas (decisión de Fredy en cada paso)
+1. Autorizar y ejecutar `scripts/luna-verify-model.ts` con la clave de prueba; anotar qué esfuerzos soporta y el costo real; revalidar tarifas.
+2. Cuenta de prueba: Preview, `OPENAI_API_KEY`+`LUNA_ENABLED=1`+`LUNA_COST_COUNTER=local_canary_only`, bandera solo para el correo de Fredy.
+3. Aplicar (si Fredy autoriza) el DDL del contador global y quitar `local_canary_only`.
+4. Free → Académico → Premium, cada etapa con bandera por lista de correos y revisión de los registros `[Luna]` (solo códigos y cifras). Interfaz: falta el interruptor y el aviso en `ChatInterface` (texto en `AVISO_LUNA_TEXTO`, PENDIENTE_VERIFICACIÓN legal).
+5. Fusionar #106 antes que #110.
 
 ## Activación / desactivación (decisión del propietario; nada de esto se ejecutó)
 1. Verificar el modelo con la clave real: `curl -s https://api.openai.com/v1/models/gpt-6-luna -H "Authorization: Bearer $OPENAI_API_KEY"` (200 con `"id":"gpt-6-luna"`).
@@ -38,9 +60,9 @@ Canary: Preview con 1 usuario (propietario) → 3–5 usuarios Premium → Acad�
 
 ## Riesgos residuales
 - **No se verificó contra la API real**: el sandbox no tiene credencial ni salida a `api.openai.com`. La compatibilidad (modelo, `reasoning.effort` = `low`/`medium`, esquema estricto) se apoya en la verificación documental G6-A; solo `none` figura como soportado en el registro. Si la API rechaza `low`/`medium`, la llamada falla (`ERROR`) y la consulta sigue por el proveedor vigente.
-- Presupuesto y circuit breaker son **en memoria por instancia** serverless: el tope duro real es el costo máximo por consulta × cuota diaria de usuarios. Un presupuesto global exige almacén compartido (decisión posterior).
-- El manifiesto de procedencia fuerte del gateway sigue vacío; Luna usa la compuerta de corpus público (vigente + id + hash + citable), no la procedencia fuerte. Que eso baste para enviar texto de normas al proveedor es **decisión del propietario/CLO**.
-- Las reglas CLO del PR #106 (PRIMARY/CONTEXT, `flag_corpus_p21`) no están en `main`; si #106 se fusiona, `autorizarEvidencia` debe adoptar `esCitableComoNorma`.
-- Luna no hace streaming (valida antes de mostrar) y no recibe historial de conversación (privacidad); las preguntas de seguimiento sin contexto propio pueden abstenerse. Preguntas > 500 caracteres no pasan el privacy gate y siguen por el proveedor vigente.
-- El fallback externo sigue siendo solo metadatos (CEDIJ); no hay extracción de texto de artículos desde fuentes oficiales ni cola de incorporación persistente.
+- Hasta que se aplique el DDL del contador global, no hay límite global multi-instancia (Luna falla cerrada fuera del canary de cuenta de prueba).
+- El manifiesto de procedencia fuerte del gateway sigue vacío; Luna usa el clasificador del #106 (PRIMARY), no la procedencia fuerte. Que eso baste para enviar texto de normas al proveedor es **decisión del propietario/CLO**.
+- **Riesgo de privacidad residual:** el filtro es determinista; nombres fuera de diccionario en minúscula o hechos del caso en tercera persona sin marcadores pueden pasar. Mitigación: modalidad opt-in con aviso, privacidad estricta, payload mínimo auditado, `store:false`, kill switch y piloto con cuenta de prueba. La retención de abuso de OpenAI (hasta 30 días) no se elimina con `store:false`.
+- Luna no hace streaming (valida antes de mostrar) y no recibe historial ni archivos ni datos de sesión; las preguntas de seguimiento sin contexto propio pueden abstenerse. Preguntas > 500 caracteres o con datos de caso siguen por el proveedor vigente.
+- Búsqueda externa en fuentes oficiales: fuera de este PR (solo diseño). El fallback sigue siendo solo metadatos (CEDIJ).
 - Se amplió una regla de política de pruebas (`tests/ai-gateway-shadow.test.ts`): `lib/luna` puede importar `lib/ai-gateway`; la regla «SDK y credencial solo en `openai-adapter.ts`» sigue intacta. Evidencia G6 regenerada por el cambio de código.

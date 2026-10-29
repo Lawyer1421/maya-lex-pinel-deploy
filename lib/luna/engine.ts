@@ -14,10 +14,12 @@
 import { crearBudgetGuard, type BudgetGuard } from '../ai-gateway/shadow/budget-guard';
 import { crearCircuitBreaker, type CircuitBreaker } from '../ai-gateway/shadow/circuit-breaker';
 import { validarSalida } from '../ai-gateway/shadow/citation-validator';
-import { privacyGate } from '../ai-gateway/shadow/privacy-gate';
 import type { ShadowGatewayInput } from '../ai-gateway/shadow/types';
-import type { FragmentoRAG } from '../legal-retrieval/types';
-import { construirSolicitudLuna, credencialOpenAIDisponible, crearClienteOpenAI, type ClienteLuna } from './adapter';
+import type { FragmentoRAG, RetrievalExecutionState } from '../legal-retrieval/types';
+import { createServerSupabaseClient } from '../supabase';
+import { auditarPayload, construirSolicitudLuna, credencialOpenAIDisponible, crearClienteOpenAI, type AuditoriaPayload, type ClienteLuna } from './adapter';
+import { aMicroUsd, crearContadorLocalCanary, crearContadorSupabase, type ContadorCostos } from './cost-counter';
+import { privacidadConsultaGeneral } from './privacy';
 import { lunaHabilitadaPorEntorno, planDesdeTier, resolverConfigPlan, type PlanLuna } from './config';
 import { autorizarEvidencia } from './evidence';
 import { crearValidadorModelo, type ValidadorModelo } from './model-validation';
@@ -30,6 +32,10 @@ export interface EntradaLuna {
   fragmentos: readonly FragmentoRAG[];
   /** Tier de cuota ya verificado en el servidor (rateLimitResult.tier). */
   tier: string;
+  /** Estado de recuperación de la colección principal (outcome.state). Solo EXACT/SEMANTIC_SUCCESS permiten a Luna responder. */
+  retrievalState: RetrievalExecutionState | undefined;
+  /** flag_corpus_p21 ya resuelto por la ruta; ausente = apagado (el clasificador degrada las filas P21 a CONTEXT). */
+  corpusP21Habilitado?: boolean;
 }
 
 export interface UsoLuna {
@@ -39,7 +45,7 @@ export interface UsoLuna {
 }
 
 export type ResultadoLuna =
-  | { estado: 'ANSWER'; texto: string; referencias: ReferenciaLuna[]; modelo: string; plan: PlanLuna; uso: UsoLuna; latenciaMs: number }
+  | { estado: 'ANSWER'; texto: string; referencias: ReferenciaLuna[]; /** chunk_id con cita DIRECT validada: base de las citas del SSE. */ chunkIdsValidados: string[]; modelo: string; plan: PlanLuna; uso: UsoLuna; latenciaMs: number }
   | { estado: 'ABSTAIN'; texto: string; modelo: string; plan: PlanLuna; uso: UsoLuna; latenciaMs: number }
   | { estado: 'SKIPPED' | 'ERROR'; motivo: string };
 
@@ -50,6 +56,10 @@ export interface RegistroLuna {
   plan: PlanLuna;
   modelo?: string;
   uso?: UsoLuna;
+  /** Auditoría del payload ENVIADO (campos, tamaño, escaneo de PII). Sin texto. */
+  payload?: AuditoriaPayload;
+  /** true si el límite de costos aplicado era global (multi-instancia); false = local de canary. */
+  contadorGlobal?: boolean;
 }
 
 export interface DepsMotorLuna {
@@ -57,6 +67,8 @@ export interface DepsMotorLuna {
   crearCliente?: () => ClienteLuna;
   ahora?: () => number;
   registrar?: (r: RegistroLuna) => void;
+  /** Contador de costos. Por defecto: global sobre Supabase (RPC propuestas, no aplicadas) o local solo con LUNA_COST_COUNTER=local_canary_only. */
+  contador?: ContadorCostos;
 }
 
 class TimeoutLuna extends Error {
@@ -75,7 +87,8 @@ function conTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: number): Pro
 }
 
 const registroPorDefecto = (r: RegistroLuna) => {
-  console.log(`[Luna] estado=${r.estado} plan=${r.plan} motivo=${r.motivo ?? '-'}${r.uso ? ` costo_usd=${r.uso.costoEstimadoUsd.toFixed(6)}` : ''}`);
+  const p = r.payload ? ` payload=${r.payload.campos.join('+')} evidencias=${r.payload.evidencias} bytes=${r.payload.bytes} pii=${r.payload.pii}` : '';
+  console.log(`[Luna] estado=${r.estado} plan=${r.plan} motivo=${r.motivo ?? '-'}${r.uso ? ` costo_usd=${r.uso.costoEstimadoUsd.toFixed(6)} (estimado)` : ''}${p}${r.contadorGlobal === false ? ' contador=LOCAL_CANARY_NO_GLOBAL' : ''}`);
 };
 
 export function crearMotorLuna(deps: DepsMotorLuna = {}) {
@@ -85,6 +98,11 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
   const validador: ValidadorModelo = crearValidadorModelo(ahora);
   const breaker: CircuitBreaker = crearCircuitBreaker({ ahora });
   const presupuestos = new Map<PlanLuna, BudgetGuard>();
+  const diaHn = () => new Date(ahora()).toLocaleDateString('en-CA', { timeZone: 'America/Tegucigalpa' });
+  const contador: ContadorCostos = deps.contador
+    ?? (env.LUNA_COST_COUNTER === 'local_canary_only'
+      ? crearContadorLocalCanary(diaHn)
+      : crearContadorSupabase(() => createServerSupabaseClient() as never, diaHn));
 
   const presupuestoDe = (plan: PlanLuna, usd: number): BudgetGuard => {
     let g = presupuestos.get(plan);
@@ -111,11 +129,16 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
         if (!lunaHabilitadaPorEntorno(env)) return salir({ estado: 'SKIPPED', motivo: 'DESHABILITADA' });
         if (!credencialOpenAIDisponible()) return salir({ estado: 'SKIPPED', motivo: 'SIN_CREDENCIAL' });
 
-        const privacidad = privacyGate(entrada.pregunta);
-        if (privacidad.estado !== 'PASS') return salir({ estado: 'SKIPPED', motivo: `PRIVACIDAD_${privacidad.etapa}` });
+        // Suficiencia de recuperación: solo si el pipeline acreditó evidencia (resolutor exacto o semántica con PRIMARY, #106).
+        const estadoRecuperacion = entrada.retrievalState;
+        if (estadoRecuperacion !== 'EXACT_SUCCESS' && estadoRecuperacion !== 'SEMANTIC_SUCCESS') return salir({ estado: 'SKIPPED', motivo: 'EVIDENCIA_NO_ACREDITADA' });
+
+        // Privacidad estricta de la modalidad general: rechaza SIN llamar a OpenAI (la ruta deriva al proveedor actual).
+        const privacidad = privacidadConsultaGeneral(entrada.pregunta);
+        if (privacidad.estado !== 'PASS') return salir({ estado: 'SKIPPED', motivo: `PRIVACIDAD_${privacidad.razon}` });
 
         const config = resolverConfigPlan(plan, env);
-        const { evidencia: candidata } = autorizarEvidencia(entrada.fragmentos, config.maxEvidencias);
+        const { evidencia: candidata } = autorizarEvidencia(entrada.fragmentos, config.maxEvidencias, { corpusP21Habilitado: entrada.corpusP21Habilitado });
         if (candidata.length === 0) return salir({ estado: 'SKIPPED', motivo: 'SIN_EVIDENCIA_AUTORIZADA' });
 
         // Tope de entrada: se recorta la evidencia sobrante (la de menor orden de relevancia) hasta que quepa.
@@ -124,7 +147,7 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           queryId: entrada.queryId,
           sanitizedQuestion: entrada.pregunta,
           evidence: ev,
-          productionOutcome: { decision: 'ANSWER', retrievalState: 'SEMANTIC_SUCCESS' },
+          productionOutcome: { decision: 'ANSWER', retrievalState: estadoRecuperacion },
         });
         const tokensDe = (ev: typeof candidata) =>
           estimarTokensEntrada(entrada.pregunta.length + ev.reduce((n, e) => n + e.texto.length + 200, 0) + 1500);
@@ -135,11 +158,23 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
         const reserva = costoPeorCasoUsd(config.modelId, tokensDe(evidencia), config.maxOutputTokens);
         if (!(reserva <= config.maxCostoConsultaUsd)) return salir({ estado: 'SKIPPED', motivo: 'COSTO_EXCEDE_TOPE_CONSULTA' });
 
-        if (!breaker.permitir()) return salir({ estado: 'SKIPPED', motivo: 'CIRCUITO_ABIERTO' });
+        // Auditoría del payload que se enviaría: estructura mínima y escaneo de la pregunta enviada. Fail-closed.
+        const solicitud = construirSolicitudLuna(input, config);
+        const payload = auditarPayload(solicitud);
+        if (!payload.ok) return salir({ estado: 'SKIPPED', motivo: 'PAYLOAD_NO_AUDITADO' }, { payload });
+
+        if (!breaker.permitir()) return salir({ estado: 'SKIPPED', motivo: 'CIRCUITO_ABIERTO' }, { payload });
         const presupuesto = presupuestoDe(plan, config.presupuestoDiarioUsd);
         if (!presupuesto.reservar(reserva)) {
           breaker.cancelarSonda();
-          return salir({ estado: 'SKIPPED', motivo: 'PRESUPUESTO_AGOTADO' });
+          return salir({ estado: 'SKIPPED', motivo: 'PRESUPUESTO_AGOTADO' }, { payload });
+        }
+        // Límite GLOBAL (multi-instancia). El guard en memoria de arriba es una capa extra por instancia, no el límite.
+        const reservaMicro = aMicroUsd(reserva);
+        if (!(await contador.reservar(plan, reservaMicro, aMicroUsd(config.presupuestoDiarioUsd)))) {
+          presupuesto.liquidar(reserva, 0);
+          breaker.cancelarSonda();
+          return salir({ estado: 'SKIPPED', motivo: contador.global ? 'PRESUPUESTO_GLOBAL_AGOTADO' : 'PRESUPUESTO_CANARY_AGOTADO' }, { payload, contadorGlobal: contador.global });
         }
 
         const cliente = (deps.crearCliente ?? (() => crearClienteOpenAI()))();
@@ -147,12 +182,13 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           const validacion = await conTimeout((signal) => validador.validar(config.modelId, cliente, signal), Math.min(config.timeoutMs, 10_000));
           if (!validacion.disponible) {
             presupuesto.liquidar(reserva, 0);
+            await contador.liquidar(plan, reservaMicro, 0);
             breaker.cancelarSonda();
-            return salir({ estado: 'SKIPPED', motivo: `MODELO_${validacion.razon}` }, { modelo: config.modelId });
+            return salir({ estado: 'SKIPPED', motivo: `MODELO_${validacion.razon}` }, { modelo: config.modelId, payload });
           }
 
           const inicio = ahora();
-          const respuesta = await conTimeout((signal) => cliente.responses.create(construirSolicitudLuna(input, config), { signal }), config.timeoutMs);
+          const respuesta = await conTimeout((signal) => cliente.responses.create(solicitud, { signal }), config.timeoutMs);
           if (!respuesta.usage) throw new Error('respuesta sin usage');
           breaker.exito();
           const u = respuesta.usage;
@@ -164,6 +200,7 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           });
           const cota = costoPeorCasoUsd(config.modelId, u.input_tokens, u.output_tokens);
           presupuesto.liquidar(reserva, Number.isFinite(cota) ? cota : Number.NaN);
+          await contador.liquidar(plan, reservaMicro, Number.isFinite(cota) ? aMicroUsd(cota) : Number.NaN);
           const uso: UsoLuna = {
             inputTokens: u.input_tokens,
             outputTokens: u.output_tokens,
@@ -171,17 +208,20 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           };
 
           if (resultado.status === 'ANSWER') {
-            const { texto, referencias } = renderizarRespuesta(resultado.claims, evidencia);
-            return salir({ estado: 'ANSWER', texto, referencias, modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso });
+            const { texto, referencias, chunkIdsValidados } = renderizarRespuesta(resultado.claims, evidencia);
+            // Sin ninguna cita DIRECT validada no hay respuesta: un conteo de PRIMARY por sí solo no da suficiencia.
+            if (chunkIdsValidados.length === 0) return salir({ estado: 'ERROR', motivo: 'SIN_CITA_DIRECTA_VALIDADA' }, { modelo: config.modelId, uso, payload });
+            return salir({ estado: 'ANSWER', texto, referencias, chunkIdsValidados, modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, contadorGlobal: contador.global });
           }
           if (resultado.status === 'ABSTAIN') {
-            return salir({ estado: 'ABSTAIN', texto: renderizarAbstencion(resultado.abstentionReason), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso });
+            return salir({ estado: 'ABSTAIN', texto: renderizarAbstencion(resultado.abstentionReason), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, contadorGlobal: contador.global });
           }
           // INVALID: la salida del modelo no es utilizable; la ruta sigue por el proveedor vigente. El gasto ya quedó liquidado.
-          return salir({ estado: 'ERROR', motivo: 'SALIDA_INVALIDA' }, { modelo: config.modelId, uso });
+          return salir({ estado: 'ERROR', motivo: 'SALIDA_INVALIDA' }, { modelo: config.modelId, uso, payload });
         } catch (e) {
           breaker.fallo();
           presupuesto.liquidar(reserva, Number.NaN);
+          await contador.liquidar(plan, reservaMicro, Number.NaN);
           const esTimeout = e instanceof TimeoutLuna;
           return salir({ estado: 'ERROR', motivo: esTimeout ? 'TIMEOUT' : (e instanceof Error ? e.name : 'DESCONOCIDO') }, { modelo: config.modelId });
         }
