@@ -18,13 +18,15 @@ import type { ShadowGatewayInput } from '../ai-gateway/shadow/types';
 import type { FragmentoRAG, RetrievalExecutionState } from '../legal-retrieval/types';
 import { createServerSupabaseClient } from '../supabase';
 import { auditarPayload, construirSolicitudLuna, credencialOpenAIDisponible, crearClienteOpenAI, type AuditoriaPayload, type ClienteLuna } from './adapter';
+import { evaluarSuficienciaR3, resumenEvidenciaClo, type MotivoR3 } from '../legal-retrieval/clo-guards';
+import { objetivosDeConsulta } from '../legal-retrieval/r3-objetivos';
 import { aMicroUsd, crearContadorLocalCanary, crearContadorSupabase, type ContadorCostos } from './cost-counter';
 import { privacidadConsultaGeneral } from './privacy';
 import { lunaHabilitadaPorEntorno, planDesdeTier, resolverConfigPlan, type PlanLuna } from './config';
 import { autorizarEvidencia } from './evidence';
 import { crearValidadorModelo, type ValidadorModelo } from './model-validation';
 import { costoPeorCasoUsd, costoRealUsd, estimarTokensEntrada } from './pricing';
-import { renderizarAbstencion, renderizarRespuesta, type ReferenciaLuna } from './render';
+import { renderizarAbstencion, renderizarAbstencionR3, renderizarRespuesta, type ReferenciaLuna } from './render';
 
 export interface EntradaLuna {
   queryId: string;
@@ -58,6 +60,8 @@ export interface RegistroLuna {
   uso?: UsoLuna;
   /** Auditoría del payload ENVIADO (campos, tamaño, escaneo de PII). Sin texto. */
   payload?: AuditoriaPayload;
+  /** Motivo de la abstención por R3, si la hubo. */
+  motivoR3?: MotivoR3;
   /** true si el límite de costos aplicado era global (multi-instancia); false = local de canary. */
   contadorGlobal?: boolean;
 }
@@ -138,6 +142,10 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
         if (privacidad.estado !== 'PASS') return salir({ estado: 'SKIPPED', motivo: `PRIVACIDAD_${privacidad.razon}` });
 
         const config = resolverConfigPlan(plan, env);
+        // R3 (clasificador compartido, #106): sin un PRIMARY vigente (TRUE) del mismo instrumento y artículo consultados no se llama a OpenAI.
+        const ctxClo = { corpusP21Habilitado: entrada.corpusP21Habilitado };
+        const objetivos = objetivosDeConsulta(entrada.pregunta);
+        if (!resumenEvidenciaClo(entrada.fragmentos, ctxClo, objetivos).suficiente) return salir({ estado: 'SKIPPED', motivo: 'EVIDENCIA_NO_ACREDITADA' });
         const { evidencia: candidata } = autorizarEvidencia(entrada.fragmentos, config.maxEvidencias, { corpusP21Habilitado: entrada.corpusP21Habilitado });
         if (candidata.length === 0) return salir({ estado: 'SKIPPED', motivo: 'SIN_EVIDENCIA_AUTORIZADA' });
 
@@ -208,8 +216,22 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           };
 
           if (resultado.status === 'ANSWER') {
-            const { texto, referencias, chunkIdsValidados } = renderizarRespuesta(resultado.claims, evidencia);
-            // Sin ninguna cita DIRECT validada no hay respuesta: un conteo de PRIMARY por sí solo no da suficiencia.
+            // R3 completa (clasificador compartido): cita DIRECT validada a un PRIMARY vigente del mismo instrumento y artículo consultados que
+            // respalde la afirmación CONCRETA. Solo las afirmaciones que lo cumplen se muestran y se citan; sin ninguna, hay abstención.
+            const r3 = evaluarSuficienciaR3(
+              entrada.fragmentos,
+              resultado.claims.map((c) => ({ claim_id: c.claim_id, texto: c.text, citas: c.citations.map((ct) => ({ fragmentoId: ct.chunk_id, soporte: ct.support })) })),
+              objetivos,
+              ctxClo,
+            );
+            if (!r3.suficiente) {
+              return salir({ estado: 'ABSTAIN', texto: renderizarAbstencionR3(r3.motivo), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, motivoR3: r3.motivo, contadorGlobal: contador.global });
+            }
+            const validas = new Map(r3.afirmacionesValidas.map((a) => [a.claim_id, new Set(a.fragmentoIds)]));
+            const claimsR3 = resultado.claims
+              .filter((c) => validas.has(c.claim_id))
+              .map((c) => ({ ...c, citations: c.citations.filter((ct) => ct.support === 'DIRECT' && validas.get(c.claim_id)!.has(ct.chunk_id)) }));
+            const { texto, referencias, chunkIdsValidados } = renderizarRespuesta(claimsR3, evidencia);
             if (chunkIdsValidados.length === 0) return salir({ estado: 'ERROR', motivo: 'SIN_CITA_DIRECTA_VALIDADA' }, { modelo: config.modelId, uso, payload });
             return salir({ estado: 'ANSWER', texto, referencias, chunkIdsValidados, modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, contadorGlobal: contador.global });
           }

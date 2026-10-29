@@ -89,10 +89,18 @@ function numeroEnv(crudo: string | undefined, porDefecto: number, { permitirCero
   return n;
 }
 
-/** Kill switch de entorno. Cualquier valor distinto de '1' apaga Luna. */
+/**
+ * Kill switch de entorno. Cualquier valor distinto de '1' apaga Luna. En PRODUCCIÓN (VERCEL_ENV=production) además exige una segunda llave
+ * explícita, LUNA_ALLOW_PRODUCTION=1: la habilitación por etapas empieza en Preview con la cuenta de prueba y nunca con usuarios de producción.
+ */
 export function lunaHabilitadaPorEntorno(env: Env = process.env): boolean {
-  return env.LUNA_ENABLED === '1';
+  if (env.LUNA_ENABLED !== '1') return false;
+  if (env.VERCEL_ENV === 'production' && env.LUNA_ALLOW_PRODUCTION !== '1') return false;
+  return true;
 }
+
+/** Presupuesto diario máximo en Preview (USD): estricto por defecto. Sobrescribible con LUNA_PREVIEW_BUDGET_USD (>= 0). */
+export const PRESUPUESTO_PREVIEW_USD = 0.05;
 
 /**
  * Configuración efectiva del plan. Un modelo pedido por entorno (LUNA_MODEL_ID / LUNA_MODEL_ID_<PLAN>) solo se acepta
@@ -103,11 +111,13 @@ export function resolverConfigPlan(plan: PlanLuna, env: Env = process.env): Conf
   const sufijo = ENV_PLAN[plan];
   const pedido = (env[`LUNA_MODEL_ID_${sufijo}`] ?? env.LUNA_MODEL_ID ?? '').trim();
   const modelId = pedido !== '' && MODELOS_CON_TARIFA.has(pedido) ? pedido : DEFAULT_MODEL_ID;
+  const presupuesto = numeroEnv(env[`LUNA_BUDGET_USD_${sufijo}`], base.presupuestoDiarioUsd, { permitirCero: true });
   return {
     plan,
     ...base,
     modelId,
-    presupuestoDiarioUsd: numeroEnv(env[`LUNA_BUDGET_USD_${sufijo}`], base.presupuestoDiarioUsd, { permitirCero: true }),
+    // En Preview el tope diario nunca supera el presupuesto estricto de Preview, aunque el del plan sea mayor.
+    presupuestoDiarioUsd: env.VERCEL_ENV === 'preview' ? Math.min(presupuesto, numeroEnv(env.LUNA_PREVIEW_BUDGET_USD, PRESUPUESTO_PREVIEW_USD, { permitirCero: true })) : presupuesto,
     maxCostoConsultaUsd: numeroEnv(env[`LUNA_MAX_QUERY_USD_${sufijo}`], base.maxCostoConsultaUsd),
     ...(pedido !== '' && modelId !== pedido ? { modeloRechazado: pedido } : {}),
   };

@@ -14,6 +14,25 @@ export const AVISO_LUNA_TEXTO =
   'ni cuentes hechos propios. No se envían tu historial, archivos ni datos de tu sesión. El proveedor puede conservar registros de ' +
   'monitoreo de abuso hasta 30 días. La respuesta es analítica y NO OFICIAL.';
 
+/**
+ * ¿El CLO aprobó el texto del aviso para mostrarlo a usuarios? MIENTRAS SEA false la interfaz NO muestra el interruptor ni el aviso (el texto
+ * vive solo en docs/luna/AVISO_LUNA_BORRADOR.md). Cambiarlo a true es un cambio revisado, posterior a la aprobación escrita del CLO.
+ */
+export const AVISO_LUNA_APROBADO_POR_CLO = false;
+
+/** Estado del interruptor en la interfaz: apagado por defecto; el consentimiento es una acción aparte y versionada. */
+export interface EstadoInterruptorLuna {
+  activo: boolean;
+  aceptado: boolean;
+}
+export const INTERRUPTOR_LUNA_INICIAL: EstadoInterruptorLuna = Object.freeze({ activo: false, aceptado: false });
+
+/** Campo `luna` del cuerpo de /api/chat. Sin interruptor visible, activo y aceptado, no se envía NADA (el servidor lo trata como no solicitada). */
+export function construirCampoLuna(estado: EstadoInterruptorLuna, aprobado: boolean = AVISO_LUNA_APROBADO_POR_CLO): SolicitudLuna | undefined {
+  if (!aprobado || !estado.activo || !estado.aceptado) return undefined;
+  return { modalidad: MODALIDAD_CONSULTA_GENERAL, aceptado: true, aviso_version: AVISO_LUNA_VERSION };
+}
+
 export interface SolicitudLuna {
   modalidad?: unknown;
   aceptado?: unknown;

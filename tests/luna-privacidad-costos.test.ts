@@ -6,13 +6,13 @@ import { privacidadConsultaGeneral } from '@/lib/luna/privacy';
 import { AVISO_LUNA_VERSION, MODALIDAD_CONSULTA_GENERAL, evaluarConsentimientoLuna } from '@/lib/luna/consent';
 import { citasValidadasDeLuna } from '@/lib/luna/citas';
 import { auditarPayload, construirSolicitudLuna, type ClienteLuna } from '@/lib/luna/adapter';
-import { resolverConfigPlan } from '@/lib/luna/config';
+import { lunaHabilitadaPorEntorno, resolverConfigPlan, PRESUPUESTO_PREVIEW_USD } from '@/lib/luna/config';
 import { crearContadorLocalCanary, crearContadorSupabase, aMicroUsd, RPC_RESERVAR, RPC_LIQUIDAR, type ClienteRpc } from '@/lib/luna/cost-counter';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
 import { CONFIRMACION, main, verificarModelo } from '@/scripts/luna-verify-model';
 
 const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
-  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Texto sintético de prueba.', num_articulo: '173',
+  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
   fuente: 'Codigo Procesal Penal', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234', ...x,
 });
 
@@ -60,6 +60,58 @@ describe('privacidad de la consulta jurídica general — casos que se RECHAZAN 
   });
   it('entradas inválidas fallan cerrado', () => {
     for (const x of [undefined, null, 5, '', '   ', {}]) expect(privacidadConsultaGeneral(x).estado).toBe('REJECT');
+  });
+});
+
+describe('fail-closed: si no se puede clasificar como consulta general con seguridad, NO sale', () => {
+  it.each([
+    ['nombre en minúscula', '¿Qué dice el Código Civil si zacarias quiroz vende un inmueble?'],
+    ['dos nombres en minúscula', '¿Qué plazo establece el Código del Trabajo para wenceslao maldonado?'],
+    ['nombre tras tratamiento', '¿Qué obligaciones impone el Código de Comercio a don ramiro?'],
+    ['hechos en tercera persona (pretérito)', '¿Qué dice el Código del Trabajo si el patrono despidió al empleado sin causa?'],
+    ['hechos en tercera persona (plural)', '¿Qué prevé el Código Penal cuando dos personas robaron un vehículo?'],
+    ['relato con "fue"', '¿Qué dice el Código Procesal Penal de una persona que fue detenida sin orden?'],
+    ['persona concreta por rol', '¿Qué dice el Código Civil sobre el contrato del cliente garcia?'],
+    ['nombre tras "llamado"', '¿Qué dice el Código Civil sobre un vendedor llamado osorio?'],
+  ])('REJECT %s', (_n, q) => {
+    const r = privacidadConsultaGeneral(q);
+    expect(r.estado).toBe('REJECT');
+    if (r.estado === 'REJECT') expect(r.razon).not.toMatch(/zacarias|quiroz|osorio|garcia|ramiro/i);
+  });
+  it.each([
+    '¿Qué obligaciones tiene el arrendador según el Código Civil?',
+    '¿Qué debe hacer un patrono para despedir a un trabajador según el Código del Trabajo?',
+    '¿Cuándo procede la prisión preventiva en el proceso penal hondureño?',
+  ])('sigue PASS (abstracta, tiempo presente): %s', (q) => {
+    expect(privacidadConsultaGeneral(q)).toEqual({ estado: 'PASS' });
+  });
+});
+
+describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, aviso sin aprobar', () => {
+  it('sin aprobación del CLO no se envía ningún campo, aunque el usuario active y acepte', async () => {
+    const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_APROBADO_POR_CLO } = await import('@/lib/luna/consent');
+    expect(AVISO_LUNA_APROBADO_POR_CLO).toBe(false);
+    expect(INTERRUPTOR_LUNA_INICIAL).toEqual({ activo: false, aceptado: false });
+    expect(construirCampoLuna({ activo: true, aceptado: true })).toBeUndefined();
+  });
+  it('con aprobación: solo activo + aceptado produce el campo, con la versión vigente', async () => {
+    const { construirCampoLuna } = await import('@/lib/luna/consent');
+    expect(construirCampoLuna({ activo: true, aceptado: false }, true)).toBeUndefined();
+    expect(construirCampoLuna({ activo: false, aceptado: true }, true)).toBeUndefined();
+    expect(construirCampoLuna({ activo: true, aceptado: true }, true)).toEqual({ modalidad: MODALIDAD_CONSULTA_GENERAL, aceptado: true, aviso_version: AVISO_LUNA_VERSION });
+  });
+  it('el borrador del aviso en docs/ contiene el texto del código y el estado «sin aprobar»', async () => {
+    const { AVISO_LUNA_TEXTO } = await import('@/lib/luna/consent');
+    const doc = readFileSync(join(process.cwd(), 'docs', 'luna', 'AVISO_LUNA_BORRADOR.md'), 'utf8');
+    expect(doc).toContain(AVISO_LUNA_TEXTO);
+    expect(doc).toContain(AVISO_LUNA_VERSION);
+    expect(doc).toMatch(/BORRADOR/);
+  });
+  it('ChatInterface importa el interruptor solo vía consent y no incrusta el texto del aviso', () => {
+    const ui = readFileSync(join(process.cwd(), 'components', 'ChatInterface.tsx'), 'utf8');
+    expect(ui).toContain('construirCampoLuna');
+    expect(ui).toContain('AVISO_LUNA_APROBADO_POR_CLO');
+    expect(ui).not.toContain('Consulta jurídica general: tu pregunta');
   });
 });
 
@@ -122,7 +174,7 @@ describe('payload mínimo y registro de que no lleva PII', () => {
     expect(registros[0].contadorGlobal).toBe(false);
     const dump = JSON.stringify(registros);
     expect(dump).not.toContain(pregunta);
-    expect(dump).not.toContain('Texto sintético');
+    expect(dump).not.toContain('medidas cautelares personales proceden');
   });
 });
 
@@ -146,7 +198,7 @@ describe('suficiencia: ni un conteo de PRIMARY ni un estado ajeno bastan', () =>
   });
   it('un INDIRECT junto a un DIRECT no se cita como fundamento', async () => {
     const dos = [frag(), frag({ id: 'otro', num_articulo: '174', hash: 'h2' })];
-    const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c', text: 'regla', citations: [{ chunk_id: dos[0].id!, support: 'DIRECT' }, { chunk_id: 'otro', support: 'INDIRECT' }] }] }), usage: { input_tokens: 500, output_tokens: 50 } });
+    const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c', text: 'Las medidas cautelares personales proceden con indicios racionales de participación.', citations: [{ chunk_id: dos[0].id!, support: 'DIRECT' }, { chunk_id: 'otro', support: 'INDIRECT' }] }] }), usage: { input_tokens: 500, output_tokens: 50 } });
     const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
     const r = await m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: dos, tier: 'free', retrievalState: 'EXACT_SUCCESS' });
     expect(r.estado).toBe('ANSWER');
@@ -250,5 +302,47 @@ describe('Luna no escribe en el corpus ni en datos de clientes', () => {
       const t = readFileSync(join(dir, n), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
       expect(t, n).not.toMatch(/\.(insert|update|delete|upsert)\s*\(|biblioteca_vectores|suscripcion|paypal|\.from\s*\(/i);
     }
+  });
+});
+
+describe('Preview: cuenta de prueba, presupuesto estricto y nunca producción por accidente', () => {
+  it('en producción LUNA_ENABLED=1 no basta: exige la segunda llave LUNA_ALLOW_PRODUCTION=1', () => {
+    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'production' })).toBe(false);
+    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'production', LUNA_ALLOW_PRODUCTION: '1' })).toBe(true);
+    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'preview' })).toBe(true);
+    expect(lunaHabilitadaPorEntorno({ VERCEL_ENV: 'preview' })).toBe(false);
+  });
+  it('en Preview el presupuesto diario de cada plan se limita al de Preview (USD 0.05 por defecto)', () => {
+    for (const plan of ['free', 'academico', 'premium'] as const) {
+      expect(resolverConfigPlan(plan, { VERCEL_ENV: 'preview' }).presupuestoDiarioUsd).toBe(PRESUPUESTO_PREVIEW_USD);
+    }
+    expect(resolverConfigPlan('premium', { VERCEL_ENV: 'preview', LUNA_PREVIEW_BUDGET_USD: '0.01' }).presupuestoDiarioUsd).toBe(0.01);
+    expect(resolverConfigPlan('free', { VERCEL_ENV: 'preview', LUNA_BUDGET_USD_FREE: '0.02' }).presupuestoDiarioUsd).toBe(0.02);
+    expect(resolverConfigPlan('premium', { VERCEL_ENV: 'production' }).presupuestoDiarioUsd).toBe(5);
+  });
+});
+
+describe('script de verificación real: el secreto solo del entorno, nunca del repo ni de los logs', () => {
+  it('el código fuente no contiene claves ni imprime variables de entorno', () => {
+    const src = readFileSync(join(process.cwd(), 'scripts', 'luna-verify-model.ts'), 'utf8');
+    expect(src).not.toMatch(/sk-[A-Za-z0-9_-]{8,}/);
+    expect(src).not.toMatch(/console\.\w+\([^)]*process\.env/);
+    expect(src).not.toMatch(/process\.env\.OPENAI_API_KEY/);   // la clave solo la lee openai-adapter.ts
+  });
+  it('ni el informe ni los mensajes de error reproducen la clave', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test-SECRETO-NO-IMPRIMIR';
+    const out: string[] = [];
+    const cliente: ClienteLuna = {
+      models: { retrieve: async (id: string) => ({ id }) },
+      responses: { create: async () => { throw Object.assign(new Error('Incorrect API key provided: sk-test-SECRETO-NO-IMPRIMIR'), { status: 401 }); } },
+    };
+    await main([], { LUNA_VERIFY_CONFIRM: CONFIRMACION }, () => cliente, (t) => out.push(t));
+    delete process.env.OPENAI_API_KEY;
+    expect(out.join('\n')).not.toContain('SECRETO');
+  });
+  it('usa solo consultas sintéticas (sin corpus real ni datos de clientes)', () => {
+    const src = readFileSync(join(process.cwd(), 'scripts', 'luna-verify-model.ts'), 'utf8');
+    expect(src).toContain('sintetico:a1');
+    expect(src).not.toMatch(/biblioteca_vectores|createServerSupabaseClient|buscarRAG/);
   });
 });
