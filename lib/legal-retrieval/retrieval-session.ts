@@ -47,6 +47,8 @@ export interface ParametrosRecuperacion {
   /** RUTA_C civil: segunda pasada en mayalex_procedimental. */
   pasadaProcedimental: boolean;
   rerank: boolean;
+  /** flag_corpus_p21 resuelto por la ruta. Ausente = apagado (fail-closed). */
+  corpusP21?: boolean;
 }
 
 /**
@@ -57,12 +59,12 @@ export interface ParametrosRecuperacion {
  * sustituye el outcome de la colección principal.
  */
 export async function recuperarEvidenciaCorpus(p: ParametrosRecuperacion): Promise<EvidenciaCorpus> {
-  const ragResultado = await buscarRAG(p.pregunta, 5, p.coleccionPrincipal, p.materiaFiltro, { rerank: p.rerank });
+  const ragResultado = await buscarRAG(p.pregunta, 5, p.coleccionPrincipal, p.materiaFiltro, { rerank: p.rerank, corpusP21: p.corpusP21 });
   let contextoRAG = formatearContextoRAG(ragResultado);
   const fragmentos = [...ragResultado.fragmentos];
 
   if (p.pasadaProcedimental) {
-    const ragProc = await buscarRAG(p.pregunta, 3, 'mayalex_procedimental', undefined, { rerank: p.rerank });
+    const ragProc = await buscarRAG(p.pregunta, 3, 'mayalex_procedimental', undefined, { rerank: p.rerank, corpusP21: p.corpusP21 });
     const intencionPregunta = clasificarIntencionInstrumental(p.pregunta);
     const procPermitidos = evidenciaProcedimentalPermitida(
       ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,

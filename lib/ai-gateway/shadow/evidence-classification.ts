@@ -22,6 +22,8 @@ export function clasificacionDesdeEtiqueta(etiqueta: string): ClasificacionProdu
   if (etiqueta.startsWith('DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE')) return 'DOCTRINA_JURISPRUDENCIA';
   if (etiqueta.startsWith('NO VIGENTE')) return 'NO_VIGENTE';
   if (etiqueta.startsWith('FUENTE SIN CLASIFICAR')) return 'SIN_CLASIFICAR';
+  // Salvaguardas CLO: un fragmento CONTEXT («CONTEXTO (…) — NO CITAR COMO NORMA») no es norma ni está clasificado como tal.
+  if (etiqueta.startsWith('CONTEXTO (')) return 'SIN_CLASIFICAR';
   return 'DESCONOCIDA';
 }
 
