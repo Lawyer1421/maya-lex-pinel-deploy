@@ -475,7 +475,7 @@ export interface AfirmacionCitada {
   citas: readonly { fragmentoId: string; soporte: 'DIRECT' | 'INDIRECT' }[];
 }
 
-export type MotivoR3 = 'OK' | 'SIN_AFIRMACIONES' | 'SIN_CITA_DIRECT' | 'SIN_PRIMARY_VIGENTE' | 'OTRO_INSTRUMENTO_O_ARTICULO' | 'AFIRMACION_NO_RESPALDADA' | 'RESPUESTA_NO_NOMBRA_FUENTE';
+export type MotivoR3 = 'OK' | 'SIN_AFIRMACIONES' | 'SIN_CITA_DIRECT' | 'SIN_PRIMARY_VIGENTE' | 'OTRO_INSTRUMENTO_O_ARTICULO' | 'AFIRMACION_NO_RESPALDADA' | 'RESPUESTA_NO_NOMBRA_FUENTE' | 'MENCION_NO_VALIDADA' | 'SIN_FRAGMENTOS_PARA_NORMA';
 
 export interface ResultadoR3 {
   suficiente: boolean;
@@ -573,10 +573,116 @@ export const FALTANTE_R3: Readonly<Record<MotivoR3, string>> = Object.freeze({
   OTRO_INSTRUMENTO_O_ARTICULO: 'la cita no corresponde al mismo instrumento y artículo consultados',
   AFIRMACION_NO_RESPALDADA: 'el texto citado no respalda lo que afirma la respuesta',
   RESPUESTA_NO_NOMBRA_FUENTE: 'la respuesta no nombra el instrumento y el artículo en que se funda',
+  MENCION_NO_VALIDADA: 'la respuesta menciona un artículo o un instrumento que no está respaldado por ningún fragmento recuperado del corpus',
+  SIN_FRAGMENTOS_PARA_NORMA: 'la respuesta se refiere a una norma concreta, pero esta consulta no recuperó ningún fragmento del corpus que la respalde',
 });
 
 export function mensajeAbstencionR3(motivo: MotivoR3): string {
   return `MayaLex no cuenta con evidencia verificable suficiente para responder con fundamento esta consulta.\n\nLo que falta para poder responder: ${FALTANTE_R3[motivo] || 'una cita directa a norma vigente del instrumento y artículo consultados'}.`;
+}
+
+// ── R4: ninguna mención sin respaldo ────────────────────────────────────────────────────────────────────────────────────────────────
+// R4 (CLO 29-oct, re-auditoría): además de R3, TODO artículo o instrumento que el texto mencione debe estar validado contra un fragmento recuperado
+// elegible (PRIMARY, vigente TRUE, instrumento y artículo identificados). Una sola mención sin respaldo («el artículo 999 del Código Penal establece la
+// pena de muerte» cuando no se recuperó) hace que la respuesta COMPLETA se abstenga. Lo que se entrega son solo las oraciones validadas por R3.
+const MENCION_ARTICULOS = /\bart(?:iculos?|s?\.?)\s*((?:\d+(?:-?[a-z])?(?![a-z0-9]))(?:\s*(?:,|y|e|al|a|-)\s*\d+(?:-?[a-z])?(?![a-z0-9]))*)/g;
+// Nombres de instrumentos que NO están en la tabla de alias (se detectan sobre el texto original, con mayúscula inicial del nombre propio).
+const NOMBRE_PROPIO = String.raw`(?:\s+(?:(?:de|del|la|las|los|el|y)\s+){0,2}[A-ZÁÉÍÓÚÑ]\w*)+`;
+const INSTRUMENTO_GENERICO = new RegExp(
+  String.raw`\b(?:Ley|Decreto|Reglamento|Convenci[oó]n|Tratado|Pacto|Acuerdo|Resoluci[oó]n|Estatuto)(?:\s+(?:No\.?|N[úu]m\.?|N[°º]))?(?:\s+\d[\d-]*|${NOMBRE_PROPIO})|\bC[oó]digo${NOMBRE_PROPIO}`,
+  'g',
+);
+const CONTENIDO_DE_NORMA = /\b(?:la|el|las|los)\s+(?:ley|leyes|codigo|codigos|norma|normas|constitucion|reglamento|reglamentos|legislacion|ordenamiento)\b[^.;\n]{0,60}\b(?:establece|establecen|dispone|disponen|senala|senalan|prescribe|prescriben|determina|determinan|regula|regulan|preve|prevén|estipula|ordena|exige|exigen|sanciona|castiga|prohibe|permite|obliga)\b/;
+
+function articulosMencionados(texto: string): string[] {
+  const t = norm(texto);
+  const out: string[] = [];
+  for (const m of t.matchAll(MENCION_ARTICULOS)) {
+    for (const n of m[1].matchAll(/\d+(?:-?[a-z])?(?![a-z0-9])/g)) {
+      const a = normalizarNumeroArticulo(n[0]);
+      if (a !== null) out.push(a);
+    }
+  }
+  return out;
+}
+const TODOS_INSTRUMENTOS = Object.keys(ALIAS_INSTRUMENTO) as InstrumentId[];
+function instrumentosConocidosMencionados(texto: string): InstrumentId[] {
+  return TODOS_INSTRUMENTOS.filter((id) => textoNombraInstrumento(texto, id));
+}
+function instrumentosGenericosNoReconocidos(texto: string): string[] {
+  const out: string[] = [];
+  for (const m of texto.matchAll(INSTRUMENTO_GENERICO)) {
+    const frag = norm(m[0]);
+    // Si el nombre contiene un alias conocido no es «desconocido»: lo valida la comprobación por instrumento.
+    if (TODOS_INSTRUMENTOS.some((id) => ALIAS_INSTRUMENTO[id].some((al) => al.length > 3 && frag.includes(al)))) continue;
+    out.push(frag);
+  }
+  return out;
+}
+
+/** ¿El texto se refiere a una norma concreta? (nombra un artículo o un instrumento, o afirma el contenido de «la ley/el código/la norma»). */
+export function mencionaNormaConcreta(texto: string): boolean {
+  return articulosMencionados(texto).length > 0
+    || instrumentosConocidosMencionados(texto).length > 0
+    || instrumentosGenericosNoReconocidos(texto).length > 0
+    || CONTENIDO_DE_NORMA.test(norm(texto));
+}
+
+/** Bloques de la respuesta: separados por línea en blanco (un encabezado y su cuerpo forman un bloque). */
+function bloquesDe(texto: string): string[] {
+  return texto.split(/\n[ \t]*\n+/).map((b) => b.trim()).filter((b) => b !== '');
+}
+
+/**
+ * Menciones sin respaldo, como CÓDIGOS (nunca el texto del modelo). Por bloque: cada instrumento nombrado debe tener un fragmento elegible de ese
+ * instrumento; cada artículo nombrado debe corresponder a un fragmento elegible de un instrumento nombrado en el MISMO bloque (un artículo sin
+ * instrumento nombrado no se valida); un instrumento que no está en la tabla de alias nunca se valida.
+ */
+export function mencionesNoValidadas(texto: string, fragmentos: readonly FragmentoRAG[], ctx: ContextoClasificacion = {}): string[] {
+  const elegibles = fragmentos.filter((f) => fragmentoCumpleR3(f, [], ctx));
+  const problemas: string[] = [];
+  for (const bloque of bloquesDe(texto)) {
+    const insts = instrumentosConocidosMencionados(bloque);
+    const arts = articulosMencionados(bloque);
+    if (instrumentosGenericosNoReconocidos(bloque).length > 0) problemas.push('INSTRUMENTO_DESCONOCIDO');
+    for (const id of insts) if (!elegibles.some((f) => instrumentIdDeFragmento(f) === id)) problemas.push(`INSTRUMENTO_SIN_FRAGMENTO:${id}`);
+    for (const a of arts) {
+      const ok = insts.length > 0 && elegibles.some((f) => normalizarNumeroArticulo(f.num_articulo) === a && insts.includes(instrumentIdDeFragmento(f) as InstrumentId));
+      if (!ok) problemas.push(`ARTICULO_SIN_FRAGMENTO:${a}`);
+    }
+  }
+  return problemas;
+}
+
+export interface ResultadoR4 {
+  suficiente: boolean;
+  motivo: MotivoR3;
+  /** Texto a entregar: SOLO las oraciones validadas por R3 (vacío si hay abstención). */
+  textoValidado: string;
+  fragmentoIds: string[];
+}
+
+/**
+ * R4 sobre el TEXTO LIBRE de una respuesta (chat principal). Un solo criterio compartido con Luna:
+ *  1. cualquier mención de artículo o instrumento sin respaldo → abstención completa (`MENCION_NO_VALIDADA`);
+ *  2. R3 por oración; sin ninguna oración válida → abstención;
+ *  3. se entregan SOLO las oraciones validadas.
+ */
+export function validarRespuestaR4(texto: string, fragmentos: readonly FragmentoRAG[], objetivos: readonly ObjetivoConsulta[], ctx: ContextoClasificacion = {}): ResultadoR4 {
+  const vacio = (motivo: MotivoR3): ResultadoR4 => ({ suficiente: false, motivo, textoValidado: '', fragmentoIds: [] });
+  if (mencionesNoValidadas(texto, fragmentos, ctx).length > 0) return vacio('MENCION_NO_VALIDADA');
+  const afirmaciones = extraerAfirmacionesCitadas(texto, fragmentos);
+  const r3 = evaluarSuficienciaR3(fragmentos, afirmaciones, objetivos, ctx, texto);
+  if (!r3.suficiente) return vacio(r3.motivo);
+  const validas = new Set(r3.afirmacionesValidas.map((a) => a.claim_id));
+  const porBloque = new Map<number, string[]>();
+  for (const a of afirmaciones) {
+    if (!validas.has(a.claim_id)) continue;
+    const b = Number(a.claim_id.split('.')[0].slice(1));
+    porBloque.set(b, [...(porBloque.get(b) ?? []), a.texto]);
+  }
+  const textoValidado = [...porBloque.entries()].sort((x, y) => x[0] - y[0]).map(([, o]) => o.join(' ')).join('\n\n');
+  return { suficiente: true, motivo: 'OK', textoValidado, fragmentoIds: [...new Set(r3.afirmacionesValidas.flatMap((a) => a.fragmentoIds))] };
 }
 
 /**
@@ -587,16 +693,16 @@ export function mensajeAbstencionR3(motivo: MotivoR3): string {
 export function extraerAfirmacionesCitadas(texto: string, fragmentos: readonly FragmentoRAG[]): AfirmacionCitada[] {
   const candidatos = fragmentos.filter((f): f is FragmentoRAG & { id: string } => typeof f.id === 'string' && f.id !== '' && f.num_articulo !== null);
   const salida: AfirmacionCitada[] = [];
-  let n = 0;
-  for (const parrafo of texto.split(/\n+/)) {
-    const citados = candidatos.filter((f) => respuestaNombraFuente(parrafo, f));
-    if (citados.length === 0) continue;
-    for (const oracion of parrafo.split(/(?<=[.!?;:])\s+/)) {
+  bloquesDe(texto).forEach((bloque, i) => {
+    const citados = candidatos.filter((f) => respuestaNombraFuente(bloque, f));
+    if (citados.length === 0) return;
+    let n = 0;
+    for (const oracion of bloque.split(/(?<=[.!?;:])\s+|\n+/)) {
       if (oracion.trim().length < 20) continue;
       n += 1;
-      salida.push({ claim_id: `t${n}`, texto: oracion.trim(), citas: citados.map((f) => ({ fragmentoId: f.id, soporte: 'DIRECT' as const })) });
+      salida.push({ claim_id: `b${i}.${n}`, texto: oracion.trim(), citas: citados.map((f) => ({ fragmentoId: f.id, soporte: 'DIRECT' as const })) });
     }
-  }
+  });
   return salida;
 }
 

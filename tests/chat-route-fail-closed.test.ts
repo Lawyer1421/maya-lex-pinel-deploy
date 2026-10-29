@@ -259,6 +259,55 @@ describe('POST /api/chat — fail-closed de evidencia de corpus (WAR ROOM FINAL,
     });
   });
 
+  describe('A-2b / D-1 (re-auditoría): R4 en rutas con corpus y retención de la ruta D', () => {
+    const frag173 = {
+      id: 'f1', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
+      fuente: 'Codigo Procesal Penal', relevancia: 0.95, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234',
+    };
+    const correr = async (modo: string, pregunta: string, respuestaModelo: string, fragmentos: unknown[] = []) => {
+      mockDependenciasComunes();
+      anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream(respuestaModelo));
+      await mockBuscarRAG({ fragmentos, articulos_encontrados: fragmentos.length ? ['173'] : [], backend: 'supabase' });
+      const { POST } = await import('@/app/api/chat/route');
+      const res = await POST(fakeReq({ messages: [{ role: 'user', content: pregunta }], mode: modo }));
+      const eventos = await leerSSE(res);
+      return { eventos, texto: eventos.filter((e) => e.type === 'text').map((e) => e.text).join(''), done: eventos.find((e) => e.type === 'done') };
+    };
+    const valido = 'Según el artículo 173 del Código Procesal Penal, las medidas cautelares personales proceden cuando existan indicios racionales de participación.';
+
+    it('A-2b: un párrafo válido del art. 173 CPP más «el artículo 999 del Código Penal establece la pena de muerte» → abstención, nunca la respuesta', async () => {
+      const { texto, done } = await correr('analisis_penal', 'Explica el artículo 173 del Código Procesal Penal de Honduras', `${valido}\n\nEl artículo 999 del Código Penal establece la pena de muerte.`, [frag173]);
+      expect(texto).toContain('Lo que falta para poder responder');
+      expect(texto).not.toContain('pena de muerte');
+      expect(texto).not.toContain('medidas cautelares personales proceden');
+      expect(done.codigo).toBe('R3_SUFICIENCIA_NO_ACREDITADA');
+      expect(done.citas).toEqual([]);
+    });
+    it('A-2b: una respuesta con una oración sin respaldo y sin mención de norma sale SIN esa oración', async () => {
+      const { texto, done } = await correr('analisis_penal', 'Explica el artículo 173 del Código Procesal Penal de Honduras', `${valido}\n\nAdemás, toda persona merece respeto durante cualquier proceso judicial.`, [frag173]);
+      expect(texto).toContain('medidas cautelares personales proceden');
+      expect(texto).not.toContain('merece respeto');
+      expect(done.citas).toHaveLength(1);
+    });
+    it('D-1: sala_penal «Según el artículo 173 del CPP…» sin fragmentos → abstención que dice qué falta (no se transmite)', async () => {
+      const { texto, done } = await correr('sala_penal', 'Hola, cuéntame sobre la prisión preventiva', 'Según el artículo 173 del CPP, la prisión preventiva procede con indicios racionales de participación.');
+      expect(texto).toContain('Lo que falta para poder responder');
+      expect(texto).not.toContain('prisión preventiva procede');
+      expect(done.codigo).toBe('R3_SUFICIENCIA_NO_ACREDITADA');
+      expect(done.citas).toEqual([]);
+    });
+    it('D-1: sala_penal con una respuesta general sin citas se entrega íntegra', async () => {
+      const t = 'En una audiencia conviene llegar con anticipación, llevar los documentos organizados y escuchar con atención.';
+      const { texto, done } = await correr('sala_penal', 'Hola, ¿qué consejos me das para una audiencia?', t);
+      expect(texto).toBe(t);
+      expect(done.codigo).toBeUndefined();
+    });
+    it('D-1: la ruta D ya no transmite token a token: el texto llega en un único evento al final', async () => {
+      const { eventos } = await correr('sala_ia', 'Hola, ¿cómo estás hoy?', 'Hola, estoy bien. ¿En qué puedo ayudarte hoy con tu consulta?');
+      expect(eventos.filter((e) => e.type === 'text')).toHaveLength(1);
+    });
+  });
+
   it('E. la abstención no expone reglas internas, system prompt ni configuración', async () => {
     mockDependenciasComunes();
     await mockBuscarRAG({ fragmentos: [], articulos_encontrados: [], backend: 'supabase' });
@@ -360,6 +409,8 @@ describe('POST /api/chat — Fase 1D: CASE 4/5 (fallo de sistema != evidencia ce
 
   it('I/J. sala_ia y sala_penal con consulta ordinaria (sin "según el corpus") -> NOT_REQUIRED, LLM invocado sin abstención', async () => {
     mockDependenciasComunes();
+    // D-1: en la ruta D la respuesta se retiene; una respuesta general sin normas concretas se entrega.
+    anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream('Una audiencia es el acto en que las partes exponen sus argumentos ante el juez.'));
     // buscarRAG NUNCA debería llamarse para modos sala (usarRouter=false) --
     // se mockea igual, pero el propio test falla si SÍ se invoca de forma
     // inesperada, porque devolvería fragmentos:[] y dispararía abstención.

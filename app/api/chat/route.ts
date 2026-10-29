@@ -638,22 +638,25 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        // ── R3 del CLO en el chat principal (A-2) ────────────────────────
-        // Mismo criterio que Luna (`evaluarSuficienciaR3`, clasificador compartido), sin ruta de evasión: en toda consulta que exige corpus (rutas
-        // A/B/C) la respuesta se retiene hasta el final y solo se entrega si tiene una afirmación respaldada por una cita a un fragmento PRIMARY
-        // vigente del mismo instrumento y artículo consultados y NOMBRA ese instrumento y artículo. Si no, abstención que dice qué falta (y la
-        // consulta no consume cuota). La ruta D (sala, sin corpus) no recupera fragmentos y conserva su streaming.
-        const exigeR3 = rutaCorpusObligatoria;
+        // ── R3/R4 del CLO en el chat principal (A-2, A-2b, D-1) ───────────
+        // Mismo criterio que Luna (clasificador compartido), sin ruta de evasión. La salida del modelo se RETIENE siempre (ya nada se transmite directo) y
+        // se evalúa antes de emitirse:
+        //  - rutas con corpus (A/B/C): un artículo o instrumento mencionado sin respaldo en un fragmento recuperado → abstención completa; si no, se
+        //    emiten SOLO las oraciones validadas por R3, con las citas de los fragmentos que las respaldan;
+        //  - ruta D (sala, sin corpus): si no nombra artículo, instrumento ni el contenido de una norma concreta se entrega; si lo nombra, no hay
+        //    fragmento que lo respalde y hay abstención que dice qué falta.
+        // La abstención no consume cuota.
         let textoR3 = '';
+        let avisoRetencion = false;
         const emitirTexto = (t: string) => {
-          if (exigeR3) textoR3 += t;
-          else controller.enqueue(sseEvent({ type: 'text', text: t }));
+          // La salida se retiene hasta el final; al llegar el primer token se avisa al cliente (indicador «pensando») para que no parezca colgado.
+          if (!avisoRetencion) { avisoRetencion = true; controller.enqueue(sseEvent({ type: 'thinking', thinking: true })); }
+          textoR3 += t;
         };
         const cerrarConR3 = (): { citasFinal: Cita[]; codigo?: string } => {
-          if (!exigeR3) return { citasFinal: citas };
-          const v = evaluarRespuestaChatR3({ texto: textoR3, fragmentos: ragData.fragmentos, pregunta: ultimaPregunta as string });
+          const v = evaluarRespuestaChatR3({ texto: textoR3, fragmentos: ragData.fragmentos, pregunta: ultimaPregunta as string, conCorpus: rutaCorpusObligatoria });
           if (v.suficiente) {
-            controller.enqueue(sseEvent({ type: 'text', text: textoR3 }));
+            controller.enqueue(sseEvent({ type: 'text', text: v.texto }));
             return { citasFinal: v.citas };
           }
           controller.enqueue(sseEvent({ type: 'text', text: v.mensaje }));

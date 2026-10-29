@@ -3,7 +3,7 @@ import {
   afirmacionRespaldadaPorFragmento, clasificarFragmentoClo, evaluarSuficienciaR3, fragmentoCumpleR3, resumenEvidenciaClo, type ObjetivoConsulta,
 } from '@/lib/legal-retrieval/clo-guards';
 import { objetivosDeConsulta } from '@/lib/legal-retrieval/r3-objetivos';
-import { extraerAfirmacionesCitadas, respuestaNombraFuente, textoNombraArticulo, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
+import { mencionaNormaConcreta, mencionesNoValidadas, extraerAfirmacionesCitadas, respuestaNombraFuente, textoNombraArticulo, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
 import { evaluarRespuestaChatR3 } from '@/lib/legal-retrieval/r3-chat';
 import { construirCitas } from '@/lib/legal-retrieval/evidence-engine';
 import { mapearFilaSemantica } from '@/lib/legal-retrieval/semantic-retriever';
@@ -172,21 +172,21 @@ describe('A-2 (decisión CLO): el chat principal aplica la misma R3', () => {
   const frags = [cpp173()];
   const pregunta = '¿Qué dispone el artículo 173 del Código Procesal Penal?';
   it('respuesta que nombra instrumento y artículo y se funda en el fragmento: se entrega, con SOLO las citas validadas', () => {
-    const v = evaluarRespuestaChatR3({ texto: TXT, fragmentos: [...frags, cpp173({ id: 'cpp-10', num_articulo: '10', hash: 'h10' })], pregunta });
+    const v = evaluarRespuestaChatR3({ texto: TXT, fragmentos: [...frags, cpp173({ id: 'cpp-10', num_articulo: '10', hash: 'h10' })], pregunta, conCorpus: true });
     expect(v.suficiente).toBe(true);
     if (v.suficiente) expect(v.citas.map((c) => c.articulo)).toEqual(['173']);
   });
   it('respuesta sin citar nada → abstención que dice qué falta', () => {
-    const v = evaluarRespuestaChatR3({ texto: 'La prisión preventiva procede cuando hay indicios racionales de participación en el delito.', fragmentos: frags, pregunta });
+    const v = evaluarRespuestaChatR3({ texto: 'La prisión preventiva procede cuando hay indicios racionales de participación en el delito.', fragmentos: frags, pregunta, conCorpus: true });
     expect(v.suficiente).toBe(false);
     if (!v.suficiente) { expect(v.mensaje).toContain('Lo que falta para poder responder'); expect(v.citas).toEqual([]); }
   });
   it('respuesta que cita OTRO artículo → abstención', () => {
-    const v = evaluarRespuestaChatR3({ texto: 'Según el artículo 10 del Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.', fragmentos: [...frags, cpp173({ id: 'cpp-10', num_articulo: '10', hash: 'h10', contenido: 'ARTICULO 10.- Otro texto distinto.' })], pregunta });
+    const v = evaluarRespuestaChatR3({ texto: 'Según el artículo 10 del Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.', fragmentos: [...frags, cpp173({ id: 'cpp-10', num_articulo: '10', hash: 'h10', contenido: 'ARTICULO 10.- Otro texto distinto.' })], pregunta, conCorpus: true });
     expect(v.suficiente).toBe(false);
   });
   it('respuesta que nombra el artículo pero afirma lo que el texto no dice → abstención', () => {
-    const v = evaluarRespuestaChatR3({ texto: 'Según el artículo 173 del Código Procesal Penal, el imputado puede recusar al juez por parcialidad manifiesta.', fragmentos: frags, pregunta });
+    const v = evaluarRespuestaChatR3({ texto: 'Según el artículo 173 del Código Procesal Penal, el imputado puede recusar al juez por parcialidad manifiesta.', fragmentos: frags, pregunta, conCorpus: true });
     expect(v.suficiente).toBe(false);
   });
   it('extrae afirmaciones por párrafo y no cita fragmentos que el párrafo no nombra', () => {
@@ -239,5 +239,83 @@ describe('N-2 (auditoría): la recuperación semántica lleva rol y desplazado_p
     const { existsSync, readFileSync } = await import('node:fs');
     expect(existsSync('docs/retrieval/PROPUESTA_NO_APLICADA_buscar_biblioteca_v2_metadata_clo.sql')).toBe(true);
     expect(readFileSync('docs/retrieval/PROPUESTA_NO_APLICADA_buscar_biblioteca_v2_metadata_clo.sql', 'utf8')).toContain('PROPUESTA_NO_APLICADA');
+  });
+});
+
+describe('A-2b (re-auditoría): R4 — ninguna mención de artículo o instrumento sin respaldo; solo se emiten las oraciones validadas', () => {
+  const pregunta173 = '¿Qué dispone el artículo 173 del Código Procesal Penal?';
+  const valido = 'Según el artículo 173 del Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.';
+  const inventado = 'El artículo 999 del Código Penal establece la pena de muerte.';
+  const f173 = cpp173();
+
+  it('un párrafo válido del art. 173 CPP + «el artículo 999 del Código Penal establece la pena de muerte» → abstención completa, nunca suficiente', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido}\n\n${inventado}`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(false);
+    if (!v.suficiente) {
+      expect(v.motivo).toBe('MENCION_NO_VALIDADA');
+      expect(v.mensaje).toContain('Lo que falta para poder responder');
+      expect(v.mensaje).not.toContain('pena de muerte');
+      expect(v.citas).toEqual([]);
+    }
+  });
+  it('lo mismo dentro del MISMO párrafo (la oración inventada no se cuela por compartir bloque con la válida)', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido} ${inventado}`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(false);
+  });
+  it('si el párrafo inventado no menciona artículo ni instrumento, sale SIN esa afirmación (solo lo validado)', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido}\n\nAdemás, toda persona merece compasión y respeto en cualquier proceso judicial.`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(true);
+    if (v.suficiente) {
+      expect(v.texto).toContain('artículo 173');
+      expect(v.texto).not.toContain('compasión');
+      expect(v.citas.map((c) => c.articulo)).toEqual(['173']);
+    }
+  });
+  it('artículo del instrumento correcto pero que no se recuperó (art. 174 CPP) → abstención', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido}\n\nSegún el artículo 174 del Código Procesal Penal, el plazo es de seis meses.`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(false);
+  });
+  it('artículo sin instrumento nombrado en el bloque → abstención', () => {
+    expect(mencionesNoValidadas('Según el artículo 173, la prisión preventiva procede.', [f173])).toContain('ARTICULO_SIN_FRAGMENTO:173');
+  });
+  it('instrumento mencionado sin ningún fragmento de ese instrumento → abstención; instrumento fuera de la tabla (Ley, Decreto) también', () => {
+    expect(mencionesNoValidadas('El Código Penal sanciona el hurto.', [f173])).toContain('INSTRUMENTO_SIN_FRAGMENTO:CODIGO_PENAL');
+    expect(mencionesNoValidadas('La Ley de Municipalidades regula el tema.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('El Decreto 99-2020 lo regula.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+  });
+  it('un nombre completo conocido («Código Procesal Penal») no se confunde con un instrumento desconocido', () => {
+    expect(mencionesNoValidadas('Según el artículo 173 del Código Procesal Penal, procede.', [f173])).toEqual([]);
+  });
+  it('un fragmento que no es elegible (vigencia NULL) no valida ninguna mención', () => {
+    expect(mencionesNoValidadas(valido, [cpp173({ es_norma_vigente: null })]).length).toBeGreaterThan(0);
+  });
+  it('lista de artículos: «arts. 173 y 999 del CPP» con solo el 173 recuperado → el 999 no está validado', () => {
+    expect(mencionesNoValidadas('Los arts. 173 y 999 del CPP regulan la prisión preventiva.', [f173])).toEqual(['ARTICULO_SIN_FRAGMENTO:999']);
+  });
+});
+
+describe('D-1 (re-auditoría): la ruta D (sin corpus) retiene la salida; si nombra una norma, R3/R4 la abstiene', () => {
+  const sinCorpus = (texto: string) => evaluarRespuestaChatR3({ texto, fragmentos: [], pregunta: 'pregunta general', conCorpus: false });
+  it('«Según el artículo 173 del CPP…» sin fragmento → abstención que dice qué falta', () => {
+    const v = sinCorpus('Según el artículo 173 del CPP, la prisión preventiva procede con indicios racionales de participación.');
+    expect(v.suficiente).toBe(false);
+    if (!v.suficiente) expect(v.motivo).toBe('SIN_FRAGMENTOS_PARA_NORMA');
+  });
+  it('nombra un instrumento sin artículo («el Código Penal sanciona…») → abstención', () => {
+    expect(sinCorpus('El Código Penal sanciona con prisión el hurto de bienes ajenos.').suficiente).toBe(false);
+  });
+  it('afirma el contenido de «la ley» sin nombrarla → abstención', () => {
+    expect(sinCorpus('La ley hondureña establece que la pena máxima es de cuarenta años.').suficiente).toBe(false);
+  });
+  it('una respuesta general sin citas ni normas concretas se entrega íntegra', () => {
+    const t = 'En una audiencia conviene llegar con anticipación, llevar los documentos organizados y escuchar con atención a la jueza.';
+    const v = sinCorpus(t);
+    expect(v.suficiente).toBe(true);
+    if (v.suficiente) { expect(v.texto).toBe(t); expect(v.citas).toEqual([]); }
+  });
+  it('mencionaNormaConcreta distingue lo general de lo normativo', () => {
+    expect(mencionaNormaConcreta('Es importante mantener la calma durante la audiencia.')).toBe(false);
+    expect(mencionaNormaConcreta('Véase el art. 12.')).toBe(true);
+    expect(mencionaNormaConcreta('Según la Constitución, toda persona es inocente.')).toBe(true);
   });
 });

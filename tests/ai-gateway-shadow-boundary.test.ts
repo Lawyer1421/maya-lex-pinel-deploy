@@ -148,7 +148,7 @@ describe('(a) la respuesta HTTP es idéntica byte a byte con shadow encendido o 
   it('apagado vs encendido con adaptador que falla vs encendido con adaptador colgado', async () => {
     mockShadow({ enabled: false });
     const apagado = await correrRuta(PREGUNTA_LIMPIA);
-    expect(apagado.cuerpo).toContain('Respuesta simulada del modelo.');
+    expect(apagado.cuerpo).toContain('contiene un texto limpio de prueba');
     expect(apagado.registro).toEqual([]);
 
     vi.resetModules(); mockDependenciasComunes(); mockBuscarRAG([FRAGMENTO]);
@@ -187,7 +187,7 @@ describe('(b) un error o timeout del shadow no afecta la respuesta', () => {
     mockShadow({ enabled: true, responder: async () => { throw new Error('boom'); } });
     const r = await correrRuta(PREGUNTA_LIMPIA);
     expect(r.status).toBe(200);
-    expect(r.cuerpo).toContain('Respuesta simulada del modelo.');
+    expect(r.cuerpo).toContain('contiene un texto limpio de prueba');
     expect(r.registro.at(-1)).toMatchObject({ estado: 'ERROR', motivo: 'Error' });
   });
   it('el adaptador no responde: la ruta termina sin esperar y el registro anota TIMEOUT', async () => {
@@ -197,7 +197,7 @@ describe('(b) un error o timeout del shadow no afecta la respuesta', () => {
     const res = await POST(fakeReq(PREGUNTA_LIMPIA));
     const cuerpo = await textoSSE(res);
     expect(Date.now() - t0).toBeLessThan(40); // el timeout del shadow es 50 ms: la ruta no lo esperó
-    expect(cuerpo).toContain('Respuesta simulada del modelo.');
+    expect(cuerpo).toContain('contiene un texto limpio de prueba');
     const d = await import('@/lib/ai-gateway/shadow/dispatcher');
     await d.esperarDespachos();
     expect(d.registroDespachos().at(-1)).toMatchObject({ estado: 'TIMEOUT' });
@@ -207,7 +207,7 @@ describe('(b) un error o timeout del shadow no afecta la respuesta', () => {
     vi.doMock('@/lib/ai-gateway/shadow/pii-gate', () => ({ detectarPii: () => { throw new Error('pii roto'); } }));
     const r = await correrRuta(PREGUNTA_LIMPIA);
     expect(r.status).toBe(200);
-    expect(r.cuerpo).toContain('Respuesta simulada del modelo.');
+    expect(r.cuerpo).toContain('contiene un texto limpio de prueba');
   });
   it('despacharShadow devuelve undefined: no hay promesa ni resultado que producción pueda esperar', async () => {
     mockShadow({ enabled: true });
