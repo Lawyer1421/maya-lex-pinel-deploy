@@ -66,6 +66,7 @@ import { evaluarRespuestaChatR3, CODIGO_ABSTENCION_R3 } from '@/lib/legal-retrie
 // '@/app/api/chat/route') no requieran ningún cambio de import.
 import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
 import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';
+import { motorLuna } from '@/lib/luna/engine';
 import { despacharLegalOsShadow } from '@/lib/legal-os/shadow';
 // Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md: mensajes distintos para
 // CONFIGURATION_ERROR/RETRIEVAL_ERROR (nunca "no existe la ley" cuando en
@@ -663,6 +664,44 @@ export async function POST(req: NextRequest) {
           devolverReserva = true;
           return { citasFinal: [], codigo: CODIGO_ABSTENCION_R3 };
         };
+        // ── Luna (P26, Responses API de OpenAI) ───────────────────────────
+        // Doble llave, APAGADA por defecto: LUNA_ENABLED=1 en el entorno Y flag_luna_responses para este usuario. Solo en
+        // consultas que exigen corpus (router A/B/C) y que ya pasaron el Evidence Gate. Si Luna no responde (SKIPPED/ERROR:
+        // sin credencial, modelo no disponible, presupuesto, privacidad, salida inválida) la consulta sigue por el proveedor
+        // vigente sin cambio alguno. Luna nunca escribe en el corpus.
+        if (rutaCorpusObligatoria && motorLuna().habilitada() && await isFlagEnabledForUser('flag_luna_responses', verifiedEmail)) {
+          const luna = await motorLuna().responder({
+            queryId: consultaId,
+            pregunta: ultimaPregunta as string,
+            fragmentos: ragData.fragmentos,
+            tier: rateLimitResult.tier,
+          });
+          if (luna.estado === 'ANSWER' || luna.estado === 'ABSTAIN') {
+            controller.enqueue(sseEvent({ type: 'text', text: luna.texto }));
+            controller.enqueue(sseEvent({
+              type: 'done',
+              consulta_id: consultaId,
+              usage: { inputTokens: luna.uso.inputTokens, outputTokens: luna.uso.outputTokens },
+              remaining: rateLimitResult.remaining,
+              tier: rateLimitResult.tier,
+              model: luna.modelo,
+              ruta,
+              citas: luna.estado === 'ANSWER' ? citas : [],
+              ...(luna.estado === 'ABSTAIN' ? { codigo: 'LUNA_ABSTENCION' } : {}),
+            }));
+            after(() => logConsulta({
+              consulta_id: consultaId, pregunta: ultimaPregunta as string,
+              modo: mode, ruta_rag: ruta, modelo: luna.modelo, proveedor: 'openai-luna',
+              tokens_input: luna.uso.inputTokens, tokens_output: luna.uso.outputTokens,
+              tiempo_ms: Date.now() - inicioMs,
+              web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+              tier_usuario: rateLimitResult.tier, exito: true,
+            }));
+            // Igual que la abstención determinista: una abstención no consume la cuota del usuario.
+            if (luna.estado === 'ABSTAIN') devolverReserva = true;
+            return;
+          }
+        }
 
         // ── OpenRouter path ──────────────────────────────────────────────
         if (PROVEEDOR_LLM === 'openrouter') {
