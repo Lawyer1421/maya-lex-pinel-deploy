@@ -261,6 +261,16 @@ describe('Luna — R3 del CLO (clasificador compartido del #106) aplicada a la r
     expect(r.estado).toBe('ANSWER');
     if (r.estado === 'ANSWER') expect(r.texto).not.toContain('recusar');
   });
+  it('R4: si el texto final menciona un artículo sin fragmento que lo respalde, hay abstención (criterio compartido con el chat principal)', async () => {
+    const { c } = cliente(claim('Las medidas cautelares personales proceden cuando existan indicios racionales de participación. El artículo 999 del Código Penal establece la pena de muerte.', 'mayalex_normativos:cpp_a173'));
+    const r = await motor(c).m.responder(entrada());
+    expect(r.estado).toBe('ABSTAIN');
+    if (r.estado === 'ABSTAIN') expect(r.texto).not.toContain('pena de muerte');
+  });
+  it('R4: el código de Luna reutiliza mencionesNoValidadas del clasificador compartido', async () => {
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync('lib/luna/engine.ts', 'utf8')).toContain('mencionesNoValidadas');
+  });
   it('antes de llamar: sin PRIMARY del artículo consultado no se invoca a OpenAI', async () => {
     const { c, create } = cliente(ANSWER());
     const r = await motor(c).m.responder(entrada({ fragmentos: [art10], pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?' }));

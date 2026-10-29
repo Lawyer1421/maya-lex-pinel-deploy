@@ -82,3 +82,8 @@ Canary: Preview con 1 usuario (propietario) → 3–5 usuarios Premium → Acad�
 - **`LUNA_ALLOW_PRODUCTION`:** se exige SIEMPRE fuera de Preview y desarrollo (producción de Vercel, producción autoalojada, entorno sin identificar). `local_canary_only` queda PROHIBIDO fuera de Preview/desarrollo, incluso con `LUNA_ALLOW_PRODUCTION`.
 - **Privacidad:** se rechazan residencia y lugar de un caso («alguien que vive en la aldea el ocotal es demandado» y variantes: colonia, barrio, caserío, municipio de…, vecino de…) y personas indefinidas («alguien», «fulano»).
 - **Respaldo:** la rama `backup/luna-pre-rebase-78198dc` se subió al remoto.
+
+## Ajuste CLO 29-oct (4) — re-auditoría #106 @ 7fd5203 y #110 @ 2946de5
+- **R4 compartida con Luna:** el texto final de Luna pasa por `mencionesNoValidadas` (clasificador compartido); una mención de artículo o instrumento sin fragmento que la respalde produce abstención (`MENCION_NO_VALIDADA`).
+- **Chat principal (#106):** retiene toda la salida; rutas con corpus emiten solo oraciones validadas (R4); la ruta D abstiene si nombra una norma sin fragmento. Ver `docs/retrieval/R3_SUFICIENCIA.md`.
+- **Privacidad:** se rechazan «una persona del ocotal es demandada», «un señor de el ocotal es demandado», «una persona de olancho es demandada» y variantes (persona indefinida + lugar + condición procesal, topónimos hondureños), con falla cerrada.

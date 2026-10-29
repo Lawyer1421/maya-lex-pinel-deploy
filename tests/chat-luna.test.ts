@@ -175,7 +175,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
   it('apagada por defecto: aunque el usuario pida la modalidad responde el proveedor vigente y OpenAI no se toca', async () => {
     const POST = await preparar(['flag_luna_responses']);
     const { texto, done } = await pedir(POST, CONSENTIMIENTO);
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect(done.model).not.toBe('gpt-6-luna');
     expect(done.luna).toBe('no_aplicada');
     expect(openaiCreateMock).not.toHaveBeenCalled();
@@ -185,7 +185,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     encender();
     const POST = await preparar(['flag_luna_responses']);
     const { texto, done } = await pedir(POST);
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect(done.luna).toBeUndefined();
     expect(openaiCreateMock).not.toHaveBeenCalled();
   });
@@ -198,7 +198,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     encender();
     const POST = await preparar(['flag_luna_responses']);
     const { texto, done } = await pedir(POST, luna);
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect(done.luna_motivo).toBe(motivo);
     expect(openaiCreateMock).not.toHaveBeenCalled();
   });
@@ -224,7 +224,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     openaiCreateMock = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ ...LUNA_OK, claims: [{ ...LUNA_OK.claims[0], citations: [{ chunk_id: 'inventado', support: 'DIRECT' }] }] }), usage: { input_tokens: 800, output_tokens: 90 } });
     const POST = await preparar(['flag_luna_responses']);
     const { texto, done } = await pedir(POST, CONSENTIMIENTO);
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect(done.luna_motivo).toBe('SALIDA_INVALIDA');
     expect(JSON.stringify(done.citas)).not.toContain('inventado');
   });
@@ -233,7 +233,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     encender();
     const POST = await preparar(['flag_luna_responses']);
     const { texto, done } = await pedir(POST, CONSENTIMIENTO, 'Mi cliente Juan Pérez fue detenido el 3 de mayo de 2024, ¿qué dice el artículo 173 del Código Procesal Penal?');
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect(String(done.luna_motivo)).toMatch(/^PRIVACIDAD_/);
     expect(openaiCreateMock).not.toHaveBeenCalled();
   });
@@ -243,7 +243,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     openaiCreateMock = vi.fn().mockRejectedValue(new Error('upstream down'));
     const POST = await preparar(['flag_luna_responses']);
     const { texto } = await pedir(POST, CONSENTIMIENTO);
-    expect(texto).toContain('Respuesta simulada del modelo.');
+    expect(texto).toContain('medidas cautelares personales proceden');
     expect((openaiCreateMock as unknown as { mock: { calls: unknown[] } }).mock.calls.length).toBe(1);
   });
 
@@ -257,7 +257,7 @@ describe('POST /api/chat — Luna (P26, modalidad consulta jurídica general)', 
     expect(antes.done.luna).toBe('aplicada');
     flags.length = 0;                                         // el propietario pone enabled=false en la fila
     const despues = await pedir(POST, CONSENTIMIENTO);
-    expect(despues.texto).toContain('Respuesta simulada del modelo.');
+    expect(despues.texto).toContain('medidas cautelares personales proceden');
     expect(despues.done.luna).toBe('no_aplicada');
     expect((openaiCreateMock as unknown as { mock: { calls: unknown[] } }).mock.calls.length).toBe(1);
   });

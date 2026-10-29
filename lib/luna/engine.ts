@@ -18,7 +18,7 @@ import type { ShadowGatewayInput } from '../ai-gateway/shadow/types';
 import type { FragmentoRAG, RetrievalExecutionState } from '../legal-retrieval/types';
 import { createServerSupabaseClient } from '../supabase';
 import { auditarPayload, construirSolicitudLuna, credencialOpenAIDisponible, crearClienteOpenAI, type AuditoriaPayload, type ClienteLuna } from './adapter';
-import { evaluarSuficienciaR3, mensajeAbstencionR3, resumenEvidenciaClo, type MotivoR3 } from '../legal-retrieval/clo-guards';
+import { evaluarSuficienciaR3, mencionesNoValidadas, mensajeAbstencionR3, resumenEvidenciaClo, type MotivoR3 } from '../legal-retrieval/clo-guards';
 import { objetivosDeConsulta } from '../legal-retrieval/r3-objetivos';
 import { aMicroUsd, crearContadorLocalCanary, crearContadorSupabase, type ContadorCostos } from './cost-counter';
 import { privacidadConsultaGeneral } from './privacy';
@@ -238,6 +238,10 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
               .filter((c) => validas.has(c.claim_id))
               .map((c) => ({ ...c, citations: c.citations.filter((ct) => ct.support === 'DIRECT' && validas.get(c.claim_id)!.has(ct.chunk_id)) }));
             const { texto, referencias, chunkIdsValidados } = renderizarRespuesta(claimsR3, evidencia);
+            // R4 (criterio compartido con el chat principal): el texto final no puede mencionar un artículo o instrumento sin fragmento que lo respalde.
+            if (mencionesNoValidadas(texto, entrada.fragmentos, ctxClo).length > 0) {
+              return salir({ estado: 'ABSTAIN', texto: mensajeAbstencionR3('MENCION_NO_VALIDADA'), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, motivoR3: 'MENCION_NO_VALIDADA', contadorGlobal: contador.global });
+            }
             if (chunkIdsValidados.length === 0) return salir({ estado: 'ERROR', motivo: 'SIN_CITA_DIRECTA_VALIDADA' }, { modelo: config.modelId, uso, payload });
             return salir({ estado: 'ANSWER', texto, referencias, chunkIdsValidados, modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, contadorGlobal: contador.global });
           }

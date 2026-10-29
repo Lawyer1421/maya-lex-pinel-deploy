@@ -130,6 +130,22 @@ describe('privacidad: lugar de un caso y persona indefinida con condición proce
     expect(r.estado).toBe('REJECT');
     if (r.estado === 'REJECT') expect(r.razon).not.toMatch(/ocotal|granja|pinos|tegucigalpa|choluteca/i);
   });
+  it.each([
+    'una persona del ocotal es demandada',
+    'un señor de el ocotal es demandado',
+    'una persona de olancho es demandada',
+    '¿Qué prevé el Código Civil si una persona de olancho es demandada?',
+    '¿Qué prevé el Código Civil si una mujer de la montaña es demandada por deudas?',
+    '¿Qué dice el Código Penal si un joven de el progreso fue detenido?',
+    '¿Qué dice el Código Civil si alguien de choluteca fue demandado?',
+    'una señora del barrio es acusada, ¿qué dice el Código Penal?',
+    '¿Qué prevé el Código de Trabajo si un trabajador de san pedro sula es despedido?',
+    'un vecino de copan esta siendo procesado, ¿qué dice el Código Procesal Penal?',
+  ])('REJECT (persona indefinida + lugar + acción procesal, fail-closed): %s', (q) => {
+    const r = privacidadConsultaGeneral(q);
+    expect(r.estado).toBe('REJECT');
+    if (r.estado === 'REJECT') expect(r.razon).not.toMatch(/ocotal|olancho|choluteca|copan|progreso/i);
+  });
   it('lo abstracto sobre domicilio o residencia sigue pasando', () => {
     expect(privacidadConsultaGeneral('¿Qué dice el Código Civil sobre el domicilio de las personas?')).toEqual({ estado: 'PASS' });
     expect(privacidadConsultaGeneral('¿Qué obligaciones tiene el arrendador según el Código Civil?')).toEqual({ estado: 'PASS' });
