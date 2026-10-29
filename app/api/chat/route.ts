@@ -66,6 +66,8 @@ import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retriev
 import { construirCitas, type Cita } from '@/lib/legal-retrieval/evidence-engine';
 import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';
 import { motorLuna } from '@/lib/luna/engine';
+import { evaluarConsentimientoLuna } from '@/lib/luna/consent';
+import { citasValidadasDeLuna } from '@/lib/luna/citas';
 import { despacharLegalOsShadow } from '@/lib/legal-os/shadow';
 // Fase 1D — MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md: mensajes distintos para
 // CONFIGURATION_ERROR/RETRIEVAL_ERROR (nunca "no existe la ley" cuando en
@@ -123,6 +125,8 @@ interface ChatRequest {
   mode?: AnyMode;
   webSearch?: boolean;
   modelOverride?: string | null;
+  /** Modalidad «consulta jurídica general» de Luna (P26): { modalidad, aceptado, aviso_version }. Ver lib/luna/consent.ts. */
+  luna?: unknown;
 }
 
 // Modelos permitidos como override (lista blanca — previene inyección)
@@ -213,7 +217,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Request body inválido' }, { status: 400 });
   }
 
-  const { messages: messagesRaw, mode = 'analisis', webSearch = false, modelOverride } = body;
+  const { messages: messagesRaw, mode = 'analisis', webSearch = false, modelOverride, luna: solicitudLuna } = body;
 
   if (!messagesRaw || !Array.isArray(messagesRaw) || messagesRaw.length === 0) {
     return NextResponse.json(
@@ -623,43 +627,60 @@ export async function POST(req: NextRequest) {
         }
 
         // ── Luna (P26, Responses API de OpenAI) ───────────────────────────
-        // Doble llave, APAGADA por defecto: LUNA_ENABLED=1 en el entorno Y flag_luna_responses para este usuario. Solo en
-        // consultas que exigen corpus (router A/B/C) y que ya pasaron el Evidence Gate. Si Luna no responde (SKIPPED/ERROR:
-        // sin credencial, modelo no disponible, presupuesto, privacidad, salida inválida) la consulta sigue por el proveedor
-        // vigente sin cambio alguno. Luna nunca escribe en el corpus.
-        if (rutaCorpusObligatoria && motorLuna().habilitada() && await isFlagEnabledForUser('flag_luna_responses', verifiedEmail)) {
-          const luna = await motorLuna().responder({
-            queryId: consultaId,
-            pregunta: ultimaPregunta as string,
-            fragmentos: ragData.fragmentos,
-            tier: rateLimitResult.tier,
-          });
-          if (luna.estado === 'ANSWER' || luna.estado === 'ABSTAIN') {
-            controller.enqueue(sseEvent({ type: 'text', text: luna.texto }));
-            controller.enqueue(sseEvent({
-              type: 'done',
-              consulta_id: consultaId,
-              usage: { inputTokens: luna.uso.inputTokens, outputTokens: luna.uso.outputTokens },
-              remaining: rateLimitResult.remaining,
+        // SOLO en la modalidad explícita «consulta jurídica general»: el usuario la activa y acepta el aviso de privacidad vigente.
+        // Además, doble llave APAGADA por defecto: LUNA_ENABLED=1 en el entorno Y flag_luna_responses para este usuario (la bandera se
+        // lee en cada solicitud: apagarla en la tabla corta Luna sin redeploy y sin tocar datos). Solo en consultas que exigen corpus
+        // y ya pasaron el Evidence Gate. Si Luna no responde (SKIPPED/ERROR: privacidad, sin evidencia PRIMARY, presupuesto, modelo,
+        // salida inválida) la consulta sigue por el proveedor vigente sin cambio alguno. Luna nunca escribe en el corpus.
+        const consentimientoLuna = evaluarConsentimientoLuna(solicitudLuna);
+        let lunaMotivo: string | undefined;
+        if (consentimientoLuna.ok) {
+          if (!rutaCorpusObligatoria) lunaMotivo = 'RUTA_SIN_CORPUS';
+          else if (!motorLuna().habilitada()) lunaMotivo = 'DESHABILITADA';
+          else if (!(await isFlagEnabledForUser('flag_luna_responses', verifiedEmail))) lunaMotivo = 'DESHABILITADA';
+          else {
+            const luna = await motorLuna().responder({
+              queryId: consultaId,
+              pregunta: ultimaPregunta as string,
+              fragmentos: ragData.fragmentos,
               tier: rateLimitResult.tier,
-              model: luna.modelo,
-              ruta,
-              citas: luna.estado === 'ANSWER' ? citas : [],
-              ...(luna.estado === 'ABSTAIN' ? { codigo: 'LUNA_ABSTENCION' } : {}),
-            }));
-            after(() => logConsulta({
-              consulta_id: consultaId, pregunta: ultimaPregunta as string,
-              modo: mode, ruta_rag: ruta, modelo: luna.modelo, proveedor: 'openai-luna',
-              tokens_input: luna.uso.inputTokens, tokens_output: luna.uso.outputTokens,
-              tiempo_ms: Date.now() - inicioMs,
-              web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
-              tier_usuario: rateLimitResult.tier, exito: true,
-            }));
-            // Igual que la abstención determinista: una abstención no consume la cuota del usuario.
-            if (luna.estado === 'ABSTAIN') devolverReserva = true;
-            return;
+              retrievalState: outcomeState,
+              corpusP21Habilitado: await isFlagEnabledForUser('flag_corpus_p21', verifiedEmail),
+            });
+            if (luna.estado === 'ANSWER' || luna.estado === 'ABSTAIN') {
+              controller.enqueue(sseEvent({ type: 'text', text: luna.texto }));
+              controller.enqueue(sseEvent({
+                type: 'done',
+                consulta_id: consultaId,
+                usage: { inputTokens: luna.uso.inputTokens, outputTokens: luna.uso.outputTokens },
+                remaining: rateLimitResult.remaining,
+                tier: rateLimitResult.tier,
+                model: luna.modelo,
+                ruta,
+                // Solo las citas que Luna validó (DIRECT a un fragmento PRIMARY), en el contrato `Cita` del frontend.
+                citas: luna.estado === 'ANSWER' ? citasValidadasDeLuna(ragData.fragmentos, luna.chunkIdsValidados) : [],
+                luna: 'aplicada',
+                ...(luna.estado === 'ABSTAIN' ? { codigo: 'LUNA_ABSTENCION' } : {}),
+              }));
+              after(() => logConsulta({
+                consulta_id: consultaId, pregunta: ultimaPregunta as string,
+                modo: mode, ruta_rag: ruta, modelo: luna.modelo, proveedor: 'openai-luna',
+                tokens_input: luna.uso.inputTokens, tokens_output: luna.uso.outputTokens,
+                tiempo_ms: Date.now() - inicioMs,
+                web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),
+                tier_usuario: rateLimitResult.tier, exito: true,
+              }));
+              // Igual que la abstención determinista: una abstención no consume la cuota del usuario.
+              if (luna.estado === 'ABSTAIN') devolverReserva = true;
+              return;
+            }
+            lunaMotivo = luna.motivo;
           }
+        } else if (consentimientoLuna.motivo !== 'NO_SOLICITADA') {
+          lunaMotivo = consentimientoLuna.motivo;
         }
+        // Si el usuario pidió la modalidad y no se aplicó, el frontend lo sabe (código, nunca texto del usuario) y la consulta sigue por el proveedor actual.
+        const lunaNoAplicada = lunaMotivo ? { luna: 'no_aplicada', luna_motivo: lunaMotivo } : {};
 
         // ── OpenRouter path ──────────────────────────────────────────────
         if (PROVEEDOR_LLM === 'openrouter') {
@@ -687,6 +708,7 @@ export async function POST(req: NextRequest) {
                 model: modelOR,
                 ruta,
                 citas,
+                ...lunaNoAplicada,
               }));
               after(() => logConsulta({
                 consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -764,6 +786,7 @@ export async function POST(req: NextRequest) {
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
                   citas,
+                  ...lunaNoAplicada,
                 }));
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,

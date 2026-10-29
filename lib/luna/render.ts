@@ -15,13 +15,15 @@ export function etiquetaReferencia(e: EvidenceChunk): string {
   return e.articulo ? `${e.instrumento}, art. ${e.articulo}` : e.instrumento;
 }
 
-export function renderizarRespuesta(claims: readonly ValidatedClaim[], evidencia: readonly EvidenceChunk[]): { texto: string; referencias: ReferenciaLuna[] } {
+export function renderizarRespuesta(claims: readonly ValidatedClaim[], evidencia: readonly EvidenceChunk[]): { texto: string; referencias: ReferenciaLuna[]; chunkIdsValidados: string[] } {
   const porId = new Map(evidencia.map((e) => [e.chunk_id, e]));
   const usados: ReferenciaLuna[] = [];
   const vistos = new Set<string>();
   const parrafos = claims.map((c) => {
     const etiquetas: string[] = [];
     for (const ct of c.citations) {
+      // Solo el respaldo DIRECT a evidencia entregada es una cita validada; INDIRECT contextualiza y no se muestra como fundamento.
+      if (ct.support !== 'DIRECT') continue;
       const e = porId.get(ct.chunk_id);
       if (!e) continue;
       etiquetas.push(etiquetaReferencia(e));
@@ -34,7 +36,7 @@ export function renderizarRespuesta(claims: readonly ValidatedClaim[], evidencia
     return unicas.length > 0 ? `${c.text.trim()} [${unicas.join('; ')}]` : c.text.trim();
   });
   const pie = 'Análisis NO OFICIAL basado en el corpus de MayaLex; verifique la vigencia en la Gaceta antes de usarlo en un acto jurídico.';
-  return { texto: `${parrafos.join('\n\n')}\n\n${pie}`, referencias: usados };
+  return { texto: `${parrafos.join('\n\n')}\n\n${pie}`, referencias: usados, chunkIdsValidados: usados.map((u) => u.chunk_id) };
 }
 
 /** Mensaje de abstención que dice qué falta. El motivo lo escribió el modelo: se recorta y se presenta como indicación, no como hecho jurídico. */
