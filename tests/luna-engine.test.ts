@@ -14,8 +14,8 @@ const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
   id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
   fuente: 'Codigo Procesal Penal', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234', ...x,
 });
-const PREGUNTA = '¿Qué dispone el artículo 173 sobre las medidas cautelares?';
-const ENV_ON = { LUNA_ENABLED: '1' };
+const PREGUNTA = '¿Qué dispone el artículo 173 del Código Procesal Penal sobre las medidas cautelares?';
+const ENV_ON = { NODE_ENV: 'test', LUNA_ENABLED: '1' };
 beforeEach(() => { process.env.OPENAI_API_KEY = 'sk-test-fake'; });
 afterEach(() => { delete process.env.OPENAI_API_KEY; });
 
@@ -62,7 +62,7 @@ describe('Luna — configuración por plan', () => {
   it('está apagada salvo LUNA_ENABLED=1', () => {
     expect(lunaHabilitadaPorEntorno({})).toBe(false);
     expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: 'true' })).toBe(false);
-    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1' })).toBe(true);
+    expect(lunaHabilitadaPorEntorno({ NODE_ENV: 'test', LUNA_ENABLED: '1' })).toBe(true);
   });
   it('costo por consulta del peor caso cabe en el tope de cada plan', () => {
     for (const plan of ['free', 'academico', 'premium'] as const) {
@@ -154,7 +154,7 @@ describe('Luna — motor', () => {
     const a = cliente(ANSWER());
     expect(await motor(a.c, {}).m.responder(entrada())).toEqual({ estado: 'SKIPPED', motivo: 'DESHABILITADA' });
     delete process.env.OPENAI_API_KEY;
-    expect(await motor(a.c, { LUNA_ENABLED: '1' }).m.responder(entrada())).toEqual({ estado: 'SKIPPED', motivo: 'SIN_CREDENCIAL' });
+    expect(await motor(a.c, { NODE_ENV: 'test', LUNA_ENABLED: '1' }).m.responder(entrada())).toEqual({ estado: 'SKIPPED', motivo: 'SIN_CREDENCIAL' });
     expect(a.create).not.toHaveBeenCalled();
     expect(a.retrieve).not.toHaveBeenCalled();
   });
@@ -205,7 +205,7 @@ describe('Luna — motor', () => {
   it('error del proveedor: ERROR, y tras 5 fallos el circuito abre sin más llamadas', async () => {
     const create = vi.fn().mockRejectedValue(new Error('boom'));
     const c: ClienteLuna = { responses: { create }, models: { retrieve: async (id: string) => ({ id }) } };
-    const { m } = motor(c, { ...ENV_ON, LUNA_BUDGET_USD_FREE: '100' });
+    const { m } = motor(c, { ...ENV_ON, LUNA_BUDGET_USD_FREE: '5' });
     for (let i = 0; i < 5; i++) expect((await m.responder(entrada({ queryId: `e${i}` }))).estado).toBe('ERROR');
     const r = await m.responder(entrada({ queryId: 'e6' }));
     expect(r).toEqual({ estado: 'SKIPPED', motivo: 'CIRCUITO_ABIERTO' });

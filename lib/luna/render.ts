@@ -45,16 +45,3 @@ export function renderizarAbstencion(motivo: string | null): string {
   const base = 'MayaLex no cuenta con evidencia verificable suficiente en su corpus para responder con fundamento esta consulta.';
   return m ? `${base}\n\nLo que falta para poder responder: ${m}` : base;
 }
-
-const FALTANTE_R3: Record<string, string> = {
-  SIN_AFIRMACIONES: 'la respuesta no contiene afirmaciones con fundamento',
-  SIN_CITA_DIRECT: 'ninguna afirmación tiene una cita directa al texto de la norma',
-  SIN_PRIMARY_VIGENTE: 'la cita no corresponde a una norma con vigencia acreditada (vigencia nula o no vigente)',
-  OTRO_INSTRUMENTO_O_ARTICULO: 'la cita no corresponde al mismo instrumento y artículo consultados',
-  AFIRMACION_NO_RESPALDADA: 'el texto citado no respalda lo que afirma la respuesta',
-};
-
-/** Abstención por R3: dice qué falta, sin reproducir texto del modelo. */
-export function renderizarAbstencionR3(motivo: string): string {
-  return `MayaLex no cuenta con evidencia verificable suficiente para responder con fundamento esta consulta.\n\nLo que falta para poder responder: ${FALTANTE_R3[motivo] ?? 'una cita directa a norma vigente del instrumento y artículo consultados'}.`;
-}
