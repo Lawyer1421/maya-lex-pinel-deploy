@@ -128,7 +128,7 @@ async function leerSSE(res: Response) {
 
 
 const FRAGMENTO = {
-  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Texto sintético de prueba sobre medidas cautelares.', num_articulo: '173',
+  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
   fuente: 'Codigo Procesal Penal', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234',
 };
 const NO_CITADO = { ...FRAGMENTO, id: 'mayalex_normativos:cpp_a174', num_articulo: '174', hash: 'ffff0000', contenido: 'ARTICULO 174.- Otro texto sintético.' };
@@ -137,7 +137,7 @@ const RAG_OK = {
   outcome: { state: 'SEMANTIC_SUCCESS', evidenceCount: 2, exactAttempted: false, semanticAttempted: true, degraded: false },
 };
 const PREGUNTA = '¿Qué dispone el artículo 173 del Código Procesal Penal sobre las medidas cautelares personales?';
-const LUNA_OK = { decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c1', text: 'El artículo 173 regula las medidas cautelares.', citations: [{ chunk_id: FRAGMENTO.id, support: 'DIRECT' }] }] };
+const LUNA_OK = { decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c1', text: 'Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', citations: [{ chunk_id: FRAGMENTO.id, support: 'DIRECT' }] }] };
 const CONSENTIMIENTO = { modalidad: 'consulta_juridica_general', aceptado: true, aviso_version: '2026-10-29.v1' };
 
 function encender() {

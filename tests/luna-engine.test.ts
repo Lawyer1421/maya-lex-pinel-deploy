@@ -11,7 +11,7 @@ import { crearValidadorModelo } from '@/lib/luna/model-validation';
 import { construirCandidato } from '@/lib/luna/incorporation-queue';
 
 const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
-  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Texto sintético de prueba.', num_articulo: '173',
+  id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
   fuente: 'Codigo Procesal Penal', relevancia: 0.9, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234', ...x,
 });
 const PREGUNTA = '¿Qué dispone el artículo 173 sobre las medidas cautelares?';
@@ -27,7 +27,7 @@ function cliente(salida: unknown, uso = { input_tokens: 900, output_tokens: 120 
 }
 const ANSWER = (chunk = 'mayalex_normativos:cpp_a173') => ({
   decision: 'ANSWER', abstention_reason: null,
-  claims: [{ claim_id: 'c1', text: 'El artículo 173 regula la materia consultada.', citations: [{ chunk_id: chunk, support: 'DIRECT' }] }],
+  claims: [{ claim_id: 'c1', text: 'Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', citations: [{ chunk_id: chunk, support: 'DIRECT' }] }],
 });
 
 function motor(c: ClienteLuna, env: Record<string, string | undefined> = ENV_ON) {
@@ -169,7 +169,7 @@ describe('Luna — motor', () => {
   it('sin evidencia autorizada no hay llamada', async () => {
     const { c, create } = cliente(ANSWER());
     const r = await motor(c).m.responder(entrada({ fragmentos: [frag({ es_norma_vigente: null })] }));
-    expect(r).toEqual({ estado: 'SKIPPED', motivo: 'SIN_EVIDENCIA_AUTORIZADA' });
+    expect(r).toEqual({ estado: 'SKIPPED', motivo: 'EVIDENCIA_NO_ACREDITADA' });
     expect(create).not.toHaveBeenCalled();
   });
 
@@ -229,6 +229,43 @@ describe('Luna — motor', () => {
       expect(await p).toEqual({ estado: 'ERROR', motivo: 'TIMEOUT' });
       expect(senal?.aborted).toBe(true);
     } finally { vi.useRealTimers(); }
+  });
+});
+
+describe('Luna — R3 del CLO (clasificador compartido del #106) aplicada a la respuesta', () => {
+  const art10 = frag({ id: 'cpp-10', num_articulo: '10', hash: 'h10', contenido: 'ARTICULO 10.- La acción penal prescribe por el transcurso del plazo legal.' });
+  const claim = (texto: string, chunk: string) => ({ decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c1', text: texto, citations: [{ chunk_id: chunk, support: 'DIRECT' }] }] });
+  it('cita DIRECT a un PRIMARY TRUE de OTRO artículo → ABSTAIN que dice qué falta', async () => {
+    const { c } = cliente(claim('La acción penal prescribe por el transcurso del plazo legal.', 'cpp-10'));
+    const r = await motor(c).m.responder(entrada({ fragmentos: [frag(), art10], pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?' }));
+    expect(r.estado).toBe('ABSTAIN');
+    if (r.estado === 'ABSTAIN') expect(r.texto).toContain('mismo instrumento y artículo consultados');
+  });
+  it('la cita DIRECT no respalda la afirmación concreta (cifra distinta) → ABSTAIN', async () => {
+    const { c } = cliente(claim('Las medidas cautelares personales proceden cuando la pena excede los diez años.', 'mayalex_normativos:cpp_a173'));
+    const r = await motor(c).m.responder(entrada());
+    expect(r.estado).toBe('ABSTAIN');
+    if (r.estado === 'ABSTAIN') expect(r.texto).toContain('no respalda lo que afirma');
+  });
+  it('un solo fragmento basta: no se impone un mínimo de dos', async () => {
+    const { c } = cliente(ANSWER());
+    const r = await motor(c).m.responder(entrada({ fragmentos: [frag()] }));
+    expect(r.estado).toBe('ANSWER');
+  });
+  it('solo la afirmación que cumple R3 se muestra; la no respaldada se omite', async () => {
+    const { c } = cliente({ decision: 'ANSWER', abstention_reason: null, claims: [
+      ...ANSWER().claims,
+      { claim_id: 'c2', text: 'El imputado puede recusar al juez por parcialidad manifiesta.', citations: [{ chunk_id: 'mayalex_normativos:cpp_a173', support: 'DIRECT' }] },
+    ] });
+    const r = await motor(c).m.responder(entrada());
+    expect(r.estado).toBe('ANSWER');
+    if (r.estado === 'ANSWER') expect(r.texto).not.toContain('recusar');
+  });
+  it('antes de llamar: sin PRIMARY del artículo consultado no se invoca a OpenAI', async () => {
+    const { c, create } = cliente(ANSWER());
+    const r = await motor(c).m.responder(entrada({ fragmentos: [art10], pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?' }));
+    expect(r).toEqual({ estado: 'SKIPPED', motivo: 'EVIDENCIA_NO_ACREDITADA' });
+    expect(create).not.toHaveBeenCalled();
   });
 });
 

@@ -35,6 +35,15 @@ returns void language sql security definer set search_path = public as $$
    where dia = p_dia and plan = p_plan;
 $$;
 
+-- ── PERMISOS Y POLÍTICA DE EJECUCIÓN ─────────────────────────────────────────────────────────────────────────────────────────────
+-- 1. Las funciones son SECURITY DEFINER con search_path fijo (sin sustitución de objetos) y validan sus argumentos (plan cerrado, montos >= 0, tope > 0).
+-- 2. EXECUTE se revoca a PUBLIC, anon y authenticated; se concede SOLO a service_role (el servidor de MayaLex). El navegador nunca llama estas RPC.
+-- 3. La tabla tiene RLS activada y NINGUNA política: anon/authenticated no pueden leer ni escribir; service_role la omite por diseño de Supabase.
+-- 4. No contiene datos personales ni de clientes: solo día, plan y cifras agregadas.
+revoke all on table public.luna_costos_diarios from public, anon, authenticated;
 revoke all on function public.luna_reservar_costo(date, text, bigint, bigint) from public, anon, authenticated;
 revoke all on function public.luna_liquidar_costo(date, text, bigint) from public, anon, authenticated;
--- ROLLBACK propuesto: drop function public.luna_reservar_costo(date,text,bigint,bigint); drop function public.luna_liquidar_costo(date,text,bigint); drop table public.luna_costos_diarios;
+grant execute on function public.luna_reservar_costo(date, text, bigint, bigint) to service_role;
+grant execute on function public.luna_liquidar_costo(date, text, bigint) to service_role;
+-- Pruebas de concurrencia: tests/sql/luna-costos.sql.test.ts (ejecuta ESTE archivo en una base en memoria, nunca en Supabase).
+-- ROLLBACK: docs/luna/PROPUESTA_NO_APLICADA_luna_costos_rollback.sql
