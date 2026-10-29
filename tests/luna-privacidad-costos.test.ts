@@ -6,7 +6,7 @@ import { privacidadConsultaGeneral } from '@/lib/luna/privacy';
 import { AVISO_LUNA_VERSION, MODALIDAD_CONSULTA_GENERAL, evaluarConsentimientoLuna } from '@/lib/luna/consent';
 import { citasValidadasDeLuna } from '@/lib/luna/citas';
 import { auditarPayload, construirSolicitudLuna, type ClienteLuna } from '@/lib/luna/adapter';
-import { lunaHabilitadaPorEntorno, resolverConfigPlan, PRESUPUESTO_PREVIEW_USD } from '@/lib/luna/config';
+import { lunaHabilitadaPorEntorno, resolverConfigPlan, contadorLocalPermitido, esPreviewODesarrollo, PRESUPUESTO_PREVIEW_USD, MAX_DURO_CONSULTA_USD, MAX_DURO_DIA_USD } from '@/lib/luna/config';
 import { crearContadorLocalCanary, crearContadorSupabase, aMicroUsd, RPC_RESERVAR, RPC_LIQUIDAR, type ClienteRpc } from '@/lib/luna/cost-counter';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
 import { CONFIRMACION, main, verificarModelo } from '@/scripts/luna-verify-model';
@@ -115,6 +115,107 @@ describe('interruptor de la interfaz: apagado por defecto, consentimiento versio
   });
 });
 
+describe('privacidad: lugar de un caso y persona indefinida con condición procesal', () => {
+  it.each([
+    'alguien que vive en la aldea el ocotal es demandado',
+    '¿Qué pasa si alguien que vive en la aldea El Ocotal es demandado?',
+    '¿Qué dice el Código Civil si alguien que vive en la colonia las flores es demandado?',
+    'una persona que reside en el barrio la granja es acusada, ¿qué dice el Código Penal?',
+    '¿Qué derechos tiene un vecino de la aldea el ocotal si lo demandan según el Código Civil?',
+    '¿Qué dice el Código Penal si alguien de tegucigalpa es denunciado?',
+    '¿Qué dice el Código Civil sobre un inmueble ubicado en el caserío los pinos?',
+    '¿Qué prevé el Código Procesal Penal si fulano es detenido en el municipio de choluteca?',
+  ])('REJECT: %s', (q) => {
+    const r = privacidadConsultaGeneral(q);
+    expect(r.estado).toBe('REJECT');
+    if (r.estado === 'REJECT') expect(r.razon).not.toMatch(/ocotal|granja|pinos|tegucigalpa|choluteca/i);
+  });
+  it('lo abstracto sobre domicilio o residencia sigue pasando', () => {
+    expect(privacidadConsultaGeneral('¿Qué dice el Código Civil sobre el domicilio de las personas?')).toEqual({ estado: 'PASS' });
+    expect(privacidadConsultaGeneral('¿Qué obligaciones tiene el arrendador según el Código Civil?')).toEqual({ estado: 'PASS' });
+  });
+});
+
+describe('M-2 (auditoría): flag_luna_responses con bandera encendida y lista vacía = CERRADO para todos', () => {
+  const fresh = async (row: { enabled: boolean; allowed_emails: string[] | null } | null) => {
+    vi.resetModules();
+    const chain: any = { select: () => chain, eq: () => chain, maybeSingle: async () => ({ data: row, error: null }) };
+    vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => ({ from: () => chain }) }));
+    return import('@/lib/flags');
+  };
+  it('enabled=true y allowed_emails vacío/nulo/solo espacios → false para todos, incluido un correo cualquiera', async () => {
+    for (const lista of [[], null, ['  ', '']]) {
+      const { isFlagEnabledForUser } = await fresh({ enabled: true, allowed_emails: lista as string[] });
+      expect(await isFlagEnabledForUser('flag_luna_responses', 'cualquiera@x.com')).toBe(false);
+      expect(await isFlagEnabledForUser('flag_luna_responses', null)).toBe(false);
+    }
+  });
+  it('con correos nombrados solo abre para ellos (sin distinguir mayúsculas ni espacios)', async () => {
+    const { isFlagEnabledForUser } = await fresh({ enabled: true, allowed_emails: [' Prueba@X.com '] });
+    expect(await isFlagEnabledForUser('flag_luna_responses', 'prueba@x.com')).toBe(true);
+    expect(await isFlagEnabledForUser('flag_luna_responses', 'otro@x.com')).toBe(false);
+  });
+  it('enabled=false o fila ausente → false; y las demás banderas conservan «lista vacía = activación amplia»', async () => {
+    expect(await (await fresh({ enabled: false, allowed_emails: ['a@b.com'] })).isFlagEnabledForUser('flag_luna_responses', 'a@b.com')).toBe(false);
+    expect(await (await fresh(null)).isFlagEnabledForUser('flag_luna_responses', 'a@b.com')).toBe(false);
+    expect(await (await fresh({ enabled: true, allowed_emails: [] })).isFlagEnabledForUser('flag_rerank', 'a@b.com')).toBe(true);
+  });
+});
+
+describe('topes duros en código, producción y contador local', () => {
+  it('los topes duros son los del CLO y la configuración por defecto de cada plan los respeta', () => {
+    expect(MAX_DURO_CONSULTA_USD).toBe(0.01);
+    expect(MAX_DURO_DIA_USD).toBe(5);
+    for (const plan of ['free', 'academico', 'premium'] as const) {
+      const c = resolverConfigPlan(plan, {});
+      expect(c.invalida).toBeUndefined();
+      expect(c.maxCostoConsultaUsd).toBeLessThanOrEqual(0.01);
+      expect(c.presupuestoDiarioUsd).toBeLessThanOrEqual(5);
+    }
+  });
+  it.each([
+    ['por consulta', { LUNA_MAX_QUERY_USD_PREMIUM: '0.02' }],
+    ['por día', { LUNA_BUDGET_USD_PREMIUM: '5.01' }],
+    ['por día (otro plan)', { LUNA_BUDGET_USD_FREE: '100' }],
+    ['valor no numérico', { LUNA_BUDGET_USD_PREMIUM: 'mucho' }],
+    ['valor negativo', { LUNA_MAX_QUERY_USD_FREE: '-1' }],
+  ])('un valor de entorno que excede el tope o es inválido (%s) → configuración inválida', (_n, extra) => {
+    const plan = Object.keys(extra)[0].endsWith('FREE') ? 'free' : 'premium';
+    expect(resolverConfigPlan(plan, extra).invalida).toBeDefined();
+  });
+  it('el motor falla cerrado con configuración inválida: no hay llamada', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test-fake';
+    const create = vi.fn();
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1', LUNA_BUDGET_USD_PREMIUM: '50' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
+    const r = await m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: [frag()], tier: 'pro', retrievalState: 'SEMANTIC_SUCCESS' });
+    delete process.env.OPENAI_API_KEY;
+    expect(r).toEqual({ estado: 'SKIPPED', motivo: 'CONFIG_EXCEDE_TOPE_DURO' });
+    expect(create).not.toHaveBeenCalled();
+  });
+  it('LUNA_ALLOW_PRODUCTION se exige SIEMPRE fuera de Preview y desarrollo: producción de Vercel, producción autoalojada y entorno sin identificar', () => {
+    for (const ambiente of [{ VERCEL_ENV: 'production' }, { NODE_ENV: 'production' }, {}]) {
+      expect(lunaHabilitadaPorEntorno({ ...ambiente, LUNA_ENABLED: '1' }), JSON.stringify(ambiente)).toBe(false);
+      expect(lunaHabilitadaPorEntorno({ ...ambiente, LUNA_ENABLED: '1', LUNA_ALLOW_PRODUCTION: '1' }), JSON.stringify(ambiente)).toBe(true);
+    }
+    for (const ambiente of [{ VERCEL_ENV: 'preview' }, { VERCEL_ENV: 'development' }, { NODE_ENV: 'development' }, { NODE_ENV: 'test' }]) {
+      expect(lunaHabilitadaPorEntorno({ ...ambiente, LUNA_ENABLED: '1' }), JSON.stringify(ambiente)).toBe(true);
+    }
+    expect(esPreviewODesarrollo({ VERCEL_ENV: 'production', NODE_ENV: 'development' })).toBe(false);
+  });
+  it('local_canary_only está PROHIBIDO fuera de Preview/desarrollo, aunque exista LUNA_ALLOW_PRODUCTION', async () => {
+    expect(contadorLocalPermitido({ VERCEL_ENV: 'preview' })).toBe(true);
+    expect(contadorLocalPermitido({ VERCEL_ENV: 'production', LUNA_ALLOW_PRODUCTION: '1' })).toBe(false);
+    expect(contadorLocalPermitido({ NODE_ENV: 'production', LUNA_ALLOW_PRODUCTION: '1' })).toBe(false);
+    process.env.OPENAI_API_KEY = 'sk-test-fake';
+    const create = vi.fn();
+    const m = crearMotorLuna({ env: { VERCEL_ENV: 'production', LUNA_ENABLED: '1', LUNA_ALLOW_PRODUCTION: '1', LUNA_COST_COUNTER: 'local_canary_only' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {} });
+    const r = await m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' });
+    delete process.env.OPENAI_API_KEY;
+    expect(r).toEqual({ estado: 'SKIPPED', motivo: 'CONTADOR_LOCAL_PROHIBIDO_EN_PRODUCCION' });
+    expect(create).not.toHaveBeenCalled();
+  });
+});
+
 describe('modalidad explícita y aviso de privacidad', () => {
   const ok = { modalidad: MODALIDAD_CONSULTA_GENERAL, aceptado: true, aviso_version: AVISO_LUNA_VERSION };
   it('solo modalidad + aceptado===true + versión vigente', () => {
@@ -166,7 +267,7 @@ describe('payload mínimo y registro de que no lleva PII', () => {
     const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ decision: 'ABSTAIN', claims: [], abstention_reason: 'falta' }), usage: { input_tokens: 500, output_tokens: 20 } });
     const cliente: ClienteLuna = { responses: { create }, models: { retrieve: async (id: string) => ({ id }) } };
     const registros: RegistroLuna[] = [];
-    const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente: () => cliente, registrar: (r) => registros.push(r), contador: crearContadorLocalCanary(() => '2026-10-29') });
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1' }, crearCliente: () => cliente, registrar: (r) => registros.push(r), contador: crearContadorLocalCanary(() => '2026-10-29') });
     const pregunta = '¿Qué dispone el artículo 173 del Código Procesal Penal?';
     await m.responder({ queryId: 'q', pregunta, fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' });
     delete process.env.OPENAI_API_KEY;
@@ -184,7 +285,7 @@ describe('suficiencia: ni un conteo de PRIMARY ni un estado ajeno bastan', () =>
   const armar = (estado: string, salida: unknown) => {
     const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify(salida), usage: { input_tokens: 500, output_tokens: 50 } });
     const cliente: ClienteLuna = { responses: { create }, models: { retrieve: async (id: string) => ({ id }) } };
-    const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente: () => cliente, registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1' }, crearCliente: () => cliente, registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
     return { create, responder: () => m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: [frag()], tier: 'free', retrievalState: estado as never }) };
   };
   it.each(['OFFICIAL_FALLBACK_REQUIRED', 'NO_VERIFIED_EVIDENCE', 'RETRIEVAL_ERROR', undefined])('estado %s → no hay llamada', async (estado) => {
@@ -199,14 +300,14 @@ describe('suficiencia: ni un conteo de PRIMARY ni un estado ajeno bastan', () =>
   it('un INDIRECT junto a un DIRECT no se cita como fundamento', async () => {
     const dos = [frag(), frag({ id: 'otro', num_articulo: '174', hash: 'h2' })];
     const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c', text: 'Las medidas cautelares personales proceden con indicios racionales de participación.', citations: [{ chunk_id: dos[0].id!, support: 'DIRECT' }, { chunk_id: 'otro', support: 'INDIRECT' }] }] }), usage: { input_tokens: 500, output_tokens: 50 } });
-    const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
     const r = await m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: dos, tier: 'free', retrievalState: 'EXACT_SUCCESS' });
     expect(r.estado).toBe('ANSWER');
     if (r.estado === 'ANSWER') expect(r.chunkIdsValidados).toEqual([dos[0].id]);
   });
   it('el privacy gate estricto corta antes de OpenAI (cliente nunca creado)', async () => {
     const crearCliente = vi.fn();
-    const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente, registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1' }, crearCliente, registrar: () => {}, contador: crearContadorLocalCanary(() => 'd') });
     const r = await m.responder({ queryId: 'q', pregunta: 'Mi cliente Juan Pérez firmó un contrato por L. 5,000 el 3 de mayo de 2024, ¿qué dice el Código Civil?', fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' });
     expect(r.estado).toBe('SKIPPED');
     expect(crearCliente).not.toHaveBeenCalled();
@@ -233,7 +334,7 @@ describe('contador global de costos', () => {
     let gastado = 0;
     const compartido = { global: true, reservar: async (_p: string, m: number, t: number) => (gastado + m <= t ? ((gastado += m), true) : false), liquidar: async () => {} };
     const create = vi.fn().mockResolvedValue({ output_text: JSON.stringify({ decision: 'ABSTAIN', claims: [], abstention_reason: 'x' }), usage: { input_tokens: 500, output_tokens: 20 } });
-    const mk = () => crearMotorLuna({ env: { LUNA_ENABLED: '1', LUNA_BUDGET_USD_FREE: '0.0008' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: compartido });
+    const mk = () => crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1', LUNA_BUDGET_USD_FREE: '0.0008' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: compartido });
     const a = mk(), b = mk();
     const e = { queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' as const };
     const res = [(await a.responder(e)).estado, (await b.responder(e)).estado, (await a.responder(e)).estado, (await b.responder(e)).estado];
@@ -246,7 +347,7 @@ describe('contador global de costos', () => {
   it('sin DDL aplicado (RPC inexistente) y sin modo canary, Luna falla cerrada', async () => {
     process.env.OPENAI_API_KEY = 'sk-test-fake';
     const create = vi.fn();
-    const m = crearMotorLuna({ env: { LUNA_ENABLED: '1' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorSupabase(() => ({ rpc: async () => ({ data: null, error: { message: 'no existe' } }) }), dia) });
+    const m = crearMotorLuna({ env: { NODE_ENV: 'test', LUNA_ENABLED: '1' }, crearCliente: () => ({ responses: { create }, models: { retrieve: async (id: string) => ({ id }) } }), registrar: () => {}, contador: crearContadorSupabase(() => ({ rpc: async () => ({ data: null, error: { message: 'no existe' } }) }), dia) });
     const r = await m.responder({ queryId: 'q', pregunta: '¿Qué dispone el artículo 173 del Código Procesal Penal?', fragmentos: [frag()], tier: 'free', retrievalState: 'SEMANTIC_SUCCESS' });
     delete process.env.OPENAI_API_KEY;
     expect(r).toEqual({ estado: 'SKIPPED', motivo: 'PRESUPUESTO_GLOBAL_AGOTADO' });
@@ -307,9 +408,9 @@ describe('Luna no escribe en el corpus ni en datos de clientes', () => {
 
 describe('Preview: cuenta de prueba, presupuesto estricto y nunca producción por accidente', () => {
   it('en producción LUNA_ENABLED=1 no basta: exige la segunda llave LUNA_ALLOW_PRODUCTION=1', () => {
-    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'production' })).toBe(false);
-    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'production', LUNA_ALLOW_PRODUCTION: '1' })).toBe(true);
-    expect(lunaHabilitadaPorEntorno({ LUNA_ENABLED: '1', VERCEL_ENV: 'preview' })).toBe(true);
+    expect(lunaHabilitadaPorEntorno({ NODE_ENV: 'test', LUNA_ENABLED: '1', VERCEL_ENV: 'production' })).toBe(false);
+    expect(lunaHabilitadaPorEntorno({ NODE_ENV: 'test', LUNA_ENABLED: '1', VERCEL_ENV: 'production', LUNA_ALLOW_PRODUCTION: '1' })).toBe(true);
+    expect(lunaHabilitadaPorEntorno({ NODE_ENV: 'test', LUNA_ENABLED: '1', VERCEL_ENV: 'preview' })).toBe(true);
     expect(lunaHabilitadaPorEntorno({ VERCEL_ENV: 'preview' })).toBe(false);
   });
   it('en Preview el presupuesto diario de cada plan se limita al de Preview (USD 0.05 por defecto)', () => {

@@ -60,6 +60,12 @@ function dosDesconocidasSeguidas(plano: string): boolean {
   return false;
 }
 
+// 4) Lugar de un caso y persona indefinida con condición procesal: «alguien que vive en la aldea el ocotal es demandado». Una residencia o localidad
+//    concreta, o «alguien» + parte procesal, es un hecho particular aunque no traiga nombre propio.
+const RESIDENCIA = /\b(?:vive|viven|vivia|vivian|reside|residen|residia|habita|habitan|domiciliad[oa]s?|radicad[oa]s?|vecin[oa]s?\s+de|oriund[oa]s?\s+de|originari[oa]s?\s+de|natural\s+de|ubicad[oa]s?\s+en|con\s+domicilio\s+en)\b/;
+const LOCALIDAD = /\b(?:aldea|aldeas|caserio|caserios|colonia|colonias|barrio|barrios|residencial|bo\.|col\.|municipio\s+de|ciudad\s+de|departamento\s+de|cantón|canton)\s+(?:de\s+|del\s+|la\s+|el\s+|las\s+|los\s+)?[a-zñ]{3,}/;
+const PERSONA_INDEFINIDA = /\b(?:alguien|cierta\s+persona|determinad[oa]\s+persona|un\s+individuo|una\s+persona\s+de\s+nombre|fulan[oa]|mengan[oa]|zutan[oa])\b/;
+
 export function privacidadConsultaGeneral(texto: unknown): ResultadoPrivacidadLuna {
   const base = privacyGate(texto);
   if (base.estado !== 'PASS') return { estado: 'REJECT', razon: `BASE_${base.etapa}_${base.razon}` };
@@ -72,6 +78,10 @@ export function privacidadConsultaGeneral(texto: unknown): ResultadoPrivacidadLu
   if (MONTO.test(plano)) return { estado: 'REJECT', razon: 'MONTO' };
   if (FECHA_CONCRETA.test(plano)) return { estado: 'REJECT', razon: 'FECHA_DE_CASO' };
   if (NUMERO_DE_CASO.test(plano)) return { estado: 'REJECT', razon: 'NUMERO_DE_CASO' };
+
+  if (RESIDENCIA.test(plano)) return { estado: 'REJECT', razon: 'RESIDENCIA_O_LUGAR_DE_CASO' };
+  if (LOCALIDAD.test(plano)) return { estado: 'REJECT', razon: 'LUGAR_DE_CASO' };
+  if (PERSONA_INDEFINIDA.test(plano)) return { estado: 'REJECT', razon: 'PERSONA_INDEFINIDA_DE_CASO' };
 
   // Fail-closed: lo que no se puede clasificar como general con seguridad NO sale.
   if (NARRACION_TERCERA.test(plano) || NARRACION_TERCERA_ACENTUADA.test(t.toLowerCase())) return { estado: 'REJECT', razon: 'HECHOS_TERCERA_PERSONA' };

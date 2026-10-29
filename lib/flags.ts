@@ -64,6 +64,13 @@ export const KNOWN_FLAGS = [
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];
 
+/**
+ * M-2 (auditoría #110): banderas cuya lista de correos vacía significa CERRADO para todos, no «abierto para todos». Luna solo se enciende para
+ * correos nombrados (cuenta de prueba, luego listas); una fila `enabled=true` con `allowed_emails=[]` jamás la activa de forma amplia por accidente.
+ * Las demás banderas conservan su semántica documentada (lista vacía = activación amplia).
+ */
+export const FLAGS_LISTA_VACIA_CERRADA: ReadonlySet<FlagName> = new Set<FlagName>(['flag_luna_responses']);
+
 interface FeatureFlagRow {
   enabled: boolean;
   allowed_emails: string[];
@@ -107,6 +114,11 @@ export async function isFlagEnabledForUser(
   if (!row || !row.enabled) return false;
 
   const allowlist = row.allowed_emails ?? [];
+  if (FLAGS_LISTA_VACIA_CERRADA.has(flagName)) {
+    const nombrados = allowlist.map((e) => (typeof e === 'string' ? e.trim().toLowerCase() : '')).filter((e) => e !== '');
+    const correo = userEmail?.trim().toLowerCase();
+    return nombrados.length > 0 && !!correo && nombrados.includes(correo);
+  }
   if (allowlist.length === 0) return true;
 
   const normalizado = userEmail?.trim().toLowerCase();

@@ -18,15 +18,15 @@ import type { ShadowGatewayInput } from '../ai-gateway/shadow/types';
 import type { FragmentoRAG, RetrievalExecutionState } from '../legal-retrieval/types';
 import { createServerSupabaseClient } from '../supabase';
 import { auditarPayload, construirSolicitudLuna, credencialOpenAIDisponible, crearClienteOpenAI, type AuditoriaPayload, type ClienteLuna } from './adapter';
-import { evaluarSuficienciaR3, resumenEvidenciaClo, type MotivoR3 } from '../legal-retrieval/clo-guards';
+import { evaluarSuficienciaR3, mensajeAbstencionR3, resumenEvidenciaClo, type MotivoR3 } from '../legal-retrieval/clo-guards';
 import { objetivosDeConsulta } from '../legal-retrieval/r3-objetivos';
 import { aMicroUsd, crearContadorLocalCanary, crearContadorSupabase, type ContadorCostos } from './cost-counter';
 import { privacidadConsultaGeneral } from './privacy';
-import { lunaHabilitadaPorEntorno, planDesdeTier, resolverConfigPlan, type PlanLuna } from './config';
+import { contadorLocalPermitido, lunaHabilitadaPorEntorno, planDesdeTier, resolverConfigPlan, type PlanLuna } from './config';
 import { autorizarEvidencia } from './evidence';
 import { crearValidadorModelo, type ValidadorModelo } from './model-validation';
 import { costoPeorCasoUsd, costoRealUsd, estimarTokensEntrada } from './pricing';
-import { renderizarAbstencion, renderizarAbstencionR3, renderizarRespuesta, type ReferenciaLuna } from './render';
+import { renderizarAbstencion, renderizarRespuesta, type ReferenciaLuna } from './render';
 
 export interface EntradaLuna {
   queryId: string;
@@ -142,6 +142,10 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
         if (privacidad.estado !== 'PASS') return salir({ estado: 'SKIPPED', motivo: `PRIVACIDAD_${privacidad.razon}` });
 
         const config = resolverConfigPlan(plan, env);
+        // Topes duros: un valor de entorno inválido o por encima de los máximos del código deja a Luna cerrada (no se recorta en silencio).
+        if (config.invalida) return salir({ estado: 'SKIPPED', motivo: `CONFIG_${config.invalida}` });
+        // `local_canary_only` (contador no global) está prohibido fuera de Preview y desarrollo.
+        if (env.LUNA_COST_COUNTER === 'local_canary_only' && !contadorLocalPermitido(env)) return salir({ estado: 'SKIPPED', motivo: 'CONTADOR_LOCAL_PROHIBIDO_EN_PRODUCCION' });
         // R3 (clasificador compartido, #106): sin un PRIMARY vigente (TRUE) del mismo instrumento y artículo consultados no se llama a OpenAI.
         const ctxClo = { corpusP21Habilitado: entrada.corpusP21Habilitado };
         const objetivos = objetivosDeConsulta(entrada.pregunta);
@@ -223,9 +227,11 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
               resultado.claims.map((c) => ({ claim_id: c.claim_id, texto: c.text, citas: c.citations.map((ct) => ({ fragmentoId: ct.chunk_id, soporte: ct.support })) })),
               objetivos,
               ctxClo,
+              // La respuesta de Luna siempre lleva, por construcción, «[Instrumento, art. N]» de cada fuente citada (renderizarRespuesta).
+              renderizarRespuesta(resultado.claims, evidencia).texto,
             );
             if (!r3.suficiente) {
-              return salir({ estado: 'ABSTAIN', texto: renderizarAbstencionR3(r3.motivo), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, motivoR3: r3.motivo, contadorGlobal: contador.global });
+              return salir({ estado: 'ABSTAIN', texto: mensajeAbstencionR3(r3.motivo), modelo: config.modelId, plan, uso, latenciaMs }, { modelo: config.modelId, uso, payload, motivoR3: r3.motivo, contadorGlobal: contador.global });
             }
             const validas = new Map(r3.afirmacionesValidas.map((a) => [a.claim_id, new Set(a.fragmentoIds)]));
             const claimsR3 = resultado.claims

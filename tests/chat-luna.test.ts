@@ -77,7 +77,7 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
     formatearContextoPlantilla: vi.fn().mockReturnValue(''),
   }));
 
-  anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream('Respuesta simulada del modelo.'));
+  anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream('Respuesta simulada del modelo. Según el artículo 173 del Código Procesal Penal, las medidas cautelares personales proceden cuando existan indicios racionales de participación.'));
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {}
     class MockAnthropic {
