@@ -125,7 +125,7 @@ const AVISOS: Readonly<Record<CodigoBloqueoClo, string>> = Object.freeze({
 
 /** Campos mínimos de un fragmento (FragmentoRAG o una fila de la base con `materia` y `metadata`). */
 export type FragmentoClasificable = Pick<FragmentoRAG, 'fuente' | 'fuente_tipo' | 'jurisdiccion'> &
-  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id' | 'es_norma_vigente' | 'id' | 'metadata_clo'>> & { metadata?: Record<string, unknown> | null };
+  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id' | 'es_norma_vigente' | 'id' | 'metadata_clo' | 'corpus_p21_habilitado'>> & { metadata?: Record<string, unknown> | null };
 
 export interface ContextoClasificacion {
   /** Materia conocida de la consulta/fila cuando el fragmento no la trae (p. ej. filtro de materia de la RPC semántica). */
@@ -305,7 +305,8 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
     // semántica nunca devuelve materia y una carga no puede ascender la fila a PRIMARY.
     if (instrumentId !== null && INSTRUMENTOS_NORMATIVOS_NOTARIALES.has(instrumentId) && !(norm(f.materia) || norm(ctx.materia))) bloqueos.push('MATERIA_NO_VERIFICADA');
     // Gate del corpus P21: con flag_corpus_p21 apagado (o sin resolver) las filas P21 no son fundamento.
-    if (ctx.corpusP21Habilitado !== true && esFilaCorpusP21(f)) bloqueos.push('CORPUS_P21_APAGADO');
+    // La bandera se toma del contexto explícito o, si no hay, de la que selló la ruta en el fragmento: un solo criterio en todos los consumidores.
+    if ((ctx.corpusP21Habilitado ?? f.corpus_p21_habilitado) !== true && esFilaCorpusP21(f)) bloqueos.push('CORPUS_P21_APAGADO');
   }
 
   // La fuente real es otro instrumento distinto del solicitado.
@@ -348,6 +349,7 @@ export function anotarFragmentosClo<T extends FragmentoRAG>(fragmentos: readonly
       materia: materiaSellada ?? null,
       coleccion_origen: coleccionSellada ?? undefined,
       instrumento_solicitado: f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? undefined,
+      corpus_p21_habilitado: (ctx.corpusP21Habilitado ?? f.corpus_p21_habilitado) === true,
     };
     const c = clasificarFragmentoClo(sellado, { corpusP21Habilitado: ctx.corpusP21Habilitado });
     return { ...sellado, instrument_id: c.instrumentId, rol_evidencia: c.rol, bloqueos_clo: c.bloqueos, avisos_clo: c.avisos };
@@ -375,14 +377,23 @@ export interface ObjetivoConsulta {
   articulo: string | null;
 }
 
-/** ¿El fragmento cumple la parte de fragmento de R3? PRIMARY + es_norma_vigente=TRUE + mismo instrumento y artículo consultados. */
+/**
+ * ¿El fragmento cumple la parte de fragmento de R3? PRIMARY + es_norma_vigente=TRUE + instrumento Y artículo IDENTIFICADOS + mismo instrumento y
+ * artículo consultados.
+ *  - A-1 (auditoría): un PRIMARY+TRUE sin número de artículo (o sin instrumento) NUNCA da suficiencia, aunque la consulta no nombre artículo.
+ *  - BAJO (auditoría): si la consulta nombra un artículo pero su instrumento no se resolvió, el número de artículo no basta para hacer match.
+ */
 export function fragmentoCumpleR3(f: FragmentoRAG, objetivos: readonly ObjetivoConsulta[] = [], ctx: ContextoClasificacion = {}): boolean {
   if (f.es_norma_vigente !== true) return false;
   if (clasificarFragmentoClo(f, ctx).rol !== 'PRIMARY') return false;
-  if (objetivos.length === 0) return true;
   const id = instrumentIdDeFragmento(f);
   const art = normalizarNumeroArticulo(f.num_articulo);
-  return objetivos.some((o) => (o.instrumentId === null || o.instrumentId === id) && (o.articulo === null || normalizarNumeroArticulo(o.articulo) === art));
+  if (id === null || art === null) return false;
+  if (objetivos.length === 0) return true;
+  return objetivos.some((o) => {
+    if (o.articulo !== null && o.instrumentId === null) return false;                 // BAJO: artículo sin instrumento resuelto → no hay match
+    return (o.instrumentId === null || o.instrumentId === id) && (o.articulo === null || normalizarNumeroArticulo(o.articulo) === art);
+  });
 }
 
 export interface ResumenEvidenciaClo {
@@ -464,7 +475,7 @@ export interface AfirmacionCitada {
   citas: readonly { fragmentoId: string; soporte: 'DIRECT' | 'INDIRECT' }[];
 }
 
-export type MotivoR3 = 'OK' | 'SIN_AFIRMACIONES' | 'SIN_CITA_DIRECT' | 'SIN_PRIMARY_VIGENTE' | 'OTRO_INSTRUMENTO_O_ARTICULO' | 'AFIRMACION_NO_RESPALDADA';
+export type MotivoR3 = 'OK' | 'SIN_AFIRMACIONES' | 'SIN_CITA_DIRECT' | 'SIN_PRIMARY_VIGENTE' | 'OTRO_INSTRUMENTO_O_ARTICULO' | 'AFIRMACION_NO_RESPALDADA' | 'RESPUESTA_NO_NOMBRA_FUENTE';
 
 export interface ResultadoR3 {
   suficiente: boolean;
@@ -473,21 +484,64 @@ export interface ResultadoR3 {
   afirmacionesValidas: { claim_id: string; fragmentoIds: string[] }[];
 }
 
+// ── La respuesta debe NOMBRAR el instrumento y el artículo que cita ────────────────────────────────────────────────────────────────────
+const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Object.freeze({
+  CODIGO_PROCESAL_PENAL: ['codigo procesal penal', 'cpp'],
+  CODIGO_PENAL: ['codigo penal', 'cp'],
+  CODIGO_PROCESAL_CIVIL: ['codigo procesal civil', 'cpc'],
+  CODIGO_CIVIL: ['codigo civil', 'cc'],
+  CODIGO_TRABAJO: ['codigo de trabajo', 'codigo del trabajo', 'ct'],
+  CODIGO_FAMILIA: ['codigo de familia'],
+  CODIGO_NOTARIADO: ['codigo del notariado', 'codigo de notariado', 'decreto 353-2005', 'decreto no. 353-2005'],
+  REGLAMENTO_NOTARIADO: ['reglamento del codigo del notariado', 'reglamento al codigo del notariado', 'reglamento del notariado'],
+  CODIGO_TRIBUTARIO: ['codigo tributario'],
+  LEY_JUSTICIA_CONSTITUCIONAL: ['ley sobre justicia constitucional', 'ley de justicia constitucional', 'ljc'],
+  CONSTITUCION: ['constitucion de la republica', 'constitucion politica', 'constitucion'],
+  CODIGO_COMERCIO: ['codigo de comercio'],
+  LEY_ESPECIAL_ADOPCIONES: ['ley especial de adopciones'],
+  DECRETO_77_2006: ['77-2006'],
+});
+const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** ¿El texto nombra el instrumento del fragmento? (alias exactos con fronteras de palabra; las siglas no se confunden con subcadenas). */
+export function textoNombraInstrumento(texto: string, id: InstrumentId): boolean {
+  const t = norm(texto);
+  return ALIAS_INSTRUMENTO[id].some((a) => new RegExp(`(?<![a-z0-9])${escapar(a)}(?![a-z0-9])`).test(t));
+}
+
+/** ¿El texto nombra el artículo (normalizado, p. ej. «72-A») del fragmento? Acepta «art. 173», «artículo 173», «arts. 10 y 173». */
+export function textoNombraArticulo(texto: string, articulo: string): boolean {
+  const n = normalizarNumeroArticulo(articulo);
+  if (n === null) return false;
+  const [num, letra] = n.split('-');
+  const num0 = `0*${num}`;
+  const suf = letra ? `-?${letra.toLowerCase()}` : '(?![a-z0-9])(?!-[a-z])';
+  return new RegExp(`\\bart(?:iculos?|s?\\.?)\\s*[^.;\\n]{0,40}?(?<![\\d])${num0}${suf}(?![\\d])`, 'i').test(norm(texto));
+}
+
+/** La respuesta nombra el instrumento Y el artículo de la fuente que cita. */
+export function respuestaNombraFuente(texto: string, f: FragmentoRAG): boolean {
+  const id = instrumentIdDeFragmento(f);
+  return id !== null && f.num_articulo !== null && textoNombraInstrumento(texto, id) && textoNombraArticulo(texto, f.num_articulo);
+}
+
 /**
- * R3 completa sobre una respuesta. Cada afirmación vale solo si tiene una cita DIRECT a un fragmento que cumple `fragmentoCumpleR3` y que
- * respalda la afirmación concreta. Sin ninguna afirmación válida: abstención (`suficiente=false`). No impone un mínimo de fragmentos.
+ * R3 completa sobre una respuesta. Cada afirmación vale solo si tiene una cita DIRECT a un fragmento que cumple `fragmentoCumpleR3`, que respalda
+ * la afirmación concreta y cuyo instrumento y artículo NOMBRA la respuesta (`textoRespuesta`, obligatorio: no hay ruta que lo omita). Sin ninguna
+ * afirmación válida: abstención (`suficiente=false`). No impone un mínimo de fragmentos.
  */
 export function evaluarSuficienciaR3(
   fragmentos: readonly FragmentoRAG[],
   afirmaciones: readonly AfirmacionCitada[],
-  objetivos: readonly ObjetivoConsulta[] = [],
-  ctx: ContextoClasificacion = {},
+  objetivos: readonly ObjetivoConsulta[],
+  ctx: ContextoClasificacion,
+  textoRespuesta: string,
 ): ResultadoR3 {
   if (afirmaciones.length === 0) return { suficiente: false, motivo: 'SIN_AFIRMACIONES', afirmacionesValidas: [] };
   const porId = new Map<string, FragmentoRAG>();
   for (const f of fragmentos) if (typeof f.id === 'string' && !porId.has(f.id)) porId.set(f.id, f);
   const validas: ResultadoR3['afirmacionesValidas'] = [];
-  let hayDirect = false, hayVigentePrimary = false, hayMismoObjetivo = false;
+  let hayDirect = false, hayVigentePrimary = false, hayMismoObjetivo = false, hayRespaldo = false;
   for (const a of afirmaciones) {
     const ids: string[] = [];
     for (const c of a.citas) {
@@ -499,13 +553,51 @@ export function evaluarSuficienciaR3(
       hayVigentePrimary = true;
       if (!fragmentoCumpleR3(f, objetivos, ctx)) continue;
       hayMismoObjetivo = true;
-      if (afirmacionRespaldadaPorFragmento(a.texto, f)) ids.push(c.fragmentoId);
+      if (!afirmacionRespaldadaPorFragmento(a.texto, f)) continue;
+      hayRespaldo = true;
+      if (respuestaNombraFuente(textoRespuesta, f)) ids.push(c.fragmentoId);
     }
     if (ids.length > 0) validas.push({ claim_id: a.claim_id, fragmentoIds: [...new Set(ids)] });
   }
   if (validas.length > 0) return { suficiente: true, motivo: 'OK', afirmacionesValidas: validas };
-  const motivo: MotivoR3 = !hayDirect ? 'SIN_CITA_DIRECT' : !hayVigentePrimary ? 'SIN_PRIMARY_VIGENTE' : !hayMismoObjetivo ? 'OTRO_INSTRUMENTO_O_ARTICULO' : 'AFIRMACION_NO_RESPALDADA';
+  const motivo: MotivoR3 = !hayDirect ? 'SIN_CITA_DIRECT' : !hayVigentePrimary ? 'SIN_PRIMARY_VIGENTE' : !hayMismoObjetivo ? 'OTRO_INSTRUMENTO_O_ARTICULO' : !hayRespaldo ? 'AFIRMACION_NO_RESPALDADA' : 'RESPUESTA_NO_NOMBRA_FUENTE';
   return { suficiente: false, motivo, afirmacionesValidas: [] };
+}
+
+/** Qué falta, por motivo de abstención (un solo texto para Luna y para el chat principal). */
+export const FALTANTE_R3: Readonly<Record<MotivoR3, string>> = Object.freeze({
+  OK: '',
+  SIN_AFIRMACIONES: 'la respuesta no contiene afirmaciones con fundamento',
+  SIN_CITA_DIRECT: 'ninguna afirmación tiene una cita directa al texto de la norma',
+  SIN_PRIMARY_VIGENTE: 'la cita no corresponde a una norma con vigencia acreditada y con instrumento y artículo identificados',
+  OTRO_INSTRUMENTO_O_ARTICULO: 'la cita no corresponde al mismo instrumento y artículo consultados',
+  AFIRMACION_NO_RESPALDADA: 'el texto citado no respalda lo que afirma la respuesta',
+  RESPUESTA_NO_NOMBRA_FUENTE: 'la respuesta no nombra el instrumento y el artículo en que se funda',
+});
+
+export function mensajeAbstencionR3(motivo: MotivoR3): string {
+  return `MayaLex no cuenta con evidencia verificable suficiente para responder con fundamento esta consulta.\n\nLo que falta para poder responder: ${FALTANTE_R3[motivo] || 'una cita directa a norma vigente del instrumento y artículo consultados'}.`;
+}
+
+/**
+ * Convierte el TEXTO LIBRE de una respuesta (chat principal) en afirmaciones con citas, para aplicarle la MISMA R3 que a Luna. Por párrafo, una
+ * oración cita (DIRECT) a un fragmento recuperado cuando el párrafo nombra el artículo Y el instrumento de ese fragmento. Sin nombre, no hay cita.
+ * Es una aproximación determinista y conservadora: lo que no se pueda ligar a un fragmento no cuenta como fundamento.
+ */
+export function extraerAfirmacionesCitadas(texto: string, fragmentos: readonly FragmentoRAG[]): AfirmacionCitada[] {
+  const candidatos = fragmentos.filter((f): f is FragmentoRAG & { id: string } => typeof f.id === 'string' && f.id !== '' && f.num_articulo !== null);
+  const salida: AfirmacionCitada[] = [];
+  let n = 0;
+  for (const parrafo of texto.split(/\n+/)) {
+    const citados = candidatos.filter((f) => respuestaNombraFuente(parrafo, f));
+    if (citados.length === 0) continue;
+    for (const oracion of parrafo.split(/(?<=[.!?;:])\s+/)) {
+      if (oracion.trim().length < 20) continue;
+      n += 1;
+      salida.push({ claim_id: `t${n}`, texto: oracion.trim(), citas: citados.map((f) => ({ fragmentoId: f.id, soporte: 'DIRECT' as const })) });
+    }
+  }
+  return salida;
 }
 
 /** true si el fragmento puede presentarse como cita formal (norma PRIMARY). */

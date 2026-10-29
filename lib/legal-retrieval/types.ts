@@ -41,6 +41,8 @@ export interface FragmentoRAG {
   documento_origen?: string;
   norm_id?: string;
   /** Campos de metadata de la fila que el clasificador CLO lee en todas las rutas (rol declarado, norma desplazada). Solo pueden DEGRADAR a CONTEXT. */
+  /** Sellado por la ruta (anotarFragmentosClo): flag_corpus_p21 con el que se clasificó el fragmento. Un solo criterio de citas para recuperación, citas, contexto y Luna. */
+  corpus_p21_habilitado?: boolean;
   metadata_clo?: { rol?: unknown; desplazado_por?: unknown; elegible_primary?: unknown; norm_id?: unknown; p21?: unknown } | null;
   rol_evidencia?: 'PRIMARY' | 'CONTEXT';
   bloqueos_clo?: string[];

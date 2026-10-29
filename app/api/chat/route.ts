@@ -59,6 +59,7 @@ import {
 import { recortarHistorialDesdeEnv } from '@/lib/chat-history';
 import { type FragmentoRAG, type RetrievalOutcome } from '@/lib/rag/search';
 import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
+import { evaluarRespuestaChatR3, CODIGO_ABSTENCION_R3 } from '@/lib/legal-retrieval/r3-chat';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
 // para que los consumidores actuales (tests que importan desde
@@ -637,6 +638,29 @@ export async function POST(req: NextRequest) {
           return;
         }
 
+        // ── R3 del CLO en el chat principal (A-2) ────────────────────────
+        // Mismo criterio que Luna (`evaluarSuficienciaR3`, clasificador compartido), sin ruta de evasión: en toda consulta que exige corpus (rutas
+        // A/B/C) la respuesta se retiene hasta el final y solo se entrega si tiene una afirmación respaldada por una cita a un fragmento PRIMARY
+        // vigente del mismo instrumento y artículo consultados y NOMBRA ese instrumento y artículo. Si no, abstención que dice qué falta (y la
+        // consulta no consume cuota). La ruta D (sala, sin corpus) no recupera fragmentos y conserva su streaming.
+        const exigeR3 = rutaCorpusObligatoria;
+        let textoR3 = '';
+        const emitirTexto = (t: string) => {
+          if (exigeR3) textoR3 += t;
+          else controller.enqueue(sseEvent({ type: 'text', text: t }));
+        };
+        const cerrarConR3 = (): { citasFinal: Cita[]; codigo?: string } => {
+          if (!exigeR3) return { citasFinal: citas };
+          const v = evaluarRespuestaChatR3({ texto: textoR3, fragmentos: ragData.fragmentos, pregunta: ultimaPregunta as string });
+          if (v.suficiente) {
+            controller.enqueue(sseEvent({ type: 'text', text: textoR3 }));
+            return { citasFinal: v.citas };
+          }
+          controller.enqueue(sseEvent({ type: 'text', text: v.mensaje }));
+          devolverReserva = true;
+          return { citasFinal: [], codigo: CODIGO_ABSTENCION_R3 };
+        };
+
         // ── OpenRouter path ──────────────────────────────────────────────
         if (PROVEEDOR_LLM === 'openrouter') {
           const modelOR = seleccionarModeloOpenRouter(ruta, mode);
@@ -651,9 +675,10 @@ export async function POST(req: NextRequest) {
 
           await streamOpenRouter(modelOR, messagesOR, {
             onToken: (token) => {
-              controller.enqueue(sseEvent({ type: 'text', text: token }));
+              emitirTexto(token);
             },
             onDone: ({ inputTokens, outputTokens }) => {
+              const { citasFinal, codigo } = cerrarConR3();
               controller.enqueue(sseEvent({
                 type: 'done',
                 consulta_id: consultaId,
@@ -662,7 +687,8 @@ export async function POST(req: NextRequest) {
                 tier: rateLimitResult.tier,
                 model: modelOR,
                 ruta,
-                citas,
+                citas: citasFinal,
+                ...(codigo ? { codigo } : {}),
               }));
               after(() => logConsulta({
                 consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -721,7 +747,7 @@ export async function POST(req: NextRequest) {
 
               case 'content_block_delta':
                 if (event.delta.type === 'text_delta') {
-                  controller.enqueue(sseEvent({ type: 'text', text: event.delta.text }));
+                  emitirTexto(event.delta.text);
                 }
                 break;
 
@@ -732,14 +758,16 @@ export async function POST(req: NextRequest) {
                 outputTokens = event.usage.output_tokens;
                 break;
 
-              case 'message_stop':
+              case 'message_stop': {
+                const { citasFinal, codigo } = cerrarConR3();
                 controller.enqueue(sseEvent({
                   type: 'done',
                   consulta_id: consultaId,
                   usage: { inputTokens, outputTokens },
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
-                  citas,
+                  citas: citasFinal,
+                  ...(codigo ? { codigo } : {}),
                 }));
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -751,6 +779,7 @@ export async function POST(req: NextRequest) {
                   tier_usuario: rateLimitResult.tier, exito: true,
                 }));
                 break;
+              }
             }
           }
         }

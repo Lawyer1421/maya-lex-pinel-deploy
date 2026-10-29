@@ -65,7 +65,7 @@ function mockDependenciasComunes() {
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {}
     class MockAnthropic {
-      messages = { create: async () => fakeClaudeStream('Respuesta simulada del modelo.') };
+      messages = { create: async () => fakeClaudeStream('Respuesta simulada del modelo. El artículo 173 del Código Procesal Penal contiene un texto limpio de prueba.') };
       static APIError = MockAPIError;
     }
     return { default: MockAnthropic };

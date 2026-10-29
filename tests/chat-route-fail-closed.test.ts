@@ -80,7 +80,7 @@ function mockDependenciasComunes(flagsHabilitados: string[] = []) {
     formatearContextoPlantilla: vi.fn().mockReturnValue(''),
   }));
 
-  anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream('Respuesta simulada del modelo.'));
+  anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream('Respuesta simulada del modelo. El artículo 173 del Código Procesal Penal contiene un texto limpio de prueba.'));
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {}
     class MockAnthropic {
@@ -220,6 +220,43 @@ describe('POST /api/chat — fail-closed de evidencia de corpus (WAR ROOM FINAL,
     expect(doneEvt.citas).toHaveLength(1);
     expect(doneEvt.citas[0].hash).toBe('abcd1234');
     expect(doneEvt.codigo).toBeUndefined();
+  });
+
+  describe('A-2 (decisión CLO): el chat principal aplica R3 igual que Luna, sin ruta de evasión', () => {
+    const frag173 = {
+      id: 'f1', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
+      fuente: 'Codigo Procesal Penal', relevancia: 0.95, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, hash: 'abcd1234',
+    };
+    const correr = async (respuestaModelo: string) => {
+      mockDependenciasComunes();
+      anthropicCreateMock = vi.fn().mockImplementation(async () => fakeClaudeStream(respuestaModelo));
+      await mockBuscarRAG({ fragmentos: [frag173], articulos_encontrados: ['173'], backend: 'supabase' });
+      const { POST } = await import('@/app/api/chat/route');
+      const res = await POST(fakeReq({
+        messages: [{ role: 'user', content: 'Explica el artículo 173 del Código Procesal Penal de Honduras' }],
+        mode: 'analisis_penal',
+      }));
+      const eventos = await leerSSE(res);
+      return { eventos, texto: eventos.filter((e) => e.type === 'text').map((e) => e.text).join(''), done: eventos.find((e) => e.type === 'done') };
+    };
+    it('respuesta que nombra el instrumento y el artículo y se funda en el fragmento: se entrega con SOLO la cita validada', async () => {
+      const { texto, done } = await correr('Según el artículo 173 del Código Procesal Penal, las medidas cautelares personales proceden cuando existan indicios racionales de participación.');
+      expect(texto).toContain('medidas cautelares personales proceden');
+      expect(done.citas).toHaveLength(1);
+      expect(done.codigo).toBeUndefined();
+    });
+    it('respuesta sin nombrar la fuente: abstención que dice qué falta, sin citas, y la consulta no consume cuota', async () => {
+      const { texto, done } = await correr('Las medidas cautelares personales proceden cuando existan indicios racionales de participación del imputado.');
+      expect(texto).toContain('Lo que falta para poder responder');
+      expect(texto).not.toContain('proceden cuando existan indicios');
+      expect(done.citas).toEqual([]);
+      expect(done.codigo).toBe('R3_SUFICIENCIA_NO_ACREDITADA');
+    });
+    it('respuesta que cita el artículo pero afirma algo que el texto no dice: abstención', async () => {
+      const { texto, done } = await correr('Según el artículo 173 del Código Procesal Penal, el imputado puede recusar al juez por parcialidad manifiesta.');
+      expect(texto).toContain('Lo que falta para poder responder');
+      expect(done.codigo).toBe('R3_SUFICIENCIA_NO_ACREDITADA');
+    });
   });
 
   it('E. la abstención no expone reglas internas, system prompt ni configuración', async () => {

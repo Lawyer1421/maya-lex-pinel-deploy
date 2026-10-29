@@ -73,6 +73,41 @@ export async function seleccionarFinal<T extends { contenido: string; relevancia
 // BACKEND: SUPABASE PGVECTOR (producción)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Fila que devuelve la RPC semántica. `metadata_clo` solo existe si la RPC se amplió (ver docs/retrieval/PROPUESTA_NO_APLICADA_buscar_biblioteca_v2_metadata_clo.sql). */
+export type FilaRPC = {
+  id: string;
+  contenido: string;
+  num_articulo: string | null;
+  fuente: string;
+  fuente_tipo: string | null;
+  jurisdiccion: string | null;
+  es_norma_vigente: boolean | null;
+  similarity: number;
+  metadata_clo?: { rol?: unknown; desplazado_por?: unknown; elegible_primary?: unknown; norm_id?: unknown; p21?: unknown } | null;
+};
+
+/**
+ * La `materia` NO se mapea a propósito (CLO 28-oct, Anexo 2.5: la materia la fija la ruta, no la carga de la RPC).
+ * N-2 (auditoría): la recuperación semántica lleva el rol y la norma desplazada de la fila al clasificador CLO, igual que la exacta. Si la RPC
+ * los devuelve, un `rol` distinto de PRIMARY, `elegible_primary=false` o un `desplazado_por` degradan el fragmento a CONTEXT. Si la RPC aún no
+ * los devuelve (versión actual), no hay metadata que leer: ver la propuesta SQL, que NO está aplicada.
+ */
+export function mapearFilaSemantica(row: FilaRPC): FragmentoRAG {
+  const m = row.metadata_clo;
+  return {
+    id: row.id,
+    contenido: row.contenido,
+    num_articulo: row.num_articulo,
+    fuente: row.fuente,
+    relevancia: row.similarity,
+    fuente_tipo: row.fuente_tipo,
+    jurisdiccion: row.jurisdiccion,
+    es_norma_vigente: row.es_norma_vigente,
+    ...(m && typeof m === 'object' ? { metadata_clo: { rol: m.rol, desplazado_por: m.desplazado_por, elegible_primary: m.elegible_primary, norm_id: m.norm_id, p21: m.p21 } } : {}),
+    hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
+  };
+}
+
 export async function buscarEnSupabase(
   consulta: string,
   k: number,
@@ -90,28 +125,7 @@ export async function buscarEnSupabase(
 
   const queryEmbedding = await embedQuery(consulta);
 
-  type FilaRPC = {
-    id: string;
-    contenido: string;
-    num_articulo: string | null;
-    fuente: string;
-    fuente_tipo: string | null;
-    jurisdiccion: string | null;
-    es_norma_vigente: boolean | null;
-    similarity: number;
-  };
-
-  const mapearFila = (row: FilaRPC): FragmentoRAG => ({
-    id: row.id,
-    contenido: row.contenido,
-    num_articulo: row.num_articulo,
-    fuente: row.fuente,
-    relevancia: row.similarity,
-    fuente_tipo: row.fuente_tipo,
-    jurisdiccion: row.jurisdiccion,
-    es_norma_vigente: row.es_norma_vigente,
-    hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
-  });
+  const mapearFila = mapearFilaSemantica;
 
   // v2: agrega fuente_tipo/jurisdiccion/es_norma_vigente para que el modelo
   // distinga norma vigente hondureña de doctrina/jurisprudencia comparada.
