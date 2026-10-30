@@ -269,12 +269,20 @@ export async function POST(req: NextRequest) {
             error: 'Límite diario alcanzado',
             message: 'Ya usaste tu consulta gratis de hoy.',
           }
-        : {
-            error: 'Límite diario alcanzado',
-            message: 'Has alcanzado el límite diario.',
-            resetAt: rateLimitResult.resetAt,
-            upgradeUrl: '/pricing',
-          },
+        : rateLimitResult.reason === 'monthly'
+          ? {
+              code: 'PLAN_MONTHLY_LIMIT',
+              error: 'Límite mensual alcanzado',
+              message: 'Has alcanzado el límite mensual de consultas de tu plan.',
+              resetAt: rateLimitResult.resetAt,
+              upgradeUrl: '/pricing',
+            }
+          : {
+              error: 'Límite diario alcanzado',
+              message: 'Has alcanzado el límite diario.',
+              resetAt: rateLimitResult.resetAt,
+              upgradeUrl: '/pricing',
+            },
       {
         status: 429,
         headers: {

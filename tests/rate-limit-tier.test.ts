@@ -82,6 +82,9 @@ function fakeSupabase(opts: {
       return chain;
     });
     chain.eq = vi.fn(self);
+    // Lectura mensual (límite mensual de los planes de pago): una sola fila con el uso de hoy.
+    chain.gte = vi.fn(self);
+    chain.lte = vi.fn(() => Promise.resolve({ data: opts.usage ? [{ query_count: opts.usage.query_count }] : [], error: null }));
     chain.single = vi.fn().mockResolvedValue({
       data: opts.readError ? null : table === 'queries_log' ? opts.usage : opts.sub,
       error: opts.readError ?? (opts.usage || table !== 'queries_log' ? null : { code: 'PGRST116' }),
@@ -139,7 +142,7 @@ describe('checkAndIncrementRateLimit — día nuevo hereda billing tier', () => 
     expect(row.query_count).toBe(1);
   });
 
-  it('sin queries_log hoy + PayPal pro active → escribe pro, no free (tope 1000)', async () => {
+  it('sin queries_log hoy + PayPal pro active → escribe pro, no free (tope 60/día, 1,200/mes)', async () => {
     const sb = fakeSupabase({
       usage: null,
       sub: { tier: 'pro', status: 'active' },
@@ -149,7 +152,7 @@ describe('checkAndIncrementRateLimit — día nuevo hereda billing tier', () => 
     expect(result.allowed).toBe(true);
     expect(result.tier).toBe('pro');
     if (result.allowed) {
-      expect(result.remaining).toBe(999);
+      expect(result.remaining).toBe(59);
     }
     const row = sb.upsert.mock.calls[0][0];
     expect(row.tier).toBe('pro');
@@ -277,6 +280,19 @@ function statefulSupabase(subs: Record<string, { tier: string; status: string }>
     chain.eq = vi.fn((col: string, val: unknown) => {
       filtros[col] = val;
       return chain;
+    });
+    chain.gte = vi.fn((_col: string, val: unknown) => {
+      filtros.__desde = val;
+      return chain;
+    });
+    chain.lte = vi.fn(async (_col: string, val: unknown) => {
+      const data = [...rows.entries()]
+        .filter(([k]) => {
+          const [uid, fecha] = k.split('|');
+          return uid === filtros.user_identifier && fecha >= String(filtros.__desde) && fecha <= String(val);
+        })
+        .map(([, r]) => ({ query_count: r.query_count }));
+      return { data, error: null };
     });
     chain.single = vi.fn(async () => {
       if (table !== 'queries_log') return { data: null, error: null };

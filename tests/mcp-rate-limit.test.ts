@@ -29,6 +29,8 @@ function fakeSupabase(opts: {
       eqs.push({ table, col, val });
       return chain;
     });
+    chain.gte = vi.fn(() => chain);
+    chain.lte = vi.fn(async () => ({ data: opts.usage ? [{ query_count: opts.usage.query_count }] : [], error: null }));
     chain.single = vi.fn(async () => ({ data: table === 'queries_log' ? opts.usage : null, error: null }));
     chain.maybeSingle = vi.fn(async () => ({
       data: table === 'subscriptions' ? opts.subs[String(filtros.user_identifier)] ?? null : null,
@@ -116,10 +118,10 @@ describe('checkAndIncrementRateLimit — bolsa mcp:', () => {
     expect(await checkAndIncrementRateLimit('mcp:email:root@ejemplo.com')).toEqual({ allowed: true, remaining: 9999, tier: 'admin' });
   });
 
-  it('el chat no cambia: email: pro sigue con cuota 1000', async () => {
+  it('el chat: email: pro (Premium) tiene cuota 60/día', async () => {
     const sb = fakeSupabase({ usage: null, subs: PRO });
     const { checkAndIncrementRateLimit } = await freshRateLimit(sb);
-    expect(await checkAndIncrementRateLimit('email:abogado@ejemplo.com')).toEqual({ allowed: true, remaining: 999, tier: 'pro' });
+    expect(await checkAndIncrementRateLimit('email:abogado@ejemplo.com')).toEqual({ allowed: true, remaining: 59, tier: 'pro' });
   });
 
   it('getRateLimitStatus con mcp: muestra pro y el límite MCP', async () => {

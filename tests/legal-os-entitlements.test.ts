@@ -2,15 +2,17 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CAPACIDADES, MATRIZ, TIER_TECNICO, indefinidas, limite, puede, rolDeepPermitido } from '@/lib/legal-os/entitlements';
+import { LIMITES_ACADEMICO, LIMITES_PREMIUM } from '@/lib/plan-limits';
 import { MODEL_POLICY } from '@/lib/legal-os/policies/model-policy';
 
 describe('entitlements', () => {
   it('los límites diarios coinciden con los valores por defecto que ya define lib/rate-limit.ts', () => {
     const src = readFileSync(join(__dirname, '..', 'lib', 'rate-limit.ts'), 'utf8');
     expect(src).toMatch(/FREE_LIMIT_DEFAULT = 1;/);
-    expect(src).toMatch(/ACADEMICO_TIER_DAILY_LIMIT, 20\)/);
-    expect(src).toMatch(/PRO_TIER_DAILY_LIMIT, 1000\)/);
-    expect([limite('EXPLORAR', 'daily_questions'), limite('ACADEMICO', 'daily_questions'), limite('PREMIUM', 'daily_questions')]).toEqual([1, 20, 1000]);
+    // Académico y Premium ya no tienen override por entorno: sus límites viven en lib/plan-limits.ts (20/día y 60/día).
+    expect(src).not.toMatch(/ACADEMICO_TIER_DAILY_LIMIT|PRO_TIER_DAILY_LIMIT/);
+    expect([limite('EXPLORAR', 'daily_questions'), limite('ACADEMICO', 'daily_questions'), limite('PREMIUM', 'daily_questions')]).toEqual([1, LIMITES_ACADEMICO.diario, LIMITES_PREMIUM.diario]);
+    expect([LIMITES_ACADEMICO.diario, LIMITES_PREMIUM.diario]).toEqual([20, 60]);
   });
   it('todo lo demás es INDEFINIDO (null) y fail-closed: no se inventa nada', () => {
     for (const t of ['EXPLORAR', 'ACADEMICO', 'PREMIUM'] as const) {

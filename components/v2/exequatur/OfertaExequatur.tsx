@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LIMITES_PREMIUM, formatoEntero } from '@/lib/plan-limits';
 
 const MODULOS = [
   { titulo: 'Derecho Notarial y Forma Documental', detalle: 'Instrumentos públicos, autorización y fe pública.' },
@@ -49,7 +50,7 @@ export default function OfertaExequatur({ eligibleTier = false }: { eligibleTier
         <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="font-serif text-xl font-bold text-ivory">Plan Notarial</p>
-            <p className="mt-1 text-sm text-ivory-muted">Facturado como Plan Premium — 1000 consultas/día incluidas en toda la plataforma.</p>
+            <p className="mt-1 text-sm text-ivory-muted">Facturado como Plan Premium — {LIMITES_PREMIUM.diario} consultas/día (hasta {formatoEntero(LIMITES_PREMIUM.mensual)} al mes) incluidas en toda la plataforma.</p>
           </div>
           <p className="flex items-baseline gap-1">
             <span className="font-serif text-4xl font-bold text-ivory">USD 15</span>

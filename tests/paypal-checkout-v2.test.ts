@@ -61,8 +61,8 @@ describe('PLANES_V2 — qué planes invocan PayPal y con qué tier (Pruebas 1, 2
     const selfServe = [explorar, academico, profesional];
 
     expect(explorar.caracteristicas).toContain('1 consulta/día');
-    expect(academico.caracteristicas).toContain('20 consultas/día');
-    expect(profesional.caracteristicas).toContain('1000 consultas/día');
+    expect(academico.caracteristicas).toContain('20 consultas/día (hasta 400 al mes)');
+    expect(profesional.caracteristicas).toContain('60 consultas/día (hasta 1,200 al mes)');
 
     const mismasFunciones = [
       'Modos de chat: Sala IA, Análisis y Documento',
