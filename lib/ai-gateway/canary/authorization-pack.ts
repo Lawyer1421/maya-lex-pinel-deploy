@@ -177,7 +177,7 @@ export function construirPaquete(opciones: { raiz?: string; ahora?: Date } = {})
     decision: bloqueos.length === 0 ? 'READY_FOR_FREDY_DECISION' : 'NOT_READY_FOR_FREDY_DECISION',
     condiciones: c,
     bloqueos,
-    contratoDeActivacion: evaluarGoNoGo(estadoActualGoNoGo()),
+    contratoDeActivacion: evaluarGoNoGo(estadoActualGoNoGo(ahora)),
     valoresReales: { SHADOW_GATEWAY_ENABLED, SHADOW_BUDGET_USD, enabled: CANARY_CONFIG.enabled, maxRequests: CANARY_CONFIG.maxRequests, maxBudgetUsd: CANARY_CONFIG.maxBudgetUsd, sampleStrategy: CANARY_CONFIG.sampleStrategy.tipo },
     nota: 'READY_FOR_FREDY_DECISION NO activa nada: solo habilita que Fredy emita CANARY_GO o CANARY_NO_GO. El contrato de activación sigue en NO_GO mientras Fredy no autorice, el presupuesto sea 0 y el kill switch esté apagado.',
   };

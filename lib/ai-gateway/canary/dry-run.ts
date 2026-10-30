@@ -206,7 +206,9 @@ export interface ReporteDryRun {
 
 export async function ejecutarDryRun(
   escenarios: readonly EscenarioDryRun[] = ESCENARIOS_DRY_RUN,
-  entradasContrato: Partial<EntradasGoNoGo> = estadoActualGoNoGo(),
+  entradasContrato?: Partial<EntradasGoNoGo>,
+  /** Fecha de referencia para la vigencia de la verificación oficial cuando `entradasContrato` no se da (determinismo con --as-of). */
+  ahora: Date = new Date(),
 ): Promise<ReporteDryRun> {
   const resultados: ResultadoEscenario[] = [];
   for (const e of escenarios) resultados.push(await ejecutarEscenario(e));
@@ -214,7 +216,7 @@ export async function ejecutarDryRun(
     resultados,
     simulacroConsistente: resultados.every((r) => r.coincide),
     configPermiteTrafico: canaryConfigPermiteTrafico(CANARY_CONFIG),
-    decisionCanary: evaluarGoNoGo(entradasContrato),
+    decisionCanary: evaluarGoNoGo(entradasContrato ?? estadoActualGoNoGo(ahora)),
   };
 }
 

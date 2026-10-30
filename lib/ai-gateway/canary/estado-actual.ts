@@ -12,8 +12,12 @@ import { evaluarGoNoGo, type CondicionCanary, type EvidenciaCondicion } from './
 
 const no = (): EvidenciaCondicion => ({ cumplida: false, evidencia: null });
 
-export function estadoActualGoNoGo(): Record<CondicionCanary, EvidenciaCondicion> {
-  const verif = estadoVerificacionOpenAI();
+/**
+ * `ahora` es la fecha «de referencia» con la que se juzga la vigencia de la verificación oficial (≤ 7 días). Se inyecta de punta a punta (paquete de
+ * autorización → este estado → estadoVerificacionOpenAI) para que una corrida con --as-of sea determinista; sin argumento usa el reloj real.
+ */
+export function estadoActualGoNoGo(ahora: Date = new Date()): Record<CondicionCanary, EvidenciaCondicion> {
+  const verif = estadoVerificacionOpenAI(undefined, ahora);
   return {
     FREDY_AUTHORIZATION: no(),
     CLO_PROVENANCE_PILOT_APPROVED: MANIFIESTO_PROCEDENCIA_PUBLICA.length > 0
@@ -31,4 +35,4 @@ export function estadoActualGoNoGo(): Record<CondicionCanary, EvidenciaCondicion
   };
 }
 
-export const decisionActualGoNoGo = () => evaluarGoNoGo(estadoActualGoNoGo());
+export const decisionActualGoNoGo = (ahora: Date = new Date()) => evaluarGoNoGo(estadoActualGoNoGo(ahora));

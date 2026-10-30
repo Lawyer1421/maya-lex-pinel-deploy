@@ -4,7 +4,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SHADOW_MODEL_CONFIG } from '@/lib/ai-gateway/shadow/shadow-model-config';
 import { MANIFIESTO_PROCEDENCIA_PUBLICA } from '@/lib/ai-gateway/shadow/public-provenance-manifest';
 import { SHADOW_GATEWAY_ENABLED } from '@/lib/ai-gateway/shadow/config';
@@ -17,6 +17,8 @@ import { certificarServerless, inspeccionarRuta } from '@/lib/ai-gateway/canary/
 import { ESCALAS_COSTO, calcularPaquete, documentoCostos, peorCasoPorConsultaUsd, presupuestoRecomendadoUsd } from '@/lib/ai-gateway/canary/cost-authorization';
 import { MAX_SOLICITUDES_PROPUESTAS, PROPUESTA_CANARY, validarPropuesta, verificarSolicitudContraPropuesta } from '@/lib/ai-gateway/canary/canary-proposal';
 import { construirPaquete, textoPaquete } from '@/lib/ai-gateway/canary/authorization-pack';
+import { decisionActualGoNoGo, estadoActualGoNoGo } from '@/lib/ai-gateway/canary/estado-actual';
+import { ejecutarDryRun } from '@/lib/ai-gateway/canary/dry-run';
 import { ejecutarCanarySintetico, type ConfigSintetica, type SolicitudSintetica } from '@/lib/ai-gateway/canary/synthetic-canary';
 
 const RAIZ = join(__dirname, '..');
@@ -209,5 +211,48 @@ describe('G6-I paquete de autorización', () => {
     writeFileSync(join(vacio, 'app', 'api', 'chat', 'route.ts'), leer('app', 'api', 'chat', 'route.ts'));
     const q = construirPaquete({ raiz: vacio, ahora: AHORA });
     expect(q.decision).toBe('NOT_READY_FOR_FREDY_DECISION');
+  });
+});
+
+describe('fecha «ahora» inyectada de punta a punta (determinismo con --as-of)', () => {
+  afterEach(() => { vi.useRealTimers(); });
+  const RELOJES = ['2026-10-23T12:00:00Z', '2026-10-30T09:00:00Z', '2027-03-01T00:00:00Z'];
+
+  it('el paquete con ahora fija es idéntico sin importar el reloj real (incluido el contrato de activación)', () => {
+    const resultados = RELOJES.map((reloj) => {
+      vi.useFakeTimers(); vi.setSystemTime(new Date(reloj));
+      const pack = construirPaquete({ raiz: RAIZ, ahora: AHORA });
+      vi.useRealTimers();
+      return JSON.stringify(pack);
+    });
+    expect(new Set(resultados).size).toBe(1);
+  });
+  it('con ahora = 2026-10-23 la verificación oficial figura vigente en el contrato aunque el reloj real sea posterior', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2027-03-01T00:00:00Z'));
+    const pack = construirPaquete({ raiz: RAIZ, ahora: AHORA });
+    expect(JSON.stringify(pack.contratoDeActivacion)).not.toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+  });
+  it('con una ahora posterior a 7 días la misma verificación deja de estar vigente (la fecha inyectada manda, no el reloj)', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    const tarde = construirPaquete({ raiz: RAIZ, ahora: new Date('2026-11-05T12:00:00Z') });
+    expect(JSON.stringify(tarde.contratoDeActivacion)).toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+    expect(tarde.condiciones.find((x) => x.id === 'OPENAI_OFFICIAL_VERIFICATION_CURRENT')!.estado).toBe('NOT_MET');
+  });
+  it('estadoActualGoNoGo y decisionActualGoNoGo reciben la fecha', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2027-03-01T00:00:00Z'));
+    expect(estadoActualGoNoGo(AHORA).OFFICIAL_API_VERIFICATION_CURRENT.cumplida).toBe(true);
+    expect(estadoActualGoNoGo(new Date('2026-11-05T12:00:00Z')).OFFICIAL_API_VERIFICATION_CURRENT.cumplida).toBe(false);
+    expect(JSON.stringify(decisionActualGoNoGo(AHORA))).not.toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+    expect(JSON.stringify(decisionActualGoNoGo(new Date('2026-11-05T12:00:00Z')))).toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+  });
+  it('el dry-run también usa la fecha inyectada cuando no se le dan entradas de contrato', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2027-03-01T00:00:00Z'));
+    const hoy = await ejecutarDryRun([], undefined, AHORA);
+    const tarde = await ejecutarDryRun([], undefined, new Date('2026-11-05T12:00:00Z'));
+    expect(JSON.stringify(hoy.decisionCanary)).not.toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+    expect(JSON.stringify(tarde.decisionCanary)).toContain('OFFICIAL_API_VERIFICATION_CURRENT');
+  });
+  it('el origen no llama a estadoActualGoNoGo() sin fecha en el paquete', () => {
+    expect(leer('lib', 'ai-gateway', 'canary', 'authorization-pack.ts')).not.toMatch(/estadoActualGoNoGo\(\)/);
   });
 });
