@@ -115,6 +115,35 @@ describe('interruptor de la interfaz: apagado por defecto, consentimiento versio
   });
 });
 
+describe('auditoría 3: typo del vocabulario y topónimos afinados (institucionales pasan; lugares de un caso no)', () => {
+  it('el vocabulario extra reconoce «tutela» y «adopcion» como términos jurídicos (typo «tuadopcion» corregido)', async () => {
+    const { readFileSync } = await import('node:fs');
+    const src = readFileSync('lib/luna/privacy.ts', 'utf8');
+    expect(src).not.toContain('tuadopcion');
+    expect(src).toMatch(/tutela\|adopcion/);
+  });
+  it.each([
+    '¿Qué competencia territorial tiene un juzgado de letras de olancho según el Código Procesal Penal?',
+    '¿Cómo se organiza el Registro de la Propiedad de Tegucigalpa según el Código Civil?',
+    '¿Cuál es la competencia de la corte de apelaciones de comayagua en materia penal?',
+    '¿Qué funciones tiene la municipalidad de Choluteca según la ley?',
+    '¿Qué dice el Código de Familia sobre la tutela y la adopción de menores?',
+  ])('PASS (pregunta abstracta sobre una institución): %s', (q) => {
+    expect(privacidadConsultaGeneral(q), q).toEqual({ estado: 'PASS' });
+  });
+  it.each([
+    '¿Qué dice el Código Penal sobre un delito cometido en Olancho?',
+    '¿Qué prevé el Código Civil para un vecino demandado en el juzgado de Olancho?',
+    '¿Qué dice el Código Procesal Penal si alguien es acusado ante el juzgado de letras de Olancho?',
+    '¿Qué prevé el Código Civil si una persona que vive en la aldea el ocotal es demandada ante el juzgado?',
+    'una persona de olancho es demandada ante el juzgado de letras',
+    '¿Qué dice el Código Penal sobre lo ocurrido en el municipio de choluteca?',
+    '¿Qué dice el Código de Familia de un trámite en la colonia las flores ante la alcaldía?',
+  ])('REJECT (lugar de un caso, aunque aparezca una institución): %s', (q) => {
+    expect(privacidadConsultaGeneral(q).estado, q).toBe('REJECT');
+  });
+});
+
 describe('privacidad: lugar de un caso y persona indefinida con condición procesal', () => {
   it.each([
     'alguien que vive en la aldea el ocotal es demandado',
