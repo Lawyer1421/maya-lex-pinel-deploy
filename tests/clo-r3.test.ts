@@ -4,6 +4,7 @@ import {
 } from '@/lib/legal-retrieval/clo-guards';
 import { objetivosDeConsulta } from '@/lib/legal-retrieval/r3-objetivos';
 import { mencionaNormaConcreta, mencionesNoValidadas, extraerAfirmacionesCitadas, respuestaNombraFuente, textoNombraArticulo, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
+import { oracionAfirmaContenidoNormativo } from '@/lib/legal-retrieval/clo-guards';
 import { evaluarRespuestaChatR3 } from '@/lib/legal-retrieval/r3-chat';
 import { construirCitas } from '@/lib/legal-retrieval/evidence-engine';
 import { mapearFilaSemantica } from '@/lib/legal-retrieval/semantic-retriever';
@@ -290,7 +291,7 @@ describe('A-2b (re-auditoría): R4 — ninguna mención de artículo o instrumen
     expect(mencionesNoValidadas(valido, [cpp173({ es_norma_vigente: null })]).length).toBeGreaterThan(0);
   });
   it('lista de artículos: «arts. 173 y 999 del CPP» con solo el 173 recuperado → el 999 no está validado', () => {
-    expect(mencionesNoValidadas('Los arts. 173 y 999 del CPP regulan la prisión preventiva.', [f173])).toEqual(['ARTICULO_SIN_FRAGMENTO:999']);
+    expect(mencionesNoValidadas('Los arts. 173 y 999 del CPP regulan la prisión preventiva.', [f173])).toContain('ARTICULO_SIN_FRAGMENTO:999');
   });
 });
 
@@ -317,5 +318,122 @@ describe('D-1 (re-auditoría): la ruta D (sin corpus) retiene la salida; si nomb
     expect(mencionaNormaConcreta('Es importante mantener la calma durante la audiencia.')).toBe(false);
     expect(mencionaNormaConcreta('Véase el art. 12.')).toBe(true);
     expect(mencionaNormaConcreta('Según la Constitución, toda persona es inocente.')).toBe(true);
+  });
+});
+
+describe('D-1 (auditoría 3): el detector de la ruta D cubre «Arto.», unidades, siglas, nombres en minúscula y verbos normativos', () => {
+  const sinCorpus = (texto: string) => evaluarRespuestaChatR3({ texto, fragmentos: [], pregunta: 'pregunta general', conCorpus: false });
+  const f173 = cpp173();
+  const pregunta173 = '¿Qué dispone el artículo 173 del Código Procesal Penal?';
+  const valido = 'Según el artículo 173 del Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.';
+
+  it.each([
+    'Según el Arto. 173, la prisión preventiva procede con indicios racionales.',
+    'Conforme al Arto 173 la prisión preventiva procede con indicios racionales.',
+    'Según el art. 173 la prisión preventiva procede con indicios racionales.',
+    'Según los arts. 10 y 173 la prisión preventiva procede con indicios racionales.',
+    'Según el artículo No. 173 la prisión preventiva procede con indicios racionales.',
+    'El numeral 3 establece los requisitos para la prisión preventiva en estos casos.',
+    'Revise el inciso b para conocer las excepciones aplicables a su situación.',
+    'Según el D.L. 130-2017 la prisión preventiva procede con indicios racionales.',
+    'Según el DL 130-2017 la prisión preventiva procede con indicios racionales.',
+    'Según el D.E. 12-2020 se regula la materia de manera especial.',
+    'La ley de municipalidades fija el procedimiento para obtener ese permiso.',
+    'El decreto legislativo 130-2017 trata esa materia con detalle.',
+    'El reglamento de la ley del notariado exige esos documentos para el trámite.',
+  ])('se abstiene (mención normativa sin fragmento): %s', (t) => {
+    const v = sinCorpus(t);
+    expect(v.suficiente, t).toBe(false);
+    if (!v.suficiente) expect(v.motivo).toBe('SIN_FRAGMENTOS_PARA_NORMA');
+  });
+
+  it.each([
+    'El plazo para apelar es de tres días.',
+    'El plazo para apelar es de 3 días hábiles.',
+    'La pena es de cinco años de prisión para ese delito.',
+    'Tiene tres días para apelar la resolución del juez.',
+    'La ley fija la pena máxima en cuarenta años de reclusión.',
+    'La norma establece que el trámite es gratuito para el interesado.',
+    'El código dispone requisitos distintos según el tipo de contrato.',
+    'La legislación sanciona con multa esa conducta de forma expresa.',
+    'El tribunal fija el plazo de prescripción en cada caso concreto.',
+  ])('contenido normativo sin artículo citado → se abstiene: %s', (t) => {
+    expect(sinCorpus(t).suficiente, t).toBe(false);
+  });
+
+  it.each([
+    'Conviene llegar temprano a la audiencia y organizar bien tus documentos.',
+    'Mi consejo es que fijes tus objetivos y prepares con calma tu intervención.',
+    'Respira, escucha con atención y responde con claridad cuando te pregunten.',
+    'La preparación previa suele reducir la ansiedad antes de una audiencia.',
+    'Establece una rutina de estudio con descansos de diez minutos cada hora.',
+  ])('una respuesta general sin normas ni cantidades normativas se entrega: %s', (t) => {
+    expect(sinCorpus(t).suficiente, t).toBe(true);
+  });
+
+  it('oracionAfirmaContenidoNormativo: verbo normativo + sustantivo jurídico, cantidad y plazo procesal', () => {
+    expect(oracionAfirmaContenidoNormativo('El juez establece el plazo para contestar.')).toBe(true);
+    expect(oracionAfirmaContenidoNormativo('Se sanciona con prisión de tres a cinco años.')).toBe(true);
+    expect(oracionAfirmaContenidoNormativo('Hoy hace buen clima en la capital.')).toBe(false);
+  });
+
+  it('rutas con corpus: contenido normativo SIN artículo en otro párrafo → abstención completa', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido}\n\nEl plazo para apelar es de tres días.`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(false);
+    if (!v.suficiente) { expect(v.motivo).toBe('MENCION_NO_VALIDADA'); expect(v.mensaje).not.toContain('tres días'); }
+  });
+  it('rutas con corpus: la oración normativa en el MISMO bloque que el artículo válido, pero que el fragmento no respalda → abstención', () => {
+    const v = evaluarRespuestaChatR3({ texto: `${valido} Además, el plazo para apelar es de tres días.`, fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(false);
+  });
+  it('rutas con corpus: «Arto. 173» del instrumento correcto sí se valida y se entrega', () => {
+    const v = evaluarRespuestaChatR3({ texto: 'Según el Arto. 173 del Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.', fragmentos: [f173], pregunta: pregunta173, conCorpus: true });
+    expect(v.suficiente).toBe(true);
+  });
+  it('rutas con corpus: un numeral/inciso sin artículo validado en el bloque → abstención; colgado de un artículo validado, no', () => {
+    expect(mencionesNoValidadas('El numeral 3 fija la regla para estos casos de prisión.', [f173])).toContain('UNIDAD_SIN_ARTICULO_VALIDADO');
+    expect(mencionesNoValidadas('Según el artículo 173 del Código Procesal Penal, numeral 3, procede con indicios racionales.', [f173])).not.toContain('UNIDAD_SIN_ARTICULO_VALIDADO');
+  });
+  it('rutas con corpus: siglas y nombres en minúscula son instrumentos desconocidos', () => {
+    expect(mencionesNoValidadas('El D.L. 130-2017 regula la materia.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('La ley de municipalidades regula la materia.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('Según el código procesal penal, art. 173, procede.', [f173])).not.toContain('INSTRUMENTO_DESCONOCIDO');
+  });
+});
+
+describe('A-4b (auditoría 3): el respaldo exige cifras, artículo e instrumento coincidentes, no solo traslape de palabras', () => {
+  const f = cpp173();
+  it('instrumento distinto del fragmento → no respalda (aunque el resto coincida)', () => {
+    expect(afirmacionRespaldadaPorFragmento('Según el Código Procesal Penal, la prisión preventiva procede con indicios racionales de participación.', f)).toBe(true);
+    expect(afirmacionRespaldadaPorFragmento('Según el Código Penal, la prisión preventiva procede con indicios racionales de participación.', f)).toBe(false);
+    expect(afirmacionRespaldadaPorFragmento('Según la Ley de Justicia Constitucional, la prisión preventiva procede con indicios racionales.', f)).toBe(false);
+  });
+  it('artículo: debe ser exactamente el del fragmento; que el número aparezca en su texto (una remisión) ya no basta', () => {
+    const remite = cpp173({ id: 'cpp-10', num_articulo: '10', contenido: 'ARTICULO 10.- Lo dispuesto en el artículo 173 se aplicará a la prisión preventiva con indicios racionales.' });
+    expect(afirmacionRespaldadaPorFragmento('El artículo 173 se aplica a la prisión preventiva con indicios racionales.', remite)).toBe(false);
+    expect(afirmacionRespaldadaPorFragmento('El Arto. 173 regula la prisión preventiva con indicios racionales de participación.', f)).toBe(true);
+    expect(afirmacionRespaldadaPorFragmento('El art. 174 regula la prisión preventiva con indicios racionales de participación.', f)).toBe(false);
+  });
+  it('cifras: dígitos y números en palabras deben figurar en el fragmento', () => {
+    expect(afirmacionRespaldadaPorFragmento('Según el artículo 173 del Código Procesal Penal, la pena debe superar los cinco años.', f)).toBe(true);
+    expect(afirmacionRespaldadaPorFragmento('Según el artículo 173 del Código Procesal Penal, la pena debe superar los 5 años.', f)).toBe(true);
+    expect(afirmacionRespaldadaPorFragmento('Según el artículo 173 del Código Procesal Penal, la pena debe superar los diez años.', f)).toBe(false);
+    expect(afirmacionRespaldadaPorFragmento('La pena debe superar los 12 años.', f)).toBe(false);
+  });
+  it('sin anclas verificables (ni cifra, ni artículo, ni instrumento) el traslape de palabras ya no alcanza con 60 %', () => {
+    // 3 de 5 términos propios coinciden (60 %): antes bastaba; ahora sin anclas exige ≥ 75 %.
+    expect(afirmacionRespaldadaPorFragmento('La prisión preventiva procede libremente siempre.', f)).toBe(false);
+    // Con traslape alto y suficientes términos coincidentes, la afirmación sin anclas sigue valiendo.
+    expect(afirmacionRespaldadaPorFragmento('La prisión preventiva procede cuando existan indicios racionales de participación.', f)).toBe(true);
+  });
+  it('una afirmación sin términos propios ni anclas no se respalda', () => {
+    expect(afirmacionRespaldadaPorFragmento('Esto es así.', f)).toBe(false);
+  });
+  it('la afirmación que solo trae ancla de cifra y coincide, se respalda', () => {
+    expect(afirmacionRespaldadaPorFragmento('Son cinco años.', f)).toBe(true);
+  });
+  it('evaluarSuficienciaR3: una cita DIRECT cuya afirmación nombra otro instrumento no cuenta', () => {
+    const r = evaluarSuficienciaR3([f], afirma('Según el Código Penal, la prisión preventiva procede con indicios racionales de participación.'), OBJ_173_CPP, {}, TXT);
+    expect(r).toMatchObject({ suficiente: false });
   });
 });

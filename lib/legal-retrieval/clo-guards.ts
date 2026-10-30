@@ -433,39 +433,63 @@ const VACIAS = new Set([
   'prevé', 'preve', 'señala', 'senala', 'indica', 'conforme', 'respecto', 'caso', 'casos', 'derecho', 'general', 'honduras', 'hondureno', 'hondurena',
 ]);
 const UMBRAL_TERMINOS = 0.5;
+/** Sin ningún ancla verificable (ni cifra, ni artículo, ni instrumento) el traslape de palabras solo se acepta con un umbral mucho más alto. */
+const UMBRAL_TERMINOS_SIN_ANCLAS = 0.75;
+const MIN_TERMINOS_SIN_ANCLAS = 3;
 
 /**
- * ¿El contenido del fragmento respalda la afirmación concreta? Comprobación determinista y conservadora (ante la duda, NO respalda):
- *  - toda cifra de la afirmación (dígitos o número en palabras) aparece en el fragmento;
- *  - todo «artículo N» que cite la afirmación es el del fragmento o figura en su texto;
- *  - al menos la mitad de los términos propios de la afirmación (≥ 5 letras, sin vacías) tienen su raíz (5 letras) en el fragmento.
- * No sustituye la lectura jurídica: es la barrera mínima para que una cita DIRECT no avale una afirmación que el texto no dice.
+ * ¿El fragmento PRIMARY respalda la afirmación concreta? Comprobación determinista y conservadora (ante la duda, NO respalda). El respaldo NO se mide
+ * solo por traslape de palabras: se exige que lo verificable COINCIDA con el fragmento.
+ *  - Instrumento: si la afirmación nombra un instrumento, debe ser EXACTAMENTE el del fragmento (un instrumento distinto invalida).
+ *  - Artículo: todo «artículo N» (también «arto.», «art.», «arts.») que nombre la afirmación debe ser EXACTAMENTE el del fragmento; que el número aparezca
+ *    dentro de su texto (una remisión) ya no basta.
+ *  - Cifras: toda cifra (dígitos o número en palabras) debe figurar en el fragmento.
+ *  - Términos propios: al menos la mitad (≥ 5 letras, sin vacías) con su raíz en el fragmento; si la afirmación no trae ninguna ancla verificable
+ *    (cifra, artículo o instrumento), el umbral sube a 75 % y exige al menos 3 términos coincidentes.
+ * No sustituye la lectura jurídica: es la barrera mínima para que una cita DIRECT no avale lo que el texto no dice.
  */
-export function afirmacionRespaldadaPorFragmento(afirmacion: string, f: Pick<FragmentoRAG, 'contenido' | 'num_articulo'>): boolean {
+export function afirmacionRespaldadaPorFragmento(
+  afirmacion: string,
+  f: Pick<FragmentoRAG, 'contenido' | 'num_articulo' | 'fuente'> & Partial<Pick<FragmentoClasificable, 'metadata' | 'documento_origen' | 'norm_id'>>,
+): boolean {
   const a = norm(afirmacion);
   const t = norm(f.contenido);
   if (a === '' || t === '') return false;
   const artFragmento = normalizarNumeroArticulo(f.num_articulo);
+  let anclas = 0;
 
-  // Referencias «artículo N» de la afirmación.
-  for (const m of a.matchAll(/\bart(?:iculo|\.)?\s*(\d+(?:-?[a-z])?)\b/g)) {
-    const n = normalizarNumeroArticulo(m[1]);
-    if (n === null) return false;
-    if (n !== artFragmento && !new RegExp(`(?<![\\d])${n.replace('-', '-?')}(?![\\d])`, 'i').test(t)) return false;
+  // Instrumento nombrado → debe ser el del fragmento.
+  const nombrados = instrumentosConocidosMencionados(afirmacion);
+  if (nombrados.length > 0) {
+    const idFragmento = instrumentIdDeFragmento(f);
+    if (idFragmento === null || nombrados.some((id) => id !== idFragmento)) return false;
+    anclas += 1;
   }
+  // Artículos nombrados → deben ser exactamente el del fragmento.
+  const articulos = articulosMencionados(afirmacion);
+  for (const n of articulos) if (artFragmento === null || n !== artFragmento) return false;
+  if (articulos.length > 0) anclas += 1;
+
   // Cifras: dígitos (fuera de las referencias a artículo) y números en palabras.
-  const sinRefs = a.replace(/\bart(?:iculo|\.)?\s*\d+(?:-?[a-z])?\b/g, ' ');
+  const sinRefs = a.replace(new RegExp(MENCION_ARTICULOS.source, 'g'), ' ');
   for (const m of sinRefs.matchAll(/\d+/g)) {
-    if (!new RegExp(`(?<!\\d)${m[0]}(?!\\d)`).test(t)) return false;
+    anclas += 1;
+    const enPalabras = Object.entries(PALABRAS_NUMERO).filter(([, d]) => d === m[0]).map(([w]) => w);
+    const aceptables = [new RegExp(`(?<!\\d)${m[0]}(?!\\d)`), ...enPalabras.map((w) => new RegExp(`\\b${w}\\b`))];
+    if (!aceptables.some((r) => r.test(t))) return false;
   }
   for (const m of sinRefs.matchAll(/[a-zñ]+/g)) {
     const dig = PALABRAS_NUMERO[m[0]];
-    if (dig && !new RegExp(`\\b${m[0]}\\b|(?<!\\d)${dig}(?!\\d)`).test(t)) return false;
+    if (!dig) continue;
+    anclas += 1;
+    if (!new RegExp(`\\b${m[0]}\\b|(?<!\\d)${dig}(?!\\d)`).test(t)) return false;
   }
+
   // Términos propios.
   const terminos = [...new Set([...sinRefs.matchAll(/[a-zñ]{5,}/g)].map((m) => m[0]).filter((w) => !VACIAS.has(w) && !(w in PALABRAS_NUMERO)))];
-  if (terminos.length === 0) return true;
+  if (terminos.length === 0) return anclas > 0;           // sin términos propios solo vale si hay anclas que coincidieron
   const presentes = terminos.filter((w) => t.includes(w.slice(0, 5))).length;
+  if (anclas === 0) return presentes >= MIN_TERMINOS_SIN_ANCLAS && presentes / terminos.length >= UMBRAL_TERMINOS_SIN_ANCLAS;
   return presentes / terminos.length >= UMBRAL_TERMINOS;
 }
 
@@ -516,7 +540,7 @@ export function textoNombraArticulo(texto: string, articulo: string): boolean {
   const [num, letra] = n.split('-');
   const num0 = `0*${num}`;
   const suf = letra ? `-?${letra.toLowerCase()}` : '(?![a-z0-9])(?!-[a-z])';
-  return new RegExp(`\\bart(?:iculos?|s?\\.?)\\s*[^.;\\n]{0,40}?(?<![\\d])${num0}${suf}(?![\\d])`, 'i').test(norm(texto));
+  return new RegExp(`\\bart(?:iculos?|os?\\.?|s?\\.?|º|°)\\s*[^.;\\n]{0,40}?(?<![\\d])${num0}${suf}(?![\\d])`, 'i').test(norm(texto));
 }
 
 /** La respuesta nombra el instrumento Y el artículo de la fuente que cita. */
@@ -585,14 +609,38 @@ export function mensajeAbstencionR3(motivo: MotivoR3): string {
 // R4 (CLO 29-oct, re-auditoría): además de R3, TODO artículo o instrumento que el texto mencione debe estar validado contra un fragmento recuperado
 // elegible (PRIMARY, vigente TRUE, instrumento y artículo identificados). Una sola mención sin respaldo («el artículo 999 del Código Penal establece la
 // pena de muerte» cuando no se recuperó) hace que la respuesta COMPLETA se abstenga. Lo que se entrega son solo las oraciones validadas por R3.
-const MENCION_ARTICULOS = /\bart(?:iculos?|s?\.?)\s*((?:\d+(?:-?[a-z])?(?![a-z0-9]))(?:\s*(?:,|y|e|al|a|-)\s*\d+(?:-?[a-z])?(?![a-z0-9]))*)/g;
+// «artículo», «art.», «arts.», «arto.», «artº»; con o sin «N.º». Admite listas: «arts. 10 y 173».
+const MENCION_ARTICULOS = /\bart(?:iculos?|os?\.?|s?\.?|º|°)\s*(?:n[o°º]\.?\s*)?((?:\d+(?:-?[a-z])?(?![a-z0-9]))(?:\s*(?:,|y|e|al|a|-)\s*\d+(?:-?[a-z])?(?![a-z0-9]))*)/g;
+// Unidades por debajo del artículo («numeral 3», «inciso b», «literal c», «párrafo segundo»): son contenido normativo que solo vale colgado de un artículo validado.
+const UNIDAD_SUBARTICULO = /\b(?:numeral(?:es)?|incisos?|literal(?:es)?|parrafos?|apartados?|fracciones?)\s+(?:n[o°º]\.?\s*)?(?:\d+|[a-z]\)?|primero|segundo|tercero|cuarto|quinto|unico|unica|final)(?![a-z0-9])/;
+// Siglas de instrumento con número: «D.L. 130-2017», «DL 130-2017», «D.E. 12-2020», «PCM 05-2020», «A.E. 123-2020». Se evalúa sobre el texto ORIGINAL (mayúsculas).
+const SIGLA_NORMATIVA = /\b(?:[A-Z]{1,4}\.){1,3}\s*(?:N[o°º]\.?\s*)?\d{1,4}-\d{2,4}\b|\b(?:D\.?L|D\.?E|D\.?P|A\.?E|A\.?L|PCM|PCS|AEJ|DEC)\.?\s*(?:N[o°º]\.?\s*)?\d{1,4}-\d{2,4}\b/;
 // Nombres de instrumentos que NO están en la tabla de alias (se detectan sobre el texto original, con mayúscula inicial del nombre propio).
 const NOMBRE_PROPIO = String.raw`(?:\s+(?:(?:de|del|la|las|los|el|y)\s+){0,2}[A-ZÁÉÍÓÚÑ]\w*)+`;
 const INSTRUMENTO_GENERICO = new RegExp(
   String.raw`\b(?:Ley|Decreto|Reglamento|Convenci[oó]n|Tratado|Pacto|Acuerdo|Resoluci[oó]n|Estatuto)(?:\s+(?:No\.?|N[úu]m\.?|N[°º]))?(?:\s+\d[\d-]*|${NOMBRE_PROPIO})|\bC[oó]digo${NOMBRE_PROPIO}`,
   'g',
 );
-const CONTENIDO_DE_NORMA = /\b(?:la|el|las|los)\s+(?:ley|leyes|codigo|codigos|norma|normas|constitucion|reglamento|reglamentos|legislacion|ordenamiento)\b[^.;\n]{0,60}\b(?:establece|establecen|dispone|disponen|senala|senalan|prescribe|prescriben|determina|determinan|regula|regulan|preve|prevén|estipula|ordena|exige|exigen|sanciona|castiga|prohibe|permite|obliga)\b/;
+// Los mismos nombres EN MINÚSCULA («ley de municipalidades», «decreto legislativo 130-2017», «reglamento de la ley de…»), sobre el texto normalizado.
+const INSTRUMENTO_GENERICO_MINUSCULA = /\b(?:leyes|ley|decretos?|reglamentos?|acuerdos?|resoluciones|resolucion|convenciones|convencion|tratados?|pactos?|estatutos?|codigos?)\s+(?:(?:no|n|num)\.?\s*\d[\d-]*|(?:legislativo|ejecutivo)\s+(?:(?:no|n|num)\.?\s*)?\d[\d-]*|(?:(?:legislativo|ejecutivo|especial|organica|general|de|del|sobre|para)\s+)+(?:la\s+|las\s+|los\s+|el\s+)?[a-z]{3,}|\d[\d-]*)/g;
+// Verbos con los que se afirma el contenido de una norma. Solos pueden ser lenguaje ordinario; cuentan como contenido normativo junto a un sustantivo jurídico.
+const VERBO_NORMATIVO = /\b(?:establece|establecen|dispone|disponen|fija|fijan|sanciona|sancionan|castiga|castigan|prescribe|prescriben|determina|determinan|regula|regulan|preve|prevén|prevee|estipula|estipulan|ordena|ordenan|exige|exigen|prohibe|prohiben|permite|permiten|obliga|obligan|faculta|facultan|autoriza|autorizan|impone|imponen|tipifica|tipifican|penaliza|penalizan|senala|senalan)\b/;
+const SUSTANTIVO_JURIDICO = /\b(?:ley|leyes|codigo|codigos|norma|normas|constitucion|reglamento|reglamentos|legislacion|ordenamiento|decreto|decretos|plazo|plazos|termino|terminos|pena|penas|multa|multas|sancion|sanciones|prision|reclusion|inhabilitacion|prescripcion|caducidad|recurso|recursos|apelacion|casacion|demanda|delito|delitos|requisito|requisitos|competencia|procedimiento|obligacion|obligaciones|derecho|derechos|prohibicion)\b/;
+const NUMERO_O_PALABRA = String.raw`(?:\d+|uno|una|un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|quince|veinte|treinta|cuarenta|cincuenta|sesenta|noventa|cien|ciento)`;
+// «el plazo para apelar es de tres días», «prisión de 3 a 5 años», «multa de 500 lempiras»: cantidad + unidad junto a un término de plazo o sanción.
+const CANTIDAD_NORMATIVA = new RegExp(
+  String.raw`\b(?:plazo|plazos|termino|terminos|pena|penas|multa|multas|prision|reclusion|sancion|prescripcion|caducidad|inhabilitacion|interes|intereses|tasa)\b[^.;\n]{0,60}\b${NUMERO_O_PALABRA}\b[^.;\n]{0,25}\b(?:dias?|meses|mes|anos?|horas?|semanas?|lempiras|dolares|por ciento|%)`,
+);
+const PLAZO_PROCESAL = new RegExp(
+  String.raw`\b${NUMERO_O_PALABRA}\s+(?:dias(?:\s+habiles)?|meses|anos|horas)\b[^.;\n]{0,40}\b(?:apelar|apelacion|recurrir|recurso|contestar|interponer|notificar|prescribe|prescribir|caduca|caducar|plazo|demanda)\b|\b(?:apelar|apelacion|recurrir|recurso|contestar|interponer|notificar|prescribe|prescribir|caduca|caducar|demanda)\b[^.;\n]{0,40}\b${NUMERO_O_PALABRA}\s+(?:dias(?:\s+habiles)?|meses|anos|horas)\b`,
+);
+const CONTENIDO_DE_NORMA = /\b(?:la|el|las|los)\s+(?:ley|leyes|codigo|codigos|norma|normas|constitucion|reglamento|reglamentos|legislacion|ordenamiento)\b[^.;\n]{0,60}\b(?:establece|establecen|dispone|disponen|senala|senalan|prescribe|prescriben|determina|determinan|regula|regulan|preve|prevén|estipula|ordena|exige|exigen|sanciona|castiga|prohibe|permite|obliga|fija|fijan)\b/;
+
+/** ¿La oración afirma contenido normativo (aunque no cite artículo)? Verbo normativo + sustantivo jurídico, cantidad normativa, plazo procesal o «la ley establece…». */
+export function oracionAfirmaContenidoNormativo(oracion: string): boolean {
+  const t = norm(oracion);
+  return CONTENIDO_DE_NORMA.test(t) || (VERBO_NORMATIVO.test(t) && SUSTANTIVO_JURIDICO.test(t)) || CANTIDAD_NORMATIVA.test(t) || PLAZO_PROCESAL.test(t);
+}
 
 function articulosMencionados(texto: string): string[] {
   const t = norm(texto);
@@ -611,22 +659,32 @@ function instrumentosConocidosMencionados(texto: string): InstrumentId[] {
 }
 function instrumentosGenericosNoReconocidos(texto: string): string[] {
   const out: string[] = [];
+  const contieneAlias = (frag: string) => TODOS_INSTRUMENTOS.some((id) => ALIAS_INSTRUMENTO[id].some((al) => al.length > 3 && frag.includes(al)));
   for (const m of texto.matchAll(INSTRUMENTO_GENERICO)) {
     const frag = norm(m[0]);
     // Si el nombre contiene un alias conocido no es «desconocido»: lo valida la comprobación por instrumento.
-    if (TODOS_INSTRUMENTOS.some((id) => ALIAS_INSTRUMENTO[id].some((al) => al.length > 3 && frag.includes(al)))) continue;
+    if (contieneAlias(frag)) continue;
     out.push(frag);
   }
-  return out;
+  for (const m of norm(texto).matchAll(INSTRUMENTO_GENERICO_MINUSCULA)) {
+    if (contieneAlias(m[0])) continue;
+    if (/^decreto\s+(?:no\.?\s*)?353-2005\b/.test(m[0])) continue;
+    out.push(m[0]);
+  }
+  for (const m of texto.matchAll(new RegExp(SIGLA_NORMATIVA.source, 'g'))) out.push(norm(m[0]));
+  return [...new Set(out)];
 }
 
-/** ¿El texto se refiere a una norma concreta? (nombra un artículo o un instrumento, o afirma el contenido de «la ley/el código/la norma»). */
+/** ¿El texto se refiere a una norma concreta? (nombra un artículo, una unidad de artículo, un instrumento —por nombre, sigla o en minúscula— o afirma contenido normativo). */
 export function mencionaNormaConcreta(texto: string): boolean {
   return articulosMencionados(texto).length > 0
+    || UNIDAD_SUBARTICULO.test(norm(texto))
     || instrumentosConocidosMencionados(texto).length > 0
     || instrumentosGenericosNoReconocidos(texto).length > 0
-    || CONTENIDO_DE_NORMA.test(norm(texto));
+    || oracionesDe(texto).some(oracionAfirmaContenidoNormativo);
 }
+
+const oracionesDe = (texto: string): string[] => texto.split(/(?<=[.!?;:])\s+|\n+/).map((o) => o.trim()).filter((o) => o !== '');
 
 /** Bloques de la respuesta: separados por línea en blanco (un encabezado y su cuerpo forman un bloque). */
 function bloquesDe(texto: string): string[] {
@@ -646,9 +704,20 @@ export function mencionesNoValidadas(texto: string, fragmentos: readonly Fragmen
     const arts = articulosMencionados(bloque);
     if (instrumentosGenericosNoReconocidos(bloque).length > 0) problemas.push('INSTRUMENTO_DESCONOCIDO');
     for (const id of insts) if (!elegibles.some((f) => instrumentIdDeFragmento(f) === id)) problemas.push(`INSTRUMENTO_SIN_FRAGMENTO:${id}`);
+    const respaldados: typeof elegibles = [];
     for (const a of arts) {
-      const ok = insts.length > 0 && elegibles.some((f) => normalizarNumeroArticulo(f.num_articulo) === a && insts.includes(instrumentIdDeFragmento(f) as InstrumentId));
-      if (!ok) problemas.push(`ARTICULO_SIN_FRAGMENTO:${a}`);
+      const aptos = elegibles.filter((f) => normalizarNumeroArticulo(f.num_articulo) === a && insts.includes(instrumentIdDeFragmento(f) as InstrumentId));
+      if (aptos.length === 0) problemas.push(`ARTICULO_SIN_FRAGMENTO:${a}`);
+      respaldados.push(...aptos);
+    }
+    // Numeral / inciso / literal: solo vale colgado de un artículo validado del mismo bloque.
+    if (UNIDAD_SUBARTICULO.test(norm(bloque)) && respaldados.length === 0) problemas.push('UNIDAD_SIN_ARTICULO_VALIDADO');
+    // Contenido normativo SIN artículo citado («el plazo para apelar es de tres días»): cada oración debe estar respaldada por un fragmento que el
+    // propio bloque nombra (instrumento y artículo). Sin fragmento que la respalde, la respuesta completa se abstiene.
+    for (const oracion of oracionesDe(bloque)) {
+      if (!oracionAfirmaContenidoNormativo(oracion)) continue;
+      const citados = elegibles.filter((f) => respuestaNombraFuente(bloque, f));
+      if (!citados.some((f) => afirmacionRespaldadaPorFragmento(oracion, f))) problemas.push('CONTENIDO_NORMATIVO_SIN_FRAGMENTO');
     }
   }
   return problemas;

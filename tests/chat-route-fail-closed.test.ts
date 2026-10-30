@@ -302,6 +302,17 @@ describe('POST /api/chat — fail-closed de evidencia de corpus (WAR ROOM FINAL,
       expect(texto).toBe(t);
       expect(done.codigo).toBeUndefined();
     });
+    it.each([
+      'Según el Arto. 173, la prisión preventiva procede con indicios racionales de participación.',
+      'El plazo para apelar es de tres días contados desde la notificación.',
+      'Según el D.L. 130-2017 se regula esa materia de manera especial.',
+      'La ley de municipalidades fija el procedimiento para obtener ese permiso.',
+    ])('D-1 (auditoría 3): la ruta D se abstiene ante mención normativa sin fragmento: %s', async (respuesta) => {
+      const { texto, done } = await correr('sala_penal', 'Hola, cuéntame sobre el tema', respuesta);
+      expect(texto).toContain('Lo que falta para poder responder');
+      expect(done.codigo).toBe('R3_SUFICIENCIA_NO_ACREDITADA');
+      expect(done.citas).toEqual([]);
+    });
     it('D-1: la ruta D ya no transmite token a token: el texto llega en un único evento al final', async () => {
       const { eventos } = await correr('sala_ia', 'Hola, ¿cómo estás hoy?', 'Hola, estoy bien. ¿En qué puedo ayudarte hoy con tu consulta?');
       expect(eventos.filter((e) => e.type === 'text')).toHaveLength(1);
