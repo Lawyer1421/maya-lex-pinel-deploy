@@ -170,7 +170,7 @@ export function identificadorDeSuscripcion(userIdentifier: string): string {
 
 export type RateLimitResult =
   | { allowed: true;  remaining: number; tier: UserTier }
-  | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string; reason?: 'daily' | 'monthly' };
+  | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string; reason?: 'daily' | 'monthly' | 'contention' };
 
 export class RateLimitStoreError extends Error {
   readonly code: string;
@@ -299,8 +299,30 @@ async function leerUsoDelDia(
 }
 
 /**
- * Consultas del mes calendario HN (incluye hoy) de una bolsa. Suma las filas de queries_log del mes. Cualquier error de lectura LANZA
- * RateLimitStoreError: sin saber cuánto lleva en el mes, la consulta no pasa.
+ * Fecha HN (YYYY-MM-DD) en que existe la suscripción de pago del usuario, o null si no hay dato. No hay una columna «activated_at» (añadirla sería
+ * DDL): se usa `subscriptions.created_at`, el primer momento en que la suscripción existe en nuestra base. Sin identidad de suscripción (IP) o sin
+ * fila, devuelve null y el conteo mensual usa el inicio del mes (más conservador: cuenta más, nunca menos). Un error de lectura LANZA.
+ */
+async function leerFechaActivacion(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+): Promise<string | null> {
+  const id = identificadorDeSuscripcion(userIdentifier);
+  if (id.startsWith('ip:')) return null;
+  const { data, error } = await supabase.from('subscriptions').select('created_at').eq('user_identifier', id).maybeSingle();
+  if (error) {
+    console.error('[RateLimit] lectura de la suscripción falló', { code: error.code, message: error.message });
+    throw new RateLimitStoreError(error.message ?? 'subscriptions read failed', String(error.code ?? 'STORE_ERROR'));
+  }
+  const creada = typeof data?.created_at === 'string' ? new Date(data.created_at) : null;
+  return creada && !Number.isNaN(creada.getTime()) ? fechaDiaHn(creada) : null;
+}
+
+/**
+ * Consultas de PAGO del mes calendario HN (incluye hoy) de una bolsa. Cuenta solo las filas de queries_log con tier de pago (academico / pro) y
+ * hechas desde la fecha de activación de la suscripción: las consultas gratis de antes de pagar (o de un periodo sin suscripción) no gastan el tope
+ * mensual. Cualquier error de lectura LANZA RateLimitStoreError: sin saber cuánto lleva en el mes, la consulta no pasa.
  */
 async function leerUsoDelMes(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -308,17 +330,24 @@ async function leerUsoDelMes(
   userIdentifier: string,
   now: Date,
 ): Promise<number> {
+  const inicioMes = inicioMesHn(now);
+  const activacion = await leerFechaActivacion(supabase, userIdentifier);
+  const desde = activacion !== null && activacion > inicioMes ? activacion : inicioMes;
   const { data, error } = await supabase
     .from('queries_log')
-    .select('query_count')
+    .select('query_count, query_date, tier')
     .eq('user_identifier', userIdentifier)
-    .gte('query_date', inicioMesHn(now))
+    .gte('query_date', desde)
     .lte('query_date', fechaDiaHn(now));
   if (error || !Array.isArray(data)) {
     console.error('[RateLimit] lectura mensual de queries_log falló', { code: error?.code, message: error?.message });
     throw new RateLimitStoreError(error?.message ?? 'queries_log monthly read failed', String(error?.code ?? 'STORE_ERROR'));
   }
-  return (data as { query_count: unknown }[]).reduce((n, r) => n + (typeof r.query_count === 'number' && r.query_count > 0 ? r.query_count : 0), 0);
+  return (data as { query_count: unknown; query_date?: unknown; tier?: unknown }[]).reduce((n, r) => {
+    const esDePago = r.tier === 'academico' || r.tier === 'pro';
+    const cuenta = typeof r.query_count === 'number' && r.query_count > 0 ? r.query_count : 0;
+    return esDePago ? n + cuenta : n;
+  }, 0);
 }
 
 function resetSegun(reason: 'daily' | 'monthly' | undefined, now: Date): string {
@@ -376,9 +405,12 @@ export async function reserveRateLimit(
   const supabase = createServerSupabaseClient();
   const today = fechaDiaHn(now);
 
+  // Plan real del usuario en el último intento: si se agotan los reintentos NO se le responde como si fuera del plan gratis.
+  let tierReal: UserTier = 'free';
   for (let attempt = 0; attempt < RESERVE_MAX_ATTEMPTS; attempt++) {
     const existing = await leerUsoDelDia(supabase, userIdentifier, today);
     const tier = await resolveTodayTier(supabase, userIdentifier, existing?.tier);
+    tierReal = tier;
 
     if (tier === 'admin') {
       return { allowed: true, remaining: 9999, tier: 'admin' };
@@ -404,12 +436,9 @@ export async function reserveRateLimit(
     }
   }
 
-  return {
-    allowed: false,
-    remaining: 0,
-    tier: 'free',
-    resetAt: resetAtMedianocheHn(now),
-  };
+  // H1: reintentos agotados por contención del CAS. No es un límite de uso: se informa con el plan real y la ruta responde 503 RATE_LIMIT_CONTENTION
+  // (reintentable), nunca el 429 de «ya usaste tu consulta gratis».
+  return { allowed: false, remaining: 0, tier: tierReal, resetAt: resetAtMedianocheHn(now), reason: 'contention' };
 }
 
 /** Devuelve una reserva (aclaración, abstención, 5xx/timeout del proveedor). */

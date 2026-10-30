@@ -16,7 +16,7 @@ import TarjetaPlan from '@/components/v2/TarjetaPlan';
 type Fila = { query_count: number; tier: string };
 
 /** Supabase en memoria con el contrato que usa lib/rate-limit.ts: queries_log (CAS por día) y subscriptions. */
-function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 'pro' | 'free'; failMonthly?: boolean; failDaily?: boolean } = {}) {
+function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 'pro' | 'free'; failMonthly?: boolean; failDaily?: boolean; createdAt?: string; failSubscription?: boolean; casAlwaysLoses?: boolean } = {}) {
   const rows = new Map<string, Fila>(Object.entries(opts.rows ?? {}));
   const tier = opts.tier ?? 'free';
   const from = vi.fn((table: string) => {
@@ -30,7 +30,7 @@ function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 
       if (patch) {
         const key = `${f.user_identifier}|${f.query_date}`;
         const fila = rows.get(key);
-        if (!fila || fila.query_count !== f.query_count) return Promise.resolve({ data: [], error: null });
+        if (opts.casAlwaysLoses || !fila || fila.query_count !== f.query_count) return Promise.resolve({ data: [], error: null });
         rows.set(key, { query_count: patch.query_count!, tier: patch.tier ?? fila.tier });
         return Promise.resolve({ data: [{ query_count: patch.query_count }], error: null });
       }
@@ -48,7 +48,7 @@ function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 
       if (opts.failMonthly) return { data: null, error: { code: '57014', message: 'statement timeout' } };
       const data = [...rows.entries()]
         .filter(([k]) => { const [u, d] = k.split('|'); return u === f.user_identifier && d >= String(f.__desde) && d <= String(v); })
-        .map(([, r]) => ({ query_count: r.query_count }));
+        .map(([k, r]) => ({ query_count: r.query_count, query_date: k.split('|')[1], tier: r.tier }));
       return { data, error: null };
     });
     chain.single = vi.fn(async () => {
@@ -57,7 +57,10 @@ function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 
       const fila = rows.get(`${f.user_identifier}|${f.query_date}`) ?? null;
       return { data: fila, error: fila ? null : { code: 'PGRST116' } };
     });
-    chain.maybeSingle = vi.fn(async () => ({ data: table === 'subscriptions' && tier !== 'free' ? { tier, status: 'active' } : null, error: null }));
+    chain.maybeSingle = vi.fn(async () => {
+      if (table === 'subscriptions' && opts.failSubscription) return { data: null, error: { code: '57014', message: 'statement timeout' } };
+      return { data: table === 'subscriptions' && tier !== 'free' ? { tier, status: 'active', created_at: opts.createdAt } : null, error: null };
+    });
     chain.update = vi.fn((p: typeof patch) => { patch = p; return chain; });
     chain.upsert = vi.fn((r: typeof upsertRow, extra?: { ignoreDuplicates?: boolean }) => { upsertRow = r; ignoreDuplicates = Boolean(extra?.ignoreDuplicates); return chain; });
     void esMensual;
@@ -68,6 +71,7 @@ function fakeSupabase(opts: { rows?: Record<string, Fila>; tier?: 'academico' | 
 
 async function fresh(sb: ReturnType<typeof fakeSupabase>) {
   vi.resetModules();
+  vi.doUnmock('@/lib/rate-limit');           // por si una prueba anterior de este archivo simuló el módulo
   vi.doMock('@/lib/supabase', () => ({ createServerSupabaseClient: () => sb }));
   return import('@/lib/rate-limit');
 }
@@ -214,6 +218,98 @@ describe('si la cuenta de uso falla, se bloquea la consulta', () => {
   });
 });
 
+describe('tope mensual: solo cuentan las consultas de pago desde la activación de la suscripción', () => {
+  it('mezcla consultas gratis (antes y en un hueco) y de pago en el mismo mes: las gratis no gastan el tope', async () => {
+    const rows: Record<string, Fila> = {};
+    for (let d = 1; d <= 4; d++) rows[`${USUARIO}|2026-10-${String(d).padStart(2, '0')}`] = { query_count: 1, tier: 'free' };      // 4 gratis antes de pagar
+    for (let d = 5; d <= 23; d++) rows[`${USUARIO}|2026-10-${String(d).padStart(2, '0')}`] = { query_count: 20, tier: 'academico' }; // 380 de pago
+    rows[`${USUARIO}|2026-10-24`] = { query_count: 19, tier: 'academico' };                                                           // 399 de pago
+    rows[`${USUARIO}|2026-10-25`] = { query_count: 1, tier: 'free' };                                                                 // una gratis en un hueco
+    // Total bruto del mes = 404 (> 400): si se contaran las gratis, ya estaría bloqueado.
+    const sb = fakeSupabase({ tier: 'academico', rows, createdAt: '2026-10-05T15:00:00.000Z' });
+    const { reserveRateLimit } = await fresh(sb);
+    expect(await reserveRateLimit(USUARIO, AHORA_28)).toMatchObject({ allowed: true, remaining: 0, tier: 'academico' });   // la 400.ª de pago cabe
+    expect(await reserveRateLimit(USUARIO, AHORA_28)).toMatchObject({ allowed: false, reason: 'monthly' });                // la 401.ª no
+  });
+  it('sin la regla, el bruto (404) bloquearía: se verifica que el conteo de pago es 399', async () => {
+    const rows: Record<string, Fila> = {};
+    for (let d = 1; d <= 4; d++) rows[`${USUARIO}|2026-10-${String(d).padStart(2, '0')}`] = { query_count: 1, tier: 'free' };
+    rows[`${USUARIO}|2026-10-10`] = { query_count: 20, tier: 'academico' };
+    const sb = fakeSupabase({ tier: 'academico', rows, createdAt: '2026-10-10T03:00:00.000Z' });
+    vi.useFakeTimers(); vi.setSystemTime(AHORA_28);
+    try {
+      const { getRateLimitStatus } = await fresh(sb);
+      expect(await getRateLimitStatus(USUARIO)).toMatchObject({ usedMonth: 20, limitMonth: 400 });
+    } finally { vi.useRealTimers(); }
+  });
+  it('lo anterior a la fecha de activación (HN) no cuenta aunque tenga tier de pago', async () => {
+    const rows: Record<string, Fila> = {};
+    for (let d = 1; d <= 19; d++) rows[`${USUARIO}|2026-10-${String(d).padStart(2, '0')}`] = { query_count: 20, tier: 'academico' }; // 380 previos a la activación
+    // 2026-10-20T03:00Z es 19-oct 21:00 en HN → la activación cae el 19 (HN); el 19 sí cuenta, el 18 no.
+    const sb = fakeSupabase({ tier: 'academico', rows, createdAt: '2026-10-20T03:00:00.000Z' });
+    vi.useFakeTimers(); vi.setSystemTime(AHORA);
+    try {
+      const { getRateLimitStatus } = await fresh(sb);
+      expect(await getRateLimitStatus(USUARIO)).toMatchObject({ usedMonth: 20, limitMonth: 400 });
+    } finally { vi.useRealTimers(); }
+  });
+  it('sin fecha de activación conocida cuenta desde el inicio del mes (más conservador), pero solo filas de pago', async () => {
+    const rows: Record<string, Fila> = {
+      [`${USUARIO}|2026-10-01`]: { query_count: 1, tier: 'free' },
+      [`${USUARIO}|2026-10-02`]: { query_count: 20, tier: 'academico' },
+    };
+    const sb = fakeSupabase({ tier: 'academico', rows });          // sin createdAt
+    vi.useFakeTimers(); vi.setSystemTime(AHORA);
+    try {
+      const { getRateLimitStatus } = await fresh(sb);
+      expect(await getRateLimitStatus(USUARIO)).toMatchObject({ usedMonth: 20 });
+    } finally { vi.useRealTimers(); }
+  });
+  it('si falla la lectura de la suscripción, la consulta se bloquea (RateLimitStoreError)', async () => {
+    const sb = fakeSupabase({ tier: 'pro', failSubscription: true, rows: { [`${USUARIO}|${HOY}`]: { query_count: 2, tier: 'pro' } } });
+    const { reserveRateLimit, RateLimitStoreError } = await fresh(sb);
+    await expect(reserveRateLimit(USUARIO, AHORA)).rejects.toBeInstanceOf(RateLimitStoreError);
+    expect(sb.rows.get(`${USUARIO}|${HOY}`)!.query_count).toBe(2);
+  });
+});
+
+describe('H1: reintentos agotados → contención (503), no el 429 del plan gratis', () => {
+  it.each(['academico', 'pro'] as const)('%s: devuelve reason contention con el plan REAL del usuario', async (tier) => {
+    const sb = fakeSupabase({ tier, casAlwaysLoses: true, rows: { [`${USUARIO}|${HOY}`]: { query_count: 3, tier } } });
+    const { reserveRateLimit } = await fresh(sb);
+    const r = await reserveRateLimit(USUARIO, AHORA);
+    expect(r).toMatchObject({ allowed: false, remaining: 0, tier, reason: 'contention' });
+    expect((r as { tier: string }).tier).not.toBe('free');
+    expect(sb.rows.get(`${USUARIO}|${HOY}`)!.query_count).toBe(3);      // no se incrementó
+  });
+  it('un usuario free en contención también recibe contention (no el mensaje de «ya usaste tu consulta gratis»)', async () => {
+    const sb = fakeSupabase({ tier: 'free', casAlwaysLoses: true, rows: { [`ip:10.0.0.7|${HOY}`]: { query_count: 0, tier: 'free' } } });
+    const { reserveRateLimit } = await fresh(sb);
+    expect(await reserveRateLimit('ip:10.0.0.7', AHORA)).toMatchObject({ allowed: false, reason: 'contention', tier: 'free' });
+  });
+  it('/api/chat responde 503 RATE_LIMIT_CONTENTION con el plan real y Retry-After, sin invocar al modelo', async () => {
+    vi.resetModules();
+    const anthropicCreate = vi.fn();
+    vi.doMock('next/server', async () => ({ ...(await vi.importActual<typeof import('next/server')>('next/server')), after: (fn: () => unknown) => { fn(); } }));
+    vi.doMock('@/lib/rate-limit', () => ({
+      reserveRateLimit: vi.fn().mockResolvedValue({ allowed: false, remaining: 0, tier: 'pro', resetAt: '2026-10-21T06:00:00.000Z', reason: 'contention' }),
+      releaseRateLimit: vi.fn(), RateLimitStoreError: class extends Error {}, esFalloProveedorQueDevuelveCuota: () => false, esFalloOpenRouterQueDevuelveCuota: () => false,
+      getVerifiedEmail: vi.fn().mockResolvedValue('abogado@ejemplo.com'), getUserIdentifier: () => 'ip:t', buildUserIdentifierFromEmail: (e: string) => `email:${e}`,
+      FREE_DAILY_LIMIT_CODE: 'FREE_DAILY_LIMIT',
+    }));
+    vi.doMock('@/lib/flags', () => ({ isFlagEnabledForUser: vi.fn().mockResolvedValue(false) }));
+    vi.doMock('@/lib/analytics/logger', () => ({ logConsulta: vi.fn(), hashUsuario: () => 'h' }));
+    vi.doMock('@anthropic-ai/sdk', () => ({ default: class { messages = { create: anthropicCreate }; static APIError = class extends Error {}; } }));
+    process.env.ANTHROPIC_API_KEY = 'fake'; process.env.LLM_PROVIDER = 'anthropic';
+    const { POST } = await import('@/app/api/chat/route');
+    const res = await POST({ json: async () => ({ messages: [{ role: 'user', content: 'Explica el artículo 173 del Código Procesal Penal' }], mode: 'analisis_penal' }), headers: new Headers() } as never);
+    expect(res.status).toBe(503);
+    expect(res.headers.get('Retry-After')).toBe('2');
+    expect(await res.json()).toEqual({ error: 'Servicio de cuota ocupado', code: 'RATE_LIMIT_CONTENTION', tier: 'pro' });
+    expect(anthropicCreate).not.toHaveBeenCalled();
+  });
+});
+
 describe('free y admin no cambian; el estado de uso informa el mes', () => {
   it('free: 1/día sin tope mensual; admin: sin límite', async () => {
     const free = fakeSupabase({ tier: 'free' });
@@ -288,5 +384,18 @@ describe('la ruta de chat responde 429 distinto cuando se agota el mes', () => {
     const src = readFileSync('app/api/chat/route.ts', 'utf8');
     expect(src).toContain("rateLimitResult.reason === 'monthly'");
     expect(src).toContain('PLAN_MONTHLY_LIMIT');
+  });
+});
+
+describe('H2: los ejemplos de entorno no ofrecen variables que ya no tienen efecto', () => {
+  it.each(['.env.example', '.env.local.example'])('%s no define PRO_TIER_DAILY_LIMIT ni ACADEMICO_TIER_DAILY_LIMIT como variable', async (archivo) => {
+    const { readFileSync } = await import('node:fs');
+    const lineas = readFileSync(archivo, 'utf8').split('\n').filter((l) => !l.trim().startsWith('#'));
+    expect(lineas.join('\n')).not.toMatch(/PRO_TIER_DAILY_LIMIT|ACADEMICO_TIER_DAILY_LIMIT/);
+    expect(lineas.join('\n')).toMatch(/FREE_TIER_DAILY_LIMIT=1/);
+  });
+  it('rate-limit.ts documenta que esas variables no existen para los planes de pago', async () => {
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync('lib/rate-limit.ts', 'utf8')).not.toMatch(/process\.env\.(PRO|ACADEMICO)_TIER_DAILY_LIMIT/);
   });
 });

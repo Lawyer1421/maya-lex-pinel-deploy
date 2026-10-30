@@ -258,6 +258,14 @@ export async function POST(req: NextRequest) {
     throw err;
   }
 
+  if (!rateLimitResult.allowed && rateLimitResult.reason === 'contention') {
+    // Contención del almacén de cuota (reintentos del CAS agotados): no es un límite de uso. 503 reintentable; el plan del usuario no se degrada a free.
+    return NextResponse.json(
+      { error: 'Servicio de cuota ocupado', code: 'RATE_LIMIT_CONTENTION', tier: rateLimitResult.tier },
+      { status: 503, headers: { 'Retry-After': '2' } },
+    );
+  }
+
   if (!rateLimitResult.allowed) {
     const esFree = rateLimitResult.tier === 'free';
     return NextResponse.json(
