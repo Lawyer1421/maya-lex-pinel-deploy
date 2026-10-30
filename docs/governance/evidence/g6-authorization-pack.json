@@ -153,10 +153,6 @@
         "motivo": "NO_CUMPLIDA"
       },
       {
-        "condicion": "OFFICIAL_API_VERIFICATION_CURRENT",
-        "motivo": "NO_CUMPLIDA"
-      },
-      {
         "condicion": "BUDGET_GT_ZERO_EXPLICITLY_AUTHORIZED",
         "motivo": "NO_CUMPLIDA"
       },
