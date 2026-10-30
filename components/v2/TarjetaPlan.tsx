@@ -40,6 +40,7 @@ export default function TarjetaPlan({
           {plan.precio}
         </span>
         {plan.periodo && <span className="text-sm text-ivory-muted">{plan.periodo}</span>}
+        {plan.precioLempiras && <span className="w-full text-sm text-ivory-muted">≈ {plan.precioLempiras}{plan.periodo}</span>}
       </p>
 
       {!compacta && (

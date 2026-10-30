@@ -1,15 +1,18 @@
 /**
  * Rate Limiting — MAYA LEX IA PINEL HN
  *
- * Los planes self-serve se diferencian SOLO por cuota diaria:
- *   free      → FREE_TIER_DAILY_LIMIT      (default 1)
- *   academico → ACADEMICO_TIER_DAILY_LIMIT (default 20)
- *   pro       → PRO_TIER_DAILY_LIMIT       (default 1000)
+ * Cuotas de consultas por plan:
+ *   free      → FREE_TIER_DAILY_LIMIT (default 1), solo diaria
+ *   academico → 20 al día y 400 al mes   (lib/plan-limits.ts, sin env)
+ *   pro       → 60 al día y 1,200 al mes (lib/plan-limits.ts, sin env; «Premium»)
+ * Los límites de los planes de pago viven en lib/plan-limits.ts y se aplican aquí, del lado del servidor. Si la lectura del uso (día o mes) falla,
+ * la consulta se BLOQUEA (RateLimitStoreError → 503), nunca se deja pasar.
  * Identificación: IP (sin login) o email: (Supabase Auth)
  * Día = medianoche→medianoche America/Tegucigalpa (UTC-6).
  */
 
 import { createServerSupabaseClient } from '@/lib/supabase';
+import { limitesDePlanPago } from '@/lib/plan-limits';
 
 export const TZ_HN = 'America/Tegucigalpa';
 export const FREE_DAILY_LIMIT_CODE = 'FREE_DAILY_LIMIT';
@@ -25,12 +28,6 @@ export function parseDailyLimit(raw: string | undefined, fallback: number): numb
 
 function freeLimit(): number {
   return parseDailyLimit(process.env.FREE_TIER_DAILY_LIMIT, FREE_LIMIT_DEFAULT);
-}
-function proLimit(): number {
-  return parseDailyLimit(process.env.PRO_TIER_DAILY_LIMIT, 1000);
-}
-function academicoLimit(): number {
-  return parseDailyLimit(process.env.ACADEMICO_TIER_DAILY_LIMIT, 20);
 }
 function mcpLimit(): number {
   return parseDailyLimit(process.env.MCP_TIER_DAILY_LIMIT, 200);
@@ -91,9 +88,46 @@ function limitForTier(tier: UserTier, userIdentifier = ''): number {
   if (tier === 'admin') return 9999;
   // Bolsa MCP: sólo pro tiene cuota propia; el resto no tiene acceso MCP (fail-closed).
   if (userIdentifier.startsWith(MCP_BUCKET_PREFIX)) return tier === 'pro' ? mcpLimit() : 0;
-  if (tier === 'pro') return proLimit();
-  if (tier === 'academico') return academicoLimit();
+  const pago = limitesDePlanPago(tier);
+  if (pago) return pago.diario;
   return freeLimit();
+}
+
+/** Límite mensual del tier para esa bolsa, o null si no tiene (free, admin y la bolsa MCP no tienen tope mensual). */
+function limiteMensual(tier: UserTier, userIdentifier = ''): number | null {
+  if (userIdentifier.startsWith(MCP_BUCKET_PREFIX)) return null;
+  return limitesDePlanPago(tier)?.mensual ?? null;
+}
+
+/** Primer día del mes calendario HN de `now` (YYYY-MM-01). */
+export function inicioMesHn(now: Date = new Date()): string {
+  return `${fechaDiaHn(now).slice(0, 8)}01`;
+}
+
+/** Medianoche HN del primer día del mes siguiente, ISO-8601 (UTC-6, sin DST). */
+export function resetAtMesHn(now: Date = new Date()): string {
+  const [y, m] = fechaDiaHn(now).split('-').map((n) => Number.parseInt(n, 10));
+  return new Date(Date.UTC(y!, m!, 1, 6, 0, 0, 0)).toISOString();
+}
+
+export type DecisionLimite =
+  | { allowed: true; remaining: number }
+  | { allowed: false; reason: 'daily' | 'monthly' };
+
+/**
+ * Decisión pura: ¿cabe una consulta más? `usadoHoy` y `usadoMes` son lo ya consumido (el mes incluye hoy). Primero el límite diario, luego el mensual;
+ * `remaining` es lo que queda DESPUÉS de esta consulta, el menor de los dos. Valores de uso inválidos se tratan como límite agotado (fail-closed).
+ */
+export function decidirLimites(p: { limiteDiario: number; limiteMensual: number | null; usadoHoy: number; usadoMes: number | null }): DecisionLimite {
+  if (!Number.isFinite(p.usadoHoy) || p.usadoHoy < 0) return { allowed: false, reason: 'daily' };
+  if (p.usadoHoy >= p.limiteDiario) return { allowed: false, reason: 'daily' };
+  let remaining = p.limiteDiario - p.usadoHoy - 1;
+  if (p.limiteMensual !== null) {
+    if (p.usadoMes === null || !Number.isFinite(p.usadoMes) || p.usadoMes < 0) return { allowed: false, reason: 'monthly' };
+    if (p.usadoMes >= p.limiteMensual) return { allowed: false, reason: 'monthly' };
+    remaining = Math.min(remaining, p.limiteMensual - p.usadoMes - 1);
+  }
+  return { allowed: true, remaining };
 }
 
 /**
@@ -136,7 +170,7 @@ export function identificadorDeSuscripcion(userIdentifier: string): string {
 
 export type RateLimitResult =
   | { allowed: true;  remaining: number; tier: UserTier }
-  | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string };
+  | { allowed: false; remaining: 0;      tier: UserTier; resetAt: string; reason?: 'daily' | 'monthly' | 'contention' };
 
 export class RateLimitStoreError extends Error {
   readonly code: string;
@@ -265,6 +299,62 @@ async function leerUsoDelDia(
 }
 
 /**
+ * Fecha HN (YYYY-MM-DD) en que existe la suscripción de pago del usuario, o null si no hay dato. No hay una columna «activated_at» (añadirla sería
+ * DDL): se usa `subscriptions.created_at`, el primer momento en que la suscripción existe en nuestra base. Sin identidad de suscripción (IP) o sin
+ * fila, devuelve null y el conteo mensual usa el inicio del mes (más conservador: cuenta más, nunca menos). Un error de lectura LANZA.
+ */
+async function leerFechaActivacion(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+): Promise<string | null> {
+  const id = identificadorDeSuscripcion(userIdentifier);
+  if (id.startsWith('ip:')) return null;
+  const { data, error } = await supabase.from('subscriptions').select('created_at').eq('user_identifier', id).maybeSingle();
+  if (error) {
+    console.error('[RateLimit] lectura de la suscripción falló', { code: error.code, message: error.message });
+    throw new RateLimitStoreError(error.message ?? 'subscriptions read failed', String(error.code ?? 'STORE_ERROR'));
+  }
+  const creada = typeof data?.created_at === 'string' ? new Date(data.created_at) : null;
+  return creada && !Number.isNaN(creada.getTime()) ? fechaDiaHn(creada) : null;
+}
+
+/**
+ * Consultas de PAGO del mes calendario HN (incluye hoy) de una bolsa. Cuenta solo las filas de queries_log con tier de pago (academico / pro) y
+ * hechas desde la fecha de activación de la suscripción: las consultas gratis de antes de pagar (o de un periodo sin suscripción) no gastan el tope
+ * mensual. Cualquier error de lectura LANZA RateLimitStoreError: sin saber cuánto lleva en el mes, la consulta no pasa.
+ */
+async function leerUsoDelMes(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  userIdentifier: string,
+  now: Date,
+): Promise<number> {
+  const inicioMes = inicioMesHn(now);
+  const activacion = await leerFechaActivacion(supabase, userIdentifier);
+  const desde = activacion !== null && activacion > inicioMes ? activacion : inicioMes;
+  const { data, error } = await supabase
+    .from('queries_log')
+    .select('query_count, query_date, tier')
+    .eq('user_identifier', userIdentifier)
+    .gte('query_date', desde)
+    .lte('query_date', fechaDiaHn(now));
+  if (error || !Array.isArray(data)) {
+    console.error('[RateLimit] lectura mensual de queries_log falló', { code: error?.code, message: error?.message });
+    throw new RateLimitStoreError(error?.message ?? 'queries_log monthly read failed', String(error?.code ?? 'STORE_ERROR'));
+  }
+  return (data as { query_count: unknown; query_date?: unknown; tier?: unknown }[]).reduce((n, r) => {
+    const esDePago = r.tier === 'academico' || r.tier === 'pro';
+    const cuenta = typeof r.query_count === 'number' && r.query_count > 0 ? r.query_count : 0;
+    return esDePago ? n + cuenta : n;
+  }, 0);
+}
+
+function resetSegun(reason: 'daily' | 'monthly' | undefined, now: Date): string {
+  return reason === 'monthly' ? resetAtMesHn(now) : resetAtMedianocheHn(now);
+}
+
+/**
  * Chequeo sin escribir. `now` inyectable (tests de medianoche HN).
  */
 export async function checkRateLimit(
@@ -287,21 +377,15 @@ export async function checkRateLimit(
   }
 
   const limit = limitForTier(tier, userIdentifier);
+  const limMes = limiteMensual(tier, userIdentifier);
+  const usadoMes = limMes === null ? null : await leerUsoDelMes(supabase, userIdentifier, now);
+  const decision = decidirLimites({ limiteDiario: limit, limiteMensual: limMes, usadoHoy: currentCount, usadoMes });
 
-  if (currentCount >= limit) {
-    return {
-      allowed: false,
-      remaining: 0,
-      tier,
-      resetAt: resetAtMedianocheHn(now),
-    };
+  if (!decision.allowed) {
+    return { allowed: false, remaining: 0, tier, resetAt: resetSegun(decision.reason, now), reason: decision.reason };
   }
 
-  return {
-    allowed: true,
-    remaining: limit - currentCount - 1,
-    tier,
-  };
+  return { allowed: true, remaining: decision.remaining, tier };
 }
 
 /**
@@ -321,9 +405,12 @@ export async function reserveRateLimit(
   const supabase = createServerSupabaseClient();
   const today = fechaDiaHn(now);
 
+  // Plan real del usuario en el último intento: si se agotan los reintentos NO se le responde como si fuera del plan gratis.
+  let tierReal: UserTier = 'free';
   for (let attempt = 0; attempt < RESERVE_MAX_ATTEMPTS; attempt++) {
     const existing = await leerUsoDelDia(supabase, userIdentifier, today);
     const tier = await resolveTodayTier(supabase, userIdentifier, existing?.tier);
+    tierReal = tier;
 
     if (tier === 'admin') {
       return { allowed: true, remaining: 9999, tier: 'admin' };
@@ -331,14 +418,13 @@ export async function reserveRateLimit(
 
     const limit = limitForTier(tier, userIdentifier);
     const currentCount = existing?.query_count ?? 0;
+    // El mes se relee en CADA intento del CAS: si otra consulta concurrente ganó la fila de hoy, este intento ve su incremento.
+    const limMes = limiteMensual(tier, userIdentifier);
+    const usadoMes = limMes === null ? null : await leerUsoDelMes(supabase, userIdentifier, now);
+    const decision = decidirLimites({ limiteDiario: limit, limiteMensual: limMes, usadoHoy: currentCount, usadoMes });
 
-    if (currentCount >= limit) {
-      return {
-        allowed: false,
-        remaining: 0,
-        tier,
-        resetAt: resetAtMedianocheHn(now),
-      };
+    if (!decision.allowed) {
+      return { allowed: false, remaining: 0, tier, resetAt: resetSegun(decision.reason, now), reason: decision.reason };
     }
 
     const affected = existing
@@ -346,20 +432,13 @@ export async function reserveRateLimit(
       : await insertCountIgnoreDup(supabase, userIdentifier, today, tier);
 
     if (affected > 0) {
-      return {
-        allowed: true,
-        remaining: limit - currentCount - 1,
-        tier,
-      };
+      return { allowed: true, remaining: decision.remaining, tier };
     }
   }
 
-  return {
-    allowed: false,
-    remaining: 0,
-    tier: 'free',
-    resetAt: resetAtMedianocheHn(now),
-  };
+  // H1: reintentos agotados por contención del CAS. No es un límite de uso: se informa con el plan real y la ruta responde 503 RATE_LIMIT_CONTENTION
+  // (reintentable), nunca el 429 de «ya usaste tu consulta gratis».
+  return { allowed: false, remaining: 0, tier: tierReal, resetAt: resetAtMedianocheHn(now), reason: 'contention' };
 }
 
 /** Devuelve una reserva (aclaración, abstención, 5xx/timeout del proveedor). */
@@ -545,6 +624,9 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
   limit: number;
   tier: UserTier;
   resetAt: string;
+  /** Solo planes de pago: consultas del mes y tope mensual (undefined si no hay tope mensual o no se pudo leer). */
+  usedMonth?: number;
+  limitMonth?: number;
 }> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     return { used: 0, limit: freeLimit(), tier: 'free', resetAt: '' };
@@ -565,5 +647,14 @@ export async function getRateLimitStatus(userIdentifier: string): Promise<{
   const used = data?.query_count ?? 0;
   const limit = limitForTier(tier, userIdentifier);
 
+  const limMes = limiteMensual(tier, userIdentifier);
+  if (limMes !== null) {
+    try {
+      const usedMonth = await leerUsoDelMes(supabase, userIdentifier, now);
+      return { used, limit, tier, resetAt: resetAtMedianocheHn(now), usedMonth, limitMonth: limMes };
+    } catch {
+      // Solo informativo: el bloqueo real ocurre en reserveRateLimit.
+    }
+  }
   return { used, limit, tier, resetAt: resetAtMedianocheHn(now) };
 }

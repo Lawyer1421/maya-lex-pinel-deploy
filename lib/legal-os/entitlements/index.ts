@@ -28,7 +28,7 @@ export interface Entrada {
 }
 
 const INDEFINIDO: Entrada = { valor: null, fuente: null };
-const RL = 'lib/rate-limit.ts (FREE_LIMIT_DEFAULT / ACADEMICO_TIER_DAILY_LIMIT / PRO_TIER_DAILY_LIMIT)';
+const RL = 'lib/rate-limit.ts (FREE_LIMIT_DEFAULT) y lib/plan-limits.ts (Académico 20/día, Premium 60/día); una prueba verifica que coinciden';
 
 export const MATRIZ: Readonly<Record<SubscriptionTier, Readonly<Record<Capacidad, Entrada>>>> = Object.freeze({
   EXPLORAR: Object.freeze({
@@ -40,7 +40,7 @@ export const MATRIZ: Readonly<Record<SubscriptionTier, Readonly<Record<Capacidad
     deep_research: INDEFINIDO, document_analysis: INDEFINIDO, legal_drafting: INDEFINIDO, jurisprudence: INDEFINIDO, history: INDEFINIDO, exports: INDEFINIDO, advanced_skills: INDEFINIDO,
   }),
   PREMIUM: Object.freeze({
-    daily_questions: { valor: 1000, fuente: RL },
+    daily_questions: { valor: 60, fuente: RL },
     deep_research: INDEFINIDO, document_analysis: INDEFINIDO, legal_drafting: INDEFINIDO, jurisprudence: INDEFINIDO, history: INDEFINIDO, exports: INDEFINIDO, advanced_skills: INDEFINIDO,
   }),
 });

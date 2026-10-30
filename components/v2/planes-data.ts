@@ -1,7 +1,11 @@
+import { LIMITES_ACADEMICO, LIMITES_PREMIUM, PRECIOS_PLAN, formatoEntero, formatoLempiras, formatoUsd } from '@/lib/plan-limits';
+
 export interface PlanV2 {
   id: 'explorar' | 'academico' | 'profesional' | 'bufete' | 'universidad';
   nombre: string;
   precio: string;
+  /** Equivalente en lempiras, solo planes de pago (p. ej. «L 405»). */
+  precioLempiras?: string;
   periodo: string;
   destacado?: boolean;
   descripcion: string;
@@ -30,8 +34,9 @@ export function autoStartTierDesde(valor: string | undefined): 'pro' | 'academic
 
 /**
  * Self-serve (Explorar / Académico / Profesional): mismas funciones reales;
- * solo cambia la cuota diaria. Defaults = env de lib/rate-limit.ts
- * (FREE 1, ACADEMICO 20, PRO 1000). No vender expediente / export / prioridad.
+ * solo cambia la cuota. Los límites y precios de los planes de pago salen de
+ * lib/plan-limits.ts (la misma fuente que hace cumplir el servidor);
+ * Explorar (FREE) sigue con su env en lib/rate-limit.ts. No vender expediente / export / prioridad.
  */
 export const PLANES_V2: PlanV2[] = [
   {
@@ -53,11 +58,12 @@ export const PLANES_V2: PlanV2[] = [
   {
     id: 'academico',
     nombre: 'Académico',
-    precio: 'USD 9',
+    precio: formatoUsd(PRECIOS_PLAN.academico.usd),
+    precioLempiras: formatoLempiras(PRECIOS_PLAN.academico.lempiras),
     periodo: '/mes',
     descripcion: 'Para estudiantes y docentes de derecho.',
     caracteristicas: [
-      '20 consultas/día',
+      `${LIMITES_ACADEMICO.diario} consultas/día (hasta ${formatoEntero(LIMITES_ACADEMICO.mensual)} al mes)`,
       'Modos de chat: Sala IA, Análisis y Documento',
       'Adjuntar documentos (PDF, DOCX, TXT)',
       'Voz a texto y búsqueda web',
@@ -69,12 +75,13 @@ export const PLANES_V2: PlanV2[] = [
   {
     id: 'profesional',
     nombre: 'Premium',
-    precio: 'USD 15',
+    precio: formatoUsd(PRECIOS_PLAN.premium.usd),
+    precioLempiras: formatoLempiras(PRECIOS_PLAN.premium.lempiras),
     periodo: '/mes',
     destacado: true,
     descripcion: 'Para el ejercicio activo de la abogacía.',
     caracteristicas: [
-      '1000 consultas/día',
+      `${LIMITES_PREMIUM.diario} consultas/día (hasta ${formatoEntero(LIMITES_PREMIUM.mensual)} al mes)`,
       'Modos de chat: Sala IA, Análisis y Documento',
       'Adjuntar documentos (PDF, DOCX, TXT)',
       'Voz a texto y búsqueda web',
