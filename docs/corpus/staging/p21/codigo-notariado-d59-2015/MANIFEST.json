@@ -1,0 +1,124 @@
+{
+  "instrumento": "Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015",
+  "estado": "CLO_CLEARED_FOR_STAGING_PREP",
+  "estados_adicionales": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "id_prefix": "mayalex_normativos:codigo_notariado_d59_2015",
+  "source_url": "https://drive.google.com/file/d/1y6ZmCoEhHKCejag8QMvxjoAZuNILKNw0/view",
+  "sha256_esperado": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+  "sha256_obtenido": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+  "bytes": 790648,
+  "pages": 32,
+  "fuentes": [
+    {
+      "id": "B1",
+      "archivo": "B1_gaceta33801.pdf",
+      "source_url": "https://drive.google.com/file/d/1y6ZmCoEhHKCejag8QMvxjoAZuNILKNw0/view",
+      "sha256_esperado": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+      "sha256_obtenido": "8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7",
+      "bytes": 790648,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
+    },
+    {
+      "id": "B2",
+      "archivo": "B2_COTEJO-D59-2015-literal.md",
+      "source_url": "https://drive.google.com/file/d/1YZnjONI2E8VlXAbGMj-ZQ-lpIC8jjXiA/view",
+      "sha256_esperado": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+      "sha256_obtenido": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+      "bytes": 21102,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
+    }
+  ],
+  "retrieved_at": "2026-10-28T16:40:45.816Z",
+  "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
+  "text_sha256": "7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d",
+  "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
+  "counts": {
+    "candidatos": 3,
+    "aceptados": 3,
+    "rechazados": 0,
+    "finales": 3,
+    "excluidos": [
+      "11",
+      "17",
+      "27"
+    ],
+    "curacion": {
+      "clo_adjudicado_context": [
+        "72-A"
+      ],
+      "solo_context": [
+        "72",
+        "72-A",
+        "73"
+      ]
+    }
+  },
+  "articulos": [
+    "72",
+    "72-A",
+    "73"
+  ],
+  "filas": [
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a72",
+      "num_articulo": "72",
+      "role": "CONTEXT",
+      "hash_sha256": "9d32eae4945526fc28154d70821378f5dabac2f3369f356f870cc2c3db9fbaa7",
+      "chars": 601,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": [
+        "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
+      ]
+    },
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a72-a",
+      "num_articulo": "72-A",
+      "role": "CONTEXT",
+      "hash_sha256": "ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014",
+      "chars": 10132,
+      "es_norma_vigente": null,
+      "vigencia": "UNKNOWN",
+      "warnings": [
+        "Solo CONTEXT (CLO)",
+        "CLO: adjudicado como CONTEXT (27-oct-2026)",
+        "es_norma_vigente=UNKNOWN: vigencia posterior al D.59-2015 no cotejada"
+      ]
+    },
+    {
+      "id": "mayalex_normativos:codigo_notariado_d59_2015_a73",
+      "num_articulo": "73",
+      "role": "CONTEXT",
+      "hash_sha256": "2a186336de1d842549d1f691face3bdc73529e67df2fd26ecdad1dcf07ef6dd5",
+      "chars": 819,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": [
+        "Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"
+      ]
+    }
+  ],
+  "es_norma_vigente": {
+    "significado_clo": "TRUE elegible · FALSE excluido · NULL solo CONTEXT",
+    "TRUE": 0,
+    "FALSE": 0,
+    "NULL": 3
+  },
+  "pdf_versionado_en_repo": false,
+  "notas": [
+    "La cadena oculta de la capa de texto en A.4 (señalada en el COTEJO) no forma parte del texto cargado."
+  ],
+  "texto_origen": "B2_COTEJO-D59-2015-literal.md (transcripción literal verificada visualmente); nunca OCR crudo",
+  "no_cargar": {
+    "11": "TEXTO_DIVERGENTE",
+    "17": "HUECO",
+    "27": "TEXTO_DIVERGENTE"
+  },
+  "versiones": "las filas 2005 y 2015 son filas distintas",
+  "reglamento_pcsj_17_2012": "fuera de alcance"
+}
