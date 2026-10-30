@@ -50,7 +50,7 @@ const FUNCION = new Set(('que cual cuales como cuando donde quien quienes cuanto
   'defina indica indique cita cite resume resuma compara compare lista liste enumera enumere muestra muestre hablame dime digame cuenta cuentan lleva llevan tiene tienen puede hacer hace hacen ' +
   'caso casos forma modo manera tipo tipos parte partes persona personas cosa cosas ambito efectos efecto razon razones limite limites').split(/\s+/));
 const SUFIJO_COMUN = /(?:cion|siones?|ciones|sion|dad|dades|mente|ario|aria|arios|arias|oso|osa|ivo|iva|ivos|ivas|ales?|ares?|ente|entes|ante|antes|ismo|ncia|ncias|miento|mientos|torio|toria|orio|oria|icos?|icas?|idos?|idas?|ando|iendo|ar|er|ir|ura|uras)$/;
-const VOCABULARIO_EXTRA = /^(?:codigo|ley|leyes|decreto|articulo|articulos|norma|normas|constitu|reglament|gaceta|derech|proces|penal|civil|comerc|trabaj|familia|notari|tribut|medida|medidas|cautelar|prision|preventiva|preventivo|accion|plazo|recurs|apelac|casac|amparo|nulidad|prescrip|caducidad|pena|delito|juicio|audiencia|tribunal|juez|fiscal|sociedad|responsabilidad|limitada|poder|escritura|protocolo|registro|contrato|obligacion|herencia|sucesion|propiedad|prueba|competen|jurisdic|sentencia|demanda|fianza|hipoteca|arrend|alquiler|divorcio|alimento|embargo|testament|mandato|tuadopcion|matrimonio|quiebra|arbitraje|honduras|hondureno|republica|estado|publico|publica|diferencia|requisito|requisitos|vigencia|vigente|derogacion|reforma|instrumento|resolucion|garantia|garantias|debido|proceso|imputado|detencion|flagrancia|allanamiento)/;
+const VOCABULARIO_EXTRA = /^(?:codigo|ley|leyes|decreto|articulo|articulos|norma|normas|constitu|reglament|gaceta|derech|proces|penal|civil|comerc|trabaj|familia|notari|tribut|medida|medidas|cautelar|prision|preventiva|preventivo|accion|plazo|recurs|apelac|casac|amparo|nulidad|prescrip|caducidad|pena|delito|juicio|audiencia|tribunal|juez|fiscal|sociedad|responsabilidad|limitada|poder|escritura|protocolo|registro|contrato|obligacion|herencia|sucesion|propiedad|prueba|competen|jurisdic|sentencia|demanda|fianza|hipoteca|arrend|alquiler|divorcio|alimento|embargo|testament|mandato|tutela|adopcion|matrimonio|quiebra|arbitraje|honduras|hondureno|republica|estado|publico|publica|diferencia|requisito|requisitos|vigencia|vigente|derogacion|reforma|instrumento|resolucion|garantia|garantias|debido|proceso|imputado|detencion|flagrancia|allanamiento)/;
 function esDesconocida(w: string): boolean {
   return w.length >= 4 && !FUNCION.has(w) && !VOCABULARIO_EXTRA.test(w) && !SUFIJO_COMUN.test(w);
 }
@@ -63,7 +63,13 @@ function dosDesconocidasSeguidas(plano: string): boolean {
 // 4) Lugar de un caso y persona indefinida con condición procesal: «alguien que vive en la aldea el ocotal es demandado». Una residencia o localidad
 //    concreta, o «alguien» + parte procesal, es un hecho particular aunque no traiga nombre propio.
 const RESIDENCIA = /\b(?:vive|viven|vivia|vivian|reside|residen|residia|habita|habitan|domiciliad[oa]s?|radicad[oa]s?|vecin[oa]s?\s+de|oriund[oa]s?\s+de|originari[oa]s?\s+de|natural\s+de|ubicad[oa]s?\s+en|con\s+domicilio\s+en)\b/;
-const LOCALIDAD = /\b(?:aldea|aldeas|caserio|caserios|colonia|colonias|barrio|barrios|residencial|bo\.|col\.|municipio\s+de|ciudad\s+de|departamento\s+de|cantón|canton)\s+(?:de\s+|del\s+|la\s+|el\s+|las\s+|los\s+)?[a-zñ]{3,}/;
+// Marcadores de DOMICILIO PARTICULAR: siempre un dato del caso.
+const LOCALIDAD_RESIDENCIAL = /\b(?:aldea|aldeas|caserio|caserios|colonia|colonias|barrio|barrios|residencial|bo\.|col\.)\s+(?:de\s+|del\s+|la\s+|el\s+|las\s+|los\s+)?[a-zñ]{3,}/;
+// Divisiones administrativas: un lugar concreto, pero legítimo cuando la pregunta es sobre una institución o su competencia territorial.
+const LOCALIDAD_ADMINISTRATIVA = /\b(?:municipio\s+de|ciudad\s+de|departamento\s+de|canton)\s+(?:de\s+|del\s+|la\s+|el\s+|las\s+|los\s+)?[a-zñ]{3,}/;
+// Contexto institucional: «competencia del juzgado de letras de Olancho», «Registro de la Propiedad de Tegucigalpa». Con él, el topónimo describe una
+// institución y no el lugar de un caso. NUNCA lo rescata una persona con condición procesal (ver PERSONA_Y_CONDICION) ni los marcadores de domicilio.
+const CONTEXTO_INSTITUCIONAL = /\b(?:juzgados?|tribunal(?:es)?|cortes?|registros?|alcaldias?|municipalidad(?:es)?|fiscalias?|notarias?|competencia\s+territorial|circunscripcion|sede\s+judicial|oficinas?)\b/;
 // 5) Persona indefinida + lugar + condición procesal, aunque el lugar vaya en minúscula o sin marcador de localidad:
 //    «una persona del ocotal es demandada», «un señor de el ocotal es demandado», «una persona de olancho es demandada».
 const SUJETO_INDEFINIDO = '(?:una?\\s+(?:persona|senor|senora|senorita|hombre|mujer|ciudadano|ciudadana|joven|menor|vecino|vecina|trabajador|trabajadora|empleado|empleada|comerciante|campesino|campesina|propietario|propietaria|cliente|individuo|sujeto)|alguien)';
@@ -72,6 +78,8 @@ const CONDICION_PROCESAL = '(?:es|esta|fue|sera|resulta|sigue|queda|estaba|estuv
 const PERSONA_LUGAR_PROCESAL = new RegExp(`\\b${SUJETO_INDEFINIDO}\\s+(?:${LUGAR_INDEFINIDO})(?:\\s+[a-zñ]+){0,6}?\\s+${CONDICION_PROCESAL}`);
 // Topónimos hondureños (departamentos y ciudades principales): un lugar concreto es un dato del caso aunque vaya sin mayúscula ni marcador.
 const TOPONIMOS = /\b(?:atlantida|choluteca|comayagua|copan|el\s+paraiso|francisco\s+morazan|gracias\s+a\s+dios|intibuca|islas\s+de\s+la\s+bahia|la\s+paz|lempira|ocotepeque|olancho|santa\s+barbara|yoro|tegucigalpa|comayaguela|san\s+pedro\s+sula|la\s+ceiba|el\s+progreso|choloma|danli|juticalpa|siguatepeque|tela|roatan|puerto\s+cortes|santa\s+rosa\s+de\s+copan|nacaome|olanchito|trujillo|tocoa|catacamas|la\s+lima|ocotal)\b/;
+// Persona indefinida con condición procesal en cualquier posición de la oración (hasta 8 palabras): bloquea el rescate institucional de un topónimo.
+const PERSONA_Y_CONDICION = new RegExp(`\\b${SUJETO_INDEFINIDO}(?:\\s+[a-zñ]+){0,8}?\\s+${CONDICION_PROCESAL}`);
 const PERSONA_INDEFINIDA = /\b(?:alguien|cierta\s+persona|determinad[oa]\s+persona|un\s+individuo|una\s+persona\s+de\s+nombre|fulan[oa]|mengan[oa]|zutan[oa])\b/;
 
 export function privacidadConsultaGeneral(texto: unknown): ResultadoPrivacidadLuna {
@@ -88,10 +96,15 @@ export function privacidadConsultaGeneral(texto: unknown): ResultadoPrivacidadLu
   if (NUMERO_DE_CASO.test(plano)) return { estado: 'REJECT', razon: 'NUMERO_DE_CASO' };
 
   if (RESIDENCIA.test(plano)) return { estado: 'REJECT', razon: 'RESIDENCIA_O_LUGAR_DE_CASO' };
-  if (LOCALIDAD.test(plano)) return { estado: 'REJECT', razon: 'LUGAR_DE_CASO' };
+  if (LOCALIDAD_RESIDENCIAL.test(plano)) return { estado: 'REJECT', razon: 'LUGAR_DE_CASO' };
   if (PERSONA_INDEFINIDA.test(plano)) return { estado: 'REJECT', razon: 'PERSONA_INDEFINIDA_DE_CASO' };
   if (PERSONA_LUGAR_PROCESAL.test(plano)) return { estado: 'REJECT', razon: 'PERSONA_LUGAR_Y_CONDICION_PROCESAL' };
-  if (TOPONIMOS.test(plano)) return { estado: 'REJECT', razon: 'TOPONIMO_DE_CASO' };
+  // Un lugar concreto (topónimo o división administrativa) solo pasa si la pregunta es sobre una institución o su competencia y no hay una persona con
+  // condición procesal: «¿qué competencia tiene el juzgado de letras de Olancho?» pasa; «un delito cometido en Olancho» o «un vecino demandado en Olancho» no.
+  if (LOCALIDAD_ADMINISTRATIVA.test(plano) || TOPONIMOS.test(plano)) {
+    if (!CONTEXTO_INSTITUCIONAL.test(plano)) return { estado: 'REJECT', razon: 'TOPONIMO_DE_CASO' };
+    if (PERSONA_Y_CONDICION.test(plano)) return { estado: 'REJECT', razon: 'TOPONIMO_CON_PERSONA_Y_CONDICION' };
+  }
 
   // Fail-closed: lo que no se puede clasificar como general con seguridad NO sale.
   if (NARRACION_TERCERA.test(plano) || NARRACION_TERCERA_ACENTUADA.test(t.toLowerCase())) return { estado: 'REJECT', razon: 'HECHOS_TERCERA_PERSONA' };

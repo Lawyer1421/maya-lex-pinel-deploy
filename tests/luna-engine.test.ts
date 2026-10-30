@@ -267,6 +267,31 @@ describe('Luna — R3 del CLO (clasificador compartido del #106) aplicada a la r
     expect(r.estado).toBe('ABSTAIN');
     if (r.estado === 'ABSTAIN') expect(r.texto).not.toContain('pena de muerte');
   });
+  it('auditoría 3 / A-4b: una claim que nombra OTRO instrumento que el del fragmento citado no se respalda → ABSTAIN', async () => {
+    const { c } = cliente(claim('Según el Código Penal, las medidas cautelares personales proceden cuando existan indicios racionales de participación.', 'mayalex_normativos:cpp_a173'));
+    const r = await motor(c).m.responder(entrada());
+    expect(r.estado).toBe('ABSTAIN');
+  });
+  it('auditoría 3 / D-1: contenido normativo sin artículo en el texto final («el plazo para apelar es de tres días») → ABSTAIN', async () => {
+    const { c } = cliente({ decision: 'ANSWER', abstention_reason: null, claims: [
+      { claim_id: 'c1', text: 'Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', citations: [{ chunk_id: 'mayalex_normativos:cpp_a173', support: 'DIRECT' }] },
+      { claim_id: 'c2', text: 'El plazo para apelar es de tres días.', citations: [{ chunk_id: 'mayalex_normativos:cpp_a173', support: 'DIRECT' }] },
+    ] });
+    const r = await motor(c).m.responder(entrada());
+    // c2 no la respalda el fragmento: se omite; el texto entregado no la contiene.
+    if (r.estado === 'ANSWER') expect(r.texto).not.toContain('tres días');
+    else expect(r.estado).toBe('ABSTAIN');
+  });
+  it('Luna consume el clasificador compartido sin duplicarlo: ningún detector de menciones normativas vive en lib/luna', async () => {
+    const { readdirSync, readFileSync } = await import('node:fs');
+    for (const n of readdirSync('lib/luna')) {
+      const t = readFileSync(`lib/luna/${n}`, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+      expect(t, n).not.toMatch(/arto|inciso|numeral|VERBO_NORMATIVO|SIGLA_NORMATIVA|INSTRUMENTO_GENERICO|MENCION_ARTICULOS/);
+    }
+    const eng = readFileSync('lib/luna/engine.ts', 'utf8');
+    expect(eng).toContain("from '../legal-retrieval/clo-guards'");
+    for (const f of ['evaluarSuficienciaR3', 'mencionesNoValidadas', 'resumenEvidenciaClo', 'mensajeAbstencionR3']) expect(eng).toContain(f);
+  });
   it('R4: el código de Luna reutiliza mencionesNoValidadas del clasificador compartido', async () => {
     const { readFileSync } = await import('node:fs');
     expect(readFileSync('lib/luna/engine.ts', 'utf8')).toContain('mencionesNoValidadas');
