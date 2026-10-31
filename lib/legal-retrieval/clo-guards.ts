@@ -430,11 +430,8 @@ const VACIAS = new Set([
   'sobre', 'entre', 'cuando', 'donde', 'segun', 'ademas', 'tambien', 'dicho', 'dicha', 'dichos', 'dichas', 'este', 'esta', 'estos', 'estas', 'cual', 'cuales', 'puede',
   'pueden', 'debe', 'deben', 'ser', 'sera', 'seran', 'tiene', 'tienen', 'hacer', 'haber', 'hasta', 'desde', 'para', 'porque', 'mediante', 'durante', 'dentro', 'misma',
   'mismo', 'otros', 'otras', 'cada', 'todo', 'toda', 'todos', 'todas', 'norma', 'normas', 'articulo', 'articulos', 'codigo', 'ley', 'establece', 'dispone', 'regula',
-  'prevé', 'preve', 'señala', 'senala', 'indica', 'conforme', 'respecto', 'caso', 'casos', 'derecho', 'general', 'honduras', 'hondureno', 'hondurena',
+  'prevé', 'preve', 'señala', 'senala', 'indica', 'contiene', 'contienen', 'menciona', 'trata', 'refiere', 'describe', 'expresa', 'texto', 'conforme', 'respecto', 'caso', 'casos', 'derecho', 'general', 'honduras', 'hondureno', 'hondurena',
 ]);
-const UMBRAL_TERMINOS = 0.5;
-/** Sin ningún ancla verificable (ni cifra, ni artículo, ni instrumento) el traslape de palabras solo se acepta con un umbral mucho más alto. */
-const UMBRAL_TERMINOS_SIN_ANCLAS = 0.75;
 const MIN_TERMINOS_SIN_ANCLAS = 3;
 
 /**
@@ -485,12 +482,53 @@ export function afirmacionRespaldadaPorFragmento(
     if (!new RegExp(`\\b${m[0]}\\b|(?<!\\d)${dig}(?!\\d)`).test(t)) return false;
   }
 
-  // Términos propios.
-  const terminos = [...new Set([...sinRefs.matchAll(/[a-zñ]{5,}/g)].map((m) => m[0]).filter((w) => !VACIAS.has(w) && !(w in PALABRAS_NUMERO)))];
+  // Términos propios: TODOS deben figurar en el fragmento (A-4b). El nombre del instrumento ya se validó arriba y no cuenta como término.
+  let sinNombres = sinRefs;
+  for (const id of nombrados) for (const al of ALIAS_INSTRUMENTO[id]) sinNombres = sinNombres.replace(new RegExp(`(?<![a-z0-9])${escapar(al)}(?![a-z0-9])`, 'g'), ' ');
+  const terminos = [...new Set([...sinNombres.matchAll(/[a-zñ]{5,}/g)].map((m) => m[0]).filter((w) => !VACIAS.has(w) && !(w in PALABRAS_NUMERO)))];
+  if (!terminos.every((w) => t.includes(w.slice(0, 5)))) return false;
+  if (!cantidadesConUnidadCoinciden(sinRefs, t)) return false;
+  if (!calificadoresYNegacionesCoinciden(sinRefs, t)) return false;
   if (terminos.length === 0) return anclas > 0;           // sin términos propios solo vale si hay anclas que coincidieron
-  const presentes = terminos.filter((w) => t.includes(w.slice(0, 5))).length;
-  if (anclas === 0) return presentes >= MIN_TERMINOS_SIN_ANCLAS && presentes / terminos.length >= UMBRAL_TERMINOS_SIN_ANCLAS;
-  return presentes / terminos.length >= UMBRAL_TERMINOS;
+  return anclas > 0 || terminos.length >= MIN_TERMINOS_SIN_ANCLAS;
+}
+
+const palabraEn = (w: string, t: string) => new RegExp(`(?<![a-z0-9])${escapar(w.length > 5 ? w.slice(0, 5) : w)}`).test(t);
+const NUM_ALT = (n: string) => [n, ...Object.entries(PALABRAS_NUMERO).filter(([, d]) => d === n).map(([w]) => w)].map(escapar).join('|');
+const UNIDADES = 'anos?|meses|mes|dias?|horas?|semanas?|lempiras|dolares|por ciento|%|salarios minimos';
+/** «cinco años», «18 años», «11,000 lempiras»: la misma cantidad con la MISMA unidad debe figurar en el fragmento (3 años ≠ 3 meses). */
+function cantidadesConUnidadCoinciden(a: string, t: string): boolean {
+  for (const m of a.matchAll(new RegExp(String.raw`(?<![\d.,])(\d[\d.,]*|${Object.keys(PALABRAS_NUMERO).join('|')})\s+(?:de\s+)?(${UNIDADES})`, 'g'))) {
+    const raw = m[1];
+    const dig = PALABRAS_NUMERO[raw] ?? raw.replace(/[.,]/g, '');
+    if (!new RegExp(String.raw`(?:${NUM_ALT(dig)}|${escapar(raw)})\s*(?:\(\d+\)\s*)?(?:de\s+)?(?:${UNIDADES.split('|').map((u) => u.slice(0, 4)).join('|')})`).test(t.replace(/(\d),(\d{3})/g, '$1$2'))) return false;
+  }
+  return true;
+}
+const CALIFICADORES = /(?<![a-z0-9])(?:siempre|nunca|jamas|todo|todos|toda|todas|cualquier|cualquiera|unicamente|solo|solamente|exclusivamente|obligatoriamente|automaticamente|perpetua|perpetuo|ilimitado|ilimitada|absoluto|absoluta|aun|incluso)(?![a-z0-9])/g;
+const NO_NUCLEO = new Set(['la', 'el', 'los', 'las', 'un', 'una', 'unos', 'unas', 'de', 'del', 'que', 'se', 'lo', 'le', 'a', 'en', 'por', 'con']);
+const ANTONIMOS: readonly (readonly [string, string])[] = [
+  ['inferior', 'superior'], ['mayor', 'menor'], ['maximo', 'minimo'], ['antes', 'despues'], ['procede', 'improcedente'], ['permite', 'prohibe'], ['permitido', 'prohibido'],
+  ['valido', 'nulo'], ['obligatorio', 'facultativo'], ['publico', 'privado'], ['anterior', 'posterior'], ['aumenta', 'reduce'], ['aumento', 'reduccion'],
+];
+/**
+ * A-4b. La afirmación no puede añadir lo que el fragmento no dice: (1) cada calificador absoluto («siempre», «perpetua», «aun», «solo»…) debe figurar en el
+ * fragmento; (2) cada negación («no procede», «sin indicios») debe aparecer en el fragmento con la MISMA palabra negada; (3) un término cuyo antónimo está en
+ * el fragmento y él no, invalida.
+ */
+function calificadoresYNegacionesCoinciden(a: string, t: string): boolean {
+  for (const m of a.matchAll(CALIFICADORES)) if (!new RegExp(`(?<![a-z0-9])${escapar(m[0].slice(0, 5))}`).test(t)) return false;
+  const pal = a.split(/[^a-zñ0-9]+/).filter((w) => w !== '');
+  for (let i = 0; i < pal.length; i++) {
+    if (!/^(?:no|nunca|jamas|ni|sin|tampoco|salvo|excepto)$/.test(pal[i])) continue;
+    const nucleo = pal.slice(i + 1, i + 4).find((x) => !NO_NUCLEO.has(x));
+    if (nucleo === undefined) continue;
+    if (!new RegExp(`(?<![a-z0-9])${pal[i]}\\s+(?:[a-zñ]+\\s+){0,2}?${escapar(nucleo.length > 5 ? nucleo.slice(0, 5) : nucleo)}`).test(t)) return false;
+  }
+  for (const [x, y] of ANTONIMOS) {
+    for (const [p, q] of [[x, y], [y, x]] as const) if (pal.includes(p) && !palabraEn(p, t) && palabraEn(q, t)) return false;
+  }
+  return true;
 }
 
 export interface AfirmacionCitada {
@@ -636,10 +674,17 @@ const PLAZO_PROCESAL = new RegExp(
 );
 const CONTENIDO_DE_NORMA = /\b(?:la|el|las|los)\s+(?:ley|leyes|codigo|codigos|norma|normas|constitucion|reglamento|reglamentos|legislacion|ordenamiento)\b[^.;\n]{0,60}\b(?:establece|establecen|dispone|disponen|senala|senalan|prescribe|prescriben|determina|determinan|regula|regulan|preve|prevén|estipula|ordena|exige|exigen|sanciona|castiga|prohibe|permite|obliga|fija|fijan)\b/;
 
+// Residuo D-1 (re-auditoría 4): procedencia/prohibición afirmadas («no procede», «está prohibido»), cifras con unidad suelta («18 años», «11,000 lempiras») y artículo con número en palabras.
+const NUMERO_PALABRAS_ART = String.raw`(?:primer[oa]?|segund[oa]|tercer[oa]?|cuart[oa]|quint[oa]|sext[oa]|septim[oa]|octav[oa]|noven[oa]|decim[oa]\w*|vigesim[oa]\w*|uno|un[oa]?|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciseis|diecisiete|dieciocho|diecinueve|veinte|veinti\w+|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|ciento|doscientos|trescientos|cuatrocientos|quinientos|mil)`;
+const ARTICULO_EN_PALABRAS = new RegExp(String.raw`\bart(?:iculos?|os?\.?|s?\.?)\s+${NUMERO_PALABRAS_ART}(?![a-z])`, 'g');
+const PROCEDENCIA_PROHIBICION = /\b(?:no\s+procede|no\s+proceden|improcedente|improcedentes|esta\s+prohibid[oa]s?|estan\s+prohibid[oa]s?|queda(?:n)?\s+prohibid[oa]s?|se\s+prohibe|esta\s+penad[oa]|es\s+punible|es\s+delito|es\s+obligatori[oa]|son\s+obligatori[oa]s|procede(?:n)?\s+(?:el|la|los|las|un|una|recurso|apelacion|casacion|amparo|la\s+prision))\b/;
+const CIFRA_CON_UNIDAD = /(?<![\d.,])\d[\d.,]*\s+(?:de\s+)?(?:anos|meses|dias|semanas|horas|lempiras|dolares|usd|por ciento|salarios minimos)\b|\d\s*%/;
+
 /** ¿La oración afirma contenido normativo (aunque no cite artículo)? Verbo normativo + sustantivo jurídico, cantidad normativa, plazo procesal o «la ley establece…». */
 export function oracionAfirmaContenidoNormativo(oracion: string): boolean {
   const t = norm(oracion);
-  return CONTENIDO_DE_NORMA.test(t) || (VERBO_NORMATIVO.test(t) && SUSTANTIVO_JURIDICO.test(t)) || CANTIDAD_NORMATIVA.test(t) || PLAZO_PROCESAL.test(t);
+  return CONTENIDO_DE_NORMA.test(t) || (VERBO_NORMATIVO.test(t) && SUSTANTIVO_JURIDICO.test(t)) || CANTIDAD_NORMATIVA.test(t) || PLAZO_PROCESAL.test(t)
+    || PROCEDENCIA_PROHIBICION.test(t) || CIFRA_CON_UNIDAD.test(t);
 }
 
 function articulosMencionados(texto: string): string[] {
@@ -657,6 +702,8 @@ const TODOS_INSTRUMENTOS = Object.keys(ALIAS_INSTRUMENTO) as InstrumentId[];
 function instrumentosConocidosMencionados(texto: string): InstrumentId[] {
   return TODOS_INSTRUMENTOS.filter((id) => textoNombraInstrumento(texto, id));
 }
+const SIGLA_SIN_NUMERO = /(?<![\p{L}\d])(?:[Ll]a|[Ee]l|[Dd]el|[Ll]os|[Ll]as|[Aa]l)\s+([A-ZÁÉÍÓÚÑ]{2,8})(?![\p{L}\d])/gu;
+const SIGLAS_INOCUAS = new Set(['IA', 'AI', 'USD', 'PDF', 'ONU', 'OEA', 'OIT', 'IVA', 'ISR', 'ISV', 'DNI', 'RTN', 'SMS', 'URL', 'API', 'OK', 'UNAH', 'CSJ', 'MP', 'FAQ', 'GPT', 'TSE', 'SAR', 'BCH', 'IHSS']);
 function instrumentosGenericosNoReconocidos(texto: string): string[] {
   const out: string[] = [];
   const contieneAlias = (frag: string) => TODOS_INSTRUMENTOS.some((id) => ALIAS_INSTRUMENTO[id].some((al) => al.length > 3 && frag.includes(al)));
@@ -672,6 +719,13 @@ function instrumentosGenericosNoReconocidos(texto: string): string[] {
     out.push(m[0]);
   }
   for (const m of texto.matchAll(new RegExp(SIGLA_NORMATIVA.source, 'g'))) out.push(norm(m[0]));
+  // Sigla sin número («La LCT establece…»): una sigla en mayúsculas tras artículo que no es un instrumento ni una entidad de la lista inocua nunca se valida.
+  for (const m of texto.matchAll(SIGLA_SIN_NUMERO)) {
+    const s = m[1];
+    if (SIGLAS_INOCUAS.has(s) || TODOS_INSTRUMENTOS.some((id) => ALIAS_INSTRUMENTO[id].includes(s.toLowerCase()))) continue;
+    out.push(`sigla ${s.toLowerCase()}`);
+  }
+  for (const m of norm(texto).matchAll(ARTICULO_EN_PALABRAS)) out.push(m[0]);
   return [...new Set(out)];
 }
 

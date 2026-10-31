@@ -437,3 +437,43 @@ describe('A-4b (auditoría 3): el respaldo exige cifras, artículo e instrumento
     expect(r).toMatchObject({ suficiente: false });
   });
 });
+
+describe('A-4b (re-auditoría 4): con artículo válido citado, la afirmación no puede contradecir ni añadir al fragmento', () => {
+  const f = cpp173();
+  it.each([
+    'Según el artículo 173 del Código Procesal Penal, la prisión preventiva perpetua para delitos menores.',
+    'Según el artículo 173 del Código Procesal Penal, la prisión preventiva no procede cuando existan indicios.',
+    'Según el artículo 173 del Código Procesal Penal, aplica una pena inferior a cinco años.',
+    'Según el artículo 173 del Código Procesal Penal, la prisión preventiva procede siempre, aun sin indicios.',
+  ])('no respalda: %s', (txt) => {
+    expect(afirmacionRespaldadaPorFragmento(txt, f)).toBe(false);
+  });
+  it('la misma cifra con otra unidad no respalda', () => {
+    expect(afirmacionRespaldadaPorFragmento('Según el artículo 173 del Código Procesal Penal, la pena debe superar los cinco meses.', f)).toBe(false);
+  });
+  it('la paráfrasis fiel sigue respaldada', () => {
+    expect(afirmacionRespaldadaPorFragmento('Según el artículo 173 del Código Procesal Penal, la prisión preventiva procede cuando existan indicios racionales de participación.', f)).toBe(true);
+  });
+});
+
+describe('D-1 (re-auditoría 4): residuo del detector normativo de la ruta D', () => {
+  it.each([
+    'Conforme al artículo ciento setenta y tres la prisión preventiva procede en esos casos.',
+    'El artículo veinte regula esa materia de forma especial.',
+    'En ese supuesto el recurso no procede y debe usted esperar.',
+    'Esa conducta está prohibida y es sancionada.',
+    'La edad mínima es de 18 años para ese acto.',
+    'El término es de 2 años contados desde la fecha.',
+    'La cuantía es de 11,000 lempiras para ese trámite.',
+    'La LCT establece las reglas de ese contrato.',
+  ])('se abstiene sin fragmento: %s', (t) => {
+    const v = evaluarRespuestaChatR3({ texto: t, fragmentos: [], pregunta: 'pregunta general', conCorpus: false });
+    expect(v.suficiente, t).toBe(false);
+    if (!v.suficiente) expect(v.motivo).toBe('SIN_FRAGMENTOS_PARA_NORMA');
+  });
+  it('una respuesta general sin norma concreta sigue pasando', () => {
+    const t = 'Una audiencia es el acto en que las partes exponen sus argumentos ante el juez.';
+    const v = evaluarRespuestaChatR3({ texto: t, fragmentos: [], pregunta: 'pregunta general', conCorpus: false });
+    expect(v.suficiente).toBe(true);
+  });
+});
