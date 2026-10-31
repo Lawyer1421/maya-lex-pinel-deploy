@@ -59,6 +59,7 @@ import {
 import { recortarHistorialDesdeEnv } from '@/lib/chat-history';
 import { type FragmentoRAG, type RetrievalOutcome } from '@/lib/rag/search';
 import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
+import { evaluarRespuestaChatR3, CODIGO_ABSTENCION_R3 } from '@/lib/legal-retrieval/r3-chat';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
 // para que los consumidores actuales (tests que importan desde
@@ -93,6 +94,7 @@ import {
 } from '@/lib/websearch/tavily';
 import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
+import { clasificarFuenteExterna } from '@/lib/legal-retrieval/clo-guards';
 
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
@@ -363,6 +365,8 @@ export async function POST(req: NextRequest) {
     // corte por similitud pgvector. Se resuelve una vez por request y solo
     // cuando el RAG realmente corre (RUTA != D).
     const rerankHabilitado = await isFlagEnabledForUser('flag_rerank', verifiedEmail);
+    // flag_corpus_p21 (CLO 28-oct-2026): gate del corpus P21. Fila ausente o error de lectura = apagado; con el flag apagado esas filas no se recuperan.
+    const corpusP21Habilitado = await isFlagEnabledForUser('flag_corpus_p21', verifiedEmail);
 
     // Colección principal + pasada procedimental de RUTA_C civil (sólo añade
     // fragmentos elegibles y verificables; ver evidenciaProcedimentalPermitida).
@@ -374,6 +378,7 @@ export async function POST(req: NextRequest) {
       materiaFiltro,
       pasadaProcedimental: ruta === 'C' && !esPenal,
       rerank: rerankHabilitado,
+      corpusP21: corpusP21Habilitado,
     });
   })();
 
@@ -395,6 +400,9 @@ export async function POST(req: NextRequest) {
           ` | mode=${mode} | ruta=${ruta}`
         );
         // Inyectado DESPUÉS del contexto RAG para mantener jerarquía (ver abajo)
+        // CLO 28-oct-2026 (Anexo 2.6): el contexto web pasa por el clasificador y NUNCA es PRIMARY: no entra a las citas ni cuenta como evidencia.
+        const claseWeb = clasificarFuenteExterna('WEB');
+        console.info(`[RAG][CLO] externo=WEB rol=${claseWeb.rol} motivos=${claseWeb.bloqueos.join(',')}`);
         return '\n\n' + formatearContextoWeb(resultadosWeb);
       }
       // 0 resultados relevantes: flujo continúa con solo RAG (sin aviso al modelo)
@@ -514,6 +522,9 @@ export async function POST(req: NextRequest) {
       const resultadosPlantilla = await buscarPlantilla(ultimaPregunta as string, { limite: 2 });
       const contextoPlantilla = formatearContextoPlantilla(resultadosPlantilla);
       if (contextoPlantilla) {
+        // CLO 28-oct-2026 (Anexo 2.6): las plantillas notariales (modo documento) pasan por el clasificador y NUNCA son PRIMARY.
+        const clasePlantilla = clasificarFuenteExterna('PLANTILLA_NOTARIAL');
+        console.info(`[RAG][CLO] externo=PLANTILLA_NOTARIAL rol=${clasePlantilla.rol} motivos=${clasePlantilla.bloqueos.join(',')}`);
         dinamicoSystem += (dinamicoSystem ? '\n\n' : '') + contextoPlantilla;
         console.log(
           `[Plantillas] Inyectada(s) ${resultadosPlantilla.filter(r => r.similarity >= 0.75).length} plantilla(s)` +
@@ -627,6 +638,32 @@ export async function POST(req: NextRequest) {
           return;
         }
 
+        // ── R3/R4 del CLO en el chat principal (A-2, A-2b, D-1) ───────────
+        // Mismo criterio que Luna (clasificador compartido), sin ruta de evasión. La salida del modelo se RETIENE siempre (ya nada se transmite directo) y
+        // se evalúa antes de emitirse:
+        //  - rutas con corpus (A/B/C): un artículo o instrumento mencionado sin respaldo en un fragmento recuperado → abstención completa; si no, se
+        //    emiten SOLO las oraciones validadas por R3, con las citas de los fragmentos que las respaldan;
+        //  - ruta D (sala, sin corpus): si no nombra artículo, instrumento ni el contenido de una norma concreta se entrega; si lo nombra, no hay
+        //    fragmento que lo respalde y hay abstención que dice qué falta.
+        // La abstención no consume cuota.
+        let textoR3 = '';
+        let avisoRetencion = false;
+        const emitirTexto = (t: string) => {
+          // La salida se retiene hasta el final; al llegar el primer token se avisa al cliente (indicador «pensando») para que no parezca colgado.
+          if (!avisoRetencion) { avisoRetencion = true; controller.enqueue(sseEvent({ type: 'thinking', thinking: true })); }
+          textoR3 += t;
+        };
+        const cerrarConR3 = (): { citasFinal: Cita[]; codigo?: string } => {
+          const v = evaluarRespuestaChatR3({ texto: textoR3, fragmentos: ragData.fragmentos, pregunta: ultimaPregunta as string, conCorpus: rutaCorpusObligatoria });
+          if (v.suficiente) {
+            controller.enqueue(sseEvent({ type: 'text', text: v.texto }));
+            return { citasFinal: v.citas };
+          }
+          controller.enqueue(sseEvent({ type: 'text', text: v.mensaje }));
+          devolverReserva = true;
+          return { citasFinal: [], codigo: CODIGO_ABSTENCION_R3 };
+        };
+
         // ── OpenRouter path ──────────────────────────────────────────────
         if (PROVEEDOR_LLM === 'openrouter') {
           const modelOR = seleccionarModeloOpenRouter(ruta, mode);
@@ -641,9 +678,10 @@ export async function POST(req: NextRequest) {
 
           await streamOpenRouter(modelOR, messagesOR, {
             onToken: (token) => {
-              controller.enqueue(sseEvent({ type: 'text', text: token }));
+              emitirTexto(token);
             },
             onDone: ({ inputTokens, outputTokens }) => {
+              const { citasFinal, codigo } = cerrarConR3();
               controller.enqueue(sseEvent({
                 type: 'done',
                 consulta_id: consultaId,
@@ -652,7 +690,8 @@ export async function POST(req: NextRequest) {
                 tier: rateLimitResult.tier,
                 model: modelOR,
                 ruta,
-                citas,
+                citas: citasFinal,
+                ...(codigo ? { codigo } : {}),
               }));
               after(() => logConsulta({
                 consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -711,7 +750,7 @@ export async function POST(req: NextRequest) {
 
               case 'content_block_delta':
                 if (event.delta.type === 'text_delta') {
-                  controller.enqueue(sseEvent({ type: 'text', text: event.delta.text }));
+                  emitirTexto(event.delta.text);
                 }
                 break;
 
@@ -722,14 +761,16 @@ export async function POST(req: NextRequest) {
                 outputTokens = event.usage.output_tokens;
                 break;
 
-              case 'message_stop':
+              case 'message_stop': {
+                const { citasFinal, codigo } = cerrarConR3();
                 controller.enqueue(sseEvent({
                   type: 'done',
                   consulta_id: consultaId,
                   usage: { inputTokens, outputTokens },
                   remaining: rateLimitResult.remaining,
                   tier: rateLimitResult.tier,
-                  citas,
+                  citas: citasFinal,
+                  ...(codigo ? { codigo } : {}),
                 }));
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,
@@ -741,6 +782,7 @@ export async function POST(req: NextRequest) {
                   tier_usuario: rateLimitResult.tier, exito: true,
                 }));
                 break;
+              }
             }
           }
         }

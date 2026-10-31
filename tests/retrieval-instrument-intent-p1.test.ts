@@ -303,7 +303,7 @@ describe('buscarRAG (semántica) — referencias no resueltas', () => {
     const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente).sort()).toEqual([FUENTE_CODIGO, FUENTE_REGLAMENTO].sort());
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('sin clase explícita, la materia notarial conserva su autorización (comportamiento previo)', async () => {
@@ -353,7 +353,7 @@ describe('buscarRAG (semántica) — comparación con cobertura', () => {
 });
 
 describe('buscarRAG (exacta) — alias de Reglamento llega al resolvedor exacto', () => {
-  it('"artículo 9 del reglamento notarial" devuelve sólo la fila del Reglamento', async () => {
+  it('"artículo 9 del reglamento notarial" devuelve sólo la fila del Reglamento, como CONTEXT (sin pliego CLO)', async () => {
     const chain: any = {
       select: vi.fn(() => chain),
       eq: vi.fn(() => chain),
@@ -373,8 +373,13 @@ describe('buscarRAG (exacta) — alias de Reglamento llega al resolvedor exacto'
 
     const resultado = await buscarRAG('Artículo 9 del reglamento notarial', 5, 'mayalex_normativos');
 
+    // Salvaguarda CLO (d): el alias llega al resolvedor exacto y devuelve sólo la fila del Reglamento, pero el Reglamento PCSJ-17-2012
+    // no puede ser PRIMARY hasta que haya pliego CLO: queda como CONTEXT y no hay evidencia suficiente.
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_REGLAMENTO]);
-    expect(resultado.outcome?.state).toBe('EXACT_SUCCESS');
+    expect(resultado.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+    expect(resultado.outcome?.state).toBe('NO_VERIFIED_EVIDENCE');
+    expect(resultado.outcome?.evidenceCount).toBe(0);
+    expect(resultado.outcome?.cloBlocks).toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
     expect(embedQueryMock).not.toHaveBeenCalled();
   });
 });

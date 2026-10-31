@@ -53,6 +53,9 @@ export const KNOWN_FLAGS = [
   // false = MCP deshabilitado para todos, incluso pro/admin. Sembrarla es
   // decisión del fundador, separada del deploy.
   'flag_mcp_enabled',
+  // Corpus P21 (Comercio BCH, Notariado 72/72-A/73 D.59-2015, D.284-2013 Tít. II) — gate de recuperación (CLO 28-oct-2026). Fila ausente = false =
+  // las filas P21 no se recuperan ni se citan. Sembrar la fila (enabled=false) y activarla son decisiones del fundador, no del código.
+  'flag_corpus_p21',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];

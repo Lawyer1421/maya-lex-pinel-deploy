@@ -224,7 +224,7 @@ describe('clasificación auténtica de producción (sin duplicar evidence-engine
   });
   it('DRIFT: cada etiqueta que produce evidence-engine sigue en su fuente y se reconoce', () => {
     const fuente = readFileSync(join(RAIZ, 'lib', 'legal-retrieval', 'evidence-engine.ts'), 'utf8');
-    for (const trozo of ['FUENTE DOCTRINAL / COMENTARIO ACADÉMICO', 'NORMA VIGENTE HONDURAS', 'DOCTRINA/JURISPRUDENCIA COMPARADA', 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE', 'NO VIGENTE — NO CITAR COMO NORMA', 'FUENTE SIN CLASIFICAR']) {
+    for (const trozo of ['FUENTE DOCTRINAL / COMENTARIO ACADÉMICO', 'NORMA VIGENTE HONDURAS', 'DOCTRINA/JURISPRUDENCIA COMPARADA', 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE', 'NORMA NO VIGENTE, NO CITAR', 'FUENTE SIN CLASIFICAR']) {
       expect(fuente, trozo).toContain(trozo);
       expect(clasificacionDesdeEtiqueta(trozo)).not.toBe('DESCONOCIDA');
     }
