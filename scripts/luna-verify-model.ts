@@ -17,6 +17,14 @@
  * USD 0.05 (LUNA_VERIFY_MAX_USD solo puede BAJARLO). Si el peor caso del plan no cabe en el tope, o no hay tarifa registrada, el script se detiene
  * sin abrir red: no se puede garantizar el control. Durante la ejecución, antes de cada llamada pagada se comprueba gastado + peor caso ≤ tope.
  * El modelo no se da por válido: se consulta la lista real de modelos de la cuenta (llamada gratuita) y se informa cuáles «luna» existen.
+ *
+ * El tope de USD 0.05 es un límite OPERATIVO de este script (cálculo con tarifas del repositorio y comprobación antes de cada llamada). NO es un límite
+ * global garantizado de facturación: la facturación real la fija el proveedor. El único tope que el proveedor hace cumplir es el límite de gasto que se
+ * configure en el panel de la cuenta de OpenAI; configúrelo en la clave/proyecto de prueba antes del ensayo.
+ *
+ * Paso 1 (gratis, sin tokens): `LUNA_VERIFY_CONFIRM=SI_FREDY_LISTA OPENAI_API_KEY=<prueba> npx tsx scripts/luna-verify-model.ts --list-models`
+ *   Solo hace GET /v1/models: no llama a la API de generación (responses.create) ni a retrieve. Lista los IDs de la cuenta.
+ * Paso 2 (pagado, autorización aparte): el ensayo sintético con LUNA_VERIFY_CONFIRM=SI_FREDY, solo con un ID que el paso 1 haya listado.
  */
 import { validarSalida } from '../lib/ai-gateway/shadow/citation-validator';
 import { credencialDisponible, crearClienteOpenAI } from '../lib/ai-gateway/shadow/openai-adapter';
@@ -27,6 +35,8 @@ import { MODELOS_CON_TARIFA, resolverConfigPlan, type EsfuerzoRazonamiento } fro
 import { costoPeorCasoUsd, costoRealUsd, estimarTokensEntrada } from '../lib/luna/pricing';
 
 export const CONFIRMACION = 'SI_FREDY';
+/** Confirmación DISTINTA y solo para la lista gratuita de modelos (no autoriza el ensayo pagado). */
+export const CONFIRMACION_LISTA = 'SI_FREDY_LISTA';
 /** Tope duro del ensayo, en USD. Una variable de entorno puede bajarlo, nunca subirlo. */
 export const TOPE_ENSAYO_USD = 0.05;
 const TIMEOUT_LLAMADA_MS = 30_000;
@@ -147,7 +157,7 @@ export async function verificarModelo(cliente: ClienteLuna, modelo: string, tope
     try {
       const r = await cliente.responses.create(solicitud, { signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) });
       if (!r.usage) { gastado += peor; informe.esfuerzos.push({ esfuerzo, estado: 'ERROR', detalle: 'respuesta sin usage', store: solicitud.store }); continue; }
-      const costo = costoRealUsd(r.usage.input_tokens, r.usage.output_tokens, r.usage.input_tokens_details?.cached_tokens ?? 0);
+      const costo = costoRealUsd(modelo, r.usage.input_tokens, r.usage.output_tokens, r.usage.input_tokens_details?.cached_tokens ?? 0);
       gastado += costo;
       const validada = validarSalida(ENTRADA_SINTETICA, {
         rawOutput: r.output_text,
@@ -169,10 +179,45 @@ export async function verificarModelo(cliente: ClienteLuna, modelo: string, tope
   return informe;
 }
 
+export interface InformeListaModelos {
+  totalModelos: number | null;
+  modelos: string[];
+  modelosLuna: string[];
+  modeloSolicitadoListado: boolean;
+  tarifaRegistradaParaSolicitado: boolean;
+  llamadasPagadas: 0;
+}
+
+/** Lista los modelos de la cuenta: SOLO models.list (gratis). No usa responses.create ni models.retrieve. */
+export async function listarModelosDeCuenta(cliente: ClienteLuna, modelo: string): Promise<InformeListaModelos> {
+  const c = cliente as ClienteVerificacion;
+  const informe: InformeListaModelos = { totalModelos: null, modelos: [], modelosLuna: [], modeloSolicitadoListado: false, tarifaRegistradaParaSolicitado: MODELOS_CON_TARIFA.has(modelo), llamadasPagadas: 0 };
+  if (typeof c.models.list !== 'function') return informe;
+  try {
+    const r = await c.models.list({ signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) }) as unknown;
+    const datos: unknown[] = Array.isArray(r) ? r : Array.isArray((r as { data?: unknown[] })?.data) ? (r as { data: unknown[] }).data : [];
+    informe.modelos = datos.map((m) => (typeof m === 'object' && m !== null && 'id' in m ? String((m as { id: unknown }).id) : '')).filter((id) => id !== '').sort();
+    informe.totalModelos = informe.modelos.length;
+    informe.modelosLuna = informe.modelos.filter((id) => /luna/i.test(id));
+    informe.modeloSolicitadoListado = informe.modelos.includes(modelo);
+  } catch {
+    informe.totalModelos = null;
+  }
+  return informe;
+}
+
 /** Punto de entrada. Devuelve el código de salida; sin confirmación o sin clave NO abre red. */
 export async function main(argv: readonly string[], env: Readonly<Record<string, string | undefined>>, crear: () => ClienteLuna = () => crearClienteOpenAI() as unknown as ClienteLuna, salida: (t: string) => void = console.log): Promise<number> {
   const i = argv.indexOf('--model');
   const modelo = i >= 0 && argv[i + 1] ? argv[i + 1] : resolverConfigPlan('premium', env).modelId;
+  if (argv.includes('--list-models')) {
+    // Modo gratuito: sin plan de gasto porque no hay llamadas pagadas. Exige su propia confirmación y la clave de prueba.
+    if (env.LUNA_VERIFY_CONFIRM !== CONFIRMACION_LISTA) { salida('DETENIDO: falta LUNA_VERIFY_CONFIRM=SI_FREDY_LISTA. No se hizo ninguna llamada.'); return 2; }
+    if (!credencialDisponible()) { salida('DETENIDO: no hay clave de prueba configurada. No se hizo ninguna llamada.'); return 2; }
+    const lista = await listarModelosDeCuenta(crear(), modelo);
+    salida(JSON.stringify({ modo: 'LISTA_GRATUITA', modeloSolicitado: modelo, ...lista }, null, 2));
+    return lista.totalModelos !== null && lista.modeloSolicitadoListado ? 0 : 1;
+  }
   const { topeUsd, error } = resolverTope(env);
   const plan = planDeEnsayo(modelo, topeUsd);
   // El plan se muestra SIEMPRE, antes de cualquier llamada: es lo que el propietario autoriza.

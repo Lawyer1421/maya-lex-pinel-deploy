@@ -9,7 +9,8 @@ import { auditarPayload, construirSolicitudLuna, type ClienteLuna } from '@/lib/
 import { lunaHabilitadaPorEntorno, resolverConfigPlan, contadorLocalPermitido, esPreviewODesarrollo, PRESUPUESTO_PREVIEW_USD, MAX_DURO_CONSULTA_USD, MAX_DURO_DIA_USD } from '@/lib/luna/config';
 import { crearContadorLocalCanary, crearContadorSupabase, aMicroUsd, RPC_RESERVAR, RPC_LIQUIDAR, type ClienteRpc } from '@/lib/luna/cost-counter';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
-import { CONFIRMACION, TOPE_ENSAYO_USD, main, planDeEnsayo, resolverTope, verificarModelo } from '@/scripts/luna-verify-model';
+import { CONFIRMACION, CONFIRMACION_LISTA, TOPE_ENSAYO_USD, listarModelosDeCuenta, main, planDeEnsayo, resolverTope, verificarModelo } from '@/scripts/luna-verify-model';
+import { costoRealUsd, tarifaDeModelo } from '@/lib/luna/pricing';
 
 const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
   id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
@@ -89,8 +90,8 @@ describe('fail-closed: si no se puede clasificar como consulta general con segur
 
 describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, aviso sin aprobar', () => {
   it('sin aprobación del CLO no se envía ningún campo, aunque el usuario active y acepte', async () => {
-    const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_APROBADO_POR_CLO } = await import('@/lib/luna/consent');
-    expect(AVISO_LUNA_APROBADO_POR_CLO).toBe(false);
+    const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO } = await import('@/lib/luna/consent');
+    expect(AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO).toBe(false);
     expect(INTERRUPTOR_LUNA_INICIAL).toEqual({ activo: false, aceptado: false });
     expect(construirCampoLuna({ activo: true, aceptado: true })).toBeUndefined();
   });
@@ -110,7 +111,7 @@ describe('interruptor de la interfaz: apagado por defecto, consentimiento versio
   it('ChatInterface importa el interruptor solo vía consent y no incrusta el texto del aviso', () => {
     const ui = readFileSync(join(process.cwd(), 'components', 'ChatInterface.tsx'), 'utf8');
     expect(ui).toContain('construirCampoLuna');
-    expect(ui).toContain('AVISO_LUNA_APROBADO_POR_CLO');
+    expect(ui).toContain('AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO');
     expect(ui).not.toContain('Consulta jurídica general: tu pregunta');
   });
 });
@@ -576,5 +577,68 @@ describe('ensayo aislado: el script no asume el modelo, muestra el plan y contro
     const inf = await verificarModelo(clienteOk({ create: create as never }), 'gpt-6-luna');
     expect(inf.gastoEstimadoUsd).toBeGreaterThan(0);
     expect(inf.gastoEstimadoUsd).toBeLessThanOrEqual(TOPE_ENSAYO_USD);
+  });
+});
+
+describe('tarifas exactas por modelo y modalidad (Standard USD 0.10 / 0.50 por millón; verificado en la documentación oficial el 2026-10-31)', () => {
+  it('Standard de gpt-6-luna: entrada 0.10, salida 0.50, entrada en caché 0.01', () => {
+    expect(tarifaDeModelo('gpt-6-luna')).toEqual({ inputUsdPerMillion: 0.1, outputUsdPerMillion: 0.5, cachedInputUsdPerMillion: 0.01 });
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 0)).toBeCloseTo(0.1, 10);
+    expect(costoRealUsd('gpt-6-luna', 0, 1_000_000)).toBeCloseTo(0.5, 10);
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 0, 1_000_000)).toBeCloseTo(0.01, 10);            // todo en caché
+    expect(costoRealUsd('gpt-6-luna', 400, 60)).toBeCloseTo((400 * 0.1 + 60 * 0.5) / 1_000_000, 12);
+  });
+  it('Batch usa su propia tarifa (0.05 / 0.25) y no se confunde con Standard', () => {
+    expect(tarifaDeModelo('gpt-6-luna', 'batch')).toMatchObject({ inputUsdPerMillion: 0.05, outputUsdPerMillion: 0.25 });
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 1_000_000, 0, 'batch')).toBeCloseTo(0.3, 10);
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 1_000_000, 0, 'standard')).toBeCloseTo(0.6, 10);
+  });
+  it('un modelo o una modalidad sin tarifa registrada NO se estiman: lanzan (Fast y regional no están registradas)', () => {
+    expect(() => costoRealUsd('otro-modelo', 10, 10)).toThrow(/sin tarifa registrada/);
+    expect(() => costoRealUsd('gpt-6-luna', 10, 10, 0, 'fast' as never)).toThrow(/modalidad sin tarifa/);
+    expect(() => costoRealUsd('gpt-6-luna', 10, 10, 20)).toThrow();
+  });
+});
+
+describe('--list-models: comprobación gratuita, sin llamadas pagadas', () => {
+  const lista = [{ id: 'gpt-6-luna' }, { id: 'gpt-6-luna-mini' }, { id: 'otro' }];
+  const clienteLista = () => {
+    const create = vi.fn();
+    const retrieve = vi.fn();
+    return { create, retrieve, cliente: { models: { retrieve, list: async () => ({ data: lista }) }, responses: { create } } as never as ClienteLuna };
+  };
+  it('exige su confirmación propia: la del ensayo pagado NO la sustituye', async () => {
+    const { cliente, create } = clienteLista();
+    const crear = vi.fn(() => cliente);
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main(['--list-models'], { LUNA_VERIFY_CONFIRM: CONFIRMACION }, crear, (t) => out.push(t))).toBe(2);
+    expect(await main(['--list-models'], {}, crear, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+  it('lista los IDs de la cuenta usando solo models.list: nunca responses.create ni models.retrieve', async () => {
+    const { cliente, create, retrieve } = clienteLista();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-SECRETO-NO-IMPRIMIR';
+    const code = await main(['--list-models'], { LUNA_VERIFY_CONFIRM: CONFIRMACION_LISTA }, () => cliente, (t) => out.push(t));
+    delete process.env.OPENAI_API_KEY;
+    expect(code).toBe(0);
+    expect(create).not.toHaveBeenCalled();
+    expect(retrieve).not.toHaveBeenCalled();
+    const informe = JSON.parse(out.join('\n'));
+    expect(informe).toMatchObject({ modo: 'LISTA_GRATUITA', llamadasPagadas: 0, totalModelos: 3, modelosLuna: ['gpt-6-luna', 'gpt-6-luna-mini'], modeloSolicitadoListado: true });
+    expect(out.join('\n')).not.toContain('SECRETO');
+  });
+  it('si el modelo solicitado no está en la cuenta, termina con 1 y lo dice (no se asume válido)', async () => {
+    const { cliente } = clienteLista();
+    const inf = await listarModelosDeCuenta(cliente, 'gpt-6-luna-inexistente');
+    expect(inf.modeloSolicitadoListado).toBe(false);
+    expect(inf.tarifaRegistradaParaSolicitado).toBe(false);
+  });
+  it('el script no se conecta a Supabase ni al corpus (el ensayo y la lista no tocan la base de datos)', () => {
+    const src = readFileSync(join(process.cwd(), 'scripts', 'luna-verify-model.ts'), 'utf8');
+    expect(src).not.toMatch(/supabase|SUPABASE|biblioteca_vectores|buscarRAG/i);
   });
 });
