@@ -19,7 +19,7 @@
       "descripcion": "El adaptador lanza una excepción",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "DISPATCHED",
@@ -31,7 +31,7 @@
       "descripcion": "despacharShadow lanza de forma síncrona",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": []
     },
@@ -40,7 +40,7 @@
       "descripcion": "La única claim cita un chunk inexistente",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "DISPATCHED",
@@ -52,7 +52,7 @@
       "descripcion": "La pregunta trae un correo: el shadow no se despacha",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "SKIPPED_PII"
@@ -72,7 +72,7 @@
       "descripcion": "Legal OS shadow ENCENDIDO (simulado): la respuesta de producción no cambia",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": []
     },
@@ -81,7 +81,7 @@
       "descripcion": "El despacho de Legal OS lanza de forma síncrona",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": []
     },
@@ -90,7 +90,7 @@
       "descripcion": "Presupuesto real 0: sin llamada",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "SKIPPED_BUDGET"
@@ -101,7 +101,7 @@
       "descripcion": "Manifiesto vacío: sin prueba fuerte de procedencia",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "SKIPPED_PUBLIC_PROVENANCE"
@@ -112,7 +112,7 @@
       "descripcion": "El adaptador devuelve algo que no es el esquema",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "DISPATCHED",
@@ -124,7 +124,7 @@
       "descripcion": "El shadow responde bien y concuerda",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "DISPATCHED",
@@ -136,7 +136,7 @@
       "descripcion": "Sin credencial",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "SKIPPED_NO_CREDENTIALS"
@@ -158,7 +158,7 @@
       "descripcion": "El adaptador nunca responde",
       "status": 200,
       "contentType": "text/event-stream",
-      "cuerpoSha256": "3c0618e77578e7321ef350bd86a04d6e6410e47a2abe3b528c62dc799ee8ebe6",
+      "cuerpoSha256": "05e3b3a39e935caf8d38eadcccda2a45f51841ec9302b2145bfe7699ce9531c1",
       "identicoALineaBase": true,
       "estadosShadow": [
         "DISPATCHED",
@@ -167,7 +167,7 @@
     }
   ],
   "codigoHashes": {
-    "app/api/chat/route.ts": "53b6c707d81b3a7da6e9e3216688a3996ce7697dcab7388192b137e65f72a066",
+    "app/api/chat/route.ts": "cb9b49b22cb64c553d8953b93d504c21d803325689b1865f0bbfcf8c391b7a2b",
     "lib/ai-gateway/shadow/config.ts": "b01677163998b88a04749f5d8ab6ada3359bbb6c9d91cfa17f590049cef5ebf6",
     "lib/ai-gateway/shadow/despacho-diferido.ts": "c16dfa577198b20cc9fc3f820b7c94e25f9108233feef1519dfc9694bff0eb0c",
     "lib/ai-gateway/shadow/dispatcher.ts": "e96aa33bee03b4f0d3934261b1e3fd7d3c152e9ef4f4e24e323f98ec1383ce69",
