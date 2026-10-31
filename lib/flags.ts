@@ -56,9 +56,20 @@ export const KNOWN_FLAGS = [
   // Corpus P21 (Comercio BCH, Notariado 72/72-A/73 D.59-2015, D.284-2013 Tít. II) — gate de recuperación (CLO 28-oct-2026). Fila ausente = false =
   // las filas P21 no se recuperan ni se citan. Sembrar la fila (enabled=false) y activarla son decisiones del fundador, no del código.
   'flag_corpus_p21',
+  // P26 Luna (lib/luna/*) — gate por usuario del motor de respuestas sobre la Responses API de OpenAI. Doble llave: además
+  // exige LUNA_ENABLED=1 en el entorno. Sin fila sembrada: fila ausente = false = Luna apagada para todos. Sembrar la fila
+  // (enabled + allowed_emails para un canario) es decisión del propietario, separada del merge y del deploy.
+  'flag_luna_responses',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];
+
+/**
+ * M-2 (auditoría #110): banderas cuya lista de correos vacía significa CERRADO para todos, no «abierto para todos». Luna solo se enciende para
+ * correos nombrados (cuenta de prueba, luego listas); una fila `enabled=true` con `allowed_emails=[]` jamás la activa de forma amplia por accidente.
+ * Las demás banderas conservan su semántica documentada (lista vacía = activación amplia).
+ */
+export const FLAGS_LISTA_VACIA_CERRADA: ReadonlySet<FlagName> = new Set<FlagName>(['flag_luna_responses']);
 
 interface FeatureFlagRow {
   enabled: boolean;
@@ -103,6 +114,11 @@ export async function isFlagEnabledForUser(
   if (!row || !row.enabled) return false;
 
   const allowlist = row.allowed_emails ?? [];
+  if (FLAGS_LISTA_VACIA_CERRADA.has(flagName)) {
+    const nombrados = allowlist.map((e) => (typeof e === 'string' ? e.trim().toLowerCase() : '')).filter((e) => e !== '');
+    const correo = userEmail?.trim().toLowerCase();
+    return nombrados.length > 0 && !!correo && nombrados.includes(correo);
+  }
   if (allowlist.length === 0) return true;
 
   const normalizado = userEmail?.trim().toLowerCase();

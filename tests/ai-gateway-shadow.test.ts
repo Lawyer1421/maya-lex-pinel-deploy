@@ -381,10 +381,12 @@ describe('aislamiento: el resultado sombra nunca llega al usuario', () => {
       const p = join(dir, n);
       return statSync(p).isDirectory() ? archivos(p) : /\.(ts|tsx)$/.test(n) ? [p] : [];
     });
-  it('fuera del gateway sólo app/api/chat/route.ts importa lib/ai-gateway, y sólo el dispatcher (PR-G2)', () => {
+  it('fuera del gateway sólo app/api/chat/route.ts y lib/luna (P26) importan lib/ai-gateway; la ruta sólo el dispatcher', () => {
     const fuera = [...archivos(join(RAIZ, 'app')), ...archivos(join(RAIZ, 'lib'))].filter((p) => !relative(RAIZ, p).startsWith('lib/ai-gateway'));
     const importan = fuera.filter((p) => /ai-gateway/.test(readFileSync(p, 'utf8'))).map((p) => relative(RAIZ, p));
-    expect(importan).toEqual(['app/api/chat/route.ts']);
+    // P26 (orden «Luna», 29-oct-2026): lib/luna reutiliza el esquema, el validador y las compuertas del gateway. Sigue prohibido
+    // que cualquier otro módulo de app/ o lib/ lo importe. El resto de las reglas (SDK y credencial solo en openai-adapter.ts) no cambia.
+    expect(importan.filter((p) => !p.startsWith('lib/luna/'))).toEqual(['app/api/chat/route.ts']);
     const lineas = readFileSync(join(RAIZ, 'app', 'api', 'chat', 'route.ts'), 'utf8').split('\n').filter((l) => /ai-gateway/.test(l));
     expect(lineas.filter((l) => /^import /.test(l))).toEqual(["import { despacharShadow } from '@/lib/ai-gateway/shadow/dispatcher';"]);
   });
