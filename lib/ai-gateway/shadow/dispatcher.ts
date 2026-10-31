@@ -84,8 +84,9 @@ export async function esperarDespachos(vaciar = false): Promise<void> {
 }
 
 /**
- * Evidencia para el modelo. El rol queda en `null`: el runtime actual no produce PRIMARY/CONTEXT y no se
- * infiere ni se usa CONTEXT por defecto. La clasificación y la citabilidad son las que producción ya aplica.
+ * Evidencia para el modelo. El rol del gateway queda en `null`: este módulo no asigna PRIMARY/CONTEXT por su cuenta ni usa CONTEXT por
+ * defecto. La clasificación y la citabilidad son las que producción ya aplica, incluidas las salvaguardas CLO (lib/legal-retrieval/clo-guards.ts):
+ * un fragmento que producción trata como CONTEXT llega aquí como no citable (`citable: false`).
  */
 export function aEvidencia(fragmentos: readonly FragmentoRAG[]): EvidenceChunk[] {
   return fragmentos.map((f, i) => {

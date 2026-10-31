@@ -49,7 +49,7 @@ function mocksComunes(retrievalState: string, fragmentos: unknown[], evidenceCou
   vi.doMock('@/lib/self-learning/buscar-plantilla', () => ({ buscarPlantilla: vi.fn().mockResolvedValue([]), formatearContextoPlantilla: vi.fn().mockReturnValue('') }));
   vi.doMock('@anthropic-ai/sdk', () => {
     class MockAPIError extends Error {}
-    class MockAnthropic { messages = { create: async () => stream('Respuesta simulada del modelo.') }; static APIError = MockAPIError; }
+    class MockAnthropic { messages = { create: async () => stream('Respuesta simulada del modelo. El artículo 173 del Código Procesal Penal contiene un texto limpio de prueba.') }; static APIError = MockAPIError; }
     return { default: MockAnthropic };
   });
   vi.doMock('@/lib/rag/search', async () => ({
@@ -195,7 +195,7 @@ describe('G6-E independencia: PRODUCTION_HTTP_RESPONSE_INDEPENDENT', () => {
   it('la abstención de producción sigue siendo autoritativa aunque el shadow diga ANSWER', async () => {
     const abst = await correr({ retrievalState: 'NO_VERIFIED_EVIDENCE', evidenceCount: 0, shadow: { enabled: true, responder: RESPUESTA_VALIDA } });
     expect(abst.cuerpo).toContain('CORPUS_EVIDENCE_NOT_FOUND');
-    expect(abst.cuerpo).not.toContain('Respuesta simulada del modelo.');
+    expect(abst.cuerpo).not.toContain('contiene un texto limpio de prueba');
     expect(abst.estados).toContain('COMPLETED'); // el shadow sí corrió y concordó en ANSWER: no cambió nada
     const sinEvidencia = await correr({ fragmentos: [], shadow: { enabled: true, responder: RESPUESTA_VALIDA } });
     expect(sinEvidencia.cuerpo).toContain('CORPUS_EVIDENCE_NOT_FOUND');
@@ -251,7 +251,7 @@ describe('G6-E independencia: PRODUCTION_HTTP_RESPONSE_INDEPENDENT', () => {
     expect(d.registroDespachos().filter((r) => r.queryId === 'q-lifecycle')).toEqual([]);
     await expect(tareas[0]()).resolves.toBeUndefined();
     expect(d.registroDespachos().filter((r) => r.queryId === 'q-lifecycle').map((r) => r.estado)).toEqual(['DISPATCHED', 'ERROR']);
-    expect(cuerpo).toContain('Respuesta simulada del modelo.');
+    expect(cuerpo).toContain('contiene un texto limpio de prueba');
   });
 
   it('escribe la evidencia (solo con G6_WRITE_EVIDENCE=1) y la evidencia vigente coincide con el código actual', () => {

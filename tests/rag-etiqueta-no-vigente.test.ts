@@ -53,7 +53,7 @@ describe('formatearContextoRAG — ninguna etiqueta queda en null', () => {
     // es una afirmación conocida y verificada (derogado), no una ausencia de
     // metadata. El fallback genérico queda reservado para metadata realmente
     // ausente/ambigua (ver prueba siguiente).
-    expect(ctx).toContain('[NO VIGENTE — NO CITAR COMO NORMA]');
+    expect(ctx).toContain('[NORMA NO VIGENTE, NO CITAR]');
     expect(ctx).not.toContain('FUENTE SIN CLASIFICAR');
   });
 

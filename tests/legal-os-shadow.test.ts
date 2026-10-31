@@ -35,8 +35,11 @@ describe('política de fuentes del shadow', () => {
     expect(chunks.map((c) => c.id)).toEqual(['f1']);
     expect(excluidas).toBe(2);
   });
-  it('vigencia nula se conserva como no verificada', () => {
-    expect(evidenciaDeProduccion([F({ es_norma_vigente: null })]).chunks[0].vigente).toBeNull();
+  it('vigencia nula NO es evidencia (CLO 28-oct-2026: NULL solo CONTEXT); la vigente TRUE sí', () => {
+    const nula = evidenciaDeProduccion([F({ es_norma_vigente: null })]);
+    expect(nula.chunks).toHaveLength(0);
+    expect(nula.excluidas).toBe(1);
+    expect(evidenciaDeProduccion([F({ es_norma_vigente: true })]).chunks[0].vigente).toBe(true);
   });
 });
 

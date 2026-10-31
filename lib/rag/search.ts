@@ -29,6 +29,8 @@
 // tests) no requieran ningún cambio.
 import type { FragmentoRAG, ResultadoRAG } from '@/lib/legal-retrieval/types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from '@/lib/legal-retrieval/primitives';
+import { objetivosDeConsulta } from '@/lib/legal-retrieval/r3-objetivos';
+import { anotarFragmentosClo, filtrarCorpusP21, resumenEvidenciaClo, resumenLogClo } from '@/lib/legal-retrieval/clo-guards';
 import { buscarEnSupabase, esRegistroNoVigenteExcluido, seleccionarFinal } from '@/lib/legal-retrieval/semantic-retriever';
 import {
   clasificarIntencionInstrumental,
@@ -135,23 +137,10 @@ export async function buscarArticuloExacto(
     return resultadoVigente;
   }
 
-  // GAP 2 (Operación "Facultades Completas", 2026-08-28): si no hay ningún
-  // artículo vigente con ese número, se intenta un segundo paso -- solo
-  // artículos CONFIRMADOS no vigentes (ej. derogados, con evidencia textual
-  // directa de fuente -- nunca inferidos). Reutiliza exactamente la misma
-  // función de resolución (mismos tres filtros: anonimización, encabezado
-  // real, identidad de instrumento) -- ningún criterio se relaja para este
-  // camino. El resultado NUNCA se presenta como norma vigente: construirCitas
-  // ya exige es_norma_vigente===true para entrar a la lista de citas, y
-  // formatearContextoRAG ya etiqueta este patrón exacto como
-  // "[NO VIGENTE — NO CITAR COMO NORMA]" (D6a-bis). Este paso es
-  // deliberadamente distinto de la exclusión de D6(b): esa protege contra
-  // que un artículo derogado se cuele por similitud semántica sin que el
-  // usuario lo haya pedido; esto responde de forma honesta cuando el usuario
-  // SÍ preguntó explícitamente por ese número exacto -- "fue derogado" es
-  // información real, no una alucinación.
-  const filasNoVigentes = await consultarPorVigencia(numero, materiaDetectada, false);
-  return resolverArticuloExacto(filasNoVigentes, numero, instrumentoSolicitado);
+  // CLO 28-oct-2026 (Anexo 2.2): se ELIMINÓ el segundo paso con es_norma_vigente=false (GAP 2, 2026-08-28). Ninguna fila FALSE produce
+  // EXACT_SUCCESS: FALSE significa «excluida», no «derogada con evidencia». Si no hay fila vigente con ese número, el resultado es vacío y la
+  // ruta se abstiene. Un artículo realmente derogado se informa por la vía oficial/humana, no desde una fila marcada FALSE.
+  return resultadoVigente;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -258,13 +247,28 @@ async function buscarArticuloPorIdentidades(
   return { fragmentos, ambiguo };
 }
 
+/**
+ * Registro por fragmento del motivo CLO y del estado de vigencia (CLO 28-oct-2026, Anexo 3.3). Solo ids del corpus, rol, instrumento,
+ * códigos de bloqueo y TRUE/FALSE/NULL: nunca texto del fragmento, de la pregunta ni de un cliente.
+ */
+function logClo(ruta: 'exact' | 'semantic', fragmentos: FragmentoRAG[], ctx: Parameters<typeof resumenLogClo>[1]): void {
+  if (fragmentos.length === 0) return;
+  try {
+    console.info(`[RAG][CLO] ruta=${ruta} ${JSON.stringify(resumenLogClo(fragmentos, ctx))}`);
+  } catch {
+    // el log nunca rompe la recuperación
+  }
+}
+
 export async function buscarRAG(
   consulta: string,
   k = 5,
   coleccion = 'cpp_honduras',
   materia?: string,
-  opts?: { rerank?: boolean },
+  opts?: { rerank?: boolean; corpusP21?: boolean },
 ): Promise<ResultadoRAG> {
+  // flag_corpus_p21 (resuelto por el llamador; ausente = apagado): con el corpus apagado las filas P21 no se recuperan ni cuentan.
+  const ctxClo = { corpusP21Habilitado: opts?.corpusP21 === true };
   const backend = getBackend();
 
   if (backend === 'disabled') {
@@ -291,6 +295,8 @@ export async function buscarRAG(
   // MULTI_SPECIFIC_RESOLVED, SPECIFIC_UNRESOLVED). Gobierna la ruta exacta y la
   // semántica; ver lib/legal-retrieval/instrument-gate.ts.
   const intencion = clasificarIntencionInstrumental(consulta);
+  // R3 (CLO 29-oct-2026): suficiencia solo con un PRIMARY vigente (TRUE) del mismo instrumento y artículo consultados.
+  const objetivosR3 = objetivosDeConsulta(consulta);
 
   let exactoIntentado = false;
   // Comparación con evidencia exacta parcial (cobertura incompleta): los
@@ -316,6 +322,7 @@ export async function buscarRAG(
         const exacto = intencion.estado === 'MULTI_SPECIFIC_RESOLVED' && intencion.articulos.length === 1
           ? await buscarArticuloPorIdentidades(deteccion.numero, intencion.identidades)
           : await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
+        exacto.fragmentos = filtrarCorpusP21(exacto.fragmentos, ctxClo.corpusP21Habilitado);
         if (exacto.ambiguo) {
           // Regla K (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md): ambigüedad ->
           // NO_VERIFIED_EVIDENCE, NUNCA contaminación semántica.
@@ -328,15 +335,20 @@ export async function buscarRAG(
         // confirmada, y en comparaciones, cada instrumento). Si no, cae a la
         // abstención de abajo.
         if (exacto.fragmentos.length > 0 && evidenciaCubreIntencion(exacto.fragmentos, intencion)) {
+          // Salvaguardas CLO: solo los PRIMARY cuentan como evidencia. Un artículo bloqueado (Notariado 11/17/27, Reglamento sin pliego
+          // CLO, fila sin instrumento, etc.) se conserva como CONTEXT con su aviso, pero NO hay evidencia suficiente: abstención.
+          const fragmentosExactos = anotarFragmentosClo(exacto.fragmentos, ctxClo);
+          const clo = resumenEvidenciaClo(fragmentosExactos, ctxClo, objetivosR3);
+          logClo('exact', fragmentosExactos, ctxClo);
           return {
-            fragmentos: exacto.fragmentos,
+            fragmentos: fragmentosExactos,
             articulos_encontrados: [deteccion.numero],
             backend: 'supabase',
             intencionInstrumental: intencion.estado,
             articulosSolicitados: intencion.articulos,
-            outcome: buildRetrievalOutcome('EXACT_SUCCESS', {
-              evidenceCount: exacto.fragmentos.length, exactAttempted: true,
-            }),
+            outcome: clo.suficiente
+              ? buildRetrievalOutcome('EXACT_SUCCESS', { evidenceCount: clo.primarios, exactAttempted: true })
+              : buildRetrievalOutcome('NO_VERIFIED_EVIDENCE', { exactAttempted: true, cloBlocks: clo.bloqueos }),
           };
         }
         // Comparación con evidencia exacta parcial: continúa a semántica y la
@@ -417,24 +429,27 @@ export async function buscarRAG(
   try {
     if (backend === 'python') {
       const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
-      const elegibles = bruto.fragmentos.filter((f) => elegibleFuente(f.fuente));
+      const elegibles = filtrarCorpusP21(bruto.fragmentos, ctxClo.corpusP21Habilitado).filter((f) => elegibleFuente(f.fuente));
       // Evidencia final enviada al contexto: cobertura completa y, en comparaciones
       // con artículos concretos, sólo esos artículos. Sin ello, no hay evidencia.
       const fragmentos = evidenciaFinal(elegibles, intencion);
       const resultado = {
         ...bruto,
-        fragmentos,
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica, coleccion, ...ctxClo }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,
       };
       // Regla D/E: semántica ejecutó sin error -> SEMANTIC_SUCCESS si trajo
       // evidencia, OFFICIAL_FALLBACK_REQUIRED si no (nunca "no existe la ley").
+      // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
+      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion }, objetivosR3);
+      logClo('semantic', resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
       return {
         ...resultado,
         outcome: buildRetrievalOutcome(
-          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
-          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+          clo.suficiente ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: clo.primarios, exactAttempted: exactoIntentado, semanticAttempted: true, cloBlocks: clo.suficiente ? [] : clo.bloqueos },
         ),
       };
     }
@@ -443,11 +458,11 @@ export async function buscarRAG(
       // Evidencia final = exacta parcial (verificada por identidad) + semántica.
       // Sin cobertura completa de la intención (p. ej. una comparación sin
       // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
-      const combinados = unirFragmentos(exactoParcial, bruto.fragmentos);
+      const combinados = filtrarCorpusP21(unirFragmentos(exactoParcial, bruto.fragmentos), ctxClo.corpusP21Habilitado);
       const fragmentos = evidenciaFinal(combinados, intencion);
       const resultado = {
         ...bruto,
-        fragmentos,
+        fragmentos: anotarFragmentosClo(fragmentos, { materia: materiaSemantica, coleccion, ...ctxClo }),
         articulos_encontrados: [...new Set(fragmentos.map((f) => f.num_articulo).filter((a): a is string => a !== null))],
         intencionInstrumental: intencion.estado,
         articulosSolicitados: intencion.articulos,
@@ -458,11 +473,14 @@ export async function buscarRAG(
       // error, así que este camino nunca lo convierte en RETRIEVAL_ERROR.
       // `degraded` permanece false (ver types.ts: no instrumentado en esta
       // fase, límite de alcance explícito, no un bug).
+      // Salvaguardas CLO: solo los PRIMARY son evidencia; los CONTEXT acompañan con aviso pero no bastan.
+      const clo = resumenEvidenciaClo(resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion }, objetivosR3);
+      logClo('semantic', resultado.fragmentos, { ...ctxClo, materia: materiaSemantica, coleccion });
       return {
         ...resultado,
         outcome: buildRetrievalOutcome(
-          resultado.fragmentos.length > 0 ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
-          { evidenceCount: resultado.fragmentos.length, exactAttempted: exactoIntentado, semanticAttempted: true },
+          clo.suficiente ? 'SEMANTIC_SUCCESS' : 'OFFICIAL_FALLBACK_REQUIRED',
+          { evidenceCount: clo.primarios, exactAttempted: exactoIntentado, semanticAttempted: true, cloBlocks: clo.suficiente ? [] : clo.bloqueos },
         ),
       };
     }

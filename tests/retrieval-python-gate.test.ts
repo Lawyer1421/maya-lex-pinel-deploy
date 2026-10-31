@@ -54,8 +54,12 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    // El fragmento del Código (instrumento incompatible) se excluye. Salvaguarda CLO (d): el Reglamento queda como CONTEXT (sin pliego CLO),
+    // así que no hay evidencia suficiente.
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_REGLAMENTO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED');
+    expect(resultado.outcome?.evidenceCount).toBe(0);
   });
 
   it('sin evidencia elegible: OFFICIAL_FALLBACK_REQUIRED, no se acepta nada por materia', async () => {
@@ -85,7 +89,7 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     const resultado = await buscarRAG('Conforme a la resolución aplicable, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('temático "arrendamiento ley civil" (NONE): conserva la evidencia pertinente, igual que Supabase', async () => {
@@ -136,7 +140,7 @@ describe('buscarRAG backend python — gate de intención explícita', () => {
     const resultado = await buscarRAG('Según la ley de Honduras, ¿qué procede?', 5, 'mayalex_normativos');
 
     expect(resultado.fragmentos.map((f) => f.fuente)).toEqual([FUENTE_CODIGO]);
-    expect(resultado.outcome?.state).toBe('SEMANTIC_SUCCESS');
+    expect(resultado.outcome?.state).toBe('OFFICIAL_FALLBACK_REQUIRED'); // CLO 28-oct-2026 (Anexo 2.5): Notariado sin materia verificada = solo CONTEXT
   });
 
   it('referencia específica "ley notarial hondureña": fail-close, igual que Supabase', async () => {

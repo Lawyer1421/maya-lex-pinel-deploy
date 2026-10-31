@@ -1,13 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 /**
- * GAP 2 (Operación "Facultades Completas", 2026-08-28) — cuando no hay
- * artículo vigente con ese número, buscarArticuloExacto intenta un segundo
- * paso: solo artículos CONFIRMADOS no vigentes (derogados), reutilizando
- * exactamente los mismos tres filtros de seguridad de resolverArticuloExacto
- * (anonimización, encabezado real, identidad de instrumento) -- ninguno se
- * relaja. Nunca se presenta como vigente: construirCitas() y
- * formatearContextoRAG() ya protegen esto (D6a-bis, D6b), sin cambios aquí.
+ * GAP 2 (Operación "Facultades Completas", 2026-08-28) fue REEMPLAZADO por la decisión CLO del 28-oct-2026 (Anexo 2.2): se eliminó el segundo
+ * paso con es_norma_vigente=false de buscarArticuloExacto. Ninguna fila FALSE produce EXACT_SUCCESS: FALSE significa «excluida».
+ * Siguen vigentes las reglas que no chocan: con fila vigente solo se consulta una vez; las etiquetas [NORMA NO VIGENTE, NO CITAR]
+ * de formatearContextoRAG para cualquier fragmento FALSE que llegue por otra vía; los tres filtros de resolverArticuloExacto.
  */
 
 function filaDerogada(overrides: Partial<Record<string, unknown>> = {}) {
@@ -45,7 +42,7 @@ function mockSupabaseSecuencial(filasVigentes: unknown[], filasNoVigentes: unkno
   return { createServerSupabaseClient: () => ({ from }), eqCallsPorConsulta };
 }
 
-describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
+describe('buscarArticuloExacto — sin segundo paso con es_norma_vigente=false (CLO 28-oct-2026, Anexo 2.2)', () => {
   beforeEach(() => {
     vi.resetModules();
   });
@@ -53,7 +50,7 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
     vi.doUnmock('@/lib/supabase');
   });
 
-  it('123-A sin fila vigente pero con fila derogada confirmada -> devuelve la fila derogada', async () => {
+  it('123-A sin fila vigente y con fila derogada (FALSE): NO se devuelve; una sola consulta, solo vigentes', async () => {
     const mock = mockSupabaseSecuencial([], [filaDerogada()]);
     vi.doMock('@/lib/supabase', () => mock);
 
@@ -61,39 +58,37 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
     const r = await buscarArticuloExacto('123-A', '06_FAMILIA', 'CODIGO_FAMILIA' as any);
 
     expect(r.ambiguo).toBe(false);
-    expect(r.fragmentos).toHaveLength(1);
-    expect(r.fragmentos[0].num_articulo).toBe('123-A');
-    expect(r.fragmentos[0].es_norma_vigente).toBe(false);
+    expect(r.fragmentos).toHaveLength(0);
+    expect(mock.eqCallsPorConsulta).toHaveLength(1);
+    expect(mock.eqCallsPorConsulta[0]).toContainEqual(['es_norma_vigente', true]);
+    for (const calls of mock.eqCallsPorConsulta) expect(calls).not.toContainEqual(['es_norma_vigente', false]);
   });
 
-  it('123-B misma prueba', async () => {
-    const filaB = filaDerogada({
-      id: 'stub-123-b',
-      num_articulo: '123-B',
-      contenido: 'ARTICULO 123-B.- Derogado mediante Decreto 102-2018 del 25 de septiembre de 2018. Publicado en el Diario Oficial La Gaceta No.34,841 de fecha 10 de enero de 2019.',
-    });
-    const mock = mockSupabaseSecuencial([], [filaB]);
-    vi.doMock('@/lib/supabase', () => mock);
-
-    const { buscarArticuloExacto } = await import('@/lib/rag/search');
-    const r = await buscarArticuloExacto('123-B', '06_FAMILIA', 'CODIGO_FAMILIA' as any);
-
-    expect(r.fragmentos).toHaveLength(1);
-    expect(r.fragmentos[0].num_articulo).toBe('123-B');
-  });
-
-  it('el resultado derogado, al pasar por formatearContextoRAG, recibe [NO VIGENTE — NO CITAR COMO NORMA]', async () => {
+  it('ninguna fila FALSE produce EXACT_SUCCESS por buscarRAG', async () => {
+    process.env.RAG_BACKEND = 'supabase';
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'fake-key';
     const mock = mockSupabaseSecuencial([], [filaDerogada()]);
     vi.doMock('@/lib/supabase', () => mock);
-
-    const { buscarArticuloExacto, formatearContextoRAG } = await import('@/lib/rag/search');
-    const r = await buscarArticuloExacto('123-A', '06_FAMILIA', 'CODIGO_FAMILIA' as any);
-    const ctx = formatearContextoRAG({ fragmentos: r.fragmentos, articulos_encontrados: ['123-A'], backend: 'supabase' });
-
-    expect(ctx).toContain('[NO VIGENTE — NO CITAR COMO NORMA]');
+    vi.doMock('@/lib/rag/embed', () => ({ embedQuery: vi.fn().mockResolvedValue(new Array(384).fill(0.01)) }));
+    const { buscarRAG } = await import('@/lib/rag/search');
+    const r = await buscarRAG('Artículo 123-A del Código de Familia', 5, 'mayalex_normativos');
+    expect(r.outcome?.state).not.toBe('EXACT_SUCCESS');
+    expect(r.outcome?.evidenceCount ?? 0).toBe(0);
+    vi.doUnmock('@/lib/rag/embed');
   });
 
-  it('si SÍ hay fila vigente, nunca se llega al fallback -- se ignora cualquier fila derogada aunque exista', async () => {
+  it('un fragmento FALSE que llegue por otra vía recibe [NORMA NO VIGENTE, NO CITAR] y nunca es PRIMARY', async () => {
+    const { resolverArticuloExacto, formatearContextoRAG } = await import('@/lib/rag/search');
+    const r = resolverArticuloExacto([filaDerogada()] as any, '123-A', 'CODIGO_FAMILIA' as any);
+    expect(r.fragmentos).toHaveLength(1);
+    expect(r.fragmentos[0].rol_evidencia).toBe('CONTEXT');
+    expect(r.fragmentos[0].bloqueos_clo).toContain('VIGENCIA_FALSE_EXCLUIDA');
+    const ctx = formatearContextoRAG({ fragmentos: r.fragmentos, articulos_encontrados: ['123-A'], backend: 'supabase' });
+    expect(ctx).toContain('[NORMA NO VIGENTE, NO CITAR]');
+  });
+
+  it('si SÍ hay fila vigente, solo se hace UNA consulta y se devuelve la vigente', async () => {
     const filaVigente = {
       id: 'real', contenido: 'ARTICULO 5.- Texto vigente real.', num_articulo: '5',
       fuente: 'Codigo de Familia', fuente_tipo: 'codigo', jurisdiccion: 'HN',
@@ -107,11 +102,10 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
 
     expect(r.fragmentos).toHaveLength(1);
     expect(r.fragmentos[0].es_norma_vigente).toBe(true);
-    // Solo se hizo UNA consulta (la vigente) -- el fallback nunca se disparó.
     expect(mock.eqCallsPorConsulta).toHaveLength(1);
   });
 
-  it('sin fila vigente NI derogada -> no encontrado, ambos caminos intentados', async () => {
+  it('sin fila vigente NI derogada -> no encontrado, una sola consulta', async () => {
     const mock = mockSupabaseSecuencial([], []);
     vi.doMock('@/lib/supabase', () => mock);
 
@@ -120,49 +114,6 @@ describe('buscarArticuloExacto — fallback a no-vigente (GAP 2)', () => {
 
     expect(r.fragmentos).toHaveLength(0);
     expect(r.ambiguo).toBe(false);
-    expect(mock.eqCallsPorConsulta).toHaveLength(2); // intentó vigente, luego no-vigente
-  });
-
-  it('una fila derogada SIN el encabezado real ("Artículo derogado" genérico) es rechazada para un instrumento FUERA de la allowlist de Opción C', async () => {
-    // NOTA (P0 2026-09-05): este caso usaba originalmente CODIGO_FAMILIA
-    // como instrumento. Desde que CODIGO_FAMILIA entró a la allowlist de
-    // tieneIdentidadSinEncabezado (Opción C), este escenario exacto SÍ se
-    // acepta para CODIGO_FAMILIA específicamente -- ver el test explícito de
-    // ese trade-off aceptado justo abajo. Aquí se usa CODIGO_NOTARIADO
-    // (fuera de la allowlist) para conservar la garantía original que este
-    // test verifica: un stub degradado sin contenido real no se cuela solo
-    // porque num_articulo coincide.
-    const filaMalFormada = {
-      id: 'stub-notariado-1a',
-      contenido: 'Artículo derogado', // sin "ARTICULO 1-A.-"
-      num_articulo: '1-A',
-      fuente: 'Código del Notariado (Decreto 353-2005)',
-      fuente_tipo: 'codigo',
-      jurisdiccion: 'HN',
-      es_norma_vigente: false,
-      materia: '03_NOTARIAL',
-    };
-    const mock = mockSupabaseSecuencial([], [filaMalFormada]);
-    vi.doMock('@/lib/supabase', () => mock);
-
-    const { buscarArticuloExacto } = await import('@/lib/rag/search');
-    const r = await buscarArticuloExacto('1-A', '03_NOTARIAL', 'CODIGO_NOTARIADO' as any);
-
-    expect(r.fragmentos).toHaveLength(0);
-  });
-
-  it('TRADE-OFF ACEPTADO de Opción C: para CODIGO_FAMILIA (allowlisteado), la MISMA fila derogada degradada ("Artículo derogado" genérico, sin texto real) SÍ se acepta si num_articulo coincide -- riesgo conocido y aceptado, no un bug', async () => {
-    const filaMalFormada = filaDerogada({ contenido: 'Artículo derogado' }); // sin "ARTICULO 123-A.-"
-    const mock = mockSupabaseSecuencial([], [filaMalFormada]);
-    vi.doMock('@/lib/supabase', () => mock);
-
-    const { buscarArticuloExacto } = await import('@/lib/rag/search');
-    const r = await buscarArticuloExacto('123-A', '06_FAMILIA', 'CODIGO_FAMILIA' as any);
-
-    // Intencional: la identidad documental (fuente 'Codigo de Familia') y
-    // num_articulo ('123-A') confirman el candidato aunque el contenido sea
-    // un stub genérico -- exactamente el trade-off que Fredy autorizó
-    // explícitamente para estos 7 instrumentos.
-    expect(r.fragmentos).toHaveLength(1);
+    expect(mock.eqCallsPorConsulta).toHaveLength(1);
   });
 });
