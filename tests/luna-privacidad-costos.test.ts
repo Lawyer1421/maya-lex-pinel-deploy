@@ -492,3 +492,19 @@ describe('script de verificación real: el secreto solo del entorno, nunca del r
     expect(src).not.toMatch(/biblioteca_vectores|createServerSupabaseClient|buscarRAG/);
   });
 });
+
+describe('BAJO (re-auditoría 4): lista blanca de instituciones — «Corte de Apelaciones» deja de rechazarse por capitalizada', () => {
+  it.each([
+    '¿Qué competencia tiene la Corte de Apelaciones en materia de recursos?',
+    '¿Cuál es la función de la Corte Suprema de Justicia en el control de constitucionalidad?',
+    '¿Qué resuelve la Sala de lo Constitucional en los amparos?',
+  ])('pasa: %s', (q) => {
+    expect(privacidadConsultaGeneral(q).estado).toBe('PASS');
+  });
+  it('un nombre de persona capitalizado junto a la institución sigue rechazándose', () => {
+    expect(privacidadConsultaGeneral('¿Qué hará la Corte de Apelaciones con el recurso de Carlos Mejía?').estado).toBe('REJECT');
+  });
+  it('el topónimo de caso junto a la institución conserva sus reglas', () => {
+    expect(privacidadConsultaGeneral('Mi vecino fue demandado en la Corte de Apelaciones de Olancho por un delito.').estado).toBe('REJECT');
+  });
+});

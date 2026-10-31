@@ -82,11 +82,21 @@ const TOPONIMOS = /\b(?:atlantida|choluteca|comayagua|copan|el\s+paraiso|francis
 const PERSONA_Y_CONDICION = new RegExp(`\\b${SUJETO_INDEFINIDO}(?:\\s+[a-zñ]+){0,8}?\\s+${CONDICION_PROCESAL}`);
 const PERSONA_INDEFINIDA = /\b(?:alguien|cierta\s+persona|determinad[oa]\s+persona|un\s+individuo|una\s+persona\s+de\s+nombre|fulan[oa]|mengan[oa]|zutan[oa])\b/;
 
+/**
+ * Lista blanca de instituciones (nombres propios institucionales, no de personas): el filtro base rechaza toda palabra capitalizada desconocida y por eso
+ * rechazaba «Corte de Apelaciones». Se pasan a minúscula ANTES del filtro base. Solo estos nombres exactos; un topónimo que los acompañe («de Tegucigalpa»)
+ * conserva su mayúscula y sigue sujeto a las reglas de lugar.
+ */
+const INSTITUCIONES_CONOCIDAS = /(?<![\p{L}])(?:Corte\s+de\s+Apelaciones|Corte\s+Suprema\s+de\s+Justicia|Sala\s+de\s+lo\s+(?:Constitucional|Penal|Civil|Laboral)|Juzgados?\s+de\s+(?:Letras|Paz|Ejecuci[oó]n)|Tribunal(?:es)?\s+de\s+Sentencia|Ministerio\s+P[uú]blico|Poder\s+Judicial|Registro\s+de\s+la\s+Propiedad|Registro\s+Mercantil|Instituto\s+de\s+la\s+Propiedad|Procuradur[ií]a\s+General)(?![\p{L}])/giu;
+const enMinusculaInstituciones = (t: string) => t.replace(INSTITUCIONES_CONOCIDAS, (m) => m.toLowerCase());
+
 export function privacidadConsultaGeneral(texto: unknown): ResultadoPrivacidadLuna {
+  if (typeof texto === 'string') texto = enMinusculaInstituciones(texto);
   const base = privacyGate(texto);
   if (base.estado !== 'PASS') return { estado: 'REJECT', razon: `BASE_${base.etapa}_${base.razon}` };
   const t = (texto as string).trim();
-  const plano = sinTildes(t);
+  // Las instituciones de la lista blanca se reducen a «corte» (vocabulario conocido) para que sus palabras no cuenten como desconocidas.
+  const plano = sinTildes(t.replace(INSTITUCIONES_CONOCIDAS, 'corte'));
 
   if (PRIMERA_PERSONA.test(plano)) return { estado: 'REJECT', razon: 'PRIMERA_PERSONA' };
   const m = PRETERITO_1SG.exec(t.toLowerCase());
