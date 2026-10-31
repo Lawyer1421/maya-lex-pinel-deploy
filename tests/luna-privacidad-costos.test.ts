@@ -9,7 +9,7 @@ import { auditarPayload, construirSolicitudLuna, type ClienteLuna } from '@/lib/
 import { lunaHabilitadaPorEntorno, resolverConfigPlan, contadorLocalPermitido, esPreviewODesarrollo, PRESUPUESTO_PREVIEW_USD, MAX_DURO_CONSULTA_USD, MAX_DURO_DIA_USD } from '@/lib/luna/config';
 import { crearContadorLocalCanary, crearContadorSupabase, aMicroUsd, RPC_RESERVAR, RPC_LIQUIDAR, type ClienteRpc } from '@/lib/luna/cost-counter';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
-import { CONFIRMACION, main, verificarModelo } from '@/scripts/luna-verify-model';
+import { CONFIRMACION, TOPE_ENSAYO_USD, main, planDeEnsayo, resolverTope, verificarModelo } from '@/scripts/luna-verify-model';
 
 const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
   id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
@@ -506,5 +506,75 @@ describe('BAJO (re-auditoría 4): lista blanca de instituciones — «Corte de A
   });
   it('el topónimo de caso junto a la institución conserva sus reglas', () => {
     expect(privacidadConsultaGeneral('Mi vecino fue demandado en la Corte de Apelaciones de Olancho por un delito.').estado).toBe('REJECT');
+  });
+});
+
+describe('ensayo aislado: el script no asume el modelo, muestra el plan y controla el gasto (tope USD 0.05)', () => {
+  const ok = { decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c', text: 'rige desde su publicación', citations: [{ chunk_id: 'sintetico:a1', support: 'DIRECT' }] }] };
+  const clienteOk = (extra: Partial<{ list: () => Promise<unknown>; create: (b: never) => Promise<unknown> }> = {}): ClienteLuna & { models: { list?: () => Promise<unknown> } } => ({
+    models: { retrieve: async (id: string) => ({ id }), list: extra.list },
+    responses: { create: (extra.create ?? (async () => ({ output_text: JSON.stringify(ok), usage: { input_tokens: 400, output_tokens: 60 } }))) as never },
+  });
+
+  it('el plan del peor caso cabe en el tope y se imprime SIEMPRE, también sin autorización y sin abrir red', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    expect(await main([], {}, crear as never, (t) => out.push(t))).toBe(2);
+    expect(crear).not.toHaveBeenCalled();
+    expect(out[0]).toContain('PLAN DEL ENSAYO');
+    const plan = planDeEnsayo('gpt-6-luna');
+    expect(plan.llamadasPagadas).toBe(3);
+    expect(plan.cabeEnElTope).toBe(true);
+    expect(plan.peorCasoTotalUsd).toBeLessThanOrEqual(TOPE_ENSAYO_USD);
+  });
+  it('un modelo sin tarifa registrada detiene el ensayo antes de la red: no puede garantizarse el control', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    expect(await main(['--model', 'modelo-inventado'], { LUNA_VERIFY_CONFIRM: CONFIRMACION }, crear as never, (t) => out.push(t))).toBe(2);
+    expect(crear).not.toHaveBeenCalled();
+    expect(out.join(' ')).toContain('SIN_TARIFA_REGISTRADA_PARA_EL_MODELO');
+  });
+  it('LUNA_VERIFY_MAX_USD solo puede bajar el tope; un valor mayor o inválido detiene el ensayo', async () => {
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: '0.01' }).topeUsd).toBe(0.01);
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: '1' }).error).toContain('excede');
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: 'abc' }).error).toContain('inválido');
+    const crear = vi.fn();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main([], { LUNA_VERIFY_CONFIRM: CONFIRMACION, LUNA_VERIFY_MAX_USD: '5' }, crear as never, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+  });
+  it('un tope tan bajo que el peor caso no cabe detiene el ensayo sin llamadas', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main([], { LUNA_VERIFY_CONFIRM: CONFIRMACION, LUNA_VERIFY_MAX_USD: '0.0000001' }, crear as never, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+    expect(out.join(' ')).toContain('PEOR_CASO_EXCEDE_EL_TOPE');
+  });
+  it('lista los modelos «luna» realmente disponibles (llamada gratuita) y no da por válido el identificador asumido', async () => {
+    const create = vi.fn();
+    const cliente = clienteOk({ list: async () => ({ data: [{ id: 'gpt-6-luna-2026-10' }, { id: 'otro-modelo' }] }), create });
+    cliente.models.retrieve = async () => { throw Object.assign(new Error('nf'), { status: 404 }); };
+    const inf = await verificarModelo(cliente, 'gpt-6-luna');
+    expect(inf.disponibleEnCuenta).toBe(false);
+    expect(inf.modelosLunaEnCuenta).toEqual(['gpt-6-luna-2026-10']);
+    expect(inf.totalModelosEnCuenta).toBe(2);
+    expect(create).not.toHaveBeenCalled();
+  });
+  it('durante la ejecución no se paga una llamada si gastado + peor caso excede el tope', async () => {
+    const create = vi.fn(async () => ({ output_text: JSON.stringify(ok), usage: { input_tokens: 400, output_tokens: 60 } }));
+    const inf = await verificarModelo(clienteOk({ create: create as never }), 'gpt-6-luna', planDeEnsayo('gpt-6-luna').peorCasoPorLlamadaUsd[0] + 1e-9);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(inf.esfuerzos.map((e) => e.estado)).toEqual(['OK', 'OMITIDO_POR_PRESUPUESTO', 'OMITIDO_POR_PRESUPUESTO']);
+    expect(inf.gastoEstimadoUsd).toBeLessThan(inf.topeUsd);
+  });
+  it('un error que no es 400 suma el peor caso al gasto (no se subestima lo que pudo cobrarse)', async () => {
+    const create = vi.fn(async () => { throw Object.assign(new Error('x'), { status: 500 }); });
+    const inf = await verificarModelo(clienteOk({ create: create as never }), 'gpt-6-luna');
+    expect(inf.gastoEstimadoUsd).toBeGreaterThan(0);
+    expect(inf.gastoEstimadoUsd).toBeLessThanOrEqual(TOPE_ENSAYO_USD);
   });
 });
