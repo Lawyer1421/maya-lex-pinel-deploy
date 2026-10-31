@@ -133,7 +133,7 @@
   ],
   "limiteConocido": "El kill switch del shadow es una constante de código: el retorno a «apagado» en un despliegue real es revertir y redesplegar (promover el despliegue anterior). No hay interruptor en caliente.",
   "codigoHashes": {
-    "app/api/chat/route.ts": "cb9b49b22cb64c553d8953b93d504c21d803325689b1865f0bbfcf8c391b7a2b",
+    "app/api/chat/route.ts": "2f7e04ca55a1bc214c4eecca281f1cd8b9b4b3aa6f1e607339704695cc27588f",
     "lib/legal-retrieval/evidence-engine.ts": "8c584b55f73d3fee0279d31fcdd4b5f17e890beee506b1a7fde3e4f9ca7db59e",
     "lib/legal-retrieval/exact-resolver.ts": "8dc53096c622362b97ea911a7931abf057a3c8ec97f851e22f0b0e5a70a6ec17",
     "lib/legal-retrieval/instrument-gate.ts": "5abf4434aa7be4df60f5c778ec9e764912424a5ecd46f351221c28fb1e101717",
