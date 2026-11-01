@@ -88,12 +88,19 @@ describe('fail-closed: si no se puede clasificar como consulta general con segur
   });
 });
 
-describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, aviso sin aprobar', () => {
-  it('sin aprobación del CLO no se envía ningún campo, aunque el usuario active y acepte', async () => {
+describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, autorizado por el propietario y visible solo a usuarios elegibles', () => {
+  it('el interruptor nace apagado y sin aceptación; sin autorización del propietario (false) no se envía ningún campo', async () => {
     const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO } = await import('@/lib/luna/consent');
-    expect(AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO).toBe(false);
+    expect(AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO).toBe(true);   // autorizado por el propietario el 2026-11-01
     expect(INTERRUPTOR_LUNA_INICIAL).toEqual({ activo: false, aceptado: false });
-    expect(construirCampoLuna({ activo: true, aceptado: true })).toBeUndefined();
+    expect(construirCampoLuna({ activo: true, aceptado: true }, false)).toBeUndefined();
+    expect(construirCampoLuna(INTERRUPTOR_LUNA_INICIAL)).toBeUndefined();   // apagado + sin aceptar: nada viaja
+  });
+  it('ChatInterface solo pinta el interruptor si /api/luna/elegible lo confirma (por defecto no)', () => {
+    const ui = readFileSync(join(process.cwd(), 'components', 'ChatInterface.tsx'), 'utf8');
+    expect(ui).toContain("useState(false)");
+    expect(ui).toMatch(/AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && lunaElegible && <LunaGeneralToggle/);
+    expect(ui).toContain('/api/luna/elegible');
   });
   it('con aprobación: solo activo + aceptado produce el campo, con la versión vigente', async () => {
     const { construirCampoLuna } = await import('@/lib/luna/consent');
@@ -640,5 +647,37 @@ describe('--list-models: comprobación gratuita, sin llamadas pagadas', () => {
   it('el script no se conecta a Supabase ni al corpus (el ensayo y la lista no tocan la base de datos)', () => {
     const src = readFileSync(join(process.cwd(), 'scripts', 'luna-verify-model.ts'), 'utf8');
     expect(src).not.toMatch(/supabase|SUPABASE|biblioteca_vectores|buscarRAG/i);
+  });
+});
+
+describe('GET /api/luna/elegible: el interruptor solo se muestra a quien el servidor declara elegible', () => {
+  const montar = async (opts: { habilitada: boolean; email: string | null; bandera: boolean; falla?: boolean }) => {
+    vi.resetModules();
+    vi.doMock('@/lib/rate-limit', () => ({ getVerifiedEmail: async () => { if (opts.falla) throw new Error('x'); return opts.email; } }));
+    vi.doMock('@/lib/flags', () => ({ isFlagEnabledForUser: async (_f: string, e: string | null) => opts.bandera && e === 'fredy@example.com' }));
+    vi.doMock('@/lib/luna/engine', () => ({ motorLuna: () => ({ habilitada: () => opts.habilitada }) }));
+    const { GET } = await import('@/app/api/luna/elegible/route');
+    const res = await GET(new Request('http://localhost/api/luna/elegible') as never);
+    return { cuerpo: await res.json(), cache: res.headers.get('Cache-Control') };
+  };
+  afterEach(() => { vi.doUnmock('@/lib/rate-limit'); vi.doUnmock('@/lib/flags'); vi.doUnmock('@/lib/luna/engine'); });
+
+  it('elegible solo con Luna encendida por entorno + correo verificado en la bandera', async () => {
+    expect((await montar({ habilitada: true, email: 'fredy@example.com', bandera: true })).cuerpo).toEqual({ elegible: true });
+  });
+  it.each([
+    ['Luna apagada por entorno', { habilitada: false, email: 'fredy@example.com', bandera: true }],
+    ['usuario sin sesión verificada', { habilitada: true, email: null, bandera: true }],
+    ['otro usuario no incluido en la bandera', { habilitada: true, email: 'otro@example.com', bandera: true }],
+    ['bandera apagada', { habilitada: true, email: 'fredy@example.com', bandera: false }],
+    ['error al verificar', { habilitada: true, email: 'fredy@example.com', bandera: true, falla: true }],
+  ])('no elegible: %s', async (_n, o) => {
+    const r = await montar(o);
+    expect(r.cuerpo).toEqual({ elegible: false });
+    expect(r.cache).toBe('no-store');
+  });
+  it('responde solo un booleano: ni motivos, ni correos, ni valores de entorno', async () => {
+    const r = await montar({ habilitada: true, email: 'fredy@example.com', bandera: true });
+    expect(Object.keys(r.cuerpo)).toEqual(['elegible']);
   });
 });

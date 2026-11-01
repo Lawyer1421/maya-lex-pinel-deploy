@@ -15,10 +15,10 @@ export const AVISO_LUNA_TEXTO =
   'monitoreo de abuso hasta 30 días. La respuesta es analítica y NO OFICIAL.';
 
 /**
- * ¿El propietario (o su delegado jurídico) autorizó el texto del aviso para mostrarlo a usuarios? MIENTRAS SEA false la interfaz NO muestra el interruptor ni el aviso (el texto
+ * ¿El propietario (o su delegado jurídico) autorizó el texto del aviso para mostrarlo a usuarios? Con false la interfaz NO muestra el interruptor ni el aviso. Autorizado por el propietario el 2026-11-01: ahora el interruptor se muestra SOLO a los usuarios que el servidor declara elegibles (GET /api/luna/elegible: Luna encendida por entorno + bandera con su correo verificado) (el texto
  * vive solo en docs/luna/AVISO_LUNA_BORRADOR.md). Cambiarlo a true es un cambio revisado, posterior a la autorización expresa y escrita del propietario o de su delegado jurídico (ya no depende del antiguo CLO).
  */
-export const AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO = false;
+export const AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO = true;
 
 /** Estado del interruptor en la interfaz: apagado por defecto; el consentimiento es una acción aparte y versionada. */
 export interface EstadoInterruptorLuna {

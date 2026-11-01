@@ -108,6 +108,8 @@ export default function ChatInterface() {
   const [draftQuery, setDraftQuery] = useState('');
   // Luna (P26): apagado por defecto. Sin autorización del propietario (o su delegado jurídico) del aviso, el interruptor ni se muestra ni se envía nada.
   const [lunaEstado, setLunaEstado] = useState<EstadoInterruptorLuna>(INTERRUPTOR_LUNA_INICIAL);
+  // El interruptor solo se pinta si el servidor confirma que este usuario es elegible (Luna encendida por entorno + bandera con su correo). Por defecto: no.
+  const [lunaElegible, setLunaElegible] = useState(false);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, boolean>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -141,6 +143,12 @@ export default function ChatInterface() {
       try {
         const authHeader = await getAuthHeader();
         setHasSession(Boolean(authHeader.Authorization));
+        if (AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && authHeader.Authorization) {
+          fetch('/api/luna/elegible', { headers: authHeader })
+            .then((r) => r.json())
+            .then((d) => setLunaElegible(d?.elegible === true))
+            .catch(() => setLunaElegible(false));
+        }
         const res = await fetch('/api/usage', { headers: authHeader });
         const data = await res.json();
         setUsage((prev) => ({
@@ -582,7 +590,7 @@ export default function ChatInterface() {
       {/* ── Input ────────────────────────────────────────────────── */}
       <div className="border-t border-white/10 bg-navy-light/30 px-4 py-3 flex-shrink-0">
         <div className="max-w-3xl mx-auto">
-          {AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && <LunaGeneralToggle estado={lunaEstado} onChange={setLunaEstado} disabled={isLoading} />}
+          {AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && lunaElegible && <LunaGeneralToggle estado={lunaEstado} onChange={setLunaEstado} disabled={isLoading} />}
           <PromptInput
             onSend={sendMessage}
             isLoading={isLoading}

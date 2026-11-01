@@ -1,6 +1,6 @@
 # Aviso de privacidad de «Consulta jurídica general» (Luna) — BORRADOR
 
-**Estado: BORRADOR, PENDIENTE DE AUTORIZACIÓN EXPRESA DEL PROPIETARIO (o de su delegado jurídico).** No se muestra a usuarios: la interfaz mantiene `AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO = false` (`lib/luna/consent.ts`) y no pinta el interruptor ni este texto. Cambiar esa constante a `true` es un cambio revisado, posterior a la autorización expresa y escrita del propietario o su delegado jurídico (el antiguo CLO ya no interviene). Las citas legales y la descripción de retención del proveedor son `PENDIENTE_VERIFICACIÓN`.
+**Estado: BORRADOR del texto; mostrar el interruptor AUTORIZADO por el propietario el 2026-11-01** (`AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO = true`). El interruptor y este aviso solo se pintan a los usuarios que `GET /api/luna/elegible` declara elegibles (Luna encendida por entorno + bandera `flag_luna_responses` con su correo verificado); para el resto de los usuarios no se muestra nada. Si el texto cambia, cambia la versión y toda aceptación previa deja de valer. Las citas legales y la descripción de retención del proveedor siguen `PENDIENTE_VERIFICACIÓN`.
 
 **Versión del aviso:** `2026-10-29.v1`. Si el texto cambia, la versión cambia y toda aceptación anterior deja de valer (el servidor compara la versión en cada solicitud).
 
