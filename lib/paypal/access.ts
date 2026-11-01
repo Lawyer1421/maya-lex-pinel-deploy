@@ -23,6 +23,7 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { fechaDiaHn } from '@/lib/rate-limit';
+import { esIdentificadorFundador } from '@/lib/founder';
 
 export type AccessTier = 'free' | 'pro' | 'academico' | 'admin';
 export type AccessSource = 'queries_log' | 'subscriptions' | 'none';
@@ -87,7 +88,8 @@ export async function resolveCurrentAccess(userIdentifier: string): Promise<Curr
       .maybeSingle(),
   ]);
 
-  const gateTier = (usage?.tier ?? 'free') as AccessTier;
+  // Fundador (lib/founder.ts): siempre 'admin' con acceso activo, igual que en lib/rate-limit.ts (resolveTodayTier).
+  const gateTier = (esIdentificadorFundador(userIdentifier) ? 'admin' : (usage?.tier ?? 'free')) as AccessTier;
   const accessGranted = gateTier === 'pro' || gateTier === 'academico' || gateTier === 'admin';
 
   const billingStatus = sub?.status ?? null;
