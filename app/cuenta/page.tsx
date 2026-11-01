@@ -61,7 +61,7 @@ export default async function CuentaPage({
     : null;
 
   const consultasHoy = usage?.query_count ?? 0;
-  const limiteHoy = tier === 'pro' ? '∞' : tier === 'academico' ? '20' : '1';
+  const limiteHoy = tier === 'pro' || tier === 'admin' ? '∞' : tier === 'academico' ? '20' : '1';
 
   const estadoLabel = access.verificationPending
     ? `Verificando${access.pendingTier ? ` (${access.pendingTier})` : ''}…`

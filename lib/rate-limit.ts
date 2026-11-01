@@ -11,6 +11,7 @@
  * Día = medianoche→medianoche America/Tegucigalpa (UTC-6).
  */
 
+import { esIdentificadorFundador } from '@/lib/founder';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { limitesDePlanPago } from '@/lib/plan-limits';
 
@@ -526,6 +527,8 @@ async function resolveTodayTier(
   userIdentifier: string,
   existingTier: unknown
 ): Promise<UserTier> {
+  // Fundador (lib/founder.ts): siempre 'admin' (activo, sin tope de consultas), sin depender de queries_log ni de subscriptions.
+  if (esIdentificadorFundador(userIdentifier)) return 'admin';
   if (isUserTier(existingTier) && existingTier !== 'free') return existingTier;
   const idSuscripcion = identificadorDeSuscripcion(userIdentifier);
   if (idSuscripcion.startsWith('ip:')) return 'free';
