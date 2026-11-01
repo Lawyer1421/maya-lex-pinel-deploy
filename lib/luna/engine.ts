@@ -216,7 +216,7 @@ export function crearMotorLuna(deps: DepsMotorLuna = {}) {
           const uso: UsoLuna = {
             inputTokens: u.input_tokens,
             outputTokens: u.output_tokens,
-            costoEstimadoUsd: costoRealUsd(u.input_tokens, u.output_tokens, u.input_tokens_details?.cached_tokens ?? 0),
+            costoEstimadoUsd: costoRealUsd(config.modelId, u.input_tokens, u.output_tokens, u.input_tokens_details?.cached_tokens ?? 0),
           };
 
           if (resultado.status === 'ANSWER') {

@@ -12,6 +12,19 @@
  * Uso (cuando Fredy lo autorice y entregue la clave de PRUEBA, nunca la de producción):
  *   OPENAI_API_KEY=<clave de prueba> LUNA_VERIFY_CONFIRM=SI_FREDY npx tsx scripts/luna-verify-model.ts [--model gpt-6-luna]
  * Sin LUNA_VERIFY_CONFIRM=SI_FREDY el script NO llama a la red (sale con código 2). La clave nunca se imprime.
+ *
+ * Control de gasto (ensayo aislado): el plan (llamadas pagadas y costo del PEOR CASO) se imprime SIEMPRE antes de cualquier llamada. El tope es
+ * USD 0.05 (LUNA_VERIFY_MAX_USD solo puede BAJARLO). Si el peor caso del plan no cabe en el tope, o no hay tarifa registrada, el script se detiene
+ * sin abrir red: no se puede garantizar el control. Durante la ejecución, antes de cada llamada pagada se comprueba gastado + peor caso ≤ tope.
+ * El modelo no se da por válido: se consulta la lista real de modelos de la cuenta (llamada gratuita) y se informa cuáles «luna» existen.
+ *
+ * El tope de USD 0.05 es un límite OPERATIVO de este script (cálculo con tarifas del repositorio y comprobación antes de cada llamada). NO es un límite
+ * global garantizado de facturación: la facturación real la fija el proveedor. El único tope que el proveedor hace cumplir es el límite de gasto que se
+ * configure en el panel de la cuenta de OpenAI; configúrelo en la clave/proyecto de prueba antes del ensayo.
+ *
+ * Paso 1 (gratis, sin tokens): `LUNA_VERIFY_CONFIRM=SI_FREDY_LISTA OPENAI_API_KEY=<prueba> npx tsx scripts/luna-verify-model.ts --list-models`
+ *   Solo hace GET /v1/models: no llama a la API de generación (responses.create) ni a retrieve. Lista los IDs de la cuenta.
+ * Paso 2 (pagado, autorización aparte): el ensayo sintético con LUNA_VERIFY_CONFIRM=SI_FREDY, solo con un ID que el paso 1 haya listado.
  */
 import { validarSalida } from '../lib/ai-gateway/shadow/citation-validator';
 import { credencialDisponible, crearClienteOpenAI } from '../lib/ai-gateway/shadow/openai-adapter';
@@ -19,9 +32,14 @@ import type { ShadowGatewayInput } from '../lib/ai-gateway/shadow/types';
 import type { ClienteLuna } from '../lib/luna/adapter';
 import { construirSolicitudLuna } from '../lib/luna/adapter';
 import { MODELOS_CON_TARIFA, resolverConfigPlan, type EsfuerzoRazonamiento } from '../lib/luna/config';
-import { costoRealUsd } from '../lib/luna/pricing';
+import { costoPeorCasoUsd, costoRealUsd, estimarTokensEntrada } from '../lib/luna/pricing';
 
 export const CONFIRMACION = 'SI_FREDY';
+/** Confirmación DISTINTA y solo para la lista gratuita de modelos (no autoriza el ensayo pagado). */
+export const CONFIRMACION_LISTA = 'SI_FREDY_LISTA';
+/** Tope duro del ensayo, en USD. Una variable de entorno puede bajarlo, nunca subirlo. */
+export const TOPE_ENSAYO_USD = 0.05;
+const TIMEOUT_LLAMADA_MS = 30_000;
 export const ESFUERZOS: readonly EsfuerzoRazonamiento[] = ['none', 'low', 'medium'];
 
 const ENTRADA_SINTETICA: ShadowGatewayInput = {
@@ -37,7 +55,7 @@ const ENTRADA_SINTETICA: ShadowGatewayInput = {
 
 export interface ResultadoEsfuerzo {
   esfuerzo: EsfuerzoRazonamiento;
-  estado: 'OK' | 'NO_SOPORTADO' | 'SALIDA_INVALIDA' | 'ERROR';
+  estado: 'OK' | 'NO_SOPORTADO' | 'SALIDA_INVALIDA' | 'ERROR' | 'OMITIDO_POR_PRESUPUESTO';
   detalle?: string;
   status?: string;
   inputTokens?: number;
@@ -50,27 +68,97 @@ export interface InformeVerificacion {
   modelo: string;
   disponibleEnCuenta: boolean;
   tarifaRegistrada: boolean;
+  /** IDs de modelo de la cuenta que contienen «luna» (la lista de modelos es una llamada gratuita). null = no se pudo listar. */
+  modelosLunaEnCuenta: string[] | null;
+  totalModelosEnCuenta: number | null;
   esfuerzos: ResultadoEsfuerzo[];
+  topeUsd: number;
+  gastoEstimadoUsd: number;
   nota: string;
 }
 
-export async function verificarModelo(cliente: ClienteLuna, modelo: string): Promise<InformeVerificacion> {
+type ClienteVerificacion = ClienteLuna & { models: { list?: (opciones?: { signal?: AbortSignal }) => Promise<unknown> } };
+
+export interface PlanEnsayo {
+  modelo: string;
+  llamadasPagadas: number;
+  peorCasoPorLlamadaUsd: number[];
+  peorCasoTotalUsd: number;
+  topeUsd: number;
+  cabeEnElTope: boolean;
+  motivoSiNoCabe?: string;
+}
+
+function solicitudDeEsfuerzo(modelo: string, esfuerzo: EsfuerzoRazonamiento) {
+  const config = { ...resolverConfigPlan('premium', {}), modelId: modelo, reasoningEffort: esfuerzo };
+  return construirSolicitudLuna(ENTRADA_SINTETICA, config);
+}
+
+function peorCasoLlamada(modelo: string, esfuerzo: EsfuerzoRazonamiento): number {
+  const sol = solicitudDeEsfuerzo(modelo, esfuerzo);
+  return costoPeorCasoUsd(modelo, estimarTokensEntrada(JSON.stringify(sol).length), sol.max_output_tokens);
+}
+
+/** Resuelve el tope: por defecto USD 0.05; una variable de entorno solo puede bajarlo. Un valor inválido o mayor deja el tope duro. */
+export function resolverTope(env: Readonly<Record<string, string | undefined>>): { topeUsd: number; error?: string } {
+  const bruto = env.LUNA_VERIFY_MAX_USD;
+  if (bruto === undefined || bruto.trim() === '') return { topeUsd: TOPE_ENSAYO_USD };
+  const n = Number(bruto);
+  if (!Number.isFinite(n) || n <= 0) return { topeUsd: TOPE_ENSAYO_USD, error: 'LUNA_VERIFY_MAX_USD inválido' };
+  if (n > TOPE_ENSAYO_USD) return { topeUsd: TOPE_ENSAYO_USD, error: `LUNA_VERIFY_MAX_USD excede el tope duro de USD ${TOPE_ENSAYO_USD}` };
+  return { topeUsd: n };
+}
+
+/** Plan del ensayo: cuántas llamadas pagadas y cuánto costarían en el PEOR caso. No abre red. */
+export function planDeEnsayo(modelo: string, topeUsd: number = TOPE_ENSAYO_USD): PlanEnsayo {
+  const porLlamada = ESFUERZOS.map((e) => peorCasoLlamada(modelo, e));
+  const total = porLlamada.reduce((a, b) => a + b, 0);
+  const plan: PlanEnsayo = { modelo, llamadasPagadas: ESFUERZOS.length, peorCasoPorLlamadaUsd: porLlamada, peorCasoTotalUsd: total, topeUsd, cabeEnElTope: Number.isFinite(total) && total <= topeUsd };
+  if (!plan.cabeEnElTope) plan.motivoSiNoCabe = !MODELOS_CON_TARIFA.has(modelo) || !Number.isFinite(total) ? 'SIN_TARIFA_REGISTRADA_PARA_EL_MODELO' : 'PEOR_CASO_EXCEDE_EL_TOPE';
+  return plan;
+}
+
+async function listarModelosLuna(cliente: ClienteVerificacion): Promise<{ luna: string[] | null; total: number | null }> {
+  if (typeof cliente.models.list !== 'function') return { luna: null, total: null };
+  try {
+    const r = await cliente.models.list({ signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) }) as unknown;
+    const datos: unknown[] = Array.isArray(r) ? r : Array.isArray((r as { data?: unknown[] })?.data) ? (r as { data: unknown[] }).data : [];
+    const ids = datos.map((m) => (typeof m === 'object' && m !== null && 'id' in m ? String((m as { id: unknown }).id) : '')).filter((id) => id !== '');
+    return { luna: ids.filter((id) => /luna/i.test(id)).sort(), total: ids.length };
+  } catch {
+    return { luna: null, total: null };
+  }
+}
+
+export async function verificarModelo(cliente: ClienteLuna, modelo: string, topeUsd: number = TOPE_ENSAYO_USD): Promise<InformeVerificacion> {
   const informe: InformeVerificacion = {
-    modelo, disponibleEnCuenta: false, tarifaRegistrada: MODELOS_CON_TARIFA.has(modelo), esfuerzos: [],
+    modelo, disponibleEnCuenta: false, tarifaRegistrada: MODELOS_CON_TARIFA.has(modelo), modelosLunaEnCuenta: null, totalModelosEnCuenta: null, esfuerzos: [],
+    topeUsd, gastoEstimadoUsd: 0,
     nota: 'Costos ESTIMADOS con las tarifas del repositorio (2026-10-23, vigencia 7 días): revalidar antes de usarlos.',
   };
+  const lista = await listarModelosLuna(cliente as ClienteVerificacion);
+  informe.modelosLunaEnCuenta = lista.luna;
+  informe.totalModelosEnCuenta = lista.total;
   try {
-    informe.disponibleEnCuenta = (await cliente.models.retrieve(modelo)).id === modelo;
+    informe.disponibleEnCuenta = (await cliente.models.retrieve(modelo, { signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) })).id === modelo;
   } catch {
     informe.disponibleEnCuenta = false;
   }
   if (!informe.disponibleEnCuenta) return informe;
+  let gastado = 0;
   for (const esfuerzo of ESFUERZOS) {
-    const config = { ...resolverConfigPlan('premium', {}), modelId: modelo, reasoningEffort: esfuerzo };
-    const solicitud = construirSolicitudLuna(ENTRADA_SINTETICA, config);
+    const solicitud = solicitudDeEsfuerzo(modelo, esfuerzo);
+    const peor = peorCasoLlamada(modelo, esfuerzo);
+    // Sin garantía de control no se paga: gastado + peor caso de esta llamada debe caber en el tope.
+    if (!Number.isFinite(peor) || gastado + peor > topeUsd) {
+      informe.esfuerzos.push({ esfuerzo, estado: 'OMITIDO_POR_PRESUPUESTO', detalle: 'gastado + peor caso excede el tope', store: solicitud.store });
+      continue;
+    }
     try {
-      const r = await cliente.responses.create(solicitud, {});
-      if (!r.usage) { informe.esfuerzos.push({ esfuerzo, estado: 'ERROR', detalle: 'respuesta sin usage', store: solicitud.store }); continue; }
+      const r = await cliente.responses.create(solicitud, { signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) });
+      if (!r.usage) { gastado += peor; informe.esfuerzos.push({ esfuerzo, estado: 'ERROR', detalle: 'respuesta sin usage', store: solicitud.store }); continue; }
+      const costo = costoRealUsd(modelo, r.usage.input_tokens, r.usage.output_tokens, r.usage.input_tokens_details?.cached_tokens ?? 0);
+      gastado += costo;
       const validada = validarSalida(ENTRADA_SINTETICA, {
         rawOutput: r.output_text,
         usage: { inputTokens: r.usage.input_tokens, outputTokens: r.usage.output_tokens, cachedInputTokens: r.usage.input_tokens_details?.cached_tokens ?? 0 },
@@ -78,19 +166,70 @@ export async function verificarModelo(cliente: ClienteLuna, modelo: string): Pro
       });
       informe.esfuerzos.push({
         esfuerzo, estado: validada.status === 'INVALID' ? 'SALIDA_INVALIDA' : 'OK', detalle: validada.invalidReason ?? undefined, status: validada.status,
-        inputTokens: r.usage.input_tokens, outputTokens: r.usage.output_tokens,
-        costoEstimadoUsd: costoRealUsd(r.usage.input_tokens, r.usage.output_tokens, r.usage.input_tokens_details?.cached_tokens ?? 0), store: solicitud.store,
+        inputTokens: r.usage.input_tokens, outputTokens: r.usage.output_tokens, costoEstimadoUsd: costo, store: solicitud.store,
       });
     } catch (e) {
       const status = typeof e === 'object' && e !== null && 'status' in e ? Number((e as { status: unknown }).status) : NaN;
+      // Un 400 no consume tokens; cualquier otro error puede haber costado: se asume el peor caso.
+      if (status !== 400) gastado += peor;
       informe.esfuerzos.push({ esfuerzo, estado: status === 400 ? 'NO_SOPORTADO' : 'ERROR', detalle: e instanceof Error ? e.name : 'desconocido', store: solicitud.store });
     }
+  }
+  informe.gastoEstimadoUsd = Number(gastado.toFixed(6));
+  return informe;
+}
+
+export interface InformeListaModelos {
+  totalModelos: number | null;
+  modelos: string[];
+  modelosLuna: string[];
+  modeloSolicitadoListado: boolean;
+  tarifaRegistradaParaSolicitado: boolean;
+  llamadasPagadas: 0;
+}
+
+/** Lista los modelos de la cuenta: SOLO models.list (gratis). No usa responses.create ni models.retrieve. */
+export async function listarModelosDeCuenta(cliente: ClienteLuna, modelo: string): Promise<InformeListaModelos> {
+  const c = cliente as ClienteVerificacion;
+  const informe: InformeListaModelos = { totalModelos: null, modelos: [], modelosLuna: [], modeloSolicitadoListado: false, tarifaRegistradaParaSolicitado: MODELOS_CON_TARIFA.has(modelo), llamadasPagadas: 0 };
+  if (typeof c.models.list !== 'function') return informe;
+  try {
+    const r = await c.models.list({ signal: AbortSignal.timeout(TIMEOUT_LLAMADA_MS) }) as unknown;
+    const datos: unknown[] = Array.isArray(r) ? r : Array.isArray((r as { data?: unknown[] })?.data) ? (r as { data: unknown[] }).data : [];
+    informe.modelos = datos.map((m) => (typeof m === 'object' && m !== null && 'id' in m ? String((m as { id: unknown }).id) : '')).filter((id) => id !== '').sort();
+    informe.totalModelos = informe.modelos.length;
+    informe.modelosLuna = informe.modelos.filter((id) => /luna/i.test(id));
+    informe.modeloSolicitadoListado = informe.modelos.includes(modelo);
+  } catch {
+    informe.totalModelos = null;
   }
   return informe;
 }
 
 /** Punto de entrada. Devuelve el código de salida; sin confirmación o sin clave NO abre red. */
 export async function main(argv: readonly string[], env: Readonly<Record<string, string | undefined>>, crear: () => ClienteLuna = () => crearClienteOpenAI() as unknown as ClienteLuna, salida: (t: string) => void = console.log): Promise<number> {
+  const i = argv.indexOf('--model');
+  const modelo = i >= 0 && argv[i + 1] ? argv[i + 1] : resolverConfigPlan('premium', env).modelId;
+  if (argv.includes('--list-models')) {
+    // Modo gratuito: sin plan de gasto porque no hay llamadas pagadas. Exige su propia confirmación y la clave de prueba.
+    if (env.LUNA_VERIFY_CONFIRM !== CONFIRMACION_LISTA) { salida('DETENIDO: falta LUNA_VERIFY_CONFIRM=SI_FREDY_LISTA. No se hizo ninguna llamada.'); return 2; }
+    if (!credencialDisponible()) { salida('DETENIDO: no hay clave de prueba configurada. No se hizo ninguna llamada.'); return 2; }
+    const lista = await listarModelosDeCuenta(crear(), modelo);
+    salida(JSON.stringify({ modo: 'LISTA_GRATUITA', modeloSolicitado: modelo, ...lista }, null, 2));
+    return lista.totalModelos !== null && lista.modeloSolicitadoListado ? 0 : 1;
+  }
+  const { topeUsd, error } = resolverTope(env);
+  const plan = planDeEnsayo(modelo, topeUsd);
+  // El plan se muestra SIEMPRE, antes de cualquier llamada: es lo que el propietario autoriza.
+  salida(`PLAN DEL ENSAYO (sin red hasta confirmar): ${JSON.stringify({ ...plan, aviso: error })}`);
+  if (!plan.cabeEnElTope) {
+    salida(`DETENIDO: no puede garantizarse el control de gasto (${plan.motivoSiNoCabe}). No se hizo ninguna llamada.`);
+    return 2;
+  }
+  if (error) {
+    salida(`DETENIDO: ${error}. No se hizo ninguna llamada.`);
+    return 2;
+  }
   if (env.LUNA_VERIFY_CONFIRM !== CONFIRMACION) {
     salida('DETENIDO: falta la autorización de Fredy (LUNA_VERIFY_CONFIRM=SI_FREDY). No se hizo ninguna llamada.');
     return 2;
@@ -99,9 +238,7 @@ export async function main(argv: readonly string[], env: Readonly<Record<string,
     salida('DETENIDO: no hay clave de prueba configurada. No se hizo ninguna llamada.');
     return 2;
   }
-  const i = argv.indexOf('--model');
-  const modelo = i >= 0 && argv[i + 1] ? argv[i + 1] : resolverConfigPlan('premium', env).modelId;
-  const informe = await verificarModelo(crear(), modelo);
+  const informe = await verificarModelo(crear(), modelo, topeUsd);
   salida(JSON.stringify(informe, null, 2));
   return informe.disponibleEnCuenta && informe.esfuerzos.every((e) => e.estado === 'OK') ? 0 : 1;
 }

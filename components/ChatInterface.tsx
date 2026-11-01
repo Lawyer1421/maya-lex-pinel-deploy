@@ -6,7 +6,7 @@ import MessageBubble from './MessageBubble';
 import PromptInput, { type Attachment, type SendPayload } from './PromptInput';
 import FreeDailyLimitCard from './FreeDailyLimitCard';
 import LunaGeneralToggle from './LunaGeneralToggle';
-import { AVISO_LUNA_APROBADO_POR_CLO, INTERRUPTOR_LUNA_INICIAL, construirCampoLuna, type EstadoInterruptorLuna } from '@/lib/luna/consent';
+import { AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO, INTERRUPTOR_LUNA_INICIAL, construirCampoLuna, type EstadoInterruptorLuna } from '@/lib/luna/consent';
 import { esRespuestaFreeDailyLimit } from '@/lib/free-daily-limit-ui';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { createStreamTextBuffer } from '@/lib/chat/stream-text-buffer';
@@ -106,8 +106,10 @@ export default function ChatInterface() {
   const [hasSession, setHasSession] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [draftQuery, setDraftQuery] = useState('');
-  // Luna (P26): apagado por defecto. Sin aprobación del CLO del aviso, el interruptor ni se muestra ni se envía nada.
+  // Luna (P26): apagado por defecto. Sin autorización del propietario (o su delegado jurídico) del aviso, el interruptor ni se muestra ni se envía nada.
   const [lunaEstado, setLunaEstado] = useState<EstadoInterruptorLuna>(INTERRUPTOR_LUNA_INICIAL);
+  // El interruptor solo se pinta si el servidor confirma que este usuario es elegible (Luna encendida por entorno + bandera con su correo). Por defecto: no.
+  const [lunaElegible, setLunaElegible] = useState(false);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, boolean>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -141,6 +143,12 @@ export default function ChatInterface() {
       try {
         const authHeader = await getAuthHeader();
         setHasSession(Boolean(authHeader.Authorization));
+        if (AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && authHeader.Authorization) {
+          fetch('/api/luna/elegible', { headers: authHeader })
+            .then((r) => r.json())
+            .then((d) => setLunaElegible(d?.elegible === true))
+            .catch(() => setLunaElegible(false));
+        }
         const res = await fetch('/api/usage', { headers: authHeader });
         const data = await res.json();
         setUsage((prev) => ({
@@ -216,7 +224,7 @@ export default function ChatInterface() {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeader },
-          // `luna` solo viaja con interruptor activo + aviso aceptado + aprobación del CLO, y nunca con archivos adjuntos.
+          // `luna` solo viaja con interruptor activo + aviso aceptado + autorización del propietario, y nunca con archivos adjuntos.
           body: JSON.stringify({ messages: history, mode, webSearch, modelOverride, ...(attachments.length === 0 && construirCampoLuna(lunaEstado) ? { luna: construirCampoLuna(lunaEstado) } : {}) }),
           signal: abortRef.current.signal,
         });
@@ -582,7 +590,7 @@ export default function ChatInterface() {
       {/* ── Input ────────────────────────────────────────────────── */}
       <div className="border-t border-white/10 bg-navy-light/30 px-4 py-3 flex-shrink-0">
         <div className="max-w-3xl mx-auto">
-          {AVISO_LUNA_APROBADO_POR_CLO && <LunaGeneralToggle estado={lunaEstado} onChange={setLunaEstado} disabled={isLoading} />}
+          {AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && lunaElegible && <LunaGeneralToggle estado={lunaEstado} onChange={setLunaEstado} disabled={isLoading} />}
           <PromptInput
             onSend={sendMessage}
             isLoading={isLoading}

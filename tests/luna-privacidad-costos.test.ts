@@ -9,7 +9,8 @@ import { auditarPayload, construirSolicitudLuna, type ClienteLuna } from '@/lib/
 import { lunaHabilitadaPorEntorno, resolverConfigPlan, contadorLocalPermitido, esPreviewODesarrollo, PRESUPUESTO_PREVIEW_USD, MAX_DURO_CONSULTA_USD, MAX_DURO_DIA_USD } from '@/lib/luna/config';
 import { crearContadorLocalCanary, crearContadorSupabase, aMicroUsd, RPC_RESERVAR, RPC_LIQUIDAR, type ClienteRpc } from '@/lib/luna/cost-counter';
 import { crearMotorLuna, type RegistroLuna } from '@/lib/luna/engine';
-import { CONFIRMACION, main, verificarModelo } from '@/scripts/luna-verify-model';
+import { CONFIRMACION, CONFIRMACION_LISTA, TOPE_ENSAYO_USD, listarModelosDeCuenta, main, planDeEnsayo, resolverTope, verificarModelo } from '@/scripts/luna-verify-model';
+import { costoRealUsd, tarifaDeModelo } from '@/lib/luna/pricing';
 
 const frag = (x: Partial<FragmentoRAG> = {}): FragmentoRAG => ({
   id: 'mayalex_normativos:cpp_a173', contenido: 'ARTICULO 173.- Las medidas cautelares personales proceden cuando existan indicios racionales de participación.', num_articulo: '173',
@@ -87,12 +88,19 @@ describe('fail-closed: si no se puede clasificar como consulta general con segur
   });
 });
 
-describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, aviso sin aprobar', () => {
-  it('sin aprobación del CLO no se envía ningún campo, aunque el usuario active y acepte', async () => {
-    const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_APROBADO_POR_CLO } = await import('@/lib/luna/consent');
-    expect(AVISO_LUNA_APROBADO_POR_CLO).toBe(false);
+describe('interruptor de la interfaz: apagado por defecto, consentimiento versionado, autorizado por el propietario y visible solo a usuarios elegibles', () => {
+  it('el interruptor nace apagado y sin aceptación; sin autorización del propietario (false) no se envía ningún campo', async () => {
+    const { construirCampoLuna, INTERRUPTOR_LUNA_INICIAL, AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO } = await import('@/lib/luna/consent');
+    expect(AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO).toBe(true);   // autorizado por el propietario el 2026-11-01
     expect(INTERRUPTOR_LUNA_INICIAL).toEqual({ activo: false, aceptado: false });
-    expect(construirCampoLuna({ activo: true, aceptado: true })).toBeUndefined();
+    expect(construirCampoLuna({ activo: true, aceptado: true }, false)).toBeUndefined();
+    expect(construirCampoLuna(INTERRUPTOR_LUNA_INICIAL)).toBeUndefined();   // apagado + sin aceptar: nada viaja
+  });
+  it('ChatInterface solo pinta el interruptor si /api/luna/elegible lo confirma (por defecto no)', () => {
+    const ui = readFileSync(join(process.cwd(), 'components', 'ChatInterface.tsx'), 'utf8');
+    expect(ui).toContain("useState(false)");
+    expect(ui).toMatch(/AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO && lunaElegible && <LunaGeneralToggle/);
+    expect(ui).toContain('/api/luna/elegible');
   });
   it('con aprobación: solo activo + aceptado produce el campo, con la versión vigente', async () => {
     const { construirCampoLuna } = await import('@/lib/luna/consent');
@@ -110,7 +118,7 @@ describe('interruptor de la interfaz: apagado por defecto, consentimiento versio
   it('ChatInterface importa el interruptor solo vía consent y no incrusta el texto del aviso', () => {
     const ui = readFileSync(join(process.cwd(), 'components', 'ChatInterface.tsx'), 'utf8');
     expect(ui).toContain('construirCampoLuna');
-    expect(ui).toContain('AVISO_LUNA_APROBADO_POR_CLO');
+    expect(ui).toContain('AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO');
     expect(ui).not.toContain('Consulta jurídica general: tu pregunta');
   });
 });
@@ -506,5 +514,170 @@ describe('BAJO (re-auditoría 4): lista blanca de instituciones — «Corte de A
   });
   it('el topónimo de caso junto a la institución conserva sus reglas', () => {
     expect(privacidadConsultaGeneral('Mi vecino fue demandado en la Corte de Apelaciones de Olancho por un delito.').estado).toBe('REJECT');
+  });
+});
+
+describe('ensayo aislado: el script no asume el modelo, muestra el plan y controla el gasto (tope USD 0.05)', () => {
+  const ok = { decision: 'ANSWER', abstention_reason: null, claims: [{ claim_id: 'c', text: 'rige desde su publicación', citations: [{ chunk_id: 'sintetico:a1', support: 'DIRECT' }] }] };
+  const clienteOk = (extra: Partial<{ list: () => Promise<unknown>; create: (b: never) => Promise<unknown> }> = {}): ClienteLuna & { models: { list?: () => Promise<unknown> } } => ({
+    models: { retrieve: async (id: string) => ({ id }), list: extra.list },
+    responses: { create: (extra.create ?? (async () => ({ output_text: JSON.stringify(ok), usage: { input_tokens: 400, output_tokens: 60 } }))) as never },
+  });
+
+  it('el plan del peor caso cabe en el tope y se imprime SIEMPRE, también sin autorización y sin abrir red', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    expect(await main([], {}, crear as never, (t) => out.push(t))).toBe(2);
+    expect(crear).not.toHaveBeenCalled();
+    expect(out[0]).toContain('PLAN DEL ENSAYO');
+    const plan = planDeEnsayo('gpt-6-luna');
+    expect(plan.llamadasPagadas).toBe(3);
+    expect(plan.cabeEnElTope).toBe(true);
+    expect(plan.peorCasoTotalUsd).toBeLessThanOrEqual(TOPE_ENSAYO_USD);
+  });
+  it('un modelo sin tarifa registrada detiene el ensayo antes de la red: no puede garantizarse el control', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    expect(await main(['--model', 'modelo-inventado'], { LUNA_VERIFY_CONFIRM: CONFIRMACION }, crear as never, (t) => out.push(t))).toBe(2);
+    expect(crear).not.toHaveBeenCalled();
+    expect(out.join(' ')).toContain('SIN_TARIFA_REGISTRADA_PARA_EL_MODELO');
+  });
+  it('LUNA_VERIFY_MAX_USD solo puede bajar el tope; un valor mayor o inválido detiene el ensayo', async () => {
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: '0.01' }).topeUsd).toBe(0.01);
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: '1' }).error).toContain('excede');
+    expect(resolverTope({ LUNA_VERIFY_MAX_USD: 'abc' }).error).toContain('inválido');
+    const crear = vi.fn();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main([], { LUNA_VERIFY_CONFIRM: CONFIRMACION, LUNA_VERIFY_MAX_USD: '5' }, crear as never, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+  });
+  it('un tope tan bajo que el peor caso no cabe detiene el ensayo sin llamadas', async () => {
+    const crear = vi.fn();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main([], { LUNA_VERIFY_CONFIRM: CONFIRMACION, LUNA_VERIFY_MAX_USD: '0.0000001' }, crear as never, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+    expect(out.join(' ')).toContain('PEOR_CASO_EXCEDE_EL_TOPE');
+  });
+  it('lista los modelos «luna» realmente disponibles (llamada gratuita) y no da por válido el identificador asumido', async () => {
+    const create = vi.fn();
+    const cliente = clienteOk({ list: async () => ({ data: [{ id: 'gpt-6-luna-2026-10' }, { id: 'otro-modelo' }] }), create });
+    cliente.models.retrieve = async () => { throw Object.assign(new Error('nf'), { status: 404 }); };
+    const inf = await verificarModelo(cliente, 'gpt-6-luna');
+    expect(inf.disponibleEnCuenta).toBe(false);
+    expect(inf.modelosLunaEnCuenta).toEqual(['gpt-6-luna-2026-10']);
+    expect(inf.totalModelosEnCuenta).toBe(2);
+    expect(create).not.toHaveBeenCalled();
+  });
+  it('durante la ejecución no se paga una llamada si gastado + peor caso excede el tope', async () => {
+    const create = vi.fn(async () => ({ output_text: JSON.stringify(ok), usage: { input_tokens: 400, output_tokens: 60 } }));
+    const inf = await verificarModelo(clienteOk({ create: create as never }), 'gpt-6-luna', planDeEnsayo('gpt-6-luna').peorCasoPorLlamadaUsd[0] + 1e-9);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(inf.esfuerzos.map((e) => e.estado)).toEqual(['OK', 'OMITIDO_POR_PRESUPUESTO', 'OMITIDO_POR_PRESUPUESTO']);
+    expect(inf.gastoEstimadoUsd).toBeLessThan(inf.topeUsd);
+  });
+  it('un error que no es 400 suma el peor caso al gasto (no se subestima lo que pudo cobrarse)', async () => {
+    const create = vi.fn(async () => { throw Object.assign(new Error('x'), { status: 500 }); });
+    const inf = await verificarModelo(clienteOk({ create: create as never }), 'gpt-6-luna');
+    expect(inf.gastoEstimadoUsd).toBeGreaterThan(0);
+    expect(inf.gastoEstimadoUsd).toBeLessThanOrEqual(TOPE_ENSAYO_USD);
+  });
+});
+
+describe('tarifas exactas por modelo y modalidad (Standard USD 0.10 / 0.50 por millón; verificado en la documentación oficial el 2026-10-31)', () => {
+  it('Standard de gpt-6-luna: entrada 0.10, salida 0.50, entrada en caché 0.01', () => {
+    expect(tarifaDeModelo('gpt-6-luna')).toEqual({ inputUsdPerMillion: 0.1, outputUsdPerMillion: 0.5, cachedInputUsdPerMillion: 0.01 });
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 0)).toBeCloseTo(0.1, 10);
+    expect(costoRealUsd('gpt-6-luna', 0, 1_000_000)).toBeCloseTo(0.5, 10);
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 0, 1_000_000)).toBeCloseTo(0.01, 10);            // todo en caché
+    expect(costoRealUsd('gpt-6-luna', 400, 60)).toBeCloseTo((400 * 0.1 + 60 * 0.5) / 1_000_000, 12);
+  });
+  it('Batch usa su propia tarifa (0.05 / 0.25) y no se confunde con Standard', () => {
+    expect(tarifaDeModelo('gpt-6-luna', 'batch')).toMatchObject({ inputUsdPerMillion: 0.05, outputUsdPerMillion: 0.25 });
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 1_000_000, 0, 'batch')).toBeCloseTo(0.3, 10);
+    expect(costoRealUsd('gpt-6-luna', 1_000_000, 1_000_000, 0, 'standard')).toBeCloseTo(0.6, 10);
+  });
+  it('un modelo o una modalidad sin tarifa registrada NO se estiman: lanzan (Fast y regional no están registradas)', () => {
+    expect(() => costoRealUsd('otro-modelo', 10, 10)).toThrow(/sin tarifa registrada/);
+    expect(() => costoRealUsd('gpt-6-luna', 10, 10, 0, 'fast' as never)).toThrow(/modalidad sin tarifa/);
+    expect(() => costoRealUsd('gpt-6-luna', 10, 10, 20)).toThrow();
+  });
+});
+
+describe('--list-models: comprobación gratuita, sin llamadas pagadas', () => {
+  const lista = [{ id: 'gpt-6-luna' }, { id: 'gpt-6-luna-mini' }, { id: 'otro' }];
+  const clienteLista = () => {
+    const create = vi.fn();
+    const retrieve = vi.fn();
+    return { create, retrieve, cliente: { models: { retrieve, list: async () => ({ data: lista }) }, responses: { create } } as never as ClienteLuna };
+  };
+  it('exige su confirmación propia: la del ensayo pagado NO la sustituye', async () => {
+    const { cliente, create } = clienteLista();
+    const crear = vi.fn(() => cliente);
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-no-imprimir';
+    expect(await main(['--list-models'], { LUNA_VERIFY_CONFIRM: CONFIRMACION }, crear, (t) => out.push(t))).toBe(2);
+    expect(await main(['--list-models'], {}, crear, (t) => out.push(t))).toBe(2);
+    delete process.env.OPENAI_API_KEY;
+    expect(crear).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+  it('lista los IDs de la cuenta usando solo models.list: nunca responses.create ni models.retrieve', async () => {
+    const { cliente, create, retrieve } = clienteLista();
+    const out: string[] = [];
+    process.env.OPENAI_API_KEY = 'sk-test-SECRETO-NO-IMPRIMIR';
+    const code = await main(['--list-models'], { LUNA_VERIFY_CONFIRM: CONFIRMACION_LISTA }, () => cliente, (t) => out.push(t));
+    delete process.env.OPENAI_API_KEY;
+    expect(code).toBe(0);
+    expect(create).not.toHaveBeenCalled();
+    expect(retrieve).not.toHaveBeenCalled();
+    const informe = JSON.parse(out.join('\n'));
+    expect(informe).toMatchObject({ modo: 'LISTA_GRATUITA', llamadasPagadas: 0, totalModelos: 3, modelosLuna: ['gpt-6-luna', 'gpt-6-luna-mini'], modeloSolicitadoListado: true });
+    expect(out.join('\n')).not.toContain('SECRETO');
+  });
+  it('si el modelo solicitado no está en la cuenta, termina con 1 y lo dice (no se asume válido)', async () => {
+    const { cliente } = clienteLista();
+    const inf = await listarModelosDeCuenta(cliente, 'gpt-6-luna-inexistente');
+    expect(inf.modeloSolicitadoListado).toBe(false);
+    expect(inf.tarifaRegistradaParaSolicitado).toBe(false);
+  });
+  it('el script no se conecta a Supabase ni al corpus (el ensayo y la lista no tocan la base de datos)', () => {
+    const src = readFileSync(join(process.cwd(), 'scripts', 'luna-verify-model.ts'), 'utf8');
+    expect(src).not.toMatch(/supabase|SUPABASE|biblioteca_vectores|buscarRAG/i);
+  });
+});
+
+describe('GET /api/luna/elegible: el interruptor solo se muestra a quien el servidor declara elegible', () => {
+  const montar = async (opts: { habilitada: boolean; email: string | null; bandera: boolean; falla?: boolean }) => {
+    vi.resetModules();
+    vi.doMock('@/lib/rate-limit', () => ({ getVerifiedEmail: async () => { if (opts.falla) throw new Error('x'); return opts.email; } }));
+    vi.doMock('@/lib/flags', () => ({ isFlagEnabledForUser: async (_f: string, e: string | null) => opts.bandera && e === 'fredy@example.com' }));
+    vi.doMock('@/lib/luna/engine', () => ({ motorLuna: () => ({ habilitada: () => opts.habilitada }) }));
+    const { GET } = await import('@/app/api/luna/elegible/route');
+    const res = await GET(new Request('http://localhost/api/luna/elegible') as never);
+    return { cuerpo: await res.json(), cache: res.headers.get('Cache-Control') };
+  };
+  afterEach(() => { vi.doUnmock('@/lib/rate-limit'); vi.doUnmock('@/lib/flags'); vi.doUnmock('@/lib/luna/engine'); });
+
+  it('elegible solo con Luna encendida por entorno + correo verificado en la bandera', async () => {
+    expect((await montar({ habilitada: true, email: 'fredy@example.com', bandera: true })).cuerpo).toEqual({ elegible: true });
+  });
+  it.each([
+    ['Luna apagada por entorno', { habilitada: false, email: 'fredy@example.com', bandera: true }],
+    ['usuario sin sesión verificada', { habilitada: true, email: null, bandera: true }],
+    ['otro usuario no incluido en la bandera', { habilitada: true, email: 'otro@example.com', bandera: true }],
+    ['bandera apagada', { habilitada: true, email: 'fredy@example.com', bandera: false }],
+    ['error al verificar', { habilitada: true, email: 'fredy@example.com', bandera: true, falla: true }],
+  ])('no elegible: %s', async (_n, o) => {
+    const r = await montar(o);
+    expect(r.cuerpo).toEqual({ elegible: false });
+    expect(r.cache).toBe('no-store');
+  });
+  it('responde solo un booleano: ni motivos, ni correos, ni valores de entorno', async () => {
+    const r = await montar({ habilitada: true, email: 'fredy@example.com', bandera: true });
+    expect(Object.keys(r.cuerpo)).toEqual(['elegible']);
   });
 });

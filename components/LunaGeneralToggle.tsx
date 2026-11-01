@@ -2,10 +2,10 @@
 
 /**
  * Interruptor «Consulta jurídica general» (Luna, P26). APAGADO por defecto; el consentimiento es una casilla aparte, también apagada, atada a
- * la versión del aviso. El texto del aviso es BORRADOR hasta que el CLO lo apruebe: mientras `AVISO_LUNA_APROBADO_POR_CLO` sea false este
+ * la versión del aviso. El texto del aviso es BORRADOR hasta que el propietario o su delegado jurídico lo autorice: mientras `AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO` sea false este
  * componente no pinta nada (ver lib/luna/consent.ts y docs/luna/AVISO_LUNA_BORRADOR.md).
  */
-import { AVISO_LUNA_APROBADO_POR_CLO, AVISO_LUNA_TEXTO, AVISO_LUNA_VERSION, type EstadoInterruptorLuna } from '@/lib/luna/consent';
+import { AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO, AVISO_LUNA_TEXTO, AVISO_LUNA_VERSION, type EstadoInterruptorLuna } from '@/lib/luna/consent';
 
 interface Props {
   estado: EstadoInterruptorLuna;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function LunaGeneralToggle({ estado, onChange, disabled }: Props) {
-  if (!AVISO_LUNA_APROBADO_POR_CLO) return null;
+  if (!AVISO_LUNA_AUTORIZADO_POR_PROPIETARIO) return null;
   return (
     <div className="mb-2 text-xs text-gray-300" data-aviso-version={AVISO_LUNA_VERSION}>
       <label className="flex items-center gap-2">
