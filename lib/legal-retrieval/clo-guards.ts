@@ -176,6 +176,8 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['CODIGO_NOTARIADO', new RegExp(`^codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_PROCESAL_PENAL', new RegExp(`^codigo\\s+procesal\\s+penal${CIERRE}`)],
   ['CODIGO_PROCESAL_CIVIL', new RegExp(`^codigo\\s+procesal\\s+civil${CIERRE}`)],
+  // Decreto 211-2006: texto legislativo oficial del CPC (decisión del propietario, 2-nov-2026). Nombre EXACTO; el comentado de Romero no entra.
+  ['CODIGO_PROCESAL_CIVIL', /^cpc_texto_base_d211-2006$/],
   ['CODIGO_PENAL', new RegExp(`^codigo\\s+penal${CIERRE}`)],
   ['CODIGO_CIVIL', new RegExp(`^codigo\\s+civil${CIERRE}`)],
   ['CODIGO_TRABAJO', new RegExp(`^codigo\\s+(?:del?\\s+)?trabajo${CIERRE}`)],
@@ -253,7 +255,11 @@ const esColeccionDocumental = (v: unknown): boolean => norm(v) === COLECCION_DOC
 /** sub_tipo de las filas de protocolo y práctica (capa `mayalex_instrumentos`). */
 const SUBTIPOS_PRACTICA: ReadonlySet<string> = new Set(['instrumento_notarial', 'autenticacion', 'poder', 'hipoteca', 'testamento', 'matrimonio_divorcio', 'compraventa']);
 /** Fuente comentada, anotada o concordada: doctrina aunque venga marcada como código. */
-const RE_FUENTE_DOCTRINAL = /\b(?:comentad[ao]s?|anotad[ao]s?|concordad[ao]s?)\b/;
+const RE_FUENTE_DOCTRINAL = /(?<![a-z0-9])(?:comentad[ao]s?|anotad[ao]s?|concordad[ao]s?)(?![a-z0-9])/;
+/** Metadatos oficiales de fuentes de nombre exacto conocido, solo para completar valores AUSENTES (nunca pisan uno declarado). El Decreto 211-2006 es legislación hondureña de tipo código. */
+const METADATOS_FUENTE_OFICIAL: Readonly<Record<string, { fuente_tipo: string; jurisdiccion: string }>> = Object.freeze({
+  'cpc_texto_base_d211-2006': { fuente_tipo: 'codigo', jurisdiccion: 'HN' },
+});
 
 export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoClasificacion = {}): ClasificacionClo {
   const instrumentId = instrumentIdDeFragmento(f);
@@ -263,8 +269,9 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
     || SUBTIPOS_PRACTICA.has(norm(meta?.sub_tipo)) || norm(meta?.tipo_fuente) === 'instrumento';
   const senalDocumental = esColeccionDocumental(f.coleccion_origen) || esColeccionDocumental(ctx.coleccion);
   const solicitado = (f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? null) as string | null;
-  const tipo = norm(f.fuente_tipo);
-  const pais = normalizarPais(f.jurisdiccion);
+  const oficial = METADATOS_FUENTE_OFICIAL[norm(f.fuente)];
+  const tipo = norm(f.fuente_tipo) || (oficial ? oficial.fuente_tipo : '');
+  const pais = normalizarPais(f.jurisdiccion) ?? (oficial ? oficial.jurisdiccion : null);
   const bloqueos: CodigoBloqueoClo[] = [];
 
   // (b) Las sentencias tienen su propio tipo de fuente, sin importar el país. Se reconocen por familia de palabras (sentencia, jurisprudencia,

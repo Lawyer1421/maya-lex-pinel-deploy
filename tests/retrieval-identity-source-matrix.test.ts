@@ -12,10 +12,8 @@ import {
  * o pruebas del repositorio (no inventadas). Cada consulta de ejemplo debe
  * resolver al mismo instrumento que su fuente real.
  *
- * Desajustes conocidos, NO corregidos ampliando regex (ver bloque final):
- * las fuentes normativas CPC_TEXTO_BASE_D211-2006 y CPC_COMENTADO_ROMERO_2024
- * no contienen el nombre del instrumento, así que identidadDeFuente no las
- * reconoce como Código Procesal Civil.
+ * Decisión del propietario (2-nov-2026): CPC_TEXTO_BASE_D211-2006 (Decreto 211-2006, texto oficial) se reconoce por NOMBRE EXACTO como Código
+ * Procesal Civil. CPC_COMENTADO_ROMERO_2024 sigue sin reconocerse: es doctrina (ver bloque final).
  */
 
 interface EntradaMatriz {
@@ -135,15 +133,13 @@ describe('alias nuevos: correspondencia documental comprobada', () => {
   });
 });
 
-describe('desajustes conocidos (no corregidos; se reportan)', () => {
-  it('CPC_TEXTO_BASE_D211-2006 (fuente normativa real del CPC) no declara el instrumento en la fuente', () => {
-    // La consulta "Código Procesal Civil" sí resuelve CODIGO_PROCESAL_CIVIL,
-    // pero esta fuente no lo confirma: queda fuera de una consulta explícita.
+describe('fuentes CPC por nombre exacto (decisión del propietario 2-nov-2026)', () => {
+  it('CPC_TEXTO_BASE_D211-2006 (texto oficial del CPC) se reconoce como Código Procesal Civil', () => {
     expect(detectarInstrumentoDesdeTexto('artículo 5 del Código Procesal Civil')).toBe('CODIGO_PROCESAL_CIVIL');
-    expect(identidadDeFuente('CPC_TEXTO_BASE_D211-2006')).toBeNull();
+    expect(identidadDeFuente('CPC_TEXTO_BASE_D211-2006')).toBe('CODIGO_PROCESAL_CIVIL');
   });
 
-  it('CPC_COMENTADO_ROMERO_2024 (doctrina) tampoco declara el instrumento en la fuente', () => {
+  it('CPC_COMENTADO_ROMERO_2024 (doctrina) no se reconoce como instrumento', () => {
     expect(identidadDeFuente('CPC_COMENTADO_ROMERO_2024')).toBeNull();
   });
 });
