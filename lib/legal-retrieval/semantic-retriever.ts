@@ -150,6 +150,13 @@ export async function buscarEnSupabase(
   // de garantizarle una oportunidad justa de ranking por relevancia real,
   // que es un criterio más fuerte que el hack de fusión que sustituye.
   const RETRIEVAL_WIDE_K = Math.max(k, 25);
+  // El RPC limita a 20 filas y NO excluye la basura heredada (fuente NULL,
+  // doc_*, artefactos de anonimización: ~32k de 40k filas de mayalex_normativos).
+  // Con solo 3 filas vigentes, esa basura desplazaba el top-20 normal y todos los
+  // candidatos caían en el filtro posterior -> abstención "sin fragmentos
+  // verificables" aun con el CPC cargado (2026-11-02). El pool vigente es el
+  // limpio, así que se trae completo (tope del RPC).
+  const RETRIEVAL_VIGENTE_K = 20;
   const [normal, vigente] = await Promise.all([
     supabase.rpc('buscar_biblioteca_v2', {
       query_embedding: queryEmbedding,
@@ -161,7 +168,7 @@ export async function buscarEnSupabase(
       query_embedding: queryEmbedding,
       coleccion_filtro: coleccion,
       materia_filtro: materia ?? null,
-      limite: 3,
+      limite: RETRIEVAL_VIGENTE_K,
       solo_norma_vigente: true,
     }),
   ]);

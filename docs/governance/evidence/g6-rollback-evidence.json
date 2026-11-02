@@ -138,7 +138,7 @@
     "lib/legal-retrieval/exact-resolver.ts": "8dc53096c622362b97ea911a7931abf057a3c8ec97f851e22f0b0e5a70a6ec17",
     "lib/legal-retrieval/instrument-gate.ts": "5abf4434aa7be4df60f5c778ec9e764912424a5ecd46f351221c28fb1e101717",
     "lib/legal-retrieval/primitives.ts": "8b45f9e318f5fabf5a469342196afba67851e2c1aaac25716a983a59c1f2737d",
-    "lib/legal-retrieval/semantic-retriever.ts": "e5fb0b6896544809cb2c062e498b0d527461ac8342042a7c100cf0ee225f1bad",
+    "lib/legal-retrieval/semantic-retriever.ts": "3c56e91d1199cfacc18a231e9bc281d6cefbe0123eac0e607e5808e6de1a3426",
     "lib/legal-retrieval/types.ts": "c2b8a3185f9a1b9c819ee99a25d1159de9358ae7b65efb7a66b6dd45247901ae",
     "lib/rag/search.ts": "ef6385a79de42f72f64dcfb946b02dfe7dd09436aa3deae027ab481bbc7b4fc2"
   }
