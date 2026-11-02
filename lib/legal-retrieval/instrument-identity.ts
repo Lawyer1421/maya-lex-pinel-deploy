@@ -54,6 +54,16 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
 };
 
 /**
+ * Fuentes cuyo NOMBRE EXACTO es el texto legislativo oficial de un instrumento (decisión del propietario, 2-nov-2026): el Decreto 211-2006 es
+ * el texto base oficial del Código Procesal Civil. Coincidencia exacta (no patrón): `CPC_COMENTADO_ROMERO_2024` y cualquier otra variante NO
+ * entran, siguen siendo doctrina. Solo la usa `identidadDeFuente` (ruta semántica); no entra en RE_FUENTE_POR_INSTRUMENTO para no alterar la
+ * ruta exacta por artículo.
+ */
+export const FUENTES_OFICIALES_EXACTAS: Readonly<Record<string, InstrumentoNormalizado>> = Object.freeze({
+  'cpc_texto_base_d211-2006': 'CODIGO_PROCESAL_CIVIL',
+});
+
+/**
  * Instrumento que declara una fuente real (sólo `fuente`, sin metadata), con
  * los mismos patrones de identidadDocumentalCoincide. Null si la fuente no
  * declara ninguno. Lo usa la ruta semántica, que no trae metadata por fila.
@@ -62,6 +72,8 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
  */
 export function identidadDeFuente(fuente: string): InstrumentoNormalizado | null {
   if (!fuente) return null;
+  const oficial = FUENTES_OFICIALES_EXACTAS[fuente.trim().toLowerCase()];
+  if (oficial) return oficial;
   for (const [instrumento, patron] of Object.entries(RE_FUENTE_POR_INSTRUMENTO) as [InstrumentoNormalizado, RegExp][]) {
     if (patron.test(fuente)) return instrumento;
   }
