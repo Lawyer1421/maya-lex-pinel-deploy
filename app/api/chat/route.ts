@@ -99,6 +99,7 @@ import { logConsulta, hashUsuario } from '@/lib/analytics/logger';
 import { buscarPlantilla, formatearContextoPlantilla } from '@/lib/self-learning/buscar-plantilla';
 import { clasificarFuenteExterna } from '@/lib/legal-retrieval/clo-guards';
 
+
 // ── Cliente Anthropic — lazy init ──────────────────────────────────────────
 
 let _anthropic: Anthropic | null = null;
@@ -240,7 +241,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey || apiKey.trim() === '') {
       console.error('[Maya Lex] ANTHROPIC_API_KEY no encontrada en process.env');
       return NextResponse.json(
-        { error: 'ANTHROPIC_API_KEY no configurada en el servidor' },
+        { error: 'Servicio de IA no disponible por configuración. Intenta más tarde.' },
         { status: 500 }
       );
     }
@@ -856,10 +857,10 @@ export async function POST(req: NextRequest) {
 
         let errorMessage = 'Error interno del servidor';
         if (error instanceof Anthropic.APIError) {
-          if (error.status === 401)      errorMessage = 'API Key inválida. Contacta al administrador.';
+          if (error.status === 401)      errorMessage = 'Servicio de IA no disponible por configuración. Intenta más tarde.';
           else if (error.status === 429) errorMessage = 'Servicio temporalmente saturado. Intenta en unos segundos.';
           else if (error.status === 529) errorMessage = 'Servicio de IA en mantenimiento. Intenta en unos minutos.';
-          else                           errorMessage = `Error del servicio: ${error.message}`;
+          else                           errorMessage = 'No pudimos completar la consulta. Intenta de nuevo en unos segundos.';
         }
         controller.enqueue(sseEvent({ type: 'error', message: errorMessage }));
       } finally {

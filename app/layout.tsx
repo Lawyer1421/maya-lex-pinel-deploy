@@ -3,6 +3,8 @@ import './globals.css';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://mayalexhn.com'),
+  alternates: { canonical: '/' },
   title: 'MAYA LEX IA PINEL HN — Asistente Jurídico Hondureño',
   description:
     'Plataforma de inteligencia artificial legal para Honduras. Análisis jurídico, redacción de documentos, derecho civil, penal, notarial y laboral. Powered by Claude AI.',
@@ -21,7 +23,10 @@ export const metadata: Metadata = {
     description: 'Asistente jurídico inteligente para Honduras',
     type: 'website',
     locale: 'es_HN',
+    url: 'https://mayalexhn.com',
+    siteName: 'MAYA LEX',
   },
+  twitter: { card: 'summary_large_image', title: 'MAYA LEX IA PINEL HN', description: 'Asistente jurídico inteligente para Honduras' },
   icons: {
     icon: '/favicon.ico',
   },
