@@ -40,6 +40,29 @@ function pdfSintetico(paginas: string[][]): Buffer {
   return Buffer.from(out, 'latin1');
 }
 
+/** Página de dos columnas: el flujo de contenido entrelaza una línea de cada columna. */
+function pdfDosColumnas(izq: string[], der: string[]): Buffer {
+  const partes: string[] = [];
+  for (let i = 0; i < Math.max(izq.length, der.length); i++) {
+    const y = 760 - i * 12;
+    if (izq[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 40 ${y} Tm (${izq[i].replace(/[()\\]/g, '')}) Tj ET`);
+    if (der[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 330 ${y} Tm (${der[i].replace(/[()\\]/g, '')}) Tj ET`);
+  }
+  const flujo = partes.join(' ');
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    `<< /Length ${flujo.length} >>\nstream\n${flujo}\nendstream`, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+  ];
+  let out = '%PDF-1.4\n';
+  const offs: number[] = [];
+  objs.forEach((o, i) => { offs.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  const xref = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offs.map((v) => `${String(v).padStart(10, '0')} 00000 n \n`).join('')}`;
+  out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(out, 'latin1');
+}
+
 const relleno = (n: number, prefijo = 'Linea'): string[] =>
   Array.from({ length: n }, (_, i) => `${prefijo} ${i + 1}: texto sintetico de relleno suficiente para superar el minimo de caracteres por pagina en la prueba.`);
 
@@ -117,6 +140,9 @@ describe('receive-pdf: identidad normativa', () => {
     const reforma = 'DECRETO No. 284-2013 reforma el Codigo de Comercio, Decreto No. 73-50. Articulo 1. Articulo 2. Decreto del Congreso.';
     expect(evaluarIdentidad(reforma, PERFILES['HN-001-A02']).estado).toBe('CONFIRMADA');
     expect(decretosEnEncabezado(normalizar('Decreto No. 73-1950 y decreto 284-2013'))).toEqual(['73-50', '284-2013']);
+    // La reforma cita en sus considerandos el Decreto 51-2011 (la ley que reforma): no es una discrepancia de identidad.
+    const conConsiderandos = 'DECRETO No.284-2013 EL CONGRESO NACIONAL CONSIDERANDO: Que mediante Decreto No. 51-2011 fue aprobada la Ley. Reformar el Codigo de Comercio, articulo 1. Decreto.';
+    expect(evaluarIdentidad(conConsiderandos, PERFILES['HN-001-A02']).estado).toBe('CONFIRMADA');
   });
 });
 
@@ -260,6 +286,19 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     for (const r of [{ desde: 0, hasta: 1 }, { desde: 2, hasta: 1 }, { desde: 1, hasta: 9 }]) {
       expect(recibir(opciones(raiz, archivo, { paginasPertinentes: r })).recibo.motivo).toMatch(/rango de páginas pertinente inválido/);
     }
+  });
+
+  it('páginas de dos columnas: --columnas 2 conserva el orden de lectura (izquierda y luego derecha) y lo registra', () => {
+    const raiz = nuevaRaiz();
+    const izq = ['CODIGO DE LA NINEZ Y DE LA ADOLESCENCIA', 'DECRETO No. 73-96', 'ARTICULO 1.- IZQ-UNO los ninos y adolescentes.', 'IZQ-DOS menores y familia.', ...relleno(15, 'IZQ-REL')];
+    const der = ['ARTICULO 2.- DER-UNO la familia y los ninos.', 'DER-DOS menores y adolescentes.', ...relleno(15, 'DER-REL')];
+    const archivo = escribir(raiz, 'col.pdf', pdfDosColumnas(izq, der));
+    const { recibo } = recibir(opciones(raiz, archivo, { columnas: 2 }));
+    expect(recibo.estado).toBe('CLO_PENDING');
+    expect(recibo.metodo_extraccion).toMatch(/columnas \(2\)/);
+    const texto: string = JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/HN-001-A03.json'), 'utf8')).extracted_text;
+    expect(texto.indexOf('IZQ-REL 15')).toBeGreaterThan(-1);
+    expect(texto.indexOf('IZQ-REL 15')).toBeLessThan(texto.indexOf('DER-UNO')); // columna izquierda completa antes que la derecha
   });
 
   it('--revisado exige un motivo humano real', () => {

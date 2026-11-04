@@ -31,8 +31,10 @@ const sha = (t: string): string => createHash('sha256').update(t, 'utf8').digest
 /**
  * Un encabezado es «ARTÍCULO N» / «Art. N» al inicio del texto, de una línea o tras un punto/punto y coma/dos puntos, seguido de un
  * delimitador. Una remisión del tipo «conforme al artículo 5 de esta ley» no cumple (minúscula, sin inicio de oración): no parte el texto.
+ * También se acepta (extensión compatible) la grafía «Artículo º 5» con la marca ordinal antes del número y el encabezado que ocupa una línea
+ * entera sin puntuación («Articulo º 5⏎Los comerciantes…»), como en el Código de Comercio D.73-50 del Congreso Nacional.
  */
-const ENCABEZADO = /(?:^|\n|[.;:]\s+)(ART[ÍI]CULO|Art[íi]culo|Art\.)\s+(\d{1,4}(?:[-.]?[A-Z]\b)?|[ÚU]NICO|[Úú]nico)\s*(?:[.\-–—:)]|[º°])/gu;
+const ENCABEZADO = /(?:^|\n|[.;:]\s+)(ART[ÍI]CULO|Art[íi]culo|Art\.)\s+(?:[º°]\s*)?(\d{1,4}(?:[-.]?[A-Z]\b)?|[ÚU]NICO|[Úú]nico)(?:\s*(?:[.\-–—:)]|[º°])|[ \t]*(?=\r?\n))/gu;
 
 export function segmentarArticulos(texto: string): Segmentacion {
   const hallazgos: Array<{ inicio: number; fin: number; numero: string }> = [];
@@ -81,6 +83,13 @@ export function qaTexto(p: Pick<OfficialSourcePackage, 'extracted_text' | 'text_
 
   const articulado = TIPOS_ARTICULADOS.has(p.document_type);
   add('ARTICLES_DETECTED', articulado ? 'BLOCKER' : 'INFO', !articulado || seg.articulos.length > 0, `${seg.articulos.length} artículos detectados (tipo ${p.document_type})`);
+
+  // Plausibilidad: un texto largo con muy pocos artículos suele indicar un formato de encabezado que el segmentador no reconoce (no que el
+  // instrumento tenga un solo artículo). Aviso para el CLO; no bloquea.
+  if (articulado && t.length > 20000 && seg.articulos.length > 0) {
+    const promedio = Math.round(t.length / seg.articulos.length);
+    add('ARTICLES_PLAUSIBLE', 'WARNING', promedio <= 20000, `${seg.articulos.length} artículos en ${t.length} caracteres (promedio ${promedio} por artículo)${promedio > 20000 ? ': posible formato de encabezado no reconocido' : ''}`);
+  }
 
   const numericos = seg.articulos.map((a) => (/^\d+$/.test(a.numero) ? Number(a.numero) : null));
   const saltos: string[] = [];

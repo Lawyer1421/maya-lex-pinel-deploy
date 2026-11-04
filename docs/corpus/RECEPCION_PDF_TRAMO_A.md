@@ -22,7 +22,7 @@ Una persona (el propietario) o un entorno autorizado descarga **cada PDF desde s
 npx tsx tools/corpus/receive-pdf.ts <archivo.pdf> --paquete HN-001-A01 \
   --url "<URL exacta de descarga>" --retriever "<quién lo descargó>" \
   --fecha 2026-11-05T14:00:00Z --metodo MANUAL_BROWSER --lote 2026-11-hn-001-tranche-a \
-  [--max-mb 200] [--paginas DESDE-HASTA] [--revisado "<motivo de la revisión documental humana>"]
+  [--max-mb 200] [--paginas DESDE-HASTA] [--columnas 2] [--revisado "<motivo de la revisión documental humana>"]
 ```
 
 ### Estados (describen el punto del trámite, no la validez del documento)
@@ -49,6 +49,9 @@ Cada intento deja un recibo nuevo en `docs/corpus/staging/<lote>/receipts/` (nun
 
 ### PDF que reproduce varios actos (p. ej. una edición de La Gaceta)
 Con `--paginas DESDE-HASTA` una persona fija el rango pertinente (por ejemplo, las páginas del Decreto 35-2013 dentro de La Gaceta 33,222). Solo ese extracto se identifica, se analiza por página y se segmenta; el `bytes_sha256` sigue siendo el del archivo completo, el `text_sha256` el del extracto, y el recibo registra el rango. Un extracto **siempre** queda `RECEIVED` hasta que una persona coteja el rango y repite el comando con `--revisado`. La huella de páginas del PDF completo no se aplica a un extracto.
+
+### Páginas de dos columnas (La Gaceta)
+Con `--columnas 2` cada página se extrae recortada a su mitad izquierda y luego a su mitad derecha. La lectura simple entrelaza las columnas y desordena los artículos (comprobado con el Decreto 284-2013). El método queda en el recibo y el `text_sha256` corresponde a ese método de extracción.
 
 ### Cuando un humano ya revisó un `RECEIVED`
 Repetir el mismo comando con `--revisado "<motivo>"` (mínimo 10 caracteres: qué se cotejó y contra qué). Levanta **solo** los bloqueos de revisión (6, 7 y 5); nunca los rechazos de entrada. El recibo registra la revisión declarada. Sigue sin ser V4/V5.

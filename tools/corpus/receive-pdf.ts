@@ -73,7 +73,7 @@ export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
     nombre: 'Decreto 284-2013 (reforma al Código de Comercio)', tipo: 'REFORM', huellaPaginas: 17,
     titulo: [/decreto.{0,25}284\s*[-–]\s*2013/], numero: [/\b284\s*[-–]\s*2013\b/],
     contexto: { terminos: ['codigo de comercio', 'articulo', 'decreto'], minimo: 3 },
-    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50'], consolidado: false, gaceta: '33,445',
+    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50', '51-2011'], consolidado: false, gaceta: '33,445', // 51-2011: la ley que el propio decreto reforma, citada en sus considerandos (comprobado en el PDF real)
   },
   'HN-001-A03': {
     nombre: 'Código de la Niñez y de la Adolescencia', tipo: 'CODE', huellaPaginas: null,
@@ -262,6 +262,7 @@ export interface Recibo {
   bytes_sha256: string | null;
   paginas: number | null;
   extracto: { desde: number; hasta: number } | null;
+  metodo_extraccion: string;
   huella_paginas: number | null;
   caracteres: number | null;
   text_sha256: string | null;
@@ -272,6 +273,32 @@ export interface Recibo {
   resultado_receptor: string | null;
   error_receptor: string | null;
   paquete_en: string | null;
+}
+
+/**
+ * Extracción para páginas de DOS columnas (p. ej. La Gaceta): el orden de lectura por defecto entrelaza las columnas y desordena los artículos.
+ * Se extrae cada página recortada a su mitad izquierda y luego a su mitad derecha, y se conserva el \f entre páginas para el control por página.
+ * Es un método distinto de la extracción simple: queda registrado en el recibo y el texto (y su hash) corresponde a este método.
+ */
+export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number): { texto: string; avisos: string[] } {
+  const info = ejecutar('pdfinfo', ['-f', String(desde), '-l', String(hasta), ruta]);
+  const tam = new Map<number, { w: number; h: number }>();
+  for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+size:\s+([\d.]+)\s+x\s+([\d.]+)\s+pts/gm)) tam.set(Number(m[1]), { w: Number(m[2]), h: Number(m[3]) });
+  const avisos: string[] = [];
+  const paginas: string[] = [];
+  for (let n = desde; n <= hasta; n++) {
+    const d = tam.get(n);
+    if (!d) throw new Error(`pdfinfo no devolvió el tamaño de la página ${n}`);
+    const mitad = Math.floor(d.w / 2);
+    const recorte = (x: number, w: number): string => {
+      const r = ejecutar('pdftotext', ['-enc', 'UTF-8', '-f', String(n), '-l', String(n), '-x', String(x), '-y', '0', '-W', String(w), '-H', String(Math.ceil(d.h)), ruta, '-']);
+      if (r.status !== 0) throw new Error(`pdftotext falló en la página ${n}${r.stderr ? `: ${r.stderr.split('\n')[0]}` : ''}`);
+      avisos.push(...r.stderr.split('\n').filter((l) => /Syntax (Error|Warning)/i.test(l)));
+      return r.stdout.replace(/\f/g, '').replace(/\s+$/, '');
+    };
+    paginas.push(`${recorte(0, mitad)}\n${recorte(mitad, Math.ceil(d.w) - mitad)}`.trim());
+  }
+  return { texto: `${paginas.join('\f')}\f`, avisos };
 }
 
 export interface OpcionesRecepcion {
@@ -289,6 +316,8 @@ export interface OpcionesRecepcion {
    * analiza y se segmenta. El SHA-256 de los bytes sigue siendo el del archivo completo. Lo fija una persona tras leer el documento.
    */
   paginasPertinentes?: { desde: number; hasta: number };
+  /** 2 = páginas de dos columnas (La Gaceta): extrae columna izquierda y luego derecha. Por defecto, lectura simple. */
+  columnas?: 1 | 2;
   /** Motivo declarado por la persona que revisó el documento; levanta SOLO los bloqueos de revisión, nunca los rechazos de entrada. */
   revisado?: string;
   /** Solo para pruebas: sustituye al receptor offline. */
@@ -321,7 +350,7 @@ export function extraerTexto(ruta: string, rango?: { desde: number; hasta: numbe
 function reciboVacio(o: OpcionesRecepcion, perfil: PerfilPaquete | undefined): Recibo {
   return {
     paquete: o.paquete, estado: 'INPUT_REJECTED', motivo: null, requiere_revision: false, motivos_revision: [], revision_humana_declarada: o.revisado ?? null,
-    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
+    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
     identidad: null, analisis_paginas: null, decreto_consta: null, gaceta_consta: null, resultado_receptor: null, error_receptor: null, paquete_en: null,
   };
 }
@@ -374,7 +403,7 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   }
   const paginasExtracto = rango ? rango.hasta - rango.desde + 1 : info.paginas;
   let extraccion: { texto: string; avisos: string[] };
-  try { extraccion = extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
+  try { extraccion = o.columnas === 2 ? extraerTextoDosColumnas(o.archivo, rango?.desde ?? 1, rango?.hasta ?? info.paginas) : extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
   const texto = extraccion.texto;
   recibo.caracteres = texto.length;
   if (texto.length / paginasExtracto < MIN_CARACTERES_POR_PAGINA) {
@@ -497,6 +526,7 @@ function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
     '|---|---|',
     `| Archivo | ${r.archivo} (${r.bytes} bytes) |`,
     `| bytes_sha256 (integridad de bytes) | ${r.bytes_sha256 ?? 'NO CALCULADO'} |`,
+    `| Método de extracción | ${r.metodo_extraccion} |`,
     `| Extracto pertinente | ${r.extracto ? `páginas ${r.extracto.desde}–${r.extracto.hasta} de ${r.paginas}` : 'documento completo'} |`,
     `| Páginas (pdfinfo) | ${r.paginas ?? '—'} (huella del ejemplar identificado: ${r.huella_paginas ?? 'no declarada'}) |`,
     `| Páginas con texto extraído | ${p ? p.paginasTexto : '—'} · vacías: ${p?.vacias.length ?? '—'} · débiles: ${p?.debiles.length ?? '—'} · dañadas: ${p?.danadas.length ?? '—'} |`,
@@ -523,19 +553,21 @@ function valor(argv: readonly string[], nombre: string): string | undefined {
 }
 
 export function cli(argv: readonly string[]): number {
-  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas']);
+  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas', '--columnas']);
   const archivo = argv.find((a, k) => !a.startsWith('--') && !(k > 0 && banderasConValor.has(argv[k - 1])));
   const paquete = valor(argv, '--paquete');
   const url = valor(argv, '--url');
   const retriever = valor(argv, '--retriever');
   const fecha = valor(argv, '--fecha');
   if (!archivo || !paquete || !url || !retriever || !fecha) {
-    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--revisado "<motivo>"]');
+    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--columnas 2] [--revisado "<motivo>"]');
     return 2;
   }
   const metodo = (valor(argv, '--metodo') ?? 'MANUAL_BROWSER') as OpcionesRecepcion['metodo'];
   const lote = valor(argv, '--lote') ?? '2026-11-hn-001-tranche-a';
   const mb = valor(argv, '--max-mb');
+  const col = valor(argv, '--columnas');
+  if (col && col !== '1' && col !== '2') { console.error('--columnas debe ser 1 o 2'); return 2; }
   const pag = valor(argv, '--paginas');
   const m = pag ? /^(\d+)-(\d+)$/.exec(pag) : null;
   if (pag && !m) { console.error('--paginas debe tener la forma DESDE-HASTA (p. ej. 12-19)'); return 2; }
@@ -543,6 +575,7 @@ export function cli(argv: readonly string[]): number {
     archivo: resolve(archivo), paquete, url, retriever, fecha, metodo, lote, raiz: process.cwd(),
     maxMb: mb ? Number(mb) : undefined, revisado: valor(argv, '--revisado'),
     paginasPertinentes: m ? { desde: Number(m[1]), hasta: Number(m[2]) } : undefined,
+    columnas: col === '2' ? 2 : undefined,
   });
   console.log(`${recibo.paquete}: ${recibo.estado}${recibo.motivo ? ` — ${recibo.motivo}` : ''}`);
   if (recibo.bytes_sha256) console.log(`bytes_sha256 ${recibo.bytes_sha256}  páginas ${recibo.paginas}`);

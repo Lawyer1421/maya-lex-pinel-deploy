@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "archivo": "HN-001-A03.json",
+      "importacion": "IMPORTED_DISCOVERED_UNVERIFIED",
+      "destino": "CORPUS_RECORD",
+      "candidato": {
+        "id": "PKG_CODIGO_DE_LA_NINEZ_Y_DE_LA_ADOLESCENCIA@v1",
+        "estado": "SOURCE_HOLD"
+      },
+      "jurisprudencia_id": null,
+      "razones": [
+        "drive.google.com no está en el registro de fuentes oficiales → solo descubrimiento"
+      ]
+    }
+  ]
+}
