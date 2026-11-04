@@ -43,5 +43,16 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # El receptor documental de PDF (tools/corpus/receive-pdf.ts) usa pdfinfo y pdftotext (poppler-utils). Sin ellos las pruebas con PDF real
+      # NO pueden omitirse en silencio: este paso instala Poppler y falla si no están disponibles.
+      - name: Instalar y verificar poppler-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          command -v pdftotext && pdftotext -v
+          command -v pdfinfo && pdfinfo -v
       - run: npm ci
       - run: npm run test
+        env:
+          # Hace obligatorias las pruebas del receptor de PDF: si falta Poppler, fallan (no se omiten).
+          REQUIRE_POPPLER: '1'

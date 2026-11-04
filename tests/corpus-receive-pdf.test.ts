@@ -9,6 +9,14 @@ import {
 } from '../tools/corpus/receive-pdf';
 
 const hayPoppler = ['pdftotext', 'pdfinfo'].every((b) => spawnSync(b, ['-v'], { stdio: 'ignore' }).status !== null);
+/** En CI (REQUIRE_POPPLER=1) la falta de Poppler es un FALLO, nunca una omisión silenciosa de las pruebas con PDF real. */
+const exigirPoppler = process.env.REQUIRE_POPPLER === '1';
+
+describe('receive-pdf: entorno de pruebas', () => {
+  it('poppler-utils (pdftotext y pdfinfo) está instalado cuando se exige (CI)', () => {
+    if (exigirPoppler) expect(hayPoppler, 'REQUIRE_POPPLER=1 pero faltan pdftotext/pdfinfo: instale poppler-utils').toBe(true);
+  });
+});
 
 /** PDF sintético con N páginas y tabla xref correcta. Contenido SINTÉTICO para pruebas. */
 function pdfSintetico(paginas: string[][]): Buffer {
@@ -140,7 +148,7 @@ describe('receive-pdf: extracción por página', () => {
   });
 });
 
-describe.skipIf(!hayPoppler)('receive-pdf: recepción de un archivo (requiere poppler-utils)', () => {
+describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un archivo (requiere poppler-utils)', () => {
   it('CLO_PENDING: PDF íntegro, identidad confirmada, dominio verificado y QA correcto; hash real y paquete en el inbox', () => {
     const raiz = nuevaRaiz();
     const pdf = pdfSintetico([paginaNinez(4), paginaNinez(4)]);
