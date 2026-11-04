@@ -234,6 +234,34 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     expect(archivosEn(join(raiz, 'docs/corpus/staging/lote-prueba/receipts')).length).toBe(2); // el primer recibo no se sobrescribió
   });
 
+  it('PDF con varios actos: solo el extracto pertinente se identifica y se segmenta (hash del archivo completo)', () => {
+    const raiz = nuevaRaiz();
+    const otroActo = ['DECRETO No. 99-2005', 'OTRO ACTO DE LA MISMA GACETA, AJENO AL INSTRUMENTO', ...relleno(50)];
+    const pdf = pdfSintetico([otroActo, otroActo, paginaNinez(6), paginaNinez(6)]);
+    const archivo = escribir(raiz, 'gaceta.pdf', pdf);
+    // Completo: el encabezado (primeras páginas) es de otro acto → la identidad no se confirma.
+    expect(recibir(opciones(raiz, archivo, { receptor: () => { throw new Error('no debe llamarse'); } })).recibo.identidad?.estado).not.toBe('CONFIRMADA');
+    // Con el extracto 3-4 (fijado por una persona): identidad confirmada, pero queda para cotejo del rango.
+    const a = recibir(opciones(raiz, archivo, { paginasPertinentes: { desde: 3, hasta: 4 }, receptor: () => { throw new Error('no debe llamarse'); } }));
+    expect(a.recibo.identidad?.estado).toBe('CONFIRMADA');
+    expect(a.recibo.estado).toBe('RECEIVED');
+    expect(a.recibo.motivos_revision.join(' ')).toMatch(/Extracto de las páginas 3–4 de 4/);
+    const b = recibir(opciones(raiz, archivo, { paginasPertinentes: { desde: 3, hasta: 4 }, revisado: 'Rango 3-4 cotejado contra la Gaceta: es el decreto pertinente.' }));
+    expect(b.recibo.estado).toBe('CLO_PENDING');
+    expect(b.recibo.bytes_sha256).toBe(sha256(pdf)); // hash del archivo completo
+    const paquete = JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/HN-001-A03.json'), 'utf8'));
+    expect(paquete.extracted_text).not.toMatch(/99-2005/);
+    expect(paquete.text_sha256).toBe(sha256(paquete.extracted_text));
+  });
+
+  it('un rango de páginas inválido se rechaza', () => {
+    const raiz = nuevaRaiz();
+    const archivo = escribir(raiz, 'n.pdf', pdfSintetico([paginaNinez(4)]));
+    for (const r of [{ desde: 0, hasta: 1 }, { desde: 2, hasta: 1 }, { desde: 1, hasta: 9 }]) {
+      expect(recibir(opciones(raiz, archivo, { paginasPertinentes: r })).recibo.motivo).toMatch(/rango de páginas pertinente inválido/);
+    }
+  });
+
   it('--revisado exige un motivo humano real', () => {
     const raiz = nuevaRaiz();
     const { recibo } = recibir(opciones(raiz, escribir(raiz, 'n.pdf', pdfSintetico([paginaNinez(4)])), { revisado: 'ok' }));

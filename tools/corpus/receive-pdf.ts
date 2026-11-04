@@ -261,6 +261,7 @@ export interface Recibo {
   bytes: number;
   bytes_sha256: string | null;
   paginas: number | null;
+  extracto: { desde: number; hasta: number } | null;
   huella_paginas: number | null;
   caracteres: number | null;
   text_sha256: string | null;
@@ -283,6 +284,11 @@ export interface OpcionesRecepcion {
   lote: string;
   raiz: string;
   maxMb?: number;
+  /**
+   * Rango de páginas pertinente cuando el PDF reproduce VARIOS actos (p. ej. una edición de La Gaceta): solo ese extracto se identifica, se
+   * analiza y se segmenta. El SHA-256 de los bytes sigue siendo el del archivo completo. Lo fija una persona tras leer el documento.
+   */
+  paginasPertinentes?: { desde: number; hasta: number };
   /** Motivo declarado por la persona que revisó el documento; levanta SOLO los bloqueos de revisión, nunca los rechazos de entrada. */
   revisado?: string;
   /** Solo para pruebas: sustituye al receptor offline. */
@@ -306,8 +312,8 @@ export function paginasDe(ruta: string): { paginas: number; cifrado: boolean; av
   return { paginas: Number(p[1]), cifrado: e?.[1]?.toLowerCase() === 'yes', avisos };
 }
 
-export function extraerTexto(ruta: string): { texto: string; avisos: string[] } {
-  const r = ejecutar('pdftotext', ['-enc', 'UTF-8', ruta, '-']);
+export function extraerTexto(ruta: string, rango?: { desde: number; hasta: number }): { texto: string; avisos: string[] } {
+  const r = ejecutar('pdftotext', ['-enc', 'UTF-8', ...(rango ? ['-f', String(rango.desde), '-l', String(rango.hasta)] : []), ruta, '-']);
   if (r.status !== 0) throw new Error(`pdftotext falló${r.stderr ? `: ${r.stderr.split('\n')[0]}` : ''}`);
   return { texto: r.stdout, avisos: r.stderr.split('\n').filter((l) => /Syntax (Error|Warning)/i.test(l)) };
 }
@@ -315,7 +321,7 @@ export function extraerTexto(ruta: string): { texto: string; avisos: string[] } 
 function reciboVacio(o: OpcionesRecepcion, perfil: PerfilPaquete | undefined): Recibo {
   return {
     paquete: o.paquete, estado: 'INPUT_REJECTED', motivo: null, requiere_revision: false, motivos_revision: [], revision_humana_declarada: o.revisado ?? null,
-    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
+    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
     identidad: null, analisis_paginas: null, decreto_consta: null, gaceta_consta: null, resultado_receptor: null, error_receptor: null, paquete_en: null,
   };
 }
@@ -362,22 +368,28 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   if (info.cifrado) return rechazar('PDF cifrado: se necesita la versión sin cifrar de la fuente');
 
   // 3. Texto íntegro y control por página.
+  const rango = o.paginasPertinentes;
+  if (rango && !(Number.isInteger(rango.desde) && Number.isInteger(rango.hasta) && rango.desde >= 1 && rango.hasta >= rango.desde && rango.hasta <= info.paginas)) {
+    return rechazar(`rango de páginas pertinente inválido (${rango.desde}-${rango.hasta}) para un PDF de ${info.paginas} páginas`);
+  }
+  const paginasExtracto = rango ? rango.hasta - rango.desde + 1 : info.paginas;
   let extraccion: { texto: string; avisos: string[] };
-  try { extraccion = extraerTexto(o.archivo); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
+  try { extraccion = extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
   const texto = extraccion.texto;
   recibo.caracteres = texto.length;
-  if (texto.length / info.paginas < MIN_CARACTERES_POR_PAGINA) {
-    return rechazar(`texto casi vacío (${texto.length} caracteres en ${info.paginas} páginas): probable PDF escaneado; hace falta una versión con texto. No se hace OCR ni se inventa texto`);
+  if (texto.length / paginasExtracto < MIN_CARACTERES_POR_PAGINA) {
+    return rechazar(`texto casi vacío (${texto.length} caracteres en ${paginasExtracto} páginas): probable PDF escaneado; hace falta una versión con texto. No se hace OCR ni se inventa texto`);
   }
   recibo.text_sha256 = sha256(texto);
-  const paginas = analizarPaginas(texto, info.paginas);
+  const paginas = analizarPaginas(texto, paginasExtracto);
   recibo.analisis_paginas = paginas;
 
   // 4. Motivos que exigen revisión documental humana (bloquean la aceptación automática, no declaran inválido el documento).
   const motivos: string[] = [];
-  if (perfil.huellaPaginas !== null && info.paginas !== perfil.huellaPaginas) {
+  if (perfil.huellaPaginas !== null && !rango && info.paginas !== perfil.huellaPaginas) {
     motivos.push(`Páginas ${info.paginas} ≠ huella del ejemplar identificado (${perfil.huellaPaginas}): puede ser otra edición oficial; el CLO decide si es la misma norma.`);
   }
+  if (rango) motivos.push(`Extracto de las páginas ${rango.desde}–${rango.hasta} de ${info.paginas}: el rango pertinente lo fijó una persona y debe cotejarse; el resto del PDF (otros actos) queda fuera del paquete.`);
   for (const a of [...info.avisos, ...extraccion.avisos].slice(0, 3)) motivos.push(`El lector PDF reportó: ${a}`);
   motivos.push(...paginas.bloqueantes);
   const identidad = evaluarIdentidad(texto, perfil);
@@ -485,6 +497,7 @@ function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
     '|---|---|',
     `| Archivo | ${r.archivo} (${r.bytes} bytes) |`,
     `| bytes_sha256 (integridad de bytes) | ${r.bytes_sha256 ?? 'NO CALCULADO'} |`,
+    `| Extracto pertinente | ${r.extracto ? `páginas ${r.extracto.desde}–${r.extracto.hasta} de ${r.paginas}` : 'documento completo'} |`,
     `| Páginas (pdfinfo) | ${r.paginas ?? '—'} (huella del ejemplar identificado: ${r.huella_paginas ?? 'no declarada'}) |`,
     `| Páginas con texto extraído | ${p ? p.paginasTexto : '—'} · vacías: ${p?.vacias.length ?? '—'} · débiles: ${p?.debiles.length ?? '—'} · dañadas: ${p?.danadas.length ?? '—'} |`,
     `| Caracteres de texto | ${r.caracteres ?? '—'} |`,
@@ -510,22 +523,26 @@ function valor(argv: readonly string[], nombre: string): string | undefined {
 }
 
 export function cli(argv: readonly string[]): number {
-  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado']);
+  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas']);
   const archivo = argv.find((a, k) => !a.startsWith('--') && !(k > 0 && banderasConValor.has(argv[k - 1])));
   const paquete = valor(argv, '--paquete');
   const url = valor(argv, '--url');
   const retriever = valor(argv, '--retriever');
   const fecha = valor(argv, '--fecha');
   if (!archivo || !paquete || !url || !retriever || !fecha) {
-    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--revisado "<motivo>"]');
+    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--revisado "<motivo>"]');
     return 2;
   }
   const metodo = (valor(argv, '--metodo') ?? 'MANUAL_BROWSER') as OpcionesRecepcion['metodo'];
   const lote = valor(argv, '--lote') ?? '2026-11-hn-001-tranche-a';
   const mb = valor(argv, '--max-mb');
+  const pag = valor(argv, '--paginas');
+  const m = pag ? /^(\d+)-(\d+)$/.exec(pag) : null;
+  if (pag && !m) { console.error('--paginas debe tener la forma DESDE-HASTA (p. ej. 12-19)'); return 2; }
   const { recibo, codigo } = recibir({
     archivo: resolve(archivo), paquete, url, retriever, fecha, metodo, lote, raiz: process.cwd(),
     maxMb: mb ? Number(mb) : undefined, revisado: valor(argv, '--revisado'),
+    paginasPertinentes: m ? { desde: Number(m[1]), hasta: Number(m[2]) } : undefined,
   });
   console.log(`${recibo.paquete}: ${recibo.estado}${recibo.motivo ? ` — ${recibo.motivo}` : ''}`);
   if (recibo.bytes_sha256) console.log(`bytes_sha256 ${recibo.bytes_sha256}  páginas ${recibo.paginas}`);

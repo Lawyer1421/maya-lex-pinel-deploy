@@ -22,7 +22,7 @@ Una persona (el propietario) o un entorno autorizado descarga **cada PDF desde s
 npx tsx tools/corpus/receive-pdf.ts <archivo.pdf> --paquete HN-001-A01 \
   --url "<URL exacta de descarga>" --retriever "<quién lo descargó>" \
   --fecha 2026-11-05T14:00:00Z --metodo MANUAL_BROWSER --lote 2026-11-hn-001-tranche-a \
-  [--max-mb 200] [--revisado "<motivo de la revisión documental humana>"]
+  [--max-mb 200] [--paginas DESDE-HASTA] [--revisado "<motivo de la revisión documental humana>"]
 ```
 
 ### Estados (describen el punto del trámite, no la validez del documento)
@@ -47,10 +47,15 @@ Cada intento deja un recibo nuevo en `docs/corpus/staging/<lote>/receipts/` (nun
 8. Si 5, 6 o 7 señalan algo → `RECEIVED` (revisión humana). Si no: **paquete** `OfficialSourcePackage` (decreto y Gaceta solo si constan en el texto del PDF; si no, `UNKNOWN`; `source_tier = null`, `verification_state = UNVERIFIED`) y **receptor offline**: validación, segmentación por artículos, QA, candidato y hoja del CLO.
 9. **Errores del receptor:** si falla o no genera candidato, queda `RECEIVED` y **no** se copia nada al inbox. El paquete se procesa desde una copia temporal y solo se copia al inbox si el receptor termina bien. Un paquete distinto con el mismo nombre en el inbox **no se sobrescribe** (usar otro `--lote`).
 
+### PDF que reproduce varios actos (p. ej. una edición de La Gaceta)
+Con `--paginas DESDE-HASTA` una persona fija el rango pertinente (por ejemplo, las páginas del Decreto 35-2013 dentro de La Gaceta 33,222). Solo ese extracto se identifica, se analiza por página y se segmenta; el `bytes_sha256` sigue siendo el del archivo completo, el `text_sha256` el del extracto, y el recibo registra el rango. Un extracto **siempre** queda `RECEIVED` hasta que una persona coteja el rango y repite el comando con `--revisado`. La huella de páginas del PDF completo no se aplica a un extracto.
+
 ### Cuando un humano ya revisó un `RECEIVED`
 Repetir el mismo comando con `--revisado "<motivo>"` (mínimo 10 caracteres: qué se cotejó y contra qué). Levanta **solo** los bloqueos de revisión (6, 7 y 5); nunca los rechazos de entrada. El recibo registra la revisión declarada. Sigue sin ser V4/V5.
 
 Requisitos: `pdfinfo` y `pdftotext` (poppler-utils). Sin red, sin Supabase, sin dependencias npm nuevas.
+
+**CI:** el job de pruebas instala y verifica Poppler y corre con `REQUIRE_POPPLER=1`: las pruebas con PDF real son obligatorias y, si falta Poppler, **fallan** (no se omiten en silencio).
 
 ## 4. Orden y proceso por documento
 Cada documento se procesa **por separado y en cuanto llegue**. Prioridad: **1) A01 Código de Comercio** (BCH, 419 págs.), **2) A02 Decreto 284-2013** (SDE, 17 págs.), 3) A03 Código de la Niñez (CEDIJ), 4) A04 Decreto 35-2013. `SOURCE_HOLD` es lo esperable para `bch.hn`, `sde.gob.hn` y `se.gob.hn` mientras sus dominios no estén verificados; el dominio CEDIJ ya lo está (tier 2).
