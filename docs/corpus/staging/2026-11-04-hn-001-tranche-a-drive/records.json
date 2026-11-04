@@ -31,7 +31,7 @@
     },
     "approvals": [],
     "notes": [
-      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:32:48.000Z).",
+      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:57:17.000Z).",
       "DISCOVERED_UNVERIFIED: https://drive.google.com/file/d/1fkgjiSliYY7mtcM0VD62ygUxBsxLMeNN/view (solo descubrimiento, no es fuente oficial verificada).",
       "document_type=CODE",
       "STAGING: SOURCE_HOLD"
@@ -69,7 +69,7 @@
     },
     "approvals": [],
     "notes": [
-      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:32:48.000Z).",
+      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:57:17.000Z).",
       "DISCOVERED_UNVERIFIED: https://drive.google.com/file/d/17eKx426tKGRl148iL_6khN7H6MxYSkok/view (solo descubrimiento, no es fuente oficial verificada).",
       "document_type=REFORM",
       "STAGING: SOURCE_HOLD"
@@ -107,7 +107,7 @@
     },
     "approvals": [],
     "notes": [
-      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:32:48.000Z).",
+      "Importado de paquete externo (retriever=claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo), método=API, retrieved_at=2026-11-04T03:57:17.000Z).",
       "DISCOVERED_UNVERIFIED: https://drive.google.com/file/d/1rQas3MX7bgVlrqab9ZvsYXGQ1Df8b10F/view (solo descubrimiento, no es fuente oficial verificada).",
       "document_type=CODE",
       "STAGING: SOURCE_HOLD"

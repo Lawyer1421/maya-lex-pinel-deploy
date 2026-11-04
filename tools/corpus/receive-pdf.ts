@@ -263,6 +263,7 @@ export interface Recibo {
   paginas: number | null;
   extracto: { desde: number; hasta: number } | null;
   metodo_extraccion: string;
+  delimitacion: { ultima_solo_izquierda: boolean; cierre: { frase: string; hallado: boolean } | null; no_contiene: Array<{ frase: string; aparece: boolean }> } | null;
   huella_paginas: number | null;
   caracteres: number | null;
   text_sha256: string | null;
@@ -280,7 +281,7 @@ export interface Recibo {
  * Se extrae cada página recortada a su mitad izquierda y luego a su mitad derecha, y se conserva el \f entre páginas para el control por página.
  * Es un método distinto de la extracción simple: queda registrado en el recibo y el texto (y su hash) corresponde a este método.
  */
-export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number): { texto: string; avisos: string[] } {
+export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number, ultimaSoloIzquierda = false): { texto: string; avisos: string[] } {
   const info = ejecutar('pdfinfo', ['-f', String(desde), '-l', String(hasta), ruta]);
   const tam = new Map<number, { w: number; h: number }>();
   for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+size:\s+([\d.]+)\s+x\s+([\d.]+)\s+pts/gm)) tam.set(Number(m[1]), { w: Number(m[2]), h: Number(m[3]) });
@@ -296,7 +297,8 @@ export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: numb
       avisos.push(...r.stderr.split('\n').filter((l) => /Syntax (Error|Warning)/i.test(l)));
       return r.stdout.replace(/\f/g, '').replace(/\s+$/, '');
     };
-    paginas.push(`${recorte(0, mitad)}\n${recorte(mitad, Math.ceil(d.w) - mitad)}`.trim());
+    // Cuando un acto termina en la columna izquierda de la última página y el siguiente empieza en la derecha, esa página se toma solo por la izquierda.
+    paginas.push(ultimaSoloIzquierda && n === hasta ? recorte(0, mitad).trim() : `${recorte(0, mitad)}\n${recorte(mitad, Math.ceil(d.w) - mitad)}`.trim());
   }
   return { texto: `${paginas.join('\f')}\f`, avisos };
 }
@@ -316,6 +318,12 @@ export interface OpcionesRecepcion {
    * analiza y se segmenta. El SHA-256 de los bytes sigue siendo el del archivo completo. Lo fija una persona tras leer el documento.
    */
   paginasPertinentes?: { desde: number; hasta: number };
+  /** Con --columnas 2: la ÚLTIMA página del rango se toma solo por su columna izquierda (el acto termina allí y el siguiente empieza en la derecha). */
+  ultimaSoloIzquierda?: boolean;
+  /** Frase del cierre documental del acto (p. ej. la firma): debe figurar en el extracto; si no, queda para revisión. */
+  cierre?: string;
+  /** Frases del acto SIGUIENTE (p. ej. «107-2013»): si aparecen en el extracto, queda para revisión (el corte no fue limpio). */
+  noContiene?: string[];
   /** 2 = páginas de dos columnas (La Gaceta): extrae columna izquierda y luego derecha. Por defecto, lectura simple. */
   columnas?: 1 | 2;
   /** Motivo declarado por la persona que revisó el documento; levanta SOLO los bloqueos de revisión, nunca los rechazos de entrada. */
@@ -350,7 +358,7 @@ export function extraerTexto(ruta: string, rango?: { desde: number; hasta: numbe
 function reciboVacio(o: OpcionesRecepcion, perfil: PerfilPaquete | undefined): Recibo {
   return {
     paquete: o.paquete, estado: 'INPUT_REJECTED', motivo: null, requiere_revision: false, motivos_revision: [], revision_humana_declarada: o.revisado ?? null,
-    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
+    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, delimitacion: null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
     identidad: null, analisis_paginas: null, decreto_consta: null, gaceta_consta: null, resultado_receptor: null, error_receptor: null, paquete_en: null,
   };
 }
@@ -403,7 +411,7 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   }
   const paginasExtracto = rango ? rango.hasta - rango.desde + 1 : info.paginas;
   let extraccion: { texto: string; avisos: string[] };
-  try { extraccion = o.columnas === 2 ? extraerTextoDosColumnas(o.archivo, rango?.desde ?? 1, rango?.hasta ?? info.paginas) : extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
+  try { extraccion = o.columnas === 2 ? extraerTextoDosColumnas(o.archivo, rango?.desde ?? 1, rango?.hasta ?? info.paginas, o.ultimaSoloIzquierda === true) : extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
   const texto = extraccion.texto;
   recibo.caracteres = texto.length;
   if (texto.length / paginasExtracto < MIN_CARACTERES_POR_PAGINA) {
@@ -421,6 +429,16 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   if (rango) motivos.push(`Extracto de las páginas ${rango.desde}–${rango.hasta} de ${info.paginas}: el rango pertinente lo fijó una persona y debe cotejarse; el resto del PDF (otros actos) queda fuera del paquete.`);
   for (const a of [...info.avisos, ...extraccion.avisos].slice(0, 3)) motivos.push(`El lector PDF reportó: ${a}`);
   motivos.push(...paginas.bloqueantes);
+  // Delimitación documental de un acto dentro de un PDF con varios: cierre presente y sin texto del acto siguiente.
+  if (o.ultimaSoloIzquierda || o.cierre || (o.noContiene && o.noContiene.length > 0)) {
+    const cola = normalizar(texto).slice(-5000);
+    const cierre = o.cierre ? { frase: o.cierre, hallado: cola.includes(normalizar(o.cierre)) } : null;
+    const noContiene = (o.noContiene ?? []).map((f) => ({ frase: f, aparece: normalizar(texto).includes(normalizar(f)) }));
+    recibo.delimitacion = { ultima_solo_izquierda: o.ultimaSoloIzquierda === true, cierre, no_contiene: noContiene };
+    if (o.ultimaSoloIzquierda && o.columnas !== 2) motivos.push('--ultima-solo-izquierda solo tiene sentido con --columnas 2.');
+    if (cierre && !cierre.hallado) motivos.push(`Cierre documental no hallado en el extracto: «${cierre.frase}». El corte puede ser anterior al cierre y firma del acto.`);
+    for (const n of noContiene) if (n.aparece) motivos.push(`El extracto contiene «${n.frase}» (texto del acto siguiente): el corte no fue limpio.`);
+  }
   const identidad = evaluarIdentidad(texto, perfil);
   recibo.identidad = identidad;
   if (identidad.estado !== 'CONFIRMADA') motivos.push(`Identidad ${identidad.estado}: ${identidad.hallazgos.join(' ')}`);
@@ -527,6 +545,7 @@ function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
     `| Archivo | ${r.archivo} (${r.bytes} bytes) |`,
     `| bytes_sha256 (integridad de bytes) | ${r.bytes_sha256 ?? 'NO CALCULADO'} |`,
     `| Método de extracción | ${r.metodo_extraccion} |`,
+    ...(r.delimitacion ? [`| Delimitación del acto | última página solo columna izquierda: ${r.delimitacion.ultima_solo_izquierda ? 'sí' : 'no'} · cierre ${r.delimitacion.cierre ? `«${r.delimitacion.cierre.frase}» ${r.delimitacion.cierre.hallado ? 'HALLADO' : 'NO hallado'}` : 'no verificado'} · acto siguiente: ${r.delimitacion.no_contiene.length ? r.delimitacion.no_contiene.map((n) => `«${n.frase}» ${n.aparece ? 'APARECE' : 'ausente'}`).join(', ') : 'no verificado'} |`] : []),
     `| Extracto pertinente | ${r.extracto ? `páginas ${r.extracto.desde}–${r.extracto.hasta} de ${r.paginas}` : 'documento completo'} |`,
     `| Páginas (pdfinfo) | ${r.paginas ?? '—'} (huella del ejemplar identificado: ${r.huella_paginas ?? 'no declarada'}) |`,
     `| Páginas con texto extraído | ${p ? p.paginasTexto : '—'} · vacías: ${p?.vacias.length ?? '—'} · débiles: ${p?.debiles.length ?? '—'} · dañadas: ${p?.danadas.length ?? '—'} |`,
@@ -553,19 +572,20 @@ function valor(argv: readonly string[], nombre: string): string | undefined {
 }
 
 export function cli(argv: readonly string[]): number {
-  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas', '--columnas']);
+  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas', '--columnas', '--cierre', '--no-contiene']);
   const archivo = argv.find((a, k) => !a.startsWith('--') && !(k > 0 && banderasConValor.has(argv[k - 1])));
   const paquete = valor(argv, '--paquete');
   const url = valor(argv, '--url');
   const retriever = valor(argv, '--retriever');
   const fecha = valor(argv, '--fecha');
   if (!archivo || !paquete || !url || !retriever || !fecha) {
-    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--columnas 2] [--revisado "<motivo>"]');
+    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--columnas 2 [--ultima-solo-izquierda]] [--cierre "<frase>"] [--no-contiene "<frase>"]… [--revisado "<motivo>"]');
     return 2;
   }
   const metodo = (valor(argv, '--metodo') ?? 'MANUAL_BROWSER') as OpcionesRecepcion['metodo'];
   const lote = valor(argv, '--lote') ?? '2026-11-hn-001-tranche-a';
   const mb = valor(argv, '--max-mb');
+  const noContiene = argv.flatMap((a, k) => (a === '--no-contiene' && argv[k + 1] ? [argv[k + 1]] : []));
   const col = valor(argv, '--columnas');
   if (col && col !== '1' && col !== '2') { console.error('--columnas debe ser 1 o 2'); return 2; }
   const pag = valor(argv, '--paginas');
@@ -576,6 +596,9 @@ export function cli(argv: readonly string[]): number {
     maxMb: mb ? Number(mb) : undefined, revisado: valor(argv, '--revisado'),
     paginasPertinentes: m ? { desde: Number(m[1]), hasta: Number(m[2]) } : undefined,
     columnas: col === '2' ? 2 : undefined,
+    ultimaSoloIzquierda: argv.includes('--ultima-solo-izquierda'),
+    cierre: valor(argv, '--cierre'),
+    noContiene: noContiene.length ? noContiene : undefined,
   });
   console.log(`${recibo.paquete}: ${recibo.estado}${recibo.motivo ? ` — ${recibo.motivo}` : ''}`);
   if (recibo.bytes_sha256) console.log(`bytes_sha256 ${recibo.bytes_sha256}  páginas ${recibo.paginas}`);

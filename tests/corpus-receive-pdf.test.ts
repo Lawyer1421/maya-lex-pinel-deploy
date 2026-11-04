@@ -40,28 +40,31 @@ function pdfSintetico(paginas: string[][]): Buffer {
   return Buffer.from(out, 'latin1');
 }
 
-/** Página de dos columnas: el flujo de contenido entrelaza una línea de cada columna. */
-function pdfDosColumnas(izq: string[], der: string[]): Buffer {
-  const partes: string[] = [];
-  for (let i = 0; i < Math.max(izq.length, der.length); i++) {
-    const y = 760 - i * 12;
-    if (izq[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 40 ${y} Tm (${izq[i].replace(/[()\\]/g, '')}) Tj ET`);
-    if (der[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 330 ${y} Tm (${der[i].replace(/[()\\]/g, '')}) Tj ET`);
-  }
-  const flujo = partes.join(' ');
-  const objs = [
-    '<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
-    `<< /Length ${flujo.length} >>\nstream\n${flujo}\nendstream`, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-  ];
+/** PDF de dos columnas con N páginas; el flujo de contenido entrelaza una línea de cada columna. */
+function pdfDosColumnasPaginas(paginas: Array<{ izq: string[]; der: string[] }>): Buffer {
+  const objs: string[] = ['<< /Type /Catalog /Pages 2 0 R >>', `<< /Type /Pages /Kids [${paginas.map((_, k) => `${3 + k * 2} 0 R`).join(' ')}] /Count ${paginas.length} >>`];
+  const fuente = 3 + paginas.length * 2;
+  paginas.forEach(({ izq, der }, k) => {
+    const partes: string[] = [];
+    for (let i = 0; i < Math.max(izq.length, der.length); i++) {
+      const y = 760 - i * 12;
+      if (izq[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 40 ${y} Tm (${izq[i].replace(/[()\\]/g, '')}) Tj ET`);
+      if (der[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 330 ${y} Tm (${der[i].replace(/[()\\]/g, '')}) Tj ET`);
+    }
+    const flujo = partes.join(' ');
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${4 + k * 2} 0 R /Resources << /Font << /F1 ${fuente} 0 R >> >> >>`);
+    objs.push(`<< /Length ${flujo.length} >>\nstream\n${flujo}\nendstream`);
+  });
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
   let out = '%PDF-1.4\n';
   const offs: number[] = [];
-  objs.forEach((o, i) => { offs.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  objs.forEach((o, n) => { offs.push(out.length); out += `${n + 1} 0 obj\n${o}\nendobj\n`; });
   const xref = out.length;
   out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offs.map((v) => `${String(v).padStart(10, '0')} 00000 n \n`).join('')}`;
   out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return Buffer.from(out, 'latin1');
 }
+const pdfDosColumnas = (izq: string[], der: string[]): Buffer => pdfDosColumnasPaginas([{ izq, der }]);
 
 const relleno = (n: number, prefijo = 'Linea'): string[] =>
   Array.from({ length: n }, (_, i) => `${prefijo} ${i + 1}: texto sintetico de relleno suficiente para superar el minimo de caracteres por pagina en la prueba.`);
@@ -299,6 +302,38 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     const texto: string = JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/HN-001-A03.json'), 'utf8')).extracted_text;
     expect(texto.indexOf('IZQ-REL 15')).toBeGreaterThan(-1);
     expect(texto.indexOf('IZQ-REL 15')).toBeLessThan(texto.indexOf('DER-UNO')); // columna izquierda completa antes que la derecha
+  });
+
+  describe('La Gaceta: un acto termina en la columna izquierda de la última página y otro empieza en la derecha', () => {
+    const p1 = { izq: ['LA GACETA No. 33,222', 'DECRETO No. 35-2013 reforma el Codigo', 'de la Ninez y la Adolescencia', 'ARTICULO 1.- Los ninos y adolescentes; la familia protege.', ...relleno(15, 'IZQ1')], der: ['ARTICULO 2.- Menores y familia; ninos y adolescentes.', ...relleno(15, 'DER1')] };
+    const p2 = { izq: ['ARTICULO 3.- Entra en vigencia; ninos.', 'POR TANTO: EJECUTESE.', 'FIRMA DEL PRESIDENTE', ...relleno(8, 'IZQ2')], der: ['DECRETO No. 107-2013 EL CONGRESO NACIONAL', 'ARTICULO 1.- Acto siguiente que no pertenece al decreto anterior.', ...relleno(8, 'DER2')] };
+    const base = { paquete: 'HN-001-A04', paginasPertinentes: { desde: 1, hasta: 2 }, columnas: 2 as const, cierre: 'EJECUTESE', noContiene: ['107-2013'] };
+    const leer = (raiz: string) => readdirSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review')).map((f) => JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review', f), 'utf8')).extracted_text as string)[0];
+    it('con --ultima-solo-izquierda el cierre se halla y el acto siguiente queda fuera; el hash del PDF íntegro se conserva aparte', () => {
+      const raiz = nuevaRaiz();
+      const pdf = pdfDosColumnasPaginas([p1, p2]);
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdf), { ...base, ultimaSoloIzquierda: true }));
+      expect(recibo.delimitacion).toEqual({ ultima_solo_izquierda: true, cierre: { frase: 'EJECUTESE', hallado: true }, no_contiene: [{ frase: '107-2013', aparece: false }] });
+      expect(recibo.identidad?.estado).toBe('CONFIRMADA');
+      expect(recibo.bytes_sha256).toBe(sha256(pdf));
+      expect(recibo.estado).toBe('RECEIVED'); // un extracto siempre espera el cotejo del rango por una persona
+      const texto = leer(raiz);
+      expect(texto).toMatch(/FIRMA DEL PRESIDENTE/);
+      expect(texto).not.toMatch(/107-2013|Acto siguiente/);
+      expect(texto.indexOf('IZQ1 15')).toBeLessThan(texto.indexOf('DER1 1')); // en la página 1, columna izquierda antes que la derecha
+    });
+    it('sin --ultima-solo-izquierda el texto del acto siguiente entra y se señala para revisión', () => {
+      const raiz = nuevaRaiz();
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), base));
+      expect(recibo.delimitacion?.no_contiene).toEqual([{ frase: '107-2013', aparece: true }]);
+      expect(recibo.motivos_revision.join(' ')).toMatch(/contiene «107-2013».*el corte no fue limpio/);
+    });
+    it('si el cierre no figura en el extracto, se señala', () => {
+      const raiz = nuevaRaiz();
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, ultimaSoloIzquierda: true, cierre: 'FRASE QUE NO EXISTE' }));
+      expect(recibo.delimitacion?.cierre).toEqual({ frase: 'FRASE QUE NO EXISTE', hallado: false });
+      expect(recibo.motivos_revision.join(' ')).toMatch(/Cierre documental no hallado/);
+    });
   });
 
   it('--revisado exige un motivo humano real', () => {

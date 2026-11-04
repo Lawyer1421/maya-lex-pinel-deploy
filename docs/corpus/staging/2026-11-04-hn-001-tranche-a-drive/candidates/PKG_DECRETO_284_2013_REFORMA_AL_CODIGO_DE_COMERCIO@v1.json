@@ -15,7 +15,7 @@
     "tier": null,
     "validacion": "DISCOVERED_UNVERIFIED",
     "retriever": "claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo)",
-    "retrieved_at": "2026-11-04T03:32:48.000Z",
+    "retrieved_at": "2026-11-04T03:57:17.000Z",
     "method": "API"
   },
   "identidad": {
@@ -183,94 +183,89 @@
     {
       "numero": "26",
       "ordinal": 26,
-      "sha256": "61be092dd5b93a2165c1c9370b24c6adfd1c86c4ba0c352e42b5a6c1bb014337",
-      "caracteres": 226
-    },
-    {
-      "numero": "17",
-      "ordinal": 27,
-      "sha256": "57c615bce194664de2cb618b9ae81e89230030ea914b28764d80f45d18a5f882",
-      "caracteres": 9785
+      "sha256": "e91f9abf5feb7c70b57a8c459902133a57721fa99fd47f39f9269baf2c048ec2",
+      "caracteres": 10024
     },
     {
       "numero": "27",
-      "ordinal": 28,
+      "ordinal": 27,
       "sha256": "0ae2c07d77c8b82aa68ee379d771b2db457d3510f753b12534c63151613e7220",
       "caracteres": 2494
     },
     {
       "numero": "28",
-      "ordinal": 29,
+      "ordinal": 28,
       "sha256": "055defc57a403c445bcbd4db14abafa53ca5b70a473f715328107201551c624e",
       "caracteres": 492
     },
     {
       "numero": "29",
-      "ordinal": 30,
+      "ordinal": 29,
       "sha256": "6a43d858fca2861648337afe4ad8b16c7360d671fe22a334662f216215eefd48",
       "caracteres": 325
     },
     {
       "numero": "30",
-      "ordinal": 31,
+      "ordinal": 30,
       "sha256": "d5859baaf9632a48bd0616211fb4aec6cd0dd210e1849ef4dbb33eec9f553926",
       "caracteres": 398
     },
     {
       "numero": "31",
-      "ordinal": 32,
+      "ordinal": 31,
       "sha256": "4ad0dc3bd2d4832f66aa98823c2a18295877ccb6c464ad49ff7f28e7485c729e",
       "caracteres": 368
     },
     {
       "numero": "32",
-      "ordinal": 33,
+      "ordinal": 32,
       "sha256": "0a91788fcacaa0f7db7979168ccf8291bae7025d83c4ae7f744c0a082e085560",
       "caracteres": 243
     },
     {
       "numero": "33",
-      "ordinal": 34,
+      "ordinal": 33,
       "sha256": "58a59a70f3f623bc8ff7c732f7d209c67e2919d3e60cb0a760ebbfdcd1daa6ec",
       "caracteres": 891
     },
     {
       "numero": "34",
-      "ordinal": 35,
+      "ordinal": 34,
       "sha256": "fea7d81daa5f3213361280e0be42a2b0f88192fc788bde074603db5baf8396d3",
       "caracteres": 754
     },
     {
       "numero": "35",
-      "ordinal": 36,
+      "ordinal": 35,
       "sha256": "7c795fceddd49049e8a50c085d8dee9c977c1787c0d79426fcab1b8f19c329e4",
       "caracteres": 514
     },
     {
       "numero": "36",
-      "ordinal": 37,
+      "ordinal": 36,
       "sha256": "75a36b3c9520b75687587ade293abc5256a5aeba6920449cbdd3500651d013b9",
       "caracteres": 246
     },
     {
       "numero": "37",
-      "ordinal": 38,
+      "ordinal": 37,
       "sha256": "46576aee8afa27c832b51506106212f00bd299ab5624c75fa383845051015994",
       "caracteres": 209
     },
     {
       "numero": "38",
-      "ordinal": 39,
+      "ordinal": 38,
       "sha256": "339b7bbbf8dd0598a462a7c8d018fdacc239dc61d08eaca895f11546f41227c8",
       "caracteres": 163
     },
     {
       "numero": "39",
-      "ordinal": 40,
+      "ordinal": 39,
       "sha256": "faf5c65e3e666a83bdafe823a3e16b49624c894cbfbc40da13df62bdd6bbda59",
       "caracteres": 612
     }
   ],
+  "notas_al_pie": [],
   "preambulo_caracteres": 1728,
   "qa": {
     "chequeos": [
@@ -308,19 +303,19 @@
         "id": "ARTICLES_DETECTED",
         "severidad": "INFO",
         "ok": true,
-        "detalle": "40 artículos detectados (tipo REFORM)"
+        "detalle": "39 artículos detectados (tipo REFORM)"
       },
       {
         "id": "SEQUENCE_CONTINUOUS",
         "severidad": "WARNING",
-        "ok": false,
-        "detalle": "saltos: 26→17, 17→27"
+        "ok": true,
+        "detalle": "numeración continua"
       },
       {
         "id": "NO_DUPLICATE_NUMBERS",
         "severidad": "WARNING",
-        "ok": false,
-        "detalle": "repetidos: 17"
+        "ok": true,
+        "detalle": "sin repetidos"
       },
       {
         "id": "NO_EMPTY_ARTICLES",

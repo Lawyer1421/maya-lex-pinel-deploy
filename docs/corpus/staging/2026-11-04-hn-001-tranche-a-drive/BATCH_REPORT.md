@@ -6,4 +6,4 @@ Paquetes: 1 · CLO_PENDING: 0 · SOURCE_HOLD: 1 · QA_FAILED: 0 · jurisprudenci
 
 | Archivo | Importación | Estado | Artículos | Notas |
 |---|---|---|---:|---|
-| HN-001-A03.json | IMPORTED_DISCOVERED_UNVERIFIED | SOURCE_HOLD | 299 | drive.google.com no está en el registro de fuentes oficiales → solo descubrimiento |
+| HN-001-A03.json | IMPORTED_DISCOVERED_UNVERIFIED | SOURCE_HOLD | 302 | drive.google.com no está en el registro de fuentes oficiales → solo descubrimiento |

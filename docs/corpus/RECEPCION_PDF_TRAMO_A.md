@@ -53,6 +53,19 @@ Con `--paginas DESDE-HASTA` una persona fija el rango pertinente (por ejemplo, l
 ### Páginas de dos columnas (La Gaceta)
 Con `--columnas 2` cada página se extrae recortada a su mitad izquierda y luego a su mitad derecha. La lectura simple entrelaza las columnas y desordena los artículos (comprobado con el Decreto 284-2013). El método queda en el recibo y el `text_sha256` corresponde a ese método de extracción.
 
+### Un acto que termina en una columna y otro que empieza en la otra (A04: La Gaceta 33,222)
+El Decreto 35-2013 ocupa las páginas 1 a 46; en la 46 termina en la columna izquierda y comienza el Decreto 107-2013 en la derecha. La extracción lineal de 1–46 incluiría el acto siguiente. Procedimiento:
+1. **Antes de todo**, el SHA-256 del PDF íntegro debe ser `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` (18,625,608 bytes). Si difiere, **detenerse y reportar**; no procesar.
+2. Ejecutar (la frase de cierre se toma de la firma impresa en el propio documento):
+```sh
+npx tsx tools/corpus/receive-pdf.ts <Codigo_niñezyadolescencia_2013.pdf> --paquete HN-001-A04 \
+  --url "<URL de procedencia>" --retriever "<quién lo entregó>" --fecha <ISO> --metodo MANUAL_BROWSER \
+  --columnas 2 --paginas 1-46 --ultima-solo-izquierda \
+  --cierre "<frase de la firma del Decreto 35-2013>" --no-contiene "107-2013" --lote <lote>
+```
+3. `--ultima-solo-izquierda` toma la página 46 solo por su columna izquierda; `--cierre` exige que la firma/cierre figure en el extracto; `--no-contiene` señala si entró texto del acto siguiente. Cualquier fallo deja el paquete en `RECEIVED` con el motivo. El recibo guarda el hash del PDF íntegro y, por separado, el método, el rango y la delimitación; el `text_sha256` es el del extracto.
+4. Un extracto siempre queda `RECEIVED` hasta que una persona coteja el rango (páginas 1–46, columna izquierda en la 46) y repite con `--revisado "<motivo>"`.
+
 ### Cuando un humano ya revisó un `RECEIVED`
 Repetir el mismo comando con `--revisado "<motivo>"` (mínimo 10 caracteres: qué se cotejó y contra qué). Levanta **solo** los bloqueos de revisión (6, 7 y 5); nunca los rechazos de entrada. El recibo registra la revisión declarada. Sigue sin ser V4/V5.
 

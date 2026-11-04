@@ -15,7 +15,7 @@
     "tier": null,
     "validacion": "DISCOVERED_UNVERIFIED",
     "retriever": "claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo)",
-    "retrieved_at": "2026-11-04T03:32:48.000Z",
+    "retrieved_at": "2026-11-04T03:57:17.000Z",
     "method": "API"
   },
   "identidad": {
@@ -39,26 +39,26 @@
     {
       "numero": "2",
       "ordinal": 2,
-      "sha256": "37d7906af178a8db52e63b4d21051fc8782e4a94b1d2e10d39b455971a064b9e",
-      "caracteres": 496
-    },
-    {
-      "numero": "1",
-      "ordinal": 3,
-      "sha256": "b0a809def46491cc8a9bb82706e4863ca4fa079db5725f6c0db627718438c0b6",
-      "caracteres": 631
+      "sha256": "8fa9fb695f45c2bd68fbcc43012cdb6b410426a7bbb4d6a1b13b9eded15dc1d0",
+      "caracteres": 978
     },
     {
       "numero": "3",
-      "ordinal": 4,
+      "ordinal": 3,
       "sha256": "6b3579b4a9de2832477aec041b9a5858238480e12c8f68a6c2dc023529a7f956",
       "caracteres": 370
     },
     {
       "numero": "4",
+      "ordinal": 4,
+      "sha256": "3627f5316d6a2ea5a5ff8c4ebf23a7bd51a5c092cdd20dc0d0a7faec7f549bd9",
+      "caracteres": 640
+    },
+    {
+      "numero": "5",
       "ordinal": 5,
-      "sha256": "3e76c246f21567e20862bd226282d40be5aac5899b891493a65973edfe7e737a",
-      "caracteres": 2017
+      "sha256": "9339900094cf1cf430efa0f4ef92089d9607c7444cea979b09b93d8db3928d8b",
+      "caracteres": 1363
     },
     {
       "numero": "6",
@@ -69,8 +69,8 @@
     {
       "numero": "7",
       "ordinal": 7,
-      "sha256": "b44265354f76f726f380c0fa1dc8f5abbde80bc5953293769282e43488f9d540",
-      "caracteres": 645
+      "sha256": "86d69eb411cb5b3636dcd3766c9ba69b624823090e38c504e717c188a1482e04",
+      "caracteres": 457
     },
     {
       "numero": "8",
@@ -135,140 +135,140 @@
     {
       "numero": "18",
       "ordinal": 18,
-      "sha256": "7fcb111ec6939f28fcda7a4722054972b63c30851a3111977e0a678f354fb0c7",
-      "caracteres": 1386
+      "sha256": "43b4308146823d0d8bf58b1010b5d02e0c5b20c57490b396c79a88ebc954ad64",
+      "caracteres": 246
+    },
+    {
+      "numero": "19",
+      "ordinal": 19,
+      "sha256": "d8956a422db2f9b8fccafe63d656587e35e9282970b6fcff748c7a7951a433d4",
+      "caracteres": 1124
     },
     {
       "numero": "20",
-      "ordinal": 19,
+      "ordinal": 20,
       "sha256": "755e915e86485a7e6a9cb4fd98bb7af8a98f62807c109b8b24f808435fdbc497",
       "caracteres": 258
     },
     {
       "numero": "21",
-      "ordinal": 20,
+      "ordinal": 21,
       "sha256": "ea7acbe39ed86a75bfc4b6b27a7457460868fb9cfec04f23307071a9c89975f9",
       "caracteres": 10
     },
     {
       "numero": "22",
-      "ordinal": 21,
-      "sha256": "1dc4a8c60d5802241eab8343ad2beb8d5cbdaadb88729d855fa0752aeefedb94",
-      "caracteres": 1133
+      "ordinal": 22,
+      "sha256": "22a7fda62c29f91b9ec7f4275fcfcb2e3669ea04fe0a81f67cc007b5d3cf8497",
+      "caracteres": 752
     },
     {
       "numero": "23",
-      "ordinal": 22,
+      "ordinal": 23,
       "sha256": "fa2154321f975b96ae6c26ad1ebddfeffc8beaaa5dc9cbfee3b283c576e8c12f",
       "caracteres": 416
     },
     {
       "numero": "24",
-      "ordinal": 23,
+      "ordinal": 24,
       "sha256": "bc4e7430ed3c43b1e0c78190a813d106115f907c1527dd8611e2676256b9595e",
       "caracteres": 377
     },
     {
       "numero": "25",
-      "ordinal": 24,
+      "ordinal": 25,
       "sha256": "a510a91b43493b34a170a60c69174a210d083c0b298bca04b4f687959aa44c87",
       "caracteres": 148
     },
     {
       "numero": "26",
-      "ordinal": 25,
+      "ordinal": 26,
       "sha256": "022737782c3545846750b02b5b1881c02379b53fa336f4d804fe7b6f2aa92f4a",
       "caracteres": 180
     },
     {
       "numero": "27",
-      "ordinal": 26,
+      "ordinal": 27,
       "sha256": "834c3999b3d56fc5a62839e329c5ca4377e8d5f1509e7b25b3926daf9c6f5288",
       "caracteres": 167
     },
     {
       "numero": "28",
-      "ordinal": 27,
+      "ordinal": 28,
       "sha256": "8f935e9426a98a761d9fbb4ba72861de3245a568ff93e845ea058cd257e2aaae",
       "caracteres": 1416
     },
     {
       "numero": "29",
-      "ordinal": 28,
+      "ordinal": 29,
       "sha256": "bc408f2ac2d51758f0d3df9aa887afd4c5579b16bf0013c8583ec790bdc43050",
       "caracteres": 197
     },
     {
       "numero": "30",
-      "ordinal": 29,
+      "ordinal": 30,
       "sha256": "9d6ebde788630bd041b7116716cebe1b911fcbce912d2671128b9707f81dd261",
       "caracteres": 305
     },
     {
       "numero": "31",
-      "ordinal": 30,
+      "ordinal": 31,
       "sha256": "97d4e2e8e85dd62279fc772b579b4de91b30c7cd051286bca8e806b74b215733",
       "caracteres": 209
     },
     {
       "numero": "31-A",
-      "ordinal": 31,
+      "ordinal": 32,
       "sha256": "9243ee205a48e992788dddcfc747adc7482e83414819403af0f9e596e83ae14e",
       "caracteres": 352
     },
     {
       "numero": "31-B",
-      "ordinal": 32,
+      "ordinal": 33,
       "sha256": "7b2127c6eb180d7f8fd1468e6f398bd74371bba4e6b2917c0a8bccabf07162e9",
       "caracteres": 539
     },
     {
       "numero": "32",
-      "ordinal": 33,
-      "sha256": "6fe489a52b4cbd1fbb064707bd030fb1009ef82853291b0b175c851d583338ed",
-      "caracteres": 509
-    },
-    {
-      "numero": "31-B",
       "ordinal": 34,
-      "sha256": "d1ebef7ae71165bca0b69a1e285789a294aaf221a6b3ce861db9d6161d482484",
-      "caracteres": 148
-    },
-    {
-      "numero": "32",
-      "ordinal": 35,
-      "sha256": "a3da938c2a8115de567d781c9cde2142cf8f6a0423fd44aa64e55a5771c14ae9",
-      "caracteres": 687
+      "sha256": "e989c302828ea346f0369aa9ae1d641bcf00d584912d7b60f676cbdaf9aaaee7",
+      "caracteres": 885
     },
     {
       "numero": "33",
-      "ordinal": 36,
+      "ordinal": 35,
       "sha256": "38df9057498b6ec4350697e3aa2232f358808995bf924fd3c60601614415719e",
       "caracteres": 283
     },
     {
       "numero": "34",
-      "ordinal": 37,
+      "ordinal": 36,
       "sha256": "f506df71adf7a4a6b66064fb8c557a64048d7f49b9ed33348b4bad0928d561bb",
       "caracteres": 535
     },
     {
       "numero": "35",
-      "ordinal": 38,
+      "ordinal": 37,
       "sha256": "1731c73d7707185532a8fa5a7a2933956c49481d296d52214a46d2916d2daf1b",
       "caracteres": 920
     },
     {
       "numero": "36",
-      "ordinal": 39,
+      "ordinal": 38,
       "sha256": "a8e6e9f6aef6c30b76a315ccb15b0dc00621e461708ab0bc117f5184e34f9083",
       "caracteres": 1276
     },
     {
       "numero": "37",
+      "ordinal": 39,
+      "sha256": "b4582970de201f4e025468ceb8d6744bd7f0c5fb0cdccffad338fc106a06913c",
+      "caracteres": 142
+    },
+    {
+      "numero": "38",
       "ordinal": 40,
-      "sha256": "ed5b425263b38f3d038319085ffc2aa45d7585c22e9a284e80a5166616083260",
-      "caracteres": 277
+      "sha256": "4c7fc2205becb9e1b519eb60ac4b679f44aac84427e73a0dee311781d025930c",
+      "caracteres": 119
     },
     {
       "numero": "39",
@@ -387,242 +387,242 @@
     {
       "numero": "58",
       "ordinal": 60,
-      "sha256": "b512a5f626cdf62182dfc39eb40996591c07f8d19807230514ab7846877b9e7e",
-      "caracteres": 846
+      "sha256": "130f65283dd871e207bf9d87f87e6b2d1e973f14d93872a0eb557db5f61517fb",
+      "caracteres": 316
+    },
+    {
+      "numero": "59",
+      "ordinal": 61,
+      "sha256": "21a3cc7a8b023c9841dd9c70655f2a0821ae91c6ab475bdcc18b9aba86301cae",
+      "caracteres": 514
     },
     {
       "numero": "60",
-      "ordinal": 61,
+      "ordinal": 62,
       "sha256": "a3cabeee7cdce7b5161e963d5ad9b51a1a1a159f50564aad3e74c0616378e10b",
       "caracteres": 119
     },
     {
       "numero": "61",
-      "ordinal": 62,
+      "ordinal": 63,
       "sha256": "11efee441d66f737cdf5252960a450594a91db8739c4f8eae5151f898c0df67b",
       "caracteres": 199
     },
     {
       "numero": "62",
-      "ordinal": 63,
+      "ordinal": 64,
       "sha256": "ba649ca716acb4debd8a728b175825a929edad397a43a799cfe2cc842b3a331f",
       "caracteres": 8
     },
     {
       "numero": "63",
-      "ordinal": 64,
+      "ordinal": 65,
       "sha256": "b95592c4be27f38fdd54cdbac45a2cedfcef5106a65e80377ee8044238399ed8",
       "caracteres": 8
     },
     {
       "numero": "64",
-      "ordinal": 65,
+      "ordinal": 66,
       "sha256": "fe44bcc77d580088025abf1e912e5fc964aaea161d12bda28a2a152d693d2aa4",
       "caracteres": 8
     },
     {
       "numero": "65",
-      "ordinal": 66,
+      "ordinal": 67,
       "sha256": "606330f9376b0de71fe4ec6f7de30af92437a90cd446e38ec110c47220ecb8ae",
       "caracteres": 8
     },
     {
       "numero": "66",
-      "ordinal": 67,
+      "ordinal": 68,
       "sha256": "4c6317a8fb5c17afa949b9b668d99ebff8bdd446566e7ae351936f6fcb6e30be",
       "caracteres": 8
     },
     {
       "numero": "67",
-      "ordinal": 68,
+      "ordinal": 69,
       "sha256": "149941bff994dfba513d7b947502d58ef8703ca8b26595b5292f9dc19e53f318",
       "caracteres": 8
     },
     {
       "numero": "68",
-      "ordinal": 69,
+      "ordinal": 70,
       "sha256": "9711791fa6a0baa9eb0838cb43f215e5b19b164a066e71178ac8a130836baa4a",
       "caracteres": 8
     },
     {
       "numero": "69",
-      "ordinal": 70,
+      "ordinal": 71,
       "sha256": "0c186c43388120028c25e458ae7dcef5a32f19397abac44d4d2734ca50045805",
       "caracteres": 8
     },
     {
       "numero": "70",
-      "ordinal": 71,
+      "ordinal": 72,
       "sha256": "41082a1160cbb2c9ca8b9f26bd96d2373560f63641eb13f2aabdd37143d1de57",
       "caracteres": 8
     },
     {
       "numero": "71",
-      "ordinal": 72,
+      "ordinal": 73,
       "sha256": "b91d9f4593af1bbf80b19c36590a13b621a66db8705bdc9f5e68452934223775",
       "caracteres": 8
     },
     {
       "numero": "72",
-      "ordinal": 73,
-      "sha256": "3c4e0f280c6844b20b77e4ed48120e8f119547b51378e318eddddf03e90aadc5",
-      "caracteres": 247
+      "ordinal": 74,
+      "sha256": "a05363d968b217e99a4ef8b619f354869c49fe66c7f904b824b12c53f3fe10f6",
+      "caracteres": 72
     },
     {
       "numero": "73",
-      "ordinal": 74,
+      "ordinal": 75,
       "sha256": "dbe56491e58123356631d86ebe6fdb653e06f232de4963b52f366c2cbc069b76",
       "caracteres": 8
     },
     {
       "numero": "74",
-      "ordinal": 75,
+      "ordinal": 76,
       "sha256": "2c1aa6c96236906719308a5223314d1f9f40c61c98144b85194d5d2e01527640",
       "caracteres": 8
     },
     {
       "numero": "75",
-      "ordinal": 76,
+      "ordinal": 77,
       "sha256": "e2e7bf979ab58b123e15f8c622d65b876b9089f2f878922fc905a51a9645ca92",
       "caracteres": 8
     },
     {
       "numero": "76",
-      "ordinal": 77,
+      "ordinal": 78,
       "sha256": "371c06728380a39b723d6397ef0e7687b9f587b377cabc748f2675bb6999b30e",
       "caracteres": 8
     },
     {
       "numero": "77",
-      "ordinal": 78,
+      "ordinal": 79,
       "sha256": "e44993dd5e09937c5435e4641acbc59f74abcd06d8501b9f3dda100233c04954",
       "caracteres": 8
     },
     {
       "numero": "78",
-      "ordinal": 79,
+      "ordinal": 80,
       "sha256": "19014e40b776747455f042273c288c073edb8ec7869f76a6cd2048c835ee92e7",
       "caracteres": 8
     },
     {
       "numero": "79",
-      "ordinal": 80,
+      "ordinal": 81,
       "sha256": "9dd504f3e4875bee208775687d70a3a63937d64b617a666132222c1aac407bc8",
       "caracteres": 8
     },
     {
       "numero": "80",
-      "ordinal": 81,
+      "ordinal": 82,
       "sha256": "c1c95db363aa0f1d29d4900198c301f3a56db69589721853cf727d558e67c7d4",
       "caracteres": 8
     },
     {
       "numero": "81",
-      "ordinal": 82,
+      "ordinal": 83,
       "sha256": "3ed0e4a46dea6aee06c8c675e154d27537924a32324a2b72e6e49b35f112332e",
       "caracteres": 8
     },
     {
       "numero": "82",
-      "ordinal": 83,
-      "sha256": "8c1988f0dfe0686595bf16e13bb3230c2ce31f2ca4c2037b155ef9174c7c4400",
-      "caracteres": 337
+      "ordinal": 84,
+      "sha256": "aca07d4eaa36b09a9ccaefeeb438663e187c4a159db781b957e887ed5fb5b077",
+      "caracteres": 163
     },
     {
       "numero": "83",
-      "ordinal": 84,
+      "ordinal": 85,
       "sha256": "818d6b3803e02c88e35525535712354b4f5fb3bf97da6be8fef26195f9deadea",
       "caracteres": 343
     },
     {
       "numero": "84",
-      "ordinal": 85,
+      "ordinal": 86,
       "sha256": "9b5aafd677b4c58737da54e4a2bc6237c6ede2902f4a6b40e2b983d7cc44122e",
       "caracteres": 244
     },
     {
       "numero": "85",
-      "ordinal": 86,
+      "ordinal": 87,
       "sha256": "bca431c4e0b01c3c46bef9c54c052c66941ca1e077072f3c70f48e906695d4df",
       "caracteres": 729
     },
     {
       "numero": "86",
-      "ordinal": 87,
+      "ordinal": 88,
       "sha256": "4ae4daabde9370d9d5a7c55b612e95f5c76a2b95ca9a8aa15f4b3a74431f1cc1",
       "caracteres": 276
     },
     {
       "numero": "87",
-      "ordinal": 88,
+      "ordinal": 89,
       "sha256": "7f7dee7ca355821e957759a638fc2108539f73bf34855988c443c36b476c5765",
       "caracteres": 448
     },
     {
       "numero": "88",
-      "ordinal": 89,
+      "ordinal": 90,
       "sha256": "91abc57dc7dbecec2d3925428ed0fe1560f5385fb7f4ebe202b8ce2ef1d50d58",
       "caracteres": 159
     },
     {
       "numero": "89",
-      "ordinal": 90,
+      "ordinal": 91,
       "sha256": "9b4640db1cf15b1ceb1c954177895dd18e62be6f0513f12ee4ff6ff95cea81d8",
       "caracteres": 383
     },
     {
       "numero": "90",
-      "ordinal": 91,
+      "ordinal": 92,
       "sha256": "cf8b31fb641df9342ce9c0628b05e7adcb3f7b2515fff9d8fc6e59c8a527a4b2",
       "caracteres": 164
     },
     {
       "numero": "91",
-      "ordinal": 92,
+      "ordinal": 93,
       "sha256": "8c4a882093867a9bbe9d226927e082821e79dc16d47e3095b779a0c0acff4a17",
       "caracteres": 158
     },
     {
       "numero": "92",
-      "ordinal": 93,
-      "sha256": "ce0fcd3a6df4b5765737827dd45c88830073d7603f8c62e2a3816e08f157bff6",
-      "caracteres": 919
+      "ordinal": 94,
+      "sha256": "959178b977a62bb25fa4fef95fd5d626846bb9ea44d9a8729c0e73b29528c40e",
+      "caracteres": 751
+    },
+    {
+      "numero": "93",
+      "ordinal": 95,
+      "sha256": "52dcd848e4cbdba8bb118e0e8c2f1024f2b0c9f050d7b63e2acdaca84022f45c",
+      "caracteres": 152
     },
     {
       "numero": "94",
-      "ordinal": 94,
+      "ordinal": 96,
       "sha256": "18059edd8a8749afd2cffee8865c758f32fb9cdf5da624c8914188ce2e423f93",
       "caracteres": 506
     },
     {
       "numero": "95",
-      "ordinal": 95,
+      "ordinal": 97,
       "sha256": "d307d09dd845be7752b621797381799f14515cd282f4e042a763105475098f00",
       "caracteres": 242
     },
     {
       "numero": "96",
-      "ordinal": 96,
+      "ordinal": 98,
       "sha256": "c2ae8bab80bce41d22fe9728865fc31c1ad9f610a6ef8b39221b97a465783d14",
       "caracteres": 719
     },
     {
       "numero": "97",
-      "ordinal": 97,
-      "sha256": "ce9da948aa2189a226a45ff75f4b31d59c4f5043ca9072b38beaee0429ce45ae",
-      "caracteres": 508
-    },
-    {
-      "numero": "96",
-      "ordinal": 98,
-      "sha256": "bd42b5d13ab204f31c5fe05bd61bd25632f71dda2e7ea8f88aa47dc92a3a6897",
-      "caracteres": 150
-    },
-    {
-      "numero": "97",
       "ordinal": 99,
-      "sha256": "5a01cc0b1580dc0168452b76590eeb062f12d21cc59f6ec520f3c1ee9ece899c",
-      "caracteres": 329
+      "sha256": "967b31c0dc3d2ed480fefe5bb6f7ba92a24d7107cccf7aa368fa056a87820556",
+      "caracteres": 689
     },
     {
       "numero": "98",
@@ -639,974 +639,974 @@
     {
       "numero": "100",
       "ordinal": 102,
-      "sha256": "163348e42fbb8fc9ed064bad6dbbc06b0332e32e9924262bae4e310fdbf163b3",
-      "caracteres": 70
-    },
-    {
-      "numero": "98",
-      "ordinal": 103,
-      "sha256": "d84e3a567db0abe1139f594bf33c3c619e8a456363ce7fedf3625009101a4515",
-      "caracteres": 148
-    },
-    {
-      "numero": "99",
-      "ordinal": 104,
-      "sha256": "5e247237bfdc16fdfd0dac9172c8327e73af88e7af24106c398e84439ab01702",
-      "caracteres": 340
+      "sha256": "7f866315d048fe9e33880421ebef17aeed427a5c21eb8fdbe814d18aac317150",
+      "caracteres": 264
     },
     {
       "numero": "100-A",
-      "ordinal": 105,
+      "ordinal": 103,
       "sha256": "b4b0c62418e14d9e496687b6bd0f77a05e46f4a2dafd7c523fe01a7df9de9c11",
       "caracteres": 491
     },
     {
       "numero": "101",
-      "ordinal": 106,
+      "ordinal": 104,
       "sha256": "73b8d6ef08ec3a07da5fe63888e13e009b005dd6a86aea149ef5111ad3d8c28d",
       "caracteres": 405
     },
     {
       "numero": "102",
-      "ordinal": 107,
+      "ordinal": 105,
       "sha256": "9e2186847a75275082b654f7b17822ec029a5f70a3ea49ada13466c5f05caf6d",
       "caracteres": 479
     },
     {
       "numero": "102-A",
-      "ordinal": 108,
-      "sha256": "79da7ec96d5a86df2d79c3c014544511efd9051236088a8f4a812227fac75c03",
-      "caracteres": 1612
+      "ordinal": 106,
+      "sha256": "e48a697e381c77b195ffa57589df9aec6f7bbc5e7ecd16c39535bd021eace37c",
+      "caracteres": 1188
     },
     {
       "numero": "103",
-      "ordinal": 109,
+      "ordinal": 107,
       "sha256": "e7cd0c0cf55f923b557a4a60f6a7a1b2f3ee04a65f3e14002e42ea2212b58e0c",
       "caracteres": 563
     },
     {
       "numero": "104",
-      "ordinal": 110,
-      "sha256": "0e30c40e2ac2b31f0e3f7121d9ae04585ba665c1b22d479e3a0f100fbc1e21cf",
-      "caracteres": 435
-    },
-    {
-      "numero": "104",
-      "ordinal": 111,
-      "sha256": "eee3390e520322c4d98715b361a15f04d7f98c3c192384284696518639b1cf54",
-      "caracteres": 1075
-    },
-    {
-      "numero": "105",
-      "ordinal": 112,
-      "sha256": "a652c13746a9dc53b5c1c0ab1fb525296e277ac970348385a0b4f355d0fe30b3",
-      "caracteres": 1273
+      "ordinal": 108,
+      "sha256": "7e0f34e72c83c2c28ee8eb2da6174e601cbddf840e38546701b48a149812ddbc",
+      "caracteres": 459
     },
     {
       "numero": "104-A",
-      "ordinal": 113,
-      "sha256": "f082d34f7e480857974a79150456c28916edc8f5babfd2b139d3a476dd03e26c",
-      "caracteres": 149
+      "ordinal": 109,
+      "sha256": "ae0182686bd34198f6468e7d945cf1c396a8c5689bf8b188dd13b346f52a9aaf",
+      "caracteres": 886
     },
     {
       "numero": "105",
-      "ordinal": 114,
-      "sha256": "5ca0e3aa55a5ac61868592870958598d9fb3362ff30d4a2e42cebc9acc1ebf81",
-      "caracteres": 392
+      "ordinal": 110,
+      "sha256": "1956aee73be7632d7698801397fd9602c569baaced6c31f10f954096ee99ec5d",
+      "caracteres": 1517
     },
     {
       "numero": "106",
-      "ordinal": 115,
+      "ordinal": 111,
       "sha256": "0122656fc59bd23e2479c55727f4fe872d8364c3c77ab211a1abd0d1af9b6bdd",
       "caracteres": 320
     },
     {
       "numero": "107",
-      "ordinal": 116,
+      "ordinal": 112,
       "sha256": "d49c66908fb77eebf5472783416400f27ba0b29d575e868566a60ad7046c66a4",
       "caracteres": 299
     },
     {
       "numero": "108",
-      "ordinal": 117,
+      "ordinal": 113,
       "sha256": "7cdf35f551471914f2f6ff6e32b7953c6da05db56a53781000da0cf9f139d2a5",
       "caracteres": 673
     },
     {
       "numero": "109",
-      "ordinal": 118,
-      "sha256": "d07636c6bd3d912ea47ff5ec7cb41d0dad734117f533611b9c3bea374ca78cd3",
-      "caracteres": 1048
+      "ordinal": 114,
+      "sha256": "6e8b540e3785520fcf2bfdfe7887003265e325f66dda922fb5d97092cbd5d934",
+      "caracteres": 890
     },
     {
       "numero": "110",
-      "ordinal": 119,
+      "ordinal": 115,
       "sha256": "a8ed6427759c6f7ba16084809b636a20675ee907921a7344740e912034553d57",
       "caracteres": 644
     },
     {
       "numero": "111",
-      "ordinal": 120,
+      "ordinal": 116,
       "sha256": "cec477cc23e161bdb42e5593ffc1be39184aa4ffd5e6fa5ba999ffd80386c80e",
       "caracteres": 991
     },
     {
       "numero": "112",
-      "ordinal": 121,
+      "ordinal": 117,
       "sha256": "4630fad82e283bb338e7b5adca5a043463cbb4368992565ebdbc9aba566e95a6",
       "caracteres": 1610
     },
     {
       "numero": "113",
-      "ordinal": 122,
-      "sha256": "e90798eb16ad055a4dfa9ba6bd6a9077e29489ac9df283e768dc7ef37ae2ee2e",
-      "caracteres": 856
-    },
-    {
-      "numero": "113",
-      "ordinal": 123,
-      "sha256": "81b13c859d42cb5b0c26b8d301c424d31d62b41f8230c63293917e8481d5999f",
-      "caracteres": 376
+      "ordinal": 118,
+      "sha256": "d4930eb65c24bc5d5411bc0d0e47c6dcf6cf28ce7f13a8937ccfe4fd3ac98ae4",
+      "caracteres": 1084
     },
     {
       "numero": "114",
-      "ordinal": 124,
+      "ordinal": 119,
       "sha256": "28f4db880524798a6bbfa369fd540424c9d66bbd7bb07fce2396aa1f4b7b48ba",
       "caracteres": 240
     },
     {
       "numero": "115",
-      "ordinal": 125,
+      "ordinal": 120,
       "sha256": "e43b6d9464bf792e4cfedc7e1845779cf7afbfc2777be98e1107baa6e1412f5f",
       "caracteres": 776
     },
     {
       "numero": "116",
-      "ordinal": 126,
+      "ordinal": 121,
       "sha256": "1a584daa03848cdb464d2fd1cd480c234210558a9bc981df681a074a0278aac2",
       "caracteres": 94
     },
     {
       "numero": "117",
-      "ordinal": 127,
+      "ordinal": 122,
       "sha256": "db57cb475a1ec5d837029958d38cb032c1de22455a6833d83de35d79dd86cfe2",
       "caracteres": 81
     },
     {
       "numero": "118",
-      "ordinal": 128,
+      "ordinal": 123,
       "sha256": "767ca209a8a0a0f3bbcf650409cfe899ef705a3f2d3e2cb9ccf03fbb45a3b8c3",
       "caracteres": 335
     },
     {
       "numero": "119",
-      "ordinal": 129,
+      "ordinal": 124,
       "sha256": "f75a912de4b42bf04d6e1586c616d93902b6c0212584bdc94e1b97fd84f0f4e2",
       "caracteres": 1037
     },
     {
       "numero": "120",
-      "ordinal": 130,
+      "ordinal": 125,
       "sha256": "d0d67a3a6702c1bcd90b082128d033a31bbc99953e02480fa0646d22b81aab80",
       "caracteres": 265
     },
     {
       "numero": "121",
-      "ordinal": 131,
-      "sha256": "3243578b7584186970856bd57bb21897258f4a102584d3079f502ea968cc72d9",
-      "caracteres": 4874
+      "ordinal": 126,
+      "sha256": "3ceda27980265e058676abbeafeb402add67082b1a649a699c53a636fe52d5d0",
+      "caracteres": 651
+    },
+    {
+      "numero": "122",
+      "ordinal": 127,
+      "sha256": "e800c6026cb42864ef357b4aae906aca8d74195e6d7d4548aeea442dce92ff0a",
+      "caracteres": 3810
+    },
+    {
+      "numero": "123",
+      "ordinal": 128,
+      "sha256": "55e9efde014348913183d1469567bec5a49448fa6bfbb6a13b74e157a4cfc040",
+      "caracteres": 379
     },
     {
       "numero": "124",
-      "ordinal": 132,
+      "ordinal": 129,
       "sha256": "51ddfa5499531cd987fc6d9c5e1323a2d6af26484e5a855e4c656468534da687",
       "caracteres": 235
     },
     {
       "numero": "125",
-      "ordinal": 133,
+      "ordinal": 130,
       "sha256": "3148112ddd4ca994b83379addd376df7965932ddc75d2f11d92cbb018d0bf365",
       "caracteres": 706
     },
     {
       "numero": "126",
-      "ordinal": 134,
-      "sha256": "25731a56211ff236db5a9710365edd9a1ae7cdd0347f5006fd28a92b836f73a5",
-      "caracteres": 938
+      "ordinal": 131,
+      "sha256": "e0377216aeda7129c4280cfd97780ee5cf719a7ae9ea82653bba38aae3f60f04",
+      "caracteres": 777
+    },
+    {
+      "numero": "127",
+      "ordinal": 132,
+      "sha256": "838261fb70f4c73d8fcf37d8b4460d3206e036cdc9d28d5ec68b29b025ec7cba",
+      "caracteres": 144
     },
     {
       "numero": "128",
-      "ordinal": 135,
+      "ordinal": 133,
       "sha256": "ed8bc05b61391e3483665cdbc194bcf68ce2acb6c8d75700f08adec02cdad459",
       "caracteres": 849
     },
     {
       "numero": "129",
-      "ordinal": 136,
+      "ordinal": 134,
       "sha256": "b9c2ab60276b7937ab1e24afb5e5e5bf5b24d7be8dadce3205deb5b1784e88cb",
       "caracteres": 235
     },
     {
       "numero": "130",
-      "ordinal": 137,
+      "ordinal": 135,
       "sha256": "c6183c4d7f98c155d9a5636bf9e0910d8081c765924d91f6db4320711eff5b48",
       "caracteres": 441
     },
     {
       "numero": "131",
-      "ordinal": 138,
-      "sha256": "4d95a3dfadf775b4344379e21f4d7c9b7c14074ddc310d940638f0662dd79294",
-      "caracteres": 565
+      "ordinal": 136,
+      "sha256": "98f466e80535d466bd6d4265e517f490a4ad79251a65aa7ea71bdef7a09e035d",
+      "caracteres": 400
     },
     {
       "numero": "132",
-      "ordinal": 139,
+      "ordinal": 137,
       "sha256": "a3605378871b6928b5d29fb75aaf534fb9c5cbbb5b889b84cb7041a4cbe404e2",
       "caracteres": 685
     },
     {
       "numero": "133",
-      "ordinal": 140,
+      "ordinal": 138,
       "sha256": "5c6e67acff0b56a8e64886b4d8e37e898487270e9ba04112b35f187590f64165",
       "caracteres": 678
     },
     {
       "numero": "134",
-      "ordinal": 141,
+      "ordinal": 139,
       "sha256": "2b7d7bb278fa74c033208886b902c95adbc8a0020c872fdccbb9558fc1f42cc7",
       "caracteres": 491
     },
     {
       "numero": "135",
-      "ordinal": 142,
+      "ordinal": 140,
       "sha256": "960067fe6785d8f21d011e8ef3f4ae951c86203831be370d36a5436d82a12cca",
       "caracteres": 215
     },
     {
       "numero": "136",
-      "ordinal": 143,
+      "ordinal": 141,
       "sha256": "f1ec1cfeaf350652885b7e4cced931a8202525cfb6ef143880a44a99e9f51b9b",
       "caracteres": 225
     },
     {
       "numero": "137",
-      "ordinal": 144,
+      "ordinal": 142,
       "sha256": "1ad27ff958d817c10d1de85b103dc5d4a583b55029ff24515030c958502db379",
       "caracteres": 395
     },
     {
       "numero": "138",
-      "ordinal": 145,
-      "sha256": "542fccb7e3e29e941b58916f166883b16a8a06b3ac341836322f3dd05a809d16",
-      "caracteres": 1343
+      "ordinal": 143,
+      "sha256": "80c056fea6806e0efaf32e4f02b047eb13ce200d5a6444ef7fef32ee07ccc8d1",
+      "caracteres": 993
     },
     {
       "numero": "139",
-      "ordinal": 146,
-      "sha256": "8428311fc710b69df0c0379edc5ae1939a968c2695c6b7e47a39bd6b9cc637e3",
-      "caracteres": 1148
+      "ordinal": 144,
+      "sha256": "7174f932404fb4e629ff1e76817ad590f7debc2621665a3cfa570b6af006d997",
+      "caracteres": 727
     },
     {
       "numero": "140",
-      "ordinal": 147,
+      "ordinal": 145,
       "sha256": "00e08ea898c63007f9fbe6ff447733e86a604759c74711c19fe03c53566c9e90",
       "caracteres": 190
     },
     {
       "numero": "141",
-      "ordinal": 148,
+      "ordinal": 146,
       "sha256": "781fb9382a4538a9465ba2350bdd0d701e7dc0cc4b89d06d53a404cb6c0a7805",
       "caracteres": 362
     },
     {
       "numero": "142",
-      "ordinal": 149,
-      "sha256": "003d2e61906e9305ae2bef00b3b57d9840ae45a2b79b4ec0a7c365c19e2a5448",
-      "caracteres": 1426
+      "ordinal": 147,
+      "sha256": "6e13f53268f507699ddfd1f666f895087828cb4434ac5b30d2322f5361735c99",
+      "caracteres": 441
+    },
+    {
+      "numero": "143",
+      "ordinal": 148,
+      "sha256": "3452619f9cc54735deb4ba9649eb2d9858653cdae8e5992a1c6894913955b6cc",
+      "caracteres": 316
     },
     {
       "numero": "144",
-      "ordinal": 150,
+      "ordinal": 149,
       "sha256": "5386cda184adf79c5c4ea3a12c3069501306b1d876918eea480b9ea15fa8fc19",
       "caracteres": 303
     },
     {
       "numero": "145",
-      "ordinal": 151,
+      "ordinal": 150,
       "sha256": "a211cab7603c315afafe13fd8318a1fc4a69204a1a3a14623a0682115fcbbb65",
       "caracteres": 703
     },
     {
       "numero": "146",
-      "ordinal": 152,
+      "ordinal": 151,
       "sha256": "49971e3ea10b8da8ef0e75960eee67d315eb87235d5b6ea36398b6f153391d46",
       "caracteres": 538
     },
     {
       "numero": "147",
+      "ordinal": 152,
+      "sha256": "d8fb8d17dc31db4c62d234a11d10b67aa5db5b67ab17bbe382f00c527a296ea0",
+      "caracteres": 1888
+    },
+    {
+      "numero": "147-A",
       "ordinal": 153,
-      "sha256": "6391290bb3c02f2daa729a223921d6d7e1b362bdc103eff84e7b4096ee654f9d",
-      "caracteres": 2543
+      "sha256": "1e76164bbb97bf0ead637d5628f8facaf321de25bdbe694728764260e073b6a3",
+      "caracteres": 1484
     },
     {
-      "numero": "147-A",
+      "numero": "147-B",
       "ordinal": 154,
-      "sha256": "2a7c212619be88ea4984a5402a877218ecadf1b5b45377e7cbcc86e9f3ecdcb0",
-      "caracteres": 395
-    },
-    {
-      "numero": "147-A",
-      "ordinal": 155,
-      "sha256": "416deafbd1b68e869554873e4b7112fd094fbc4845b1f3208d28ba78c7cdc8f9",
-      "caracteres": 1237
-    },
-    {
-      "numero": "147-B",
-      "ordinal": 156,
-      "sha256": "c340c5508becc3b047144e637217e218c28decc180d7635e65f087253628acaf",
-      "caracteres": 717
-    },
-    {
-      "numero": "147-B",
-      "ordinal": 157,
-      "sha256": "374a7005cbf98c774e9edaac77fdbf95ad912d17326f8386f26852dac5236840",
-      "caracteres": 541
+      "sha256": "d3a0f5d9759b67fc73eba330fc5dcc6e9069329b37070050c4f488537b0c6c1d",
+      "caracteres": 1110
     },
     {
       "numero": "147-C",
-      "ordinal": 158,
+      "ordinal": 155,
       "sha256": "d5dd58bd69ff7678aeb7059f190b4651e9886952e884f9f188fbcb1bacc4d3fc",
       "caracteres": 518
     },
     {
       "numero": "147-D",
-      "ordinal": 159,
-      "sha256": "79bdda19ff844b3a9f18763716289a5a4255e7b5337f1f6c9997907e291716fb",
-      "caracteres": 763
+      "ordinal": 156,
+      "sha256": "61a0e090da5335c4f3705736228fbda5589f4ae4b43c925fb8833c9323cf79b4",
+      "caracteres": 788
     },
     {
-      "numero": "147-C",
-      "ordinal": 160,
-      "sha256": "6d7d3ccbcce31fe2d099f5f7591fdfb2a18e33128785714db22a5a6e60bacbff",
-      "caracteres": 149
-    },
-    {
-      "numero": "147-D",
-      "ordinal": 161,
-      "sha256": "213181a4d20ec2a4b82c337b66dbaf27aa4a904b2fee6d8b9a04049d3fe99db5",
-      "caracteres": 498
+      "numero": "147-E",
+      "ordinal": 157,
+      "sha256": "c7fa3b96badf2378ea0f777fa59a4dda71961535cc57d32965b40eb0ff0017a4",
+      "caracteres": 308
     },
     {
       "numero": "148",
-      "ordinal": 162,
+      "ordinal": 158,
       "sha256": "ab0738ecf94e2234ecad98ce2f379ec632c1e719bb7c08a5d0bc6e669de9e355",
       "caracteres": 356
     },
     {
       "numero": "149",
-      "ordinal": 163,
+      "ordinal": 159,
       "sha256": "39f86140641a4222344fd3c30cc09f19479a09e9bfd7a065c570d8e122ee084d",
       "caracteres": 816
     },
     {
       "numero": "150",
-      "ordinal": 164,
-      "sha256": "7d6106fbcb8944261b3ac73bda9bfdd6f7e8ca0a8cf9e4a25466c1b98cdefe49",
-      "caracteres": 291
-    },
-    {
-      "numero": "147-E",
-      "ordinal": 165,
-      "sha256": "b9249655800197c4a0df1b206d10d1f17ed2ddddf9ffc8abd53101006b2b2386",
-      "caracteres": 149
-    },
-    {
-      "numero": "148",
-      "ordinal": 166,
-      "sha256": "12da251cf52288cca9c5dd556b53adbd49322fd497190646aede1de30cb851cf",
-      "caracteres": 149
-    },
-    {
-      "numero": "149",
-      "ordinal": 167,
-      "sha256": "cdaab9ffbcc44923bc26d25f503483c6d41cab296dd412b70e60fef8dee6b8cf",
-      "caracteres": 149
-    },
-    {
-      "numero": "150",
-      "ordinal": 168,
-      "sha256": "9ee5bb6adedb0ddb23860f575eedc38bc1fdfd516ae626d8d3735b73d2ee0b99",
-      "caracteres": 1084
+      "ordinal": 160,
+      "sha256": "0ab661cfaf5335fbb139cad352eef82501e75d342a520f9e863c75fbd9297873",
+      "caracteres": 1230
     },
     {
       "numero": "151",
-      "ordinal": 169,
+      "ordinal": 161,
       "sha256": "50f8898e5e3a546d20cc478294fb6dda0a67108b01539cea97a65817fdcf49e6",
       "caracteres": 708
     },
     {
       "numero": "152",
-      "ordinal": 170,
-      "sha256": "80aabce35e75e19e6bbd43f466f790d152759b5bdb96daf40151f0ca7b837823",
-      "caracteres": 312
-    },
-    {
-      "numero": "152",
-      "ordinal": 171,
-      "sha256": "d60a5cf8775aa6d961653a599401dd0dc2b0f71f5054d22fd4a31bc6cd69845f",
-      "caracteres": 507
+      "ordinal": 162,
+      "sha256": "950d3435b63b32afbfdf3b87d6f2c491406075018e62635d5691bbea7f11c02b",
+      "caracteres": 671
     },
     {
       "numero": "153",
-      "ordinal": 172,
+      "ordinal": 163,
       "sha256": "b5a1b1289a6179f88a57d607b2884850ca713ec1250aef4c9967f269fda8e94d",
       "caracteres": 373
     },
     {
       "numero": "154",
-      "ordinal": 173,
+      "ordinal": 164,
       "sha256": "a3d389999c27c0c88127903a3df0b993f99cec41a040e3a807ad93c28b5efd51",
       "caracteres": 281
     },
     {
       "numero": "155",
-      "ordinal": 174,
+      "ordinal": 165,
       "sha256": "52fdd908f24b592f5b156e149f06870833f8e3cc4002f204b4a70df336ec6a2f",
       "caracteres": 407
     },
     {
       "numero": "156",
-      "ordinal": 175,
-      "sha256": "1b8bb59c69a758c4e10356d7aaf3bfe5800ef620ff49fc484ecda8cf5125cea0",
-      "caracteres": 437
-    },
-    {
-      "numero": "154",
-      "ordinal": 176,
-      "sha256": "b139f5baf0a875639d38098916b6ec0b6fc5ce3fb815b5b3e4bd9cd6877abfba",
-      "caracteres": 634
+      "ordinal": 166,
+      "sha256": "32620bee409935426a50e2c0c5f36f1de923137572d7b0434a39e12fd0eb221a",
+      "caracteres": 762
     },
     {
       "numero": "157",
-      "ordinal": 177,
+      "ordinal": 167,
       "sha256": "806785023d00f8539101c9ea8094ebfffc6ae857196953a31095a5d0e12a2969",
       "caracteres": 444
     },
     {
       "numero": "158",
-      "ordinal": 178,
+      "ordinal": 168,
       "sha256": "411bce997b41ddb5f74cf0baaec436b50afed798bc057cea5cf1c538e6445ec4",
       "caracteres": 468
     },
     {
       "numero": "159",
-      "ordinal": 179,
-      "sha256": "639e14508a4d8cd05efe70bf6b95fc77977f01387c418775f6e64712475c119c",
-      "caracteres": 972
+      "ordinal": 169,
+      "sha256": "3e292a74685f1165d4ba2aafb2e0b6bf7cdf4aab23b451a9252502967603740a",
+      "caracteres": 407
+    },
+    {
+      "numero": "160",
+      "ordinal": 170,
+      "sha256": "1cd7a3d414e67b5ebca6cdf4ebfaa856d2e5fd3415908bce2e880bcbe318b480",
+      "caracteres": 230
     },
     {
       "numero": "161",
-      "ordinal": 180,
+      "ordinal": 171,
       "sha256": "4c2e532ecd6a6d57137e07824c11400585cf992256184052416fc74ac0cb667b",
       "caracteres": 203
     },
     {
       "numero": "162",
-      "ordinal": 181,
+      "ordinal": 172,
       "sha256": "34b0fa79ef764373d027cf5d8f906d533749bb180efea5e670c8e0c060dafe5a",
       "caracteres": 545
     },
     {
       "numero": "163",
-      "ordinal": 182,
-      "sha256": "518e4beee2900ffd510ccbbce7897c8254f528b68ae631f72160e0a07b55ff78",
-      "caracteres": 1310
+      "ordinal": 173,
+      "sha256": "6d328e190f1ac2c18a1317623cf0aea4ce7eabb5fde1dec70685016ab0b3b6d3",
+      "caracteres": 818
     },
     {
       "numero": "164",
-      "ordinal": 183,
+      "ordinal": 174,
       "sha256": "edc36c77bcf3d47d16c74b32976acf000dceec85993fe8cb14cb8fc66d675f52",
       "caracteres": 636
     },
     {
       "numero": "165",
-      "ordinal": 184,
+      "ordinal": 175,
       "sha256": "ed040fda6b3a51bc36acc63029b899d2f92fc7ceedd6471956194055c9b0c6c3",
       "caracteres": 849
     },
     {
       "numero": "166",
-      "ordinal": 185,
-      "sha256": "b641f2f607d5a97674bf2fce9d2496952f537b18b964fd93b003eadd0e276e34",
-      "caracteres": 1281
+      "ordinal": 176,
+      "sha256": "bfd7ae129f0ee0af4d075176633d71fe0f1bad445d5c24458419cff1ccb19d18",
+      "caracteres": 783
     },
     {
       "numero": "167",
-      "ordinal": 186,
+      "ordinal": 177,
       "sha256": "15d8edda8548d2e3a8f5a56de12c5389d404e9bb186f25649cf92825d547577a",
       "caracteres": 266
     },
     {
       "numero": "168",
-      "ordinal": 187,
+      "ordinal": 178,
       "sha256": "d0661fd5829767ba94c4a60f0ec6dfdfd6c4ead58f29b9773cf888fd0ed65bc4",
       "caracteres": 735
     },
     {
       "numero": "169",
-      "ordinal": 188,
-      "sha256": "b6093cc536b17ddac4fdfa9efabf7b950ceaf6f8b6c9097510768db07ccb7e64",
-      "caracteres": 940
+      "ordinal": 179,
+      "sha256": "a5e9447bf57d559b06175a15e3e2090c9faedc239e31b191561c1d893f4c752a",
+      "caracteres": 442
     },
     {
       "numero": "170",
-      "ordinal": 189,
+      "ordinal": 180,
       "sha256": "99b39ef573d1e806e24ead4c03a5a25825e97e0c519387b83f0a6427fd5aaa6d",
       "caracteres": 10
     },
     {
       "numero": "171",
-      "ordinal": 190,
+      "ordinal": 181,
       "sha256": "c92c2b138524a739dbc917e4ec7fb0222771312ddfb3d6636b1d59fd4ef170dd",
       "caracteres": 10
     },
     {
       "numero": "172",
-      "ordinal": 191,
+      "ordinal": 182,
       "sha256": "793204cd50ebccf59ce3caeb0d802786331d9e059c8cf303fdcb90d8cfa41c5d",
       "caracteres": 214
     },
     {
       "numero": "173",
-      "ordinal": 192,
-      "sha256": "67e403f267f968ff4de112c3ec91022b6e392cf1fc781e834c2c2c2360a4de00",
-      "caracteres": 2297
+      "ordinal": 183,
+      "sha256": "441baf28ac34110ffd090b59f3b3178e85495668dd8ce61b0089ff53fab203b0",
+      "caracteres": 1310
+    },
+    {
+      "numero": "174",
+      "ordinal": 184,
+      "sha256": "80e8873a1723753e8e4e070e512b7d3333bf2f9015a5d4772b6b959810015b32",
+      "caracteres": 314
     },
     {
       "numero": "175",
-      "ordinal": 193,
+      "ordinal": 185,
       "sha256": "6dc7ec82885495edb0540ba32a7688833b5e1afc67b1d4e9b204139e6de4ee30",
       "caracteres": 554
     },
     {
       "numero": "176",
-      "ordinal": 194,
+      "ordinal": 186,
       "sha256": "79d0afb31aa51c5bd067f41bc0bd95e71df14bfdab27ee183606e0aa66c6d1d5",
       "caracteres": 594
     },
     {
       "numero": "177",
-      "ordinal": 195,
-      "sha256": "0428bfb9bcca0c022d2139f713b412217629e6f65c6a28c30ac212af462db0b1",
-      "caracteres": 1334
+      "ordinal": 187,
+      "sha256": "e846bff9226904ef880365cae2560eb20edff10b5adf64a61ed01e35cf4ce3f3",
+      "caracteres": 1174
     },
     {
       "numero": "178",
-      "ordinal": 196,
+      "ordinal": 188,
       "sha256": "b67c42a38c0b4a8f5152781d8154e2a3d6f19c5f6dfa6ba08cb7504a0fd1b0d3",
       "caracteres": 242
     },
     {
       "numero": "179",
-      "ordinal": 197,
+      "ordinal": 189,
       "sha256": "bdd90d2e2c17467cc1d2bdcd61ae317c1466ebe074759abb9a01aad47b6da5b2",
       "caracteres": 526
     },
     {
       "numero": "180",
-      "ordinal": 198,
-      "sha256": "00331261a5c52c62f00fee4d00ea044fa51f7b4525be65cf7eefb7499bccec88",
-      "caracteres": 2396
+      "ordinal": 190,
+      "sha256": "daba43b11117567b465d3da0f217e332584c8505e8113b64cb9de3b294012acd",
+      "caracteres": 2230
     },
     {
       "numero": "180-A",
-      "ordinal": 199,
-      "sha256": "2f75d665334f09a5d83aae23386dfe946c55ebf46b9db3cf403aacfa35795916",
-      "caracteres": 1501
+      "ordinal": 191,
+      "sha256": "f245b442198e47fdb2723213323aa901862e4260444a7496997bdafed1945508",
+      "caracteres": 1332
     },
     {
       "numero": "180-B",
-      "ordinal": 200,
-      "sha256": "e88b5153dc13025af47f788848f8f6ad8afff3211ae9702f8678bdaa149b7a2d",
-      "caracteres": 4258
+      "ordinal": 192,
+      "sha256": "05ce082bcf5f889d36f88ecee07aa9fbd51bf0938327a9218380c4ffe7fea494",
+      "caracteres": 4089
     },
     {
       "numero": "181",
-      "ordinal": 201,
-      "sha256": "6905a6ddee61d25747a87a8dfb24c4cfb1ae6308350122f5fc9c4fbc394597f5",
-      "caracteres": 3384
+      "ordinal": 193,
+      "sha256": "0a0a514562619c9e2fb01b8525098a672d9acf30d906ec3dab8cd27e2f5352ff",
+      "caracteres": 3218
     },
     {
       "numero": "182",
-      "ordinal": 202,
-      "sha256": "a00b7d60d8a5c4b9550270b51dd52f5e61fcc7938e01cafea3ace337b247fd61",
-      "caracteres": 1357
+      "ordinal": 194,
+      "sha256": "68d3d5562215c17ca7d2d9f22f33bbf6b04fdb417d007987df133911c21e8ff3",
+      "caracteres": 1191
     },
     {
       "numero": "183",
-      "ordinal": 203,
+      "ordinal": 195,
       "sha256": "77330f54c9a9b2c936fdd0e5ba75809656aac7fc7e5d43609ffef2e088d7da9b",
       "caracteres": 981
     },
     {
       "numero": "184",
-      "ordinal": 204,
+      "ordinal": 196,
       "sha256": "fd482a4143d4abf2f0b2d9e9329e28f65a2610e9c918742d7c7a0bc452c1d9ae",
       "caracteres": 422
     },
     {
       "numero": "185",
-      "ordinal": 205,
-      "sha256": "f9a28ebda0bd3e21870f0b34ed27fad918de7f091021827d0b253dac37fd300f",
-      "caracteres": 790
+      "ordinal": 197,
+      "sha256": "305268a938eca412e3f5c67df5b726720d288d6cca18a144bc355d5ba5267763",
+      "caracteres": 292
     },
     {
       "numero": "186",
-      "ordinal": 206,
+      "ordinal": 198,
       "sha256": "65e0a1c2f04f814f07e25963b8093419701bd4df62352794342d07fda0e42604",
       "caracteres": 730
     },
     {
       "numero": "187",
-      "ordinal": 207,
+      "ordinal": 199,
       "sha256": "13909645d767e816d9cc03c613969c5ce2e9a7aacce15905a8366feebf066d24",
       "caracteres": 457
     },
     {
       "numero": "187-A",
-      "ordinal": 208,
-      "sha256": "c4d97f9ea6335fa8e5948ebe0dfde898da2c347cacdda578a8c16923d39d1fd5",
-      "caracteres": 937
+      "ordinal": 200,
+      "sha256": "df2d6e0e373213c137d8c99e0d5d5d1d614e55c7d59180cac91d1cfead6a27ad",
+      "caracteres": 510
     },
     {
       "numero": "188",
-      "ordinal": 209,
+      "ordinal": 201,
       "sha256": "7772bce81db81002a5cdb4d2e1a5ab604672ab5c78c4c68b81a709b6812c5ad9",
       "caracteres": 657
     },
     {
       "numero": "189",
-      "ordinal": 210,
+      "ordinal": 202,
       "sha256": "1bdc55dbe371053bada1e25b2827cc45bac9bf176cdc8b17a50551aa2080809d",
       "caracteres": 213
     },
     {
       "numero": "190",
-      "ordinal": 211,
-      "sha256": "95cc4cf47c1a0af7e8489b4e253bbd7360f28fbacf2325930476e36fe3d6e0db",
-      "caracteres": 1901
+      "ordinal": 203,
+      "sha256": "bcaeb92258dae5301d05c7053cf3e1aa66268a5b5375a07a3fd182e55d33b2de",
+      "caracteres": 1242
     },
     {
       "numero": "191",
-      "ordinal": 212,
-      "sha256": "2d03950c48005db3f67ea6714304eccd58f1fc2b0c00436238c3c966b9c3db46",
-      "caracteres": 3089
+      "ordinal": 204,
+      "sha256": "98624783a6fbdb78caf928c898efe07e6fb873fe390e0f6acd9d481750ef5c6d",
+      "caracteres": 1282
+    },
+    {
+      "numero": "192",
+      "ordinal": 205,
+      "sha256": "0b7a5aeddc73700073042b647c9d0c3c7cf9dcc68cc1839b83f8e82de1543d13",
+      "caracteres": 1625
     },
     {
       "numero": "193",
-      "ordinal": 213,
-      "sha256": "2b927241876c390bf70e9ba96dd7dccf9c8c1f568066346dd05839e262ac7c85",
-      "caracteres": 818
+      "ordinal": 206,
+      "sha256": "f61607003dac4458e974c67ca1ff3682421a7fbbcbd139e7fa836026443c606f",
+      "caracteres": 486
     },
     {
       "numero": "194",
-      "ordinal": 214,
+      "ordinal": 207,
       "sha256": "f61d4e0b03f7ea40067d72d4494b395eb7bcbb61ef365881fff8941c04cb01e9",
       "caracteres": 511
     },
     {
       "numero": "195",
-      "ordinal": 215,
-      "sha256": "0522c6eba90c5e8013735a2b57763635f49c86060c9069892cbeee31c67e24b7",
-      "caracteres": 2000
+      "ordinal": 208,
+      "sha256": "8314f922a7bdd4bcea8b4f795921e579ebae5ffe048074766f644b8a88dbd360",
+      "caracteres": 1669
     },
     {
       "numero": "196",
-      "ordinal": 216,
+      "ordinal": 209,
       "sha256": "c1bbede73ba866ecbed2ce310986e2435c6f7013fb6d4211c4ff8a12507d3128",
       "caracteres": 746
     },
     {
       "numero": "197",
-      "ordinal": 217,
+      "ordinal": 210,
       "sha256": "42f12998aaad6cfd88b1f18632e2d0f50a6c324c52bd59ee0672457eec83bd6b",
       "caracteres": 536
     },
     {
       "numero": "198",
-      "ordinal": 218,
-      "sha256": "05d4f5863d1e8eafb3e5f93628beeeeaaa9a07efa440327980a561c3580f1f70",
-      "caracteres": 1552
+      "ordinal": 211,
+      "sha256": "28bb477a5c65f5e816fa34d1e0ac849c23b17162d897615570541752c21411b5",
+      "caracteres": 1054
     },
     {
       "numero": "199",
-      "ordinal": 219,
+      "ordinal": 212,
       "sha256": "f48f97e97351f9de9ddd9864c2a0b0f3a51860c3bf88e95d2211d1595da819dd",
       "caracteres": 800
     },
     {
       "numero": "200",
-      "ordinal": 220,
-      "sha256": "6756ed7dfcc6ea022dc7a9df133e89395b76f2a7592c419b1eb08f94c9934c38",
-      "caracteres": 795
+      "ordinal": 213,
+      "sha256": "c3663cba2e699843926ff43fb56882dd93a44acc1bed90a6261dd8910b50606d",
+      "caracteres": 463
     },
     {
       "numero": "201",
-      "ordinal": 221,
+      "ordinal": 214,
       "sha256": "75c1428cb9ea5f707bb637cf440c643fc6b3e15cf224172e6f0ba4047d97e274",
       "caracteres": 331
     },
     {
       "numero": "202",
-      "ordinal": 222,
+      "ordinal": 215,
       "sha256": "6fd5d2d8ae4b73ff806621104dcd1dca457822711603e079ffb8ba3007e4663b",
       "caracteres": 465
     },
     {
       "numero": "203",
-      "ordinal": 223,
-      "sha256": "0dfc510e87ae0e6f74374870da576c401e7ccea1a6cc6c9cf5505584c11252e6",
-      "caracteres": 1510
+      "ordinal": 216,
+      "sha256": "1257861df1a7d7015c6e80142783586723c6ba8c3f9fde3a307b7f0ce3d20c99",
+      "caracteres": 500
+    },
+    {
+      "numero": "204",
+      "ordinal": 217,
+      "sha256": "b2fd81504fe77f81c121ca634d4a07c0c3ca34baba1e2a9efb4f29ce8271aac8",
+      "caracteres": 496
     },
     {
       "numero": "205",
-      "ordinal": 224,
-      "sha256": "db0540550d7ac03247cfc9b242e25fd945d7fcb57c9532d4178ed22a24e7d2bd",
-      "caracteres": 2193
+      "ordinal": 218,
+      "sha256": "23184f069e18f589d024fb2556d3b827f89cb0dc986765f62bade5a073dd26e6",
+      "caracteres": 1097
+    },
+    {
+      "numero": "206",
+      "ordinal": 219,
+      "sha256": "6c6d7c728839584c8a5be62abd8fc68f6d1e6449208fadbd1d9cb17b617b971c",
+      "caracteres": 748
     },
     {
       "numero": "207",
-      "ordinal": 225,
+      "ordinal": 220,
       "sha256": "6f30651a9b81334fd213fea8d9dfa589801cd082b8def7aae776423c24f412ec",
       "caracteres": 509
     },
     {
       "numero": "208",
-      "ordinal": 226,
-      "sha256": "85a584f0e20b0b88e1772d538dee7d0d6b8cac9a47190367f01107ca57b7f7e7",
-      "caracteres": 875
+      "ordinal": 221,
+      "sha256": "1a7b6c0d35ea3a4fc5eb75bf1fed2c91d47627213c7bf334daaac2487f40b8aa",
+      "caracteres": 377
     },
     {
       "numero": "209",
-      "ordinal": 227,
+      "ordinal": 222,
       "sha256": "ce8a80db296d4076853e8584b1eedfb66b29762b154344c1de3fb19ce6797bf0",
       "caracteres": 786
     },
     {
       "numero": "210",
-      "ordinal": 228,
-      "sha256": "62da9c91fe923d1dbf9301717ce9d2b41d8190f07f016a99c9a0fa2934dbcdfd",
-      "caracteres": 1028
+      "ordinal": 223,
+      "sha256": "a90fede589dc9a4d7586d7ee61dd10dc805963b0e81cca6c4cafc98c201db763",
+      "caracteres": 696
     },
     {
       "numero": "211",
-      "ordinal": 229,
+      "ordinal": 224,
       "sha256": "d54a03abb3dca5b35f6d2dddbcd6f073a8a21f657d1b738307c5284a43327850",
       "caracteres": 991
     },
     {
       "numero": "212",
-      "ordinal": 230,
-      "sha256": "c233f21af63bbc529c9c59ae54093f19d0b819d905aadeb21a371da5269cad2f",
-      "caracteres": 915
+      "ordinal": 225,
+      "sha256": "c4ed3d35db678a454efdcee287b63cca69115e438f780dac79072941b0d1cea0",
+      "caracteres": 583
     },
     {
       "numero": "213",
-      "ordinal": 231,
-      "sha256": "42e02e8e562d4e3aa42fc9b2d136aa7ccbd37e74d139ada49bef3ff3bb5d228e",
-      "caracteres": 1850
+      "ordinal": 226,
+      "sha256": "13ba1659a062bea10260c58728a2c1a6c453253d932b1df550af11bdf96eaac9",
+      "caracteres": 1683
     },
     {
       "numero": "214",
-      "ordinal": 232,
+      "ordinal": 227,
       "sha256": "78309f279c2d772b55c22f032a893ce0b755434e1fa34771b9891d00db35419c",
       "caracteres": 423
     },
     {
       "numero": "215",
-      "ordinal": 233,
+      "ordinal": 228,
       "sha256": "4fc16b40d43d57baf29d36f826479b4b9c79f688216d590587465b3b32eb03a6",
       "caracteres": 330
     },
     {
       "numero": "216",
-      "ordinal": 234,
+      "ordinal": 229,
       "sha256": "3cb527c1e8c5986c80fd0dd49ce53976a535616925d25b2f92b9794dbb809dd8",
       "caracteres": 222
     },
     {
       "numero": "217",
-      "ordinal": 235,
-      "sha256": "bffc5a4f84df57856e44e80d8961c037306f19b96f3ebb83cebf2f60c9fd9ba2",
-      "caracteres": 3024
+      "ordinal": 230,
+      "sha256": "0bebefcdfb5ea56957ed8279b62e5ef9c7f7908f995257e91fedee9a78daba75",
+      "caracteres": 2356
     },
     {
       "numero": "218",
-      "ordinal": 236,
-      "sha256": "385d92b6ccc678d8837230b0bb1d0f9d0458898e628a6bc6df6e86f944fe13cc",
-      "caracteres": 2640
+      "ordinal": 231,
+      "sha256": "e5df80f8a1b47a8a9d4205d6439e3ef79de8fae0b6d75f7339642c56c963e6c2",
+      "caracteres": 2085
+    },
+    {
+      "numero": "219",
+      "ordinal": 232,
+      "sha256": "bc5c182c37e33103ab8abdb8f59825fe501fbabad99f69ab3c44ddf13b2f6e2a",
+      "caracteres": 372
     },
     {
       "numero": "220",
-      "ordinal": 237,
+      "ordinal": 233,
       "sha256": "c83bd2680b90b0e3daea0a240a6d058387c3f5ba3c268603231a1f89568ac381",
       "caracteres": 748
     },
     {
       "numero": "221",
-      "ordinal": 238,
-      "sha256": "143982bf83032fdcf500c22d6bc6cdffce80c2dbcaea5aaf7d5ac6fcd7249a9b",
-      "caracteres": 3419
+      "ordinal": 234,
+      "sha256": "62fe0af786b93d3f4f4a4389dae0fe3d9968760028f01f283a4487ca81c748f7",
+      "caracteres": 702
+    },
+    {
+      "numero": "222",
+      "ordinal": 235,
+      "sha256": "73b0d390e009be075cc19ed3fa3a4e0ec3d1664eb0cd3e75c16e994573abb057",
+      "caracteres": 2033
     },
     {
       "numero": "223",
-      "ordinal": 239,
+      "ordinal": 236,
       "sha256": "a9209825b3088d1b2a3a0b81d1554da3201808edb1459d82a492f37ad95b4d74",
       "caracteres": 484
     },
     {
       "numero": "224",
-      "ordinal": 240,
+      "ordinal": 237,
       "sha256": "9351727b66b8a917d4d33ecfdd122ce90d72b4dae3a641c4d84e26d01d441636",
       "caracteres": 249
     },
     {
       "numero": "225",
-      "ordinal": 241,
-      "sha256": "7ef904b765fa51a7d0040275e5d809c667367767ee3bf9dca3b496521703aedd",
-      "caracteres": 1138
+      "ordinal": 238,
+      "sha256": "720da77e6b4ef3e6a55b266d04fa6a328db0843436e770f6ce107001f5ad0de1",
+      "caracteres": 637
     },
     {
       "numero": "226",
-      "ordinal": 242,
+      "ordinal": 239,
       "sha256": "10cb2d55a582b4514a292e45ed78bb4ef60729bca43feb4bfe6930e01a569d89",
       "caracteres": 660
     },
     {
       "numero": "227",
-      "ordinal": 243,
-      "sha256": "3817b9bea2692796a5847ca885900156796535476b873f28e1734095773745f9",
-      "caracteres": 985
+      "ordinal": 240,
+      "sha256": "e7677cebf82a3b6f969fa4373e8aa4fb0151dc49186d6623dc62cef3645edc69",
+      "caracteres": 651
     },
     {
       "numero": "228",
-      "ordinal": 244,
+      "ordinal": 241,
       "sha256": "982e118c545f54094cbdc89cfddc305b2544732553b2faed4b4e6d42c4197145",
       "caracteres": 419
     },
     {
       "numero": "229",
-      "ordinal": 245,
-      "sha256": "b1edbc2bb479df73dfa51a5add54be989f9c4ce1acb0bb28579dc07c7163dc21",
-      "caracteres": 789
+      "ordinal": 242,
+      "sha256": "5124124487c3b65d10cc198678a0e4793afbdb0396b5d347c4f849f5963385c0",
+      "caracteres": 455
     },
     {
       "numero": "230",
-      "ordinal": 246,
-      "sha256": "5ae068efbd7c109a87030f15e66173cf9b5900b71fe217b2b0ceca258078a3c3",
-      "caracteres": 2951
+      "ordinal": 243,
+      "sha256": "b6283b546dc58089f126c3ef697ca271b80592796db75b25236481522051ad88",
+      "caracteres": 2784
     },
     {
       "numero": "231",
-      "ordinal": 247,
-      "sha256": "9f88c8b8a65102d9a6e559f7ad15be5bd22048fea2c23fc1bb57765c7c51a382",
-      "caracteres": 1616
+      "ordinal": 244,
+      "sha256": "f49a94648ff45767c60273890aecde25dd019affcb6873c9e5d8f7b1eedb85ac",
+      "caracteres": 1449
     },
     {
       "numero": "232",
-      "ordinal": 248,
-      "sha256": "e33a3dd8cbeb4726cdb89e3478e7b9bb0b8bd345d5148e78352cecae46b6ff4d",
-      "caracteres": 933
+      "ordinal": 245,
+      "sha256": "21fae0987fe0a578aa272546c302a2e66b1476c4a74635fe877a80f91ecff6fe",
+      "caracteres": 766
     },
     {
       "numero": "233",
-      "ordinal": 249,
+      "ordinal": 246,
       "sha256": "6ae4f8a3ca50d51a579ec2ec16c6d07d3072b07b2cba6ea670d3a31707650e77",
       "caracteres": 579
     },
     {
       "numero": "234",
-      "ordinal": 250,
+      "ordinal": 247,
       "sha256": "3b538f3f3681634036bfc8a775c2495a2d42fbae9a5e2052dca7794b47811260",
       "caracteres": 155
     },
     {
       "numero": "235",
-      "ordinal": 251,
-      "sha256": "1440f05d5e54637952d670479507a630e1b5397ac326cd288f7a6eaa3798a4c9",
-      "caracteres": 1839
+      "ordinal": 248,
+      "sha256": "b75800172948b23cef06a18264e139986071473defb7bdaba28f264d71af3adf",
+      "caracteres": 1338
     },
     {
       "numero": "236",
-      "ordinal": 252,
-      "sha256": "7b92daaac01dc5ae5d279c0590856965b38a1be66e6e8598c696bef2f62af9e0",
-      "caracteres": 1841
+      "ordinal": 249,
+      "sha256": "74ae469525ff985cf476adb9f49b52c41c601ccdbf2c2b9fc5ca54d6830725b0",
+      "caracteres": 1674
     },
     {
       "numero": "237",
-      "ordinal": 253,
+      "ordinal": 250,
       "sha256": "d0e0c73027189ba3d6172893bda0e4129e67ff846ada77702ee2eef9774353ae",
       "caracteres": 961
     },
     {
       "numero": "238",
-      "ordinal": 254,
-      "sha256": "f90493485d2483d3a45802b0e7236c5bcbe66156f0530bc95a2b4178bf44b53a",
-      "caracteres": 1745
+      "ordinal": 251,
+      "sha256": "bbaad4a6884298e34db862b685989f52545bbbf640425c9a61b9e8b5e8c62004",
+      "caracteres": 1411
     },
     {
       "numero": "239",
-      "ordinal": 255,
-      "sha256": "9e20bf54d01a1f5a44ffc569e3762eec85aa2a4f193e1c5a181d41392569ebb3",
-      "caracteres": 1298
+      "ordinal": 252,
+      "sha256": "efc2d23516e073d2a8a2f9fec96f00b0f05e2d24801e44279cf5ed10fc272031",
+      "caracteres": 468
+    },
+    {
+      "numero": "240",
+      "ordinal": 253,
+      "sha256": "b8112322bf4c67d2f1392d62febf3a0dc911e45f3f7737e5020bec34f40b2341",
+      "caracteres": 647
     },
     {
       "numero": "241",
-      "ordinal": 256,
-      "sha256": "0cc01566328916d777ff5f8e7c16e27231e131460607f51a773ddfd4a48162fe",
-      "caracteres": 2313
+      "ordinal": 254,
+      "sha256": "6a9a888ed759e17acc8b0c0a0800daac65a12bd747a0891cc06be1753823293c",
+      "caracteres": 739
+    },
+    {
+      "numero": "242",
+      "ordinal": 255,
+      "sha256": "0ae78460b5bf22049cba7844157a26c1241984d3b34e30f1d649a8ab4bef61ce",
+      "caracteres": 1224
     },
     {
       "numero": "243",
-      "ordinal": 257,
-      "sha256": "2fb17cd2d99a9402a17d9c5bc066c0719ae3219a6de4789e6d23a9e41675e0cc",
-      "caracteres": 1173
+      "ordinal": 256,
+      "sha256": "df4baec5d6bcca446837826e6c14a8afcf55019a3a4390ffa0160e6992354ae5",
+      "caracteres": 839
     },
     {
       "numero": "244",
-      "ordinal": 258,
-      "sha256": "31c26e1495e62c233aeba4c21bd50db0873476c63600705ae01a9c84333bc887",
-      "caracteres": 2921
+      "ordinal": 257,
+      "sha256": "74cbe3981db57c564acde369d1e068603a27343a94ac7802b15cdf23be2ef1ff",
+      "caracteres": 2754
     },
     {
       "numero": "245",
-      "ordinal": 259,
-      "sha256": "f17d011f5eac769260af4626adb69660082dacbee562119178338c09d9488ba9",
-      "caracteres": 817
+      "ordinal": 258,
+      "sha256": "a7b0ce08c9971ba2316cd71bff4b847c333b0fed5fad34b695605a0dc021ee70",
+      "caracteres": 721
     },
     {
       "numero": "246",
-      "ordinal": 260,
+      "ordinal": 259,
       "sha256": "3b4f3a3daefd09ea18f6115593f06db6e486d8edad7e46613734bfeecc511f5c",
       "caracteres": 448
     },
     {
       "numero": "247",
-      "ordinal": 261,
-      "sha256": "28fde0fdc2d8f518a95a8a65453c2b4c38660d24373070069dcf9a413a224f6f",
-      "caracteres": 4397
+      "ordinal": 260,
+      "sha256": "6503bdecf80454607e5baedf7601e084544634712f6d0b5f5b7ccb06b28d61a1",
+      "caracteres": 4063
     },
     {
       "numero": "248",
-      "ordinal": 262,
+      "ordinal": 261,
       "sha256": "eb9d700ee3c82d517ab1b1416aa9b5f78c508b90f4830bd7e3d5ae8733c55db4",
       "caracteres": 421
     },
     {
       "numero": "249",
+      "ordinal": 262,
+      "sha256": "e9c91f2b2e38e626cb9803e25d0d076356ad609812752d9ada1e92049685a280",
+      "caracteres": 641
+    },
+    {
+      "numero": "250",
       "ordinal": 263,
-      "sha256": "addf2569ea6afbfb93ca27a6a7cd7280e157d8c939ab4f972615f39c3436b45f",
-      "caracteres": 1311
+      "sha256": "d99263d183b3f237f5b4b4fc1274f385c23e559e9d872b621bce289f75cd6ac0",
+      "caracteres": 320
     },
     {
       "numero": "251",
@@ -1617,8 +1617,8 @@
     {
       "numero": "252",
       "ordinal": 265,
-      "sha256": "0ae6ec1ba6170604fcdf683745662dc7894a98b2469f414565c847e7eef59826",
-      "caracteres": 1381
+      "sha256": "164237ddf539f40f826dc080ed8b75bce8d3c53cc2a3f48c336ff3637f29a72d",
+      "caracteres": 880
     },
     {
       "numero": "253",
@@ -1629,8 +1629,8 @@
     {
       "numero": "254",
       "ordinal": 267,
-      "sha256": "479c95e846231a24cfdb966d509f75724d8f82804bba400d12d63b93135acaf3",
-      "caracteres": 894
+      "sha256": "179454e252272e4072a525f10355987b7b8a8c54e90a47fb75740496d526a846",
+      "caracteres": 560
     },
     {
       "numero": "255",
@@ -1647,8 +1647,8 @@
     {
       "numero": "257",
       "ordinal": 270,
-      "sha256": "745f39e3c56eab2972bf17a8f3721822f3dde4225b18149505d0d7fc62671a58",
-      "caracteres": 1260
+      "sha256": "c59ef5f00ba5e463e0ca7b6991800ede7fa8d1ef1b24eb1fd128ea2154b4a157",
+      "caracteres": 759
     },
     {
       "numero": "258",
@@ -1665,8 +1665,8 @@
     {
       "numero": "260",
       "ordinal": 273,
-      "sha256": "d7fc38bc0b0dc8320a8f44afd19adcf7f9776ae782ab147c1ad01794a4e4ac3c",
-      "caracteres": 1050
+      "sha256": "d7d2713cc0e9b9d5a7083558b513a4c21c1270a732cad68f9550b2e4eaecd563",
+      "caracteres": 549
     },
     {
       "numero": "261",
@@ -1695,8 +1695,8 @@
     {
       "numero": "265",
       "ordinal": 278,
-      "sha256": "1f3a1a35ec0619eaeb06abe731b83328ae437150eb45a5fbfd83fa6b3c8e378f",
-      "caracteres": 1492
+      "sha256": "d3b7444a084fd0741d3b3ed4749adb7149974f3ead96e30e343e24c595ea70a7",
+      "caracteres": 657
     },
     {
       "numero": "266",
@@ -1713,116 +1713,901 @@
     {
       "numero": "268",
       "ordinal": 281,
-      "sha256": "d676e2611c33a2d8eee82121a6c0bc08012b9c91b90af7d6608c98cfc11f16fe",
-      "caracteres": 566
+      "sha256": "4b5f5918fe2ddf02be950910aded57947bafbd8d35be9f5da7b03904b02acf89",
+      "caracteres": 300
+    },
+    {
+      "numero": "269",
+      "ordinal": 282,
+      "sha256": "1da030743aca4fb58ee9fa56b54f80d6ec019f1b6b5f6ed9dd45082073d5a3d2",
+      "caracteres": 249
     },
     {
       "numero": "270",
-      "ordinal": 282,
+      "ordinal": 283,
       "sha256": "4198a63fd8dba5ed30790ab9cc8405ac2feb45c55158462f8015d11b7b6ae4ff",
       "caracteres": 445
     },
     {
       "numero": "271",
-      "ordinal": 283,
+      "ordinal": 284,
       "sha256": "1042b7bf7a4a1822d35031686c248c237ba9799e6bff0e20756a0d185ffb9c6d",
       "caracteres": 194
     },
     {
       "numero": "272",
-      "ordinal": 284,
+      "ordinal": 285,
       "sha256": "c8a2ac8897ce6b769867f20998709f7525205bf9f92d06fe5f4021c9c6a8dc6e",
       "caracteres": 326
     },
     {
       "numero": "273",
-      "ordinal": 285,
+      "ordinal": 286,
       "sha256": "6d7e014d28475efc1b26d5b62947c45348781d8e51ab2916ed0edcb836e185c3",
       "caracteres": 394
     },
     {
       "numero": "274",
-      "ordinal": 286,
+      "ordinal": 287,
       "sha256": "840e1800142261607c191bf22c2ca14bb822465f3fe9588b40c1615559fd3cab",
       "caracteres": 282
     },
     {
       "numero": "275",
-      "ordinal": 287,
+      "ordinal": 288,
       "sha256": "0f369ed7674c4dc3c7d3fc1d5faabf3c8064587d51255363498f918f98f3b9d4",
       "caracteres": 548
     },
     {
       "numero": "276",
-      "ordinal": 288,
+      "ordinal": 289,
       "sha256": "fbb34cff046a4e98228716090f0bfc47f4b647c38203f5323e7c0a106d25fea0",
       "caracteres": 344
     },
     {
       "numero": "277",
-      "ordinal": 289,
+      "ordinal": 290,
       "sha256": "ea515e1e61b0a7c077c32d5efce684a407988bf9fb92e97d973e300250cbcf1e",
       "caracteres": 311
     },
     {
       "numero": "278",
-      "ordinal": 290,
+      "ordinal": 291,
       "sha256": "c987729ad54d3f96887648d7523ddbb33a84d94fdbd5ff6c5ebcf131f05a66e7",
       "caracteres": 138
     },
     {
       "numero": "279",
-      "ordinal": 291,
-      "sha256": "680d14ab5a7ea58cb51a30f03fead0278f70793198cfa71abbaebf127add87c8",
-      "caracteres": 653
+      "ordinal": 292,
+      "sha256": "b450cc84efc64e198eaa8973f8227e84332a99600336e8206d456964c963b320",
+      "caracteres": 410
+    },
+    {
+      "numero": "280",
+      "ordinal": 293,
+      "sha256": "31828c4ee555e9abebfe6fafb04390844b26e04c15a164da567155402d195be5",
+      "caracteres": 226
     },
     {
       "numero": "280-A",
-      "ordinal": 292,
+      "ordinal": 294,
       "sha256": "09846cfd2e4260efb8162b104990acdac769411c53b49d1b4e9843b291236ed0",
       "caracteres": 190
     },
     {
       "numero": "281",
-      "ordinal": 293,
+      "ordinal": 295,
       "sha256": "41c2fa247d2ee429d8a7ceb85fe0dadb4d96b9fabcd10d4a8cb5d94aa4db9c68",
       "caracteres": 545
     },
     {
       "numero": "282",
-      "ordinal": 294,
+      "ordinal": 296,
       "sha256": "9e324713001b0cfa43a830356cf06d4d4dec1d830d943dd8fdc70d02a811b6f7",
       "caracteres": 155
     },
     {
       "numero": "283",
-      "ordinal": 295,
+      "ordinal": 297,
       "sha256": "e4f0e50614700526ffc8eaf7a9b0f5eb4f7f3f1031a0710f53da2d9187afda5c",
       "caracteres": 306
     },
     {
       "numero": "284",
-      "ordinal": 296,
-      "sha256": "26b670d34664a4a0115392cfd42bc89e327c58ec5d3f2fa5bf5475e73862fb5b",
-      "caracteres": 1856
+      "ordinal": 298,
+      "sha256": "0a5f3087c6b29b7135c8ce6799bc76347ad8085e1a059c2590b1e00f2bbce029",
+      "caracteres": 900
+    },
+    {
+      "numero": "285",
+      "ordinal": 299,
+      "sha256": "ac12ca15a88b8e57ab997b4d0d765b374ec56be5a435621bf59b66313afd6496",
+      "caracteres": 676
     },
     {
       "numero": "286",
-      "ordinal": 297,
+      "ordinal": 300,
       "sha256": "3a39f0c20f3603205101cd6d75b260cac1ed133bf29868d62f7cf96581bff9ff",
       "caracteres": 296
     },
     {
       "numero": "287",
-      "ordinal": 298,
+      "ordinal": 301,
       "sha256": "14488d9bf4857048a0a34ed9187eea4a5beb214b95626aeb57cbd3bdf1ca50ce",
       "caracteres": 174
     },
     {
       "numero": "288",
-      "ordinal": 299,
+      "ordinal": 302,
       "sha256": "c271d8b87e23032e9d43716d36e0e3b610f3f5c913d3dc79c224f50e167b45c7",
       "caracteres": 692
+    }
+  ],
+  "notas_al_pie": [
+    {
+      "referido": "1",
+      "sha256": "70249de9284bd70f73ed0e28b6dd11b67510806c1a83502e9f906fa7204fb762",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "5",
+      "sha256": "446f7251cf39e600fcfd30cb5a67dff80af03aa92b615f99cb013f5e1d43b106",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013. www.poderjudicial.gob.hn"
+    },
+    {
+      "referido": "20",
+      "sha256": "28ba699ee17cd9b8cdc5803d562278b8dffbf30899bd1da417a8da6818307860",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicadoen el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "21",
+      "sha256": "71bcfd44d3bddc6af2aad464867e440965b13b6a29ab7436ef2f478f97fee631",
+      "texto": "Derogado mediante Decreto 130-2017 (Nuevo Código Penal), del 18 de enero de 2018. Publicado en el Diario Oficial La Gaceta No. 39,940 de fecha 10 de mayo de 2019.Vigente a partir del 10 de mayo de 2020."
+    },
+    {
+      "referido": "31-A",
+      "sha256": "af597cfa07c2c2722e13c42d2716f732e361f93adbab4868269c30222080a520",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "31-B",
+      "sha256": "eb97f17b805bf4d8d5921bee8772d39036381f0c667b038b99fef015f724de03",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "32",
+      "sha256": "26e4d140a0b8b164706d97d09f69ab813b1528ed039916502770880bcd25b472",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "62 a 72",
+      "sha256": "c1364b2a55b2213346a0d50a4623001dcff685abc4979d9d15778670f4a2fd27",
+      "texto": "Derogados mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "73 a 82",
+      "sha256": "a15047bb826124f2cf44298d0c56cd25cd16e1da4b2a9f6f27d31020f8f203f2",
+      "texto": "Derogados mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 defecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "96",
+      "sha256": "bcd90189ee7c90045414ae68125c465814a71d8adaf10c2bf886a3afe094eb9f",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "97",
+      "sha256": "cdfb19897c952a8e8e46cebe9fc03cd2a26915db0d36b8ee25d416dd515748a7",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "98",
+      "sha256": "5823d3bfcac15fe044f228deaa469cf7986fa502f3a6218066a4e86c452057f9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013"
+    },
+    {
+      "referido": "99",
+      "sha256": "fb72bb731bbb56edcbac49685f143cd7890d05f08a8c222d9c0aeaf4495910ed",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013"
+    },
+    {
+      "referido": "100-A",
+      "sha256": "8c4a8970c11ac2d7bafea1adaf2977871a6447d1a41aa5b06a1075714ccf6b92",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "102",
+      "sha256": "404787fd26c37292e0d5fd05b49f1aa2f85d7fca24dba6c44b7dc6105ee0284c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en"
+    },
+    {
+      "referido": "102-A",
+      "sha256": "c94d27720543de002e6db2c5e2afb077b21b33f4421687afb09ba7f475c8fbb4",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "104",
+      "sha256": "7f25763a88bab2d8d6078febdb8aba73995661c95f897eb13637afe7ec913367",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicadoen el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "104-A",
+      "sha256": "4604573562d71723d080089c5046ca1c97f9b3897e64fbfc307bafddca9db54a",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "105",
+      "sha256": "a5057fb10e1e1754bd79af76c877230beb264ab5210043c7cab9db1637e8e88c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "6910d4c899834c38a25e18042c1f947dbd3a09f98a3b07ec927832412b233a23",
+      "texto": "modificado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013."
+    },
+    {
+      "referido": "113",
+      "sha256": "d73388b170cac644d97ccd7d9d5283055f36dc8d17c974cf588be65b21aba8ea",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013."
+    },
+    {
+      "referido": "128",
+      "sha256": "38c5948eba576aa6edda0808009cad6b9c45b8d0c7277d3912281015117a8f15",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013."
+    },
+    {
+      "referido": "134 INCISO CH)",
+      "sha256": "edd9541443f4d4bb9c11074ee7154d7aa25dc4b777d5ae20db0d89a61c3cadfb",
+      "texto": "Derogado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicadoen el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "134 INCISO D)",
+      "sha256": "44a8c8adf6bdc68f1e0ce27abdc874ea4d4b6453487d4cf1f3dba04fea4ca1d8",
+      "texto": "Derogado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "de64348734fb3c16d867143cc222be47479004628eeefed8a48778d446beec5c",
+      "texto": "modificado. mediante Decreto 35-2013, del 27 de febrero de 2013.Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 deseptiembre de 2013. 26 Titulo modificado. mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario"
+    },
+    {
+      "referido": "139",
+      "sha256": "085e19a4565ca7a568f875160289b83d9e0e6921dfbc688774a91cd1f407adfc",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "140",
+      "sha256": "f85376cb2eeb55925c148e1a1b8fc6174ca1a5e719572afdf86ab975620d27cc",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "fa2d2205e6d7f282dbcc86c95b502f054d3415fde5c245ed36299f4e37a1693b",
+      "texto": "modificado. mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "141",
+      "sha256": "ebbaec7da4db612855b1183365053f95edb0900fbda50322ebc09e994fc20fbc",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "142",
+      "sha256": "97348e6daf461bbe09c2a281f6eb0e5f110f4375c30ca24b2d064352f4d0e6b0",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "143",
+      "sha256": "e55d6902de6ebd131616b8263e0f294a52b4c916bba957d0c41cf727bd18cd5e",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "145",
+      "sha256": "c7030f5e9d911853e2718c93f8df25dac263e5d18fab5df1561d180d738ee273",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "146",
+      "sha256": "6aef0ce036c2a5fda333f1b68c2a9e794d424cd1d76a1b1ce3769f0eb9b78898",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147",
+      "sha256": "e8d800e957144f5ea38e7084e6e13b2e20b95d56652cc220b8b643cf785ea726",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147-A",
+      "sha256": "d0df97ff8d9964b50f513ee47162fe5a45f99d59476f72968fd51c894c1843d7",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147-B",
+      "sha256": "3e2c9c46fc0e50f31bdc21a316bcea4bf5d95df0a381f731465a6bfaeb4bb263",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147-C",
+      "sha256": "95e1b9145152c0af7e35b1a0d62b7c0ee01bd8a8fb6a97a1036ec39861d2ebcb",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147-D",
+      "sha256": "06373ebccfd54c3a300128ea04e8a19d599c9b3df77b24f71bca43973c9e0803",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "147-E",
+      "sha256": "28e913b9f9991b7091b8f9f2ad9ff44af69c0fda826829c82d4a15cef3f8a709",
+      "texto": "Adición mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "148",
+      "sha256": "c3c2b337dacf0608162fcfc7b2382568617a66b4b17d9ac3c0c909a911113af0",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "149",
+      "sha256": "7882889a49f8efab98f2aa7c0b9287fb9648ec6b11b9e8c6e1a44aaea5522b3d",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "150",
+      "sha256": "56fc21bf6b1d48da9bc41fca0584bd7fef2897589d8f997fc5c47e00c2b9524a",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "152",
+      "sha256": "08cab880b411eb3cbd5471abbc831a369aa66daae1f10ebb0dbba003a8b7eb94",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "e2591529a59c5beac57230dc904131fbd3e7f6a0e172d83ac20f8d170c69cc1e",
+      "texto": "Modificado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "154",
+      "sha256": "9dbedb02a47f8903815d8f85c4b9200824dc1c2dd78e261b4b28bb38421c15e7",
+      "texto": "Reforma mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "525538f9d97c3f61e42ef9655dd9b34525927ade10273b44ba0ba072e8d45fcb",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "525538f9d97c3f61e42ef9655dd9b34525927ade10273b44ba0ba072e8d45fcb",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "525538f9d97c3f61e42ef9655dd9b34525927ade10273b44ba0ba072e8d45fcb",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "162",
+      "sha256": "f059f8d9b0c961ba922ae86d5bec03c2c056cef69a3a272175a7c6fa5f82a058",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "163",
+      "sha256": "29bf2d9f92c9a29ded28196c3a814b90cef912c301dfedf4d8ac23678284816b",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "164",
+      "sha256": "f02034f5b6994a599a304e49e736fd5e5637cd6b599451d4226a938e221d34f5",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "165",
+      "sha256": "522e56a2173db896435c282480e47341d21484c7530dfa9d6448d63f527aee22",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "166",
+      "sha256": "855e516c3142e383248475b0964dad93e8114c119e94d3f3bcb6f1e6429ce119",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "167",
+      "sha256": "ce0282472f0fee3cc0574e58cedb171d6eaa7b8d379430d945c9eea860ba32c7",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "168",
+      "sha256": "6748fb058f6b4499bcf06dc96575a4f77f5201c1cdffeefadcb69237373d86a9",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "169",
+      "sha256": "bc5ed644f21b90aa92876924c9852def40bdf276ab4bc9a9ec02653f970bad5f",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "9a3d97996ae5751de0c677eabf5b7527d0e762327ff0a0d88389de7840d0e69a",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "170",
+      "sha256": "25b7285bd2ca151cc4bb32ede02e8a1c16f5236fe47630080fa6f55a2b08e1f4",
+      "texto": "Derogado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "171",
+      "sha256": "75f9888474a5bef250f2191af53583a2cbdcd09f22c5342989d1f0ac0c234724",
+      "texto": "Derogado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "173",
+      "sha256": "407378774e1f21c001603aada0e684536c318d3065aa21f030b113bd10479349",
+      "texto": "reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "9a3d97996ae5751de0c677eabf5b7527d0e762327ff0a0d88389de7840d0e69a",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "180",
+      "sha256": "28c596014ba96a11b3ce7833ad42abeaa4d97067fd4e0902f7e03db0afaf37ee",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "180-A",
+      "sha256": "5e57f0866624b9de8069293610cc6995af6ed9e8465e1210a174c584d1cfafc7",
+      "texto": "Adicionado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "180-B",
+      "sha256": "8089b8e525bac29c817053b73797a8face506d11e30e86171e10173ae21cfc80",
+      "texto": "Adicionado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "181",
+      "sha256": "9dfd2a153940d4ccada1e4cbe126be97c93ab75054a47309965f57ff54dc73d0",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "182",
+      "sha256": "cc6b052f5712eaf8ffa694d37c2312872c6b892eff3ab368b99dfc5d353dcdef",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "183",
+      "sha256": "ceb92b8ed78434cb6690afb85876474956b44446b2a0cb12746b8c83c959fdc7",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "184",
+      "sha256": "3874db9d1a138e5770ad4e671a2d5226d01484d36075cbfb07a83ca699e64867",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "185",
+      "sha256": "259d53b4abdd834c16ac6ad2e9f066f93e33f16e325750cd5b54089262108c90",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "186",
+      "sha256": "c57d125539d9963b5988002026eb4ab73ae3a6ba01d86fa2f04baf0bb7868db1",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "187",
+      "sha256": "8691e996a278f6c8cb7e5f1a81aaaa2c13242f11fe522beafa4272c20c1e07a5",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "187-A",
+      "sha256": "9f5254c04f61e545b438432f61f11e4b58cfe2dd4d9ad464b43d84818f926f2c",
+      "texto": "Adicionado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en"
+    },
+    {
+      "referido": "TITULO",
+      "sha256": "e2591529a59c5beac57230dc904131fbd3e7f6a0e172d83ac20f8d170c69cc1e",
+      "texto": "Modificado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "188",
+      "sha256": "9081ca232bd25e5b660ccb41757f3df8c60d75d1230057bc6c72afe0cb66cf4c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "189",
+      "sha256": "db85c142855fa30ed02b0daf9cfa93f1419189883dd31a8108dcf40afaa4577f",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "190",
+      "sha256": "83e3f108417d7f71218a4a95c1b27597439442be98f6994f3e9c9c964b8eaca3",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "191",
+      "sha256": "9d68d5e445e0f073bcf56f9079cdf058fa74a959049347308925d782902d49b5",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "192",
+      "sha256": "1e5d610b4ae97ce7954f3de10f4f39ce13d39e6015a7eec55e9e49d8a7d2b921",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "193",
+      "sha256": "b495a03a9876c5fc8dde37f2a7340fa132dded9cadf1856511150d11e9aa6fba",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "194",
+      "sha256": "ec3a4900f765bf824b7e4b1704b076ef464e42d1e7cdb4578a09c394234799bc",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "195",
+      "sha256": "1ffe3bb9a3f90c8ccc2fa7083167c7e713acceba1fff7378c404169e9275ba2b",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "196",
+      "sha256": "3c55402ec48377e94de8dfa74812a574f5daccd29e36f421e3d60dace6fe83da",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "197",
+      "sha256": "a209acfcdbfdc82e5ec8b87d836c06fa844ea44a6dc43255b77b39647d0672b3",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "198",
+      "sha256": "d41a98ce0ac4eda24f69e54215f6079446c3493479ac5b785c453fdeb21537c3",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "199",
+      "sha256": "bac0738a31c8e1671b7ae7de2e8254dabdd9c1986022c971ffd9ee599b894e47",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "200",
+      "sha256": "4c24948ee72449cbda964b7eb11aa919aad787c6d4dd20849f3d0231f28a0346",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "201",
+      "sha256": "5356d823c0ca75aeb3c4b32b65eb225e8eb1216d61e20aa12218511380e83170",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "202",
+      "sha256": "19a5672e4471b69f327ab4bf7ac0464c6558ca76cec7979da175875d746a409b",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "203",
+      "sha256": "cbf675717051eb66ed996c02170383b34c0f02ae6e4fd8427ad823a7d71e3d4f",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "204",
+      "sha256": "cb1b5a5603bad4f67076433fc6ee7157e0ad27e9c5419cb6725e135a0bef8a2e",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "205",
+      "sha256": "068114cd17bd97fb55cdd46a124c7183b4dffeba97ad0859cb6d8c9999002305",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "206",
+      "sha256": "6a251b55835aaf4fda3ec67bcc382d502822594dd325144854779310d8215b32",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "207",
+      "sha256": "a1d87ae1842a0122f7367420367fa8a02ff93dd95a78894d65a5560ceaca93bf",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "208",
+      "sha256": "ede646c382d5b60c88a5d7397d6755b8c947adb57b76f4e36c46a8676b415551",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "209",
+      "sha256": "e09ad860ed9626d52397677f1e428996e694ba4278863860eaa741942816cf6b",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "210",
+      "sha256": "fbbaa86ca36cca9fda7e6d27ba25a29510110588e5023dbb53a0d13c396794ee",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "211",
+      "sha256": "603cd43b26bbd1d6937550b7b1d06391b589cdd1c85dd444d5373ec6b61a3539",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "212",
+      "sha256": "ec0ee738e2ab8fdccf9c8d393ecf09a6f119038b09ea049115c3a0612e3da425",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "213",
+      "sha256": "6fbf6a5edc57173e018335b8cab8aaaa65f5f388ea8b822c8653031e9fc010cc",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "214",
+      "sha256": "cb70621978088269e2cfe30074d7af37dd2c438654ee0d99a82828824ac4516d",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "215",
+      "sha256": "a182879d401a4b9d9d91efa613bfc8ec93609cd8334c5a62a8d7377dd1673b3f",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "216",
+      "sha256": "8c712a319b7e2fd2e95a4519faa8b8ef5f7962c39441f551fc56c7b3792b2a35",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "217",
+      "sha256": "7af83e8c93431eac86cd82020a3233bf2682a30447a43b8d285aa00a7d7bb1f6",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "218",
+      "sha256": "97dc772faa03bf4c4fb5e6cb6ca218cd3a6bb11be5f7d4d4aedca32d2a38a4e9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "219",
+      "sha256": "553a3f40b2f27bf8e06c64fbf1b43ff84851c7d77cd9f1c126624d59d6320db8",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "220",
+      "sha256": "61214eb82fe2e7a8efbd011cad47f242054819805a27656232245b2c93661863",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "221",
+      "sha256": "79dd02c2ec92189c5ea17082ad89f3604c48a122b9c9d8db9f4b6f8ac155c902",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "222",
+      "sha256": "7dd06806c5ec813448ee4b17778699c2da4e380bf9ceceeb8006633e8c49892e",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "223",
+      "sha256": "254ce430c94505d33d3d730cce73d662c6e400a804d7349042de19c1a7f50096",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "224",
+      "sha256": "38041d6355b4a33af5281c0b0bdf2afce3721b345a169912086f87c6f4d3efe9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "225",
+      "sha256": "05d2c926f974d686b9774ad828234d1a005855e59998b78b51add69839d3bf73",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "226",
+      "sha256": "0f0257528f87986528eb41d68a467f9ca063800fe1c1beaa432f3eb262dd3f12",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "227",
+      "sha256": "e6f27b93b076c924f41d5ad6e464eda494edfc3714fc40ced4744b1a90787171",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "228",
+      "sha256": "5d99102ffe285c4740bbdb66f61dd3f5513d8a55988b551b1caaa8cd559d4cb3",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "229",
+      "sha256": "b4a035d2d9802af1f6612781743e60c91182d1555268b61b8c485a4a80ec0cbf",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "230",
+      "sha256": "ece695a78362b348793a189d70d011f303597b93e3fe8b7ede29afac9df477af",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "231",
+      "sha256": "fd67b386579fe8380c6ea64c156ccf73d93d91c32880a857c809f7ab2a683254",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "232",
+      "sha256": "2c0df943b0899ac4ffb339750c0b110311a0c3141b1e0a651b746db6ab17cdc9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "233",
+      "sha256": "b7bd5df09d176c5f8a179b8cd39319846e819eeb23864464039505022a025006",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "234",
+      "sha256": "e31fee860093758b1ffabd85f8069ff9819f077b61ecf07feb73d0ea6f41effe",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "235",
+      "sha256": "7361021eaf8cdaf90adfdcf66ae60d242201509be8919cb366ef28acccb1c866",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "236",
+      "sha256": "a1b9fc4d761099bffa9a90af6f2b14b657c45560579bafe3d6579788a4b7616c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "237",
+      "sha256": "88eb705fb9a0c8809acd3463efcc53edf6e1f666325f72887ec7b0e3a55c4827",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "238",
+      "sha256": "fdf1417fb6125b7c2d86980bc76d83c5ad368fa8e35884fd76fddeacf35e9f9a",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "239",
+      "sha256": "2319d8bdf47aed2eae25d069a3b14b0d24845ea9a8fda3280b83dec874614dd0",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "240",
+      "sha256": "356f70eb40ac510f6651ef83c5baf078c1f47130a77426fda8fb4356481e8998",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "241",
+      "sha256": "dba93bcfd98b9dfad8095c845b9b1c7f46e306e898b2475da9f215adf7a6efdc",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "242",
+      "sha256": "b210bd624a0ebd9256113543684c7f12edee6f560db52b2415bd7fd7588578b9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "243",
+      "sha256": "fec21db1db046dadf109a56cf29cd3eba1e7f5d36a7c5b795adf1c49b6e57e57",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "244",
+      "sha256": "684a31ff25b1d79493cae80edfcc96b370a855f4b86d790c6254d60ebc35920b",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "245",
+      "sha256": "28a5a76498a94369aecea9f9bbc2bdf8059815f1b3082e002baecc9bf494d95d",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el"
+    },
+    {
+      "referido": "246",
+      "sha256": "377abb41672db5e353038e9ed5d50bfa7b896917e2c6a01d4965bf96ad781456",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "247",
+      "sha256": "6dcb626479967554585de9fe530a800061450f3f610260c4bb243b580179f262",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "248",
+      "sha256": "75cf9ab828f25fa33beec0d9c5a9a5d73e3b2054e43ca46f9219a89ab4f9afe6",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "249",
+      "sha256": "f41326566e0c70d110eea974285cd59c52ac7c35f5f01199fe5fb8771958e98a",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "250",
+      "sha256": "ff2afc42a192085ceeec284b2bfd568c5bd3cd112c867ea0704bc6e8967209c9",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "251",
+      "sha256": "364bd207d86abbfb6e84000975cf337b8e8fdff53d0a823512543723c3028002",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "252",
+      "sha256": "dce1b424b02bfe5c9b6dc745756aeef67b12a5b3a2211b217dde3e500c596a22",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "253",
+      "sha256": "0001fb15f017b523ffa7bcc80f8b7d1d868b71900c482cc475f4c11d65e5eef5",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "254",
+      "sha256": "1b68d774ba3fd1ea9384e4928b96d6f16ebd8652a5d5f20761bf4fa31f5ff769",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "255",
+      "sha256": "ad3729a78155df0c9f88c82f9ec1cf7d3c2b2673294250c3754b32064fb0e26f",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "256",
+      "sha256": "4f8521d13e567d43ff232cde1050fe121834359ce88f1254ce48a460f2e274a7",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "257",
+      "sha256": "fa25e96107ba454344f0e13a96aadcbe0c05e752c5d7102ac91a27c476411329",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "258",
+      "sha256": "a2c863611a8ac8162c1753c6cff2f3b7f13194392e14a8661ffcdbb3e9f0ae04",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "259",
+      "sha256": "dd4775e5f4898bbe9f5f3c769b12aa19f107d42990218dd9302f5fe3304d578b",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "260",
+      "sha256": "1c3098cf8ce5d1ac843236ee60b3c85a8677b8f46539f86f5757367632b26950",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "261",
+      "sha256": "0a3896b0f0168565a28af3fbd3a357ae96b5d07b350556e3980096f494ed398c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "262",
+      "sha256": "82ffe2edc1371b5adb408b557244bcd2c0bdde4866ab3ae79cce76f833ea7f2c",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "263",
+      "sha256": "1cae021e3ae743957c28e4573b28f7d1ce526589de2b2fe9687f7c58270b730e",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "264",
+      "sha256": "7850e9b719bfee9f415d7e84d44b9cd8d1fb75432df12e251493a0c280d95819",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "265",
+      "sha256": "115cf1b66609d6ed85b7990024552dc04bf65978d17199c8c16053a52cece7e5",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
+    },
+    {
+      "referido": "280-A",
+      "sha256": "20ec634341e3538317008d6b8600d6c742f5c97e8534bf816cf9d7ccddd3cdd3",
+      "texto": "Adicionado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en"
+    },
+    {
+      "referido": "282",
+      "sha256": "eb632246716a5e0b7c718292fa88295b31b67c1c13fc1473438a42e281f246a4",
+      "texto": "Reformado mediante Decreto 35-2013, del 27 de febrero de 2013. Publicado en el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013."
     }
   ],
   "preambulo_caracteres": 1124,
@@ -1862,31 +2647,43 @@
         "id": "ARTICLES_DETECTED",
         "severidad": "BLOCKER",
         "ok": true,
-        "detalle": "299 artículos detectados (tipo CODE)"
+        "detalle": "302 artículos detectados (tipo CODE)"
       },
       {
         "id": "ARTICLES_PLAUSIBLE",
         "severidad": "WARNING",
         "ok": true,
-        "detalle": "299 artículos en 217894 caracteres (promedio 729 por artículo)"
+        "detalle": "302 artículos en 217894 caracteres (promedio 722 por artículo)"
       },
       {
         "id": "SEQUENCE_CONTINUOUS",
         "severidad": "WARNING",
-        "ok": false,
-        "detalle": "saltos: 2→1, 1→3, 4→6, 18→20, 32→32, 37→39, 58→60, 92→94, 97→96, 100→98 …"
+        "ok": true,
+        "detalle": "numeración continua"
       },
       {
         "id": "NO_DUPLICATE_NUMBERS",
         "severidad": "WARNING",
-        "ok": false,
-        "detalle": "repetidos: 1, 31-B, 32, 96, 97, 98, 99, 104, 105, 113"
+        "ok": true,
+        "detalle": "sin repetidos"
+      },
+      {
+        "id": "FOOTNOTES_SEPARATED",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "153 notas al pie separadas de los artículos (no cuentan como artículos ni como repetidos)"
+      },
+      {
+        "id": "DEROGATED_MARKED",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "22 artículos marcados «Derogado» por la propia edición: 21, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 73 … (no se declara su vigencia ni su causa)"
       },
       {
         "id": "NO_EMPTY_ARTICLES",
         "severidad": "WARNING",
-        "ok": false,
-        "detalle": "artículos casi vacíos: 21, 62, 63, 64, 65, 66, 67, 68, 69, 70"
+        "ok": true,
+        "detalle": "ninguno vacío"
       },
       {
         "id": "NO_PLACEHOLDERS",
