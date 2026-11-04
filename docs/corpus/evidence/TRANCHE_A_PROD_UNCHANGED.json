@@ -11,5 +11,23 @@
     "ultima_creacion_utc": "2026-09-05T05:13:31Z"
   },
   "writes_performed": 0,
-  "note": "Ninguna escritura a Supabase, migración ni cambio de despliegue en este tramo. Una fila más reciente que la última creación indicada significaría una escritura posterior a esta captura."
+  "note": "Ninguna escritura a Supabase, migración ni cambio de despliegue en este tramo. Una fila más reciente que la última creación indicada significaría una escritura posterior a esta captura.",
+  "alternate_names_review": {
+    "read_only": true,
+    "rows_reviewed": 84204,
+    "fuente_name_matches": 0,
+    "metadata_matches": {
+      "HN_CODIGO_CIVIL_1906": 317
+    },
+    "content_mentions_not_the_instrument": {
+      "codigo_de_comercio": 1786,
+      "codigo_de_la_ninez": 119,
+      "284-2013": 25,
+      "35-2013": 65
+    },
+    "fuente_null_total": 8366,
+    "fuente_null_mentioning_comercio": 19,
+    "fuente_null_mentioning_ninez": 18,
+    "conclusion": "Los cuatro instrumentos siguen ausentes; las menciones son citas dentro de otros textos y no se reclasifican."
+  }
 }
