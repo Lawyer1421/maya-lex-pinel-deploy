@@ -61,9 +61,9 @@ El Decreto 35-2013 ocupa las páginas 1 a 46; en la 46 termina en la columna izq
 npx tsx tools/corpus/receive-pdf.ts <Codigo_niñezyadolescencia_2013.pdf> --paquete HN-001-A04 \
   --url "<URL de procedencia>" --retriever "<quién lo entregó>" --fecha <ISO> --metodo MANUAL_BROWSER \
   --columnas 2 --paginas 1-46 --ultima-solo-izquierda \
-  --cierre "<frase de la firma del Decreto 35-2013>" --no-contiene "107-2013" --lote <lote>
+  --cierre "<frase de cierre>" --cierre "<frase de la firma>" --sumario-paginas 1 --no-contiene "107-2013" --lote <lote>
 ```
-3. `--ultima-solo-izquierda` toma la página 46 solo por su columna izquierda; `--cierre` exige que la firma/cierre figure en el extracto; `--no-contiene` señala si entró texto del acto siguiente. Cualquier fallo deja el paquete en `RECEIVED` con el motivo. El recibo guarda el hash del PDF íntegro y, por separado, el método, el rango y la delimitación; el `text_sha256` es el del extracto.
+3. `--ultima-solo-izquierda` toma la página 46 solo por su columna izquierda. `--cierre` (repetible) exige que cada frase de cierre/firma figure en la **última página** del extracto. `--no-contiene` distingue la **mención** del acto siguiente (en el sumario de las primeras `--sumario-paginas` páginas, por defecto 1, o en una remisión: se cuenta, no bloquea) de su **entrada efectiva** (precedida de «Decreto» y seguida de la fórmula de apertura «EL CONGRESO NACIONAL», «CONSIDERANDO», «DECRETA»…: bloquea). Un bloqueo de delimitación deja el paquete en `RECEIVED` y **`--revisado` no lo levanta**: se corrige el corte (páginas, columnas, cierre) y se repite. El recibo guarda el hash del PDF íntegro y, por separado en `extractos/<paquete>-<pdf12>-<texto12>.json`, el rango, el método y el `text_sha256` del texto delimitado.
 4. Un extracto siempre queda `RECEIVED` hasta que una persona coteja el rango (páginas 1–46, columna izquierda en la 46) y repite con `--revisado "<motivo>"`.
 
 ### Cuando un humano ya revisó un `RECEIVED`

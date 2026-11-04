@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkS
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  PERFILES, analizarPaginas, constaEnTexto, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
+  PERFILES, analizarPaginas, comprobarActoSiguiente, constaEnTexto, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
   type OpcionesRecepcion,
 } from '../tools/corpus/receive-pdf';
 
@@ -304,35 +304,52 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     expect(texto.indexOf('IZQ-REL 15')).toBeLessThan(texto.indexOf('DER-UNO')); // columna izquierda completa antes que la derecha
   });
 
-  describe('La Gaceta: un acto termina en la columna izquierda de la última página y otro empieza en la derecha', () => {
-    const p1 = { izq: ['LA GACETA No. 33,222', 'DECRETO No. 35-2013 reforma el Codigo', 'de la Ninez y la Adolescencia', 'ARTICULO 1.- Los ninos y adolescentes; la familia protege.', ...relleno(15, 'IZQ1')], der: ['ARTICULO 2.- Menores y familia; ninos y adolescentes.', ...relleno(15, 'DER1')] };
-    const p2 = { izq: ['ARTICULO 3.- Entra en vigencia; ninos.', 'POR TANTO: EJECUTESE.', 'FIRMA DEL PRESIDENTE', ...relleno(8, 'IZQ2')], der: ['DECRETO No. 107-2013 EL CONGRESO NACIONAL', 'ARTICULO 1.- Acto siguiente que no pertenece al decreto anterior.', ...relleno(8, 'DER2')] };
-    const base = { paquete: 'HN-001-A04', paginasPertinentes: { desde: 1, hasta: 2 }, columnas: 2 as const, cierre: 'EJECUTESE', noContiene: ['107-2013'] };
+  describe('La Gaceta: sumario que menciona el decreto siguiente; el acto termina en la columna izquierda y otro empieza en la derecha', () => {
+    const p1 = { izq: ['LA GACETA No. 33,222', 'SUMARIO', 'Decreto No. 35-2013 reforma el Codigo de la Ninez pag. 1', 'Decreto No. 107-2013 pag. 46', 'DECRETO No. 35-2013', 'ARTICULO 1.- Los ninos y adolescentes; la familia protege.', ...relleno(12, 'IZQ1')], der: ['ARTICULO 2.- Menores y familia; ninos y adolescentes.', ...relleno(12, 'DER1')] };
+    const p2 = { izq: ['ARTICULO 3.- Entra en vigencia; ninos.', 'POR TANTO: EJECUTESE.', 'FIRMA DEL PRESIDENTE', 'SECRETARIO DEL CONGRESO', ...relleno(8, 'IZQ2')], der: ['DECRETO No. 107-2013', 'EL CONGRESO NACIONAL', 'CONSIDERANDO: acto siguiente que no pertenece al decreto anterior.', ...relleno(8, 'DER2')] };
+    const base = { paquete: 'HN-001-A04', paginasPertinentes: { desde: 1, hasta: 2 }, columnas: 2 as const, cierre: ['EJECUTESE', 'FIRMA DEL PRESIDENTE'], noContiene: ['107-2013'] };
     const leer = (raiz: string) => readdirSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review')).map((f) => JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review', f), 'utf8')).extracted_text as string)[0];
-    it('con --ultima-solo-izquierda el cierre se halla y el acto siguiente queda fuera; el hash del PDF íntegro se conserva aparte', () => {
+    it('la mención en el sumario no es falso positivo; el cierre y las firmas se hallan; el hash del PDF íntegro queda aparte', () => {
       const raiz = nuevaRaiz();
       const pdf = pdfDosColumnasPaginas([p1, p2]);
       const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdf), { ...base, ultimaSoloIzquierda: true }));
-      expect(recibo.delimitacion).toEqual({ ultima_solo_izquierda: true, cierre: { frase: 'EJECUTESE', hallado: true }, no_contiene: [{ frase: '107-2013', aparece: false }] });
+      const d = recibo.delimitacion!;
+      expect(d.bloqueos).toEqual([]);
+      expect(d.acto_siguiente[0].en_sumario).toBeGreaterThanOrEqual(1);
+      expect(d.acto_siguiente[0].entrada_efectiva).toBe(false);
+      expect(d.cierre.every((c) => c.hallado)).toBe(true);
       expect(recibo.identidad?.estado).toBe('CONFIRMADA');
       expect(recibo.bytes_sha256).toBe(sha256(pdf));
       expect(recibo.estado).toBe('RECEIVED'); // un extracto siempre espera el cotejo del rango por una persona
       const texto = leer(raiz);
       expect(texto).toMatch(/FIRMA DEL PRESIDENTE/);
-      expect(texto).not.toMatch(/107-2013|Acto siguiente/);
-      expect(texto.indexOf('IZQ1 15')).toBeLessThan(texto.indexOf('DER1 1')); // en la página 1, columna izquierda antes que la derecha
+      expect(texto).not.toMatch(/CONSIDERANDO|acto siguiente/);
     });
-    it('sin --ultima-solo-izquierda el texto del acto siguiente entra y se señala para revisión', () => {
+    it('sin --ultima-solo-izquierda la entrada efectiva del acto siguiente bloquea, y --revisado no la levanta', () => {
       const raiz = nuevaRaiz();
-      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), base));
-      expect(recibo.delimitacion?.no_contiene).toEqual([{ frase: '107-2013', aparece: true }]);
-      expect(recibo.motivos_revision.join(' ')).toMatch(/contiene «107-2013».*el corte no fue limpio/);
+      const { recibo, codigo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, revisado: 'Cotejado el rango contra el PDF original' }));
+      expect(recibo.delimitacion?.acto_siguiente[0].entrada_efectiva).toBe(true);
+      expect(recibo.delimitacion?.bloqueos.length).toBeGreaterThan(0);
+      expect(recibo.estado).toBe('RECEIVED');
+      expect(codigo).toBe(5);
     });
-    it('si el cierre no figura en el extracto, se señala', () => {
+    it('si un cierre no figura en el extracto, se señala y bloquea', () => {
       const raiz = nuevaRaiz();
-      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, ultimaSoloIzquierda: true, cierre: 'FRASE QUE NO EXISTE' }));
-      expect(recibo.delimitacion?.cierre).toEqual({ frase: 'FRASE QUE NO EXISTE', hallado: false });
-      expect(recibo.motivos_revision.join(' ')).toMatch(/Cierre documental no hallado/);
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, ultimaSoloIzquierda: true, cierre: ['EJECUTESE', 'FRASE QUE NO EXISTE'], revisado: 'Cotejado el rango contra el PDF original' }));
+      expect(recibo.delimitacion?.cierre).toEqual([{ frase: 'EJECUTESE', hallado: true }, { frase: 'FRASE QUE NO EXISTE', hallado: false }]);
+      expect(recibo.estado).toBe('RECEIVED');
+    });
+    it('el sumario se cuenta por páginas: con sumarioPaginas 0 la mención de la página 1 cuenta como referencia, no como entrada', () => {
+      const r = comprobarActoSiguiente(['Sumario Decreto No. 107-2013 pag 46', 'texto'], '107-2013', 0);
+      expect(r.en_sumario).toBe(0);
+      expect(r.entrada_efectiva).toBe(false);
+      expect(r.referencias).toBe(1);
+      const r2 = comprobarActoSiguiente(['Sumario Decreto No. 107-2013 pag 46', 'texto'], '107-2013', 1);
+      expect(r2.en_sumario).toBe(1);
+    });
+    it('comprobarActoSiguiente distingue entrada efectiva (decreto + apertura) de una cita en el articulado', () => {
+      expect(comprobarActoSiguiente(['a', 'DECRETO No. 107-2013 EL CONGRESO NACIONAL DECRETA'], '107-2013', 1).entrada_efectiva).toBe(true);
+      expect(comprobarActoSiguiente(['a', 'conforme al articulo 5 de la ley 107-2013 vigente'], '107-2013', 1).entrada_efectiva).toBe(false);
     });
   });
 
