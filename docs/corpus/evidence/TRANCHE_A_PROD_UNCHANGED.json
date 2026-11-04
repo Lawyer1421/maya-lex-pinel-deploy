@@ -1,0 +1,15 @@
+{
+  "purpose": "Evidencia de que el corpus productivo NO fue modificado por el Tramo A (consulta de solo lectura).",
+  "project": "thgrhueckkjdutjvcufp",
+  "captured_utc": "2026-11-04T02:14:27Z",
+  "query": "SELECT count(*) total; count(*) WHERE fuente ILIKE '%comercio%'; WHERE fuente ILIKE '%ni_ez%' OR '%adolescencia%'; WHERE fuente ILIKE '%284-2013%' OR '%35-2013%'; max(created_at) FROM biblioteca_vectores",
+  "result": {
+    "total_filas": 84204,
+    "filas_comercio": 0,
+    "filas_ninez": 0,
+    "filas_decretos_284_2013_o_35_2013": 0,
+    "ultima_creacion_utc": "2026-09-05T05:13:31Z"
+  },
+  "writes_performed": 0,
+  "note": "Ninguna escritura a Supabase, migración ni cambio de despliegue en este tramo. Una fila más reciente que la última creación indicada significaría una escritura posterior a esta captura."
+}

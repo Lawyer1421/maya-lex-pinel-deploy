@@ -1,0 +1,13 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_APPLIED",
+  "rule": "Ninguna alta es automática. Cada dominio requiere verificación humana y un PR revisado que lo agregue a docs/retrieval/official-source-registry.json. Hasta entonces los paquetes de estos dominios son DISCOVERED_UNVERIFIED o SOURCE_HOLD.",
+  "date": "2026-11-04",
+  "proposals": [
+    { "domain": "www.wipo.int", "institution": "OMPI / WIPO Lex (base internacional de legislación)", "proposed_authority_level": "DISCOVERY_ONLY", "proposed_source_tier": null, "classification": "F2", "reason": "No es institución hondureña: WIPO Lex reproduce textos remitidos por los Estados. Sirve para descubrir y cotejar, no como autoridad. Alta solo como DISCOVERY_ONLY.", "evidence_needed": "Confirmar en la ficha 2143 el origen declarado del texto (remitente, fecha) y la edición reproducida." },
+    { "domain": "www.se.gob.hn", "institution": "Por identificar (se.gob.hn: ¿Secretaría de Estado? No se asume cuál)", "proposed_authority_level": "UNDETERMINED", "proposed_source_tier": null, "classification": "F2", "reason": "No figura en el registro y la institución titular no está acreditada. El archivo se llama Codigo_Ninez_y_Adolescencia_2013.pdf: parece un código completo, no el decreto de reforma aislado.", "evidence_needed": "Identificar la institución titular del dominio y si el archivo reproduce La Gaceta 33,222." },
+    { "domain": "www.poderjudicial.gob.hn", "institution": "Poder Judicial (portal principal / CEDIJ en ruta /Cedij/)", "proposed_authority_level": "OFFICIAL_COMPILATION", "proposed_source_tier": 2, "classification": "F2", "reason": "El registro ya lista www.poderjudicial.gob.hn como PJ_PORTAL (VERIFIED, DISCOVERY_ONLY, tier null) y la CEDIJ verificada es legislacion.poderjudicial.gob.hn. El PDF cuelga del portal en /Cedij/: decidir si ese camino se equipara a la CEDIJ verificada.", "evidence_needed": "Verificar humanamente que /Cedij/Cdigos/ es la biblioteca CEDIJ oficial y no un espejo." }
+  ],
+  "already_in_registry": [
+    { "domain": "www.tsc.gob.hn", "id": "TSC", "verification_status": "VERIFIED", "source_tier": 4, "note": "Aporta material 'aportado por una persona', no consulta automática." }
+  ]
+}
