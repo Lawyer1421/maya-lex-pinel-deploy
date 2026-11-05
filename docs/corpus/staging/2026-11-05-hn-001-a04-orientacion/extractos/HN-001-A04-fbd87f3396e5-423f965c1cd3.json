@@ -1,0 +1,368 @@
+{
+  "paquete": "HN-001-A04",
+  "nota": "El hash del PDF ÍNTEGRO y el hash del texto del acto delimitado son cosas distintas: el primero prueba la integridad del archivo recibido; el segundo, la del extracto.",
+  "pdf_integro": {
+    "archivo": "/tmp/claude-0/-home-user/3244d041-2e33-5ff8-bf98-da640e2aedda/scratchpad/a04/Codigo_ninezyadolescencia_2013.pdf",
+    "bytes": 18625608,
+    "bytes_sha256": "fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff",
+    "paginas": 46
+  },
+  "extracto": {
+    "paginas": {
+      "desde": 1,
+      "hasta": 46
+    },
+    "metodo_extraccion": "pdftotext por columnas (2): izquierda y luego derecha de cada página",
+    "caracteres": 185071,
+    "text_sha256": "423f965c1cd358896fd18e40f882c4e3e242f9627617d8ef42fc53b3b0d9375b"
+  },
+  "delimitacion": {
+    "ultima_solo_izquierda": true,
+    "sumario_paginas": 1,
+    "cierre": [
+      {
+        "frase": "Por Tanto: Ejecútese",
+        "hallado": true
+      },
+      {
+        "frase": "GLADIS AURORA LÓPEZ CALDERÓN",
+        "hallado": true
+      }
+    ],
+    "acto_siguiente": [
+      {
+        "frase": "107-2013",
+        "en_sumario": 1,
+        "referencias": 0,
+        "entrada_efectiva": false,
+        "paginas_entrada": []
+      }
+    ],
+    "bloqueos": []
+  },
+  "orientacion_paginas": [
+    {
+      "pagina": 1,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 83,
+      "coincidencia_recorte_derecho": 4,
+      "decision": "directo"
+    },
+    {
+      "pagina": 2,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 111,
+      "coincidencia_recorte_derecho": 8,
+      "decision": "directo"
+    },
+    {
+      "pagina": 3,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 91,
+      "coincidencia_recorte_derecho": 31,
+      "decision": "directo"
+    },
+    {
+      "pagina": 4,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 97,
+      "coincidencia_recorte_derecho": 20,
+      "decision": "directo"
+    },
+    {
+      "pagina": 5,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 82,
+      "coincidencia_recorte_derecho": 10,
+      "decision": "directo"
+    },
+    {
+      "pagina": 6,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 117,
+      "coincidencia_recorte_derecho": 26,
+      "decision": "directo"
+    },
+    {
+      "pagina": 7,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 66,
+      "coincidencia_recorte_derecho": 11,
+      "decision": "directo"
+    },
+    {
+      "pagina": 8,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 106,
+      "coincidencia_recorte_derecho": 26,
+      "decision": "directo"
+    },
+    {
+      "pagina": 9,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 156,
+      "coincidencia_recorte_derecho": 20,
+      "decision": "directo"
+    },
+    {
+      "pagina": 10,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 96,
+      "coincidencia_recorte_derecho": 13,
+      "decision": "directo"
+    },
+    {
+      "pagina": 11,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 113,
+      "coincidencia_recorte_derecho": 34,
+      "decision": "directo"
+    },
+    {
+      "pagina": 12,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 102,
+      "coincidencia_recorte_derecho": 11,
+      "decision": "directo"
+    },
+    {
+      "pagina": 13,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 71,
+      "coincidencia_recorte_derecho": 6,
+      "decision": "directo"
+    },
+    {
+      "pagina": 14,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 88,
+      "coincidencia_recorte_derecho": 18,
+      "decision": "directo"
+    },
+    {
+      "pagina": 15,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 93,
+      "coincidencia_recorte_derecho": 18,
+      "decision": "directo"
+    },
+    {
+      "pagina": 16,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 61,
+      "coincidencia_recorte_derecho": 5,
+      "decision": "directo"
+    },
+    {
+      "pagina": 17,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 110,
+      "coincidencia_recorte_derecho": 24,
+      "decision": "directo"
+    },
+    {
+      "pagina": 18,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 98,
+      "coincidencia_recorte_derecho": 16,
+      "decision": "directo"
+    },
+    {
+      "pagina": 19,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 32,
+      "coincidencia_recorte_derecho": 3,
+      "decision": "directo"
+    },
+    {
+      "pagina": 20,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 91,
+      "coincidencia_recorte_derecho": 12,
+      "decision": "directo"
+    },
+    {
+      "pagina": 21,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 109,
+      "coincidencia_recorte_derecho": 18,
+      "decision": "directo"
+    },
+    {
+      "pagina": 22,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 62,
+      "coincidencia_recorte_derecho": 11,
+      "decision": "directo"
+    },
+    {
+      "pagina": 23,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 67,
+      "coincidencia_recorte_derecho": 10,
+      "decision": "directo"
+    },
+    {
+      "pagina": 24,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 120,
+      "coincidencia_recorte_derecho": 24,
+      "decision": "directo"
+    },
+    {
+      "pagina": 25,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 95,
+      "coincidencia_recorte_derecho": 14,
+      "decision": "directo"
+    },
+    {
+      "pagina": 26,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 100,
+      "coincidencia_recorte_derecho": 25,
+      "decision": "directo"
+    },
+    {
+      "pagina": 27,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 100,
+      "coincidencia_recorte_derecho": 9,
+      "decision": "directo"
+    },
+    {
+      "pagina": 28,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 77,
+      "coincidencia_recorte_derecho": 12,
+      "decision": "directo"
+    },
+    {
+      "pagina": 29,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 115,
+      "coincidencia_recorte_derecho": 32,
+      "decision": "directo"
+    },
+    {
+      "pagina": 30,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 113,
+      "coincidencia_recorte_derecho": 9,
+      "decision": "directo"
+    },
+    {
+      "pagina": 31,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 119,
+      "coincidencia_recorte_derecho": 14,
+      "decision": "directo"
+    },
+    {
+      "pagina": 32,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 106,
+      "coincidencia_recorte_derecho": 25,
+      "decision": "directo"
+    },
+    {
+      "pagina": 33,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 72,
+      "coincidencia_recorte_derecho": 20,
+      "decision": "directo"
+    },
+    {
+      "pagina": 34,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 93,
+      "coincidencia_recorte_derecho": 15,
+      "decision": "directo"
+    },
+    {
+      "pagina": 35,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 93,
+      "coincidencia_recorte_derecho": 10,
+      "decision": "directo"
+    },
+    {
+      "pagina": 36,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 61,
+      "coincidencia_recorte_derecho": 10,
+      "decision": "directo"
+    },
+    {
+      "pagina": 37,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 49,
+      "coincidencia_recorte_derecho": 11,
+      "decision": "directo"
+    },
+    {
+      "pagina": 38,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 91,
+      "coincidencia_recorte_derecho": 13,
+      "decision": "directo"
+    },
+    {
+      "pagina": 39,
+      "rotate_metadatos": 180,
+      "coincidencia_recorte_izquierdo": 14,
+      "coincidencia_recorte_derecho": 125,
+      "decision": "invertido"
+    },
+    {
+      "pagina": 40,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 91,
+      "coincidencia_recorte_derecho": 15,
+      "decision": "directo"
+    },
+    {
+      "pagina": 41,
+      "rotate_metadatos": 180,
+      "coincidencia_recorte_izquierdo": 12,
+      "coincidencia_recorte_derecho": 66,
+      "decision": "invertido"
+    },
+    {
+      "pagina": 42,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 55,
+      "coincidencia_recorte_derecho": 4,
+      "decision": "directo"
+    },
+    {
+      "pagina": 43,
+      "rotate_metadatos": 180,
+      "coincidencia_recorte_izquierdo": 20,
+      "coincidencia_recorte_derecho": 72,
+      "decision": "invertido"
+    },
+    {
+      "pagina": 44,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 98,
+      "coincidencia_recorte_derecho": 5,
+      "decision": "directo"
+    },
+    {
+      "pagina": 45,
+      "rotate_metadatos": 180,
+      "coincidencia_recorte_izquierdo": 12,
+      "coincidencia_recorte_derecho": 119,
+      "decision": "invertido"
+    },
+    {
+      "pagina": 46,
+      "rotate_metadatos": 0,
+      "coincidencia_recorte_izquierdo": 35,
+      "coincidencia_recorte_derecho": 4,
+      "decision": "directo"
+    }
+  ],
+  "estado_recepcion": "RECEIVED"
+}
