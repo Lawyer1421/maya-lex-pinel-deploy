@@ -1,0 +1,49 @@
+{
+  "instrumento": "Ley de Garantías Mobiliarias (D.182-2009)",
+  "estado": "NEEDS_TEXT_LAYER",
+  "estados_adicionales": [],
+  "id_prefix": "mayalex_normativos:ley_garantias_mobiliarias_d182_2009",
+  "source_url": "https://www.tsc.gob.hn/web/leyes/Ley%20de%20Garantias%20Mobiliarias.pdf",
+  "sha256_esperado": "66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da5f97095c7a3856f267",
+  "sha256_obtenido": "66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da5f97095c7a3856f267",
+  "bytes": 3648369,
+  "pages": 20,
+  "fuentes": [
+    {
+      "id": "D",
+      "archivo": "D_lgm.pdf",
+      "source_url": "https://www.tsc.gob.hn/web/leyes/Ley%20de%20Garantias%20Mobiliarias.pdf",
+      "sha256_esperado": "66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da5f97095c7a3856f267",
+      "sha256_obtenido": "66270e8d35d3d1ed5561028380baca78cb74f82ff2d8da5f97095c7a3856f267",
+      "bytes": 3648369,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
+    }
+  ],
+  "retrieved_at": "2026-10-28T16:40:45.816Z",
+  "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
+  "text_sha256": null,
+  "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
+  "counts": {
+    "candidatos": 0,
+    "aceptados": 0,
+    "rechazados": 0,
+    "finales": 0,
+    "excluidos": [],
+    "curacion": {
+      "caracteres_capa_texto": 0
+    }
+  },
+  "articulos": [],
+  "filas": [],
+  "es_norma_vigente": {
+    "significado_clo": "TRUE elegible · FALSE excluido · NULL solo CONTEXT",
+    "TRUE": 0,
+    "FALSE": 0,
+    "NULL": 0
+  },
+  "pdf_versionado_en_repo": false,
+  "notas": [
+    "Escaneo sin capa de texto: requiere OCR/capa de texto verificada antes de cualquier parseo."
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "instrumento": "Decreto 284-2013, Título II (arts. 15 a 25)",
+  "estado": "CLO_CLEARED_FOR_STAGING_PREP",
+  "estados_adicionales": [
+    "BLOCKED_SCHEMA",
+    "EMBEDDINGS_PENDING"
+  ],
+  "id_prefix": "mayalex_normativos:decreto_284_2013_titulo_ii",
+  "source_url": "https://enag.gob.hn/index.php/gaceta-digital/20140605-33445/download",
+  "sha256_esperado": "3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb",
+  "sha256_obtenido": "3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb",
+  "bytes": 1720691,
+  "pages": 72,
+  "fuentes": [
+    {
+      "id": "C",
+      "archivo": "C_gaceta33445.pdf",
+      "source_url": "https://enag.gob.hn/index.php/gaceta-digital/20140605-33445/download",
+      "sha256_esperado": "3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb",
+      "sha256_obtenido": "3b42a1f9120f386fbcb72039de94cc1110038450d0bbb16668c5818a1fe3a4cb",
+      "bytes": 1720691,
+      "sha_coincide": true,
+      "en_SHA256SUMS": true
+    }
+  ],
+  "retrieved_at": "2026-10-28T16:40:45.816Z",
+  "retrieved_via": "archivos locales verificados por CLO (zip), --local; el SHA-256 se recalculó en este entorno",
+  "text_sha256": "1a7017037fdadfa2ee5a720f2e09a916a18b32317ff09b6e80cc32cab64e8194",
+  "parser": "pdftotext version 24.02.0 + segmentarGenerico (scripts/ingestar-ley.ts) + tools/corpus/p21-build.ts",
+  "counts": {
+    "candidatos": 11,
+    "aceptados": 11,
+    "rechazados": 0,
+    "finales": 11,
+    "excluidos": [],
+    "curacion": {
+      "recorte": "desde «DECRETO No.284-2013»; Título II = «TÍTULO II» → «TÍTULO III» (extracción por columna, pdftotext -x/-W)"
+    }
+  },
+  "articulos": [
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25"
+  ],
+  "filas": [
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a15",
+      "num_articulo": "15",
+      "role": "PRIMARY",
+      "hash_sha256": "2041de91688dc109999bfc39e4f91d910555c7ca12eb26cf9defc72d8def3ebd",
+      "chars": 569,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a16",
+      "num_articulo": "16",
+      "role": "PRIMARY",
+      "hash_sha256": "412eb8af33e443f30b5d8af754579ba599cffd402b7ceb14a6d9e7a8ea284684",
+      "chars": 906,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a17",
+      "num_articulo": "17",
+      "role": "PRIMARY",
+      "hash_sha256": "fcd598af5bcd04a3c90383157386ce87353c0e4ab1fa0ff3ab7b9ff5bd1c006d",
+      "chars": 849,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a18",
+      "num_articulo": "18",
+      "role": "PRIMARY",
+      "hash_sha256": "7d9a9210bdd05fffcbe95227ba8090367a0d0a4bfbd2c1ed42d6d988afe68e6d",
+      "chars": 1502,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a19",
+      "num_articulo": "19",
+      "role": "PRIMARY",
+      "hash_sha256": "bbeb235d1d253eca9e8c05e2987dd911c4280666a74fbdd8b3df1091fe7625ec",
+      "chars": 351,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a20",
+      "num_articulo": "20",
+      "role": "PRIMARY",
+      "hash_sha256": "428d7f5fb97ff7d63c0ab2cd3fb3d3ae8a328c2efef32bb95cf13d1834d600f7",
+      "chars": 704,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a21",
+      "num_articulo": "21",
+      "role": "PRIMARY",
+      "hash_sha256": "de9f606674568b675477df7d5160441e92b0c1fe8d95ebb2046223b47f3e589b",
+      "chars": 187,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a22",
+      "num_articulo": "22",
+      "role": "PRIMARY",
+      "hash_sha256": "6f6a12b5a5c70d9eb63243491f1a8e89a30d2cf9f89be30ffe25efd20a5ca0f7",
+      "chars": 729,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a23",
+      "num_articulo": "23",
+      "role": "PRIMARY",
+      "hash_sha256": "880bd7f22009852d20cbced37637e8e0ae7fa65b715f063e90d4c20c102fd3f9",
+      "chars": 208,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a24",
+      "num_articulo": "24",
+      "role": "PRIMARY",
+      "hash_sha256": "2a950e4d9dd72f15fc12633b4e87b9793ebae0cd447bda90494f7fac15825dcd",
+      "chars": 561,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    },
+    {
+      "id": "mayalex_normativos:decreto_284_2013_titulo_ii_a25",
+      "num_articulo": "25",
+      "role": "PRIMARY",
+      "hash_sha256": "931e6372a1f82401cacc079213fe8d7cbc5ccef8ab0e08387eb7785518cb7de0",
+      "chars": 120,
+      "es_norma_vigente": null,
+      "vigencia": "NULL",
+      "warnings": []
+    }
+  ],
+  "es_norma_vigente": {
+    "significado_clo": "TRUE elegible · FALSE excluido · NULL solo CONTEXT",
+    "TRUE": 0,
+    "FALSE": 0,
+    "NULL": 11
+  },
+  "pdf_versionado_en_repo": false,
+  "notas": [
+    "Extracción por columna (la Gaceta imprime a dos columnas)."
+  ],
+  "autonomo": true,
+  "no_vincular_como_restauracion_de": "Código del Notariado arts. 60–71",
+  "vigencia": "NULL: sin vigencia acreditada (el valor TRUE_PRESUNTA ya no se usa; CLO 28-oct-2026)",
+  "materia_nota": "materia 10_LEYES_REGLAMENTOS provisional (no 03_NOTARIAL) hasta decisión CLO"
+}
