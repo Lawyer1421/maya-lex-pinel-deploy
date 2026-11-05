@@ -1,0 +1,56 @@
+{
+  "source": "Google Drive owner copy; NOT institutional-provenance verified",
+  "original_filename": "Codigo_niñezyadolescencia_2013.pdf",
+  "original_size": 18625608,
+  "original_sha256": "fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff",
+  "parts": [
+    {
+      "name": "A04.part001.bin",
+      "size": 2097152,
+      "sha256": "bd2c7603dc383da21c56ffa08232d640ef2d204c59622afcce9f8d3b46bd5b70"
+    },
+    {
+      "name": "A04.part002.bin",
+      "size": 2097152,
+      "sha256": "29feffbabca40ae202daf57014d01c684ca2a39635d27d7e26816dd2c640ad68"
+    },
+    {
+      "name": "A04.part003.bin",
+      "size": 2097152,
+      "sha256": "ce2e9125bdf80c06228d09135fd59bf287ab9b6d4d85cfb2d2b8fe7b6712c02a"
+    },
+    {
+      "name": "A04.part004.bin",
+      "size": 2097152,
+      "sha256": "481cfbecf3da551ce07200f98901ab3b4b7a90acf35c5b671dfc501d3a4db315"
+    },
+    {
+      "name": "A04.part005.bin",
+      "size": 2097152,
+      "sha256": "043a9d47cd3f171c556cb64a78961074569b502fd18668433f0f541839f71474"
+    },
+    {
+      "name": "A04.part006.bin",
+      "size": 2097152,
+      "sha256": "3a5c177ab1fd0586aa780f795cc6757bb25b08e9805e4e60298165a533b6d763"
+    },
+    {
+      "name": "A04.part007.bin",
+      "size": 2097152,
+      "sha256": "d2750cc41a7e389c4699fa26c669d8ffd1183d5205fc4481d4fd1c063b770515"
+    },
+    {
+      "name": "A04.part008.bin",
+      "size": 2097152,
+      "sha256": "2c585890c7f0c16884ee7d7a1f216c05985962e1ad291e691c2fe949f39e2da2"
+    },
+    {
+      "name": "A04.part009.bin",
+      "size": 1848392,
+      "sha256": "94f189efcfbe1ee2493d8652a6a41e0cdd74a52227020380a9aa7a4e8db50333"
+    }
+  ],
+  "verification_state": "SOURCE_HOLD",
+  "purpose": "transfer-only",
+  "instructions": "Reconstruct original bytes and verify sha256; no legal authenticity inferred."
+}
