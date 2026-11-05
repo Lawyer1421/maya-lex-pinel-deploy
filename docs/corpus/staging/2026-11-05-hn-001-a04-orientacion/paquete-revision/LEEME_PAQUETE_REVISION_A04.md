@@ -17,7 +17,7 @@
 
 **2. Arts. 11 y 14.** Listas cotejadas completas contra la imagen (art. 14: 324 cifras; tiras a 200 dpi). Única diferencia con el OCR en art. 14: `^34` → **334** (mancha sobre el 3; la secuencia 333–335 la respalda). Art. 11: `57` → **67** (secuencia 62–82; el primer dígito toca el borde recortado). Ambas quedan como **propuesta pendiente CLO**; ninguna cifra quedó irresoluble. Huecos de la lista del art. 14 (cifras no derogadas): 37–46, 49–67, 69–77, 80–93, 234, 248, 250–251, 261, 263–275, 307, 331, 343, 397, 410–426, 428–431 y 434–964; coinciden en el OCR y en mi lectura de la imagen, por lo que son de la fuente (la lectura de la imagen es mía y queda para cotejo humano). Ruido de borde: pág. 45 y 41 con caracteres iniciales recortados **en la imagen** (pérdida de la fuente escaneada, no recuperable: «:ontentivo», «\DOLESCENCIA», «rimera»…); `bordes_escaneo.csv`.
 
-**Hallazgo adicional — truncamiento de la capa de texto.** En la columna derecha de las páginas con letras sueltas (19 páginas; 171 líneas de una sola letra) la capa de texto corta el final de algunas líneas («jurídic», «funcionari») y deja las letras sueltas en líneas aparte; la imagen conserva la palabra completa (recorte p.31). Esto afecta cualquier segmentación o cita textual del art. 1 y de las reformas (C11) y **debe reconstruirse contra la imagen antes de segmentar**.
+**Hallazgo corregido (ver `../transcripcion_candidata/`).** Las 171 líneas de una sola letra del extracto bruto **no son finales de línea desplazados**: son ruido del OCR del borde derecho y de las bandas de encabezado (no figuran como texto en la imagen). Lo que sí ocurre en el borde derecho de las páginas impares es que la imagen corta las letras finales de las líneas (parcialmente visibles) y el OCR las sustituye por signos o las pierde («lo;», «Centro:»). Está inventariado en `inventario_borde_derecho_pagina.csv`; no se propone lectura. La corrección de la fase anterior (C11) queda sustituida por `transcripcion_candidata/`.
 
 **3. Art. 1, págs. 1–27.** Cobertura por página y columna en `cobertura_pagina_columna.csv` (91 filas). Verificación visual: **estructural** en montajes de págs. 1–28 (`vistas_art1/`), más lectura a 200 dpi de los recortes citados; **no** lectura palabra por palabra. Control de adscripción: los 123 artículos que declara el art. 1 aparecen como rótulo citado en el cuerpo (123/123; el 260 lleva viñeta que enmascara el rótulo; no hay duplicados ni citados no declarados) y en orden creciente. En arts. 3, 4, 5, 6, 8 el cruce declarado↔transcrito también cierra, con las excepciones C04–C06 y C09. Bloque editorial de La Gaceta incrustado en p.2 der. (C10). Comparación previa/corregida por página: sin diferencias de contenido; solo el orden en 4 páginas.
 
@@ -37,7 +37,7 @@
 2. Resolver la atribución de los literales ch)/d): art. 134 (A03) vs art. 141 (decreto).
 3. Art. 21 de la Niñez: reforma de 35-2013 y derogación posterior (130-2017) en A03.
 4. Discrepancias numéricas y de fecha de la fuente (C08, C09).
-5. Autorizar la reconstrucción de las palabras truncadas (C11) contra la imagen antes de segmentar.
+5. Aprobar el descarte de las 171 líneas de ruido y decidir cómo cotejar los finales de línea del borde derecho con otro ejemplar.
 6. Procedencia oficial del PDF (SOURCE_HOLD): sigue sin acreditarse.
 
 ## Archivos

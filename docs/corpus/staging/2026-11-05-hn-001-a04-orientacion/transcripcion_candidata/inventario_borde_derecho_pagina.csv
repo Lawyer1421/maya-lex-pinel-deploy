@@ -1,0 +1,630 @@
+pagina,columna,y_pt,x_fin_pt,ultimo_token_ocr,sospecha,estado
+1,der,573,609,A.72-76,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,614,608,1-16,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,719,608,"1,5,20,21,32,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,735,612,"142,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,751,609,"164,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,767,609,"184,185,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,783,609,"197,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,798,609,"209,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+1,der,814,612,"221,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,77,608,estricto,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,125,609,cualquier,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,140,608,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,188,609,"propietarios,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,204,609,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,221,609,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,237,609,encuentran,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,253,611,"legal,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,269,612,niño,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,285,610,por,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,337,612,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,354,612,habitaciones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,370,611,o,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,387,612,acompañar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,436,611,están,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,453,612,mediante,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,502,613,los,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,519,612,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,568,613,mínimos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,585,612,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,618,612,poi,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,651,612,poi,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,701,612,hay£,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,749,614,ser¿,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,765,614,dentre,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,781,611,notificación,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,797,612,recibe,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+3,der,813,613,d(,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,63,614,lo;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,79,614,Centro:,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,95,613,niños;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,111,614,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,126,616,dentn,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,142,614,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,190,615,misione:,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,206,614,tengai,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,222,614,sid(,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,239,616,internado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,255,615,estéi,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,271,615,1,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,287,614,cost,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,303,616,Honduras,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,353,617,Hondureno,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,369,612,enviará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,386,615,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,402,615,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,452,615,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,468,613,"143,144",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,484,613,(5),extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,500,618,qu<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,517,613,L,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,533,613,responsabilida,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,584,614,informa,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,596,617,cuand,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,649,614,Honduren,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,665,616,investigar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,681,616,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,698,616,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,746,617,(IHNFA,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,765,616,debiend,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,782,614,argumento,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+5,der,796,611,desestimada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,70,613,nc,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,86,613,come,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,135,615,todc,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,151,618,c,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,167,615,su<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,216,615,discriminaciór,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,233,615,dé,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,249,615,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,265,614,lo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,281,613,infant,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,297,614,otro,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,314,614,par,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,364,614,luga,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,380,614,hostiles,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,396,616,come,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,413,613,droga,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,429,615,qu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,445,617,c,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,461,617,física,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,477,614,hacer,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,494,615,incluyend,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,510,616,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,561,613,Famili,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,577,617,trasgresión,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,593,616,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,609,609,conforme,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,659,614,Civi,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,675,610,"Derecho,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,692,613,Institu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,708,616,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,757,616,programa,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,773,615,consejerí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,789,610,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+7,der,805,615,psicológic,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,69,612,opinión,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,85,611,mismo;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,100,612,"padres,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,116,614,salvo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,132,612,tales,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,148,614,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,181,612,provea,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,212,612,"imparcial,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,228,612,sea,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,244,615,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,276,615,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,292,612,"continuidad,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,324,612,sus,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,340,613,pertinentes,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,356,614,>,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,372,613,cualquiei,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,387,615,c,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,420,613,definitiva,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,452,612,registroí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,468,612,si,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,484,612,quede,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,500,612,dt,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,516,613,relacionado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,531,612,(,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,547,613,necesario:,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,581,613,lactantes,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,597,613,ta,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,647,612,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,662,612,sil,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,678,613,Códig<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,694,612,Falta,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,710,608,pública,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,759,612,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,774,615,1,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,790,612,ést,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,806,614,plaz>,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+9,der,822,610,días.,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,75,613,les,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,123,615,tengan,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,171,613,comunicación,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,186,614,con,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,202,613,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,250,614,agentes,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,266,615,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,282,613,otra,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,298,614,autoridad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,314,613,señalada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,361,614,"psicológico,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,377,615,evaluador,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,393,614,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,409,615,lesiones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,457,614,U,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,473,616,Códigc,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,489,615,regira,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,537,615,le,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,553,615,decretal,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,568,612,podr,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,616,612,hay,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,632,616,U,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,648,613,impliqu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,664,615,humanos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,680,612,reiterada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,696,616,Medida*,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,712,616,autoridae,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,744,616,k,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,791,612,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+11,der,807,617,le,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,76,613,cosa,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,125,614,Sancionado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,176,615,hacer,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,192,615,cuantía,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,209,615,perjuicios,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,259,615,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,309,617,se,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,326,615,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,376,616,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,393,616,prohibiciones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,409,616,Instituto,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,426,615,promove,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,442,614,E,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,494,611,superior,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,544,616,impuestas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,594,613,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,611,618,no,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,627,616,lo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,644,612,Hech,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,661,615,Artículo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,677,613,Título,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,711,614,Domiciliari,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,728,614,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,778,615,l,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,794,615,ordenars,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+13,der,810,614,comprobad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,71,611,i,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,87,613,f,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,103,613,Procese,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,134,613,elementos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,150,612,anticipada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,167,613,h,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,183,615,lí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,216,613,d<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,231,615,"e,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,314,614,asunto:,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,330,612,plazo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,363,613,d<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,396,612,principio,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,412,615,proporcionalida<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,428,612,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,444,613,conducta,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,478,614,esfo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,527,610,Ejecución:,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,559,613,se,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,576,615,garantizand,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,592,614,asiste,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,625,616,parte,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,641,614,cesarlas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,657,615,gravosas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,674,613,qu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,690,613,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,723,614,sancione,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,739,616,norma,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,773,616,cualquie,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,789,613,impuestas;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,805,614,transcurrid,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+15,der,821,615,envié,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,385,608,Daño,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,417,609,Este,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,517,608,condición,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,533,609,le,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,566,609,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,616,609,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,665,612,peticionario,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,681,610,así,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,697,610,salvo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,713,614,realizará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,762,611,se,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,778,613,primer,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,794,610,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+17,der,810,610,El,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,647,608,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,663,608,pudiere,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,711,608,fuere,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,727,608,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,743,610,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,791,609,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+18,der,806,608,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,73,614,Juez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,125,613,Público,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,142,612,encuentra,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,159,613,Juez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,176,614,siguientes,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,193,615,captura,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,210,613,puesto,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,226,613,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,279,613,Juez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,296,613,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,313,613,Públicc,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,330,615,procese,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,347,614,simplificaciór,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,364,614,considere,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,381,612,años,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,433,613,acreditar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,450,614,lí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,502,617,le,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,553,614,Niño(a),extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,571,613,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,622,614,dt,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,639,614,suspensiói,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,656,613,seten,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,673,614,ante,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,690,615,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,742,613,ser,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,793,614,lo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+19,der,810,613,Jue,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,69,611,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,85,610,dispuesto,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,134,612,sobre,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,150,610,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,167,612,necesarios,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,216,611,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,233,611,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,282,611,Juez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,298,613,una,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,347,613,cederá,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,364,612,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,380,612,las,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,429,613,pruebas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,446,617,medio,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,462,615,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,478,614,Hecho,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,494,614,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,544,614,para,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,560,615,hora,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,576,613,efectuará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,626,615,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,642,615,debe,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,691,614,circunstancias,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,707,613,realizada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,724,617,este,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,756,614,circunstancias,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,805,615,gravedad),extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+21,der,821,613,cometido,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,103,615,pudiei,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,135,616,le,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,151,613,qu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,183,610,"Sancionado,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,230,615,aplicable,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,278,614,Rector,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,294,614,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,326,618,te,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,342,616,responsabilida,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,374,616,interne,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,390,618,encuenu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,406,615,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,438,617,comunicació,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,454,614,cualqui,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,470,611,afectivo;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,487,616,otra,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,503,613,debidamen,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,519,616,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,552,612,vaci,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,568,612,médic,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,584,615,men,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,617,617,Sancionad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,633,616,Individu,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,665,613,Técni,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,695,613,Defens,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,711,613,u,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,744,613,(1,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,760,613,libert,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,776,612,parte,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+23,der,808,616,programa,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,105,610,representante,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,171,609,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,204,608,las,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,221,611,sanciones.,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,237,608,sus,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,254,609,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,304,608,Libertad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,321,609,Familia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,337,611,cual,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,354,611,formativos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,370,612,seguimiento,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,421,609,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,437,612,interés,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,488,611,privados,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,504,610,sus,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,521,611,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,537,613,origen,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,554,611,"étnico,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,604,613,responsable,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,621,614,cumplir,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,671,612,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,687,612,Individual,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,704,612,cual,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+25,der,803,613,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,80,611,Ejecución,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,112,608,lo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,159,608,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,175,611,Familia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,191,608,días,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,207,610,Plan,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,255,609,ejecutará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,271,611,Niños,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,287,610,población,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,302,612,orden,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,334,609,su,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,350,609,o,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,366,611,etarios.,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,398,610,durante,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,414,613,menores,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,462,612,terminantemente,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,509,610,Individual,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,525,611,Ejecución,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,541,610,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,557,612,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,573,611,trimestralmente,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,589,611,con,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,604,612,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,653,612,"precedente,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,669,613,debe,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,684,612,administrativo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,699,614,administrativas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,748,613,los,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,764,613,evaluados,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,780,613,cuales,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,796,614,principios,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+26,der,811,613,especializados,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,75,611,conformidad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,124,612,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,140,614,los,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,157,613,entre,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,207,613,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,224,613,Niñez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,240,612,generará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,257,612,justicia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,274,613,las,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,290,614,propiciará,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,307,614,públicos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,323,613,niñez,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,340,614,Gubernamentales,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,356,614,ese,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,408,615,internacional,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,425,614,Código,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,476,614,fecha,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,492,614,NIÑEZ,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,509,615,denominaciones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,525,614,l,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,542,613,seccione,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,558,615,Título,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,575,614,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+27,der,591,614,denominación,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,104,614,autorida,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,152,614,respald,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,167,615,Jue,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,181,615,términ,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,199,614,qued,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,247,615,1,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,263,611,"Administrativo.""",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,295,616,Niñe,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,311,613,niño,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,327,610,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,343,614,a,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,359,613,pa,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,374,613,dí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,390,615,Juzgad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,406,614,argumentaciones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,421,613,audienci,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,503,613,técnic,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,519,613,Niñ,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,532,617,e,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,551,613,opong,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,584,610,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,612,615,mism,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,649,616,autorida,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,696,615,aq,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,709,614,derech,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,727,614,derec,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,743,616,duran,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,759,617,madure,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+29,der,807,613,ni,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,72,612,alternas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,120,613,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,136,613,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,152,613,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,167,615,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,183,615,apoyo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,199,614,acciones,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,215,614,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,231,613,entorno,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,247,614,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,278,615,posibilidad,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,294,614,Justicia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,310,614,colaboración,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,359,615,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,375,615,"Proceso,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,391,615,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,406,615,fuentes,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,454,615,declarando,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,502,617,o,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,518,614,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,534,617,Hondureno,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,629,614,"11,16,23,30,39",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,645,614,163,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,661,617,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,677,618,No.76-84,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,724,617,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,740,610,"naturalmente,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,756,613,jurídic,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,804,613,funcionari,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+31,der,820,609,Ley.,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,72,611,otorgar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,89,613,requisito,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,105,612,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,122,612,debiendo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,139,612,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,155,612,Ministerio,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,172,613,Familia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,223,615,personas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,240,615,indispensable,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,257,613,las,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,323,613,con,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,357,614,ejerzan,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,374,614,juzgado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,407,614,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,423,615,Instituto,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,440,615,con,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,491,615,o,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,508,617,gratificación,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,558,613,adoptar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,608,615,conozca,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,625,617,cometido,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,641,616,Ministerio,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,692,617,contrario,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,708,616,ante,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,725,613,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,741,617,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,791,616,desestimar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+33,der,807,615,legale,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,72,611,"persona,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,88,612,consentimiento;,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,121,611,relación,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,215,612,"sexuales,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,231,614,cónyuges,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,247,612,hagan,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,278,614,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,390,614,juegos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,406,614,parte,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,422,613,con,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,437,617,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,518,615,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,534,614,para,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,549,613,subsistencia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,598,616,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,645,616,los,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,677,613,vientr,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,693,614,muer,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,725,616,bajo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,757,616,heredero,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,773,614,nombrado(a,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,804,617,designe,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+35,der,820,616,"adoptivo(a).""",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,68,614,adopciói,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,100,614,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,116,614,edac,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,132,614,lo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,180,614,niños(a<,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,196,614,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,212,614,étnic,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,244,614,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,260,617,del(lg,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,308,616,desee,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,324,614,Instituí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,340,616,s,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,356,617,légale,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,372,611,"conocimiento,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,387,614,Letr,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,403,616,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,453,617,d,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,501,618,prueb,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,550,612,cumpla,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,566,616,respectiv,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,614,615,Familia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,630,615,consentimient,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,646,613,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,662,615,niña(,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,710,616,(IHNFA,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,725,613,mientr,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,740,612,supervisada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,756,612,técnico,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,805,613,únicament,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+37,der,820,614,paí,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,87,610,señalada,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,135,609,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,150,608,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,199,609,demandar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,215,609,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,231,609,para,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,247,610,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,294,612,consideración,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,311,611,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,328,610,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,380,610,por,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,397,615,"persona,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,415,615,sacarle,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,432,612,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,449,612,Familia,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,501,613,obtener,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,518,614,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,535,613,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,552,613,todos(as),extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,604,614,estar,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,622,614,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,639,613,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,656,615,hubiere,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,708,615,"Cónyuge,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,725,614,de,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,742,614,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,792,614,se,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+40,der,807,614,considere,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+42,der,647,609,tres,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+42,der,663,610,tiempo,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+42,der,729,609,personas,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+42,der,810,610,ocho,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,504,610,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,602,609,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,618,609,sus,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,635,610,agresor,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,669,608,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,685,609,su,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,701,609,ser,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,717,609,en,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,750,609,el(la),extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,766,610,emocionales,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,783,611,Forense,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+44,der,816,610,correspondiente,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,116,608,3,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,178,608,"promover,",extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,195,608,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,212,608,permita,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,229,612,financiamient,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,246,609,se,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,297,609,167-91,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,314,609,la,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,331,610,fondos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,348,611,destinado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,365,611,destinatarios,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,382,610,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,399,610,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,416,611,privado,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,433,611,trabajadores,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,485,611,sustancialmente,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,501,610,del,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,518,611,necesario,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,535,611,que,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,552,611,sector,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,569,611,al,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,586,612,administración,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,603,611,y,token final con signo anómalo o letra suelta,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,620,613,el,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,672,613,Régimen,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,689,612,mecanismos,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,706,612,las,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar
+46,der,723,613,interés,extremo de línea pegado al borde de la página,PARCIAL_EN_BORDE_DERECHO: letras finales posiblemente recortadas; lectura NO propuesta; cotejar otro ejemplar

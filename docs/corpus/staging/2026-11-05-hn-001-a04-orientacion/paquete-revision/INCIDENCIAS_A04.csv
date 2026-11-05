@@ -1,0 +1,18 @@
+id,tipo,incidencia_tal_como_esta_impresa_o_detectada,ubicacion,tratamiento,estado
+N01,CANTIDAD,"Art. 3: «23 nuevos artículos» frente a 14 designados (31-A, 31-B, 100-A, 102-A, 104-A, 147-A, 147-B, 147-C, 147-D, 147-E, 180-A, 180-B, 187-A, 280-A)",p.28 izq (declaración); la imagen imprime «23»,Impreso así; no corregido,PENDIENTE CLO
+N02,CANTIDAD,Art. 5: «treinta y seis (36) nuevos Artículos» frente a 34 designados,p.36 der (declaración); leído del OCR (palabra y cifra concuerdan entre sí),Impreso así; no corregido,PENDIENTE CLO
+N03,CANTIDAD,"Art. 8: «ocho (8) nuevos artículos» frente a 9 designados (147-B, 147-C, 170-A, 170-B, 178-A, 179-D, 179-E, 179-F, 179-G)",p.42 der (declaración); leído del OCR,Impreso así; no corregido,PENDIENTE CLO
+N04,FECHA,Decreto 144-83 (Código Penal): «23 de Agosto de 1983» en los arts. 7 y 8,p.42 der y p.43,Impreso así; no corregido,PENDIENTE CLO
+N05,FECHA,Decreto 144-83 (Código Penal): «23 de agosto de 1993» en el art. 15,p.45 der (recorte p45_der_art15-17); la imagen imprime «1993»,Impreso así; no corregido,PENDIENTE CLO
+N06,CIFRA,"Art. 6: lista introductoria «11, 516, …» y rótulo del cuerpo «ARTÍCULO 511»",p.41 izq (lista) y p.41 der (cuerpo); ver HOJA_DECISION_CLO C06,Se conservan ambas lecturas,PENDIENTE CLO
+N07,RÓTULO,Art. 5: dos rótulos duplicados «123-E» y «207-E» en el OCR; la imagen dice 123-F y 207-F,p.38 izq y p.40 izq,Lectura visual propuesta; el OCR queda como está,PENDIENTE CLO
+N08,CIFRA,Art. 11: «57» en el OCR; la imagen dice «67»,p.45 izq,Lectura visual propuesta,PENDIENTE CLO
+N09,CIFRA,Art. 14: «^34» en el OCR; la imagen dice «334»,p.45 der,Lectura visual propuesta,PENDIENTE CLO
+N10,ADSCRIPCIÓN,Art. 10 incisos 7) y 8): rótulos y cuerpos separados y en orden invertido en el extracto bruto,p.45 izq,Resuelto por coordenadas del propio texto del PDF y por la imagen; propuesta,PENDIENTE CLO
+N11,ATRIBUCIÓN,"Literales ch), d), e), f): art. 141 (A04) frente a art. 134 (A03)",p.45 izq (A04); consolidado A03,Sin resolver (ver PASAJES_134_141),PENDIENTE CLO
+N12,EVENTOS,Art. 21: reforma por 35-2013 (A04) y derogación posterior por 130-2017 (A03),p.2 (A04); consolidado A03,Eventos separados (ver EVENTOS_ARTICULO_21),PENDIENTE CLO
+N13,IMAGEN,Pág. 41: 11 líneas con el primer carácter ausente en la imagen (borde izquierdo recortado),p.41 izq,ILEGIBLE_EN_ESTE_EJEMPLAR (ver pasajes_a_cotejar_otro_ejemplar.csv),Cotejar con otro ejemplar
+N14,OCR,Pág. 45: 12 inicios de línea mal leídos por el OCR pero legibles en la imagen,p.45 izq,Sin carácter ausente; se conserva el OCR,—
+N15,IMAGEN,"Borde derecho de páginas impares: letras finales de línea cortadas por el borde en la imagen (p. ej. «los», «Centros», «niños y»); el OCR las sustituyó por signos o las perdió",629 líneas con extremo ≥608 pt; 88 con token final anómalo (inventario_borde_derecho_pagina.csv),PARCIAL_EN_BORDE_DERECHO; sin lectura propuesta,Cotejar con otro ejemplar
+N16,RUIDO,"171 líneas sueltas del extracto bruto: ruido del OCR del borde derecho y de las bandas de encabezado, no texto del decreto",19 páginas (lineas_sueltas_171.csv),Descartadas de la candidata,PENDIENTE CLO (aprobar el descarte)
+N17,NO NORMATIVO,"Recuadro editorial de La Gaceta en p.2 der. (gerente, coordinador, teléfonos de la ENAG) dentro del cuerpo del art. 1; y encabezados/pies repetidos (79)",p.2 der. y todas,Excluir al segmentar,PENDIENTE CLO
