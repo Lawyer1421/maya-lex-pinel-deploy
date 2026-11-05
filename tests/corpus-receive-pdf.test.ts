@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkS
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  PERFILES, analizarPaginas, comprobarActoSiguiente, constaEnTexto, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
+  PERFILES, analizarPaginas, comprobarActoSiguiente, constaEnTexto, extraerTextoDosColumnas, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
   type OpcionesRecepcion,
 } from '../tools/corpus/receive-pdf';
 
@@ -41,10 +41,10 @@ function pdfSintetico(paginas: string[][]): Buffer {
 }
 
 /** PDF de dos columnas con N páginas; el flujo de contenido entrelaza una línea de cada columna. */
-function pdfDosColumnasPaginas(paginas: Array<{ izq: string[]; der: string[] }>): Buffer {
+function pdfDosColumnasPaginas(paginas: Array<{ izq: string[]; der: string[]; rotate?: number }>): Buffer {
   const objs: string[] = ['<< /Type /Catalog /Pages 2 0 R >>', `<< /Type /Pages /Kids [${paginas.map((_, k) => `${3 + k * 2} 0 R`).join(' ')}] /Count ${paginas.length} >>`];
   const fuente = 3 + paginas.length * 2;
-  paginas.forEach(({ izq, der }, k) => {
+  paginas.forEach(({ izq, der, rotate }, k) => {
     const partes: string[] = [];
     for (let i = 0; i < Math.max(izq.length, der.length); i++) {
       const y = 760 - i * 12;
@@ -52,7 +52,7 @@ function pdfDosColumnasPaginas(paginas: Array<{ izq: string[]; der: string[] }>)
       if (der[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 330 ${y} Tm (${der[i].replace(/[()\\]/g, '')}) Tj ET`);
     }
     const flujo = partes.join(' ');
-    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${4 + k * 2} 0 R /Resources << /Font << /F1 ${fuente} 0 R >> >> >>`);
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]${rotate ? ` /Rotate ${rotate}` : ''} /Contents ${4 + k * 2} 0 R /Resources << /Font << /F1 ${fuente} 0 R >> >> >>`);
     objs.push(`<< /Length ${flujo.length} >>\nstream\n${flujo}\nendstream`);
   });
   objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
@@ -302,6 +302,32 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     const texto: string = JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/HN-001-A03.json'), 'utf8')).extracted_text;
     expect(texto.indexOf('IZQ-REL 15')).toBeGreaterThan(-1);
     expect(texto.indexOf('IZQ-REL 15')).toBeLessThan(texto.indexOf('DER-UNO')); // columna izquierda completa antes que la derecha
+  });
+
+  it('páginas con /Rotate 180: la orientación de las columnas se calibra por contenido y se registra; una página sin rotar es el control', () => {
+    const raiz = nuevaRaiz();
+    // pdftotext recorta en un espacio que no es el visual en estas páginas: el recorte izquierdo trae la columna que -layout lee a la DERECHA.
+    const izq = ['COLUMNA-IZQUIERDA primera linea de texto'];
+    const der = ['COLUMNA-DERECHA segunda linea de texto'];
+    const pdf = pdfDosColumnasPaginas([
+      { izq, der },
+      { izq, der, rotate: 180 },
+      { izq, der },
+    ]);
+    const { texto, orientacion } = extraerTextoDosColumnas(escribir(raiz, 'r.pdf', pdf), 1, 3);
+    const [p1, p2, p3] = texto.split('\f');
+    const ordenLayout = (t: string): boolean => t.indexOf('COLUMNA-IZQUIERDA') < t.indexOf('COLUMNA-DERECHA');
+    expect(ordenLayout(p1)).toBe(true); // control sin rotar
+    expect(ordenLayout(p3)).toBe(true); // control sin rotar
+    expect(ordenLayout(p2)).toBe(true); // rotada: falla si las columnas quedan invertidas
+    expect(orientacion.map((o) => o.pagina)).toEqual([1, 2, 3]);
+    expect(orientacion[0]).toMatchObject({ rotate_metadatos: 0, decision: 'directo' });
+    expect(orientacion[2]).toMatchObject({ rotate_metadatos: 0, decision: 'directo' });
+    expect(orientacion[1].rotate_metadatos).toBe(180);
+    // última página rotada tomada «solo izquierda» = la izquierda según el contenido
+    const solo = extraerTextoDosColumnas(escribir(raiz, 'r2.pdf', pdf), 2, 2, true).texto;
+    expect(solo).toMatch(/COLUMNA-IZQUIERDA/);
+    expect(solo).not.toMatch(/COLUMNA-DERECHA/);
   });
 
   describe('La Gaceta: sumario que menciona el decreto siguiente; el acto termina en la columna izquierda y otro empieza en la derecha', () => {

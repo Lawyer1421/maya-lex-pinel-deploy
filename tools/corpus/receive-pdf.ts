@@ -263,6 +263,8 @@ export interface Recibo {
   paginas: number | null;
   extracto: { desde: number; hasta: number } | null;
   metodo_extraccion: string;
+  /** Por página: rotación declarada en los metadatos y cómo se resolvió la orientación de las columnas (solo con --columnas 2). */
+  orientacion_paginas: RegistroOrientacion[] | null;
   delimitacion: { ultima_solo_izquierda: boolean; sumario_paginas: number; cierre: Array<{ frase: string; hallado: boolean }>; acto_siguiente: ComprobacionActoSiguiente[]; bloqueos: string[] } | null;
   huella_paginas: number | null;
   caracteres: number | null;
@@ -281,15 +283,51 @@ export interface Recibo {
  * Se extrae cada página recortada a su mitad izquierda y luego a su mitad derecha, y se conserva el \f entre páginas para el control por página.
  * Es un método distinto de la extracción simple: queda registrado en el recibo y el texto (y su hash) corresponde a este método.
  */
-export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number, ultimaSoloIzquierda = false): { texto: string; avisos: string[] } {
+/** Cómo se resolvió la orientación de una página al separar sus columnas (se conserva para la verificación). */
+export interface RegistroOrientacion {
+  pagina: number;
+  /** Valor /Rotate de los metadatos del PDF. */
+  rotate_metadatos: number;
+  /** Palabras de la columna izquierda VISUAL (según el orden de lectura de pdftotext -layout) que coinciden con cada mitad del recorte. */
+  coincidencia_recorte_izquierdo: number;
+  coincidencia_recorte_derecho: number;
+  /** «directo»: la mitad izquierda del recorte es la izquierda visual; «invertido»: se intercambian; «sin_evidencia»: no hubo líneas de dos columnas y se usa el orden directo. */
+  decision: 'directo' | 'invertido' | 'sin_evidencia';
+}
+
+const palabras = (t: string): Set<string> => new Set(t.split(/\s+/).filter((w) => w.length >= 4));
+
+/**
+ * Columna izquierda VISUAL según -layout: en cada línea con dos segmentos separados por ≥3 espacios, cuya separación cae hacia el centro, el primer segmento es la izquierda.
+ * pdftotext recorta (-x/-W) en un espacio que, en páginas escaneadas boca abajo (/Rotate 180), puede no coincidir con el orden visual; el contenido decide, no el metadato.
+ */
+export function columnaIzquierdaSegunLayout(layout: string): Set<string> {
+  const izq: string[] = [];
+  for (const linea of layout.replace(/\f/g, '').split('\n')) {
+    const t = linea.replace(/\s+$/, '');
+    const m = /^(\s*\S.*?\S|\s*\S)(\s{3,})(\S.*)$/.exec(t);
+    if (!m) continue;
+    const corte = m[1].length + m[2].length / 2;
+    if (corte < t.length * 0.3 || corte > t.length * 0.7) continue;
+    izq.push(m[1]);
+  }
+  return palabras(izq.join(' '));
+}
+
+export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number, ultimaSoloIzquierda = false): { texto: string; avisos: string[]; orientacion: RegistroOrientacion[] } {
   const info = ejecutar('pdfinfo', ['-f', String(desde), '-l', String(hasta), ruta]);
   const tam = new Map<number, { w: number; h: number }>();
   for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+size:\s+([\d.]+)\s+x\s+([\d.]+)\s+pts/gm)) tam.set(Number(m[1]), { w: Number(m[2]), h: Number(m[3]) });
+  const rot = new Map<number, number>();
+  for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+rot:\s+(\d+)/gm)) rot.set(Number(m[1]), Number(m[2]) % 360);
   const avisos: string[] = [];
+  const orientacion: RegistroOrientacion[] = [];
   const paginas: string[] = [];
   for (let n = desde; n <= hasta; n++) {
     const d = tam.get(n);
     if (!d) throw new Error(`pdfinfo no devolvió el tamaño de la página ${n}`);
+    const giro = rot.get(n) ?? 0;
+    if (giro === 90 || giro === 270) throw new Error(`la página ${n} está girada ${giro}°: la extracción por columnas solo admite 0° y 180°; corrija la orientación del PDF`);
     const mitad = Math.floor(d.w / 2);
     const recorte = (x: number, w: number): string => {
       const r = ejecutar('pdftotext', ['-enc', 'UTF-8', '-f', String(n), '-l', String(n), '-x', String(x), '-y', '0', '-W', String(w), '-H', String(Math.ceil(d.h)), ruta, '-']);
@@ -297,10 +335,22 @@ export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: numb
       avisos.push(...r.stderr.split('\n').filter((l) => /Syntax (Error|Warning)/i.test(l)));
       return r.stdout.replace(/\f/g, '').replace(/\s+$/, '');
     };
+    const recIzq = recorte(0, mitad);
+    const recDer = recorte(mitad, Math.ceil(d.w) - mitad);
+    const lay = ejecutar('pdftotext', ['-enc', 'UTF-8', '-layout', '-f', String(n), '-l', String(n), ruta, '-']);
+    const vis = columnaIzquierdaSegunLayout(lay.stdout);
+    const cuenta = (t: string): number => [...palabras(t)].filter((w) => vis.has(w)).length;
+    const cI = cuenta(recIzq);
+    const cD = cuenta(recDer);
+    const decision: RegistroOrientacion['decision'] = cI === 0 && cD === 0 ? 'sin_evidencia' : cD > cI ? 'invertido' : 'directo';
+    orientacion.push({ pagina: n, rotate_metadatos: giro, coincidencia_recorte_izquierdo: cI, coincidencia_recorte_derecho: cD, decision });
+    if (decision === 'sin_evidencia' && giro !== 0) avisos.push(`página ${n} (rotación ${giro}°): sin líneas de dos columnas para calibrar la orientación; revisar a mano`);
+    const izquierda = decision === 'invertido' ? recDer : recIzq;
+    const derecha = decision === 'invertido' ? recIzq : recDer;
     // Cuando un acto termina en la columna izquierda de la última página y el siguiente empieza en la derecha, esa página se toma solo por la izquierda.
-    paginas.push(ultimaSoloIzquierda && n === hasta ? recorte(0, mitad).trim() : `${recorte(0, mitad)}\n${recorte(mitad, Math.ceil(d.w) - mitad)}`.trim());
+    paginas.push(ultimaSoloIzquierda && n === hasta ? izquierda.trim() : `${izquierda}\n${derecha}`.trim());
   }
-  return { texto: `${paginas.join('\f')}\f`, avisos };
+  return { texto: `${paginas.join('\f')}\f`, avisos, orientacion };
 }
 
 // ── Delimitación de un acto dentro de un PDF con varios (p. ej. La Gaceta) ─────────────────────────────────────────────────────────────────
@@ -417,7 +467,7 @@ export function extraerTexto(ruta: string, rango?: { desde: number; hasta: numbe
 function reciboVacio(o: OpcionesRecepcion, perfil: PerfilPaquete | undefined): Recibo {
   return {
     paquete: o.paquete, estado: 'INPUT_REJECTED', motivo: null, requiere_revision: false, motivos_revision: [], revision_humana_declarada: o.revisado ?? null,
-    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, delimitacion: null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
+    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, delimitacion: null, orientacion_paginas: null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
     identidad: null, analisis_paginas: null, decreto_consta: null, gaceta_consta: null, resultado_receptor: null, error_receptor: null, paquete_en: null,
   };
 }
@@ -469,9 +519,10 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
     return rechazar(`rango de páginas pertinente inválido (${rango.desde}-${rango.hasta}) para un PDF de ${info.paginas} páginas`);
   }
   const paginasExtracto = rango ? rango.hasta - rango.desde + 1 : info.paginas;
-  let extraccion: { texto: string; avisos: string[] };
+  let extraccion: { texto: string; avisos: string[]; orientacion?: RegistroOrientacion[] };
   try { extraccion = o.columnas === 2 ? extraerTextoDosColumnas(o.archivo, rango?.desde ?? 1, rango?.hasta ?? info.paginas, o.ultimaSoloIzquierda === true) : extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
   const texto = extraccion.texto;
+  if (extraccion.orientacion) recibo.orientacion_paginas = extraccion.orientacion;
   recibo.caracteres = texto.length;
   if (texto.length / paginasExtracto < MIN_CARACTERES_POR_PAGINA) {
     return rechazar(`texto casi vacío (${texto.length} caracteres en ${paginasExtracto} páginas): probable PDF escaneado; hace falta una versión con texto. No se hace OCR ni se inventa texto`);
@@ -605,6 +656,7 @@ function escribirExtracto(o: OpcionesRecepcion, r: Recibo): void {
     pdf_integro: { archivo: r.archivo, bytes: r.bytes, bytes_sha256: r.bytes_sha256, paginas: r.paginas },
     extracto: { paginas: r.extracto, metodo_extraccion: r.metodo_extraccion, caracteres: r.caracteres, text_sha256: r.text_sha256 },
     delimitacion: r.delimitacion,
+    orientacion_paginas: r.orientacion_paginas,
     estado_recepcion: r.estado,
   }, null, 2)}\n`);
 }
@@ -630,6 +682,7 @@ function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
     `| bytes_sha256 (integridad de bytes) | ${r.bytes_sha256 ?? 'NO CALCULADO'} |`,
     `| Método de extracción | ${r.metodo_extraccion} |`,
     ...(r.delimitacion ? [`| Delimitación del acto | última página solo columna izquierda: ${r.delimitacion.ultima_solo_izquierda ? 'sí' : 'no'} · páginas de sumario excluidas: ${r.delimitacion.sumario_paginas} · cierre: ${r.delimitacion.cierre.length ? r.delimitacion.cierre.map((c) => `«${c.frase}» ${c.hallado ? 'HALLADO' : 'NO hallado'}`).join(', ') : 'no verificado'} · acto siguiente: ${r.delimitacion.acto_siguiente.length ? r.delimitacion.acto_siguiente.map((a) => `«${a.frase}» entrada efectiva ${a.entrada_efectiva ? 'SÍ' : 'no'} (sumario ${a.en_sumario}, referencias ${a.referencias})`).join(', ') : 'no verificado'} |`] : []),
+    ...(r.orientacion_paginas && r.orientacion_paginas.some((x) => x.rotate_metadatos !== 0 || x.decision !== 'directo') ? [`| Orientación de columnas (páginas con rotación o inversión) | ${r.orientacion_paginas.filter((x) => x.rotate_metadatos !== 0 || x.decision !== 'directo').map((x) => `p.${x.pagina}: /Rotate ${x.rotate_metadatos}, ${x.decision} (izq ${x.coincidencia_recorte_izquierdo}/der ${x.coincidencia_recorte_derecho})`).join('; ')} |`] : []),
     `| Extracto pertinente | ${r.extracto ? `páginas ${r.extracto.desde}–${r.extracto.hasta} de ${r.paginas}` : 'documento completo'} |`,
     `| Páginas (pdfinfo) | ${r.paginas ?? '—'} (huella del ejemplar identificado: ${r.huella_paginas ?? 'no declarada'}) |`,
     `| Páginas con texto extraído | ${p ? p.paginasTexto : '—'} · vacías: ${p?.vacias.length ?? '—'} · débiles: ${p?.debiles.length ?? '—'} · dañadas: ${p?.danadas.length ?? '—'} |`,
