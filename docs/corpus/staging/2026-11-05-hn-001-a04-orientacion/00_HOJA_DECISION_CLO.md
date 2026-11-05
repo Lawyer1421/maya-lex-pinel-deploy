@@ -2,6 +2,8 @@
 
 **Decreto 35-2013 · La Gaceta 33,222 · 6-sep-2013.** Estado: `RECEIVED / SOURCE_HOLD` · Vigencia: **SIN DECLARAR** · PDF íntegro SHA-256 `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` · Procedencia institucional no acreditada (copia del Drive del propietario).
 
+**Actualización (retoma desde `15fe5c6`):** las fuentes de cotejo pedidas (repositorio de la UNAH y Portal Único del IAIP) **no fueron accesibles** desde esta sesión (proxy 403 / host fuera de los dominios permitidos); no hay segundo ejemplar, ni hash, ni portada, ni correspondencia de páginas que registrar. Todas las lecturas siguen apoyadas **solo** en el ejemplar A04. Ver `FUENTES_DE_COTEJO.md`. Cada punto abierto conserva su recorte; donde falta evidencia legible, la incidencia sigue abierta.
+
 Las lecturas «propuestas» son lecturas visuales mías (revisión automática) y **no sustituyen** el texto bruto. Cada decisión: ☐ Aprobar · ☐ Rechazar · ☐ Cotejar con otro ejemplar. Los recortes están a 200 dpi en `paquete-revision/recortes/`.
 
 ---
@@ -35,6 +37,27 @@ Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
 | **Rótulo del cuerpo** | pág. 41, col. der. | «“ARTÍCULO **511**.- Los padres, o el(la) tutor(a) al llegar…» | «ARTÍCULO 511.-» | legible |
 **Discrepancia registrada, sin corregir:** en este ejemplar la lista dice «11» y el cuerpo «511». No se puede atribuir a la publicación o al recorte del escaneo, porque el carácter inicial de la lista falta en la imagen. **Se conservan ambas lecturas;** «511» no se inserta en la lista. Cotejar con otro ejemplar. **Recortes:** `p41_izq_art6_lista_introductoria_11.png`, `p41_der_art6_rotulo_cuerpo_511.png`.
 Decisión: ☐ Aprobar conservar ambas ☐ Rechazar ☐ Cotejar con otro ejemplar
+
+---
+## C07 — E2: derogación posterior del art. 21 de la Niñez (nuevo) · actualizado
+| | |
+|---|---|
+| Disposición indicada | **Decreto 130-2017, art. 632, numeral 12**, publicado en **La Gaceta n.º 34,940** (datos del propietario; el texto no se ha leído) |
+| A03 dice | La Gaceta **39,940**, 10-may-2019, «vigente a partir del 10 de mayo de 2020» (cita de la nota) |
+| Discrepancia | 34,940 (propietario) frente a 39,940 (A03); sin segundo ejemplar no se decide |
+| **Fecha de efecto de E2** | **PENDIENTE** (no se adopta la de A03 hasta cotejar) |
+| E1 (reforma por 35-2013) | Evento separado, se conserva: ver `paquete-revision/EVENTOS_ARTICULO_21.md` |
+Decisión: ☐ Aprobar el registro de E1 y E2 como eventos separados ☐ Rechazar ☐ Cotejar La Gaceta 34,940
+
+## Estado de las prioridades de cotejo (sin segundo ejemplar)
+| Prioridad | Lectura conservada | Recorte de respaldo | Estado |
+|---|---|---|---|
+| 11 líneas de la pág. 41 | carácter inicial ausente; lectura por contexto no adoptada | `transcripcion_candidata/recortes_borde_izq/p41_y*.jpg` | ABIERTA |
+| 88 finales anómalos | `transcripcion_candidata/borde_derecho_88_lecturas.csv`: 29 legibles · 40 parciales · 6 ilegibles parciales · 13 sin lectura | `transcripcion_candidata/recortes_borde_derecho/` | ABIERTA (salvo 29 legibles, sin cotejar) |
+| Art. 6 (lista / cuerpo) | «11» y «511», ambas | C06 | ABIERTA |
+| C01–C06 | lecturas visuales propuestas | arriba | PENDIENTE CLO |
+| Arts. 134 y 141 | pasaje completo | `paquete-revision/PASAJES_134_141.md` | ABIERTA |
+| Conciliación 250 / 2 | ver `transcripcion_candidata/RECONCILIACION_250_Y_2.md` | | 54 caracteres sin atribuir: ABIERTA |
 
 ---
 Anexos: `01_INVENTARIO_PASAJES_ILEGIBLES.md` · `paquete-revision/PASAJES_134_141.md` · `paquete-revision/EVENTOS_ARTICULO_21.md` · `paquete-revision/matriz_preliminar_reformas_derogaciones.csv` · `paquete-revision/INCIDENCIAS_A04.csv`.
