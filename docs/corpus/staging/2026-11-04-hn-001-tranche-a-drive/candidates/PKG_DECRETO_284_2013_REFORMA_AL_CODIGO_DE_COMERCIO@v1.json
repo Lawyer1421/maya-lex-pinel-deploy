@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "candidate_id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1",
+  "destino": "LEGISLATION",
+  "estado": "SOURCE_HOLD",
+  "authoritative": false,
+  "vigencia": "UNKNOWN",
+  "verification": "PENDING_VERIFICATION",
+  "fixture": false,
+  "record_id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO",
+  "version": 1,
+  "source": {
+    "url": "https://drive.google.com/file/d/17eKx426tKGRl148iL_6khN7H6MxYSkok/view",
+    "domain": "drive.google.com",
+    "tier": null,
+    "validacion": "DISCOVERED_UNVERIFIED",
+    "retriever": "claude (conector Google Drive; archivo del Drive del propietario; procedencia institucional pendiente de cotejo)",
+    "retrieved_at": "2026-11-04T03:57:17.000Z",
+    "method": "API"
+  },
+  "identidad": {
+    "document_name": "Decreto 284-2013 (reforma al Código de Comercio)",
+    "document_type": "REFORM",
+    "decree": "284-2013",
+    "gaceta": "33,445",
+    "gaceta_date": "UNKNOWN"
+  },
+  "hashes": {
+    "bytes_sha256": "ea81bfa6146f0cb70e275690b19aad19609da794553afe7073ee7df6c97217ae",
+    "text_sha256": "bcc012db1cb4e821244ed30dfa0035129e8105413440bc7ad9d2b3c9804ffdd1"
+  },
+  "articulos": [
+    {
+      "numero": "1",
+      "ordinal": 1,
+      "sha256": "dd3fafddf9a11de48b52ffde8e9c3a8fb9fe5cb339704bd5e0fb7241ad12a933",
+      "caracteres": 550
+    },
+    {
+      "numero": "2",
+      "ordinal": 2,
+      "sha256": "a120f7abdf097232625937e57483251764d05441935ae265197b8d6c79a487b4",
+      "caracteres": 583
+    },
+    {
+      "numero": "3",
+      "ordinal": 3,
+      "sha256": "a1c2b57206f7d23d766038e938a7e88770bf5389856c40dedd427194a347d392",
+      "caracteres": 803
+    },
+    {
+      "numero": "4",
+      "ordinal": 4,
+      "sha256": "07523bc05213d536d903b3fa2c0ad4a94588aba3f4ae52dbe14d6a210fbb6d4e",
+      "caracteres": 656
+    },
+    {
+      "numero": "5",
+      "ordinal": 5,
+      "sha256": "fb2ab402e102bf96f28a74165a7f98eddf02ce4ee42bf09d5001e3b016bf1690",
+      "caracteres": 874
+    },
+    {
+      "numero": "6",
+      "ordinal": 6,
+      "sha256": "ff056e4ca260b525b6185ef2b4eb89f833558be5a4b98ed51ad4114d754f5b4f",
+      "caracteres": 1221
+    },
+    {
+      "numero": "7",
+      "ordinal": 7,
+      "sha256": "e80cf8f06cacf167b28ce878a328bb8b64e3c6b1c21068557b2780e6fc4f8406",
+      "caracteres": 868
+    },
+    {
+      "numero": "8",
+      "ordinal": 8,
+      "sha256": "ffe60f8c1a29300f53aec0812803665ce88e76b692e185e6594b86b0629b8846",
+      "caracteres": 954
+    },
+    {
+      "numero": "9",
+      "ordinal": 9,
+      "sha256": "6e12f208dc6c487c408a4a40f4d6e864e7f098442ff0338646fd7fbab13580ee",
+      "caracteres": 516
+    },
+    {
+      "numero": "10",
+      "ordinal": 10,
+      "sha256": "dea024e129ece17e175047a42c8860170908d49f38ddfe654881cee719b14ddb",
+      "caracteres": 341
+    },
+    {
+      "numero": "11",
+      "ordinal": 11,
+      "sha256": "2194063c361b3a329a49e1115528344a54595c608424b2a48b598b78bebcb9c5",
+      "caracteres": 1363
+    },
+    {
+      "numero": "12",
+      "ordinal": 12,
+      "sha256": "fbfb028e6cb4b6510c3013211d425bbda5fb17969989115cdcf501aa8ca7d6b5",
+      "caracteres": 463
+    },
+    {
+      "numero": "13",
+      "ordinal": 13,
+      "sha256": "0a5795807b336667fac99c6fcce42936a1a88000dd9ad3aa1ab5b47b8693775b",
+      "caracteres": 13259
+    },
+    {
+      "numero": "14",
+      "ordinal": 14,
+      "sha256": "cc0828118abc087f4cd06331490c396975a0f785b6bb9e29b43bce87e822c08b",
+      "caracteres": 1012
+    },
+    {
+      "numero": "15",
+      "ordinal": 15,
+      "sha256": "630bf51fa54f4136b5dd18957b84a6996dc758698f159577eea1ebf694a4e666",
+      "caracteres": 557
+    },
+    {
+      "numero": "16",
+      "ordinal": 16,
+      "sha256": "9ffd157046486b21dc2d88b5b417bd94b2e93a6cacd633c8bed4593f072a1f5e",
+      "caracteres": 971
+    },
+    {
+      "numero": "17",
+      "ordinal": 17,
+      "sha256": "ee6007e774962184b8f0d780231a1efa69d49596b27c3e8d91fc3db81268ca39",
+      "caracteres": 837
+    },
+    {
+      "numero": "18",
+      "ordinal": 18,
+      "sha256": "48e364cee97463cc9e2774fa7557f5f5c8dedd998df006c411aafc42424ab493",
+      "caracteres": 1540
+    },
+    {
+      "numero": "19",
+      "ordinal": 19,
+      "sha256": "f861eac3835006032ffcec87b6924070274c26f5507e35a0f6c6439b5992a6c0",
+      "caracteres": 339
+    },
+    {
+      "numero": "20",
+      "ordinal": 20,
+      "sha256": "869007c5bd39cdc2306806a5361c9d8e5fe4f4e68dcfe2d7c7e3348d19e851b4",
+      "caracteres": 769
+    },
+    {
+      "numero": "21",
+      "ordinal": 21,
+      "sha256": "7ab991804e2d1357dec7e497303d48a05d41f9445e237eeb8573274e62d4861c",
+      "caracteres": 175
+    },
+    {
+      "numero": "22",
+      "ordinal": 22,
+      "sha256": "3e3980cac2e711cb1f98c59c91dee73103560a8706f1a64534cd24846ca27c7c",
+      "caracteres": 717
+    },
+    {
+      "numero": "23",
+      "ordinal": 23,
+      "sha256": "e7c0d16285fc680fcdf756de36c10cbbeafa98931cae2cb4f0d7ab58e504621f",
+      "caracteres": 246
+    },
+    {
+      "numero": "24",
+      "ordinal": 24,
+      "sha256": "d836d73cb71da180c44dd6faa2c1f891f5bc56782c17731c6d0f2923041ec0f7",
+      "caracteres": 549
+    },
+    {
+      "numero": "25",
+      "ordinal": 25,
+      "sha256": "66091d05d8de2b9b42a30ea5420cdaa21699bd14eeffac25bae2d43ef11471a2",
+      "caracteres": 237
+    },
+    {
+      "numero": "26",
+      "ordinal": 26,
+      "sha256": "e91f9abf5feb7c70b57a8c459902133a57721fa99fd47f39f9269baf2c048ec2",
+      "caracteres": 10024
+    },
+    {
+      "numero": "27",
+      "ordinal": 27,
+      "sha256": "0ae2c07d77c8b82aa68ee379d771b2db457d3510f753b12534c63151613e7220",
+      "caracteres": 2494
+    },
+    {
+      "numero": "28",
+      "ordinal": 28,
+      "sha256": "055defc57a403c445bcbd4db14abafa53ca5b70a473f715328107201551c624e",
+      "caracteres": 492
+    },
+    {
+      "numero": "29",
+      "ordinal": 29,
+      "sha256": "6a43d858fca2861648337afe4ad8b16c7360d671fe22a334662f216215eefd48",
+      "caracteres": 325
+    },
+    {
+      "numero": "30",
+      "ordinal": 30,
+      "sha256": "d5859baaf9632a48bd0616211fb4aec6cd0dd210e1849ef4dbb33eec9f553926",
+      "caracteres": 398
+    },
+    {
+      "numero": "31",
+      "ordinal": 31,
+      "sha256": "4ad0dc3bd2d4832f66aa98823c2a18295877ccb6c464ad49ff7f28e7485c729e",
+      "caracteres": 368
+    },
+    {
+      "numero": "32",
+      "ordinal": 32,
+      "sha256": "0a91788fcacaa0f7db7979168ccf8291bae7025d83c4ae7f744c0a082e085560",
+      "caracteres": 243
+    },
+    {
+      "numero": "33",
+      "ordinal": 33,
+      "sha256": "58a59a70f3f623bc8ff7c732f7d209c67e2919d3e60cb0a760ebbfdcd1daa6ec",
+      "caracteres": 891
+    },
+    {
+      "numero": "34",
+      "ordinal": 34,
+      "sha256": "fea7d81daa5f3213361280e0be42a2b0f88192fc788bde074603db5baf8396d3",
+      "caracteres": 754
+    },
+    {
+      "numero": "35",
+      "ordinal": 35,
+      "sha256": "7c795fceddd49049e8a50c085d8dee9c977c1787c0d79426fcab1b8f19c329e4",
+      "caracteres": 514
+    },
+    {
+      "numero": "36",
+      "ordinal": 36,
+      "sha256": "75a36b3c9520b75687587ade293abc5256a5aeba6920449cbdd3500651d013b9",
+      "caracteres": 246
+    },
+    {
+      "numero": "37",
+      "ordinal": 37,
+      "sha256": "46576aee8afa27c832b51506106212f00bd299ab5624c75fa383845051015994",
+      "caracteres": 209
+    },
+    {
+      "numero": "38",
+      "ordinal": 38,
+      "sha256": "339b7bbbf8dd0598a462a7c8d018fdacc239dc61d08eaca895f11546f41227c8",
+      "caracteres": 163
+    },
+    {
+      "numero": "39",
+      "ordinal": 39,
+      "sha256": "faf5c65e3e666a83bdafe823a3e16b49624c894cbfbc40da13df62bdd6bbda59",
+      "caracteres": 612
+    }
+  ],
+  "notas_al_pie": [],
+  "preambulo_caracteres": 1728,
+  "qa": {
+    "chequeos": [
+      {
+        "id": "TEXT_NOT_EMPTY",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "50398 caracteres"
+      },
+      {
+        "id": "HASH_MATCH",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sha256 del texto recalculado contra text_sha256"
+      },
+      {
+        "id": "ENCODING",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sin mojibake (Ã¡, Â, �)"
+      },
+      {
+        "id": "NOT_NOISE",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "80 % letras"
+      },
+      {
+        "id": "LOOKS_SPANISH",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "33.3 palabras funcionales por 100"
+      },
+      {
+        "id": "ARTICLES_DETECTED",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "39 artículos detectados (tipo REFORM)"
+      },
+      {
+        "id": "SEQUENCE_CONTINUOUS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "numeración continua"
+      },
+      {
+        "id": "NO_DUPLICATE_NUMBERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin repetidos"
+      },
+      {
+        "id": "NO_EMPTY_ARTICLES",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "ninguno vacío"
+      },
+      {
+        "id": "NO_PLACEHOLDERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin marcas de ilegibilidad"
+      },
+      {
+        "id": "FIXTURE",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "material sintético/de prueba detectado"
+      }
+    ],
+    "apto_para_clo": true
+  },
+  "siguiente_paso": "La fuente no está en el registro de fuentes oficiales verificadas: verificar el dominio (registro) antes de que el CLO adjudique el texto."
+}

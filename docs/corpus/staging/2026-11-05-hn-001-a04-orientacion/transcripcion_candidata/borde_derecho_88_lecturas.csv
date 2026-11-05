@@ -1,0 +1,89 @@
+id,pagina,y_pt,token_final_ocr,lectura_visual_del_revisor,estado,recorte,nota
+B01,3,204,y,y,LEGIBLE,recortes_borde_derecho/B01_p03_y204.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B02,3,221,y,y,LEGIBLE,recortes_borde_derecho/B02_p03_y221.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B03,3,370,o,o,LEGIBLE,recortes_borde_derecho/B03_p03_y370.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B04,3,813,d(,de,PARCIAL_BORDE,recortes_borde_derecho/B04_p03_y813.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B05,5,63,lo;,los,PARCIAL_BORDE,recortes_borde_derecho/B05_p05_y063.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B06,5,79,Centro:,Centros,PARCIAL_BORDE,recortes_borde_derecho/B06_p05_y079.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B07,5,95,niños;,y,PARCIAL_BORDE,recortes_borde_derecho/B07_p05_y095.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B08,5,111,a,a,LEGIBLE,recortes_borde_derecho/B08_p05_y111.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B09,5,190,misione:,misiones,PARCIAL_BORDE,recortes_borde_derecho/B09_p05_y190.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B10,5,222,sid(,sido,PARCIAL_BORDE,recortes_borde_derecho/B10_p05_y222.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B11,5,386,s,su,PARCIAL_BORDE,recortes_borde_derecho/B11_p05_y386.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B12,5,402,d,de,PARCIAL_BORDE,recortes_borde_derecho/B12_p05_y402.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B13,5,500,qu<,que,PARCIAL_BORDE,recortes_borde_derecho/B13_p05_y500.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B14,5,517,L,La,PARCIAL_BORDE,recortes_borde_derecho/B14_p05_y517.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B15,5,681,d,de,PARCIAL_BORDE,recortes_borde_derecho/B15_p05_y681.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B16,5,698,e,en,PARCIAL_BORDE,recortes_borde_derecho/B16_p05_y698.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B17,7,151,c,c…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B17_p07_y151.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B18,7,167,su<,sus,PARCIAL_BORDE,recortes_borde_derecho/B18_p07_y167.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B19,7,249,e,el,PARCIAL_BORDE,recortes_borde_derecho/B19_p07_y249.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B20,7,445,c,c…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B20_p07_y445.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B21,7,510,e,el,PARCIAL_BORDE,recortes_borde_derecho/B21_p07_y510.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B22,7,593,a,al,PARCIAL_BORDE,recortes_borde_derecho/B22_p07_y593.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B23,7,708,d,de,PARCIAL_BORDE,recortes_borde_derecho/B23_p07_y708.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B24,7,789,y,la,PARCIAL_BORDE,recortes_borde_derecho/B24_p07_y789.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B25,9,85,mismo;,"mismo,",LEGIBLE,recortes_borde_derecho/B25_p09_y085.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B26,9,148,a,a,LEGIBLE,recortes_borde_derecho/B26_p09_y148.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B27,9,244,a,a,LEGIBLE,recortes_borde_derecho/B27_p09_y244.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B28,9,356,>,y,PARCIAL_BORDE,recortes_borde_derecho/B28_p09_y356.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B29,9,387,c,c…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B29_p09_y387.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B30,9,531,(,(,LEGIBLE,recortes_borde_derecho/B30_p09_y531.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B31,9,547,necesario:,necesarios + signo final dudoso,PARCIAL_BORDE,recortes_borde_derecho/B31_p09_y547.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B32,9,647,e,e…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B32_p09_y647.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B33,9,678,Códig<,Código,PARCIAL_BORDE,recortes_borde_derecho/B33_p09_y678.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B34,9,759,a,a,LEGIBLE,recortes_borde_derecho/B34_p09_y759.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B35,9,806,plaz>,plazo,PARCIAL_BORDE,recortes_borde_derecho/B35_p09_y806.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B36,11,457,U,la,PARCIAL_BORDE,recortes_borde_derecho/B36_p11_y457.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B37,11,632,U,la,PARCIAL_BORDE,recortes_borde_derecho/B37_p11_y632.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B38,11,744,k,la,PARCIAL_BORDE,recortes_borde_derecho/B38_p11_y744.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B39,11,791,d,de,PARCIAL_BORDE,recortes_borde_derecho/B39_p11_y791.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B40,13,376,y,y,LEGIBLE,recortes_borde_derecho/B40_p13_y376.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B41,13,442,E,El,PARCIAL_BORDE,recortes_borde_derecho/B41_p13_y442.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B42,13,594,d,de,PARCIAL_BORDE,recortes_borde_derecho/B42_p13_y594.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B43,13,728,s,su,PARCIAL_BORDE,recortes_borde_derecho/B43_p13_y728.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B44,13,778,l,la,PARCIAL_BORDE,recortes_borde_derecho/B44_p13_y778.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B45,15,71,i,a,LEGIBLE,recortes_borde_derecho/B45_p15_y071.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B46,15,87,f,la,PARCIAL_BORDE,recortes_borde_derecho/B46_p15_y087.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B47,15,167,h,la,PARCIAL_BORDE,recortes_borde_derecho/B47_p15_y167.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B48,15,216,d<,de,PARCIAL_BORDE,recortes_borde_derecho/B48_p15_y216.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B49,15,314,asunto:,asuntos,PARCIAL_BORDE,recortes_borde_derecho/B49_p15_y314.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B50,15,363,d<,de,PARCIAL_BORDE,recortes_borde_derecho/B50_p15_y363.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B51,15,412,proporcionalida<,proporcionalidad,PARCIAL_BORDE,recortes_borde_derecho/B51_p15_y412.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B52,15,527,Ejecución:,Ejecución:,LEGIBLE,recortes_borde_derecho/B52_p15_y527.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B53,15,690,d,de,PARCIAL_BORDE,recortes_borde_derecho/B53_p15_y690.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B54,15,789,impuestas;,impuestas;,LEGIBLE,recortes_borde_derecho/B54_p15_y789.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B55,17,566,a,a,LEGIBLE,recortes_borde_derecho/B55_p17_y566.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B56,19,571,d,de,PARCIAL_BORDE,recortes_borde_derecho/B56_p19_y571.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B57,19,690,e,e,LEGIBLE,recortes_borde_derecho/B57_p19_y690.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B58,21,233,y,y,LEGIBLE,recortes_borde_derecho/B58_p21_y233.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B59,21,626,y,y,LEGIBLE,recortes_borde_derecho/B59_p21_y626.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B60,23,294,e,e…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B60_p23_y294.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B61,23,470,afectivo;,afectivo:,LEGIBLE,recortes_borde_derecho/B61_p23_y470.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B62,23,519,s,s…,ILEGIBLE_PARCIAL,recortes_borde_derecho/B62_p23_y519.jpg,Solo se ve el comienzo de la palabra final; el resto está cortado por el borde. INCIDENCIA ABIERTA.
+B63,23,711,u,un,PARCIAL_BORDE,recortes_borde_derecho/B63_p23_y711.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B64,25,254,y,y,LEGIBLE,recortes_borde_derecho/B64_p25_y254.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B65,25,671,y,y,LEGIBLE,recortes_borde_derecho/B65_p25_y671.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B66,26,350,o,o,LEGIBLE,recortes_borde_derecho/B66_p26_y350.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B67,27,525,l,la,PARCIAL_BORDE,recortes_borde_derecho/B67_p27_y525.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B68,29,327,y,y,LEGIBLE,recortes_borde_derecho/B68_p29_y327.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B69,29,343,a,a,LEGIBLE,recortes_borde_derecho/B69_p29_y343.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B70,29,532,e,,PENDIENTE_LECTURA,recortes_borde_derecho/B70_p29_y532.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B71,31,152,y,y,LEGIBLE,recortes_borde_derecho/B71_p31_y152.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B72,31,391,y,y,LEGIBLE,recortes_borde_derecho/B72_p31_y391.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B73,31,502,o,o,LEGIBLE,recortes_borde_derecho/B73_p31_y502.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B74,31,518,s,,PENDIENTE_LECTURA,recortes_borde_derecho/B74_p31_y518.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B75,31,724,y,y,LEGIBLE,recortes_borde_derecho/B75_p31_y724.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B76,33,491,o,o,LEGIBLE,recortes_borde_derecho/B76_p33_y491.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B77,35,88,consentimiento;,consentimiento:,LEGIBLE,recortes_borde_derecho/B77_p35_y088.jpg,Lectura mía a la escala de la hoja de contacto; no cotejada con otro ejemplar.
+B78,37,180,niños(a<,,PENDIENTE_LECTURA,recortes_borde_derecho/B78_p37_y180.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B79,37,196,s,,PENDIENTE_LECTURA,recortes_borde_derecho/B79_p37_y196.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B80,37,244,s,,PENDIENTE_LECTURA,recortes_borde_derecho/B80_p37_y244.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B81,37,340,s,,PENDIENTE_LECTURA,recortes_borde_derecho/B81_p37_y340.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B82,37,403,d,,PENDIENTE_LECTURA,recortes_borde_derecho/B82_p37_y403.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B83,37,453,d,,PENDIENTE_LECTURA,recortes_borde_derecho/B83_p37_y453.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B84,37,646,y,,PENDIENTE_LECTURA,recortes_borde_derecho/B84_p37_y646.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B85,37,662,niña(,,PENDIENTE_LECTURA,recortes_borde_derecho/B85_p37_y662.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B86,40,432,y,,PENDIENTE_LECTURA,recortes_borde_derecho/B86_p40_y432.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B87,46,399,y,,PENDIENTE_LECTURA,recortes_borde_derecho/B87_p46_y399.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.
+B88,46,603,y,,PENDIENTE_LECTURA,recortes_borde_derecho/B88_p46_y603.jpg,Incidencia abierta: sin lectura segura a esta escala; recorte disponible.

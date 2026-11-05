@@ -73,7 +73,7 @@ export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
     nombre: 'Decreto 284-2013 (reforma al Código de Comercio)', tipo: 'REFORM', huellaPaginas: 17,
     titulo: [/decreto.{0,25}284\s*[-–]\s*2013/], numero: [/\b284\s*[-–]\s*2013\b/],
     contexto: { terminos: ['codigo de comercio', 'articulo', 'decreto'], minimo: 3 },
-    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50'], consolidado: false, gaceta: '33,445',
+    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50', '51-2011'], consolidado: false, gaceta: '33,445', // 51-2011: la ley que el propio decreto reforma, citada en sus considerandos (comprobado en el PDF real)
   },
   'HN-001-A03': {
     nombre: 'Código de la Niñez y de la Adolescencia', tipo: 'CODE', huellaPaginas: null,
@@ -262,6 +262,10 @@ export interface Recibo {
   bytes_sha256: string | null;
   paginas: number | null;
   extracto: { desde: number; hasta: number } | null;
+  metodo_extraccion: string;
+  /** Por página: rotación declarada en los metadatos y cómo se resolvió la orientación de las columnas (solo con --columnas 2). */
+  orientacion_paginas: RegistroOrientacion[] | null;
+  delimitacion: { ultima_solo_izquierda: boolean; sumario_paginas: number; cierre: Array<{ frase: string; hallado: boolean }>; acto_siguiente: ComprobacionActoSiguiente[]; bloqueos: string[] } | null;
   huella_paginas: number | null;
   caracteres: number | null;
   text_sha256: string | null;
@@ -272,6 +276,138 @@ export interface Recibo {
   resultado_receptor: string | null;
   error_receptor: string | null;
   paquete_en: string | null;
+}
+
+/**
+ * Extracción para páginas de DOS columnas (p. ej. La Gaceta): el orden de lectura por defecto entrelaza las columnas y desordena los artículos.
+ * Se extrae cada página recortada a su mitad izquierda y luego a su mitad derecha, y se conserva el \f entre páginas para el control por página.
+ * Es un método distinto de la extracción simple: queda registrado en el recibo y el texto (y su hash) corresponde a este método.
+ */
+/** Cómo se resolvió la orientación de una página al separar sus columnas (se conserva para la verificación). */
+export interface RegistroOrientacion {
+  pagina: number;
+  /** Valor /Rotate de los metadatos del PDF. */
+  rotate_metadatos: number;
+  /** Palabras de la columna izquierda VISUAL (según el orden de lectura de pdftotext -layout) que coinciden con cada mitad del recorte. */
+  coincidencia_recorte_izquierdo: number;
+  coincidencia_recorte_derecho: number;
+  /** «directo»: la mitad izquierda del recorte es la izquierda visual; «invertido»: se intercambian; «sin_evidencia»: no hubo líneas de dos columnas y se usa el orden directo. */
+  decision: 'directo' | 'invertido' | 'sin_evidencia';
+}
+
+const palabras = (t: string): Set<string> => new Set(t.split(/\s+/).filter((w) => w.length >= 4));
+
+/**
+ * Columna izquierda VISUAL según -layout: en cada línea con dos segmentos separados por ≥3 espacios, cuya separación cae hacia el centro, el primer segmento es la izquierda.
+ * pdftotext recorta (-x/-W) en un espacio que, en páginas escaneadas boca abajo (/Rotate 180), puede no coincidir con el orden visual; el contenido decide, no el metadato.
+ */
+export function columnaIzquierdaSegunLayout(layout: string): Set<string> {
+  const izq: string[] = [];
+  for (const linea of layout.replace(/\f/g, '').split('\n')) {
+    const t = linea.replace(/\s+$/, '');
+    const m = /^(\s*\S.*?\S|\s*\S)(\s{3,})(\S.*)$/.exec(t);
+    if (!m) continue;
+    const corte = m[1].length + m[2].length / 2;
+    if (corte < t.length * 0.3 || corte > t.length * 0.7) continue;
+    izq.push(m[1]);
+  }
+  return palabras(izq.join(' '));
+}
+
+export function extraerTextoDosColumnas(ruta: string, desde: number, hasta: number, ultimaSoloIzquierda = false): { texto: string; avisos: string[]; orientacion: RegistroOrientacion[] } {
+  const info = ejecutar('pdfinfo', ['-f', String(desde), '-l', String(hasta), ruta]);
+  const tam = new Map<number, { w: number; h: number }>();
+  for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+size:\s+([\d.]+)\s+x\s+([\d.]+)\s+pts/gm)) tam.set(Number(m[1]), { w: Number(m[2]), h: Number(m[3]) });
+  const rot = new Map<number, number>();
+  for (const m of info.stdout.matchAll(/^Page\s+(\d+)\s+rot:\s+(\d+)/gm)) rot.set(Number(m[1]), Number(m[2]) % 360);
+  const avisos: string[] = [];
+  const orientacion: RegistroOrientacion[] = [];
+  const paginas: string[] = [];
+  for (let n = desde; n <= hasta; n++) {
+    const d = tam.get(n);
+    if (!d) throw new Error(`pdfinfo no devolvió el tamaño de la página ${n}`);
+    const giro = rot.get(n) ?? 0;
+    if (giro === 90 || giro === 270) throw new Error(`la página ${n} está girada ${giro}°: la extracción por columnas solo admite 0° y 180°; corrija la orientación del PDF`);
+    const mitad = Math.floor(d.w / 2);
+    const recorte = (x: number, w: number): string => {
+      const r = ejecutar('pdftotext', ['-enc', 'UTF-8', '-f', String(n), '-l', String(n), '-x', String(x), '-y', '0', '-W', String(w), '-H', String(Math.ceil(d.h)), ruta, '-']);
+      if (r.status !== 0) throw new Error(`pdftotext falló en la página ${n}${r.stderr ? `: ${r.stderr.split('\n')[0]}` : ''}`);
+      avisos.push(...r.stderr.split('\n').filter((l) => /Syntax (Error|Warning)/i.test(l)));
+      return r.stdout.replace(/\f/g, '').replace(/\s+$/, '');
+    };
+    const recIzq = recorte(0, mitad);
+    const recDer = recorte(mitad, Math.ceil(d.w) - mitad);
+    const lay = ejecutar('pdftotext', ['-enc', 'UTF-8', '-layout', '-f', String(n), '-l', String(n), ruta, '-']);
+    const vis = columnaIzquierdaSegunLayout(lay.stdout);
+    const cuenta = (t: string): number => [...palabras(t)].filter((w) => vis.has(w)).length;
+    const cI = cuenta(recIzq);
+    const cD = cuenta(recDer);
+    const decision: RegistroOrientacion['decision'] = cI === 0 && cD === 0 ? 'sin_evidencia' : cD > cI ? 'invertido' : 'directo';
+    orientacion.push({ pagina: n, rotate_metadatos: giro, coincidencia_recorte_izquierdo: cI, coincidencia_recorte_derecho: cD, decision });
+    if (decision === 'sin_evidencia' && giro !== 0) avisos.push(`página ${n} (rotación ${giro}°): sin líneas de dos columnas para calibrar la orientación; revisar a mano`);
+    const izquierda = decision === 'invertido' ? recDer : recIzq;
+    const derecha = decision === 'invertido' ? recIzq : recDer;
+    // Cuando un acto termina en la columna izquierda de la última página y el siguiente empieza en la derecha, esa página se toma solo por la izquierda.
+    paginas.push(ultimaSoloIzquierda && n === hasta ? izquierda.trim() : `${izquierda}\n${derecha}`.trim());
+  }
+  return { texto: `${paginas.join('\f')}\f`, avisos, orientacion };
+}
+
+// ── Delimitación de un acto dentro de un PDF con varios (p. ej. La Gaceta) ─────────────────────────────────────────────────────────────────
+
+export interface ComprobacionActoSiguiente {
+  frase: string;
+  /** Menciones en las páginas del SUMARIO (primeras N del extracto): se cuentan, no contaminan el cuerpo. */
+  en_sumario: number;
+  /** Menciones fuera del sumario que NO abren un acto (remisiones, citas). Informativas. */
+  referencias: number;
+  /** ¿Hay en el CUERPO la entrada efectiva del acto siguiente (encabezado «Decreto … » + fórmula de apertura)? Solo esto bloquea. */
+  entrada_efectiva: boolean;
+  /** Páginas del extracto (1 = primera del rango) donde se halló la entrada efectiva. */
+  paginas_entrada: number[];
+}
+
+/** Fórmulas con que abre el cuerpo de un decreto: «EL CONGRESO NACIONAL», «CONSIDERANDO», «DECRETA», «ARTÍCULO 1/ÚNICO». */
+const APERTURA_DE_ACTO = /\b(?:el congreso nacional|considerando|decret[ao]\b|articulo (?:1\b|unico))/;
+
+/**
+ * ¿La frase del acto siguiente (p. ej. «107-2013») ENTRA realmente en el extracto o solo se menciona? Una mención en el sumario o en una remisión no es
+ * contaminación: el sumario de La Gaceta lista todos los actos de la edición. Entrada efectiva = fuera del sumario, precedida de «decreto» y seguida,
+ * dentro de 400 caracteres, de una fórmula de apertura del acto.
+ */
+export function comprobarActoSiguiente(paginasTexto: readonly string[], frase: string, sumarioPaginas: number): ComprobacionActoSiguiente {
+  const f = normalizar(frase);
+  const r: ComprobacionActoSiguiente = { frase, en_sumario: 0, referencias: 0, entrada_efectiva: false, paginas_entrada: [] };
+  if (f === '') return r;
+  paginasTexto.forEach((pagina, i) => {
+    const t = normalizar(pagina);
+    for (let pos = t.indexOf(f); pos >= 0; pos = t.indexOf(f, pos + f.length)) {
+      if (i < sumarioPaginas) { r.en_sumario += 1; continue; }
+      const antes = t.slice(Math.max(0, pos - 30), pos) + f.slice(0, 0);
+      const despues = t.slice(pos + f.length, pos + f.length + 400);
+      const precedidoDeDecreto = /decreto(?:\s+(?:no|num|numero|n))?[^a-z]{0,8}$/.test(antes) || /^decreto/.test(f);
+      if (precedidoDeDecreto && APERTURA_DE_ACTO.test(despues)) {
+        r.entrada_efectiva = true;
+        if (!r.paginas_entrada.includes(i + 1)) r.paginas_entrada.push(i + 1);
+      } else {
+        r.referencias += 1;
+      }
+    }
+  });
+  return r;
+}
+
+/** Cada frase del cierre/firmas debe figurar en la ÚLTIMA página del extracto (no basta con que aparezca en cualquier parte). */
+export function comprobarCierre(paginasTexto: readonly string[], frases: readonly string[]): Array<{ frase: string; hallado: boolean }> {
+  const ultima = normalizar(paginasTexto[paginasTexto.length - 1] ?? '');
+  return frases.map((frase) => ({ frase, hallado: normalizar(frase) !== '' && ultima.includes(normalizar(frase)) }));
+}
+
+/** Páginas del texto extraído (pdftotext las separa con \f). */
+export function paginasDeTexto(texto: string): string[] {
+  const partes = texto.split('\f');
+  if (partes.length > 1 && partes[partes.length - 1].trim() === '') partes.pop();
+  return partes;
 }
 
 export interface OpcionesRecepcion {
@@ -289,6 +425,16 @@ export interface OpcionesRecepcion {
    * analiza y se segmenta. El SHA-256 de los bytes sigue siendo el del archivo completo. Lo fija una persona tras leer el documento.
    */
   paginasPertinentes?: { desde: number; hasta: number };
+  /** Con --columnas 2: la ÚLTIMA página del rango se toma solo por su columna izquierda (el acto termina allí y el siguiente empieza en la derecha). */
+  ultimaSoloIzquierda?: boolean;
+  /** Frase del cierre documental del acto (p. ej. la firma): debe figurar en el extracto; si no, queda para revisión. */
+  cierre?: string | string[];
+  /** Páginas del extracto (desde la primera) que son el SUMARIO de la edición: las menciones del acto siguiente allí no cuentan como contaminación. Por defecto 1. */
+  sumarioPaginas?: number;
+  /** Frases del acto SIGUIENTE (p. ej. «107-2013»): si su ENTRADA EFECTIVA está en el cuerpo del extracto, el corte no fue limpio. Una mención en el sumario no cuenta. */
+  noContiene?: string[];
+  /** 2 = páginas de dos columnas (La Gaceta): extrae columna izquierda y luego derecha. Por defecto, lectura simple. */
+  columnas?: 1 | 2;
   /** Motivo declarado por la persona que revisó el documento; levanta SOLO los bloqueos de revisión, nunca los rechazos de entrada. */
   revisado?: string;
   /** Solo para pruebas: sustituye al receptor offline. */
@@ -321,7 +467,7 @@ export function extraerTexto(ruta: string, rango?: { desde: number; hasta: numbe
 function reciboVacio(o: OpcionesRecepcion, perfil: PerfilPaquete | undefined): Recibo {
   return {
     paquete: o.paquete, estado: 'INPUT_REJECTED', motivo: null, requiere_revision: false, motivos_revision: [], revision_humana_declarada: o.revisado ?? null,
-    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
+    archivo: o.archivo, bytes: 0, bytes_sha256: null, paginas: null, extracto: o.paginasPertinentes ?? null, delimitacion: null, orientacion_paginas: null, metodo_extraccion: o.columnas === 2 ? 'pdftotext por columnas (2): izquierda y luego derecha de cada página' : 'pdftotext (orden de lectura por defecto)', huella_paginas: perfil?.huellaPaginas ?? null, caracteres: null, text_sha256: null,
     identidad: null, analisis_paginas: null, decreto_consta: null, gaceta_consta: null, resultado_receptor: null, error_receptor: null, paquete_en: null,
   };
 }
@@ -373,9 +519,10 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
     return rechazar(`rango de páginas pertinente inválido (${rango.desde}-${rango.hasta}) para un PDF de ${info.paginas} páginas`);
   }
   const paginasExtracto = rango ? rango.hasta - rango.desde + 1 : info.paginas;
-  let extraccion: { texto: string; avisos: string[] };
-  try { extraccion = extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
+  let extraccion: { texto: string; avisos: string[]; orientacion?: RegistroOrientacion[] };
+  try { extraccion = o.columnas === 2 ? extraerTextoDosColumnas(o.archivo, rango?.desde ?? 1, rango?.hasta ?? info.paginas, o.ultimaSoloIzquierda === true) : extraerTexto(o.archivo, rango); } catch (e) { return rechazar(e instanceof Error ? e.message : String(e)); }
   const texto = extraccion.texto;
+  if (extraccion.orientacion) recibo.orientacion_paginas = extraccion.orientacion;
   recibo.caracteres = texto.length;
   if (texto.length / paginasExtracto < MIN_CARACTERES_POR_PAGINA) {
     return rechazar(`texto casi vacío (${texto.length} caracteres en ${paginasExtracto} páginas): probable PDF escaneado; hace falta una versión con texto. No se hace OCR ni se inventa texto`);
@@ -392,6 +539,22 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   if (rango) motivos.push(`Extracto de las páginas ${rango.desde}–${rango.hasta} de ${info.paginas}: el rango pertinente lo fijó una persona y debe cotejarse; el resto del PDF (otros actos) queda fuera del paquete.`);
   for (const a of [...info.avisos, ...extraccion.avisos].slice(0, 3)) motivos.push(`El lector PDF reportó: ${a}`);
   motivos.push(...paginas.bloqueantes);
+  // Delimitación documental de un acto dentro de un PDF con varios. Estos fallos NO los levanta --revisado: ocultarían un corte mal hecho.
+  const bloqueosDelimitacion: string[] = [];
+  const frasesCierre = o.cierre === undefined ? [] : Array.isArray(o.cierre) ? o.cierre : [o.cierre];
+  if (o.ultimaSoloIzquierda || frasesCierre.length > 0 || (o.noContiene && o.noContiene.length > 0)) {
+    const sumarioPaginas = o.sumarioPaginas ?? 1;
+    const pt = paginasDeTexto(texto);
+    const cierre = comprobarCierre(pt, frasesCierre);
+    const actoSiguiente = (o.noContiene ?? []).map((f) => comprobarActoSiguiente(pt, f, sumarioPaginas));
+    if (o.ultimaSoloIzquierda && o.columnas !== 2) bloqueosDelimitacion.push('--ultima-solo-izquierda solo tiene sentido con --columnas 2.');
+    for (const c of cierre) if (!c.hallado) bloqueosDelimitacion.push(`Cierre documental no hallado en la última página del extracto: «${c.frase}». El corte puede ser anterior al cierre y firma del acto.`);
+    for (const a of actoSiguiente) {
+      if (a.entrada_efectiva) bloqueosDelimitacion.push(`La entrada efectiva del acto siguiente («${a.frase}») está en el cuerpo del extracto (página ${a.paginas_entrada.join(', ')} del extracto): el corte no fue limpio.`);
+    }
+    recibo.delimitacion = { ultima_solo_izquierda: o.ultimaSoloIzquierda === true, sumario_paginas: sumarioPaginas, cierre, acto_siguiente: actoSiguiente, bloqueos: bloqueosDelimitacion };
+    motivos.push(...bloqueosDelimitacion);
+  }
   const identidad = evaluarIdentidad(texto, perfil);
   recibo.identidad = identidad;
   if (identidad.estado !== 'CONFIRMADA') motivos.push(`Identidad ${identidad.estado}: ${identidad.hallazgos.join(' ')}`);
@@ -420,13 +583,15 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   const contenido = `${JSON.stringify(paquete, null, 2)}\n`;
 
   try {
-    // 5. Revisión documental pendiente: queda disponible, pero el receptor NO se ejecuta.
-    if (recibo.requiere_revision && !o.revisado) {
+    // 5. Revisión documental pendiente: queda disponible, pero el receptor NO se ejecuta. Un corte mal hecho NUNCA se levanta con --revisado.
+    if (bloqueosDelimitacion.length > 0 || (recibo.requiere_revision && !o.revisado)) {
       const dir = directorioSeguro(o.raiz, 'inbox', o.lote, 'pending-review');
       const ruta = join(dir, `${o.paquete}.${recibo.bytes_sha256.slice(0, 12)}.json`);
       if (!existsSync(ruta)) escribirNuevo(ruta, contenido);
       recibo.paquete_en = relative(o.raiz, ruta);
-      return finalizar('RECEIVED', 'Recibido: requiere revisión documental humana antes de procesarse. No está verificado ni se envió al receptor. Tras revisarlo, repetir el comando con --revisado "<motivo>".');
+      return finalizar('RECEIVED', bloqueosDelimitacion.length > 0
+        ? 'Recibido: la DELIMITACIÓN del acto no es limpia (ver motivos). --revisado no lo levanta: corrija el corte (páginas, columnas, cierre) y repita.'
+        : 'Recibido: requiere revisión documental humana antes de procesarse. No está verificado ni se envió al receptor. Tras revisarlo, repetir el comando con --revisado "<motivo>".');
     }
 
     // 6. Sin sobrescrituras: un paquete distinto con el mismo nombre en el inbox se rechaza.
@@ -479,7 +644,25 @@ export function recibir(o: OpcionesRecepcion): { recibo: Recibo; codigo: number 
   }
 }
 
+function escribirExtracto(o: OpcionesRecepcion, r: Recibo): void {
+  if (!r.extracto || !r.text_sha256 || !r.bytes_sha256) return;
+  const dir = directorioSeguro(o.raiz, 'staging', o.lote, 'extractos');
+  const base = `${r.paquete}-${r.bytes_sha256.slice(0, 12)}-${r.text_sha256.slice(0, 12)}`;
+  let ruta = join(dir, `${base}.json`);
+  for (let n = 2; existsSync(ruta); n++) ruta = join(dir, `${base}-${n}.json`);
+  escribirNuevo(ruta, `${JSON.stringify({
+    paquete: r.paquete,
+    nota: 'El hash del PDF ÍNTEGRO y el hash del texto del acto delimitado son cosas distintas: el primero prueba la integridad del archivo recibido; el segundo, la del extracto.',
+    pdf_integro: { archivo: r.archivo, bytes: r.bytes, bytes_sha256: r.bytes_sha256, paginas: r.paginas },
+    extracto: { paginas: r.extracto, metodo_extraccion: r.metodo_extraccion, caracteres: r.caracteres, text_sha256: r.text_sha256 },
+    delimitacion: r.delimitacion,
+    orientacion_paginas: r.orientacion_paginas,
+    estado_recepcion: r.estado,
+  }, null, 2)}\n`);
+}
+
 function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
+  escribirExtracto(o, r);
   const dir = directorioSeguro(o.raiz, 'staging', o.lote, 'receipts');
   const sello = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
   const base = `${r.paquete}-${sello}-${(r.bytes_sha256 ?? 'sinhash').slice(0, 12)}`;
@@ -497,6 +680,9 @@ function escribirRecibo(o: OpcionesRecepcion, r: Recibo): void {
     '|---|---|',
     `| Archivo | ${r.archivo} (${r.bytes} bytes) |`,
     `| bytes_sha256 (integridad de bytes) | ${r.bytes_sha256 ?? 'NO CALCULADO'} |`,
+    `| Método de extracción | ${r.metodo_extraccion} |`,
+    ...(r.delimitacion ? [`| Delimitación del acto | última página solo columna izquierda: ${r.delimitacion.ultima_solo_izquierda ? 'sí' : 'no'} · páginas de sumario excluidas: ${r.delimitacion.sumario_paginas} · cierre: ${r.delimitacion.cierre.length ? r.delimitacion.cierre.map((c) => `«${c.frase}» ${c.hallado ? 'HALLADO' : 'NO hallado'}`).join(', ') : 'no verificado'} · acto siguiente: ${r.delimitacion.acto_siguiente.length ? r.delimitacion.acto_siguiente.map((a) => `«${a.frase}» entrada efectiva ${a.entrada_efectiva ? 'SÍ' : 'no'} (sumario ${a.en_sumario}, referencias ${a.referencias})`).join(', ') : 'no verificado'} |`] : []),
+    ...(r.orientacion_paginas && r.orientacion_paginas.some((x) => x.rotate_metadatos !== 0 || x.decision !== 'directo') ? [`| Orientación de columnas (páginas con rotación o inversión) | ${r.orientacion_paginas.filter((x) => x.rotate_metadatos !== 0 || x.decision !== 'directo').map((x) => `p.${x.pagina}: /Rotate ${x.rotate_metadatos}, ${x.decision} (izq ${x.coincidencia_recorte_izquierdo}/der ${x.coincidencia_recorte_derecho})`).join('; ')} |`] : []),
     `| Extracto pertinente | ${r.extracto ? `páginas ${r.extracto.desde}–${r.extracto.hasta} de ${r.paginas}` : 'documento completo'} |`,
     `| Páginas (pdfinfo) | ${r.paginas ?? '—'} (huella del ejemplar identificado: ${r.huella_paginas ?? 'no declarada'}) |`,
     `| Páginas con texto extraído | ${p ? p.paginasTexto : '—'} · vacías: ${p?.vacias.length ?? '—'} · débiles: ${p?.debiles.length ?? '—'} · dañadas: ${p?.danadas.length ?? '—'} |`,
@@ -523,19 +709,22 @@ function valor(argv: readonly string[], nombre: string): string | undefined {
 }
 
 export function cli(argv: readonly string[]): number {
-  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas']);
+  const banderasConValor = new Set(['--paquete', '--url', '--retriever', '--fecha', '--metodo', '--lote', '--max-mb', '--revisado', '--paginas', '--columnas', '--cierre', '--no-contiene', '--sumario-paginas']);
   const archivo = argv.find((a, k) => !a.startsWith('--') && !(k > 0 && banderasConValor.has(argv[k - 1])));
   const paquete = valor(argv, '--paquete');
   const url = valor(argv, '--url');
   const retriever = valor(argv, '--retriever');
   const fecha = valor(argv, '--fecha');
   if (!archivo || !paquete || !url || !retriever || !fecha) {
-    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--revisado "<motivo>"]');
+    console.error('uso: receive-pdf <archivo.pdf> --paquete HN-001-A0N --url <URL exacta> --retriever "<quién>" --fecha <ISO> [--metodo MANUAL_BROWSER|CURL|API|OTHER] [--lote nombre] [--max-mb N] [--paginas DESDE-HASTA] [--columnas 2 [--ultima-solo-izquierda]] [--cierre "<frase>"]… [--no-contiene "<frase>"]… [--sumario-paginas N] [--revisado "<motivo>"]');
     return 2;
   }
   const metodo = (valor(argv, '--metodo') ?? 'MANUAL_BROWSER') as OpcionesRecepcion['metodo'];
   const lote = valor(argv, '--lote') ?? '2026-11-hn-001-tranche-a';
   const mb = valor(argv, '--max-mb');
+  const noContiene = argv.flatMap((a, k) => (a === '--no-contiene' && argv[k + 1] ? [argv[k + 1]] : []));
+  const col = valor(argv, '--columnas');
+  if (col && col !== '1' && col !== '2') { console.error('--columnas debe ser 1 o 2'); return 2; }
   const pag = valor(argv, '--paginas');
   const m = pag ? /^(\d+)-(\d+)$/.exec(pag) : null;
   if (pag && !m) { console.error('--paginas debe tener la forma DESDE-HASTA (p. ej. 12-19)'); return 2; }
@@ -543,6 +732,11 @@ export function cli(argv: readonly string[]): number {
     archivo: resolve(archivo), paquete, url, retriever, fecha, metodo, lote, raiz: process.cwd(),
     maxMb: mb ? Number(mb) : undefined, revisado: valor(argv, '--revisado'),
     paginasPertinentes: m ? { desde: Number(m[1]), hasta: Number(m[2]) } : undefined,
+    columnas: col === '2' ? 2 : undefined,
+    ultimaSoloIzquierda: argv.includes('--ultima-solo-izquierda'),
+    cierre: argv.flatMap((a, k) => (a === '--cierre' && argv[k + 1] ? [argv[k + 1]] : [])).length ? argv.flatMap((a, k) => (a === '--cierre' && argv[k + 1] ? [argv[k + 1]] : [])) : undefined,
+    sumarioPaginas: valor(argv, '--sumario-paginas') ? Number(valor(argv, '--sumario-paginas')) : undefined,
+    noContiene: noContiene.length ? noContiene : undefined,
   });
   console.log(`${recibo.paquete}: ${recibo.estado}${recibo.motivo ? ` — ${recibo.motivo}` : ''}`);
   if (recibo.bytes_sha256) console.log(`bytes_sha256 ${recibo.bytes_sha256}  páginas ${recibo.paginas}`);

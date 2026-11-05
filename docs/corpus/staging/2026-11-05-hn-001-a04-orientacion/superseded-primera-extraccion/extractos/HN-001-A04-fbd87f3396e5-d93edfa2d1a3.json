@@ -1,0 +1,44 @@
+{
+  "paquete": "HN-001-A04",
+  "nota": "El hash del PDF ÍNTEGRO y el hash del texto del acto delimitado son cosas distintas: el primero prueba la integridad del archivo recibido; el segundo, la del extracto.",
+  "pdf_integro": {
+    "archivo": "/tmp/claude-0/-home-user/3244d041-2e33-5ff8-bf98-da640e2aedda/scratchpad/a04/Codigo_ninezyadolescencia_2013.pdf",
+    "bytes": 18625608,
+    "bytes_sha256": "fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff",
+    "paginas": 46
+  },
+  "extracto": {
+    "paginas": {
+      "desde": 1,
+      "hasta": 46
+    },
+    "metodo_extraccion": "pdftotext por columnas (2): izquierda y luego derecha de cada página",
+    "caracteres": 185071,
+    "text_sha256": "d93edfa2d1a3d45f26c167d4a81171e70cd9bd83ce3c2036ff0cac7629fd8e69"
+  },
+  "delimitacion": {
+    "ultima_solo_izquierda": true,
+    "sumario_paginas": 1,
+    "cierre": [
+      {
+        "frase": "Por Tanto: Ejecútese",
+        "hallado": true
+      },
+      {
+        "frase": "GLADIS AURORA LÓPEZ CALDERÓN",
+        "hallado": true
+      }
+    ],
+    "acto_siguiente": [
+      {
+        "frase": "107-2013",
+        "en_sumario": 1,
+        "referencias": 0,
+        "entrada_efectiva": false,
+        "paginas_entrada": []
+      }
+    ],
+    "bloqueos": []
+  },
+  "estado_recepcion": "RECEIVED"
+}

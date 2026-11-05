@@ -1,0 +1,62 @@
+id,pagina,palabra_bruta,palabra_candidata,caracteres_reunidos_por_coordenadas,linea_candidata,recorte,lectura_visual_del_revisor,estado
+W01,1,D,DE,E,DIARIO OFICIAL DE LA REPUBLICA,recortes_palabras_reunidas/W01_p01.jpg,DE,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W02,1,E.N.A,E.N.A.G,.G,E.N.A.G,recortes_palabras_reunidas/W02_p01.jpg,E.N.A.G,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W03,1,Secci,Sección,ón,Sección,recortes_palabras_reunidas/W03_p01.jpg,Sección,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W04,5,conform,conforme,e,b) Falten en forma absoluta las personas que conforme,recortes_palabras_reunidas/W04_p05.jpg,conforme,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W05,5,representante,representantes,s,c) No sea reclamado por sus padres o representantes,recortes_palabras_reunidas/W05_p05.jpg,representantes,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W06,5,niña,"niña,",",","conocimiento de la situación de abandono de un niño o niña,",recortes_palabras_reunidas/W06_p05.jpg,"niña,",LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W07,5,L,La,a,deberá denunciarlo al Instituto Hondureno de la Niñez y La,recortes_palabras_reunidas/W07_p05.jpg,La,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W08,5,d,de,e,"Familia (IHNFA), Policía, Ministerio Público, Juzgados",recortes_palabras_reunidas/W08_p05.jpg,de,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W09,5,Humanos,"Humanos,",",","Paz, Comisionados Municipales de Derechos Humanos,",recortes_palabras_reunidas/W09_p05.jpg,Humanos.,INCIDENCIA ABIERTA: la imagen termina en punto; la candidata trae coma
+W10,5,medida,medidas,s,"Defensorías de la Niñez y Mujer, para asegurar las medidas",recortes_palabras_reunidas/W10_p05.jpg,medidas,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W11,5,e,el,l,urgentes de protección e interponer la denuncia para,recortes_palabras_reunidas/W11_p05.jpg,el,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W12,7,techo,"techo,",",","de acceder con un mínimo grado de seguridad a un techo,",recortes_palabras_reunidas/W12_p07.jpg,"techo,",LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W13,19,iniciales,"iniciales,",",","""ARTÍCULO 229.- Concluidas las investigaciones iniciales,",recortes_palabras_reunidas/W13_p19.jpg,"iniciales,",LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W14,23,definitivo,definitivo;,;,a) Concedan el sobreseimiento provisional o definitivo;,recortes_palabras_reunidas/W14_p23.jpg,definitivo;,INCIDENCIA ABIERTA: la imagen termina en punto y coma; la candidata trae coma
+W15,23,sancione,sanciones,s,. j) Resuelvan la solicitud de revisión de las sanciones,recortes_palabras_reunidas/W15_p23.jpg,sanciones,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W16,23,continuació,continuación,n,La interposición del recurso no suspenderá la continuación,recortes_palabras_reunidas/W16_p23.jpg,continuación,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W17,23,propi,propia,a,"del procedimiento, salvo en los casos en que por su propia",recortes_palabras_reunidas/W17_p23.jpg,propia,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W18,23,resolucione,resoluciones,s,Solamente se suspenderá la ejecución de las resoluciones,recortes_palabras_reunidas/W18_p23.jpg,resoluciones,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W19,23,lo,los,s,"apeladas en el caso a que se refiere el numeral f), y en",recortes_palabras_reunidas/W19_p23.jpg,los,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W20,23,cuand,cuando,o,"Las sentencias sobre Faltas, sólo serán apelables cuando",recortes_palabras_reunidas/W20_p23.jpg,cuando,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W21,23,present,presente,e,"violenten alguno de los derechos que, según el presente",recortes_palabras_reunidas/W21_p23.jpg,presente,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W22,23,deber,deberá,á,"""ARTÍCULO 243.- La Ejecución de las sanciones deberá",recortes_palabras_reunidas/W22_p23.jpg,deberá,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W23,23,persona,personal,l,procurar que el Sancionado alcance su desarrollo personal,recortes_palabras_reunidas/W23_p23.jpg,personal,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W24,23,d,de,e,desarrollo pleno de sus capacidades y su sentido,recortes_palabras_reunidas/W24_p23.jpg,de,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W25,29,a,al,l,Lo dispuesto en este Artículo será aplicable al tutor(a) o,recortes_palabras_reunidas/W25_p29.jpg,al,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W26,29,imposibl,imposible,e,su caso; y también se aplicará en el caso que sea imposible,recortes_palabras_reunidas/W26_p29.jpg,imposible,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W27,29,Juez(a,Juez(a),),"""ARTÍCULO 104-A.- Presentada la solicitud, el(la) Juez(a)",recortes_palabras_reunidas/W27_p29.jpg,Juez(a),LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W28,29,l,la,a,dentro del término de tres (3) días siguientes a la fecha de,recortes_palabras_reunidas/W28_p29.jpg,la,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W29,29,la,las,s,"Las partes deberán presentarse a la audiencia, con las",recortes_palabras_reunidas/W29_p29.jpg,las,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W30,29,copi,copia,a,La Cédula de Citación deberá ser acompañada de la copia,recortes_palabras_reunidas/W30_p29.jpg,copia,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W31,29,conformida,conformidad',d',"la persona citada, el(la) Juez(a) resolverá de conformidad'",recortes_palabras_reunidas/W31_p29.jpg,conformidad ·,INCIDENCIA ABIERTA: signo final dudoso (punto medio o similar); la candidata trae un apóstrofo
+W32,29,términ,término,o,"con las pruebas que acompañen la solicitud, en el término",recortes_palabras_reunidas/W32_p29.jpg,término,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W33,29,Institut,Instituto,o,"""ARTÍCULO 147-A.- En la audiencia, el Instituto",recortes_palabras_reunidas/W33_p29.jpg,Instituto,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W34,29,lo,los,s,Hondureno de la Niñez y la Familia (IHNFA) conocerá los,recortes_palabras_reunidas/W34_p29.jpg,los,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W35,29,d,de,e,"informes técnicos correspondientes, así como el parecer",recortes_palabras_reunidas/W35_p29.jpg,de,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W36,29,prueba,pruebas,s,"las personas que haya citado, asimismo recibirá las pruebas",recortes_palabras_reunidas/W36_p29.jpg,pruebas,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W37,29,e,el,l,que se aporten y dictará resolución en la que declare,recortes_palabras_reunidas/W37_p29.jpg,el,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W38,29,d,de,e,La Resolución que declare la situación de abandono y,recortes_palabras_reunidas/W38_p29.jpg,de,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W39,29,notificad,notificada,a,incumplimiento de derechos de un niño o niña será notificada,recortes_palabras_reunidas/W39_p29.jpg,notificada,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W40,29,haya,hayan,n,al(la) representante legal de éste y a quienes hayan,recortes_palabras_reunidas/W40_p29.jpg,hayan,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W41,29,un,una,a,"comparecido atendiendo la citación, en ésta se incluirá una",recortes_palabras_reunidas/W41_p29.jpg,una,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W42,29,e,en,n,1) Nombre completo del niño o niña si se supiere y,recortes_palabras_reunidas/W42_p29.jpg,en,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W43,29,últim,último,o,"su defecto señas particulares del mismo, en este último",recortes_palabras_reunidas/W43_p29.jpg,último,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W44,29,medid,medidas,as,caso ordenará que de inmediato se tomen las medidas,recortes_palabras_reunidas/W44_p29.jpg,medidas,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W45,37,obligatoriedad,"obligatoriedad,",",","la Niñez y la Familia (IHNFA) una carta de obligatoriedad,",recortes_palabras_reunidas/W45_p37.jpg,obligatoriedad.,INCIDENCIA ABIERTA: la imagen termina en punto; la candidata trae coma
+W46,37,de,del,l,"""ARTÍCULO 120-C- Créase bajo la responsabilidad del",recortes_palabras_reunidas/W46_p37.jpg,del,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W47,37,e,el,l,Instituto Hondureno de la Niñez y la Familia (IHNFA) el,recortes_palabras_reunidas/W47_p37.jpg,el,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W48,37,sistematiza,sistematizar,r,"Registro de Adoptado(a), cuyo propósito será sistematizar",recortes_palabras_reunidas/W48_p37.jpg,sistematizar,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W49,37,hondureños(as,hondureños(as),),la información sobre los(las) niños(as) hondureños(as),recortes_palabras_reunidas/W49_p37.jpg,hondureños(as),LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W50,37,sociale,sociales,s,3) Registro de instituciones de servicios sociales,recortes_palabras_reunidas/W50_p37.jpg,sociales,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W51,37,niña,niñas,s,extranjeras que ejerzan supervisión sobre niños o niñas,recortes_palabras_reunidas/W51_p37.jpg,niñas,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W52,37,adopcione,adopciones,s,4) Registro de instituciones o agencias de adopciones,recortes_palabras_reunidas/W52_p37.jpg,adopciones,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W53,37,reservado,reservado;,;,La información de este registro será de carácter reservado;,recortes_palabras_reunidas/W53_p37.jpg,reservado;,INCIDENCIA ABIERTA: la imagen termina en punto y coma; la candidata trae coma
+W54,37,Honduren,Hondureno,o,para su organización y funcionamiento el Instituto Hondureno,recortes_palabras_reunidas/W54_p37.jpg,Hondureno,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W55,37,reglament,reglamento,o,de la Niñez y la Familia (IHNFA) emitirá el reglamento,recortes_palabras_reunidas/W55_p37.jpg,reglamento,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W56,37,la,las,s,"""ARTÍCULO 120-D.- Para el cumplimiento de",recortes_palabras_reunidas/W56_p37.jpg,las,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W57,37,120,120-,-,obligaciones de supervisión establecidas en el Artículo 120-,recortes_palabras_reunidas/W57_p37.jpg,120-,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W58,37,Institut,Instituto,o,"B de este Código, la institución obligada remitirá al Instituto",recortes_palabras_reunidas/W58_p37.jpg,Instituto,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W59,37,informe,informes,s,Hondureno de la Niñez y la Familia (IHNFA) informes,recortes_palabras_reunidas/W59_p37.jpg,informes,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W60,37,conform,conforme,e,"evaluadores del desarrollo integral del niño o niña, conforme",recortes_palabras_reunidas/W60_p37.jpg,conforme,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata
+W61,40,siquiera,siquiera.,.,desde la admisión de la demanda si aparece prueba siquiera.,recortes_palabras_reunidas/W61_p40.jpg,siquiera.,LEGIBLE_COMPLETA_EN_LA_IMAGEN; coincide con la candidata

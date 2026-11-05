@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkS
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  PERFILES, analizarPaginas, constaEnTexto, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
+  PERFILES, analizarPaginas, comprobarActoSiguiente, constaEnTexto, extraerTextoDosColumnas, decretosEnEncabezado, dentroDe, evaluarIdentidad, loteValido, normalizar, recibir, sha256,
   type OpcionesRecepcion,
 } from '../tools/corpus/receive-pdf';
 
@@ -39,6 +39,32 @@ function pdfSintetico(paginas: string[][]): Buffer {
   out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return Buffer.from(out, 'latin1');
 }
+
+/** PDF de dos columnas con N páginas; el flujo de contenido entrelaza una línea de cada columna. */
+function pdfDosColumnasPaginas(paginas: Array<{ izq: string[]; der: string[]; rotate?: number }>): Buffer {
+  const objs: string[] = ['<< /Type /Catalog /Pages 2 0 R >>', `<< /Type /Pages /Kids [${paginas.map((_, k) => `${3 + k * 2} 0 R`).join(' ')}] /Count ${paginas.length} >>`];
+  const fuente = 3 + paginas.length * 2;
+  paginas.forEach(({ izq, der, rotate }, k) => {
+    const partes: string[] = [];
+    for (let i = 0; i < Math.max(izq.length, der.length); i++) {
+      const y = 760 - i * 12;
+      if (izq[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 40 ${y} Tm (${izq[i].replace(/[()\\]/g, '')}) Tj ET`);
+      if (der[i]) partes.push(`BT /F1 10 Tf 1 0 0 1 330 ${y} Tm (${der[i].replace(/[()\\]/g, '')}) Tj ET`);
+    }
+    const flujo = partes.join(' ');
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]${rotate ? ` /Rotate ${rotate}` : ''} /Contents ${4 + k * 2} 0 R /Resources << /Font << /F1 ${fuente} 0 R >> >> >>`);
+    objs.push(`<< /Length ${flujo.length} >>\nstream\n${flujo}\nendstream`);
+  });
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  let out = '%PDF-1.4\n';
+  const offs: number[] = [];
+  objs.forEach((o, n) => { offs.push(out.length); out += `${n + 1} 0 obj\n${o}\nendobj\n`; });
+  const xref = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offs.map((v) => `${String(v).padStart(10, '0')} 00000 n \n`).join('')}`;
+  out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(out, 'latin1');
+}
+const pdfDosColumnas = (izq: string[], der: string[]): Buffer => pdfDosColumnasPaginas([{ izq, der }]);
 
 const relleno = (n: number, prefijo = 'Linea'): string[] =>
   Array.from({ length: n }, (_, i) => `${prefijo} ${i + 1}: texto sintetico de relleno suficiente para superar el minimo de caracteres por pagina en la prueba.`);
@@ -117,6 +143,9 @@ describe('receive-pdf: identidad normativa', () => {
     const reforma = 'DECRETO No. 284-2013 reforma el Codigo de Comercio, Decreto No. 73-50. Articulo 1. Articulo 2. Decreto del Congreso.';
     expect(evaluarIdentidad(reforma, PERFILES['HN-001-A02']).estado).toBe('CONFIRMADA');
     expect(decretosEnEncabezado(normalizar('Decreto No. 73-1950 y decreto 284-2013'))).toEqual(['73-50', '284-2013']);
+    // La reforma cita en sus considerandos el Decreto 51-2011 (la ley que reforma): no es una discrepancia de identidad.
+    const conConsiderandos = 'DECRETO No.284-2013 EL CONGRESO NACIONAL CONSIDERANDO: Que mediante Decreto No. 51-2011 fue aprobada la Ley. Reformar el Codigo de Comercio, articulo 1. Decreto.';
+    expect(evaluarIdentidad(conConsiderandos, PERFILES['HN-001-A02']).estado).toBe('CONFIRMADA');
   });
 });
 
@@ -260,6 +289,94 @@ describe.skipIf(!hayPoppler && !exigirPoppler)('receive-pdf: recepción de un ar
     for (const r of [{ desde: 0, hasta: 1 }, { desde: 2, hasta: 1 }, { desde: 1, hasta: 9 }]) {
       expect(recibir(opciones(raiz, archivo, { paginasPertinentes: r })).recibo.motivo).toMatch(/rango de páginas pertinente inválido/);
     }
+  });
+
+  it('páginas de dos columnas: --columnas 2 conserva el orden de lectura (izquierda y luego derecha) y lo registra', () => {
+    const raiz = nuevaRaiz();
+    const izq = ['CODIGO DE LA NINEZ Y DE LA ADOLESCENCIA', 'DECRETO No. 73-96', 'ARTICULO 1.- IZQ-UNO los ninos y adolescentes.', 'IZQ-DOS menores y familia.', ...relleno(15, 'IZQ-REL')];
+    const der = ['ARTICULO 2.- DER-UNO la familia y los ninos.', 'DER-DOS menores y adolescentes.', ...relleno(15, 'DER-REL')];
+    const archivo = escribir(raiz, 'col.pdf', pdfDosColumnas(izq, der));
+    const { recibo } = recibir(opciones(raiz, archivo, { columnas: 2 }));
+    expect(recibo.estado).toBe('CLO_PENDING');
+    expect(recibo.metodo_extraccion).toMatch(/columnas \(2\)/);
+    const texto: string = JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/HN-001-A03.json'), 'utf8')).extracted_text;
+    expect(texto.indexOf('IZQ-REL 15')).toBeGreaterThan(-1);
+    expect(texto.indexOf('IZQ-REL 15')).toBeLessThan(texto.indexOf('DER-UNO')); // columna izquierda completa antes que la derecha
+  });
+
+  it('páginas con /Rotate 180: la orientación de las columnas se calibra por contenido y se registra; una página sin rotar es el control', () => {
+    const raiz = nuevaRaiz();
+    // pdftotext recorta en un espacio que no es el visual en estas páginas: el recorte izquierdo trae la columna que -layout lee a la DERECHA.
+    const izq = ['COLUMNA-IZQUIERDA primera linea de texto'];
+    const der = ['COLUMNA-DERECHA segunda linea de texto'];
+    const pdf = pdfDosColumnasPaginas([
+      { izq, der },
+      { izq, der, rotate: 180 },
+      { izq, der },
+    ]);
+    const { texto, orientacion } = extraerTextoDosColumnas(escribir(raiz, 'r.pdf', pdf), 1, 3);
+    const [p1, p2, p3] = texto.split('\f');
+    const ordenLayout = (t: string): boolean => t.indexOf('COLUMNA-IZQUIERDA') < t.indexOf('COLUMNA-DERECHA');
+    expect(ordenLayout(p1)).toBe(true); // control sin rotar
+    expect(ordenLayout(p3)).toBe(true); // control sin rotar
+    expect(ordenLayout(p2)).toBe(true); // rotada: falla si las columnas quedan invertidas
+    expect(orientacion.map((o) => o.pagina)).toEqual([1, 2, 3]);
+    expect(orientacion[0]).toMatchObject({ rotate_metadatos: 0, decision: 'directo' });
+    expect(orientacion[2]).toMatchObject({ rotate_metadatos: 0, decision: 'directo' });
+    expect(orientacion[1].rotate_metadatos).toBe(180);
+    // última página rotada tomada «solo izquierda» = la izquierda según el contenido
+    const solo = extraerTextoDosColumnas(escribir(raiz, 'r2.pdf', pdf), 2, 2, true).texto;
+    expect(solo).toMatch(/COLUMNA-IZQUIERDA/);
+    expect(solo).not.toMatch(/COLUMNA-DERECHA/);
+  });
+
+  describe('La Gaceta: sumario que menciona el decreto siguiente; el acto termina en la columna izquierda y otro empieza en la derecha', () => {
+    const p1 = { izq: ['LA GACETA No. 33,222', 'SUMARIO', 'Decreto No. 35-2013 reforma el Codigo de la Ninez pag. 1', 'Decreto No. 107-2013 pag. 46', 'DECRETO No. 35-2013', 'ARTICULO 1.- Los ninos y adolescentes; la familia protege.', ...relleno(12, 'IZQ1')], der: ['ARTICULO 2.- Menores y familia; ninos y adolescentes.', ...relleno(12, 'DER1')] };
+    const p2 = { izq: ['ARTICULO 3.- Entra en vigencia; ninos.', 'POR TANTO: EJECUTESE.', 'FIRMA DEL PRESIDENTE', 'SECRETARIO DEL CONGRESO', ...relleno(8, 'IZQ2')], der: ['DECRETO No. 107-2013', 'EL CONGRESO NACIONAL', 'CONSIDERANDO: acto siguiente que no pertenece al decreto anterior.', ...relleno(8, 'DER2')] };
+    const base = { paquete: 'HN-001-A04', paginasPertinentes: { desde: 1, hasta: 2 }, columnas: 2 as const, cierre: ['EJECUTESE', 'FIRMA DEL PRESIDENTE'], noContiene: ['107-2013'] };
+    const leer = (raiz: string) => readdirSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review')).map((f) => JSON.parse(readFileSync(join(raiz, 'docs/corpus/inbox/lote-prueba/pending-review', f), 'utf8')).extracted_text as string)[0];
+    it('la mención en el sumario no es falso positivo; el cierre y las firmas se hallan; el hash del PDF íntegro queda aparte', () => {
+      const raiz = nuevaRaiz();
+      const pdf = pdfDosColumnasPaginas([p1, p2]);
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdf), { ...base, ultimaSoloIzquierda: true }));
+      const d = recibo.delimitacion!;
+      expect(d.bloqueos).toEqual([]);
+      expect(d.acto_siguiente[0].en_sumario).toBeGreaterThanOrEqual(1);
+      expect(d.acto_siguiente[0].entrada_efectiva).toBe(false);
+      expect(d.cierre.every((c) => c.hallado)).toBe(true);
+      expect(recibo.identidad?.estado).toBe('CONFIRMADA');
+      expect(recibo.bytes_sha256).toBe(sha256(pdf));
+      expect(recibo.estado).toBe('RECEIVED'); // un extracto siempre espera el cotejo del rango por una persona
+      const texto = leer(raiz);
+      expect(texto).toMatch(/FIRMA DEL PRESIDENTE/);
+      expect(texto).not.toMatch(/CONSIDERANDO|acto siguiente/);
+    });
+    it('sin --ultima-solo-izquierda la entrada efectiva del acto siguiente bloquea, y --revisado no la levanta', () => {
+      const raiz = nuevaRaiz();
+      const { recibo, codigo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, revisado: 'Cotejado el rango contra el PDF original' }));
+      expect(recibo.delimitacion?.acto_siguiente[0].entrada_efectiva).toBe(true);
+      expect(recibo.delimitacion?.bloqueos.length).toBeGreaterThan(0);
+      expect(recibo.estado).toBe('RECEIVED');
+      expect(codigo).toBe(5);
+    });
+    it('si un cierre no figura en el extracto, se señala y bloquea', () => {
+      const raiz = nuevaRaiz();
+      const { recibo } = recibir(opciones(raiz, escribir(raiz, 'g.pdf', pdfDosColumnasPaginas([p1, p2])), { ...base, ultimaSoloIzquierda: true, cierre: ['EJECUTESE', 'FRASE QUE NO EXISTE'], revisado: 'Cotejado el rango contra el PDF original' }));
+      expect(recibo.delimitacion?.cierre).toEqual([{ frase: 'EJECUTESE', hallado: true }, { frase: 'FRASE QUE NO EXISTE', hallado: false }]);
+      expect(recibo.estado).toBe('RECEIVED');
+    });
+    it('el sumario se cuenta por páginas: con sumarioPaginas 0 la mención de la página 1 cuenta como referencia, no como entrada', () => {
+      const r = comprobarActoSiguiente(['Sumario Decreto No. 107-2013 pag 46', 'texto'], '107-2013', 0);
+      expect(r.en_sumario).toBe(0);
+      expect(r.entrada_efectiva).toBe(false);
+      expect(r.referencias).toBe(1);
+      const r2 = comprobarActoSiguiente(['Sumario Decreto No. 107-2013 pag 46', 'texto'], '107-2013', 1);
+      expect(r2.en_sumario).toBe(1);
+    });
+    it('comprobarActoSiguiente distingue entrada efectiva (decreto + apertura) de una cita en el articulado', () => {
+      expect(comprobarActoSiguiente(['a', 'DECRETO No. 107-2013 EL CONGRESO NACIONAL DECRETA'], '107-2013', 1).entrada_efectiva).toBe(true);
+      expect(comprobarActoSiguiente(['a', 'conforme al articulo 5 de la ley 107-2013 vigente'], '107-2013', 1).entrada_efectiva).toBe(false);
+    });
   });
 
   it('--revisado exige un motivo humano real', () => {
