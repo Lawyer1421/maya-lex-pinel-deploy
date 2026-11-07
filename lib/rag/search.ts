@@ -85,6 +85,7 @@ import {
   type FilaExactaDB,
   type ResultadoExacto,
 } from '@/lib/legal-retrieval/exact-resolver';
+import { articulosFaltantesDelGrupo } from '@/lib/legal-retrieval/grupos-articulos';
 
 export {
   detectarMateriaDesdeTexto,
@@ -257,6 +258,35 @@ function logClo(ruta: 'exact' | 'semantic', fragmentos: FragmentoRAG[], ctx: Par
     console.info(`[RAG][CLO] ruta=${ruta} ${JSON.stringify(resumenLogClo(fragmentos, ctx))}`);
   } catch {
     // el log nunca rompe la recuperación
+  }
+}
+
+/**
+ * Completa un grupo de artículos que responden juntos (p. ej. 424–426 CPC) con la ruta exacta. Solo AGREGA fragmentos que la ruta exacta ya
+ * valida (instrumento, vigencia, revisión pendiente) y que luego pasan por `anotarFragmentosClo`; un fallo nunca rompe la recuperación.
+ */
+async function completarGrupoArticulos(
+  consulta: string,
+  recuperados: FragmentoRAG[],
+  ctx: Parameters<typeof anotarFragmentosClo>[1],
+  corpusP21: boolean | undefined,
+): Promise<FragmentoRAG[]> {
+  try {
+    const anotados = anotarFragmentosClo(recuperados, ctx);
+    const pendientes = articulosFaltantesDelGrupo(consulta, anotados, (f) => f.rol_evidencia === 'PRIMARY' && f.es_norma_vigente === true);
+    if (pendientes.length === 0) return recuperados;
+    let resultado = recuperados;
+    for (const { grupo, faltantes } of pendientes) {
+      for (const numero of faltantes) {
+        const exacto = await buscarArticuloExacto(numero, null, grupo.instrumento);
+        const nuevos = filtrarCorpusP21(exacto.ambiguo ? [] : exacto.fragmentos, corpusP21);
+        resultado = unirFragmentos(resultado, nuevos);
+      }
+    }
+    return resultado;
+  } catch (error) {
+    console.warn('[RAG] No se pudo completar el grupo de artículos:', error instanceof Error ? error.message : String(error));
+    return recuperados;
   }
 }
 
@@ -458,7 +488,8 @@ export async function buscarRAG(
       // Evidencia final = exacta parcial (verificada por identidad) + semántica.
       // Sin cobertura completa de la intención (p. ej. una comparación sin
       // evidencia de uno de sus instrumentos), no hay evidencia utilizable.
-      const combinados = filtrarCorpusP21(unirFragmentos(exactoParcial, bruto.fragmentos), ctxClo.corpusP21Habilitado);
+      const base = filtrarCorpusP21(unirFragmentos(exactoParcial, bruto.fragmentos), ctxClo.corpusP21Habilitado);
+      const combinados = await completarGrupoArticulos(consulta, base, { materia: materiaSemantica, coleccion, ...ctxClo }, ctxClo.corpusP21Habilitado);
       const fragmentos = evidenciaFinal(combinados, intencion);
       const resultado = {
         ...bruto,
