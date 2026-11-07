@@ -178,7 +178,7 @@ export const FiracSkillSchema = z
         ctx.addIssue({ code: 'custom', path, message: `${item.id}: MET exige evidencia PRIMARY` });
     };
     for (const [i, r] of s.firac.rules.entries()) {
-      revisaEvidencia(r, ['firac', 'rules', i]);
+      if (!r.elements) revisaEvidencia(r, ['firac', 'rules', i]); // con elementos, el estado de la casilla es derivado y la evidencia vive en ellos
       for (const [j, e] of (r.elements ?? []).entries()) revisaEvidencia(e, ['firac', 'rules', i, 'elements', j]);
     }
 
