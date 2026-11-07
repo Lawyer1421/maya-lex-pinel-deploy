@@ -1,0 +1,191 @@
+{
+  "schema": "firac-skill/0.1",
+  "skill_id": "HN.NOTARIAL.PODER_GENERAL_JUDICIAL",
+  "country": "HN",
+  "jurisdiction": "NACIONAL",
+  "matter": "Notarial",
+  "submatter": "Poder general judicial y para pleitos",
+  "task": "DOCUMENT_REVIEW",
+  "status": "DRAFT",
+  "version": "0.3.0",
+  "owner": "CLO",
+  "last_reviewed": null,
+  "instrument": {
+    "name": "Código del Notariado",
+    "decree": "Decreto No. 353-2005",
+    "verification": "CONFIRMADO_POR_TITULAR"
+  },
+  "firac": {
+    "facts": {
+      "required_inputs": [
+        "otorgante(s) y apoderado(s)",
+        "documento de identidad o pasaporte vigente",
+        "facultades que se confieren (texto del poder)",
+        "timbres notariales y del Colegio de Abogados adheridos o razonados",
+        "fecha y lugar del otorgamiento"
+      ],
+      "provided": []
+    },
+    "issue": "¿El instrumento de otorgamiento de poder general judicial y para pleitos reúne los requisitos normativos de comparecencia, capacidad, identidad, facultades expresas y timbres?",
+    "rules": [
+      {
+        "id": "NOT-COMPARECENCIA",
+        "label": "Comparecencia",
+        "requirement": "El otorgante comparece ante el notario autorizante para otorgar el poder.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código del Notariado",
+            "decree": "Decreto No. 353-2005",
+            "articles": [
+              "16 num. 1",
+              "29 num. 1",
+              "29 num. 2"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ]
+      },
+      {
+        "id": "NOT-CAPACIDAD",
+        "label": "Capacidad",
+        "requirement": "El otorgante tiene capacidad legal para otorgar el poder y el notario la aprecia.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código del Notariado",
+            "decree": "Decreto No. 353-2005",
+            "articles": [
+              "15 num. 1",
+              "29 num. 3"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ]
+      },
+      {
+        "id": "NOT-IDENTIDAD",
+        "label": "Acreditación de identidad (DNI/Pasaporte)",
+        "requirement": "La identidad del otorgante se acredita con documento nacional de identidad o pasaporte, con sus datos consignados.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código del Notariado",
+            "decree": "Decreto No. 353-2005",
+            "articles": [
+              "29 num. 4"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ]
+      },
+      {
+        "id": "NOT-FACULTADES",
+        "label": "Facultades expresas",
+        "requirement": "Las facultades conferidas constan expresamente; las que requieren mención especial no se presumen.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código del Notariado",
+            "decree": "Decreto No. 353-2005",
+            "articles": [
+              "29 num. 5"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          },
+          {
+            "instrument": "Código Procesal Civil",
+            "decree": "Decreto No. 211-2006",
+            "articles": [
+              "81",
+              "82"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "facultades_especiales_a_verificar": null
+        }
+      },
+      {
+        "id": "NOT-TIMBRES",
+        "label": "Timbres notariales y del Colegio de Abogados",
+        "requirement": "Se cubren los timbres que corresponden al instrumento y a la actuación notarial.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código del Notariado",
+            "decree": "Decreto No. 353-2005",
+            "articles": [
+              "29 num. 9"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "timbres_exigibles": null,
+          "monto": null
+        }
+      }
+    ],
+    "application": {
+      "method": "Cada casilla pasa a MET solo con un fragmento de evidencia PRIMARY del corpus vigente que sustente la norma Y un hecho aportado por el usuario que la satisfaga; sin ambos queda UNKNOWN.",
+      "citation_policy": "toda proposición material lleva cita; ningún artículo se afirma sin evidencia recuperada"
+    },
+    "conclusion": {
+      "verdict": "NO_CONCLUYENTE",
+      "allowed_verdicts_when_missing": [
+        "NO_CONCLUYENTE",
+        "CONDICIONAL_A_COMPLETAR"
+      ],
+      "forbidden_verdicts_when_missing": [
+        "CUMPLE",
+        "NO_CUMPLE"
+      ],
+      "text": "Faltan elementos por verificar; no se emite un veredicto categórico. Salida analítica NO OFICIAL."
+    }
+  },
+  "missingElements": [
+    "NOT-COMPARECENCIA",
+    "NOT-CAPACIDAD",
+    "NOT-IDENTIDAD",
+    "NOT-FACULTADES",
+    "NOT-TIMBRES"
+  ],
+  "verdict_policy": {
+    "rule": "si missingElements.length > 0 entonces conclusion.verdict debe estar en allowed_verdicts_when_missing y nunca en forbidden_verdicts_when_missing",
+    "missingElements_definition": "ids de las casillas obligatorias hoja con status UNKNOWN"
+  },
+  "scope_notes": [
+    "Artículos del Código del Notariado asignados por el Titular a cada casilla (assignment CASILLA): NOT-COMPARECENCIA arts. 16 num. 1 y 29 nums. 1 y 2; NOT-CAPACIDAD arts. 15 num. 1 y 29 num. 3; NOT-IDENTIDAD art. 29 num. 4; NOT-FACULTADES art. 29 num. 5; NOT-TIMBRES art. 29 num. 9.",
+    "Artículos 81 y 82 del Código Procesal Civil: dados por el Titular para las facultades de mandato (NOT-FACULTADES).",
+    "Fuera de esta ficha, a modelar después: forma del protocolo (lectura, firma, número de instrumento), testimonio y eventual inscripción."
+  ],
+  "disclaimers": [
+    "NO OFICIAL",
+    "Las referencias marcadas CONFIRMADO_POR_TITULAR no se han contrastado todavía con el corpus",
+    "Sin declaración de vigencia"
+  ]
+}
