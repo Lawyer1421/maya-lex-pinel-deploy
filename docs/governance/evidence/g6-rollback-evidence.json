@@ -140,6 +140,6 @@
     "lib/legal-retrieval/primitives.ts": "8b45f9e318f5fabf5a469342196afba67851e2c1aaac25716a983a59c1f2737d",
     "lib/legal-retrieval/semantic-retriever.ts": "3c56e91d1199cfacc18a231e9bc281d6cefbe0123eac0e607e5808e6de1a3426",
     "lib/legal-retrieval/types.ts": "c2b8a3185f9a1b9c819ee99a25d1159de9358ae7b65efb7a66b6dd45247901ae",
-    "lib/rag/search.ts": "ef6385a79de42f72f64dcfb946b02dfe7dd09436aa3deae027ab481bbc7b4fc2"
+    "lib/rag/search.ts": "8226f73b11311e3b19b4651a6f8eac7fe78604ca2b979ebfeb4b68a332ba1fa6"
   }
 }
