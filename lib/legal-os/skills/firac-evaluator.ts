@@ -4,7 +4,8 @@
  * evaluada. Es una función PURA y determinista: sin red, sin Supabase, sin modelo de lenguaje. No interpreta derecho: solo aplica reglas
  * de decisión explícitas sobre dos entradas que otro componente debe aportar:
  *   - `facts`: lo que el usuario (o un extractor de documentos) afirma sobre cada casilla;
- *   - `evidence`: fragmentos del corpus que respaldan la NORMA de cada casilla (el pipeline de recuperación; aquí solo llegan ya resueltos).
+ *   - `evidence`: fragmentos del corpus que respaldan la NORMA de cada casilla. Solo se aceptan SELLADAS por el puente (`EvidenciaSellada`): un objeto
+ *     escrito a mano, copiado o deserializado se rechaza (EVIDENCIA_NO_SELLADA), de modo que el evaluador no puede fabricar respaldo normativo.
  *
  * Reglas de decisión por casilla hoja (ver `evaluarCasilla`):
  *   1. Sin hecho aportado                                  → UNKNOWN (SIN_HECHO).
@@ -16,13 +17,14 @@
  *   - con faltantes (UNKNOWN): CONDICIONAL_A_COMPLETAR si ya hay alguna casilla resuelta; NO_CONCLUYENTE si no hay ninguna;
  *   - sin faltantes: NO_CUMPLE si alguna casilla es NOT_MET; CUMPLE en otro caso.
  * El resultado se vuelve a validar con FiracSkillSchema, de modo que los invariantes del esquema (missingElements recalculado, sin veredicto
- * categórico con faltantes, MET con evidencia PRIMARY) no pueden romperse desde aquí. El evaluador NUNCA marca una base como VERIFICADO_CORPUS
- * ni declara vigencia: eso corresponde al pipeline y al CLO. Toda salida es NO OFICIAL.
+ * categórico con faltantes, MET con evidencia PRIMARY) no pueden romperse desde aquí. El evaluador NUNCA marca una base como verificada
+ * contra el corpus ni declara vigencia: eso corresponde al puente de recuperación (corpus-bridge.ts) y al CLO. Toda salida es NO OFICIAL.
  */
 import {
   FiracSkillSchema, VEREDICTOS_CON_FALTANTES, calcularMissingElements, estadoDeCasilla,
   type FiracSkill, type FiracVerdict, type RuleCheckbox, type RuleCheckboxStatus, type RuleElement, type RuleEvidence,
 } from './firac-schema';
+import { esEvidenciaSellada, type EvidenciaSellada } from './corpus-bridge';
 
 /** Lo que se afirma sobre una casilla. `satisfied: null` equivale a no haber aportado el hecho. */
 export interface FactAssertion {
@@ -38,8 +40,8 @@ export interface FiracEvaluationInput {
   template: FiracSkill;
   /** Hechos por id de casilla hoja (los ids de elementos incluidos). */
   facts: Readonly<Record<string, FactAssertion>>;
-  /** Evidencia de corpus por id de casilla hoja: respalda la norma, no el hecho. */
-  evidence: Readonly<Record<string, readonly RuleEvidence[]>>;
+  /** Evidencia sellada por el puente, por id de casilla hoja: respalda la norma, no el hecho. */
+  evidence: Readonly<Record<string, readonly EvidenciaSellada[]>>;
 }
 
 export type EvaluationReason = 'SIN_HECHO' | 'NO_APLICA' | 'NORMA_SIN_EVIDENCIA_PRIMARY' | 'HECHO_CUMPLE' | 'HECHO_NO_CUMPLE';
@@ -58,7 +60,7 @@ export interface FiracEvaluation {
 }
 
 export class FiracEvaluationError extends Error {
-  constructor(readonly codigo: 'ID_DESCONOCIDO' | 'NO_APLICA_SIN_MOTIVO' | 'HECHO_AMBIGUO' | 'PLANTILLA_INVALIDA' | 'RESULTADO_INVALIDO', mensaje: string) {
+  constructor(readonly codigo: 'ID_DESCONOCIDO' | 'NO_APLICA_SIN_MOTIVO' | 'HECHO_AMBIGUO' | 'PLANTILLA_INVALIDA' | 'RESULTADO_INVALIDO' | 'EVIDENCIA_NO_SELLADA', mensaje: string) {
     super(mensaje);
     this.name = 'FiracEvaluationError';
   }
@@ -101,6 +103,8 @@ export function evaluarFirac(input: FiracEvaluationInput): FiracEvaluation {
   for (const r of skill.firac.rules) for (const h of r.elements ?? [r]) hojas.set(h.id, h);
   for (const id of [...Object.keys(input.facts), ...Object.keys(input.evidence)])
     if (!hojas.has(id)) throw new FiracEvaluationError('ID_DESCONOCIDO', `la plantilla ${skill.skill_id} no tiene la casilla ${id}`);
+  for (const [id, lista] of Object.entries(input.evidence))
+    if (!Array.isArray(lista) || lista.some((e) => !esEvidenciaSellada(e))) throw new FiracEvaluationError('EVIDENCIA_NO_SELLADA', `${id}: la evidencia debe venir sellada por el puente de recuperación`);
   for (const [id, f] of Object.entries(input.facts)) {
     if (f.not_applicable && !f.not_applicable.reason.trim()) throw new FiracEvaluationError('NO_APLICA_SIN_MOTIVO', `${id}: «no aplica» exige motivo`);
     if (f.not_applicable && f.satisfied !== null) throw new FiracEvaluationError('HECHO_AMBIGUO', `${id}: no puede ser «no aplica» y a la vez cumple/no cumple`);
@@ -113,7 +117,7 @@ export function evaluarFirac(input: FiracEvaluationInput): FiracEvaluation {
     const ev = input.evidence[id];
     const r = evaluarCasilla(fact, ev); // las no obligatorias se evalúan igual; solo las obligatorias cuentan en missingElements
     h.status = r.status;
-    h.evidence = r.status === 'MET' || r.status === 'NOT_MET' ? [...(ev ?? [])] : [];
+    h.evidence = r.status === 'MET' || r.status === 'NOT_MET' ? (ev ?? []).map((e): RuleEvidence => ({ chunk_id: e.chunk_id, source_role: 'PRIMARY', snapshot_id: e.snapshot_id })) : [];
     trace.push({ id, status: r.status, reason: r.reason });
     if (fact && (fact.satisfied !== null || fact.not_applicable)) aportados.push(fact.note ? `${id}: ${fact.note}` : id);
   }
