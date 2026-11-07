@@ -1,0 +1,186 @@
+{
+  "schema": "firac-skill/0.1",
+  "skill_id": "HN.COMMERCIAL.SRL_CONSTITUTION",
+  "country": "HN",
+  "jurisdiction": "NACIONAL",
+  "matter": "Mercantil",
+  "submatter": "Constitución de Sociedad de Responsabilidad Limitada (S. de R.L.)",
+  "task": "DOCUMENT_REVIEW",
+  "status": "DRAFT",
+  "version": "0.3.0",
+  "owner": "CLO",
+  "last_reviewed": null,
+  "instrument": {
+    "name": "Código de Comercio",
+    "decree": "Decreto Legislativo No. 73",
+    "verification": "CONFIRMADO_POR_TITULAR"
+  },
+  "firac": {
+    "facts": {
+      "required_inputs": [
+        "razón social o denominación propuesta",
+        "identificación de los socios y su número",
+        "capital social fundacional y aportes de cada socio",
+        "monto y forma de lo exhibido",
+        "estipulación de administración (administrador o gerente y facultades)"
+      ],
+      "provided": []
+    },
+    "issue": "¿El acto de constitución de la S. de R.L. contiene los elementos normativos de razón social, número de socios, capital y administración?",
+    "rules": [
+      {
+        "id": "MER-RAZON-SOCIAL",
+        "label": "Razón social",
+        "requirement": "La razón social o denominación cumple la forma exigida e incluye la indicación del tipo social.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código de Comercio",
+            "decree": "Decreto Legislativo No. 73",
+            "articles": [
+              "66",
+              "67"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "indicacion_tipo_social": null
+        }
+      },
+      {
+        "id": "MER-SOCIOS",
+        "label": "Número de socios mínimo y máximo",
+        "requirement": "El número de socios se ajusta al mínimo y al máximo legales.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código de Comercio",
+            "decree": "Decreto Legislativo No. 73",
+            "articles": [
+              "68"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "minimo": 2,
+          "maximo": 25
+        }
+      },
+      {
+        "id": "MER-CAPITAL",
+        "label": "Capital social fundacional",
+        "requirement": "Se fija el capital social fundacional y se determinan los aportes de los socios.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código de Comercio",
+            "decree": "Decreto Legislativo No. 73",
+            "articles": [
+              "70"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "capital_minimo": 5000,
+          "moneda": "HNL",
+          "valor_parte_social": 100,
+          "partes_en_multiplos_del_valor": true
+        }
+      },
+      {
+        "id": "MER-EXHIBICION",
+        "label": "Exhibición mínima del capital",
+        "requirement": "Se exhibe la parte mínima del capital exigida al constituir.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código de Comercio",
+            "decree": "Decreto Legislativo No. 73",
+            "articles": [
+              "71"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "porcentaje_exhibicion_minima": 50
+        }
+      },
+      {
+        "id": "MER-ADMIN",
+        "label": "Estipulación de administración",
+        "requirement": "La escritura estipula quién administra y representa a la sociedad y con qué facultades.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código de Comercio",
+            "decree": "Decreto Legislativo No. 73",
+            "articles": [
+              "78"
+            ],
+            "and_following": true,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ]
+      }
+    ],
+    "application": {
+      "method": "Cada casilla pasa a MET solo con un fragmento de evidencia PRIMARY del corpus vigente que sustente la norma Y un hecho aportado por el usuario que la satisfaga; sin ambos queda UNKNOWN.",
+      "citation_policy": "toda proposición material lleva cita; ningún artículo se afirma sin evidencia recuperada"
+    },
+    "conclusion": {
+      "verdict": "NO_CONCLUYENTE",
+      "allowed_verdicts_when_missing": [
+        "NO_CONCLUYENTE",
+        "CONDICIONAL_A_COMPLETAR"
+      ],
+      "forbidden_verdicts_when_missing": [
+        "CUMPLE",
+        "NO_CUMPLE"
+      ],
+      "text": "Faltan elementos por verificar; no se emite un veredicto categórico. Salida analítica NO OFICIAL."
+    }
+  },
+  "missingElements": [
+    "MER-RAZON-SOCIAL",
+    "MER-SOCIOS",
+    "MER-CAPITAL",
+    "MER-EXHIBICION",
+    "MER-ADMIN"
+  ],
+  "verdict_policy": {
+    "rule": "si missingElements.length > 0 entonces conclusion.verdict debe estar en allowed_verdicts_when_missing y nunca en forbidden_verdicts_when_missing",
+    "missingElements_definition": "ids de las casillas obligatorias hoja con status UNKNOWN"
+  },
+  "scope_notes": [
+    "Valores numéricos (2 socios mínimo, 25 máximo, 50 % de exhibición) y artículos dados por el Titular; no contrastados todavía con el corpus.",
+    "MER-CAPITAL: art. 70 del Código de Comercio; capital mínimo de L 5,000.00 en partes sociales de L 100.00 o múltiplos, confirmado por el Titular. Verificar contra el corpus los regímenes especiales (sectores o leyes con capital mínimo distinto) antes de aplicarlo como regla general."
+  ],
+  "disclaimers": [
+    "NO OFICIAL",
+    "Las referencias marcadas CONFIRMADO_POR_TITULAR no se han contrastado todavía con el corpus",
+    "Sin declaración de vigencia"
+  ]
+}

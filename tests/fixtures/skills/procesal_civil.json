@@ -1,0 +1,218 @@
+{
+  "schema": "firac-skill/0.1",
+  "skill_id": "HN.PROCEDURAL_CIVIL.ORDINARY_CLAIM",
+  "country": "HN",
+  "jurisdiction": "NACIONAL",
+  "matter": "Procesal civil",
+  "submatter": "Interposición de demanda ordinaria",
+  "task": "DOCUMENT_REVIEW",
+  "status": "DRAFT",
+  "version": "0.3.0",
+  "owner": "CLO",
+  "last_reviewed": null,
+  "instrument": {
+    "name": "Código Procesal Civil",
+    "decree": "Decreto No. 211-2006",
+    "verification": "CONFIRMADO_POR_TITULAR"
+  },
+  "firac": {
+    "facts": {
+      "required_inputs": [
+        "tribunal ante el que se presenta",
+        "identificación de demandante y demandado y su legitimación",
+        "hechos en párrafos numerados",
+        "fundamentos de derecho numerados",
+        "petitorio",
+        "anexos que se acompañan (documentos exigidos con la demanda)"
+      ],
+      "provided": []
+    },
+    "issue": "¿La demanda ordinaria reúne los requisitos del artículo 424 del CPC y acredita los anexos de los artículos 425 y 426?",
+    "rules": [
+      {
+        "id": "CPC-424-REQUISITOS",
+        "label": "Requisitos de la demanda (art. 424)",
+        "requirement": "La demanda contiene los elementos constitutivos que enumera el artículo 424 del CPC.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código Procesal Civil",
+            "decree": "Decreto No. 211-2006",
+            "articles": [
+              "424"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "elements": [
+          {
+            "id": "CPC-TRIBUNAL",
+            "label": "Designación del tribunal",
+            "requirement": "Se designa el tribunal competente ante el que se interpone la demanda.",
+            "mandatory": true,
+            "status": "UNKNOWN",
+            "evidence": [],
+            "basis": [
+              {
+                "instrument": "Código Procesal Civil",
+                "decree": "Decreto No. 211-2006",
+                "articles": [
+                  "424"
+                ],
+                "and_following": false,
+                "assignment": "CASILLA",
+                "verification": "CONFIRMADO_POR_TITULAR"
+              }
+            ]
+          },
+          {
+            "id": "CPC-LEGITIMACION",
+            "label": "Legitimación activa y pasiva",
+            "requirement": "Se identifican las partes y se expresa por qué el demandante está legitimado y por qué se demanda a la parte pasiva.",
+            "mandatory": true,
+            "status": "UNKNOWN",
+            "evidence": [],
+            "basis": [
+              {
+                "instrument": "Código Procesal Civil",
+                "decree": "Decreto No. 211-2006",
+                "articles": [
+                  "424"
+                ],
+                "and_following": false,
+                "assignment": "CASILLA",
+                "verification": "CONFIRMADO_POR_TITULAR"
+              }
+            ]
+          },
+          {
+            "id": "CPC-HECHOS",
+            "label": "Fundamentos de hecho numerados",
+            "requirement": "Los hechos se exponen en párrafos numerados, de forma clara y ordenada.",
+            "mandatory": true,
+            "status": "UNKNOWN",
+            "evidence": [],
+            "basis": [
+              {
+                "instrument": "Código Procesal Civil",
+                "decree": "Decreto No. 211-2006",
+                "articles": [
+                  "424"
+                ],
+                "and_following": false,
+                "assignment": "CASILLA",
+                "verification": "CONFIRMADO_POR_TITULAR"
+              }
+            ]
+          },
+          {
+            "id": "CPC-DERECHO",
+            "label": "Fundamentos de derecho numerados",
+            "requirement": "Los fundamentos de derecho se exponen en párrafos numerados.",
+            "mandatory": true,
+            "status": "UNKNOWN",
+            "evidence": [],
+            "basis": [
+              {
+                "instrument": "Código Procesal Civil",
+                "decree": "Decreto No. 211-2006",
+                "articles": [
+                  "424"
+                ],
+                "and_following": false,
+                "assignment": "CASILLA",
+                "verification": "CONFIRMADO_POR_TITULAR"
+              }
+            ]
+          },
+          {
+            "id": "CPC-PETITORIO",
+            "label": "Petitorio claro",
+            "requirement": "Se formula con claridad y precisión lo que se pide al tribunal.",
+            "mandatory": true,
+            "status": "UNKNOWN",
+            "evidence": [],
+            "basis": [
+              {
+                "instrument": "Código Procesal Civil",
+                "decree": "Decreto No. 211-2006",
+                "articles": [
+                  "424"
+                ],
+                "and_following": false,
+                "assignment": "CASILLA",
+                "verification": "CONFIRMADO_POR_TITULAR"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "CPC-ANEXOS",
+        "label": "Acreditación de anexos",
+        "requirement": "Se acompañan y acreditan los anexos que exigen los artículos 425 y 426 del CPC.",
+        "mandatory": true,
+        "status": "UNKNOWN",
+        "evidence": [],
+        "basis": [
+          {
+            "instrument": "Código Procesal Civil",
+            "decree": "Decreto No. 211-2006",
+            "articles": [
+              "425",
+              "426"
+            ],
+            "and_following": false,
+            "assignment": "CASILLA",
+            "verification": "CONFIRMADO_POR_TITULAR"
+          }
+        ],
+        "parameters": {
+          "anexos_exigibles": null
+        }
+      }
+    ],
+    "application": {
+      "method": "Cada casilla pasa a MET solo con un fragmento de evidencia PRIMARY del corpus vigente que sustente la norma Y un hecho aportado por el usuario que la satisfaga; sin ambos queda UNKNOWN.",
+      "citation_policy": "toda proposición material lleva cita; ningún artículo se afirma sin evidencia recuperada"
+    },
+    "conclusion": {
+      "verdict": "NO_CONCLUYENTE",
+      "allowed_verdicts_when_missing": [
+        "NO_CONCLUYENTE",
+        "CONDICIONAL_A_COMPLETAR"
+      ],
+      "forbidden_verdicts_when_missing": [
+        "CUMPLE",
+        "NO_CUMPLE"
+      ],
+      "text": "Faltan elementos por verificar; no se emite un veredicto categórico. Salida analítica NO OFICIAL."
+    }
+  },
+  "missingElements": [
+    "CPC-TRIBUNAL",
+    "CPC-LEGITIMACION",
+    "CPC-HECHOS",
+    "CPC-DERECHO",
+    "CPC-PETITORIO",
+    "CPC-ANEXOS"
+  ],
+  "verdict_policy": {
+    "rule": "si missingElements.length > 0 entonces conclusion.verdict debe estar en allowed_verdicts_when_missing y nunca en forbidden_verdicts_when_missing",
+    "missingElements_definition": "ids de las casillas obligatorias hoja con status UNKNOWN"
+  },
+  "scope_notes": [
+    "Por instrucción del Titular, las casillas CPC-TRIBUNAL, CPC-LEGITIMACION, CPC-HECHOS, CPC-DERECHO y CPC-PETITORIO quedan subsumidas como elementos constitutivos del art. 424 (campo elements de CPC-424-REQUISITOS); el estado de CPC-424-REQUISITOS se deriva de ellos y no se cuenta aparte en missingElements.",
+    "CPC-ANEXOS (arts. 425 y 426) es obligatoria y sustituye a la antigua CPC-DOCUMENTOS (documentos adjuntos), que era el mismo concepto.",
+    "Artículos dados por el Titular; no contrastados todavía con el corpus. La lista de anexos exigibles queda en null hasta confirmar el texto."
+  ],
+  "disclaimers": [
+    "NO OFICIAL",
+    "Las referencias marcadas CONFIRMADO_POR_TITULAR no se han contrastado todavía con el corpus",
+    "Sin declaración de vigencia"
+  ]
+}
