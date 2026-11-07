@@ -7,7 +7,7 @@
   "submatter": "Constitución de Sociedad de Responsabilidad Limitada (S. de R.L.)",
   "task": "DOCUMENT_REVIEW",
   "status": "DRAFT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "owner": "CLO",
   "last_reviewed": null,
   "instrument": {
@@ -87,14 +87,19 @@
           {
             "instrument": "Código de Comercio",
             "decree": "Decreto Legislativo No. 73",
-            "articles": [],
+            "articles": [
+              "70"
+            ],
             "and_following": false,
             "assignment": "CASILLA",
-            "verification": "PENDIENTE_VERIFICACION"
+            "verification": "CONFIRMADO_POR_TITULAR"
           }
         ],
         "parameters": {
-          "capital_minimo": null
+          "capital_minimo": 5000,
+          "moneda": "HNL",
+          "valor_parte_social": 100,
+          "partes_en_multiplos_del_valor": true
         }
       },
       {
@@ -171,7 +176,7 @@
   },
   "scope_notes": [
     "Valores numéricos (2 socios mínimo, 25 máximo, 50 % de exhibición) y artículos dados por el Titular; no contrastados todavía con el corpus.",
-    "MER-CAPITAL: el Titular no indicó artículo; queda PENDIENTE_VERIFICACION y capital_minimo en null."
+    "MER-CAPITAL: art. 70 del Código de Comercio; capital mínimo de L 5,000.00 en partes sociales de L 100.00 o múltiplos, confirmado por el Titular. Verificar contra el corpus los regímenes especiales (sectores o leyes con capital mínimo distinto) antes de aplicarlo como regla general."
   ],
   "disclaimers": [
     "NO OFICIAL",

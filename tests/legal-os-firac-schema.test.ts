@@ -40,22 +40,22 @@ describe('plantillas FIRAC: fixtures de skills', () => {
     for (const id of ids) expect(existentes.has(id), `${id} ya existe`).toBe(false);
   });
 
-  it('notarial: arts. 15, 16 y 29 del Notariado por grupo y 81–82 del CPC para las facultades', () => {
+  it('notarial: artículos del Notariado asignados individualmente a cada casilla; 81–82 del CPC solo en facultades', () => {
     const s = fix('notarial');
     expect(s.instrument.decree).toBe('Decreto No. 353-2005');
-    const por = (id: string) => s.firac.rules.find((r) => r.id === id)!;
-    for (const r of s.firac.rules) {
-      const nb = r.basis.find((b) => b.instrument === 'Código del Notariado')!;
-      expect(nb.articles).toEqual(['15', '16', '29']);
-      expect(nb.assignment).toBe('GRUPO');
-    }
-    const cpc = por('NOT-FACULTADES').basis.find((b) => b.instrument === 'Código Procesal Civil')!;
+    const notariado = (id: string) => s.firac.rules.find((r) => r.id === id)!.basis.find((b) => b.instrument === 'Código del Notariado')!;
+    expect(notariado('NOT-COMPARECENCIA').articles).toEqual(['16 num. 1', '29 num. 1', '29 num. 2']);
+    expect(notariado('NOT-CAPACIDAD').articles).toEqual(['15 num. 1', '29 num. 3']);
+    expect(notariado('NOT-IDENTIDAD').articles).toEqual(['29 num. 4']);
+    expect(notariado('NOT-FACULTADES').articles).toEqual(['29 num. 5']);
+    expect(notariado('NOT-TIMBRES').articles).toEqual(['29 num. 9']);
+    for (const r of s.firac.rules) for (const b of r.basis) expect(b.assignment, r.id).toBe('CASILLA');
+    const cpc = s.firac.rules.find((r) => r.id === 'NOT-FACULTADES')!.basis.find((b) => b.instrument === 'Código Procesal Civil')!;
     expect(cpc.articles).toEqual(['81', '82']);
-    expect(cpc.assignment).toBe('CASILLA');
     expect(s.firac.rules.filter((r) => r.basis.some((b) => b.instrument === 'Código Procesal Civil')).map((r) => r.id)).toEqual(['NOT-FACULTADES']);
   });
 
-  it('mercantil: Decreto Legislativo No. 73, arts. 66-67, 68 (2 a 25), 71 (50 %) y 78 y siguientes', () => {
+  it('mercantil: Decreto Legislativo No. 73, arts. 66-67, 68 (2 a 25), 70 (L 5,000), 71 (50 %) y 78 y siguientes', () => {
     const s = fix('mercantil');
     expect(s.instrument.decree).toBe('Decreto Legislativo No. 73');
     const r = (id: string) => s.firac.rules.find((x) => x.id === id)!;
@@ -65,9 +65,11 @@ describe('plantillas FIRAC: fixtures de skills', () => {
     expect(r('MER-EXHIBICION').basis[0].articles).toEqual(['71']);
     expect(r('MER-EXHIBICION').parameters).toEqual({ porcentaje_exhibicion_minima: 50 });
     expect(r('MER-ADMIN').basis[0]).toMatchObject({ articles: ['78'], and_following: true });
-    // El Titular no dio artículo para el capital fundacional: no se inventa.
-    expect(r('MER-CAPITAL').basis[0]).toMatchObject({ articles: [], verification: 'PENDIENTE_VERIFICACION' });
-    expect(r('MER-CAPITAL').parameters).toEqual({ capital_minimo: null });
+    // Capital fundacional: art. 70, L 5,000.00 en partes sociales de L 100.00 o múltiplos, confirmado por el Titular (sin contrastar con el corpus).
+    expect(r('MER-CAPITAL').basis[0]).toMatchObject({ articles: ['70'], verification: 'CONFIRMADO_POR_TITULAR' });
+    expect(r('MER-CAPITAL').parameters).toEqual({ capital_minimo: 5000, moneda: 'HNL', valor_parte_social: 100, partes_en_multiplos_del_valor: true });
+    expect(s.scope_notes.join(' ')).toMatch(/regímenes especiales/);
+    expect(r('MER-CAPITAL').status).toBe('UNKNOWN');
   });
 
   it('procesal civil: los elementos de la demanda quedan subsumidos en el art. 424 y los anexos en los arts. 425–426', () => {

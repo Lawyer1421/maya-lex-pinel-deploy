@@ -7,7 +7,7 @@
   "submatter": "Poder general judicial y para pleitos",
   "task": "DOCUMENT_REVIEW",
   "status": "DRAFT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "owner": "CLO",
   "last_reviewed": null,
   "instrument": {
@@ -40,12 +40,12 @@
             "instrument": "Código del Notariado",
             "decree": "Decreto No. 353-2005",
             "articles": [
-              "15",
-              "16",
-              "29"
+              "16 num. 1",
+              "29 num. 1",
+              "29 num. 2"
             ],
             "and_following": false,
-            "assignment": "GRUPO",
+            "assignment": "CASILLA",
             "verification": "CONFIRMADO_POR_TITULAR"
           }
         ]
@@ -62,12 +62,11 @@
             "instrument": "Código del Notariado",
             "decree": "Decreto No. 353-2005",
             "articles": [
-              "15",
-              "16",
-              "29"
+              "15 num. 1",
+              "29 num. 3"
             ],
             "and_following": false,
-            "assignment": "GRUPO",
+            "assignment": "CASILLA",
             "verification": "CONFIRMADO_POR_TITULAR"
           }
         ]
@@ -84,12 +83,10 @@
             "instrument": "Código del Notariado",
             "decree": "Decreto No. 353-2005",
             "articles": [
-              "15",
-              "16",
-              "29"
+              "29 num. 4"
             ],
             "and_following": false,
-            "assignment": "GRUPO",
+            "assignment": "CASILLA",
             "verification": "CONFIRMADO_POR_TITULAR"
           }
         ]
@@ -106,12 +103,10 @@
             "instrument": "Código del Notariado",
             "decree": "Decreto No. 353-2005",
             "articles": [
-              "15",
-              "16",
-              "29"
+              "29 num. 5"
             ],
             "and_following": false,
-            "assignment": "GRUPO",
+            "assignment": "CASILLA",
             "verification": "CONFIRMADO_POR_TITULAR"
           },
           {
@@ -142,12 +137,10 @@
             "instrument": "Código del Notariado",
             "decree": "Decreto No. 353-2005",
             "articles": [
-              "15",
-              "16",
-              "29"
+              "29 num. 9"
             ],
             "and_following": false,
-            "assignment": "GRUPO",
+            "assignment": "CASILLA",
             "verification": "CONFIRMADO_POR_TITULAR"
           }
         ],
@@ -186,7 +179,7 @@
     "missingElements_definition": "ids de las casillas obligatorias hoja con status UNKNOWN"
   },
   "scope_notes": [
-    "Artículos 15, 16 y 29 del Código del Notariado: dados por el Titular para el conjunto de la skill (assignment GRUPO); el reparto por casilla queda pendiente de asignación.",
+    "Artículos del Código del Notariado asignados por el Titular a cada casilla (assignment CASILLA): NOT-COMPARECENCIA arts. 16 num. 1 y 29 nums. 1 y 2; NOT-CAPACIDAD arts. 15 num. 1 y 29 num. 3; NOT-IDENTIDAD art. 29 num. 4; NOT-FACULTADES art. 29 num. 5; NOT-TIMBRES art. 29 num. 9.",
     "Artículos 81 y 82 del Código Procesal Civil: dados por el Titular para las facultades de mandato (NOT-FACULTADES).",
     "Fuera de esta ficha, a modelar después: forma del protocolo (lectura, firma, número de instrumento), testimonio y eventual inscripción."
   ],
