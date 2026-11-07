@@ -148,6 +148,19 @@ describe('plantillas FIRAC: invariantes del esquema', () => {
     expect(calcularMissingElements([r])).toEqual([]);
   });
 
+  it('una casilla madre con elementos es derivada: MET sin evidencia propia es válida si sus elementos tienen evidencia PRIMARY', () => {
+    const o = clon('procesal_civil');
+    const madre = o.firac.rules[0];
+    for (const e of madre.elements) { e.status = 'MET'; e.evidence = evidencia('PRIMARY'); }
+    madre.status = 'MET'; // derivado de sus elementos; su propia evidencia queda vacía
+    madre.evidence = [];
+    o.missingElements = ['CPC-ANEXOS'];
+    expect(FiracSkillSchema.safeParse(o).success).toBe(true);
+    // la evidencia sigue exigiéndose a cada elemento: un elemento MET sin PRIMARY invalida el resultado
+    madre.elements[0].evidence = evidencia('CONTEXT');
+    expect(FiracSkillSchema.safeParse(o).success).toBe(false);
+  });
+
   it('veredictoPermitido: con faltantes solo los no categóricos', () => {
     const s = fix('mercantil');
     expect(veredictoPermitido(s.firac.rules, 'CUMPLE')).toBe(false);

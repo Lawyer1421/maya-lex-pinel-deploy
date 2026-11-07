@@ -12,7 +12,8 @@
  *     NOT_MET no es «faltante»: es un incumplimiento comprobado y puede sustentar NO_CUMPLE cuando ya no queda nada por resolver.
  *  2. Si hay `missingElements`, el veredicto NO puede ser categórico (CUMPLE / NO_CUMPLE): solo NO_CONCLUYENTE o CONDICIONAL_A_COMPLETAR.
  *  3. Una casilla solo pasa a MET con evidencia; al menos un fragmento PRIMARY (la doctrina o el contexto no sustituyen a la norma).
- *  4. Una casilla con `elements` (elementos constitutivos de un mismo artículo) deriva su estado de ellos y no se cuenta aparte.
+ *  4. Una casilla con `elements` (elementos constitutivos de un mismo artículo) deriva su estado de ellos, no se cuenta aparte y no exige
+ *     evidencia propia: la evidencia PRIMARY se exige a cada elemento (así no hay evidencia redundante en la casilla madre).
  *  5. Una skill ACTIVE exige revisión humana fechada (igual que LegalSkillSchema).
  */
 import { z } from 'zod';
@@ -178,7 +179,7 @@ export const FiracSkillSchema = z
         ctx.addIssue({ code: 'custom', path, message: `${item.id}: MET exige evidencia PRIMARY` });
     };
     for (const [i, r] of s.firac.rules.entries()) {
-      revisaEvidencia(r, ['firac', 'rules', i]);
+      if (!r.elements) revisaEvidencia(r, ['firac', 'rules', i]); // con elementos, el estado de la casilla es derivado y la evidencia vive en ellos
       for (const [j, e] of (r.elements ?? []).entries()) revisaEvidencia(e, ['firac', 'rules', i, 'elements', j]);
     }
 
