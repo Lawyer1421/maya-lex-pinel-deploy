@@ -26,12 +26,13 @@ export const RuleCheckboxStatus = z.enum(['UNKNOWN', 'MET', 'NOT_MET', 'NOT_APPL
 export type RuleCheckboxStatus = z.infer<typeof RuleCheckboxStatus>;
 
 /**
- * Estado de verificación de la base normativa de una casilla:
+ * Estado de verificación de la base normativa tal como queda ALMACENADO en una plantilla:
  *  - PENDIENTE_VERIFICACION: referencia aún no confirmada;
- *  - CONFIRMADO_POR_TITULAR: la confirma el Titular/Director del proyecto, SIN haberla contrastado todavía con el corpus;
- *  - VERIFICADO_CORPUS: contrastada contra un fragmento PRIMARY vigente del corpus (lo fija el pipeline, no un humano a mano).
+ *  - CONFIRMADO_POR_TITULAR: la confirma el Titular/Director del proyecto, SIN haberla contrastado todavía con el corpus.
+ * «Verificado contra el corpus» NO es un valor almacenable: no lo puede escribir ni una persona ni ninguna capa en el JSON de una plantilla.
+ * Es un resultado de ejecución que solo produce el puente de recuperación (`corpus-bridge.ts`) y que viaja aparte, sellado.
  */
-export const BasisVerification = z.enum(['PENDIENTE_VERIFICACION', 'CONFIRMADO_POR_TITULAR', 'VERIFICADO_CORPUS']);
+export const BasisVerification = z.enum(['PENDIENTE_VERIFICACION', 'CONFIRMADO_POR_TITULAR']);
 export type BasisVerification = z.infer<typeof BasisVerification>;
 
 /**
@@ -64,6 +65,8 @@ export const RuleEvidenceSchema = z
     chunk_id: z.string().min(1),
     source_role: z.enum(['PRIMARY', 'CONTEXT']),
     quote: z.string().min(1).optional(),
+    /** Instantánea del corpus contra la que el puente de recuperación respaldó la norma (trazabilidad). */
+    snapshot_id: z.string().min(1).optional(),
   })
   .strict();
 export type RuleEvidence = z.infer<typeof RuleEvidenceSchema>;
