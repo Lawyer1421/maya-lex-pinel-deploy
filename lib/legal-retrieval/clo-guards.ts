@@ -557,7 +557,8 @@ export interface ResultadoR3 {
 const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Object.freeze({
   CODIGO_PROCESAL_PENAL: ['codigo procesal penal', 'cpp'],
   CODIGO_PENAL: ['codigo penal', 'cp'],
-  CODIGO_PROCESAL_CIVIL: ['codigo procesal civil', 'cpc'],
+  // El CPC es el Decreto 211-2006: sus fragmentos llegan rotulados «CPC (D.211-2006)» y el modelo los repite; es la misma identidad, no otra norma.
+  CODIGO_PROCESAL_CIVIL: ['codigo procesal civil', 'cpc', 'decreto 211-2006', 'decreto no. 211-2006', 'd.211-2006', 'd. 211-2006'],
   CODIGO_CIVIL: ['codigo civil', 'cc'],
   CODIGO_TRABAJO: ['codigo de trabajo', 'codigo del trabajo', 'ct'],
   CODIGO_FAMILIA: ['codigo de familia'],
@@ -725,7 +726,7 @@ function instrumentosGenericosNoReconocidos(texto: string): string[] {
     if (/^decreto\s+(?:no\.?\s*)?353-2005\b/.test(m[0])) continue;
     out.push(m[0]);
   }
-  for (const m of texto.matchAll(new RegExp(SIGLA_NORMATIVA.source, 'g'))) out.push(norm(m[0]));
+  for (const m of texto.matchAll(new RegExp(SIGLA_NORMATIVA.source, 'g'))) { const f = norm(m[0]); if (!contieneAlias(f)) out.push(f); }
   // Sigla sin número («La LCT establece…»): una sigla en mayúsculas tras artículo que no es un instrumento ni una entidad de la lista inocua nunca se valida.
   for (const m of texto.matchAll(SIGLA_SIN_NUMERO)) {
     const s = m[1];
