@@ -74,6 +74,26 @@ export function sqlInsert(filas: readonly FilaLote[], porLote = 50): string[] {
   return out;
 }
 
+export interface NotaAlPie { referido: string; sha256: string; texto: string }
+
+/**
+ * Notas al pie (reformas con su número de Gaceta) como registros APARTE. No son norma: su tipo de fuente es `nota_al_pie`, así que el
+ * clasificador CLO y la búsqueda exacta (que solo leen `codigo`) nunca las usan como PRIMARY. Vigencia NULL, ocultas, sin embedding.
+ */
+export function construirNotas(p: { notas: readonly NotaAlPie[]; instrumentoId: string; ingestBatch: string; fuente: string; meta: Record<string, unknown> }): FilaLote[] {
+  return p.notas.map((n, i) => {
+    const numero = /^\d+(?:-[A-Z])?$/.test(n.referido) ? n.referido : null;
+    const contenido = n.texto.trim();
+    return {
+      id: `${p.ingestBatch}:${p.instrumentoId}:NOTA:${String(i + 1).padStart(3, '0')}`,
+      coleccion: 'mayalex_normativos', materia: '10_LEYES_REGLAMENTOS', contenido, num_articulo: numero ?? n.referido, fuente: p.fuente,
+      metadata: { ...p.meta, tipo: 'nota_al_pie', referido: n.referido, instrumento_id: p.instrumentoId, ingest_batch: p.ingestBatch, article_sha256: n.sha256, vigencia: 'UNKNOWN', revision_pendiente: true, no_es_norma: true },
+      jurisdiccion: 'HN', fuente_tipo: 'nota_al_pie' as unknown as FilaLote['fuente_tipo'], es_norma_vigente: null, revision_pendiente: true,
+      instrumento_id: p.instrumentoId, num_articulo_norm: numero ? normalizarNumeroArticulo(numero) : null, hash_contenido: sha(contenido), ingest_batch: p.ingestBatch,
+    };
+  });
+}
+
 function main(): void {
   const [pdf, paquete, instrumentoId, ingestBatch, fuente, salida, columnas = '1', tipo = 'codigo'] = process.argv.slice(2);
   if (!pdf || !paquete || !instrumentoId || !ingestBatch || !fuente || !salida) throw new Error('uso: ver cabecera del archivo');
@@ -98,6 +118,11 @@ function main(): void {
   writeFileSync(join(salida, 'rows.jsonl'), lote.filas.map((f) => JSON.stringify(f)).join('\n') + '\n');
   writeFileSync(join(salida, 'ingest_exceptions.log'), lote.excepciones.map((e) => `${e.codigo}\tart.${e.articulo}\t${e.detalle}`).join('\n') + '\n');
   writeFileSync(join(salida, 'insert_staging.sql'), `-- SOLO STAGING (aicakncgtuiiuomflkqj). Lote ${ingestBatch}. Ocultos (revision_pendiente=true), vigencia NULL, embedding NULL.\n${sqlInsert(lote.filas).join('\n\n')}\n`);
+  const notas = construirNotas({ notas: pkg.notas_al_pie ?? [], instrumentoId, ingestBatch: `${ingestBatch}_NOTAS`, fuente, meta });
+  if (notas.length > 0) {
+    writeFileSync(join(salida, 'notas_rows.jsonl'), notas.map((f) => JSON.stringify(f)).join('\n') + '\n');
+    writeFileSync(join(salida, 'notas_insert_staging.sql'), `-- SOLO STAGING. Notas al pie de ${ingestBatch}: registros APARTE, tipo nota_al_pie (no norma), ocultas, vigencia NULL, sin embedding.\n${sqlInsert(notas).join('\n\n')}\n`);
+  }
   const porCodigo = new Map<string, number>();
   for (const e of lote.excepciones) porCodigo.set(e.codigo, (porCodigo.get(e.codigo) ?? 0) + 1);
   writeFileSync(join(salida, 'REPORTE.md'), [
@@ -107,6 +132,7 @@ function main(): void {
     `- artículos a insertar: ${lote.resumen.articulos} · paquete: ${pkg.articulos?.length ?? '?'}`,
     `- excepciones: ${lote.resumen.excepciones} (${[...porCodigo].map(([k, v]) => `${k}: ${v}`).join(', ')})`,
     `- hashes de artículo que divergen del paquete: ${lote.resumen.divergentes_del_paquete}`,
+    `- notas al pie como registros aparte (nota_al_pie, no norma): ${notas.length}`,
   ].join('\n') + '\n');
   console.log(readFileSync(join(salida, 'REPORTE.md'), 'utf8'));
 }

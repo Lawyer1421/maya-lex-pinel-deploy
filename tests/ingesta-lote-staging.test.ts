@@ -38,3 +38,30 @@ describe('ingesta por lotes a staging', () => {
     expect(lote.filas.every((f) => f.es_norma_vigente === null && f.revision_pendiente)).toBe(true);
   });
 });
+
+import { construirNotas } from '@/scripts/ingesta-lote-staging';
+describe('notas al pie como registros aparte', () => {
+  const notas = [
+    { referido: '1', sha256: 'a'.repeat(64), texto: 'Reformado mediante Decreto 35-2013.' },
+    { referido: '123-A', sha256: 'b'.repeat(64), texto: 'Adicionado mediante Decreto 9-2014.' },
+    { referido: 'TITULO II', sha256: 'c'.repeat(64), texto: 'Nota que anota una división.' },
+  ];
+  const filas = construirNotas({ notas, instrumentoId: 'CODIGO_NINEZ_ADOLESCENCIA', ingestBatch: 'TRAMO_A_LOTE_03_NOTAS', fuente: 'Codigo de la Ninez', meta: {} });
+  it('nunca son norma: tipo nota_al_pie, ocultas, vigencia NULL, sin embedding', () => {
+    for (const f of filas) {
+      expect(f.fuente_tipo).toBe('nota_al_pie');
+      expect(f.revision_pendiente).toBe(true);
+      expect(f.es_norma_vigente).toBeNull();
+      expect(f.metadata.no_es_norma).toBe(true);
+    }
+  });
+  it('el artículo referido se normaliza solo cuando es un número; una división queda sin artículo', () => {
+    expect(filas[0].num_articulo_norm).toBe('1');
+    expect(filas[1].num_articulo_norm).toBe('123-A');
+    expect(filas[2].num_articulo_norm).toBeNull();
+  });
+  it('ids únicos por nota y lote separado', () => {
+    expect(new Set(filas.map((f) => f.id)).size).toBe(3);
+    expect(filas[0].ingest_batch).toBe('TRAMO_A_LOTE_03_NOTAS');
+  });
+});
