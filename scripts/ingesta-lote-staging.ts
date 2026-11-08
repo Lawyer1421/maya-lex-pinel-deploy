@@ -45,7 +45,9 @@ export function construirLote(p: {
     const n = /^\d+$/.test(a.numero) ? Number(a.numero) : null;
     if (n !== null && previo !== null && n > previo + 1) excepciones.push({ articulo: String(previo + 1) + (n - previo > 2 ? `–${n - 1}` : ''), codigo: 'NUMERO_AUSENTE', detalle: `salto ${previo}→${n} en la fuente` });
     if (n !== null) previo = n;
-    if (a.texto.length < 40) { excepciones.push({ articulo: a.numero, codigo: 'TEXTO_CORTO', detalle: `${a.texto.length} caracteres` }); marcas.push('TEXTO_CORTO'); }
+    const derogado = /^[\s.\-–—:]*(?:\d{1,3}\s+)?Derogad[oa]s?\s*\d{0,3}\.?$/iu.test(a.texto.trim());
+    if (derogado) { excepciones.push({ articulo: a.numero, codigo: 'MARCADO_DEROGADO_POR_LA_EDICION', detalle: 'informativo: la edición lo marca «Derogado»; no se declara vigencia ni derogación' }); marcas.push('MARCADO_DEROGADO_POR_LA_EDICION'); }
+    else if (a.texto.length < 40) { excepciones.push({ articulo: a.numero, codigo: 'TEXTO_CORTO', detalle: `${a.texto.length} caracteres` }); marcas.push('TEXTO_CORTO'); }
     if (/�|Ã[¡-¿]|Â[ -¿]/.test(a.texto)) { excepciones.push({ articulo: a.numero, codigo: 'RUIDO_CODIFICACION', detalle: 'caracteres de reemplazo o mojibake' }); marcas.push('RUIDO_CODIFICACION'); }
     if (/--\s*\d+\s+of\s+\d+\s*--/.test(a.texto)) marcas.push('MARCA_PAGINA_EN_TEXTO');
     const esperado = p.hashesPaquete?.get(`${a.numero}#${k}`);

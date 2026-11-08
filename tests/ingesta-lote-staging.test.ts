@@ -31,4 +31,10 @@ describe('ingesta por lotes a staging', () => {
     expect(sql).toMatch(/NULL,'HN','codigo',NULL,true,/);
     expect(sql).toContain('ON CONFLICT (id) DO NOTHING');
   });
+  it('un artículo marcado «Derogado» por la edición se registra como informativo, no como defecto, y sigue sin vigencia', () => {
+    const lote = construirLote({ ...base, texto: 'Artículo 1.- Texto suficiente de un artículo vigente en la edición, largo y claro.\nArtículo 2.- Derogado\nArtículo 3.- Texto suficiente de otro artículo en la edición, largo y claro.' });
+    expect(lote.excepciones.map((e) => e.codigo)).toContain('MARCADO_DEROGADO_POR_LA_EDICION');
+    expect(lote.excepciones.map((e) => e.codigo)).not.toContain('TEXTO_CORTO');
+    expect(lote.filas.every((f) => f.es_norma_vigente === null && f.revision_pendiente)).toBe(true);
+  });
 });
