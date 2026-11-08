@@ -8,7 +8,7 @@
  *    nombra, pasa por R3/R4 y, como no hay fragmentos, hay abstención que dice qué falta.
  */
 import { construirCitas, type Cita } from './evidence-engine';
-import { mensajeAbstencionR3, mencionaNormaConcreta, validarRespuestaR4, type MotivoR3 } from './clo-guards';
+import { mensajeAbstencionR3, mencionaNormaConcreta, mencionesNoValidadas, validarRespuestaR4, type MotivoR3 } from './clo-guards';
 import { objetivosDeConsulta } from './r3-objetivos';
 import type { FragmentoRAG } from './types';
 
@@ -25,7 +25,23 @@ export function evaluarRespuestaChatR3(p: { texto: string; fragmentos: readonly 
     return { suficiente: false, motivo: 'SIN_FRAGMENTOS_PARA_NORMA', mensaje: mensajeAbstencionR3('SIN_FRAGMENTOS_PARA_NORMA'), citas: [] };
   }
   const r4 = validarRespuestaR4(p.texto, p.fragmentos, p.conCorpus ? objetivosDeConsulta(p.pregunta) : [], {});
-  if (!r4.suficiente) return { suficiente: false, motivo: r4.motivo, mensaje: mensajeAbstencionR3(r4.motivo), citas: [] };
+  if (!r4.suficiente) {
+    logAbstencionR4(r4.motivo, p.texto, p.fragmentos);
+    return { suficiente: false, motivo: r4.motivo, mensaje: mensajeAbstencionR3(r4.motivo), citas: [] };
+  }
   const ids = new Set(r4.fragmentoIds);
   return { suficiente: true, texto: r4.textoValidado, citas: construirCitas(p.fragmentos.filter((f) => typeof f.id === 'string' && ids.has(f.id))) };
+}
+
+/**
+ * Diagnóstico de abstención: deja en el log del servidor QUÉ mención no tuvo respaldo (códigos como `ARTICULO_SIN_FRAGMENTO:425` o
+ * `INSTRUMENTO_SIN_FRAGMENTO:CODIGO_CIVIL`), nunca el texto de la respuesta ni de la pregunta. No cambia el veredicto; el log nunca rompe la respuesta.
+ */
+function logAbstencionR4(motivo: MotivoR3, texto: string, fragmentos: readonly FragmentoRAG[]): void {
+  try {
+    if (motivo !== 'MENCION_NO_VALIDADA') { console.info(`[R4] abstencion motivo=${motivo}`); return; }
+    console.info(`[R4] abstencion motivo=${motivo} problemas=${JSON.stringify([...new Set(mencionesNoValidadas(texto, fragmentos, {}))])}`);
+  } catch {
+    // el log nunca rompe la respuesta
+  }
 }
