@@ -6,7 +6,7 @@
  * es_norma_vigente nulo). Embedding NULL: lo llena un paso aparte con las claves que gestiona el Titular. Errores NO bloqueantes: lo ambiguo se
  * inserta tal cual, marcado, y se anota en ingest_exceptions.log; la ingesta del documento continúa. Nada de esto declara vigencia ni autoridad.
  *
- * Uso: npx tsx scripts/ingesta-lote-staging.ts <pdf> <paquete.json> <instrumento_id> <ingest_batch> <fuente> <salida_dir>
+ * Uso: npx tsx scripts/ingesta-lote-staging.ts <pdf> <paquete.json> <instrumento_id> <ingest_batch> <fuente> <salida_dir> [columnas=1|2] [fuente_tipo=codigo|ley|reglamento|acuerdo]
  * Salida: <salida_dir>/{rows.jsonl, ingest_exceptions.log, REPORTE.md, insert_staging.sql}
  */
 import { createHash } from 'node:crypto';
@@ -14,6 +14,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { segmentarArticulos } from '../lib/legal-os/corpus-factory/staging';
+import { extraerTextoDosColumnas } from '../tools/corpus/receive-pdf';
 import { normalizarNumeroArticulo } from '../lib/legal-retrieval/clo-guards';
 
 const sha = (s: string | Buffer) => createHash('sha256').update(s).digest('hex');
@@ -72,18 +73,25 @@ export function sqlInsert(filas: readonly FilaLote[], porLote = 50): string[] {
 }
 
 function main(): void {
-  const [pdf, paquete, instrumentoId, ingestBatch, fuente, salida] = process.argv.slice(2);
+  const [pdf, paquete, instrumentoId, ingestBatch, fuente, salida, columnas = '1', tipo = 'codigo'] = process.argv.slice(2);
   if (!pdf || !paquete || !instrumentoId || !ingestBatch || !fuente || !salida) throw new Error('uso: ver cabecera del archivo');
   const bytes = readFileSync(pdf);
-  const r = spawnSync('pdftotext', [pdf, '-'], { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 });
-  if (r.status !== 0) throw new Error(`pdftotext falló: ${r.stderr}`);
+  let r: { status: number | null; stderr: string; stdout: string };
+  if (columnas === '2') {
+    const info = spawnSync('pdfinfo', [pdf], { encoding: 'utf8' });
+    const paginas = Number(/^Pages:\s+(\d+)/m.exec(info.stdout)?.[1] ?? 0);
+    r = { status: 0, stderr: '', stdout: extraerTextoDosColumnas(pdf, 1, paginas, false).texto };
+  } else {
+    r = spawnSync('pdftotext', ['-enc', 'UTF-8', pdf, '-'], { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 });
+    if (r.status !== 0) throw new Error(`pdftotext falló: ${r.stderr}`);
+  }
   const pkg = JSON.parse(readFileSync(paquete, 'utf8'));
   const textoSha = sha(r.stdout);
   const hashes = new Map<string, string>();
   const cont = new Map<string, number>();
   for (const a of pkg.articulos ?? []) { const k = (cont.get(a.numero) ?? 0) + 1; cont.set(a.numero, k); hashes.set(`${a.numero}#${k}`, a.sha256); }
   const meta = { bytes_sha256: sha(bytes), text_sha256: textoSha, paquete: pkg.candidate_id, estado_fuente: pkg.estado, procedencia: 'Drive del propietario; procedencia institucional NO verificada (SOURCE_HOLD)', decreto: pkg.identidad?.decree ?? null };
-  const lote = construirLote({ texto: r.stdout, instrumentoId, ingestBatch, fuente, fuenteTipo: 'codigo', meta, hashesPaquete: hashes });
+  const lote = construirLote({ texto: r.stdout, instrumentoId, ingestBatch, fuente, fuenteTipo: tipo as FilaLote['fuente_tipo'], meta, hashesPaquete: hashes });
   mkdirSync(salida, { recursive: true });
   writeFileSync(join(salida, 'rows.jsonl'), lote.filas.map((f) => JSON.stringify(f)).join('\n') + '\n');
   writeFileSync(join(salida, 'ingest_exceptions.log'), lote.excepciones.map((e) => `${e.codigo}\tart.${e.articulo}\t${e.detalle}`).join('\n') + '\n');
