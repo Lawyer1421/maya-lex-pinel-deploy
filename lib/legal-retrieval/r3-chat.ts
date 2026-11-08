@@ -8,7 +8,7 @@
  *    nombra, pasa por R3/R4 y, como no hay fragmentos, hay abstención que dice qué falta.
  */
 import { construirCitas, type Cita } from './evidence-engine';
-import { mensajeAbstencionR3, mencionaNormaConcreta, mencionesNoValidadas, validarRespuestaR4, type MotivoR3 } from './clo-guards';
+import { diagnosticarContenidoNormativo, mensajeAbstencionR3, mencionaNormaConcreta, mencionesNoValidadas, validarRespuestaR4, type MotivoR3 } from './clo-guards';
 import { objetivosDeConsulta } from './r3-objetivos';
 import type { FragmentoRAG } from './types';
 
@@ -40,7 +40,9 @@ export function evaluarRespuestaChatR3(p: { texto: string; fragmentos: readonly 
 function logAbstencionR4(motivo: MotivoR3, texto: string, fragmentos: readonly FragmentoRAG[]): void {
   try {
     if (motivo !== 'MENCION_NO_VALIDADA') { console.info(`[R4] abstencion motivo=${motivo}`); return; }
-    console.info(`[R4] abstencion motivo=${motivo} problemas=${JSON.stringify([...new Set(mencionesNoValidadas(texto, fragmentos, {}))])}`);
+    const problemas = [...new Set(mencionesNoValidadas(texto, fragmentos, {}))];
+    const detalle = problemas.includes('CONTENIDO_NORMATIVO_SIN_FRAGMENTO') ? ` contenido=${JSON.stringify(diagnosticarContenidoNormativo(texto, fragmentos, {}))}` : '';
+    console.info(`[R4] abstencion motivo=${motivo} problemas=${JSON.stringify(problemas)}${detalle}`);
   } catch {
     // el log nunca rompe la respuesta
   }
