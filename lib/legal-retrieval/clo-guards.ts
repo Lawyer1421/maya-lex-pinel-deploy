@@ -785,6 +785,26 @@ export function mencionesNoValidadas(texto: string, fragmentos: readonly Fragmen
   return problemas;
 }
 
+/**
+ * Diagnóstico de `CONTENIDO_NORMATIVO_SIN_FRAGMENTO` SIN texto: por cada oración que afirma contenido normativo y no está respaldada, dice en qué bloque
+ * (b) y oración (o) está, si el bloque NO nombra ninguna fuente recuperada (SIN_FUENTE_NOMBRADA) o nombra alguna pero ninguna respalda la oración
+ * (FUENTE_NO_RESPALDA, con los artículos nombrados y la longitud de la oración). No cambia el veredicto: `mencionesNoValidadas` no se toca.
+ */
+export function diagnosticarContenidoNormativo(texto: string, fragmentos: readonly FragmentoRAG[], ctx: ContextoClasificacion = {}): string[] {
+  const elegibles = fragmentos.filter((f) => fragmentoCumpleR3(f, [], ctx));
+  const salida: string[] = [];
+  bloquesDe(texto).forEach((bloque, b) => {
+    oracionesDe(bloque).forEach((oracion, o) => {
+      if (!oracionAfirmaContenidoNormativo(oracion)) return;
+      const citados = elegibles.filter((f) => respuestaNombraFuente(bloque, f));
+      if (citados.some((f) => afirmacionRespaldadaPorFragmento(oracion, f))) return;
+      const arts = [...new Set(citados.map((f) => normalizarNumeroArticulo(f.num_articulo)).filter((a): a is string => a !== null))].join('+');
+      salida.push(citados.length === 0 ? `b${b}:o${o}:SIN_FUENTE_NOMBRADA:len${oracion.length}` : `b${b}:o${o}:FUENTE_NO_RESPALDA:arts${arts}:len${oracion.length}`);
+    });
+  });
+  return salida;
+}
+
 export interface ResultadoR4 {
   suficiente: boolean;
   motivo: MotivoR3;
