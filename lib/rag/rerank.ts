@@ -27,8 +27,9 @@ const COHERE_MODEL = 'rerank-v3.5';
 // El rerank es un paso adicional dentro de un pipeline que ya hizo 2 RPC a
 // Supabase + 1 embedding HF antes de llegar aquí, y el usuario espera el
 // primer token del streaming — un timeout corto es preferible a alargar la
-// respuesta completa por este paso opcional.
-const RERANK_TIMEOUT_MS = 5000;
+// respuesta completa por este paso opcional. 2500 ms (Fase 2 de latencia, 2026-11-12): en producción Cohere agotó los 5 s y sumó ese
+// tiempo entero a la respuesta; al expirar se conserva el orden por similitud de pgvector (mismo fallback de siempre).
+export const RERANK_TIMEOUT_MS = 2500;
 
 /** Forma mínima que necesita un candidato para poder reordenarse. */
 export interface CandidatoRerank {

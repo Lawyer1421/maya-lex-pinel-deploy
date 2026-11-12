@@ -19,11 +19,44 @@ const HF_MODEL_URL =
 const EMBED_DIMS = 384;
 
 /**
+ * Reutilización del embedding de una misma consulta (Fase 2 de latencia, 2026-11-12). Una pregunta del chat dispara dos búsquedas (colección
+ * principal y pasada procedimental) que antes calculaban el mismo vector dos veces contra HF. Aquí se comparte la promesa:
+ *  - mientras está en curso, una segunda llamada con el mismo texto espera la misma petición;
+ *  - ya resuelta, se reutiliza durante EMBED_REUSO_MS (cubre la otra pasada de la misma pregunta), con un tope de entradas;
+ *  - un fallo NO se guarda: la siguiente llamada vuelve a intentar.
+ * Solo vive en memoria del proceso; no se registra en logs. El vector es función pura del texto, así que compartirlo no mezcla usuarios.
+ */
+export const EMBED_REUSO_MS = 30_000;
+const EMBED_REUSO_MAX = 200;
+const reuso = new Map<string, { promesa: Promise<number[]>; expira: number }>();
+
+export function embedQuery(consulta: string): Promise<number[]> {
+  const clave = consulta.slice(0, 500);
+  const ahora = Date.now();
+  const previo = reuso.get(clave);
+  if (previo && previo.expira > ahora) return previo.promesa;
+  if (previo) reuso.delete(clave);
+  const entrada = { promesa: calcularEmbedding(consulta), expira: Number.POSITIVE_INFINITY };
+  reuso.set(clave, entrada);
+  while (reuso.size > EMBED_REUSO_MAX) reuso.delete(reuso.keys().next().value as string);
+  entrada.promesa.then(
+    () => { entrada.expira = Date.now() + EMBED_REUSO_MS; },
+    () => { if (reuso.get(clave) === entrada) reuso.delete(clave); },
+  );
+  return entrada.promesa;
+}
+
+/** Solo para pruebas: vacía la reutilización. */
+export function _vaciarReusoEmbeddings(): void {
+  reuso.clear();
+}
+
+/**
  * Genera el embedding e5 de una consulta (con prefijo "query: ").
  * Lanza Error si HF_API_TOKEN falta o la API falla — el caller (buscarRAG)
  * captura y degrada a sin-RAG.
  */
-export async function embedQuery(consulta: string): Promise<number[]> {
+async function calcularEmbedding(consulta: string): Promise<number[]> {
   const token = process.env.HF_API_TOKEN?.trim();
   if (!token) {
     throw new Error('HF_API_TOKEN no configurada — embedding de consulta no disponible');
