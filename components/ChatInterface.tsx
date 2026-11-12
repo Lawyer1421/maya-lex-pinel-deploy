@@ -100,6 +100,8 @@ export default function ChatInterface() {
   const [mode, setMode] = useState<ChatMode>('analisis');
   const [isLoading, setIsLoading] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  // Etapa visible mientras el servidor busca, redacta y verifica (la respuesta se retiene hasta validarla con R3/R4).
+  const [estadoProgreso, setEstadoProgreso] = useState<string | null>(null);
   const [usage, setUsage] = useState<UsageInfo>({});
   const [error, setError] = useState<string | null>(null);
   const [freeDailyLimit, setFreeDailyLimit] = useState<{ resetAt?: string } | null>(null);
@@ -209,6 +211,8 @@ export default function ChatInterface() {
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
       setIsLoading(true);
       setIsThinking(false);
+      // La búsqueda en el corpus ocurre antes de que el servidor abra el stream: este estado lo pone el cliente.
+      setEstadoProgreso('Buscando en el corpus jurídico…');
 
       // Historial para la API — last user message usa apiContent
       const history = [
@@ -253,6 +257,7 @@ export default function ChatInterface() {
         textBuffer = createStreamTextBuffer(
           (content) => {
             setIsThinking(false);
+            setEstadoProgreso(null);
             setMessages((prev) =>
               prev.map((m) => (m.id === assistantId ? { ...m, content } : m))
             );
@@ -283,6 +288,10 @@ export default function ChatInterface() {
               switch (event.type) {
                 case 'thinking':
                   setIsThinking(true);
+                  break;
+
+                case 'status':
+                  if (typeof event.texto === 'string' && event.texto.trim() !== '') setEstadoProgreso(event.texto);
                   break;
 
                 case 'text':
@@ -337,6 +346,7 @@ export default function ChatInterface() {
       } finally {
         setIsLoading(false);
         setIsThinking(false);
+        setEstadoProgreso(null);
         abortRef.current = null;
       }
     },
@@ -504,6 +514,7 @@ export default function ChatInterface() {
             <MessageBubble
               message={message}
               isThinking={isThinking && message.isStreaming === true}
+              estadoProgreso={message.isStreaming === true ? estadoProgreso : null}
               citas={message.citas}
             />
             {/* Feedback — solo en respuestas completas del asistente */}

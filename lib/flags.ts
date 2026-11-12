@@ -24,9 +24,10 @@ export const KNOWN_FLAGS = [
   'flag_voz',
   'flag_paywall',
   // Stack Maestro P2 — gate del rerank Cohere (lib/rag/rerank.ts). Sembrado
-  // OFF por 20260906000000_flag_rerank.sql. Todavía no lo lee ningún código:
-  // el cableado en lib/rag/search.ts depende de una decisión de diseño
-  // (docs/runbooks/cohere-rerank-flag.md).
+  // OFF por 20260906000000_flag_rerank.sql. CABLEADO: /api/chat lo resuelve
+  // por usuario (app/api/chat/route.ts, isFlagEnabledForUser('flag_rerank'))
+  // y lo pasa a seleccionarFinal (lib/legal-retrieval/semantic-retriever.ts).
+  // Timeout de Cohere 2500 ms con fallback al orden de pgvector.
   'flag_rerank',
   // Exequátur Slice 1 (feat/exequatur-slice-1-access-shell) — gate de la
   // vertical completa detrás de lib/exequatur/access.ts. Sin fila sembrada

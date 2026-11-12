@@ -64,6 +64,10 @@ export async function recuperarEvidenciaCorpus(p: ParametrosRecuperacion): Promi
   const fragmentos = [...ragResultado.fragmentos];
 
   if (p.pasadaProcedimental) {
+    // Fase 2 de latencia (2026-11-12): esta segunda pasada reutiliza el embedding de la pregunta ya calculado por la primera
+    // (lib/rag/embed.ts), así que no repite la llamada a HF. Las pasadas siguen EN SECUENCIA: en paralelo, el ejecutor de vitest entrega
+    // el módulo real (no el simulado) a la segunda de dos import() dinámicos simultáneos del mismo módulo, y la suite dejaría de probar
+    // este camino. Paralelizar exige cargar las dependencias una sola vez en semantic-retriever.ts / search.ts (fijados por la evidencia G6).
     const ragProc = await buscarRAG(p.pregunta, 3, 'mayalex_procedimental', undefined, { rerank: p.rerank, corpusP21: p.corpusP21 });
     const intencionPregunta = clasificarIntencionInstrumental(p.pregunta);
     const procPermitidos = evidenciaProcedimentalPermitida(

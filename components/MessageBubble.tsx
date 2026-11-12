@@ -23,11 +23,13 @@ interface Message {
 interface MessageBubbleProps {
   message: Message;
   isThinking?: boolean;
+  /** Etapa en curso (buscando, redactando, verificando). Solo mientras la respuesta está en curso. */
+  estadoProgreso?: string | null;
   citas?: Cita[];
 }
 
 // ── Componente ───────────────────────────────────────────────────────
-function MessageBubble({ message, isThinking, citas }: MessageBubbleProps) {
+function MessageBubble({ message, isThinking, estadoProgreso, citas }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const timeStr = message.timestamp.toLocaleTimeString('es-HN', {
     hour: '2-digit',
@@ -74,12 +76,12 @@ function MessageBubble({ message, isThinking, citas }: MessageBubbleProps) {
             </svg>
           </div>
           <span className="text-jade text-xs font-semibold">MAYA LEX</span>
-          {isThinking && (
-            <span className="text-white/40 text-xs flex items-center gap-1">
+          {(isThinking || estadoProgreso) && (
+            <span className="text-white/40 text-xs flex items-center gap-1" role="status" aria-live="polite">
               <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              analizando...
+              {estadoProgreso ?? 'analizando...'}
             </span>
           )}
         </div>
