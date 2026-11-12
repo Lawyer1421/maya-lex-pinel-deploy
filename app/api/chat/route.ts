@@ -51,6 +51,7 @@ import {
 } from '@/lib/system-prompt';
 import {
   ALLOWLIST_MODELOS,
+  aplicarRutaRapida,
   resolverConfigModo,
   resolverModeloCliente,
   thinkingParaModelo,
@@ -330,6 +331,16 @@ export async function POST(req: NextRequest) {
   const ultimaPregunta = claudeMessages
     .filter(m => m.role === 'user')
     .at(-1)?.content ?? '';
+
+  // Fase 2 de latencia: saludos y peticiones de texto literal de un artículo se redactan con Haiku sin thinking (lib/model-config.ts).
+  // Todo lo demás conserva Sonnet con adaptive thinking. R3/R4 validan la salida igual en ambos casos.
+  const generacion = aplicarRutaRapida({
+    mode,
+    overrideCliente: modelOverride && VALID_MODEL_OVERRIDES.has(modelOverride) ? modelOverride : null,
+    pregunta: typeof ultimaPregunta === 'string' ? ultimaPregunta : '',
+    modeloEfectivo,
+    maxTokens: config.max_tokens,
+  });
 
   const usarRouter = (
     MODOS_CON_ROUTER.includes(mode) &&
@@ -660,6 +671,7 @@ export async function POST(req: NextRequest) {
           textoR3 += t;
         };
         const cerrarConR3 = (): { citasFinal: Cita[]; codigo?: string } => {
+          controller.enqueue(sseEvent({ type: 'status', etapa: 'verificando', texto: 'Verificando cada cita contra el corpus…' }));
           const v = evaluarRespuestaChatR3({ texto: textoR3, fragmentos: ragData.fragmentos, pregunta: ultimaPregunta as string, conCorpus: rutaCorpusObligatoria });
           if (v.suficiente) {
             controller.enqueue(sseEvent({ type: 'text', text: v.texto }));
@@ -669,6 +681,9 @@ export async function POST(req: NextRequest) {
           devolverReserva = true;
           return { citasFinal: [], codigo: CODIGO_ABSTENCION_R3 };
         };
+        // Estado de progreso (Fase 2): la salida se retiene hasta validarla, así que se informa en qué etapa va. Los clientes que no conocen
+        // el evento `status` lo ignoran.
+        controller.enqueue(sseEvent({ type: 'status', etapa: 'redactando', texto: 'Redactando la respuesta con las normas recuperadas…' }));
         // ── Luna (P26, Responses API de OpenAI) ───────────────────────────
         // SOLO en la modalidad explícita «consulta jurídica general»: el usuario la activa y acepta el aviso de privacidad vigente.
         // Además, doble llave APAGADA por defecto: LUNA_ENABLED=1 en el entorno Y flag_luna_responses para este usuario (la bandera se
@@ -775,14 +790,14 @@ export async function POST(req: NextRequest) {
         } else {
           // ── Anthropic Claude path (default) ─────────────────────────
           const params: Anthropic.MessageCreateParamsStreaming = {
-            model: modeloEfectivo,
-            max_tokens: config.max_tokens,
+            model: generacion.modelo,
+            max_tokens: generacion.maxTokens,
             system: systemBlocks,
             messages: claudeMessages,
             stream: true,
           };
 
-          const thinkingEfectivo = thinkingParaModelo(modeloEfectivo);
+          const thinkingEfectivo = thinkingParaModelo(generacion.modelo);
           if (thinkingEfectivo) {
             // @ts-expect-error — thinking adaptive solo en claude-sonnet-4-6
             params.thinking = thinkingEfectivo;
@@ -790,7 +805,7 @@ export async function POST(req: NextRequest) {
 
           if (process.env.DEBUG_CLAUDE === 'true') {
             console.log('[Maya Lex] Enviando a Claude:', {
-              model: modeloEfectivo, mode, messages: claudeMessages.length, userIdentifier,
+              model: generacion.modelo, ruta_rapida: generacion.rutaRapida, mode, messages: claudeMessages.length, userIdentifier,
             });
           }
 
@@ -838,7 +853,7 @@ export async function POST(req: NextRequest) {
                 after(() => logConsulta({
                   consulta_id: consultaId, pregunta: ultimaPregunta as string,
                   modo: mode, ruta_rag: ruta,
-                  modelo: modeloEfectivo, proveedor: 'anthropic',
+                  modelo: generacion.modelo, proveedor: 'anthropic',
                   tokens_input: inputTokens, tokens_output: outputTokens,
                   tiempo_ms: Date.now() - inicioMs,
                   web_search_usado: webSearch, usuario_hash: hashUsuario(userIdentifier),

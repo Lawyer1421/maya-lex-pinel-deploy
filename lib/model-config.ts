@@ -186,3 +186,58 @@ export function leerHistoryTurns(crudo = process.env[HISTORY_TURNS_ENV]): number
   if (!Number.isFinite(n) || n < 1) return HISTORY_TURNS_DEFAULT;
   return n;
 }
+
+// ── Ruta rápida (Fase 2 de latencia, 2026-11-12) ─────────────────────────────────────────────────────────────────────────────────────
+// Decisión del Titular: Sonnet con adaptive thinking se mantiene para análisis, dictámenes y toda consulta compleja. Solo dos casos muy
+// acotados van por Haiku sin thinking: un saludo, o pedir el TEXTO LITERAL de un artículo («¿Qué dice el artículo 424 del CPC?»). Las guardas
+// R3/R4 se aplican igual a la salida: la ruta rápida cambia el modelo que redacta, nunca la validación. Ante la duda, NO es rápida.
+
+export type ConsultaRapida = 'SALUDO' | 'TEXTO_LITERAL';
+
+/** Modos donde aplica: solo análisis (civil y penal). Sala ya usa Haiku; documento y escritos redactan piezas largas y no se tocan. */
+const MODOS_RUTA_RAPIDA: ReadonlySet<string> = new Set(['analisis', 'analisis_penal']);
+const MAX_TOKENS_RUTA_RAPIDA = 800;
+
+const normalizarConsulta = (s: string): string =>
+  s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/^[\s¿¡"'«]+/, '').replace(/\s+/g, ' ').trim();
+
+const SALUDO = /^(?:hola|buen(?:os|as)?(?: (?:dias|tardes|noches))?|gracias|muchas gracias|saludos|hey|que tal)(?:[\s,.!?]|$)/;
+const TEMA_JURIDICO = /\b(?:art|arts|articulo|ley|codigo|decreto|demanda|contrato|plazo|juez|notari|sentencia|norma)/;
+const PIDE_TEXTO_LITERAL =
+  /^(?:que dice|que establece|cual es el (?:texto|contenido)(?: literal)? del?|transcrib\w*|cita(?:me)?(?: textualmente)?|dame el (?:texto|contenido)(?: literal)? del?)\s+(?:el\s+)?(?:art\.?|articulo)\s*\d+[a-z]?\b/;
+/** Cualquier señal de análisis, aplicación a un caso o comparación saca la consulta de la ruta rápida. */
+const SENAL_DE_ANALISIS =
+  /\b(?:aplica|caso|puedo|debo|procede|interpret|analiz|compar|diferenc|requisit|plazo|como|por que|porque|mi|mis|significa|explica|conviene|recomiend|y el|y los|y la|ademas|tambien|o el)\b/;
+
+/** Clasifica la consulta. Devuelve null (ruta normal) ante cualquier duda. */
+export function clasificarConsultaRapida(pregunta: string): ConsultaRapida | null {
+  if (typeof pregunta !== 'string') return null;
+  const q = normalizarConsulta(pregunta);
+  if (q === '' || q.length > 160) return null;
+  const palabras = q.split(' ').length;
+  if (palabras <= 6 && SALUDO.test(q) && !TEMA_JURIDICO.test(q)) return 'SALUDO';
+  if (PIDE_TEXTO_LITERAL.test(q)) {
+    const resto = q.replace(PIDE_TEXTO_LITERAL, '');
+    if (!SENAL_DE_ANALISIS.test(resto)) return 'TEXTO_LITERAL';
+  }
+  return null;
+}
+
+export interface GeneracionResuelta {
+  modelo: string;
+  maxTokens: number;
+  rutaRapida: ConsultaRapida | null;
+}
+
+/** Modelo y tope de salida con los que se redacta. Sin override del cliente y solo en modos de análisis. */
+export function aplicarRutaRapida(p: {
+  mode: string;
+  overrideCliente: string | null;
+  pregunta: string;
+  modeloEfectivo: string;
+  maxTokens: number;
+}): GeneracionResuelta {
+  const rutaRapida = MODOS_RUTA_RAPIDA.has(p.mode) && !p.overrideCliente ? clasificarConsultaRapida(p.pregunta) : null;
+  if (!rutaRapida) return { modelo: p.modeloEfectivo, maxTokens: p.maxTokens, rutaRapida: null };
+  return { modelo: MODELO_HAIKU, maxTokens: Math.min(p.maxTokens, MAX_TOKENS_RUTA_RAPIDA), rutaRapida };
+}
