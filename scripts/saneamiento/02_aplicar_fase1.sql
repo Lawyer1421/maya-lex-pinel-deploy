@@ -3,9 +3,12 @@
 -- Requisitos: 01_validacion_fase1.sql devuelve los conteos aprobados:
 --   A1 1481 · A2 995 · A3 32 · A4 14 · A5 2 · A6 70752  (total 73276).
 -- Si el total sin clasificar no es 73276 la transacción aborta (ya aplicado o cambió el corpus).
+-- Nota: tras aplicar, las cuarentenas siguen sin clasificar por diseño (fuente_tipo NULL); quedan ocultas con revision_pendiente = true.
 --
--- Diseño de cuarentena: Luna busca con buscar_biblioteca_v2, que filtra revision_pendiente = false y NO filtra fuente_tipo.
--- Por eso una fila solo se saca de búsqueda con revision_pendiente = true. El fuente_tipo por sí solo NO la oculta.
+-- RESTRICCIÓN DE ESQUEMA: chk_fuente_tipo solo admite ley, codigo, sentencia, doctrina, manual, instrumento (o NULL).
+--   Por eso «guia_procedimental» y «cuarentena_*» NO son valores válidos. Sin cambiar el esquema (requiere staging y autorización):
+--   guía → manual; cuarentenas → fuente_tipo sin cambio (NULL) + revision_pendiente = true + metadata.cuarentena.
+-- buscar_biblioteca_v2 filtra revision_pendiente = false y NO filtra fuente_tipo: revision_pendiente es el mecanismo que oculta.
 -- Las columnas instrumento_id / ingest_batch no existen en producción: el «instrumento» se guarda en metadata (jsonb).
 -- ═══════════════════════════════════════════════════════════════════════════
 BEGIN;
@@ -44,30 +47,36 @@ UPDATE public.biblioteca_vectores b SET fuente_tipo = 'codigo', jurisdiccion = '
 FROM _bloque t WHERE t.id = b.id AND t.bloque = 'A2';
 
 -- A3 · guía práctica: contexto procedimental, nunca «codigo».
-UPDATE public.biblioteca_vectores b SET fuente_tipo = 'guia_procedimental', jurisdiccion = 'HN', es_norma_vigente = NULL
+UPDATE public.biblioteca_vectores b SET fuente_tipo = 'manual', jurisdiccion = 'HN', es_norma_vigente = NULL,
+  metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('tipo_documento', 'guia_procedimental')
 FROM _bloque t WHERE t.id = b.id AND t.bloque = 'A3';
 
 -- A4 · cuarentena privada: oculta a búsqueda (revision_pendiente) y fuera de norma.
-UPDATE public.biblioteca_vectores b SET fuente_tipo = 'cuarentena_privada', es_norma_vigente = NULL, revision_pendiente = true
+UPDATE public.biblioteca_vectores b SET es_norma_vigente = NULL, revision_pendiente = true,
+  metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('cuarentena', 'privada')
 FROM _bloque t WHERE t.id = b.id AND t.bloque = 'A4';
 
 -- A5 · cuarentena de revisión de origen (texto posiblemente generado): oculta y fuera de norma.
-UPDATE public.biblioteca_vectores b SET fuente_tipo = 'cuarentena_revision', es_norma_vigente = NULL, revision_pendiente = true
+UPDATE public.biblioteca_vectores b SET es_norma_vigente = NULL, revision_pendiente = true,
+  metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('cuarentena', 'revision')
 FROM _bloque t WHERE t.id = b.id AND t.bloque = 'A5';
 
 -- A6 · cuarentena anonimizada (≥20 % marcado y recuperables por fragmento): oculta y fuera de norma.
-UPDATE public.biblioteca_vectores b SET fuente_tipo = 'cuarentena_anonimizada', es_norma_vigente = NULL, revision_pendiente = true
+UPDATE public.biblioteca_vectores b SET es_norma_vigente = NULL, revision_pendiente = true,
+  metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('cuarentena', 'anonimizada')
 FROM _bloque t WHERE t.id = b.id AND t.bloque = 'A6';
 
 -- Verificación final dentro de la transacción: nada sin clasificar debe quedar fuera de los bloques, y todas las cuarentenas ocultas.
 DO $verifica$
-DECLARE restantes int; cuarentenas_visibles int;
+DECLARE sin_bloque int; cuarentenas_visibles int; ocultas int;
 BEGIN
-  SELECT count(*) INTO restantes FROM public.biblioteca_vectores WHERE (fuente_tipo IS NULL OR jurisdiccion IS NULL);
-  IF restantes <> 0 THEN RAISE EXCEPTION 'Verificación: quedan % filas sin clasificar.', restantes; END IF;
-  SELECT count(*) INTO cuarentenas_visibles FROM public.biblioteca_vectores
-    WHERE fuente_tipo IN ('cuarentena_privada','cuarentena_revision','cuarentena_anonimizada') AND revision_pendiente = false;
+  -- Solo deben quedar sin clasificar A4+A5+A6 (70,768 filas), todas ocultas.
+  SELECT count(*) INTO sin_bloque FROM public.biblioteca_vectores WHERE (fuente_tipo IS NULL OR jurisdiccion IS NULL) AND NOT (metadata ? 'cuarentena');
+  IF sin_bloque <> 0 THEN RAISE EXCEPTION 'Verificación: % filas sin clasificar fuera de cuarentena.', sin_bloque; END IF;
+  SELECT count(*) INTO cuarentenas_visibles FROM public.biblioteca_vectores WHERE metadata ? 'cuarentena' AND revision_pendiente = false;
   IF cuarentenas_visibles <> 0 THEN RAISE EXCEPTION 'Verificación: % filas en cuarentena siguen visibles.', cuarentenas_visibles; END IF;
+  SELECT count(*) INTO ocultas FROM public.biblioteca_vectores WHERE metadata ? 'cuarentena' AND revision_pendiente = true;
+  IF ocultas <> 70768 THEN RAISE EXCEPTION 'Verificación: cuarentenas ocultas = %, se esperaban 70768.', ocultas; END IF;
 END
 $verifica$;
 
