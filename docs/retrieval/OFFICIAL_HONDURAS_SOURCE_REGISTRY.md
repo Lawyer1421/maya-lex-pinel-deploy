@@ -139,6 +139,7 @@ es un snapshot, no una garantía permanente.
 - **Dominio oficial real:** no confirmado en esta sesión. Intentos de navegación a variantes plausibles (`lagaceta.gob.hn`) fallaron sin resolver. No se inventó ni se asumió ningún dominio alternativo.
 - **Contexto ya conocido del propio corpus de MayaLex:** el sistema actual ya obtiene contenido histórico "obtenido del diario oficial La Gaceta" indirectamente A TRAVÉS de CEDIJ (ver A.2) — es decir, para legislación ya existe un camino oficial indirecto y verificado a el contenido de la Gaceta sin necesitar un adapter propio de "la Gaceta" en esta fase.
 - **Pendiente para una fase futura:** identificar y verificar el dominio real de publicación oficial (posiblemente bajo gestión de la Secretaría General de Gobierno/Casa Presidencial) antes de construir cualquier adapter de "Gaceta" independiente.
+- **Actualización 2026-11-13 — candidato ENAG:** se registra `enag.gob.hn` (Empresa Nacional de Artes Gráficas, entidad que edita el Diario Oficial La Gaceta) como **candidato** (`GACETA_ENAG_CANDIDATO`, `PENDING_VERIFICATION`, `DISCOVERY_ONLY`, no autoritativo, sin tier). **No** se verificó en vivo en esta actualización: no entra en `FUENTES_OFICIALES_VERIFICADAS` ni en ninguna lista blanca, y `GACETA_OFICIAL` conserva `domain: null`. Para promoverlo a `VERIFIED` hace falta una comprobación de campo documentada aquí (dominio que resuelve, titularidad de ENAG, y que publica ejemplares de La Gaceta). `lagaceta.hn` sigue en `REJECTED_PRIVATE`.
 
 ---
 
@@ -168,6 +169,7 @@ No se investigaron otros repositorios adicionales en esta sesión por límite de
 | Tribunal Superior de Cuentas | www.tsc.gob.hn | UNSUITABLE_FOR_AUTOMATION | ADMINISTRATIVE | Sí | No |
 | "La Gaceta" (noticias) | lagaceta.hn | **EXCLUIR — no es fuente oficial** | — | Sí (confirmado que NO es la Gaceta oficial) | No |
 | Diario Oficial La Gaceta (real) | no confirmado | UNSUITABLE_FOR_AUTOMATION | GAZETTE | No verificado | No |
+| ENAG — candidato a La Gaceta oficial | enag.gob.hn | PENDING_VERIFICATION (candidato, no autoritativo) | GAZETTE | No verificado | No |
 | Congreso Nacional | no confirmado | UNSUITABLE_FOR_AUTOMATION | LEGISLATION | No verificado | No |
 
 ---
