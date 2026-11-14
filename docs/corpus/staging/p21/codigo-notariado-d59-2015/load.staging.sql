@@ -1,0 +1,130 @@
+-- TARGET: staging aicakncgtuiiuomflkqj ONLY. NOT APPLIED. NO PRODUCTION.
+-- Instrumento: Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015
+-- id_prefix: mayalex_normativos:codigo_notariado_d59_2015
+-- Fuentes verificadas (SHA-256): B1=8ec5d27be89442e2fdaa0164356cecb82874f23bbbe93bed962fe083a52868f7 B2=7bbe492e83992c05087b568b56202460be49f138a786692506abacb006e25e6d
+-- Filas: 3. Estado: CLO_CLEARED_FOR_STAGING_PREP + BLOCKED_SCHEMA + EMBEDDINGS_PENDING.
+--   * jurisdiccion, fuente_tipo y es_norma_vigente no tienen DDL en supabase/vectores.sql ni en supabase/migrations.
+--   * embedding es NOT NULL y no hay embeddings generados localmente (se escribe NULL como marcador).
+-- TODO el INSERT está COMENTADO (cada línea con «-- »). No descomentar sin CLO + verificación de esquema en staging.
+-- es_norma_vigente (significado CLO): TRUE elegible · FALSE excluido · NULL solo CONTEXT. Ninguna fila P21 tiene vigencia acreditada: NULL, salvo las excluidas por decisión expresa (FALSE).
+-- Sin DDL ni borrados: solo INSERT aditivo e idempotente.
+
+-- BEGIN;
+-- INSERT INTO public.biblioteca_vectores (id, coleccion, materia, contenido, num_articulo, fuente, metadata, embedding, jurisdiccion, fuente_tipo, es_norma_vigente)
+-- VALUES
+--   ('mayalex_normativos:codigo_notariado_d59_2015_a72', 'mayalex_normativos', '03_NOTARIAL', 'ARTÍCULO 72.- Créase la Unión de Notarios de Honduras (UNH), con personalidad jurídica y patrimonio propio, de duración indefinida, con domicilio en la ciudad de Tegucigalpa M.D.C., el cual se rige por la presente Ley, su reglamento y en lo no previsto y conducente por las demás leyes de la República.
+--   
+--   Son objetivos de la Unión de Notarios:
+--   Fortalecer la Unidad y el bienestar de sus miembros, así como contribuir a enaltecer y dignificar el ejercicio del Notariado, otorgar la colaboración que requiera la Contraloría del Notariado, el Colegio de Abogados de Honduras, el Poder Judicial y el Estado', '72', 'Código del Notariado de Honduras (Decreto 353-2005)', '{"norm_id":"mayalex_normativos:codigo_notariado_d59_2015","instrumento":"Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015","rol":"CONTEXT","hash_texto_sha256":"9d32eae4945526fc28154d70821378f5dabac2f3369f356f870cc2c3db9fbaa7","vigencia_state":"NO_VERIFICADO","verificado":false,"warnings":["Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"],"elegible_primary":false,"version":"D.59-2015","gaceta":"La Gaceta 33,801 (6-ago-2015)"}'::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', 'codigo', NULL),
+--   ('mayalex_normativos:codigo_notariado_d59_2015_a72-a', 'mayalex_normativos', '03_NOTARIAL', 'ARTÍCULO 72-A.- Los órganos de la UNIÓN DE NOTARIOS DE HONDURAS (UNH), se deben elegir democráticamente conforme la presente Ley y a su Reglamento, lo constituyen:
+--   1) La Asamblea General;
+--   2) La Junta Directiva;
+--   3) El Tribunal de Honor;
+--   4) Los Capítulos distribuidos en el territorio nacional; y,
+--   5) Los demás órganos auxiliares que establezca el Reglamento que apruebe la Asamblea Ordinaria.
+--   
+--   A. DE LA ASAMBLEA GENERAL:
+--   Las Asambleas Generales son Ordinarias y Extraordinarias; las asambleas están constituidas por todos los Notarios inscritos en la Unión de Notarios de Honduras (UNH). Para que haya quórum se requiere la presencia de más de la mitad de sus miembros o sus representantes. De no haber quórum se debe instalar una hora después de que no haya podido instalarse la primera, con los que asistan. Las resoluciones se deben adoptar con el voto favorable de la mayoría de los asambleístas. Cada miembro de la Unión de Notarios de Honduras (UNH) debe portar el carné de miembro. El Notario que no pueda asistir a una Asamblea puede hacerse representar con derecho a voto por otro Notario autorizándolo mediante Carta Poder. Sólo se tiene derecho a representar a un (1) Notario.
+--   
+--   Las Asambleas Generales se celebran previa convocatoria realizada por parte de la Junta Directiva, la cual se debe hacer mediante nota dirigida a cada miembro de la Unión de Notarios de Honduras (UNH) y por aviso en un diario de amplia circulación o por una radiodifusora de audiencia general en el país y por cualquiera otro medio electrónico.
+--   
+--   La convocatoria debe hacerse con quince (15) días de anticipación a la fecha señalada para la celebración de las Asambleas, expresándose en la misma que si no hay quórum en la primera convocatoria, se debe realizar una (1) hora después de la declaratoria de que no hubo quórum.
+--   
+--   La Asamblea General Ordinaria se debe celebrar una (1) vez al año, en la fecha 2 de octubre de cada año, en el lugar que en la convocatoria se indique.
+--   
+--   La Asamblea General Extraordinaria, se debe realizar por convocatoria de la Junta Directiva para tratar asuntos específicos.
+--   
+--   Corresponde a la Junta Directiva de la Unión de Notarios de Honduras (UNH) por medio de su Presidente y Secretario, establecer el quórum previa la instalación de las Asambleas Generales. Acto seguido, si hay quórum, la Asamblea debe elegir su directiva, la cual debe estar integrada por: un (1) Presidente, un (1) Vicepresidente, dos (2) Secretarios y dos (2) Prosecretarios, ante ellos debe prestar la Promesa de Ley; a ella le corresponde dirigir las Asambleas.
+--   
+--   Son atribuciones de la Asamblea General Ordinaria y Extraordinaria:
+--   1) Elegir los miembros de la Junta Directiva, el Tribunal de Honor y demás órganos auxiliares cuyos requisitos, obligaciones y atribuciones deben aparecer en el Reglamento que se apruebe;
+--   2) Tomar la Promesa de Ley a los Notarios electos en los cargos señalados en el párrafo anterior, la cual consiste en: “Prometo ser fiel a la Unión de Notarios de Honduras (UNH), cumplir y hacer cumplir la Constitución de la República, las leyes, el Código del Notariado; por mi honor, por mi familia y por mi Patria”;
+--   3) Aprobar el presupuesto de la Unión de Notarios de Honduras (UNH);
+--   4) Establecer la contribución ordinaria y extraordinaria que deben aportar los Notarios;
+--   5) Aprobar o improbar los informes de la Junta Directiva y el Tribunal de Honor; y,
+--   6) Las demás que la Junta Directiva considere exhorbitan sus propias atribuciones.
+--   
+--   La Asamblea Extraordinaria se debe convocar para temas específicos y por convocatoria de la Junta Directiva.
+--   
+--   B. DE LA JUNTA DIRECTIVA:
+--   La Junta Directiva es el órgano ejecutivo encargado de la dirección y administración de la Unión de Notarios de Honduras (UNH) y está integrada por nueve (9) miembros propietarios y sus respectivos suplentes así: Un (1) Presidente, un (1) Vicepresidente, tres (3) Vocales, un (1) Secretario, un (1) Prosecretario, un (1) Tesorero y un (1) Fiscal, electos en Asamblea individualmente o por planilla por simple mayoría de votos.
+--   
+--   La representación legal de la Unión de Notarios de Honduras (UNH) le corresponde a la Junta Directiva. Se ejerce por medio de su Presidente o quien haga sus veces y por el Fiscal en las situaciones en que haya problemas legales, judiciales, administrativas o cualquier otro análogo.
+--   
+--   Todos los Notarios que estén inscritos en la Unión de Notarios de Honduras (UNH) y que no tengan incapacidad legal, tienen derecho a formar parte de la Junta Directiva.
+--   
+--   Los miembros de la Junta Directiva deben tomar posesión de sus cargos el día 2 de octubre de cada año, duran dos (2) años en sus funciones y pueden ser reelectos.
+--   
+--   Las funciones y atribuciones de los demás cargos de la Junta Directiva, deben ser regulados en el Reglamento correspondiente.
+--   
+--   Son atribuciones de la Junta Directiva:
+--   1) Convocar asambleas ordinarias y extraordinarias en la forma que esta Ley manda;
+--   2) Dirigir y administrar la Unión de Notarios de Honduras (UNH);
+--   3) Fortalecer la unidad de los Notarios y propender a su superación profesional y la solidaridad gremial y su enaltecimiento;
+--   4) Juramentar a los nuevos miembros de la Unión de Notarios de Honduras (UNH);
+--   5) Mantener buenas relaciones con el Colegio de Abogados de Honduras y con los demás sectores profesionales, nacionales y extranjeros;
+--   6) Convocar a eventos científicos para fortalecer el acervo académico y científico de sus miembros;
+--   7) Crear y otorgar reconocimientos y premios a sus miembros destacados y a otros ciudadanos nacionales y extranjeros o instituciones, por sus ejecutorias cívicas y profesionales que enaltezcan a la patria y al desarrollo de la cultura, la ciencia, las artes, la tecnología y los derechos humanos; y,
+--   8) Las demás que consigne el Reglamento de Notarios de Honduras (UNH).
+--   
+--   Son atribuciones del Presidente:
+--   1) Presidir la Asamblea General y la Junta Directiva;
+--   2) Representar a la Unión de Notarios de Honduras (UNH) por delegación de la Junta Directiva en actos oficiales, culturales, académicos y científicos;
+--   3) Formular la agenda correspondiente a cada sesión y dirigirlas;
+--   4) Decidir con voto de calidad, en caso de empate en las asambleas generales y de Junta Directiva;
+--   5) Recibir la Promesa de Ley a los nuevos miembros y a los Notarios en los órganos de dirección de la Unión de Notarios de Honduras (UNH);
+--   6) En caso de ausencia del Presidente debe fungir el Vicepresidente y a falta de éste los Vocales según el orden de su elección; y,
+--   7) Las demás que se establezcan en el Reglamento de la Unión de Notarios de Honduras (UNH).
+--   
+--   Son atribuciones del Fiscal:
+--   1) Velar por que se cumpla esta Ley en lo atinente a la Unión de Notarios de Honduras (UNH), así como su reglamento;
+--   2) Ejercer la representación legal de la Unión de Notarios de Honduras (UNH) en asuntos legales, judiciales, administrativas o cualquier otro análogo; y,
+--   3) Las demás que se establezcan en el Reglamento de la Unión de Notarios de Honduras (UNH).
+--   
+--   Son atribuciones del Tesorero:
+--   1) Recaudar y custodiar las contribuciones a que están obligados los miembros;
+--   2) Efectuar los pagos en nombre de la Unión de Notarios de Honduras (UNH) y llevar los libros contables necesarios;
+--   3) Presentar trimestralmente un estado de cuenta a la Junta Directiva y rendir previamente la caución que ésta le establezca;
+--   
+--   4) Depositar los fondos de la Unión de Notarios de Honduras (UNH) a nombre de ésta en una institución bancaria del país ya sea en efectivo o en valores de líquidos inmediatos según lo disponga la Junta Directiva; y,
+--   5) Las demás que se establezcan en el Reglamento de la Unión de Notarios de Honduras (UNH).
+--   
+--   Son atribuciones del Secretario:
+--   1) Redactar y autorizar los actos, acuerdos y resoluciones que deba ser firmados por el Presidente de la Junta Directiva y refrendarlos con su firma;
+--   2) Llevar registro y custodiar los libros siguientes: De Registro de los miembros de la Unión de Notarios de Honduras (UNH), de Actas y Acuerdos de la Asamblea General y de la Junta Directiva, así como los demás que ordene la Junta Directiva;
+--   3) Inscribir a los miembros, tomando razón de sus títulos y extender el Certificado de Membresía;
+--   4) Extender certificaciones;
+--   5) Cursar las convocatorias a la Asamblea General, a la Junta Directiva y firmar la correspondencia;
+--   6) Recibir y tramitar las solicitudes y notificaciones que se dirijan a la Unión de Notarios de Honduras (UNH) y a sus diferentes órganos; y,
+--   7) Las demás que se establezcan en el Reglamento de la Unión de Notarios de Honduras (UNH).
+--   
+--   Corresponde al Prosecretario prestar al Secretario la colaboración que requiera, debiendo sustituirle en caso de ausencia o impedimento temporal.
+--   
+--   C. DEL TRIBUNAL DE HONOR:
+--   El Tribunal de Honor es el órgano encargado de conocer la conducta de los Notarios miembros de la Unión de Notarios de Honduras (UNH) que infrinjan las disposiciones del Código de Ética Profesional, cuyo Reglamento debe aprobar la Asamblea General. El Tribunal de Honor está integrado por cinco (5) miembros electos por la Asamblea General Ordinaria, quienes deben conformar su propia directiva en los términos que determine el reglamento de esta Ley.
+--   
+--   Para ser miembro del Tribunal de Honor se requiere:
+--   1) Haber cumplido cuarenta (40) años de edad;
+--   2) Haber ejercido el notariado durante cinco (5) años como mínimo;
+--   3) Ser de reconocida honorabilidad y capacidad profesional; y,
+--   4) No haber sido objeto de sanción grave en su desempeño profesional ni haber incurrido en delito.
+--   
+--   Son atribuciones del Tribunal de Honor:
+--   1) Servir de mediador en las controversias que surjan entre sus miembros o entre éstos y los particulares;
+--   2) Conocer de las quejas y denuncias contra sus miembros e iniciar las sanciones disciplinarias que establece el reglamento de la Unión de Notarios de Honduras (UNH) y ponerla en conocimiento de la Junta Directiva; y,
+--   3) Formular el Código de Ética Notarial y someterlo a la aprobación de la Asamblea General.
+--   
+--   D. DE LOS CAPÍTULOS:
+--   Para el mejor funcionamiento de la Unión de Notarios de Honduras (UNH), la Junta Directiva puede crear Capítulos en distintos lugares del territorio nacional, con las facultades y atribuciones que el Reglamento establezca', '72-A', 'Código del Notariado de Honduras (Decreto 353-2005)', '{"norm_id":"mayalex_normativos:codigo_notariado_d59_2015","instrumento":"Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015","rol":"CONTEXT","hash_texto_sha256":"ff10753b1403a9edab0dc08361ad6e9742d03b4a28ab74055727a6c10a6b9014","vigencia_state":"UNKNOWN","verificado":false,"warnings":["Solo CONTEXT (CLO)","CLO: adjudicado como CONTEXT (27-oct-2026)","es_norma_vigente=UNKNOWN: vigencia posterior al D.59-2015 no cotejada"],"elegible_primary":false,"estado_editorial":"CONTEXT_ADJUDICADO_CLO","es_norma_vigente_clo":"UNKNOWN","vigencia_nota":"vigencia posterior al D.59-2015 no cotejada","version":"D.59-2015","gaceta":"La Gaceta 33,801 (6-ago-2015)"}'::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', 'codigo', NULL),
+--   ('mayalex_normativos:codigo_notariado_d59_2015_a73', 'mayalex_normativos', '03_NOTARIAL', 'ARTÍCULO 73.- Constituye el patrimonio de la Unión de Notarios de Honduras (UNH):
+--   1) Los bienes y valores que adquiera;
+--   2) Las cuotas ordinarias y extraordinarias fijadas por la Asamblea General;
+--   3) El producto de los servicios que preste;
+--   4) El cuatro por ciento (4%) de los ingresos generados por la venta de los certificados de autenticidad, de matrimonio, timbres y cualquier otro instrumento que se creé conforme a Ley; y,
+--   5) Veinticinco Lempiras (L.25.00) provenientes del valor que se le asigna a los Notarios por autorización de los Certificados de Autenticidad y de Matrimonio, cantidad que debe ser deducida automáticamente por la Institución Bancaria al momento de la venta de dichos Certificados, la cual debe ser designada exclusivamente para la conformación de un Fondo de Previsión Social de los Notarios', '73', 'Código del Notariado de Honduras (Decreto 353-2005)', '{"norm_id":"mayalex_normativos:codigo_notariado_d59_2015","instrumento":"Código del Notariado (Decreto 353-2005), arts. 72, 72-A y 73 en texto D.59-2015","rol":"CONTEXT","hash_texto_sha256":"2a186336de1d842549d1f691face3bdc73529e67df2fd26ecdad1dcf07ef6dd5","vigencia_state":"NO_VERIFICADO","verificado":false,"warnings":["Solo CONTEXT (CLO): NOTARIADO_SOLO_CONTEXT_CLO"],"elegible_primary":false,"version":"D.59-2015","gaceta":"La Gaceta 33,801 (6-ago-2015)"}'::jsonb, NULL /* EMBEDDINGS_PENDING */, 'HN', 'codigo', NULL)
+-- ON CONFLICT (id) DO NOTHING;
+-- COMMIT;
+
+-- Verificación posterior (comentada):
+-- select count(*) from public.biblioteca_vectores where id like 'mayalex_normativos:codigo_notariado_d59_2015\_a%';
+-- select num_articulo, count(*) from public.biblioteca_vectores where id like 'mayalex_normativos:codigo_notariado_d59_2015\_a%' group by 1 order by 1;
