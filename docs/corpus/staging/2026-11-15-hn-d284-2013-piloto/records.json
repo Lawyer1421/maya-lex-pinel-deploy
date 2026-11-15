@@ -1,0 +1,40 @@
+[
+  {
+    "id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO",
+    "country": "HN",
+    "jurisdiction": "NACIONAL",
+    "matter": "UNKNOWN",
+    "title": "Decreto 284-2013 (reforma al Código de Comercio)",
+    "decree": "284-2013",
+    "publication": "UNKNOWN",
+    "gaceta_number": "33,445",
+    "gaceta_date": "UNKNOWN",
+    "effective_date": "UNKNOWN",
+    "official_url": "https://www.tsc.gob.hn/web/leyes/Ley_gene_empl_dere_inver.pdf",
+    "pdf_sha256": "a7eb221fdeff8977ae9cf907f926797b8d45cd7d90dc93ece7e32ee3581edee4",
+    "text_sha256": "7a1fc45e113b3da60efe70286446037192adfdc6856a5582c3a05753dec70d2d",
+    "source": "www.tsc.gob.hn",
+    "source_tier": 4,
+    "articles": [],
+    "reforms": [],
+    "derogations": [],
+    "interpretations": [],
+    "constitutional_effects": [],
+    "version": 1,
+    "verification_state": "PENDING_VERIFICATION",
+    "ingestion_state": "HUMAN_VERIFICATION",
+    "presence": "UNKNOWN",
+    "outdated": false,
+    "measures": {
+      "rows": null,
+      "distinct_articles": null
+    },
+    "approvals": [],
+    "notes": [
+      "Importado de paquete externo (retriever=Fredy Pinel (propietario), descarga manual en navegador, método=MANUAL_BROWSER, retrieved_at=2026-11-15T19:39:00.000Z).",
+      "SOURCE_VALIDATED: dominio verificado en el registro; NO es autoridad hasta CORPUS_QA → CLO → V4/V5.",
+      "document_type=REFORM",
+      "STAGING: CLO_PENDING"
+    ]
+  }
+]
