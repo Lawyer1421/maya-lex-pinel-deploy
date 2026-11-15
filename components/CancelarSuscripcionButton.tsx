@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { rutaCancelacion, type ProveedorPago } from '@/lib/billing/proveedor';
 
 /**
  * Autogestión de baja — reportado por un suscriptor que no encontraba una
  * opción visible para cancelar. Confirmación en dos pasos (nunca cancela
- * con un solo clic accidental). Llama a /api/paypal/cancel-subscription,
- * que detiene el cobro recurrente en PayPal y sincroniza el estado local
- * con la misma función atómica que ya usa el webhook.
+ * con un solo clic accidental). Llama a la ruta de cancelación del
+ * proveedor de la suscripción (lib/billing/proveedor.ts: PayPal o Stripe),
+ * que detiene el cobro recurrente y sincroniza el estado local con la misma
+ * función atómica que ya usa el webhook de ese proveedor.
  *
  * Importante: el acceso se revoca de inmediato al confirmar, no al final
  * del período ya pagado — ver la nota en la ruta del API para el porqué.
  */
-export default function CancelarSuscripcionButton() {
+export default function CancelarSuscripcionButton({ proveedor = 'paypal' }: { proveedor?: ProveedorPago }) {
   const router = useRouter();
   const [estado, setEstado] = useState<'idle' | 'confirmando' | 'cancelando' | 'error'>('idle');
   const [mensajeError, setMensajeError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ export default function CancelarSuscripcionButton() {
     setEstado('cancelando');
     setMensajeError(null);
     try {
-      const res = await fetch('/api/paypal/cancel-subscription', { method: 'POST' });
+      const res = await fetch(rutaCancelacion(proveedor), { method: 'POST' });
       const data = await res.json() as { cancelado?: boolean; error?: string };
 
       if (!res.ok || !data.cancelado) {

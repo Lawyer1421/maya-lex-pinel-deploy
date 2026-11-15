@@ -138,6 +138,13 @@ describe('resolveCurrentAccess: el fundador siempre tiene acceso activo; el rest
     const a = await resolveCurrentAccess('email:cliente@ejemplo.com');
     expect(a).toMatchObject({ accessGranted: false, tier: 'free', reasonCode: 'no_subscription' });
   });
+  // Stripe (feat/stripe-checkout-webhook): stripe_apply_event deja la fila en cancelled y queries_log en free al cancelar; el fundador sigue admin.
+  it.each(['active', 'cancelled', 'past_due'])('fundador con suscripción de Stripe %s y queries_log en free: sigue admin con acceso', async (subStatus) => {
+    const sb = fakeSupabase({ count: 50, tier: 'free', subStatus, subTier: 'pro' });
+    const { resolveCurrentAccess, reserveRateLimit } = await conSupabase(sb);
+    expect(await resolveCurrentAccess(ID_FUNDADOR)).toMatchObject({ accessGranted: true, tier: 'admin' });
+    expect(await reserveRateLimit(ID_FUNDADOR, AHORA)).toMatchObject({ allowed: true, tier: 'admin' });
+  });
 });
 
 describe('lo que el bypass NO exime', () => {

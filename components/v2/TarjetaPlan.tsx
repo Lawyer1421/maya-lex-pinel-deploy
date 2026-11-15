@@ -1,5 +1,6 @@
 import type { PlanV2 } from './planes-data';
 import PayPalSubscribeButton from '@/app/components/PayPalSubscribeButton';
+import StripeCheckoutButton from '@/app/components/StripeCheckoutButton';
 
 export default function TarjetaPlan({
   plan,
@@ -8,10 +9,13 @@ export default function TarjetaPlan({
   // en la portada las tarjetas viven bajo un h2 de sección (→ h3); en /pricing
   // cuelgan directamente del h1 (→ h2, evita saltos h1→h3 en el outline).
   nivelTitulo = 'h3',
+  // Pago con tarjeta (Stripe Checkout): lo decide el SERVIDOR (lib/billing/tarjeta.ts) y llega como booleano. Ausente = solo PayPal.
+  pagoConTarjeta = false,
 }: {
   plan: PlanV2;
   compacta?: boolean;
   nivelTitulo?: 'h2' | 'h3';
+  pagoConTarjeta?: boolean;
 }) {
   const Titulo = nivelTitulo;
   return (
@@ -61,11 +65,20 @@ export default function TarjetaPlan({
       )}
 
       {plan.ctaEstado === 'checkout' ? (
-        <PayPalSubscribeButton
-          plan={plan.paypalTier!}
-          label={plan.ctaLabel}
-          className="mt-6 bg-jade text-white hover:bg-jade/90 focus-visible:ring-2 focus-visible:ring-jade"
-        />
+        <>
+          <PayPalSubscribeButton
+            plan={plan.paypalTier!}
+            label={plan.ctaLabel}
+            className="mt-6 bg-jade text-white hover:bg-jade/90 focus-visible:ring-2 focus-visible:ring-jade"
+          />
+          {pagoConTarjeta && (
+            <StripeCheckoutButton
+              plan={plan.paypalTier!}
+              label="Pagar con tarjeta"
+              className="mt-2 border border-obsidian-medium bg-obsidian text-ivory hover:border-jade/40 focus-visible:ring-2 focus-visible:ring-jade"
+            />
+          )}
+        </>
       ) : (
         <a
           href={plan.ctaHref}

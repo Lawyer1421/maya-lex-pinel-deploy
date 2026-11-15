@@ -7,6 +7,7 @@ import EstadoPagoBanner from '@/components/EstadoPagoBanner';
 import VerificarSuscripcionButton from '@/components/VerificarSuscripcionButton';
 import CancelarSuscripcionButton from '@/components/CancelarSuscripcionButton';
 import { resolveCurrentAccess } from '@/lib/paypal/access';
+import { proveedorDeFila, puedeCancelar } from '@/lib/billing/proveedor';
 import { buildUserIdentifierFromEmail, fechaDiaHn } from '@/lib/rate-limit';
 
 export const metadata: Metadata = {
@@ -16,10 +17,13 @@ export const metadata: Metadata = {
 export default async function CuentaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pago?: string }>;
+  searchParams: Promise<{ pago?: string; stripe?: string }>;
 }) {
   const params = await searchParams;
   const pagoExitoso = params.pago === 'exitoso';
+  // Retorno de Stripe Checkout (lib/stripe/client.ts, success_url). Como con PayPal, el parámetro NO prueba el pago: el plan solo cambia
+  // cuando el webhook (estado releído de la API de Stripe) lo aplica; el aviso de abajo se basa en el tier real del servidor.
+  const retornoStripe = params.stripe === 'ok';
 
   // ── Verificar sesión ──────────────────────────────────────────────────────
   const supabaseAuth = await createSupabaseServerClient();
@@ -35,7 +39,7 @@ export default async function CuentaPage({
 
   const { data: suscripcion } = await supabase
     .from('subscriptions')
-    .select('tier, status, current_period_end, paypal_sub_id')
+    .select('tier, status, current_period_end, paypal_sub_id, provider')
     .eq('user_identifier', userIdentifier)
     .single();
 
@@ -88,6 +92,18 @@ export default async function CuentaPage({
 
         {/* Aviso de pago — verifica el estado real, nunca asume por la URL */}
         {pagoExitoso && <EstadoPagoBanner tierActual={tier} userEmail={user.email ?? ''} />}
+        {retornoStripe && (
+          <div className="glass-card p-4 mb-5 text-sm" role="status">
+            {esPro || esAcademico ? (
+              <p className="text-jade">Pago con tarjeta confirmado: su suscripción está activa.</p>
+            ) : (
+              <p className="text-white/70">
+                Recibimos su regreso desde el pago con tarjeta. Su plan se activará en cuanto el procesador confirme el cobro
+                (normalmente en segundos). Actualice esta página en un momento; no es necesario volver a pagar.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Estado de suscripción */}
         <div className="glass-card p-6 mb-5">
@@ -176,8 +192,9 @@ export default async function CuentaPage({
               </p>
             </>
           )}
-          {(esPro || esAcademico) && suscripcion?.status === 'active' && (
-            <CancelarSuscripcionButton />
+          {/* 'admin' (fundador) incluido: su acceso no depende del cobro (lib/founder.ts), pero si probó un pago real debe poder detenerlo. */}
+          {(esPro || esAcademico || tier === 'admin') && puedeCancelar(suscripcion) && (
+            <CancelarSuscripcionButton proveedor={proveedorDeFila(suscripcion)} />
           )}
           {!esPro && !esAcademico && (
             <VerificarSuscripcionButton userEmail={user.email ?? ''} />

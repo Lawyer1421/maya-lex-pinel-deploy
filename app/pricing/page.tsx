@@ -5,6 +5,7 @@ import FooterV2 from '@/components/v2/FooterV2';
 import FAQV2 from '@/components/v2/FAQV2';
 import TarjetaPlan from '@/components/v2/TarjetaPlan';
 import { PLANES_V2 } from '@/components/v2/planes-data';
+import { pagoConTarjetaDisponible } from '@/lib/billing/tarjeta';
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — MAYA LEX IA',
@@ -35,6 +36,9 @@ const PREGUNTAS_PRECIOS = [
 ];
 
 export default function PricingPageV2() {
+  // Stripe apagado (por defecto) = solo PayPal, exactamente como antes. Se evalúa en el servidor: /pricing es estática, así que activar o
+  // desactivar STRIPE_ENABLED surte efecto en el siguiente despliegue (igual que cualquier variable de entorno en Vercel).
+  const conTarjeta = PLANES_V2.some((p) => pagoConTarjetaDisponible(p.paypalTier));
   return (
     <div className="min-h-screen bg-obsidian text-ivory">
       <NavV2 />
@@ -45,7 +49,7 @@ export default function PricingPageV2() {
             Un plan para cada etapa de la práctica jurídica — desde explorar hasta administrar un bufete completo.
           </p>
           <p className="mx-auto mt-3 max-w-xl text-xs text-ivory-muted">
-            Las suscripciones Académico y Premium se procesan de forma segura mediante PayPal y tienen renovación mensual automática.
+            Las suscripciones Académico y Premium se procesan de forma segura mediante {conTarjeta ? 'PayPal o tarjeta (Stripe)' : 'PayPal'} y tienen renovación mensual automática.
           </p>
         </section>
 
@@ -70,7 +74,7 @@ export default function PricingPageV2() {
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {PLANES_V2.map((plan) => (
-              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" />
+              <TarjetaPlan key={plan.id} plan={plan} nivelTitulo="h2" pagoConTarjeta={pagoConTarjetaDisponible(plan.paypalTier)} />
             ))}
           </div>
         </section>
