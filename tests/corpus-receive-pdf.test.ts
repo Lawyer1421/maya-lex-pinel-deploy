@@ -100,8 +100,11 @@ describe('receive-pdf: funciones puras', () => {
   it('sha256 coincide con el valor conocido', () => {
     expect(sha256('abc')).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
-  it('los cuatro perfiles existen y las páginas son huellas del ejemplar, no requisitos de validez', () => {
-    expect(Object.keys(PERFILES).sort()).toEqual(['HN-001-A01', 'HN-001-A02', 'HN-001-A03', 'HN-001-A04']);
+  it('los perfiles del Tramo A y del Tramo B existen y las páginas son huellas del ejemplar, no requisitos de validez', () => {
+    expect(Object.keys(PERFILES).sort()).toEqual([
+      'HN-001-A01', 'HN-001-A02', 'HN-001-A03', 'HN-001-A04',
+      'HN-002-B01', 'HN-002-B02', 'HN-002-B03', 'HN-002-B04', 'HN-002-B05', 'HN-002-B06',
+    ]);
     expect(PERFILES['HN-001-A01'].huellaPaginas).toBe(419);
     expect(PERFILES['HN-001-A02'].huellaPaginas).toBe(17);
   });
@@ -146,6 +149,75 @@ describe('receive-pdf: identidad normativa', () => {
     // La reforma cita en sus considerandos el Decreto 51-2011 (la ley que reforma): no es una discrepancia de identidad.
     const conConsiderandos = 'DECRETO No.284-2013 EL CONGRESO NACIONAL CONSIDERANDO: Que mediante Decreto No. 51-2011 fue aprobada la Ley. Reformar el Codigo de Comercio, articulo 1. Decreto.';
     expect(evaluarIdentidad(conConsiderandos, PERFILES['HN-001-A02']).estado).toBe('CONFIRMADA');
+  });
+});
+
+describe('receive-pdf: perfiles del Tramo B (HN-002, seis instrumentos fundamentales)', () => {
+  const TRAMO_B: ReadonlyArray<[string, string, string, string]> = [
+    // [paquete, identidad, encabezado (título + número), cuerpo con el contexto mínimo]
+    ['HN-002-B01', 'HN:CONSTITUCION', 'CONSTITUCION DE LA REPUBLICA DE HONDURAS Decreto Numero 131 de 1982',
+      'La Asamblea Nacional Constituyente decreta. La soberania corresponde al pueblo. El poder legislativo, el poder ejecutivo y el poder judicial.'],
+    ['HN-002-B02', 'HN:CODIGO_TRABAJO', 'CODIGO DEL TRABAJO Decreto No. 189-59',
+      'El contrato de trabajo obliga al patrono y al trabajador. El salario y la jornada se pactan.'],
+    ['HN-002-B03', 'HN:CODIGO_FAMILIA', 'CODIGO DE FAMILIA Decreto No. 76-84',
+      'El matrimonio une a los conyuges. La filiacion, la patria potestad y los alimentos.'],
+    ['HN-002-B04', 'HN:CODIGO_PENAL', 'CODIGO PENAL Decreto No. 130-2017',
+      'Comete delito quien actua con dolo. La pena de prision se impone conforme a la responsabilidad penal.'],
+    ['HN-002-B05', 'HN:CODIGO_PROCESAL_PENAL', 'CODIGO PROCESAL PENAL Decreto No. 9-99-E',
+      'El imputado tiene derecho a un defensor. El ministerio publico ejerce la accion en el proceso penal ante el juez.'],
+    ['HN-002-B06', 'HN:CODIGO_NOTARIADO', 'CODIGO DEL NOTARIADO Decreto No. 353-2005',
+      'El notario da fe publica. El protocolo contiene la escritura publica y todo instrumento publico.'],
+  ];
+
+  it.each(TRAMO_B)('%s: identidad %s válida, del catálogo y de Honduras', async (paquete, ref) => {
+    const { parsearInstrumentRef } = await import('@/lib/legal-retrieval/instrument-ref');
+    const perfil = PERFILES[paquete];
+    expect(perfil.instrumentRef).toBe(ref);
+    expect(parsearInstrumentRef(perfil.instrumentRef)).toMatchObject({ ok: true, pais: 'HN' });
+    // Sin huella ni Gaceta inventadas: se desconocen hasta ver el documento.
+    expect(perfil.huellaPaginas).toBeNull();
+    expect(perfil.gaceta).toBeNull();
+  });
+
+  it.each(TRAMO_B)('%s: título + número + contexto → CONFIRMADA', (paquete, _ref, cabecera, cuerpo) => {
+    expect(evaluarIdentidad(`${cabecera}\n${cuerpo}`, PERFILES[paquete])).toEqual({ estado: 'CONFIRMADA', hallazgos: [] });
+  });
+
+  it.each(TRAMO_B)('%s: sin número del instrumento → NO_CONFIRMADA (queda en RECEIVED, no se rechaza)', (paquete, _ref, cabecera, cuerpo) => {
+    const sinNumero = cabecera.replace(/Decreto.*$/i, '');
+    const r = evaluarIdentidad(`${sinNumero}\n${cuerpo}`, PERFILES[paquete]);
+    expect(r.estado).toBe('NO_CONFIRMADA');
+    expect(r.hallazgos.join(' ')).toMatch(/número/);
+  });
+
+  it.each(TRAMO_B)('%s: sin contexto documental suficiente → NO_CONFIRMADA', (paquete, _ref, cabecera) => {
+    expect(evaluarIdentidad(cabecera, PERFILES[paquete]).estado).toBe('NO_CONFIRMADA');
+  });
+
+  it('un PDF de un instrumento no se confirma con el perfil de otro', () => {
+    for (const [paquete] of TRAMO_B) {
+      for (const [otro, , cabecera, cuerpo] of TRAMO_B) {
+        if (otro === paquete) continue;
+        expect(evaluarIdentidad(`${cabecera}\n${cuerpo}`, PERFILES[paquete]).estado, `${otro} con el perfil ${paquete}`).not.toBe('CONFIRMADA');
+      }
+    }
+  });
+
+  it('el Reglamento del Código del Notariado (PCSJ-17-2012) no pasa por el Código (B06)', () => {
+    const reglamento = 'REGLAMENTO DEL CODIGO DEL NOTARIADO Decreto No. 353-2005 El notario da fe publica en el protocolo, escritura publica e instrumento publico.';
+    expect(evaluarIdentidad(reglamento, PERFILES['HN-002-B06']).estado).not.toBe('CONFIRMADA');
+  });
+
+  it('el Código Penal puede remitir al procesal, y el procesal al penal, sin volverse ambiguos', () => {
+    const [, , cabP, cuerpoP] = TRAMO_B[3];
+    const [, , cabCpp, cuerpoCpp] = TRAMO_B[4];
+    expect(evaluarIdentidad(`${cabP} conforme al Codigo Procesal Penal\n${cuerpoP}`, PERFILES['HN-002-B04']).estado).toBe('CONFIRMADA');
+    expect(evaluarIdentidad(`${cabCpp} conforme al Codigo Penal\n${cuerpoCpp}`, PERFILES['HN-002-B05']).estado).toBe('CONFIRMADA');
+  });
+
+  it('un encabezado que nombra otro código fundamental es ambiguo', () => {
+    const [, , cab, cuerpo] = TRAMO_B[1];
+    expect(evaluarIdentidad(`${cab} y Codigo de Comercio\n${cuerpo}`, PERFILES['HN-002-B02']).estado).toBe('AMBIGUA');
   });
 });
 
