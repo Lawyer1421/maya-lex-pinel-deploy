@@ -7,6 +7,7 @@ import {
   MENSAJE_JURISDICCION_NO_HABILITADA,
 } from '@/lib/legal-retrieval/jurisdiccion-consulta';
 import { decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
+import { formatearContextoRAG } from '@/lib/legal-retrieval/evidence-engine';
 import { ARCHIVOS_PRODUCCION_JURIDICA } from '@/lib/ai-gateway/canary/evidence-integrity';
 import { KNOWN_FLAGS } from '@/lib/flags';
 import type { FragmentoRAG } from '@/lib/legal-retrieval/types';
@@ -118,6 +119,42 @@ describe('CLO con país objetivo', () => {
   });
   it('la identidad país-calificada nunca confiere identidad', () => {
     expect(clasificarFragmentoClo(frag({ fuente: 'Fuente sin instrumento', norm_id: 'HN:CODIGO_CIVIL' })).bloqueos).toContain('SIN_INSTRUMENT_ID');
+  });
+});
+
+describe('evidence-engine: rótulo según la jurisdicción activa', () => {
+  const contexto = (fragmentos: FragmentoRAG[]) => formatearContextoRAG({ fragmentos, articulos_encontrados: ['5'], backend: 'supabase' });
+  const etiquetas = (texto: string) => [...texto.matchAll(/\[FRAGMENTO \d+[^\n]*? \[(.+?)\] \| similitud/g)].map((m) => m[1]);
+  const doctrina = (o: Partial<FragmentoRAG>) => frag({ fuente: 'Sentencia de casación', fuente_tipo: 'sentencia', es_norma_vigente: null, ...o });
+
+  it('sin país (o HN sellado): texto idéntico al de siempre', () => {
+    const base = [frag(), doctrina({ id: 'd', jurisdiccion: 'SV' })];
+    const sinPais = contexto(base);
+    expect(contexto(anotarFragmentosClo(base, { jurisdiccionObjetivo: 'HN' }))).toBe(contexto(anotarFragmentosClo(base)));
+    expect(etiquetas(sinPais)).toEqual(['NORMA VIGENTE HONDURAS', 'DOCTRINA/JURISPRUDENCIA COMPARADA — SV']);
+    expect(sinPais).toContain('DERECHO POSITIVO DE HONDURAS');
+    expect(sinPais).toContain('[NORMA VIGENTE HONDURAS]. Fragmentos');
+  });
+
+  it('consulta SV con fuente SV: norma vigente de El Salvador, no comparada', () => {
+    const texto = contexto(anotarFragmentosClo([frag({ jurisdiccion: 'SV' }), doctrina({ id: 'd', jurisdiccion: 'SV' })], { jurisdiccionObjetivo: 'SV' }));
+    expect(etiquetas(texto)).toEqual(['NORMA VIGENTE EL SALVADOR', 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE']);
+    expect(texto).not.toMatch(/COMPARADA|HONDURAS/);
+    expect(texto).toContain('[NORMA VIGENTE EL SALVADOR]. Fragmentos');
+  });
+
+  it('consulta SV con fuente de otra jurisdicción (HN, PE, INTERNACION): comparada o contexto, nunca norma vigente', () => {
+    const texto = contexto(anotarFragmentosClo([
+      doctrina({ id: 'hn', jurisdiccion: 'HN' }), doctrina({ id: 'pe', jurisdiccion: 'PE' }), doctrina({ id: 'int', jurisdiccion: 'INTERNACION' }), frag({ id: 'n' }),
+    ], { jurisdiccionObjetivo: 'SV' }));
+    const e = etiquetas(texto);
+    expect(e.filter((x) => x.startsWith('DOCTRINA/JURISPRUDENCIA COMPARADA')).sort()).toEqual(['DOCTRINA/JURISPRUDENCIA COMPARADA — HN', 'DOCTRINA/JURISPRUDENCIA COMPARADA — INTERNACION', 'DOCTRINA/JURISPRUDENCIA COMPARADA — PE']);
+    expect(e.some((x) => x.startsWith('NORMA VIGENTE'))).toBe(false);
+    expect(e).toContain('CONTEXTO (JURISDICCION_DISTINTA_DEL_OBJETIVO) — NO CITAR COMO NORMA');
+  });
+
+  it('Panamá conserva la tilde en el rótulo', () => {
+    expect(etiquetas(contexto(anotarFragmentosClo([frag({ jurisdiccion: 'PA' })], { jurisdiccionObjetivo: 'PA' })))).toEqual(['NORMA VIGENTE PANAMÁ']);
   });
 });
 

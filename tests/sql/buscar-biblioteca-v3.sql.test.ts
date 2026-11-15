@@ -26,6 +26,10 @@ const FILAS: Fila[] = [
   { id: 'pa-1', jurisdiccion: 'PA', embedding: [1, 0.04] },
   { id: 'null-1', jurisdiccion: null, embedding: [1, 0.05] },
   { id: 'hn-min', jurisdiccion: 'hn', embedding: [1, 0.06] },
+  // Regla de la Fase 3: derecho comparado (PE, ES) y tratados (INTERNACION) nunca se mezclan con la norma interna de ningún país.
+  { id: 'pe-1', jurisdiccion: 'PE', embedding: [1, 0] },
+  { id: 'es-1', jurisdiccion: 'ES', embedding: [1, 0] },
+  { id: 'int-1', jurisdiccion: 'INTERNACION', embedding: [1, 0] },
   { id: 'hn-1', jurisdiccion: 'HN', embedding: [1, 0.5], materia: 'CIVIL', vigente: true },
   { id: 'hn-2', jurisdiccion: 'HN', embedding: [1, 1], materia: 'PENAL', vigente: false },
   { id: 'hn-pend', jurisdiccion: 'HN', embedding: [1, 0.1], pendiente: true },
@@ -97,7 +101,13 @@ describe('buscar_biblioteca_v3 — aislamiento por jurisdicción', () => {
     expect(todos.map((r) => r.id)).not.toContain('hn-min');
   });
 
-  it.each([null, '', 'hn', ' HN', 'Honduras', 'BZ', 'US'])('rechaza jurisdiccion_filtro %j con error explícito', async (pais) => {
+  it('PE, ES e INTERNACION nunca aparecen en la búsqueda de ninguno de los seis países', async () => {
+    const ids = (await Promise.all(['HN', 'SV', 'GT', 'CR', 'NI', 'PA'].map((pais) => v3({ pais })))).flat().map((r) => r.id);
+    for (const id of ['pe-1', 'es-1', 'int-1']) expect(ids).not.toContain(id);
+  });
+
+  // Hoy no existe modo de derecho comparado ni de control de convencionalidad: pedirlos es un error, no una búsqueda sin filtro.
+  it.each([null, '', 'hn', ' HN', 'Honduras', 'BZ', 'US', 'PE', 'ES', 'INTERNACION'])('rechaza jurisdiccion_filtro %j con error explícito', async (pais) => {
     await expect(v3({ pais })).rejects.toThrow(/jurisdiccion_filtro inválida/);
   });
 

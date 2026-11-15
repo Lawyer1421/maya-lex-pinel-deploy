@@ -59,6 +59,20 @@ Pruebas SQL y de integración en staging: las filas de otro país no aparecen in
 - Mantener las reglas existentes de vigencia, tipo de fuente, instrumento, materia, práctica notarial, P21 y suficiencia R3. La extensión multi-país solo puede conservar o agregar bloqueos, no relajar criterios ni permitir que metadata entrante ascienda una fila a `PRIMARY`.
 - Enrutamiento: HN puede conservar el comportamiento por defecto actual cuando la consulta no mencione país. País mencionado pero no habilitado/sin corpus aprobado y mención de varios países deben pedir aclaración o abstenerse antes del retrieval; nunca caer a HN.
 
+### 4. Reglas de clasificación fuera de los seis países (decisión del Titular, 2026-11-15)
+
+Valores observados en staging (`biblioteca_vectores.jurisdiccion`): `HN` 38, `PE` 5, `INTERNACION` 4, `ES` 3.
+
+- `HN` es derecho interno primario de Honduras y queda estrictamente aislado. Una búsqueda de norma interna `HN` nunca incluye `PE`, `ES` ni `INTERNACION`. Lo mismo vale para los otros cinco países.
+- `INTERNACION` (tratados y convenciones) se consulta solo cuando la jurisdicción solicitada sea `'INTERNACION'` o en un modo explícito de control de convencionalidad o derecho internacional.
+- `PE` y `ES` quedan aisladas bajo su propio código, solo para derecho comparado explícito.
+- **Estado de la implementación:**
+  - La búsqueda v3 de los seis países nunca devuelve esas filas (filtro exacto en SQL; probado en `tests/sql/buscar-biblioteca-v3.sql.test.ts`).
+  - Aún no existe el modo de derecho comparado ni el de convencionalidad. Por eso `buscar_biblioteca_v3` rechaza `'PE'`, `'ES'` e `'INTERNACION'` como filtro, en lugar de buscar sin filtro.
+  - Habilitarlos requiere una migración que amplíe la lista admitida y un modo explícito en la ruta que la resuelva. Ninguno de los dos se infiere de la consulta.
+- **Ruta con el flag apagado:** con `flag_multi_jurisdiccion_v3` apagado, la ruta v2 no filtra por país. Esas filas pueden llegar como contexto, rotuladas «comparada» o CONTEXT por el CLO, nunca como PRIMARY. El aislamiento estricto rige con el flag encendido.
+- **Rótulo:** «comparada» se aplica solo cuando la jurisdicción del fragmento es distinta de la activa en la consulta. Una norma del país activo que el CLO acepta como PRIMARY se rotula `NORMA VIGENTE <PAÍS>`. Con HN activo, el texto es idéntico al previo.
+
 ## Secuencia de entrega y puertas
 
 1. **Contratos y pruebas puras:** catálogo cerrado de países/instrumentos, normalización, casos de país ausente/ambiguo/no habilitado y pruebas CLO de coincidencia/mismatch. HN conserva las regresiones actuales.
