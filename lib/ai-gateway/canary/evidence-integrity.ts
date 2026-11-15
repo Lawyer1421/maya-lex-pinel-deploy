@@ -34,6 +34,13 @@ export const ARCHIVOS_PRODUCCION_JURIDICA: readonly string[] = [
   'lib/legal-retrieval/instrument-gate.ts',
   'lib/legal-retrieval/primitives.ts',
   'lib/legal-retrieval/types.ts',
+  // Multi-jurisdicción v3: lógica que decide país objetivo, identidad país-calificada y PRIMARY por país.
+  'lib/legal-retrieval/clo-guards.ts',
+  'lib/legal-retrieval/instrument-ref.ts',
+  'lib/legal-retrieval/instrument-identity.ts',
+  'lib/legal-retrieval/jurisdiccion-consulta.ts',
+  'lib/legal-retrieval/retrieval-session.ts',
+  'lib/legal-os/jurisdiction/registry.ts',
 ];
 
 /** Código y benchmarks que producen las métricas de privacidad y la envolvente del primer canary. */

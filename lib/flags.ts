@@ -61,6 +61,11 @@ export const KNOWN_FLAGS = [
   // exige LUNA_ENABLED=1 en el entorno. Sin fila sembrada: fila ausente = false = Luna apagada para todos. Sembrar la fila
   // (enabled + allowed_emails para un canario) es decisión del propietario, separada del merge y del deploy.
   'flag_luna_responses',
+  // Multi-jurisdicción v3 (docs/retrieval/MULTI_JURISDICTION_V3_TECHNICAL_DESIGN.md) — /api/chat resuelve el país objetivo, busca con
+  // buscar_biblioteca_v3 (exacta y semántica filtradas por país) y el CLO compara contra ese país. Sin fila sembrada: fila ausente = false =
+  // camino v2 actual. buscar_biblioteca_v3 existe solo en staging: NO sembrar en producción sin aplicar antes la migración 20261115000000
+  // con aprobación expresa del Titular.
+  'flag_multi_jurisdiccion_v3',
 ] as const;
 
 export type FlagName = (typeof KNOWN_FLAGS)[number];

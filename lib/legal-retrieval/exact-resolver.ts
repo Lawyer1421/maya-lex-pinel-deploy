@@ -22,6 +22,7 @@ import type { FragmentoRAG } from './types';
 import { contieneArtefactoAnonimizacion, hashFragmento } from './primitives';
 import { RE_FUENTE_POR_INSTRUMENTO, identidadDeFuente, type InstrumentoNormalizado } from './instrument-identity';
 import { anotarFragmentosClo } from './clo-guards';
+import type { JurisdiccionV3 } from './instrument-ref';
 
 export type { InstrumentoNormalizado };
 export { identidadDeFuente };
@@ -416,11 +417,16 @@ export interface FilaExactaDB {
  * de artículo, fuente_tipo o vigencia solamente. Si el usuario NO mencionó
  * ningún instrumento ("Artículo 173" a secas), la búsqueda exacta se
  * abstiene — no adivina cuál instrumento quiso decir.
+ *
+ * `jurisdiccion` (multi-jurisdicción v3, opcional): solo se aceptan filas cuya
+ * columna `jurisdiccion` sea EXACTAMENTE ese país; sin país o de otro país se
+ * descartan antes de evaluar ambigüedad. Ausente = comportamiento previo.
  */
 export function resolverArticuloExacto(
   filas: FilaExactaDB[],
   numero: string,
   instrumentoSolicitado: InstrumentoNormalizado | null,
+  jurisdiccion?: JurisdiccionV3,
 ): ResultadoExacto {
   if (filas.length === 0) return { fragmentos: [], ambiguo: false };
   if (!instrumentoSolicitado) return { fragmentos: [], ambiguo: false };
@@ -438,6 +444,7 @@ export function resolverArticuloExacto(
   //    tres, se trata como "no encontrado" — mejor abstenerse que citar un
   //    fragmento degradado, mal atribuido o del instrumento equivocado.
   const limpias = filas
+    .filter((row) => !jurisdiccion || row.jurisdiccion === jurisdiccion)
     .filter((row) => !contieneArtefactoAnonimizacion(row.contenido))
     .filter((row) =>
       tieneEncabezadoArticulo(row.contenido, numero) ||
@@ -474,7 +481,7 @@ export function resolverArticuloExacto(
     // Rol declarado y norma desplazada de la metadata de la fila: el clasificador CLO los lee y solo pueden degradar a CONTEXT.
     metadata_clo: { rol: row.metadata?.rol, desplazado_por: row.metadata?.desplazado_por, elegible_primary: row.metadata?.elegible_primary, norm_id: row.metadata?.norm_id, p21: row.metadata?.p21 },
     hash: hashFragmento({ contenido: row.contenido, num_articulo: row.num_articulo, fuente: row.fuente }),
-  })));
+  })), jurisdiccion ? { jurisdiccionObjetivo: jurisdiccion } : {});
 
   return { fragmentos, ambiguo: false };
 }

@@ -31,6 +31,8 @@ import {
   MENSAJE_CONFIGURACION_NO_DISPONIBLE,
   MENSAJE_RETRIEVAL_ERROR,
 } from '@/lib/legal-retrieval/retrieval-outcome';
+import type { JurisdiccionV3 } from '@/lib/legal-retrieval/instrument-ref';
+import { abstencionPorJurisdiccion, type JurisdiccionConsulta } from '@/lib/legal-retrieval/jurisdiccion-consulta';
 
 /** Contexto recuperado para el prompt. `outcome` refleja SOLO la colección principal. */
 export interface EvidenciaCorpus {
@@ -49,6 +51,8 @@ export interface ParametrosRecuperacion {
   rerank: boolean;
   /** flag_corpus_p21 resuelto por la ruta. Ausente = apagado (fail-closed). */
   corpusP21?: boolean;
+  /** País objetivo (flag_multi_jurisdiccion_v3 resuelto por la ruta). Ausente = camino v2 sin filtro de país, como siempre. */
+  jurisdiccion?: JurisdiccionV3;
 }
 
 /**
@@ -59,7 +63,7 @@ export interface ParametrosRecuperacion {
  * sustituye el outcome de la colección principal.
  */
 export async function recuperarEvidenciaCorpus(p: ParametrosRecuperacion): Promise<EvidenciaCorpus> {
-  const ragResultado = await buscarRAG(p.pregunta, 5, p.coleccionPrincipal, p.materiaFiltro, { rerank: p.rerank, corpusP21: p.corpusP21 });
+  const ragResultado = await buscarRAG(p.pregunta, 5, p.coleccionPrincipal, p.materiaFiltro, { rerank: p.rerank, corpusP21: p.corpusP21, jurisdiccion: p.jurisdiccion });
   let contextoRAG = formatearContextoRAG(ragResultado);
   const fragmentos = [...ragResultado.fragmentos];
 
@@ -68,7 +72,7 @@ export async function recuperarEvidenciaCorpus(p: ParametrosRecuperacion): Promi
     // (lib/rag/embed.ts), así que no repite la llamada a HF. Las pasadas siguen EN SECUENCIA: en paralelo, el ejecutor de vitest entrega
     // el módulo real (no el simulado) a la segunda de dos import() dinámicos simultáneos del mismo módulo, y la suite dejaría de probar
     // este camino. Paralelizar exige cargar las dependencias una sola vez en semantic-retriever.ts / search.ts (fijados por la evidencia G6).
-    const ragProc = await buscarRAG(p.pregunta, 3, 'mayalex_procedimental', undefined, { rerank: p.rerank, corpusP21: p.corpusP21 });
+    const ragProc = await buscarRAG(p.pregunta, 3, 'mayalex_procedimental', undefined, { rerank: p.rerank, corpusP21: p.corpusP21, jurisdiccion: p.jurisdiccion });
     const intencionPregunta = clasificarIntencionInstrumental(p.pregunta);
     const procPermitidos = evidenciaProcedimentalPermitida(
       ragResultado.fragmentos, ragProc.fragmentos, intencionPregunta,
@@ -101,12 +105,23 @@ export interface DecisionAbstencion {
  * procedimental no puede crear evidencia por sí sola
  * (PROCEDURAL_PASS_CAN_MASK_PRIMARY_INSUFFICIENCY). Si falta `outcome` se usa
  * `fragmentos.length === 0` como respaldo explícito.
+ *
+ * `jurisdiccion` (multi-jurisdicción v3, opcional): en una ruta con corpus, un país
+ * no habilitado o una consulta con varios países se abstienen SIEMPRE, con su
+ * propio mensaje, aunque la pregunta no parezca exigir corpus: nunca se responde
+ * con derecho de otro país. Ausente = comportamiento previo.
  */
 export function decidirAbstencion(
   pregunta: string,
   rutaCorpusObligatoria: boolean,
   evidencia: Pick<EvidenciaCorpus, 'fragmentos' | 'outcome'>,
+  jurisdiccion?: JurisdiccionConsulta,
 ): DecisionAbstencion {
+  const porJurisdiccion = rutaCorpusObligatoria && jurisdiccion ? abstencionPorJurisdiccion(jurisdiccion) : null;
+  if (porJurisdiccion) {
+    return { evidenciaInsuficiente: true, esFalloDeSistema: false, mensajeAbstencion: porJurisdiccion.mensaje, codigoAbstencion: porJurisdiccion.codigo };
+  }
+
   const evidenciaPrimariaInsuficiente = evidencia.outcome
     ? (evidencia.outcome.evidenceCount ?? 0) === 0
     : evidencia.fragmentos.length === 0;
