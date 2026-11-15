@@ -12,6 +12,8 @@
  * resolver_articulo_exacto); la identidad completa va en metadata.norm_id, que el CLO coteja con la jurisdicción de la fila.
  *
  * Uso: npx tsx scripts/ingesta-lote-staging.ts <pdf> <paquete.json> <HN:INSTRUMENTO> <ingest_batch> <fuente> <salida_dir> [columnas=1|2] [fuente_tipo=codigo|ley|reglamento|acuerdo]
+ *      [--transcripcion <txt> --transcripcion-sha256 <hex firmado por el CLO> --cotejado-por "<quién, rol, fecha>"]
+ * Con --transcripcion el texto no sale del PDF: ver validarTranscripcion (el PDF debe ser el del candidato CLO_PENDING y el hash, el firmado).
  * Salida: <salida_dir>/{rows.jsonl, ingest_exceptions.log, REPORTE.md, insert_staging.sql}
  */
 import { createHash } from 'node:crypto';
@@ -125,12 +127,67 @@ export function procedenciaDelPaquete(estado: unknown): string {
   return `Estado del receptor ${typeof estado === 'string' && estado ? estado : 'desconocido'}: procedencia institucional NO verificada`;
 }
 
+export interface TranscripcionCotejada {
+  /** Texto con fin de línea normalizado a \n: el que se segmenta e ingiere. */
+  texto: string;
+  meta: { texto_origen: 'TRANSCRIPCION_COTEJADA'; transcripcion_sha256: string; cotejado_por: string; ocr_text_sha256: string | null };
+}
+
+/**
+ * Transcripción cotejada (decisión D3 del CLO, opción a; piloto D.284-2013): el texto que se ingiere NO sale del PDF sino de una transcripción
+ * que una persona cotejó contra las páginas escaneadas del PDF oficial. Se exige, sin excepciones y antes de escribir nada:
+ *  · el PDF es EXACTAMENTE el del candidato (mismo bytes_sha256): la transcripción queda ligada a la huella del documento oficial;
+ *  · el candidato está en CLO_PENDING (fuente validada en el registro): nunca sobre un SOURCE_HOLD;
+ *  · el sha256 de la transcripción coincide con el que firmó el CLO: se ingiere exactamente lo firmado;
+ *  · consta quién cotejó (mínimo 10 caracteres).
+ */
+export function validarTranscripcion(p: {
+  bytesSha256: string; paquete: { estado?: unknown; hashes?: { bytes_sha256?: unknown; text_sha256?: unknown } };
+  transcripcion: string; shaFirmado: string | undefined; cotejadoPor: string | undefined;
+}): TranscripcionCotejada {
+  const esperado = p.paquete.hashes?.bytes_sha256;
+  if (typeof esperado !== 'string' || esperado.toLowerCase() !== p.bytesSha256.toLowerCase()) {
+    throw new Error(`el PDF (${p.bytesSha256}) no es el documento oficial del candidato (${String(esperado)}): la transcripción no se puede ligar a él`);
+  }
+  if (p.paquete.estado !== 'CLO_PENDING') throw new Error(`el candidato está en ${String(p.paquete.estado)}: una transcripción solo se ingiere sobre un candidato CLO_PENDING`);
+  const texto = p.transcripcion.replace(/\r\n?/g, '\n');
+  const calculado = sha(texto);
+  if (!p.shaFirmado || calculado !== p.shaFirmado.trim().toLowerCase()) {
+    throw new Error(`la transcripción (${calculado}) no es la firmada por el CLO (${p.shaFirmado ?? 'falta --transcripcion-sha256'})`);
+  }
+  const cotejadoPor = p.cotejadoPor?.trim() ?? '';
+  if (cotejadoPor.length < 10) throw new Error('falta --cotejado-por "<quién cotejó, rol y fecha>" (mínimo 10 caracteres)');
+  const ocr = p.paquete.hashes?.text_sha256;
+  return { texto, meta: { texto_origen: 'TRANSCRIPCION_COTEJADA', transcripcion_sha256: calculado, cotejado_por: cotejadoPor, ocr_text_sha256: typeof ocr === 'string' ? ocr : null } };
+}
+
+/** Separa los argumentos posicionales de las opciones `--nombre valor`. */
+function leerArgumentos(argv: readonly string[]): { posicionales: string[]; opciones: Map<string, string> } {
+  const posicionales: string[] = [];
+  const opciones = new Map<string, string>();
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i].startsWith('--')) { opciones.set(argv[i].slice(2), argv[i + 1] ?? ''); i++; } else posicionales.push(argv[i]);
+  }
+  return { posicionales, opciones };
+}
+
 function main(): void {
-  const [pdf, paquete, instrumentoRef, ingestBatch, fuente, salida, columnas = '1', tipo = 'codigo'] = process.argv.slice(2);
+  const { posicionales, opciones } = leerArgumentos(process.argv.slice(2));
+  const [pdf, paquete, instrumentoRef, ingestBatch, fuente, salida, columnas = '1', tipo = 'codigo'] = posicionales;
   if (!pdf || !paquete || !instrumentoRef || !ingestBatch || !fuente || !salida) throw new Error('uso: ver cabecera del archivo');
   // Primero la identidad: con HN:<INSTRUMENTO> inválido no se lee el PDF ni se crea el directorio de salida.
   validarRefHN(instrumentoRef);
   const bytes = readFileSync(pdf);
+  const rutaTranscripcion = opciones.get('transcripcion');
+  if (rutaTranscripcion) {
+    const pkgT = JSON.parse(readFileSync(paquete, 'utf8'));
+    const t = validarTranscripcion({
+      bytesSha256: sha(bytes), paquete: pkgT, transcripcion: readFileSync(rutaTranscripcion, 'utf8'),
+      shaFirmado: opciones.get('transcripcion-sha256'), cotejadoPor: opciones.get('cotejado-por'),
+    });
+    escribirLote({ bytes, texto: t.texto, extra: t.meta, pkg: pkgT, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: false });
+    return;
+  }
   let r: { status: number | null; stderr: string; stdout: string };
   if (columnas === '2') {
     const info = spawnSync('pdfinfo', [pdf], { encoding: 'utf8' });
@@ -141,12 +198,24 @@ function main(): void {
     if (r.status !== 0) throw new Error(`pdftotext falló: ${r.stderr}`);
   }
   const pkg = JSON.parse(readFileSync(paquete, 'utf8'));
-  const textoSha = sha(r.stdout);
+  escribirLote({ bytes, texto: r.stdout, extra: {}, pkg, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: true });
+}
+
+/**
+ * Escribe el lote (rows.jsonl, SQL, excepciones y reporte). `compararConPaquete`: con texto extraído del PDF, cada artículo se coteja con los
+ * hashes del candidato; con una transcripción cotejada NO (el candidato guarda los hashes del OCR, que la transcripción corrige a propósito).
+ */
+function escribirLote(p: {
+  bytes: Buffer; texto: string; extra: Record<string, unknown>; pkg: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  instrumentoRef: string; ingestBatch: string; fuente: string; salida: string; tipo: string; compararConPaquete: boolean;
+}): void {
+  const { pkg, instrumentoRef, ingestBatch, fuente, salida, tipo } = p;
+  const textoSha = sha(p.texto);
   const hashes = new Map<string, string>();
   const cont = new Map<string, number>();
-  for (const a of pkg.articulos ?? []) { const k = (cont.get(a.numero) ?? 0) + 1; cont.set(a.numero, k); hashes.set(`${a.numero}#${k}`, a.sha256); }
-  const meta = { bytes_sha256: sha(bytes), text_sha256: textoSha, paquete: pkg.candidate_id, estado_fuente: pkg.estado, procedencia: procedenciaDelPaquete(pkg.estado), decreto: pkg.identidad?.decree ?? null };
-  const lote = construirLote({ texto: r.stdout, instrumentoRef, ingestBatch, fuente, fuenteTipo: tipo as FilaLote['fuente_tipo'], meta, hashesPaquete: hashes });
+  if (p.compararConPaquete) for (const a of pkg.articulos ?? []) { const k = (cont.get(a.numero) ?? 0) + 1; cont.set(a.numero, k); hashes.set(`${a.numero}#${k}`, a.sha256); }
+  const meta = { bytes_sha256: sha(p.bytes), text_sha256: textoSha, paquete: pkg.candidate_id, estado_fuente: pkg.estado, procedencia: procedenciaDelPaquete(pkg.estado), decreto: pkg.identidad?.decree ?? null, ...p.extra };
+  const lote = construirLote({ texto: p.texto, instrumentoRef, ingestBatch, fuente, fuenteTipo: tipo as FilaLote['fuente_tipo'], meta, hashesPaquete: hashes });
   mkdirSync(salida, { recursive: true });
   writeFileSync(join(salida, 'rows.jsonl'), lote.filas.map((f) => JSON.stringify(f)).join('\n') + '\n');
   writeFileSync(join(salida, 'ingest_exceptions.log'), lote.excepciones.map((e) => `${e.codigo}\tart.${e.articulo}\t${e.detalle}`).join('\n') + '\n');
@@ -161,8 +230,10 @@ function main(): void {
   writeFileSync(join(salida, 'REPORTE.md'), [
     `# Reporte de ingesta · ${ingestBatch} · ${instrumentoRef}`,
     `- procedencia: ${meta.procedencia}`,
-    `- bytes_sha256 ${meta.bytes_sha256} ${paquete && pkg.hashes?.bytes_sha256 === meta.bytes_sha256 ? '(coincide con el paquete)' : '(NO coincide con el paquete)'}`,
-    `- text_sha256 ${textoSha} ${pkg.hashes?.text_sha256 === textoSha ? '(coincide con el paquete)' : '(difiere del paquete)'}`,
+    `- bytes_sha256 ${meta.bytes_sha256} ${pkg.hashes?.bytes_sha256 === meta.bytes_sha256 ? '(coincide con el paquete)' : '(NO coincide con el paquete)'}`,
+    p.compararConPaquete
+      ? `- text_sha256 ${textoSha} ${pkg.hashes?.text_sha256 === textoSha ? '(coincide con el paquete)' : '(difiere del paquete)'}`
+      : `- texto: TRANSCRIPCIÓN COTEJADA sha256 ${textoSha} (cotejada por: ${String(p.extra.cotejado_por)}); OCR del paquete ${String(pkg.hashes?.text_sha256)} no se ingiere`,
     `- artículos a insertar: ${lote.resumen.articulos} · paquete: ${pkg.articulos?.length ?? '?'}`,
     `- excepciones: ${lote.resumen.excepciones} (${[...porCodigo].map(([k, v]) => `${k}: ${v}`).join(', ')})`,
     `- hashes de artículo que divergen del paquete: ${lote.resumen.divergentes_del_paquete}`,

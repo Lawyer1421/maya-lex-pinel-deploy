@@ -1,0 +1,466 @@
+{
+  "estado": "PENDIENTE_COTEJO_CLO",
+  "advertencia": "Transcripción CANDIDATA: no está cotejada. Solo una persona la coteja contra las páginas escaneadas del PDF oficial y firma su sha256.",
+  "texto_base": {
+    "paquete": "docs/corpus/inbox/2026-11-04-hn-001-tranche-a-drive/HN-001-A02.json",
+    "bytes_sha256": "ea81bfa6146f0cb70e275690b19aad19609da794553afe7073ee7df6c97217ae",
+    "text_sha256": "bcc012db1cb4e821244ed30dfa0035129e8105413440bc7ad9d2b3c9804ffdd1",
+    "source_url": "https://drive.google.com/file/d/17eKx426tKGRl148iL_6khN7H6MxYSkok/view"
+  },
+  "edicion": {
+    "fecha": "5 DE JUNIO DEL 2014",
+    "numero": "33,445"
+  },
+  "transcripcion_sha256": "def44e4872182d34ec52cffaff1141bceb636c9a968c31a5b7931dcf2dc8b74e",
+  "caracteres": 48366,
+  "lineas_quitadas": [
+    {
+      "linea": 1,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 3,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 37,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 39,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 41,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 76,
+      "texto": "A."
+    },
+    {
+      "linea": 78,
+      "texto": "24"
+    },
+    {
+      "linea": 79,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 81,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 117,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 119,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 121,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 156,
+      "texto": "A."
+    },
+    {
+      "linea": 158,
+      "texto": "25"
+    },
+    {
+      "linea": 159,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 161,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 195,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 197,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 199,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 233,
+      "texto": "A."
+    },
+    {
+      "linea": 235,
+      "texto": "26"
+    },
+    {
+      "linea": 236,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 238,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 276,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 278,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 280,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 312,
+      "texto": "A."
+    },
+    {
+      "linea": 314,
+      "texto": "27"
+    },
+    {
+      "linea": 315,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 317,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 351,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 353,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 355,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 392,
+      "texto": "A."
+    },
+    {
+      "linea": 394,
+      "texto": "28"
+    },
+    {
+      "linea": 395,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 397,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 431,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 433,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 435,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 469,
+      "texto": "A."
+    },
+    {
+      "linea": 471,
+      "texto": "29"
+    },
+    {
+      "linea": 472,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 474,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 508,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 510,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 512,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 551,
+      "texto": "A."
+    },
+    {
+      "linea": 553,
+      "texto": "30"
+    },
+    {
+      "linea": 554,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 556,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 589,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 591,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 593,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 628,
+      "texto": "A."
+    },
+    {
+      "linea": 630,
+      "texto": "31"
+    },
+    {
+      "linea": 631,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 633,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 668,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 670,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 672,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 708,
+      "texto": "A."
+    },
+    {
+      "linea": 710,
+      "texto": "32"
+    },
+    {
+      "linea": 711,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 713,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 749,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 751,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 753,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 789,
+      "texto": "A."
+    },
+    {
+      "linea": 791,
+      "texto": "33"
+    },
+    {
+      "linea": 792,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 794,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 829,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 831,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 833,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 870,
+      "texto": "A."
+    },
+    {
+      "linea": 872,
+      "texto": "34"
+    },
+    {
+      "linea": 873,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 875,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 910,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 912,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 914,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 949,
+      "texto": "A."
+    },
+    {
+      "linea": 951,
+      "texto": "35"
+    },
+    {
+      "linea": 952,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 954,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 987,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 989,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 991,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 1025,
+      "texto": "A."
+    },
+    {
+      "linea": 1027,
+      "texto": "36"
+    },
+    {
+      "linea": 1028,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 1030,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 1066,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1068,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 1070,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 1104,
+      "texto": "A."
+    },
+    {
+      "linea": 1106,
+      "texto": "37"
+    },
+    {
+      "linea": 1107,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 1109,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 1143,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1145,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 1147,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 1181,
+      "texto": "A."
+    },
+    {
+      "linea": 1183,
+      "texto": "38"
+    },
+    {
+      "linea": 1184,
+      "texto": "La Gaceta"
+    },
+    {
+      "linea": 1186,
+      "texto": "REPÚBLICA DE HONDURAS - TEGUCIG"
+    },
+    {
+      "linea": 1221,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1223,
+      "texto": "GALPA, M. D. C., 5 DE JUNIO DEL 2014"
+    },
+    {
+      "linea": 1225,
+      "texto": "No. 33,445"
+    },
+    {
+      "linea": 1258,
+      "texto": "A."
+    },
+    {
+      "linea": 1260,
+      "texto": "39"
+    }
+  ]
+}
