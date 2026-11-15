@@ -7,7 +7,7 @@ const TEXTO = [
   'Artículo 4.- Cuarto artículo con texto suficiente para no ser corto en absoluto.',
   'Artículo 4.- Cuarto artículo repetido con texto distinto y suficiente largo para no ser corto.',
 ].join('\n');
-const base = { texto: TEXTO, instrumentoId: 'CODIGO_COMERCIO', ingestBatch: 'TRAMO_A_LOTE_01', fuente: 'Codigo de Comercio', fuenteTipo: 'codigo' as const, meta: {} };
+const base = { texto: TEXTO, instrumentoRef: 'HN:CODIGO_COMERCIO', ingestBatch: 'TRAMO_A_LOTE_01', fuente: 'Codigo de Comercio', fuenteTipo: 'codigo' as const, meta: {} };
 
 describe('ingesta por lotes a staging', () => {
   const l = construirLote(base);
@@ -46,7 +46,8 @@ describe('notas al pie como registros aparte', () => {
     { referido: '123-A', sha256: 'b'.repeat(64), texto: 'Adicionado mediante Decreto 9-2014.' },
     { referido: 'TITULO II', sha256: 'c'.repeat(64), texto: 'Nota que anota una división.' },
   ];
-  const filas = construirNotas({ notas, instrumentoId: 'CODIGO_NINEZ_ADOLESCENCIA', ingestBatch: 'TRAMO_A_LOTE_03_NOTAS', fuente: 'Codigo de la Ninez', meta: {} });
+  // El Código de la Niñez no está en el catálogo cerrado de instrument-ref: la prueba usa un instrumento del catálogo.
+  const filas = construirNotas({ notas, instrumentoRef: 'HN:CODIGO_FAMILIA', ingestBatch: 'TRAMO_A_LOTE_03_NOTAS', fuente: 'Codigo de Familia', meta: {} });
   it('nunca son norma: tipo nota_al_pie, ocultas, vigencia NULL, sin embedding', () => {
     for (const f of filas) {
       expect(f.fuente_tipo).toBe('nota_al_pie');
@@ -63,5 +64,55 @@ describe('notas al pie como registros aparte', () => {
   it('ids únicos por nota y lote separado', () => {
     expect(new Set(filas.map((f) => f.id)).size).toBe(3);
     expect(filas[0].ingest_batch).toBe('TRAMO_A_LOTE_03_NOTAS');
+  });
+});
+
+import { procedenciaDelPaquete, validarRefHN } from '@/scripts/ingesta-lote-staging';
+describe('identidad estricta HN:<INSTRUMENTO> (multi-jurisdicción v3)', () => {
+  it.each(['HN:CONSTITUCION', 'HN:CODIGO_TRABAJO', 'HN:CODIGO_FAMILIA', 'HN:CODIGO_PENAL', 'HN:CODIGO_PROCESAL_PENAL', 'HN:CODIGO_NOTARIADO'])(
+    '%s es válido: instrumento_id sin prefijo y norm_id país-calificado en la metadata',
+    (ref) => {
+      const instrumento = ref.slice(3);
+      expect(validarRefHN(ref)).toEqual({ ref, instrumento });
+      const lote = construirLote({ ...base, instrumentoRef: ref });
+      for (const f of lote.filas) {
+        expect(f.instrumento_id).toBe(instrumento);
+        expect(f.metadata.norm_id).toBe(ref);
+        expect(f.metadata.instrumento_id).toBe(instrumento);
+        expect(f.jurisdiccion).toBe('HN');
+        expect(f.id.startsWith(`TRAMO_A_LOTE_01:${instrumento}:`)).toBe(true);
+      }
+    },
+  );
+  it.each([
+    ['CODIGO_TRABAJO', /HN:<INSTRUMENTO>/],
+    ['hn:CODIGO_TRABAJO', /FORMATO_INVALIDO/],
+    [' HN:CODIGO_TRABAJO', /FORMATO_INVALIDO/],
+    ['HN:codigo_trabajo', /FORMATO_INVALIDO/],
+    ['SV:CODIGO_TRABAJO', /otro país/],
+    ['GT:CODIGO_PENAL', /otro país/],
+    ['BZ:CODIGO_PENAL', /PAIS_NO_ADMITIDO/],
+    ['HN:CODIGO_NINEZ_ADOLESCENCIA', /INSTRUMENTO_DESCONOCIDO/],
+    ['', /FORMATO_INVALIDO/],
+  ])('rechaza %j antes de producir filas', (ref, error) => {
+    expect(() => validarRefHN(ref)).toThrow(error);
+    expect(() => construirLote({ ...base, instrumentoRef: ref })).toThrow(error);
+    expect(() => construirNotas({ notas: [{ referido: '1', sha256: 'a'.repeat(64), texto: 'Nota.' }], instrumentoRef: ref, ingestBatch: 'X', fuente: 'F', meta: {} })).toThrow(error);
+  });
+  it('el CLO acepta la identidad: norm_id HN coincide con la fila HN (sin IDENTIDAD_PAIS_INCONSISTENTE)', async () => {
+    const { clasificarFragmentoClo } = await import('@/lib/legal-retrieval/clo-guards');
+    const [f] = construirLote({ ...base, instrumentoRef: 'HN:CODIGO_COMERCIO' }).filas;
+    expect(clasificarFragmentoClo({ ...f, metadata: f.metadata }).bloqueos).not.toContain('IDENTIDAD_PAIS_INCONSISTENTE');
+  });
+});
+
+describe('procedencia según el estado del candidato (ya no fija «Drive»)', () => {
+  it('CLO_PENDING: fuente validada, sin V4/V5', () => {
+    expect(procedenciaDelPaquete('CLO_PENDING')).toMatch(/validada/);
+    expect(procedenciaDelPaquete('CLO_PENDING')).toMatch(/sin V4\/V5/);
+    expect(procedenciaDelPaquete('CLO_PENDING')).not.toMatch(/Drive/);
+  });
+  it.each(['SOURCE_HOLD', 'QA_FAILED', undefined, null, ''])('%j: procedencia NO verificada', (estado) => {
+    expect(procedenciaDelPaquete(estado)).toMatch(/NO verificada/);
   });
 });

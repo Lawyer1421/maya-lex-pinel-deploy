@@ -27,6 +27,7 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSy
 import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { main as procesarLote, type ResultadoCli } from './process-batch';
+import type { InstrumentRef } from '../../lib/legal-retrieval/instrument-ref';
 
 export type EstadoRecepcion = 'INPUT_REJECTED' | 'RECEIVED' | 'SOURCE_HOLD' | 'QA_FAILED' | 'CLO_PENDING';
 export type TipoDocumento = 'LAW' | 'DECREE' | 'CODE' | 'REGULATION' | 'REFORM';
@@ -51,6 +52,11 @@ export interface PerfilPaquete {
   consolidado: boolean;
   /** Valor que se copia al paquete SOLO si consta en el texto. */
   gaceta: string | null;
+  /**
+   * Identidad país-calificada (lib/legal-retrieval/instrument-ref.ts) que se pasa a scripts/ingesta-lote-staging.ts. Solo instrumentos del
+   * catálogo cerrado; los paquetes del Tramo A no la tienen (Niñez y el Decreto 284-2013 no están en el catálogo).
+   */
+  instrumentRef?: InstrumentRef;
 }
 
 const OTROS_CODIGOS = [
@@ -60,6 +66,15 @@ const OTROS_CODIGOS = [
   { etiqueta: 'Código del Trabajo', patron: /codigo del trabajo/ },
   { etiqueta: 'Código de Familia', patron: /codigo de familia/ },
 ] as const;
+
+/** Códigos que pueden aparecer en el encabezado de otro instrumento y lo vuelven ambiguo, salvo los que se excluyen por nombre. */
+const CODIGOS_FUNDAMENTALES = [
+  ...OTROS_CODIGOS,
+  { etiqueta: 'Código de Comercio', patron: /codigo de comercio/ },
+  { etiqueta: 'Código Civil', patron: /codigo civil/ },
+  { etiqueta: 'Código del Notariado', patron: /codigo del notariado/ },
+] as const;
+const salvo = (...etiquetas: string[]) => CODIGOS_FUNDAMENTALES.filter((c) => !etiquetas.includes(c.etiqueta));
 
 /** Los cuatro paquetes del Tramo A. Las huellas de páginas son observaciones de terceros sobre un ejemplar, no acreditaciones. */
 export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
@@ -86,6 +101,50 @@ export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
     titulo: [/decreto.{0,25}35\s*[-–]\s*2013/, /reforma.{0,60}codigo de la ninez/], numero: [/\b35\s*[-–]\s*2013\b/],
     contexto: { terminos: ['ninez', 'adolescencia', 'gaceta'], minimo: 2 },
     incompatibles: [{ etiqueta: 'Código de Comercio', patron: /codigo de comercio/ }], decreto: '35-2013', numerosPermitidos: ['73-96'], consolidado: true, gaceta: '33,222',
+  },
+
+  // ── Tramo B (HN-002): seis instrumentos fundamentales ya presentes en el corpus heredado SIN verificar (AVAILABLE_PARTIAL). Sustituirlos exige
+  // texto oficial con procedencia acreditada. Decretos según docs/corpus/MAYALEX_CORPUS_MASTER_INVENTORY_HN.json; Gaceta y huella de páginas
+  // desconocidas (null): no se inventan. Todos `consolidado`: las ediciones vigentes (p. ej. CEDIJ) incorporan y citan decretos de reforma.
+  // Un número mal escrito aquí no acredita nada: solo deja el archivo en RECEIVED para revisión humana.
+  'HN-002-B01': {
+    nombre: 'Constitución de la República', tipo: 'LAW', huellaPaginas: null,
+    titulo: [/constitucion de la republica/], numero: [/\b131\s*[-–]\s*(?:19)?82\b/, /\bdecreto (?:numero |no\.? ?)?131\b/],
+    contexto: { terminos: ['asamblea nacional constituyente', 'soberania', 'poder legislativo', 'poder ejecutivo', 'poder judicial'], minimo: 4 },
+    incompatibles: salvo(), decreto: '131-82', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CONSTITUCION',
+  },
+  'HN-002-B02': {
+    nombre: 'Código del Trabajo', tipo: 'CODE', huellaPaginas: null,
+    titulo: [/codigo del trabajo/], numero: [/\b189\s*[-–]\s*(?:19)?59\b/, /\bdecreto (?:numero |no\.? ?)?189\b/],
+    contexto: { terminos: ['trabajador', 'patrono', 'contrato de trabajo', 'salario', 'jornada'], minimo: 3 },
+    incompatibles: salvo('Código del Trabajo'), decreto: '189-59', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CODIGO_TRABAJO',
+  },
+  'HN-002-B03': {
+    nombre: 'Código de Familia', tipo: 'CODE', huellaPaginas: null,
+    titulo: [/codigo de familia/], numero: [/\b76\s*[-–]\s*(?:19)?84\b/],
+    contexto: { terminos: ['matrimonio', 'conyuges', 'filiacion', 'patria potestad', 'alimentos'], minimo: 3 },
+    incompatibles: salvo('Código de Familia'), decreto: '76-84', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CODIGO_FAMILIA',
+  },
+  'HN-002-B04': {
+    nombre: 'Código Penal', tipo: 'CODE', huellaPaginas: null,
+    titulo: [/codigo penal/], numero: [/\b130\s*[-–]\s*2017\b/],
+    contexto: { terminos: ['delito', 'pena', 'prision', 'dolo', 'responsabilidad penal'], minimo: 3 },
+    // El Código Penal remite con frecuencia al procesal: esa mención no vuelve ambiguo el encabezado.
+    incompatibles: salvo('Código Penal', 'Código Procesal'), decreto: '130-2017', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CODIGO_PENAL',
+  },
+  'HN-002-B05': {
+    nombre: 'Código Procesal Penal', tipo: 'CODE', huellaPaginas: null,
+    titulo: [/codigo procesal penal/], numero: [/\b9\s*[-–]\s*99\s*[-–]?\s*e\b/],
+    contexto: { terminos: ['imputado', 'ministerio publico', 'defensor', 'proceso penal', 'juez'], minimo: 3 },
+    incompatibles: salvo('Código Procesal', 'Código Penal'), decreto: '9-99-E', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CODIGO_PROCESAL_PENAL',
+  },
+  'HN-002-B06': {
+    nombre: 'Código del Notariado', tipo: 'CODE', huellaPaginas: null,
+    // Excluye el Reglamento (PCSJ-17-2012), que también dice «Código del Notariado» en su título: otro instrumento.
+    titulo: [/(?<!reglamento del )codigo del notariado/], numero: [/\b353\s*[-–]\s*2005\b/],
+    contexto: { terminos: ['notario', 'protocolo', 'escritura publica', 'instrumento publico', 'fe publica'], minimo: 3 },
+    incompatibles: [...salvo('Código del Notariado'), { etiqueta: 'Reglamento del Código del Notariado', patron: /reglamento del codigo del notariado/ }],
+    decreto: '353-2005', numerosPermitidos: [], consolidado: true, gaceta: null, instrumentRef: 'HN:CODIGO_NOTARIADO',
   },
 });
 
