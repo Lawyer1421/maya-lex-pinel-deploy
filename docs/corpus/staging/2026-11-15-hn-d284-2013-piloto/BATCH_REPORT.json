@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "archivo": "HN-001-A02.json",
+      "importacion": "IMPORTED_SOURCE_VALIDATED",
+      "destino": "CORPUS_RECORD",
+      "candidato": {
+        "id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1",
+        "estado": "CLO_PENDING"
+      },
+      "jurisprudencia_id": null,
+      "razones": [
+        "SOURCE_VALIDATED no es autoridad: faltan CORPUS_QA → CLO → V4/V5 (humanos)."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "candidate_id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1",
+  "destino": "LEGISLATION",
+  "estado": "CLO_PENDING",
+  "authoritative": false,
+  "vigencia": "UNKNOWN",
+  "verification": "PENDING_VERIFICATION",
+  "fixture": false,
+  "record_id": "PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO",
+  "version": 1,
+  "source": {
+    "url": "https://www.tsc.gob.hn/web/leyes/Ley_gene_empl_dere_inver.pdf",
+    "domain": "www.tsc.gob.hn",
+    "tier": 4,
+    "validacion": "SOURCE_VALIDATED",
+    "retriever": "Fredy Pinel (propietario), descarga manual en navegador",
+    "retrieved_at": "2026-11-15T19:39:00.000Z",
+    "method": "MANUAL_BROWSER"
+  },
+  "identidad": {
+    "document_name": "Decreto 284-2013 (reforma al Código de Comercio)",
+    "document_type": "REFORM",
+    "decree": "284-2013",
+    "gaceta": "33,445",
+    "gaceta_date": "UNKNOWN"
+  },
+  "hashes": {
+    "bytes_sha256": "a7eb221fdeff8977ae9cf907f926797b8d45cd7d90dc93ece7e32ee3581edee4",
+    "text_sha256": "7a1fc45e113b3da60efe70286446037192adfdc6856a5582c3a05753dec70d2d"
+  },
+  "articulos": [
+    {
+      "numero": "1",
+      "ordinal": 1,
+      "sha256": "c1d69e5d4e36055aa91af3aec56c75d892188695e560352cfaf0206b8fea1175",
+      "caracteres": 556
+    },
+    {
+      "numero": "2",
+      "ordinal": 2,
+      "sha256": "6124835768c21f9c7486197eea9d347055a56b9d5a173e2fbdf90e11c622e300",
+      "caracteres": 583
+    },
+    {
+      "numero": "3",
+      "ordinal": 3,
+      "sha256": "998f25d55ff718598beffa504053acdf5c9ac780d8aa24c81302cb708e94accf",
+      "caracteres": 807
+    },
+    {
+      "numero": "4",
+      "ordinal": 4,
+      "sha256": "81d643512a9226b7906901536d4ba3bad55c8cda85973a5960e52a276cb2c9e1",
+      "caracteres": 664
+    },
+    {
+      "numero": "5",
+      "ordinal": 5,
+      "sha256": "0897a736d7947169566f21269db50fcac347c78d8271ee10ae7b0d52ad30c869",
+      "caracteres": 876
+    },
+    {
+      "numero": "6",
+      "ordinal": 6,
+      "sha256": "25aa631f25a3218e25d60e4a5755bdb440166045f6939d8a70c15729fbdc27c0",
+      "caracteres": 1219
+    },
+    {
+      "numero": "7",
+      "ordinal": 7,
+      "sha256": "e4cd405e92916a90e3d435b66ddc8be8a5fab6846333428f5e3d7b85146259fb",
+      "caracteres": 882
+    },
+    {
+      "numero": "8",
+      "ordinal": 8,
+      "sha256": "ffd2359f4dbf6ece166c943dc4045ed24da428f102fe2e8c4a3bd0344ead9263",
+      "caracteres": 980
+    },
+    {
+      "numero": "9",
+      "ordinal": 9,
+      "sha256": "da76e30873a4b5a1a0de2d32e8a65f55f697fb2035a40f138f4e5bb74cc8cb97",
+      "caracteres": 523
+    },
+    {
+      "numero": "10",
+      "ordinal": 10,
+      "sha256": "dc38b4847cb1a44e0b59843e85e9f44681154197bb39a1e893fbfc8d192a09af",
+      "caracteres": 344
+    },
+    {
+      "numero": "11",
+      "ordinal": 11,
+      "sha256": "9feaa92a1ef3f18886ed45ed1b07c220389e07aa63a2772a093cc9333fa4aaef",
+      "caracteres": 1383
+    },
+    {
+      "numero": "12",
+      "ordinal": 12,
+      "sha256": "89ca2336cbe8c299a21aea7826e10bef63af565b65e56b63b0e3ab98b0a4cdd7",
+      "caracteres": 468
+    },
+    {
+      "numero": "13",
+      "ordinal": 13,
+      "sha256": "231bd8ba1de63e990dd99ed99bb50f75739a20ad3f0c86d2934a66d0e1ab113b",
+      "caracteres": 13490
+    },
+    {
+      "numero": "14",
+      "ordinal": 14,
+      "sha256": "4e62e731fd1db9ea6057ba833504f82c5c201319dd8467bddeca9e7953433110",
+      "caracteres": 1016
+    },
+    {
+      "numero": "15",
+      "ordinal": 15,
+      "sha256": "e14e854cca2ad45fcfccecf57d7c4a47723dea0bfecd1cc54c562e7392ee24ce",
+      "caracteres": 566
+    },
+    {
+      "numero": "16",
+      "ordinal": 16,
+      "sha256": "f49a20e47e877bf22041483073879a0b2ed4979fbf1fa4cd1d65eb8989a775aa",
+      "caracteres": 987
+    },
+    {
+      "numero": "17",
+      "ordinal": 17,
+      "sha256": "22bfeecf3700e6262f4a2b094d792e35f9700ff713b30d426561ba3b2487a6c8",
+      "caracteres": 849
+    },
+    {
+      "numero": "18",
+      "ordinal": 18,
+      "sha256": "a288dd20d4804916d02c7fb823f1c16e33d2a5ac899301dc06676b7a182c430c",
+      "caracteres": 1549
+    },
+    {
+      "numero": "19",
+      "ordinal": 19,
+      "sha256": "e90b44e83876f250690fe9f2cecd02971395181347a1bd686e2a30e6ea98b8f0",
+      "caracteres": 344
+    },
+    {
+      "numero": "20",
+      "ordinal": 20,
+      "sha256": "5e58a40012ff334401640455eef69bee315d5fb5a87af48622c4f0b86e9f587f",
+      "caracteres": 776
+    },
+    {
+      "numero": "21",
+      "ordinal": 21,
+      "sha256": "8adfbcfe534a860b5e87cffe982629bbccd317f13f076ab24e19205a8c68c6c3",
+      "caracteres": 177
+    },
+    {
+      "numero": "22",
+      "ordinal": 22,
+      "sha256": "b9a1a283b49530aa509748f110e516cb63a3422b354c75f9bf26dde18f1edc5e",
+      "caracteres": 720
+    },
+    {
+      "numero": "23",
+      "ordinal": 23,
+      "sha256": "5fb7ddb7512f9063cf1b8d4dbeb94fcb2d39851512adfaf7c1e0ed3c7b5f1dbd",
+      "caracteres": 240
+    },
+    {
+      "numero": "24",
+      "ordinal": 24,
+      "sha256": "ce9cd4765b7bcae48aff8098467a6748b7568ea0ecd6bc4cdb10b9409716194d",
+      "caracteres": 556
+    },
+    {
+      "numero": "25",
+      "ordinal": 25,
+      "sha256": "17fea2520f3cccf1dd54f41330d5d4a5cf9934f53e00510e3f12e3571b79d4ef",
+      "caracteres": 241
+    },
+    {
+      "numero": "26",
+      "ordinal": 26,
+      "sha256": "39128f03a6d717ddddcee042b80e8a0b4ca1e883ac21bf7ccf6d1218f3b5ecc0",
+      "caracteres": 10177
+    },
+    {
+      "numero": "27",
+      "ordinal": 27,
+      "sha256": "b64d604e60b107846501f08cb9d680c7f888cfde1970221ac8d75bcea9deda64",
+      "caracteres": 2528
+    },
+    {
+      "numero": "28",
+      "ordinal": 28,
+      "sha256": "c7e74bac225c0227c8bbf095ab77ec596313f1b9a6da4cfcc28d81893305d850",
+      "caracteres": 500
+    },
+    {
+      "numero": "29",
+      "ordinal": 29,
+      "sha256": "137688aa635b761650081ea3b6a9496a30e5292dba46767a7177c47734de8420",
+      "caracteres": 330
+    },
+    {
+      "numero": "30",
+      "ordinal": 30,
+      "sha256": "aa83803261c770d395add888e831ae598005d48d2cdc592e19e0af5af52fc6dc",
+      "caracteres": 428
+    },
+    {
+      "numero": "31",
+      "ordinal": 31,
+      "sha256": "8969529619570d182cfd1b3c81aee93611d28b8814b1a660022d143eaf4d75d2",
+      "caracteres": 373
+    },
+    {
+      "numero": "32",
+      "ordinal": 32,
+      "sha256": "88a906a355cab5c30e7fae070984eb2a65ea06e756c34d70b41062b4227fe98a",
+      "caracteres": 258
+    },
+    {
+      "numero": "33",
+      "ordinal": 33,
+      "sha256": "27401f7548d1d6fdc5f0e07a44e8744b59ddbeae48765609abea6387c58ee932",
+      "caracteres": 903
+    },
+    {
+      "numero": "34",
+      "ordinal": 34,
+      "sha256": "27ade9da4bf79db0ff7ad44b3cd77b98b747da649a92bcea14f846c0273dd1c9",
+      "caracteres": 766
+    },
+    {
+      "numero": "35",
+      "ordinal": 35,
+      "sha256": "38c29d4233cb7f737a5c684a985a342471755c9ee8ef10fab1013838f158db60",
+      "caracteres": 522
+    },
+    {
+      "numero": "36",
+      "ordinal": 36,
+      "sha256": "784cfe3a3517d7476a83b52031312b43d776308a15ddbf8eff42ac3facb91f00",
+      "caracteres": 250
+    },
+    {
+      "numero": "37",
+      "ordinal": 37,
+      "sha256": "c1fd7552dd6755c10969dafbdb5323120de5450e73726e34102228859eb30f22",
+      "caracteres": 210
+    },
+    {
+      "numero": "38",
+      "ordinal": 38,
+      "sha256": "691a4a847a06e972b85463e325e19e35eff36308a1841a02bffeaae51d51671a",
+      "caracteres": 162
+    },
+    {
+      "numero": "39",
+      "ordinal": 39,
+      "sha256": "6e76bd0b9957e3242e9520f3472266f6e9dd3061f026caf595ba34d4bfc09098",
+      "caracteres": 613
+    }
+  ],
+  "notas_al_pie": [],
+  "preambulo_caracteres": 1769,
+  "qa": {
+    "chequeos": [
+      {
+        "id": "TEXT_NOT_EMPTY",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "51164 caracteres"
+      },
+      {
+        "id": "HASH_MATCH",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sha256 del texto recalculado contra text_sha256"
+      },
+      {
+        "id": "ENCODING",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sin mojibake (Ã¡, Â, �)"
+      },
+      {
+        "id": "NOT_NOISE",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "79 % letras"
+      },
+      {
+        "id": "LOOKS_SPANISH",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "32.8 palabras funcionales por 100"
+      },
+      {
+        "id": "ARTICLES_DETECTED",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "39 artículos detectados (tipo REFORM)"
+      },
+      {
+        "id": "SEQUENCE_CONTINUOUS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "numeración continua"
+      },
+      {
+        "id": "NO_DUPLICATE_NUMBERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin repetidos"
+      },
+      {
+        "id": "NO_EMPTY_ARTICLES",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "ninguno vacío"
+      },
+      {
+        "id": "NO_PLACEHOLDERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin marcas de ilegibilidad"
+      },
+      {
+        "id": "FIXTURE",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "material sintético/de prueba detectado"
+      }
+    ],
+    "apto_para_clo": true
+  },
+  "siguiente_paso": "Entregar la hoja de verificación al CLO. Solo una persona puede pasar a V4/V5 con aprobación registrada."
+}
