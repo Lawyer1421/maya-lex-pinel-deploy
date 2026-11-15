@@ -16,7 +16,8 @@ export type InstrumentoNormalizado =
   | 'CODIGO_TRIBUTARIO'
   | 'LEY_JUSTICIA_CONSTITUCIONAL'
   | 'CONSTITUCION'
-  | 'CODIGO_COMERCIO';
+  | 'CODIGO_COMERCIO'
+  | 'DECRETO_284_2013';
 
 // Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
 // una fila real de la DB para confirmar que pertenece a ese instrumento.
@@ -51,6 +52,11 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   // CODIGO_FAMILIA, etc.), el contenido ingerido SÍ trae el encabezado real
   // "Articulo N" -- no se agrega a INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL.
   CODIGO_COMERCIO: /c[oó]digo\s+de\s+comercio/i,
+  // Piloto de adjudicación (2026-11-15). La fuente que escribe la ingesta EMPIEZA por el decreto: «Decreto 284-2013, Ley para la Generación de
+  // Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)».
+  // Anclado al inicio y declarado al final: una fila del Código de Comercio que lo cite («…reformado por el Decreto 284-2013») sigue siendo
+  // CODIGO_COMERCIO, y la fuente del decreto no contiene «Código de Comercio» ni «Constitución», cuyos patrones se evalúan antes.
+  DECRETO_284_2013: /^\s*decreto\s+(?:legislativo\s+)?(?:n(?:o|º|°|[uú]mero)\.?\s*)?284\s*[-–]\s*2013\b/i,
 };
 
 /**

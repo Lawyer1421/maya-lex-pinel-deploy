@@ -54,7 +54,7 @@ export interface PerfilPaquete {
   gaceta: string | null;
   /**
    * Identidad país-calificada (lib/legal-retrieval/instrument-ref.ts) que se pasa a scripts/ingesta-lote-staging.ts. Solo instrumentos del
-   * catálogo cerrado; los paquetes del Tramo A no la tienen (Niñez y el Decreto 284-2013 no están en el catálogo).
+   * catálogo cerrado; del Tramo A solo la tiene A02 (Decreto 284-2013, piloto de adjudicación); el Código de la Niñez no está en el catálogo.
    */
   instrumentRef?: InstrumentRef;
 }
@@ -88,7 +88,7 @@ export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
     nombre: 'Decreto 284-2013 (reforma al Código de Comercio)', tipo: 'REFORM', huellaPaginas: 17,
     titulo: [/decreto.{0,25}284\s*[-–]\s*2013/], numero: [/\b284\s*[-–]\s*2013\b/],
     contexto: { terminos: ['codigo de comercio', 'articulo', 'decreto'], minimo: 3 },
-    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50', '51-2011'], consolidado: false, gaceta: '33,445', // 51-2011: la ley que el propio decreto reforma, citada en sus considerandos (comprobado en el PDF real)
+    incompatibles: OTROS_CODIGOS, decreto: '284-2013', numerosPermitidos: ['73-50', '51-2011'], consolidado: false, gaceta: '33,445', instrumentRef: 'HN:DECRETO_284_2013', // 51-2011: la ley que el propio decreto reforma, citada en sus considerandos (comprobado en el PDF real)
   },
   'HN-001-A03': {
     nombre: 'Código de la Niñez y de la Adolescencia', tipo: 'CODE', huellaPaginas: null,

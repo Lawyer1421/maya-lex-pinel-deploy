@@ -38,7 +38,7 @@ export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 
 export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([
   'CODIGO_PROCESAL_PENAL', 'CODIGO_PENAL', 'CODIGO_PROCESAL_CIVIL', 'CODIGO_CIVIL', 'CODIGO_TRABAJO', 'CODIGO_FAMILIA', 'CODIGO_NOTARIADO',
   'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'LEY_ESPECIAL_ADOPCIONES',
-  'DECRETO_77_2006',
+  'DECRETO_77_2006', 'DECRETO_284_2013',
 ] as const);
 
 export const esInstrumentId = (v: unknown): v is InstrumentId => typeof v === 'string' && (INSTRUMENT_IDS as readonly string[]).includes(v);
@@ -94,6 +94,8 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
+  /** D.284-2013 (piloto de adjudicación, 2026-11-15): solo CONTEXT hasta que el CLO apruebe su pliego (docs/corpus/staging/…/ADJUDICACION_CLO). */
+  DECRETO_284_2013: 'INSTRUMENTO_SIN_PLIEGO_CLO',
 });
 
 /** Instrumentos normativos notariales: las filas 03_NOTARIAL con otra identidad (protocolo y práctica) no son norma. */
@@ -197,6 +199,8 @@ export function normalizarNumeroArticulo(n: string | number | null | undefined):
 const CIERRE = '(?:\\s+de\\s+honduras)?(?=\\s*\\(|,|\\s*$)';
 const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['DECRETO_77_2006', /^decreto\s+(?:no\.?\s*)?77-2006\b/],
+  // Piloto de adjudicación (2026-11-15): la fuente debe EMPEZAR por el decreto; un comentario o una fila del Código de Comercio que lo cite no.
+  ['DECRETO_284_2013', /^decreto\s+(?:legislativo\s+)?(?:no\.?\s*|n[º°]\.?\s*|numero\s+)?284\s*-\s*2013\b/],
   ['REGLAMENTO_NOTARIADO', new RegExp(`^reglamento\\s+(?:(?:de|del|al|para)\\s+)?(?:el\\s+)?codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_NOTARIADO', new RegExp(`^codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_PROCESAL_PENAL', new RegExp(`^codigo\\s+procesal\\s+penal${CIERRE}`)],
@@ -601,6 +605,7 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   CODIGO_COMERCIO: ['codigo de comercio'],
   LEY_ESPECIAL_ADOPCIONES: ['ley especial de adopciones'],
   DECRETO_77_2006: ['77-2006'],
+  DECRETO_284_2013: ['284-2013', 'ley para la generacion de empleo'],
 });
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
