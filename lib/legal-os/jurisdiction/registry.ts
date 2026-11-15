@@ -11,7 +11,7 @@ export interface CountryInfo {
   enabled: boolean;
   /** Fuentes oficiales por orden de prioridad (descripción; los URL los fija el registro de fuentes verificado, no este archivo). */
   fuentesOficiales: readonly string[];
-  /** Patrones que identifican explícitamente al país en una consulta. */
+  /** Patrones que identifican explícitamente al país en una consulta. `\b` es solo ASCII en JS: tras una vocal con tilde final se usa lookahead. */
   patrones: readonly RegExp[];
 }
 
@@ -23,7 +23,7 @@ export const PAISES: Readonly<Record<CountryCode, CountryInfo>> = Object.freeze(
   SV: { code: 'SV', nombre: 'El Salvador', enabled: false, fuentesOficiales: [], patrones: [/\bel salvador\b/i, /\bsalvadore[ñn]/i] },
   NI: { code: 'NI', nombre: 'Nicaragua', enabled: false, fuentesOficiales: [], patrones: [/\bnicaragua\b/i, /\bnicarag[uü]ense/i] },
   CR: { code: 'CR', nombre: 'Costa Rica', enabled: false, fuentesOficiales: [], patrones: [/\bcosta rica\b/i, /\bcostarricense/i] },
-  PA: { code: 'PA', nombre: 'Panamá', enabled: false, fuentesOficiales: [], patrones: [/\bpanam[aá]\b/i, /\bpaname[ñn]/i] },
+  PA: { code: 'PA', nombre: 'Panamá', enabled: false, fuentesOficiales: [], patrones: [/\bpanam[aá](?![a-záéíóúñü])/i, /\bpaname[ñn]/i] },
   BZ: { code: 'BZ', nombre: 'Belice', enabled: false, fuentesOficiales: [], patrones: [/\bbelice\b/i, /\bbelize\b/i] },
 });
 

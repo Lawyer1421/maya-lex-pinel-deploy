@@ -133,13 +133,19 @@
   ],
   "limiteConocido": "El kill switch del shadow es una constante de código: el retorno a «apagado» en un despliegue real es revertir y redesplegar (promover el despliegue anterior). No hay interruptor en caliente.",
   "codigoHashes": {
-    "app/api/chat/route.ts": "b74dfa686cbceaebfbe80af9fbca4964989146e1cf37a39cc4b165c615d2c832",
-    "lib/legal-retrieval/evidence-engine.ts": "8c584b55f73d3fee0279d31fcdd4b5f17e890beee506b1a7fde3e4f9ca7db59e",
-    "lib/legal-retrieval/exact-resolver.ts": "8dc53096c622362b97ea911a7931abf057a3c8ec97f851e22f0b0e5a70a6ec17",
+    "app/api/chat/route.ts": "981cd788be7b0fb51c427d18d338aadfa98b85fdfbf27305da2256ac2fa47175",
+    "lib/legal-os/jurisdiction/registry.ts": "14916a1ab2ccae48199c35cc28aed4ad7859d05d499724633d09f524763c2fdd",
+    "lib/legal-retrieval/clo-guards.ts": "c95710bda0fab9ab5f4767337f3db2206c5db08d442a6a3f9eac50408876593d",
+    "lib/legal-retrieval/evidence-engine.ts": "fce34f939b44708b64da8b0f686def221c86eca336dbd0dcc81f2bda6ae5e964",
+    "lib/legal-retrieval/exact-resolver.ts": "43551017d5155298353021faedd71bdb7e48f80f8153d97ba131b88915e55721",
     "lib/legal-retrieval/instrument-gate.ts": "5abf4434aa7be4df60f5c778ec9e764912424a5ecd46f351221c28fb1e101717",
+    "lib/legal-retrieval/instrument-identity.ts": "0663529f4cff7dd66feeef561c63680330f801a680fd40f68f60ce135e32d93c",
+    "lib/legal-retrieval/instrument-ref.ts": "9c44812971ab84832e0832d08c8c6cfcb618952f73d21d7f9749e339dc6c1551",
+    "lib/legal-retrieval/jurisdiccion-consulta.ts": "0ad794b38b8fa584f2c63f050420b308e6919dbd411d97095f75a2aabe45ef29",
     "lib/legal-retrieval/primitives.ts": "8b45f9e318f5fabf5a469342196afba67851e2c1aaac25716a983a59c1f2737d",
-    "lib/legal-retrieval/semantic-retriever.ts": "3c56e91d1199cfacc18a231e9bc281d6cefbe0123eac0e607e5808e6de1a3426",
-    "lib/legal-retrieval/types.ts": "c2b8a3185f9a1b9c819ee99a25d1159de9358ae7b65efb7a66b6dd45247901ae",
-    "lib/rag/search.ts": "8226f73b11311e3b19b4651a6f8eac7fe78604ca2b979ebfeb4b68a332ba1fa6"
+    "lib/legal-retrieval/retrieval-session.ts": "d2a05477541af1740a5b90ee4adb35766e5c70911e7ed2e9687cd792c041dc0f",
+    "lib/legal-retrieval/semantic-retriever.ts": "22b6338287968ed83c8687d4fb1e0608254a080b6c39414997d6f2d3dc5c6912",
+    "lib/legal-retrieval/types.ts": "6ce352741f7b7f50b58d082f08ce24247400618115f4985010811f33e92ba5a9",
+    "lib/rag/search.ts": "21dd0c1cb32e42a541d3cd79006743cd27e19b8187df6a92b3e1ef7c2b712a63"
   }
 }

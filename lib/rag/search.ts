@@ -86,6 +86,7 @@ import {
   type ResultadoExacto,
 } from '@/lib/legal-retrieval/exact-resolver';
 import { articulosFaltantesDelGrupo } from '@/lib/legal-retrieval/grupos-articulos';
+import type { JurisdiccionV3 } from '@/lib/legal-retrieval/instrument-ref';
 
 export {
   detectarMateriaDesdeTexto,
@@ -105,6 +106,7 @@ async function consultarPorVigencia(
   numero: string,
   materiaDetectada: string | null,
   esNormaVigente: boolean,
+  jurisdiccion?: JurisdiccionV3,
 ): Promise<FilaExactaDB[]> {
   const { createServerSupabaseClient } = await import('@/lib/supabase');
   const supabase = createServerSupabaseClient();
@@ -121,6 +123,8 @@ async function consultarPorVigencia(
   // traer) — la aceptación real la decide identidadDocumentalCoincide() en
   // resolverArticuloExacto, nunca la materia por sí sola.
   if (materiaDetectada) consulta = consulta.eq('materia', materiaDetectada);
+  // Multi-jurisdicción v3: con país objetivo, el filtro va en la DB (y resolverArticuloExacto lo vuelve a exigir). Sin país: como antes.
+  if (jurisdiccion) consulta = consulta.eq('jurisdiccion', jurisdiccion);
 
   const { data, error } = await consulta;
   if (error || !data) return [];
@@ -131,9 +135,10 @@ export async function buscarArticuloExacto(
   numero: string,
   materiaDetectada: string | null,
   instrumentoSolicitado: InstrumentoNormalizado | null,
+  jurisdiccion?: JurisdiccionV3,
 ): Promise<ResultadoExacto> {
-  const filasVigentes = await consultarPorVigencia(numero, materiaDetectada, true);
-  const resultadoVigente = resolverArticuloExacto(filasVigentes, numero, instrumentoSolicitado);
+  const filasVigentes = await consultarPorVigencia(numero, materiaDetectada, true, jurisdiccion);
+  const resultadoVigente = resolverArticuloExacto(filasVigentes, numero, instrumentoSolicitado, jurisdiccion);
   if (resultadoVigente.fragmentos.length > 0 || resultadoVigente.ambiguo) {
     return resultadoVigente;
   }
@@ -236,12 +241,13 @@ function unirFragmentos(primero: FragmentoRAG[], segundo: FragmentoRAG[]): Fragm
 async function buscarArticuloPorIdentidades(
   numero: string,
   identidades: InstrumentoNormalizado[],
+  jurisdiccion?: JurisdiccionV3,
 ): Promise<ResultadoExacto> {
   // Secuencial: una búsqueda por identidad, en orden, como el resto de la ruta exacta.
   const fragmentos: FragmentoRAG[] = [];
   let ambiguo = false;
   for (const id of identidades) {
-    const r = await buscarArticuloExacto(numero, null, id);
+    const r = await buscarArticuloExacto(numero, null, id, jurisdiccion);
     fragmentos.push(...r.fragmentos);
     ambiguo = ambiguo || r.ambiguo;
   }
@@ -278,7 +284,7 @@ async function completarGrupoArticulos(
     let resultado = recuperados;
     for (const { grupo, faltantes } of pendientes) {
       for (const numero of faltantes) {
-        const exacto = await buscarArticuloExacto(numero, null, grupo.instrumento);
+        const exacto = await buscarArticuloExacto(numero, null, grupo.instrumento, ctx?.jurisdiccionObjetivo);
         const nuevos = filtrarCorpusP21(exacto.ambiguo ? [] : exacto.fragmentos, corpusP21);
         resultado = unirFragmentos(resultado, nuevos);
       }
@@ -295,10 +301,13 @@ export async function buscarRAG(
   k = 5,
   coleccion = 'cpp_honduras',
   materia?: string,
-  opts?: { rerank?: boolean; corpusP21?: boolean },
+  opts?: { rerank?: boolean; corpusP21?: boolean; jurisdiccion?: JurisdiccionV3 },
 ): Promise<ResultadoRAG> {
   // flag_corpus_p21 (resuelto por el llamador; ausente = apagado): con el corpus apagado las filas P21 no se recuperan ni cuentan.
-  const ctxClo = { corpusP21Habilitado: opts?.corpusP21 === true };
+  // Multi-jurisdicción v3 (flag_multi_jurisdiccion_v3, resuelto por el llamador): país objetivo de la consulta. Ausente = camino v2 y CLO
+  // con HN, sin ningún cambio. Presente = búsqueda exacta y semántica restringidas a ese país y CLO comparando contra él.
+  const jurisdiccion = opts?.jurisdiccion;
+  const ctxClo = { corpusP21Habilitado: opts?.corpusP21 === true, ...(jurisdiccion ? { jurisdiccionObjetivo: jurisdiccion } : {}) };
   const backend = getBackend();
 
   if (backend === 'disabled') {
@@ -350,8 +359,8 @@ export async function buscarRAG(
         // Comparación con un artículo: cada instrumento recupera su propio artículo,
         // sin materia de un solo instrumento. Resto: búsqueda exacta habitual.
         const exacto = intencion.estado === 'MULTI_SPECIFIC_RESOLVED' && intencion.articulos.length === 1
-          ? await buscarArticuloPorIdentidades(deteccion.numero, intencion.identidades)
-          : await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento);
+          ? await buscarArticuloPorIdentidades(deteccion.numero, intencion.identidades, jurisdiccion)
+          : await buscarArticuloExacto(deteccion.numero, materiaEfectiva, deteccion.instrumento, jurisdiccion);
         exacto.fragmentos = filtrarCorpusP21(exacto.fragmentos, ctxClo.corpusP21Habilitado);
         if (exacto.ambiguo) {
           // Regla K (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md): ambigüedad ->
@@ -459,7 +468,9 @@ export async function buscarRAG(
   try {
     if (backend === 'python') {
       const bruto = await buscarEnPython(consulta, k, coleccion, materiaSemantica);
-      const elegibles = filtrarCorpusP21(bruto.fragmentos, ctxClo.corpusP21Habilitado).filter((f) => elegibleFuente(f.fuente));
+      const elegibles = filtrarCorpusP21(bruto.fragmentos, ctxClo.corpusP21Habilitado)
+        .filter((f) => elegibleFuente(f.fuente))
+        .filter((f) => !jurisdiccion || f.jurisdiccion === jurisdiccion);
       // Evidencia final enviada al contexto: cobertura completa y, en comparaciones
       // con artículos concretos, sólo esos artículos. Sin ello, no hay evidencia.
       const fragmentos = evidenciaFinal(elegibles, intencion);
@@ -484,7 +495,7 @@ export async function buscarRAG(
       };
     }
     if (backend === 'supabase') {
-      const bruto = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente);
+      const bruto = await buscarEnSupabase(consulta, k, coleccion, materiaSemantica, opts?.rerank ?? false, elegibleFuente, jurisdiccion);
       // Evidencia final = exacta parcial (verificada por identidad) + semántica.
       // Sin cobertura completa de la intención (p. ej. una comparación sin
       // evidencia de uno de sus instrumentos), no hay evidencia utilizable.

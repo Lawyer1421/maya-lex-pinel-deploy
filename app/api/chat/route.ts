@@ -60,6 +60,7 @@ import {
 import { recortarHistorialDesdeEnv } from '@/lib/chat-history';
 import { type FragmentoRAG, type RetrievalOutcome } from '@/lib/rag/search';
 import { recuperarEvidenciaCorpus, decidirAbstencion } from '@/lib/legal-retrieval/retrieval-session';
+import { resolverJurisdiccionConsulta, type JurisdiccionConsulta } from '@/lib/legal-retrieval/jurisdiccion-consulta';
 import { evaluarRespuestaChatR3, CODIGO_ABSTENCION_R3 } from '@/lib/legal-retrieval/r3-chat';
 // Fase 1C: Cita/construirCitas se movieron a lib/legal-retrieval/evidence-engine.ts
 // (extracción 1:1, sin cambio de comportamiento). Re-exportados más abajo
@@ -361,7 +362,7 @@ export async function POST(req: NextRequest) {
 
   // Fase 1D: `outcome` es opcional y aditivo -- ningún consumidor existente
   // de RagOut se rompe por no leerlo.
-  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; outcome?: RetrievalOutcome }
+  interface RagOut { texto: string; fragmentos: FragmentoRAG[]; outcome?: RetrievalOutcome; jurisdiccion?: JurisdiccionConsulta }
 
   const ragPromise: Promise<RagOut> = (async () => {
     // Estos dos caminos son exactamente los casos "sala_ia"/"sala_penal" (no
@@ -383,20 +384,32 @@ export async function POST(req: NextRequest) {
     // cuando el RAG realmente corre (RUTA != D).
     const rerankHabilitado = await isFlagEnabledForUser('flag_rerank', verifiedEmail);
     // flag_corpus_p21 (CLO 28-oct-2026): gate del corpus P21. Fila ausente o error de lectura = apagado; con el flag apagado esas filas no se recuperan.
-    const corpusP21Habilitado = await isFlagEnabledForUser('flag_corpus_p21', verifiedEmail);
+    // flag_multi_jurisdiccion_v3: país objetivo + buscar_biblioteca_v3. Fila ausente o error = apagado = camino v2 y CLO con HN, sin cambio.
+    // Ambos en paralelo: no suman una ida y vuelta a la latencia.
+    const [corpusP21Habilitado, multiJurisdiccionHabilitada] = await Promise.all([
+      isFlagEnabledForUser('flag_corpus_p21', verifiedEmail),
+      isFlagEnabledForUser('flag_multi_jurisdiccion_v3', verifiedEmail),
+    ]);
+    // Se resuelve UNA vez. Sin mención de país = HN. País no habilitado o varios países = abstención ANTES del retrieval (nunca HN).
+    const jurisdiccion = multiJurisdiccionHabilitada ? resolverJurisdiccionConsulta(ultimaPregunta as string) : undefined;
+    if (jurisdiccion && jurisdiccion.estado !== 'RESUELTA') {
+      return { texto: '', fragmentos: [], outcome: buildRetrievalOutcome('NO_VERIFIED_EVIDENCE'), jurisdiccion };
+    }
 
     // Colección principal + pasada procedimental de RUTA_C civil (sólo añade
     // fragmentos elegibles y verificables; ver evidenciaProcedimentalPermitida).
     // El outcome devuelto es el de la colección principal: es el que determina
     // si el retrieval "funcionó" para el gate fail-closed más abajo.
-    return recuperarEvidenciaCorpus({
+    const evidencia = await recuperarEvidenciaCorpus({
       pregunta: ultimaPregunta as string,
       coleccionPrincipal,
       materiaFiltro,
       pasadaProcedimental: ruta === 'C' && !esPenal,
       rerank: rerankHabilitado,
       corpusP21: corpusP21Habilitado,
+      jurisdiccion: jurisdiccion?.pais,
     });
+    return { ...evidencia, jurisdiccion };
   })();
 
   // Solo se ejecuta cuando webSearch === true; el resto del flujo permanece intacto.
@@ -483,7 +496,7 @@ export async function POST(req: NextRequest) {
   // de tratar esa ausencia como "cero evidencia" por defecto.
   const rutaCorpusObligatoria = ruta !== 'D' && usarRouter;
   const { evidenciaInsuficiente, mensajeAbstencion, codigoAbstencion } = decidirAbstencion(
-    ultimaPregunta as string, rutaCorpusObligatoria, ragData,
+    ultimaPregunta as string, rutaCorpusObligatoria, ragData, ragData.jurisdiccion,
   );
 
   // Fase 1D (MAYALEX_RETRIEVAL_RUNTIME_CONTRACT.md, invariante central:

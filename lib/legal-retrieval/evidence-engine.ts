@@ -34,6 +34,18 @@ import type { FragmentoRAG, ResultadoRAG } from './types';
 import { esRegistroNoVigenteExcluido } from './semantic-retriever';
 import { detectarArticuloExacto } from './exact-resolver';
 import { clasificarFragmentoClo, esCitableComoNorma } from './clo-guards';
+import { esJurisdiccionV3 } from './instrument-ref';
+import { PAISES } from '../legal-os/jurisdiction/registry';
+
+/**
+ * Multi-jurisdicción v3: país activo de la consulta = el objetivo que la ruta selló en los fragmentos (anotarFragmentosClo). Ausente = HN, con
+ * los mismos rótulos de siempre. «Comparada» se reserva a fuentes de una jurisdicción DISTINTA de la activa; una norma del país activo que el
+ * CLO acepta como PRIMARY se rotula como norma vigente de ese país.
+ */
+function paisActivo(resultado: ResultadoRAG): { codigo: string; nombre: string } {
+  const codigo = resultado.fragmentos.find((f) => f.jurisdiccion_objetivo !== undefined)?.jurisdiccion_objetivo ?? 'HN';
+  return { codigo, nombre: esJurisdiccionV3(codigo) ? PAISES[codigo].nombre.toUpperCase() : codigo };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CITAS ESTRUCTURADAS PARA TRAZABILIDAD EN UI (P0-4)
@@ -117,6 +129,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   // de la consulta. Cada fragmento lleva el nombre real de su fuente y su similitud,
   // sin relevancia jurídica declarada: no fue evaluada.
   const tematica = resultado.intencionInstrumental === 'NONE';
+  const pais = paisActivo(resultado);
 
   const lineas = [
     '── CONTEXTO RECUPERADO — BIBLIOTECA PENAL PINEL ──',
@@ -140,7 +153,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   const primeraJuris = resultado.fragmentos.filter((f) => !esBloqueJuris(f)).length;
   for (const [i, f] of ordenados.entries()) {
     if (i === primeraJuris && i < ordenados.length) {
-      lineas.push('── JURISPRUDENCIA / DOCTRINA (NO ES LEGISLACIÓN NI DERECHO POSITIVO DE HONDURAS) ──');
+      lineas.push(`── JURISPRUDENCIA / DOCTRINA (NO ES LEGISLACIÓN NI DERECHO POSITIVO DE ${pais.nombre}) ──`);
       lineas.push('');
     }
     // Salvaguarda D6(a) (2026-08-27), corregida D6(a-bis) (2026-08-28): esta
@@ -168,8 +181,8 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
       : f.es_norma_vigente === true && !esJurisprudenciaODoctrina && clo.rol === 'CONTEXT'
         ? `CONTEXTO (${clo.bloqueos.join(', ')}) — NO CITAR COMO NORMA`
         : f.es_norma_vigente === true && !esJurisprudenciaODoctrina
-        ? 'NORMA VIGENTE HONDURAS'
-        : f.jurisdiccion && f.jurisdiccion !== 'HN'
+        ? (pais.codigo === 'HN' ? 'NORMA VIGENTE HONDURAS' : `NORMA VIGENTE ${pais.nombre}`)
+        : f.jurisdiccion && f.jurisdiccion !== pais.codigo
           ? `DOCTRINA/JURISPRUDENCIA COMPARADA — ${f.jurisdiccion}`
           : f.fuente_tipo === 'sentencia' || f.fuente_tipo === 'doctrina'
             ? 'DOCTRINA/JURISPRUDENCIA — NO ES NORMA VIGENTE'
@@ -198,7 +211,7 @@ export function formatearContextoRAG(resultado: ResultadoRAG): string {
   lineas.push('── FIN DEL CONTEXTO RAG ──');
   lineas.push(tematica
     ? 'INSTRUCCIÓN (consulta temática): los fragmentos fueron recuperados por similitud y no han sido evaluados jurídicamente. Fundamenta cada afirmación normativa sólo en ellos, citando el artículo y la fuente indicada en "Fuente documental". Si no hay evidencia suficiente en el contexto, dilo y no completes con conocimiento general. La interfaz muestra por separado la fuente y el hash de verificación de cada fragmento — no comentes sobre su presencia, ausencia o formato.'
-    : 'INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE HONDURAS]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.');
+    : `INSTRUCCIÓN: Usar exclusivamente la información del contexto anterior para fundamentar el análisis. Solo cite número de artículo de fragmentos marcados [NORMA VIGENTE ${pais.nombre}]. Fragmentos de doctrina o jurisprudencia comparada se usan únicamente como referencia, nunca como fundamento normativo directo. Si el artículo citado no aparece en el contexto, indicarlo explícitamente. La interfaz muestra por separado, de forma automática, la fuente y el hash de verificación de cada fragmento citado — no comentes sobre la presencia, ausencia o formato de esos datos, ni intentes reproducirlos: no forman parte de este contexto y no te corresponde informarlos.`);
 
   return lineas.join('\n');
 }

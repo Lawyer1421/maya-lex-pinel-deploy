@@ -16,6 +16,9 @@
  * materia/colección se UNEN (fila, consulta y metadatos); si CUALQUIERA es 03_NOTARIAL o capa documental, bloquea, y una carga externa no puede quitarlo.
  * Política de país (CLO 28-oct-2026, Anexo 2 — reemplaza la del 24-oct): la jurisdicción se NORMALIZA ('hn', 'HN', 'Honduras' = HN) y debe ser HN para ser
  * PRIMARY. Jurisdicción nula o vacía NO es HN: nunca PRIMARY. País explícito distinto de HN → conflicto → CONTEXT.
+ * Multi-jurisdicción v3 (detrás de flag_multi_jurisdiccion_v3): el país exigido es el OBJETIVO de la consulta (`jurisdiccionObjetivo`, o el sellado en
+ * el fragmento); ausente = HN, con los mismos códigos de siempre. Con otro objetivo, solo el mismo país puede ser PRIMARY. Un identificador país-calificado
+ * (`XX:INSTRUMENTO`, instrument-ref.ts) cuyo país no coincide con la fila o con el objetivo bloquea; nunca confiere identidad.
  * Significado de es_norma_vigente (CLO 28-oct-2026, Anexo 1.8): TRUE = elegible como fundamento; FALSE = excluido; NULL (o ausente) = solo CONTEXT.
  * Rol y norma desplazada declarados en la metadata de la fila (`rol`, `desplazado_por`, `elegible_primary`) solo pueden DEGRADAR a CONTEXT, en todas las rutas.
  *
@@ -23,6 +26,7 @@
  */
 import type { FragmentoRAG } from './types';
 import type { InstrumentoNormalizado } from './instrument-identity';
+import { esJurisdiccionV3, parsearInstrumentRef, refCoincideConJurisdiccion, type JurisdiccionV3 } from './instrument-ref';
 
 export type RolEvidencia = 'PRIMARY' | 'CONTEXT';
 export type TipoFuenteClo = 'NORMA' | 'JURISPRUDENCIA' | 'DOCTRINA' | 'PRACTICA_NOTARIAL' | 'DOCUMENTAL';
@@ -62,7 +66,9 @@ export type CodigoBloqueoClo =
   | 'NORMA_DESPLAZADA'
   | 'MATERIA_NO_VERIFICADA'
   | 'CORPUS_P21_APAGADO'
-  | 'FUENTE_EXTERNA_NO_NORMA';
+  | 'FUENTE_EXTERNA_NO_NORMA'
+  | 'JURISDICCION_DISTINTA_DEL_OBJETIVO'
+  | 'IDENTIDAD_PAIS_INCONSISTENTE';
 
 export const MATERIA_NOTARIAL = '03_NOTARIAL';
 export const COLECCION_DOCUMENTAL = 'mayalex_instrumentos';
@@ -120,12 +126,14 @@ const AVISOS: Readonly<Record<CodigoBloqueoClo, string>> = Object.freeze({
   NORMA_DESPLAZADA: 'Norma desplazada por otra posterior: solo contexto; no es el texto vigente.',
   MATERIA_NO_VERIFICADA: 'Instrumento notarial sin materia verificada por la ruta: no se acredita que sea norma; solo contexto.',
   CORPUS_P21_APAGADO: 'Corpus P21 desactivado (flag_corpus_p21 apagado): solo contexto, nunca fundamento.',
+  JURISDICCION_DISTINTA_DEL_OBJETIVO: 'Fuente de un país distinto del consultado (o sin país declarado): no es el derecho aplicable a la consulta; solo contexto.',
+  IDENTIDAD_PAIS_INCONSISTENTE: 'La identidad país-calificada del instrumento no coincide con la jurisdicción de la fila o de la consulta: solo contexto, nunca fundamento.',
   FUENTE_EXTERNA_NO_NORMA: 'Contenido externo (web o plantilla): no es el corpus normativo; solo contexto, nunca fundamento.',
 });
 
 /** Campos mínimos de un fragmento (FragmentoRAG o una fila de la base con `materia` y `metadata`). */
 export type FragmentoClasificable = Pick<FragmentoRAG, 'fuente' | 'fuente_tipo' | 'jurisdiccion'> &
-  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id' | 'es_norma_vigente' | 'id' | 'metadata_clo' | 'corpus_p21_habilitado'>> & { metadata?: Record<string, unknown> | null };
+  Partial<Pick<FragmentoRAG, 'num_articulo' | 'materia' | 'instrumento_solicitado' | 'coleccion_origen' | 'documento_origen' | 'norm_id' | 'es_norma_vigente' | 'id' | 'metadata_clo' | 'corpus_p21_habilitado' | 'jurisdiccion_objetivo'>> & { metadata?: Record<string, unknown> | null };
 
 export interface ContextoClasificacion {
   /** Materia conocida de la consulta/fila cuando el fragmento no la trae (p. ej. filtro de materia de la RPC semántica). */
@@ -136,6 +144,23 @@ export interface ContextoClasificacion {
   instrumentoSolicitado?: InstrumentId | null;
   /** flag_corpus_p21 resuelto por el llamador. Ausente = apagado: las filas P21 solo son CONTEXT. */
   corpusP21Habilitado?: boolean;
+  /** País objetivo de la consulta (multi-jurisdicción v3). Ausente = el sellado en el fragmento o, si tampoco, HN. */
+  jurisdiccionObjetivo?: JurisdiccionV3;
+}
+
+/** País objetivo efectivo: ausente → HN; un valor sellado fuera de v3 → null (ningún país coincide: nunca PRIMARY). */
+function objetivoEfectivo(v: unknown): JurisdiccionV3 | null {
+  if (v === undefined || v === null) return 'HN';
+  return esJurisdiccionV3(v) ? v : null;
+}
+
+/** ¿Algún identificador país-calificado de la fila contradice su jurisdicción o el objetivo? Ids legados sin prefijo ISO no cuentan. */
+function identidadPaisInconsistente(f: FragmentoClasificable, meta: Record<string, unknown> | null, objetivo: JurisdiccionV3 | null): boolean {
+  const ids = [f.norm_id, meta?.norm_id, f.metadata_clo?.norm_id].filter((x): x is string => typeof x === 'string' && /^[A-Z]{2}:/.test(x));
+  return ids.some((id) => {
+    const r = parsearInstrumentRef(id);
+    return !r.ok || r.pais !== objetivo || !refCoincideConJurisdiccion(id, f.jurisdiccion);
+  });
 }
 
 export interface ClasificacionClo {
@@ -272,6 +297,7 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
   const oficial = METADATOS_FUENTE_OFICIAL[norm(f.fuente)];
   const tipo = norm(f.fuente_tipo) || (oficial ? oficial.fuente_tipo : '');
   const pais = normalizarPais(f.jurisdiccion) ?? (oficial ? oficial.jurisdiccion : null);
+  const objetivo = objetivoEfectivo(ctx.jurisdiccionObjetivo ?? f.jurisdiccion_objetivo);
   const bloqueos: CodigoBloqueoClo[] = [];
 
   // (b) Las sentencias tienen su propio tipo de fuente, sin importar el país. Se reconocen por familia de palabras (sentencia, jurisprudencia,
@@ -279,7 +305,7 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
   const esSentencia = /sentencia|jurisprudencia|fallo|casacion|amparo|inconstitucionalidad|exhibicion personal|habeas/.test(tipo);
   // Doctrina: por tipo, o por una fuente «comentada/anotada/concordada» aunque fuente_tipo diga 'codigo'.
   const esDoctrina = !esSentencia && (/doctrina|comentario|glosa|libro|monografia/.test(tipo) || RE_FUENTE_DOCTRINAL.test(norm(f.fuente)));
-  if (esSentencia) bloqueos.push(pais === 'HN' ? 'SENTENCIA_NO_ES_NORMA' : 'SENTENCIA_NO_HONDURENA');
+  if (esSentencia) bloqueos.push(pais !== null && pais === objetivo ? 'SENTENCIA_NO_ES_NORMA' : objetivo === 'HN' ? 'SENTENCIA_NO_HONDURENA' : 'JURISDICCION_DISTINTA_DEL_OBJETIVO');
   else if (esDoctrina) bloqueos.push('DOCTRINA_NO_ES_NORMA');
 
   // (e) Protocolo y práctica notarial (03_NOTARIAL) y capa documental: sin identidad normativa propia, nunca norma.
@@ -298,9 +324,10 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
     if (instrumentId === null) bloqueos.push('SIN_INSTRUMENT_ID');
     // Fail-closed: una norma exige un fuente_tipo normativo conocido. Null, vacío o desconocido → CONTEXT.
     if (!TIPOS_FUENTE_NORMATIVOS.has(tipo)) bloqueos.push('FUENTE_TIPO_NO_VERIFICADO');
-    // Política de país (CLO 28-oct-2026): la jurisdicción normalizada debe ser HN. Nula o vacía → no acreditada (nunca PRIMARY); otro país → conflicto.
+    // Política de país (CLO 28-oct-2026): la jurisdicción normalizada debe ser la del objetivo (HN por defecto). Nula o vacía → no acreditada
+    // (nunca PRIMARY); otro país → conflicto.
     if (pais === null) bloqueos.push('JURISDICCION_NO_ACREDITADA');
-    else if (pais !== 'HN') bloqueos.push('JURISDICCION_NO_HONDURENA');
+    else if (pais !== objetivo) bloqueos.push(objetivo === 'HN' ? 'JURISDICCION_NO_HONDURENA' : 'JURISDICCION_DISTINTA_DEL_OBJETIVO');
     // Significado CLO de es_norma_vigente: TRUE elegible · FALSE excluido · NULL (o ausente) solo CONTEXT.
     if (f.es_norma_vigente === false) bloqueos.push('VIGENCIA_FALSE_EXCLUIDA');
     else if (f.es_norma_vigente !== true) bloqueos.push('VIGENCIA_NO_ACREDITADA');
@@ -315,6 +342,9 @@ export function clasificarFragmentoClo(f: FragmentoClasificable, ctx: ContextoCl
     // La bandera se toma del contexto explícito o, si no hay, de la que selló la ruta en el fragmento: un solo criterio en todos los consumidores.
     if ((ctx.corpusP21Habilitado ?? f.corpus_p21_habilitado) !== true && esFilaCorpusP21(f)) bloqueos.push('CORPUS_P21_APAGADO');
   }
+
+  // Identidad país-calificada que contradice la fila o la consulta (solo agrega un bloqueo).
+  if (identidadPaisInconsistente(f, meta, objetivo)) bloqueos.push('IDENTIDAD_PAIS_INCONSISTENTE');
 
   // La fuente real es otro instrumento distinto del solicitado.
   if (instrumentId !== null && solicitado && instrumentId !== solicitado) bloqueos.push('INSTRUMENTO_DISTINTO_DEL_SOLICITADO');
@@ -357,6 +387,7 @@ export function anotarFragmentosClo<T extends FragmentoRAG>(fragmentos: readonly
       coleccion_origen: coleccionSellada ?? undefined,
       instrumento_solicitado: f.instrumento_solicitado ?? ctx.instrumentoSolicitado ?? undefined,
       corpus_p21_habilitado: (ctx.corpusP21Habilitado ?? f.corpus_p21_habilitado) === true,
+      ...((ctx.jurisdiccionObjetivo ?? f.jurisdiccion_objetivo) !== undefined ? { jurisdiccion_objetivo: ctx.jurisdiccionObjetivo ?? f.jurisdiccion_objetivo } : {}),
     };
     const c = clasificarFragmentoClo(sellado, { corpusP21Habilitado: ctx.corpusP21Habilitado });
     return { ...sellado, instrument_id: c.instrumentId, rol_evidencia: c.rol, bloqueos_clo: c.bloqueos, avisos_clo: c.avisos };
