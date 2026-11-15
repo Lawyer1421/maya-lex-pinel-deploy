@@ -109,7 +109,7 @@ En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo
 | 39 | 16 | texto | 2 | «∅» → «a»; «día» → «días» |
 
 **Observaciones para el cotejo:**
-- **Arts. 13 y 26:** concentran 66 diferencias porque transcriben artículos de otras leyes. Casi todas son palabras cortadas en el borde de la columna o pegadas por el OCR.
+- **Arts. 13 y 26:** concentran 62 diferencias (36 y 26) porque transcriben artículos de otras leyes. Casi todas son palabras cortadas en el borde de la columna o pegadas por el OCR.
 - **Art. 38 (pág. 16):** es la única diferencia ya comprobada que cambia un número con efecto jurídico («5» → «54»). Conviene revisar con el mismo cuidado **todas las cifras** de las listas de artículos de los arts. 13, 14, 26, 27, 37 y 38.
 - **Diferencias marcadas con ∅:** son restos de ruido del escaneo («A. ÜJ», «n i o»…), no texto de la ley.
 
