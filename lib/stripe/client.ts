@@ -29,7 +29,7 @@ export function codificarFormularioStripe(params: Record<string, unknown>, prefi
   return partes.filter(Boolean).join('&');
 }
 
-async function stripeRequest<T>(metodo: 'GET' | 'POST', ruta: string, cuerpo?: Record<string, unknown>): Promise<T> {
+async function stripeRequest<T>(metodo: 'GET' | 'POST' | 'DELETE', ruta: string, cuerpo?: Record<string, unknown>): Promise<T> {
   const clave = process.env.STRIPE_SECRET_KEY?.trim();
   if (!clave) throw new Error('Stripe no configurado');
   const res = await fetch(`${STRIPE_API}${ruta}`, {
@@ -58,9 +58,20 @@ export interface SuscripcionStripe {
   items?: { data?: Array<{ price?: { id?: string } }> };
 }
 
+const RE_ID_SUSCRIPCION = /^sub_[A-Za-z0-9]+$/;
+
 export function obtenerSuscripcion(id: string): Promise<SuscripcionStripe> {
-  if (!/^sub_[A-Za-z0-9]+$/.test(id)) throw new Error('id de suscripción de Stripe inválido');
+  if (!RE_ID_SUSCRIPCION.test(id)) throw new Error('id de suscripción de Stripe inválido');
   return stripeRequest<SuscripcionStripe>('GET', `/subscriptions/${id}`);
+}
+
+/**
+ * Cancela la suscripción DE INMEDIATO (DELETE /v1/subscriptions/:id): sin más cobros y sin período de gracia, igual que la cancelación de
+ * PayPal. No se usa cancel_at_period_end porque hoy nada concede acceso hasta current_period_end (mejora futura, ver lib/billing).
+ */
+export function cancelarSuscripcionStripe(id: string): Promise<SuscripcionStripe> {
+  if (!RE_ID_SUSCRIPCION.test(id)) throw new Error('id de suscripción de Stripe inválido');
+  return stripeRequest<SuscripcionStripe>('DELETE', `/subscriptions/${id}`);
 }
 
 /**
