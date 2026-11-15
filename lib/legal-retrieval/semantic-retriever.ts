@@ -22,6 +22,7 @@
 import type { FragmentoRAG, ResultadoRAG } from './types';
 import { hashFragmento, contieneArtefactoAnonimizacion } from './primitives';
 import type { PredicadoFuente } from './instrument-gate';
+import type { JurisdiccionV3 } from './instrument-ref';
 
 /**
  * D6(b) — true para un artículo de código hondureño confirmado NO vigente
@@ -115,6 +116,7 @@ export async function buscarEnSupabase(
   materia: string | undefined,
   rerankHabilitado: boolean,
   elegibleFuente: PredicadoFuente = () => true,
+  jurisdiccion?: JurisdiccionV3,
 ): Promise<ResultadoRAG> {
   // Requiere la tabla biblioteca_vectores + RPC buscar_biblioteca en Supabase
   // (supabase/vectores.sql — poblada por scripts/seed_vectores.py) y
@@ -157,19 +159,25 @@ export async function buscarEnSupabase(
   // verificables" aun con el CPC cargado (2026-11-02). El pool vigente es el
   // limpio, así que se trae completo (tope del RPC).
   const RETRIEVAL_VIGENTE_K = 20;
+  // Multi-jurisdicción v3 (flag_multi_jurisdiccion_v3, resuelto por la ruta): con país, AMBOS pools van por buscar_biblioteca_v3 con el
+  // mismo filtro y nunca se recurre a v2 si v3 falla (el error sigue siendo error de retrieval). Sin país: v2, exactamente como antes.
+  const rpc = jurisdiccion ? 'buscar_biblioteca_v3' : 'buscar_biblioteca_v2';
+  const filtroPais = jurisdiccion ? { jurisdiccion_filtro: jurisdiccion } : {};
   const [normal, vigente] = await Promise.all([
-    supabase.rpc('buscar_biblioteca_v2', {
+    supabase.rpc(rpc, {
       query_embedding: queryEmbedding,
       coleccion_filtro: coleccion,
       materia_filtro: materia ?? null,
       limite: RETRIEVAL_WIDE_K,
+      ...filtroPais,
     }),
-    supabase.rpc('buscar_biblioteca_v2', {
+    supabase.rpc(rpc, {
       query_embedding: queryEmbedding,
       coleccion_filtro: coleccion,
       materia_filtro: materia ?? null,
       limite: RETRIEVAL_VIGENTE_K,
       solo_norma_vigente: true,
+      ...filtroPais,
     }),
   ]);
 
@@ -225,7 +233,9 @@ export async function buscarEnSupabase(
     .filter((f) => !esRegistroNoVigenteExcluido(f))
     .filter((f) => f.fuente !== null)
     .filter((f) => !esFuenteDocumentalExcluida(f.fuente))
-    .filter((f) => elegibleFuente(f.fuente));
+    .filter((f) => elegibleFuente(f.fuente))
+    // Defensa en profundidad: la RPC v3 ya filtra en SQL; una fila de otro país (o sin país) nunca llega al contexto.
+    .filter((f) => !jurisdiccion || f.jurisdiccion === jurisdiccion);
 
   // Etapa 2 — reranking Cohere, ahora detrás de `flag_rerank` (Decisión C,
   // DECISION_LOG 2026-09-07). `rerankHabilitado` lo resuelve `/api/chat` una
