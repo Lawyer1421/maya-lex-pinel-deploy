@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { clasificarFragmentoClo, anotarFragmentosClo } from '@/lib/legal-retrieval/clo-guards';
 import { resolverArticuloExacto, type FilaExactaDB } from '@/lib/legal-retrieval/exact-resolver';
 import {
@@ -144,7 +144,7 @@ describe('buscarRAG semántico: v3 solo con país', () => {
   const filaRpc = (id: string, jurisdiccion: string | null) => ({
     id, contenido: `Contenido ${id}.`, num_articulo: '5', fuente: 'Codigo Civil', fuente_tipo: 'codigo', jurisdiccion, es_norma_vigente: true, similarity: 0.9,
   });
-  let rpc: ReturnType<typeof vi.fn>;
+  let rpc: Mock<(nombre: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>>;
   beforeEach(() => {
     vi.resetModules();
     process.env.RAG_BACKEND = 'supabase';
@@ -194,8 +194,8 @@ describe('buscarRAG semántico: v3 solo con país', () => {
 
 describe('POST /api/chat con flag_multi_jurisdiccion_v3', () => {
   const ORIGINAL_ENV = { ...process.env };
-  let recuperar: ReturnType<typeof vi.fn>;
-  let llm: ReturnType<typeof vi.fn>;
+  let recuperar: Mock<(p: { jurisdiccion?: string }) => Promise<unknown>>;
+  let llm: Mock<(...a: unknown[]) => unknown>;
 
   function mocks(flags: string[]) {
     vi.doMock('next/server', async () => {
