@@ -6,7 +6,7 @@ Vigencia: **SIN DECLARAR**. No se afirma cuál texto rige hoy. Estado de las fue
 | Campo | Valor |
 |---|---|
 | Qué reporta | El art. 1 del Decreto 35-2013 incluye el 21 en la lista de artículos a reformar y transcribe su nuevo texto: «Quien venda o proporcione a los niños y niñas cigarrillos, licores, sustancias estupefacientes, pegamentos que contengan sustancias tóxicas o volátiles o cualquier otro producto que pueda provocarle daño a su salud o desarrollo integral, o los induzca a su uso y consumo, será sancionado con multa de diez (10) a treinta (3 0) salarios mínimos, en su valor más alto. Dicha sanción se aplicará sin perjuicio de las demás que establezcan el Código Penal u otras leyes especiales.» |
-| Fuente | **A04**: La Gaceta 33,222, 6-sep-2013, copia del Drive del propietario (procedencia institucional no acreditada) |
+| Fuente | **A04**: La Gaceta 33,222, 6-sep-2013, copia del Drive del propietario; **desde el 16-nov-2026, procedencia institucional acreditada por el TSC** (mismo SHA-256; no es un segundo ejemplar) |
 | Ubicación | Pág. 2, columna der.; lista del art. 1 en págs. 1–2 |
 | Verificación | Texto leído en la imagen; transcripción candidata no cotejada palabra por palabra; «(3 0)» tal como sale del OCR. Sin segundo ejemplar |
 | Fecha de efecto | Publicación 6-sep-2013; la entrada en vigor la fija el art. 19 del decreto («a partir del día de su publicación»); no se declara vigencia actual |

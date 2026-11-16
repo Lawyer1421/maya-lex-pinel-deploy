@@ -1,6 +1,6 @@
 # A04 — Inventario de pasajes ilegibles y lista para cotejar con otro ejemplar oficial
 
-Estado: `RECEIVED / SOURCE_HOLD`. Vigencia: SIN DECLARAR. Marca usada: **ILEGIBLE_EN_ESTE_EJEMPLAR** = el carácter no figura en la imagen de este ejemplar (copia del Drive del propietario); no es un defecto de OCR. La «lectura por contexto» solo orienta al cotejo: **no se adopta** ni se inserta en la candidata.
+Estado: `RECEIVED` (procedencia institucional acreditada por el TSC el 16-nov-2026: mismo SHA-256, mismo ejemplar; las marcas de este inventario **no** cambian). Vigencia: SIN DECLARAR. Marca usada: **ILEGIBLE_EN_ESTE_EJEMPLAR** = el carácter no figura en la imagen de este ejemplar (copia del Drive del propietario, idéntica byte a byte a la del TSC); no es un defecto de OCR. La «lectura por contexto» solo orienta al cotejo: **no se adopta** ni se inserta en la candidata.
 
 ## Resultado por página
 - **Pág. 41 — caracteres ausentes en la imagen: 11 líneas** (el primer carácter está cortado por el borde izquierdo del escaneo).

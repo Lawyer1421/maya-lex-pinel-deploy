@@ -4,7 +4,7 @@
 
 ## Fuente (solo lectura)
 - Bytes: 18,625,608 · páginas: 46 · SHA-256 del PDF íntegro: `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` (coincide con el esperado).
-- Procedencia: copia del Drive del propietario, recompuesta desde dos ZIP; la institución de origen sigue pendiente de cotejo. El hash prueba bytes, no autenticidad.
+- Procedencia: copia del Drive del propietario, recompuesta desde dos ZIP; la institución de origen sigue pendiente de cotejo. El hash prueba bytes, no autenticidad. **Actualización 16-nov-2026:** procedencia institucional acreditada por el TSC (`www.tsc.gob.hn`, tier 4; mismo SHA-256 `fbd87f33…`). Es el mismo ejemplar, no un segundo ejemplar para cotejar. Ver `00_HOJA_DECISION_CLO.md`.
 - SHA-256 del texto delimitado (págs. 1–46, la 46 solo columna izquierda): `423f965c1cd358896fd18e40f882c4e3e242f9627617d8ef42fc53b3b0d9375b` (sidecar `extractos/HN-001-A04-fbd87f3396e5-423f965c1cd3.json`). La primera extracción (`d93edfa2d1a3…`) queda archivada en `superseded-primera-extraccion/` porque ordenaba mal las columnas de 4 páginas.
 
 ## Orientación de las cuatro páginas afectadas
