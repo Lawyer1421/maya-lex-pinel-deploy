@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { patronesEncabezado, transcribirSinEncabezados } from '@/tools/corpus/transcripcion-gaceta';
+import { compactarLinea, patronesEncabezado, patronesEncabezadoEspaciados, transcribirSinEncabezados } from '@/tools/corpus/transcripcion-gaceta';
 
 const FECHA = '5 DE JUNIO DEL 2014';
 const NUM = '33,445';
@@ -85,5 +85,65 @@ describe('correcciones de cotejo: la única vía para cambiar una palabra del te
     const r = aplicarCorrecciones(base, []);
     expect(r.texto).toBe(base.texto);
     expect(r.sha256).toBe(base.sha256);
+  });
+});
+
+describe('encabezados espaciados o partidos (A04, D.35-2013, La Gaceta 33,222): opción variantesEspaciadas', () => {
+  const F = '6 DE SEPTIEMBRE DEL 2013';
+  const N = '33,222';
+  // Líneas reales de la transcripción del A04 (v3), una por variante.
+  const ENCABEZADOS = [
+    'L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P',
+    'La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P',
+    'L a Gaceta | R E P Ú B L I C A D E H O N D U R A S - T E G U C I G A',
+    'L a Gaceta REPÚBLICA D E HONDURAS T E G U C I G A L',
+    'L a Gaceta REPUBLICA DE HONDURAS - TEGUCIGALPA,',
+    'R E P U B L I C A D E HONDURAS - T E G U C I G A L P A',
+    'REPÚBLICA D E HONDURAS - T E G U C I G A',
+    'A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222',
+    ', M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222',
+    'P A , M . D. C . , 6 D E S E P T I E M B R E D E L 2013 No. 33,222',
+    'P A , M . D. C , 6 D E S E P T I E M B R E D E L 2 0 Í 3 No. 33,222',
+    'A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33.222',
+    'A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,22',
+    'A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,22:',
+    'M. D. C , 6 DE SEPTIEMBRE DEL 2013 No. 33,222',
+    'Sección A Acuerdos y Ley es',
+    '•Ps&PIII^^ Sección A Acuerdos y Leyes',
+    'A. 41',
+  ];
+  // Texto del decreto que menciona las mismas palabras: no es encabezado.
+  const TEXTO_LEY = [
+    'hoy, como Diario Oficial "La Gaceta".',
+    'partir del día de su publicación en el Diario Oficial "La Gaceta".',
+    'Dado en la ciudad de Tegucigalpa, municipio del Distrito',
+    'Tegucigalpa, M.D.C., 5 de septiembre de 2013',
+    'CONSIDERANDO: Que la Constitución de la República',
+    '9) Quien no tenga domicilio en la República;',
+    'de Letras de Niñez y los Jueces de Letras Seccionales."',
+    'Decreto No. 132-97, de fecha 11 de septiembre de 1997,',
+    'VIERNES 6 DE SEPTIEMBRE DEL 2013. NUM. 33,222',
+    'DIARIO OFICIAL DE LA REPÚBLICA DE HONDURAS',
+  ];
+
+  it('con la opción, quita cada variante espaciada real y conserva el texto que solo menciona esas palabras', () => {
+    const t = transcribirSinEncabezados([...ENCABEZADOS, ...TEXTO_LEY].join('\n'), F, N, { variantesEspaciadas: true });
+    expect(t.quitadas.map((q) => q.texto)).toEqual(ENCABEZADOS);
+    for (const l of TEXTO_LEY) expect(t.texto).toContain(l);
+  });
+
+  it('sin la opción (como en el D.284-2013), el comportamiento no cambia: ninguna variante espaciada se quita', () => {
+    const t = transcribirSinEncabezados(ENCABEZADOS.join('\n'), F, N);
+    expect(t.quitadas).toEqual([]);
+    const d284 = transcribirSinEncabezados(TEXTO, FECHA, NUM);
+    expect(transcribirSinEncabezados(TEXTO, FECHA, NUM, { variantesEspaciadas: false }).sha256).toBe(d284.sha256);
+  });
+
+  it('la fecha y el número son los de la edición: otra fecha u otro número no coinciden', () => {
+    const p = patronesEncabezadoEspaciados(F, N);
+    const es = (l: string) => p.some((r) => r.test(compactarLinea(l)));
+    expect(es('A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222')).toBe(true);
+    expect(es('A , M . D. C , 7 D E S E P T I E M B R E D E L 2013 No. 33,222')).toBe(false);
+    expect(es('A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,445')).toBe(false);
   });
 });

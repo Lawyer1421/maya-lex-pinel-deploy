@@ -1,0 +1,69 @@
+{
+  "estado": "TEXTO_FINAL_PARA_COTEJO_D3",
+  "advertencia": "v5: texto fijado (resoluciones firmadas del 2026-11-16), sin encabezados de página ni cabecera/sumario de la pág. 1. Los dos rangos quitados en este paso fueron ratificados expresamente por el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho, 2026-11-16). Solo la firma D3 del CLO sobre este sha256 lo declara cotejado.",
+  "base": {
+    "archivo": "A04_transcripcion_candidata_v4.txt",
+    "sha256_lf": "a81d0571536ff5305dc4353b3c0957448453c689a26166856e12b12bad305d6b"
+  },
+  "transcripcion_sha256": "fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e",
+  "caracteres": 176962,
+  "rangos_quitados": [
+    {
+      "desde": 1,
+      "hasta": 12,
+      "motivo": "Cabecera del Diario Oficial antes del decreto: «DIARIO OFICIAL DE LA REPUBLICA», historia de la imprenta, «E.N.A.G», «AÑO CXXXVi TEGUCIGALPA…», «Sección / Poder Legislativo» y un «*» de ruido del escaneo",
+      "sha256": "b1bbcbb2de0e4bcbaf804b59db678b18ff0869db3cbeb6d9ac8ece09df8c903f",
+      "lineas": [
+        "DIARIO OFICIAL DE LA REPUBLICA",
+        "La primera imprenta l egó a Honduras en 1829, siendo",
+        "instalada en Tegucigalpa, en el cuartel San Fran-",
+        "cisco, lo primero que se imprimió fue una proclama",
+        "del General Morazán, con fecha 4 de diciembre de",
+        "1829. EMPRESA NACIONAL",
+        "E.N.A.G",
+        "AÑO CXXXVi TEGUCIGALPA, M. D. C , HONDURAS, C. A.",
+        "Sección",
+        "Poder Legislativo",
+        "",
+        "*"
+      ]
+    },
+    {
+      "desde": 43,
+      "hasta": 71,
+      "motivo": "Resto de la cabecera y sumario de la edición, intercalados entre «DECRETA: … correspondientes:» y el título previo al art. 1: «DE HONDURAS», historia del Diario Oficial, «DE ARTES GRÁFICAS», fecha y número, «SUMARIO», decretos de la edición, Poder Ejecutivo, «Sección B», «Desprendióle para su comodidad»",
+      "sha256": "11b05ca795e6d7d88d4eb5d5548609ae7e4b7b88c88232632418c2aac52780b2",
+      "lineas": [
+        "DE HONDURAS",
+        "Después se imprimió el primer periódico oficial del",
+        "Gobierno con fecha 25 de mayo de 1830, conocido",
+        "hoy, como Diario Oficial \"La Gaceta\".",
+        "DE ARTES GRÁFICAS",
+        "",
+        "VIERNES 6 DE SEPTIEMBRE DEL 2013. NUM. 33,222",
+        "A",
+        "SUMARIO",
+        "Sección A",
+        "Decretos y Acuerdos",
+        "PODER LEGISLATIVO",
+        "35-2013 Decreta: CÓDIGO DE LA NIÑEZ Y LA",
+        "ADOLESCENCIA. A. 1-46",
+        "",
+        "Decretos Nos.: 107-2013,120-2013,",
+        "170-2013,173-2013,176-2013 y 196-2013. A.46-7Í",
+        "",
+        "PODER E J E C U T I V O",
+        "PCM-043- Decreta: Autorizar la transferencia o traslado",
+        "2013 de los recursos económicos y de la cartera",
+        "de préstamos vigentes y préstamos en mora",
+        "del \"Fondo Especial de Crédito de",
+        "Emergencia para Locatarios y Vende-",
+        "dores Ambulantes de los Mercados del",
+        "Distrito Central\", A.72-76",
+        "Sección B",
+        "Avisos Legales B. 1-16",
+        "Desprendióle para su comodidad"
+      ]
+    }
+  ]
+}
