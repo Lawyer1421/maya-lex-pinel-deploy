@@ -111,3 +111,7 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 | Recortes del borde derecho (2.3.1) | **Hecho, con un límite:** el escaneo es de **200 ppp** y no existe una resolución mayor. A resolución nativa, de los 19 dudosos, **4 pasan a legibles**, **3 dejan ver más letras** y **12 siguen cortados** por el borde. Total de los 88: 33 legibles · 43 parciales · 12 ilegibles parciales · 0 pendientes. Ver `transcripcion_candidata/LISTA_COTEJO_D3_A04.md` |
 | Lista de cotejo D3 por artículo (2.5.1) | **Hecha** sobre los bytes LF `977f0489…`: 19 artículos y 434 diferencias, con un script reproducible. C02–C05 y la parte «A la» de C01 están firmadas pero **aún no aplicadas** a la candidata |
 | Alta de `HN:DECRETO_35_2013` en el catálogo, solo CONTEXT (paso 5) | **PR #144** |
+
+### Actualización (2026-11-16, segunda pasada)
+- **Candidata v2** con C01–C05 aplicadas: SHA-256 sobre bytes LF **`25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685`**. Cambian 5 líneas respecto de la v1 y nada más. Aún conserva los encabezados de página.
+- **Lista de cotejo regenerada sobre la v2:** 441 diferencias. El borde derecho se cuenta una sola vez por línea: 86 líneas dentro del acto (31 legibles, 43 parciales y 12 ilegibles parciales) y **2 fuera del acto** (B87 y B88, pág. 46, columna derecha, que es el acto siguiente).

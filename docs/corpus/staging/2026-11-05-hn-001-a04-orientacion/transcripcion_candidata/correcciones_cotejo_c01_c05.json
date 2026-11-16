@@ -1,0 +1,42 @@
+[
+  {
+    "articulo": "10 (inciso 8 del art. 23 reformado de la Ley contra la Violencia Doméstica)",
+    "pagina_pdf": 45,
+    "buscar": "8) Ala protección",
+    "reemplazar": "8) A la protección",
+    "motivo": "C01. La imagen de la pág. 45 (col. izq.) dice «8) A la protección del derecho a la intimidad…»; la capa de texto unió «A la». El orden de los incisos 7) y 8) ya estaba corregido en la candidata por la reconstrucción geométrica.",
+    "detectado_por": "Claude (lectura de la imagen, recorte p45_izq_arriba_art10_inc7-8.png); aprobado y firmado por el CLO, Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16"
+  },
+  {
+    "articulo": "11",
+    "pagina_pdf": 45,
+    "buscar": "66,\n57, 68",
+    "reemplazar": "66,\n67, 68",
+    "motivo": "C02. La imagen de la pág. 45 (col. izq.) dice «67» (serie 62–82 continua); el OCR leyó «57».",
+    "detectado_por": "Claude (recorte p45_izq_cierre_art10_y_art11-13.png); aprobado y firmado por el CLO, Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16"
+  },
+  {
+    "articulo": "14",
+    "pagina_pdf": 45,
+    "buscar": "333, ^34, 335",
+    "reemplazar": "333, 334, 335",
+    "motivo": "C03. La imagen de la pág. 45 (col. der.) dice «334», con una mancha sobre el 3; el OCR leyó «^34».",
+    "detectado_por": "Claude (recorte p45_der_art14_tira3.png); aprobado y firmado por el CLO, Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16"
+  },
+  {
+    "articulo": "5 (art. 123-F adicionado al Código de Familia)",
+    "pagina_pdf": 38,
+    "buscar": "\"ARTÍCULO 123-E- Se prohibe a toda autoridad",
+    "reemplazar": "\"ARTÍCULO 123-F.- Se prohíbe a toda autoridad",
+    "motivo": "C04. La imagen de la pág. 38 (col. izq.) dice «ARTÍCULO 123-F.- Se prohíbe a toda autoridad, permitir o promover:»; el OCR repitió el rótulo 123-E y perdió el punto y la tilde.",
+    "detectado_por": "Claude (recorte p38_izq_art5_123E-123F.png); aprobado y firmado por el CLO, Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16"
+  },
+  {
+    "articulo": "5 (art. 207-F adicionado al Código de Familia)",
+    "pagina_pdf": 40,
+    "buscar": "\"ARTÍCULO 207-E- Mientras el(la) deudora) no cumpla",
+    "reemplazar": "\"ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla",
+    "motivo": "C05. La imagen de la pág. 40 (col. izq.) dice «ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla o se allane a cumplir…»; el OCR repitió el rótulo 207-E y leyó «deudora)».",
+    "detectado_por": "Claude (recorte p40_izq_art5_207E_medio.png); aprobado y firmado por el CLO, Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16"
+  }
+]
