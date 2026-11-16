@@ -29,23 +29,23 @@ Las lecturas «propuestas» son lecturas visuales mías (revisión automática) 
 **Evidencia independiente de la imagen (coordenadas del propio texto del PDF, pág. 45, espacio sin rotar):** el rótulo «7)» y el cuerpo «Ser atendida para dictamen…» están en la misma línea base (y = 789); el rótulo «8)» y «Ala protección del derecho…» en y = 678.
 **Lectura propuesta (candidata):** `7) Ser atendida para dictamen y reconocimiento por la Dirección de Medicina Forense, cuando fuere remitida por juzgado competente o cualquiera de las instituciones igualmente competentes para aplicar medidas de seguridad o por una organización no gubernamental, de conformidad con la Ley;` · `8) A la protección del derecho a la intimidad de la víctima y de su familia, en tanto se determina que los asuntos de violencia doméstica interpuestos ante las autoridades administrativas y judiciales serán estrictamente confidenciales, por lo que el contenido de los respectivos expedientes, como de cualquier otra información, sólo podrá ser conocido por las partes y por los (as) empleados (as) o funcionarios (as) directamente intervinientes en su tramitación.` y, a continuación, los dos párrafos «Los medios de comunicación…» y «El(la) funcionario(a)…», hasta el inicio del art. 11.
 **Recortes:** `paquete-revision/recortes/p45_izq_arriba_art10_inc7-8.png`, `p45_izq_cierre_art10_y_art11-13.png`. **Texto bruto y transcripción, completos:** `paquete-revision/registro_correcciones_propuestas.csv` (C01) y `transcripcion_candidata/A04_transcripcion_candidata.txt` (pág. 45).
-Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar
 
 ## C02 — Art. 11, lista de derogaciones · pág. 45, col. izquierda
 **Bruto:** «…62,63,64,65,66, **57**, 68, 69…» · **Propuesta:** **67** (la imagen muestra «67» con el primer dígito pegado al borde; la serie 62–82 es continua). **Recorte:** `p45_izq_cierre_art10_y_art11-13.png` y `transcripcion_candidata/recortes_borde_izq/p45_y552.jpg`.
-Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar
 
 ## C03 — Art. 14, lista de derogaciones (324 cifras) · pág. 45, col. derecha
 **Bruto:** «…332, 333, **^34**, 335…» · **Propuesta:** **334** (la imagen muestra «334» con una mancha sobre el 3). Única diferencia entre el OCR y mi lectura de la imagen en las 324 cifras. **Recorte:** `p45_der_art14_tira1/2/3.png` (la cifra, en la tira 3).
-Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar
 
 ## C04 — Art. 5 (Código de Familia): segundo artículo tras 123-E · pág. 38, col. izquierda
 **Bruto:** «ARTÍCULO **123-E**- Se prohibe a toda autoridad, permitir o promover:» (rótulo repetido) · **Propuesta:** **123-F**. La imagen dice, completo: **«ARTÍCULO 123-F.- Se prohíbe a toda autoridad, permitir o promover:»**, con tilde en «prohíbe»; el OCR la perdió («prohibe»). El art. 5 declara 123-F entre los que adiciona. La propuesta corrige el rótulo y la tilde porque ambos constan en la imagen. **Recorte:** `p38_izq_art5_123E-123F.png`.
-Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar
 
 ## C05 — Art. 5 (Código de Familia): segundo artículo tras 207-E · pág. 40, col. izquierda
 **Bruto:** «ARTÍCULO **207-E**- Mientras el(la) deudora) no cumpla…» · **Propuesta:** **207-F** («ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla…»; el art. 5 declara 207-F). **Recorte:** `p40_izq_art5_207E_medio.png`.
-Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar
 
 ### Constancia de fidelidad al texto impreso (C01–C05)
 Las propuestas **no modernizan ni normalizan** la ortografía de la publicación. Solo corrigen lo que el OCR leyó mal frente a la imagen:
@@ -63,7 +63,31 @@ En todos los casos, el campo «Bruto» conserva sin cambios lo que extrajo el OC
 | **Lista introductoria** | pág. 41, col. izq., 2.ª línea del art. 6 | «Artículos 37, 234, 271, 434, **11**, 516, 559, 960, 963, 972 y 973» — el primer carácter de «11» está en el borde izquierdo y **no figura en la imagen** | «11,516,559,960,963,972 y 973» | **ILEGIBLE_EN_ESTE_EJEMPLAR** (carácter inicial); se conserva «11» |
 | **Rótulo del cuerpo** | pág. 41, col. der. | «“ARTÍCULO **511**.- Los padres, o el(la) tutor(a) al llegar…» | «ARTÍCULO 511.-» | legible |
 **Discrepancia registrada, sin corregir:** en este ejemplar la lista dice «11» y el cuerpo «511». No se puede atribuir a la publicación o al recorte del escaneo, porque el carácter inicial de la lista falta en la imagen. **Se conservan ambas lecturas;** «511» no se inserta en la lista. Cotejar con otro ejemplar. **Recortes:** `p41_izq_art6_lista_introductoria_11.png`, `p41_der_art6_rotulo_cuerpo_511.png`.
-Decisión: ☐ Aprobar conservar ambas ☐ Rechazar ☐ Cotejar con otro ejemplar
+Decisión: ☑ **Aprobar conservar ambas** («11» en la lista y «511» en el rótulo; firmado por el CLO, 2026-11-16) ☐ Rechazar ☐ Cotejar con otro ejemplar. **El cotejo con otro ejemplar sigue ABIERTO** (ver la firma)
+
+### FIRMA DEL CLO · C01–C06 (16-nov-2026)
+**Firmante:** Abg. y Not. Fredy Omar Pinel Flores · **Rol:** `propietario_despacho` (CLO / Director Maya Lex) · **Fecha:** 2026-11-16
+
+Quedan **APROBADAS y FIRMADAS** las lecturas de C01 a C06, en los términos de esta hoja y de `paquete-revision/registro_correcciones_propuestas.csv`:
+
+| # | Lectura aprobada |
+|---|---|
+| C01 | Art. 10 (art. 23 de la Ley contra la Violencia Doméstica): 7) «Ser atendida para dictamen…» y 8) «A la protección del derecho a la intimidad…», con sus rótulos en orden y los dos párrafos finales; se conservan «sólo» y «ésta» como están impresos |
+| C02 | Art. 11: **67** (serie 62–82) |
+| C03 | Art. 14: **334** |
+| C04 | **«ARTÍCULO 123-F.- Se prohíbe a toda autoridad, permitir o promover:»** |
+| C05 | **«ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla o se allane a cumplir…»** (lectura de la imagen; «deudora)» es solo el OCR, que se conserva en el campo «Bruto») |
+| C06 | **Lectura dual:** «11» en la lista introductoria del art. 6 y «511» en el rótulo del cuerpo. No se inserta «511» en la lista ni se afirma que se vea un «5» |
+
+**Alcance y límites de esta firma.** La firma cubre **solo C01–C06**. Siguen **ABIERTOS** hasta contar con **otro ejemplar distinto** (bytes distintos de `fbd87f33…`; la copia del TSC es el mismo archivo) o con una resolución específica del CLO:
+- el cotejo de C06 con otro ejemplar, para fijar el carácter inicial de «11»;
+- C07: La Gaceta 34,940 frente a 39,940 y la fecha de efecto de E2;
+- las 11 líneas de la pág. 41 con el carácter inicial ausente (ILEGIBLE_EN_ESTE_EJEMPLAR);
+- los 88 finales de línea anómalos del borde derecho, incluidos los 29 legibles, que no se han cotejado;
+- los arts. 134 y 141;
+- los 54 caracteres sin atribuir de la conciliación 250/2 y los bloques B de esa conciliación.
+
+Esta firma **no** declara la vigencia, **no** fija el texto completo del decreto y **no** promueve a V4/V5.
 
 ---
 ## C07 — E2: derogación posterior del art. 21 de la Niñez (nuevo) · actualizado
@@ -82,7 +106,7 @@ Decisión: ☐ Aprobar el registro de E1 y E2 como eventos separados ☐ Rechaza
 | 11 líneas de la pág. 41 | carácter inicial ausente; lectura por contexto no adoptada | `transcripcion_candidata/recortes_borde_izq/p41_y*.jpg` | ABIERTA |
 | 88 finales anómalos | `transcripcion_candidata/borde_derecho_88_lecturas.csv`: 29 legibles · 40 parciales · 6 ilegibles parciales · 13 sin lectura | `transcripcion_candidata/recortes_borde_derecho/` | ABIERTA (salvo 29 legibles, sin cotejar) |
 | Art. 6 (lista / cuerpo) | «11» y «511», ambas | C06 | ABIERTA |
-| C01–C06 | lecturas visuales propuestas | arriba | PENDIENTE CLO |
+| C01–C06 | lecturas aprobadas (ver la firma) | arriba | **FIRMADAS 2026-11-16** (C06: lectura dual; cotejo ABIERTO) |
 | Arts. 134 y 141 | pasaje completo | `paquete-revision/PASAJES_134_141.md` | ABIERTA |
 | Conciliación 250 / 2 | ver `transcripcion_candidata/RECONCILIACION_250_Y_2.md` | | 54 caracteres sin atribuir: ABIERTA |
 
