@@ -1,7 +1,7 @@
 /**
  * Piloto de adjudicación del Decreto 284-2013 (2026-11-15): el decreto entra al catálogo cerrado de instrumentos para que la ingesta pueda
- * exigir HN:DECRETO_284_2013, sin cambiar la identidad de ninguna fuente existente y sin que ninguna fila suya pueda ser PRIMARY hasta que el
- * CLO apruebe su pliego.
+ * exigir HN:DECRETO_284_2013, sin cambiar la identidad de ninguna fuente existente y sin que ninguna fila suya pudiera ser PRIMARY hasta que el
+ * CLO aprobara su pliego. Adjudicado el 16-nov-2026 (D1–D8): el bloqueo se retira; la vigencia y el rol de cada fila mandan.
  */
 import { describe, expect, it } from 'vitest';
 import { identidadDeFuente, RE_FUENTE_POR_INSTRUMENTO } from '@/lib/legal-retrieval/instrument-identity';
@@ -47,16 +47,28 @@ describe('catálogo: DECRETO_284_2013', () => {
   });
 });
 
-describe('CLO: el decreto es solo CONTEXT hasta que el CLO apruebe su pliego', () => {
-  it('aun con vigencia TRUE, país HN y tipo normativo, una fila del decreto no es PRIMARY', () => {
-    expect(INSTRUMENTOS_SOLO_CONTEXT.DECRETO_284_2013).toBe('INSTRUMENTO_SIN_PLIEGO_CLO');
-    const c = clasificarFragmentoClo({ fuente: FUENTE_D284, fuente_tipo: 'ley', jurisdiccion: 'HN', es_norma_vigente: true, num_articulo: '13' });
-    expect(c.instrumentId).toBe('DECRETO_284_2013');
-    expect(c.rol).toBe('CONTEXT');
-    expect(c.bloqueos).toEqual(['INSTRUMENTO_SIN_PLIEGO_CLO']);
+describe('CLO: adjudicación del pliego (D1–D8, firmada el 16-nov-2026)', () => {
+  const vigente = { fuente: FUENTE_D284, fuente_tipo: 'ley', jurisdiccion: 'HN', es_norma_vigente: true };
+
+  it('D7: el decreto ya no está en la lista de instrumentos solo CONTEXT', () => {
+    expect(INSTRUMENTOS_SOLO_CONTEXT.DECRETO_284_2013).toBeUndefined();
   });
 
-  it('las filas que genera la ingesta nacen ocultas, sin vigencia y bloqueadas por el pliego', () => {
+  it('una fila vigente (D4), HN y de tipo ley (D6), sin marca de rol, es PRIMARY', () => {
+    const c = clasificarFragmentoClo({ ...vigente, num_articulo: '5', metadata: { norm_id: 'HN:DECRETO_284_2013', vigencia: 'TRUE_PRESUNTA', estado_v: 'V4' } });
+    expect(c.instrumentId).toBe('DECRETO_284_2013');
+    expect(c.bloqueos).toEqual([]);
+    expect(c.rol).toBe('PRIMARY');
+  });
+
+  it.each(['13', '14', '26', '27'])('D5: el art. %s (transcribe otra ley) sigue CONTEXT por su metadata.rol', (art) => {
+    const c = clasificarFragmentoClo({ ...vigente, num_articulo: art, metadata: { norm_id: 'HN:DECRETO_284_2013', rol: 'CONTEXT', motivo_rol: 'DISPOSICION_MODIFICATORIA' } });
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toEqual(['ROL_DECLARADO_CONTEXT']);
+    expect(c.bloqueos).not.toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
+  });
+
+  it('las filas que genera la ingesta siguen naciendo ocultas y sin vigencia: solo CONTEXT hasta la escritura de visibilidad', () => {
     const texto = 'Artículo 1.- Objeto de la ley, con texto suficiente para no ser corto.\nArtículo 2.- Ámbito de aplicación, con texto suficiente.';
     const { filas } = construirLote({ texto, instrumentoRef: 'HN:DECRETO_284_2013', ingestBatch: 'PILOTO_D284', fuente: FUENTE_D284, fuenteTipo: 'ley', meta: {} });
     expect(filas).toHaveLength(2);
@@ -65,9 +77,15 @@ describe('CLO: el decreto es solo CONTEXT hasta que el CLO apruebe su pliego', (
       expect(f.metadata.norm_id).toBe('HN:DECRETO_284_2013');
       const c = clasificarFragmentoClo({ ...f, metadata: f.metadata });
       expect(c.rol).toBe('CONTEXT');
-      expect(c.bloqueos).toEqual(expect.arrayContaining(['INSTRUMENTO_SIN_PLIEGO_CLO', 'VIGENCIA_NO_ACREDITADA']));
+      expect(c.bloqueos).toEqual(['VIGENCIA_NO_ACREDITADA']);
       expect(c.bloqueos).not.toContain('IDENTIDAD_PAIS_INCONSISTENTE');
     }
+  });
+
+  it('una fila con vigencia FALSE queda excluida aunque el pliego esté aprobado', () => {
+    const c = clasificarFragmentoClo({ ...vigente, es_norma_vigente: false, num_articulo: '5' });
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('VIGENCIA_FALSE_EXCLUIDA');
   });
 });
 
