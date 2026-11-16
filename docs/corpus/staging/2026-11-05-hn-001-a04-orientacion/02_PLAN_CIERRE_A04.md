@@ -141,3 +141,10 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
   - la ñ y las tildes perdidas, entre otros.
 - Paquete para firma: `04_RESOLUCION_COMPLEMENTARIA_A04.md` y `RESOLUCION_COMPLEMENTARIA_A04.csv` (464 cambios en 436 líneas), con hojas de recortes. Si se firma tal cual, la v6 sería `7c8f40f8…` (no firmada).
 - Segmentación por serie correlativa (`--serie-correlativa 19`) para la ingesta: 19 filas, arts. 1–19.
+
+### Actualización (2026-11-16, v6 definitiva, D3 firmada y pliego D1–D8)
+- El CLO firmó las 464 casillas de la resolución complementaria (G1–G10, 6 expresas) y mantuvo las 15 lagunas. La **v6 definitiva** es `7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084` (176,506 caracteres), idéntica a la prevista.
+- **Firma D3** asentada sobre la v6 (`transcripcion_candidata/LISTA_COTEJO_D3_A04.md`; 854 diferencias frente al OCR).
+- A04 en **`CLO_PENDING`** (recibo `../2026-11-16-hn-001-a04-tsc/receipts/…222718Z…`, con revisión documental declarada).
+- `ADJUDICACION_CLO_D35_2013.md`: pliego D1–D8 listo para firma. Reparto: arts. 1–10 `CONTEXT` y arts. 11–19 propios, con constancias en los arts. 1 (C07) y 11 (134/141).
+- SQL de staging preparados en el orden de D7: ingesta → visibilidad → parche de `clo-guards.ts` (`d7/`). Nada se ha ejecutado.

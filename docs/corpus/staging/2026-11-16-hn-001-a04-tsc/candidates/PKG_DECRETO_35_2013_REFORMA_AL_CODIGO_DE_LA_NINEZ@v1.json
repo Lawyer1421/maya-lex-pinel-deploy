@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "candidate_id": "PKG_DECRETO_35_2013_REFORMA_AL_CODIGO_DE_LA_NINEZ@v1",
+  "destino": "LEGISLATION",
+  "estado": "CLO_PENDING",
+  "authoritative": false,
+  "vigencia": "UNKNOWN",
+  "verification": "PENDING_VERIFICATION",
+  "fixture": false,
+  "record_id": "PKG_DECRETO_35_2013_REFORMA_AL_CODIGO_DE_LA_NINEZ",
+  "version": 1,
+  "source": {
+    "url": "https://www.tsc.gob.hn/web/leyes/Codigo_niñezyadolescencia_2013.pdf",
+    "domain": "www.tsc.gob.hn",
+    "tier": 4,
+    "validacion": "SOURCE_VALIDATED",
+    "retriever": "Bot Auditor, por orden expresa del CLO/Director Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho): PowerShell Invoke-WebRequest en el equipo local del CLO, 2026-11-16 09:26:55 hora de Honduras (15:26:55 UTC)",
+    "retrieved_at": "2026-11-16T15:26:55.000Z",
+    "method": "CURL"
+  },
+  "identidad": {
+    "document_name": "Decreto 35-2013 (reforma al Código de la Niñez)",
+    "document_type": "REFORM",
+    "decree": "35-2013",
+    "gaceta": "33,222",
+    "gaceta_date": "UNKNOWN"
+  },
+  "hashes": {
+    "bytes_sha256": "fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff",
+    "text_sha256": "f2c67cb4a019a094cbacb4690323810e7215d0904297483b1a725a4dbb7fca0a"
+  },
+  "articulos": [
+    {
+      "numero": "1",
+      "ordinal": 1,
+      "sha256": "8f6abeb41f5a7e0439a6e91fe43c7215f3d4e1c235e21ab9fbba1bc7070e4701",
+      "caracteres": 110948
+    },
+    {
+      "numero": "2",
+      "ordinal": 2,
+      "sha256": "1d8b544f7c6a1423d7e4592ee65ac4228592ddc39974afe0a69ebd6febb6326e",
+      "caracteres": 1510
+    },
+    {
+      "numero": "3",
+      "ordinal": 3,
+      "sha256": "b1482f27e143f5b86eabc110a19ae75331c4c90cc0518c3bf0b5f2b6631e590b",
+      "caracteres": 14942
+    },
+    {
+      "numero": "4",
+      "ordinal": 4,
+      "sha256": "f193efac981ee4f6380162bcd7184e1e77381bfcebc3960f74e9486489fa1a2e",
+      "caracteres": 19452
+    },
+    {
+      "numero": "5",
+      "ordinal": 5,
+      "sha256": "0f35b11ef9f08bf6718a8f217c3df1bce4953ca4b49c89f0756e8284c85216d7",
+      "caracteres": 19892
+    },
+    {
+      "numero": "6",
+      "ordinal": 6,
+      "sha256": "3e208bba34004cb44883692f430d50524516170c8cf93d666df228644d0c802b",
+      "caracteres": 4434
+    },
+    {
+      "numero": "973",
+      "ordinal": 7,
+      "sha256": "4534b57f9c0829f8d02643cd40941336e0a8c6f5fd844e7fe0b2f9dc4a6d8479",
+      "caracteres": 247
+    },
+    {
+      "numero": "7",
+      "ordinal": 8,
+      "sha256": "077747ff05750a89cf11ec144b674851c9fe9a45406e2de82981e1da147ac4ad",
+      "caracteres": 1746
+    },
+    {
+      "numero": "8",
+      "ordinal": 9,
+      "sha256": "0be5dc5a103d9d07f29f1f69ee3eb5a33a2b1b3e83e90f94b1eae01483610ad2",
+      "caracteres": 6516
+    },
+    {
+      "numero": "9",
+      "ordinal": 10,
+      "sha256": "eb509b3b575715b35776d6f931e4a3d3ddab2ba777dbbe3afc9b0f6c9c09bd43",
+      "caracteres": 552
+    },
+    {
+      "numero": "10",
+      "ordinal": 11,
+      "sha256": "e0e49eb2ab2b32b82775709975338592cc26b32239f00728e255272513426f7d",
+      "caracteres": 2742
+    },
+    {
+      "numero": "11",
+      "ordinal": 12,
+      "sha256": "63ec0079b2eaeebe20afdddd53a0e0990c113546a1c18a1ec7730aac1bbf0346",
+      "caracteres": 296
+    },
+    {
+      "numero": "12",
+      "ordinal": 13,
+      "sha256": "edb735248abe2590e0480b14bff74cdb0c9e82bf05d41890d24c9a88df1a83ff",
+      "caracteres": 339
+    },
+    {
+      "numero": "13",
+      "ordinal": 14,
+      "sha256": "408026e6ba1bab69571af68e823a155e48ec1328538f9c233d4e1a92012f01bb",
+      "caracteres": 183
+    },
+    {
+      "numero": "14",
+      "ordinal": 15,
+      "sha256": "dd2899adee270e31a39618df7782cb2773dff6431da44297589fe128e1fe0b75",
+      "caracteres": 1727
+    },
+    {
+      "numero": "15",
+      "ordinal": 16,
+      "sha256": "e462311dec9ba4fdd601adb4d166c061c6b407c62a850a12e37a2f77d849e4e1",
+      "caracteres": 115
+    },
+    {
+      "numero": "16",
+      "ordinal": 17,
+      "sha256": "d3bc4ead2d4ef2e0f1eeac344ab0aef6b13f3b1aef7a35dffa0efdc441d270c6",
+      "caracteres": 293
+    },
+    {
+      "numero": "17",
+      "ordinal": 18,
+      "sha256": "9867c94807f90c2ffd6decc2cf8972d3222155be81eb2eb3c8491c0ae17bec13",
+      "caracteres": 1821
+    }
+  ],
+  "notas_al_pie": [],
+  "preambulo_caracteres": 2737,
+  "qa": {
+    "chequeos": [
+      {
+        "id": "TEXT_NOT_EMPTY",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "190754 caracteres"
+      },
+      {
+        "id": "HASH_MATCH",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sha256 del texto recalculado contra text_sha256"
+      },
+      {
+        "id": "ENCODING",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "sin mojibake (Ã¡, Â, �)"
+      },
+      {
+        "id": "NOT_NOISE",
+        "severidad": "BLOCKER",
+        "ok": true,
+        "detalle": "75 % letras"
+      },
+      {
+        "id": "LOOKS_SPANISH",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "27.4 palabras funcionales por 100"
+      },
+      {
+        "id": "ARTICLES_DETECTED",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "18 artículos detectados (tipo REFORM)"
+      },
+      {
+        "id": "SEQUENCE_CONTINUOUS",
+        "severidad": "WARNING",
+        "ok": false,
+        "detalle": "saltos: 6→973, 973→7"
+      },
+      {
+        "id": "NO_DUPLICATE_NUMBERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin repetidos"
+      },
+      {
+        "id": "NO_EMPTY_ARTICLES",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "ninguno vacío"
+      },
+      {
+        "id": "NO_PLACEHOLDERS",
+        "severidad": "WARNING",
+        "ok": true,
+        "detalle": "sin marcas de ilegibilidad"
+      },
+      {
+        "id": "FIXTURE",
+        "severidad": "INFO",
+        "ok": true,
+        "detalle": "material sintético/de prueba detectado"
+      }
+    ],
+    "apto_para_clo": true
+  },
+  "siguiente_paso": "Entregar la hoja de verificación al CLO. Solo una persona puede pasar a V4/V5 con aprobación registrada."
+}

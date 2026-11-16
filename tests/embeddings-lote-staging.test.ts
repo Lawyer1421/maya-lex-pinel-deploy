@@ -38,5 +38,14 @@ describe('verificación en staging: solo lectura, con los valores esperados', ()
     expect(v).toContain("WHERE ingest_batch = 'PILOTO_D284_2013_01'");
     expect(v).toContain('filas=39');
     expect(v).toMatch(/revision_pendiente = false;/);
+    expect(v).toContain("metadata->>'norm_id' = 'HN:DECRETO_284_2013'");
+  });
+
+  it('el norm_id del lote es parámetro (A04: HN:DECRETO_35_2013) y se rechaza uno mal formado', () => {
+    const a04 = sqlVerificacion('A04_D35_2013_01', 19, 'HN:DECRETO_35_2013');
+    expect(a04).toContain("metadata->>'norm_id' = 'HN:DECRETO_35_2013'");
+    expect(a04).not.toContain('DECRETO_284_2013');
+    expect(a04).toContain('filas=19');
+    expect(() => sqlVerificacion('X', 1, "HN:X' OR 1=1 --")).toThrow(/norm_id inválido/);
   });
 });

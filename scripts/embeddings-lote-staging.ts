@@ -42,7 +42,8 @@ export function sqlEmbeddings(filas: readonly FilaConEmbedding[]): string {
 }
 
 /** Consultas de verificación del lote en staging (solo lectura). */
-export function sqlVerificacion(ingestBatch: string, esperadas: number): string {
+export function sqlVerificacion(ingestBatch: string, esperadas: number, normId = 'HN:DECRETO_284_2013'): string {
+  if (!/^HN:[A-Z0-9_]+$/.test(normId)) throw new Error(`norm_id inválido: ${normId}`);
   const b = lit(ingestBatch);
   return [
     `-- SOLO STAGING (aicakncgtuiiuomflkqj). Verificación del lote ${ingestBatch}: se esperan ${esperadas} filas. Solo lectura.`,
@@ -51,7 +52,7 @@ export function sqlVerificacion(ingestBatch: string, esperadas: number): string 
     `       count(*) FILTER (WHERE revision_pendiente) AS ocultas,`,
     `       count(*) FILTER (WHERE es_norma_vigente IS NULL) AS vigencia_null,`,
     `       count(*) FILTER (WHERE jurisdiccion = 'HN') AS jurisdiccion_hn,`,
-    `       count(*) FILTER (WHERE metadata->>'norm_id' = 'HN:DECRETO_284_2013') AS norm_id_hn,`,
+    `       count(*) FILTER (WHERE metadata->>'norm_id' = ${lit(normId)}) AS norm_id_hn,`,
     `       count(DISTINCT num_articulo_norm) AS articulos_distintos`,
     `FROM public.biblioteca_vectores WHERE ingest_batch = ${b};`,
     `-- Esperado: filas=${esperadas}, con_embedding=${esperadas}, ocultas=${esperadas}, vigencia_null=${esperadas}, jurisdiccion_hn=${esperadas}, norm_id_hn=${esperadas}, articulos_distintos=${esperadas}.`,
@@ -65,7 +66,9 @@ export function sqlVerificacion(ingestBatch: string, esperadas: number): string 
 async function main(): Promise<void> {
   const [rows, salida] = process.argv.slice(2);
   if (!rows || !salida) throw new Error('uso: ver cabecera del archivo');
-  const filas = readFileSync(rows, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as { id: string; ingest_batch: string; contenido: string });
+  const filas = readFileSync(rows, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as { id: string; ingest_batch: string; contenido: string; metadata?: { norm_id?: string } });
+  const normIds = [...new Set(filas.map((f) => f.metadata?.norm_id))];
+  if (normIds.length !== 1 || typeof normIds[0] !== 'string') throw new Error(`se esperaba un solo metadata.norm_id en el lote y hay ${normIds.length}`);
   const { pipeline } = await import('@xenova/transformers');
   const extractor = await pipeline('feature-extraction', 'Xenova/multilingual-e5-small', { quantized: false } as never);
   const conEmbedding: FilaConEmbedding[] = [];
@@ -76,7 +79,7 @@ async function main(): Promise<void> {
   }
   mkdirSync(salida, { recursive: true });
   writeFileSync(join(salida, 'update_embeddings_staging.sql'), sqlEmbeddings(conEmbedding));
-  writeFileSync(join(salida, 'verificacion_staging.sql'), sqlVerificacion(filas[0].ingest_batch, filas.length));
+  writeFileSync(join(salida, 'verificacion_staging.sql'), sqlVerificacion(filas[0].ingest_batch, filas.length, normIds[0]));
   console.log(`embeddings: ${conEmbedding.length} filas · ${EMBED_DIMS} dims · lote ${filas[0].ingest_batch}`);
 }
 
