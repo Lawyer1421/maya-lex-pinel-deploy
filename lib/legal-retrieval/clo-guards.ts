@@ -94,8 +94,9 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
-  /** D.284-2013 (piloto de adjudicación, 2026-11-15): solo CONTEXT hasta que el CLO apruebe su pliego (docs/corpus/staging/…/ADJUDICACION_CLO). */
-  DECRETO_284_2013: 'INSTRUMENTO_SIN_PLIEGO_CLO',
+  // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
+  // docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/ADJUDICACION_CLO_D284_2013.md §7). Sus filas pueden ser PRIMARY solo si cumplen
+  // los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 13, 14, 26 y 27 siguen como CONTEXT por su metadata.rol (D5).
 });
 
 /** Instrumentos normativos notariales: las filas 03_NOTARIAL con otra identidad (protocolo y práctica) no son norma. */

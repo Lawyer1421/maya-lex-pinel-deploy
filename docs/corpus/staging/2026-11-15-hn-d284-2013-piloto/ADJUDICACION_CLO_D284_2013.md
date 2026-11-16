@@ -1,6 +1,6 @@
 # Paquete de adjudicación CLO · Decreto 284-2013 (piloto)
 
-**Identidad:** `HN:DECRETO_284_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `A7EB221F…EDEE4`, 16 págs. · **D3:** opción (a) aprobada · **V4/V5:** ninguno · **Vigencia:** sin declarar
+**Identidad:** `HN:DECRETO_284_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `A7EB221F…EDEE4`, 16 págs. · **D1–D8:** firmadas el 16-nov-2026 (§7) · **Estado:** V4 (V4→V5 sin firmar) · **Vigencia:** TRUE_PRESUNTA desde el 5-jun-2014
 
 > Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
 
@@ -140,16 +140,16 @@ Esta firma cubre el §3 (D3). D4–D8 (vigencia, art. 13, tipo de fuente, bloque
 
 | # | Decisión | Opciones | Propuesta |
 |---|---|---|---|
-| D1 | Procedencia | ☐ Acreditada ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado), bytes `a7eb221f…`, descargada por el propietario (§0) |
-| D2 | Identidad | ☐ Confirmada ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
+| D1 | Procedencia | ☑ **Acreditada** (firmado 16-nov-2026, §7) ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado), bytes `a7eb221f…`, descargada por el propietario (§0) |
+| D2 | Identidad | ☑ **Confirmada** (firmado 16-nov-2026, §7) ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
 | D3 | Texto que se carga | ☑ **(a) Transcripción cotejada contra las páginas del PDF del TSC** — aprobada por el Titular el 15-nov-2026 · ☐ (b) · ☐ (c) | Pendiente solo la **firma del cotejo** del §3 (transcripción `ba75b190…36ca`) |
-| D4 | Vigencia | ☐ Aprobar la propuesta ☐ Modificar: ______ | Ver §5 |
-| D5 | Art. 13 (contiene el texto de 12 artículos reformados del Código de Comercio) | ☐ Una fila del decreto ☐ Además, versiones nuevas en el Código de Comercio | Una fila del decreto ahora. Las versiones del Código de Comercio son un trabajo aparte y no se infieren de aquí |
-| D6 | Tipo de fuente | ☐ `ley` ☐ Otro: ______ | `ley` |
-| D7 | Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` | ☐ Sí ☐ No todavía | Cambio de código revisado con evidencia G6, **después** de cargar el texto de D3 |
-| D8 | Promoción | ☐ V3→V4 ☐ V4→V5 ☐ Rechazado | Con D1–D7 resueltas |
+| D4 | Vigencia | ☑ **Aprobar la propuesta** (TRUE_PRESUNTA, §7) ☐ Modificar: ______ | Ver §5 |
+| D5 | Art. 13 (contiene el texto de 12 artículos reformados del Código de Comercio) | ☑ **Una fila del decreto** (arts. 13, 14, 26 y 27 solo contexto, §7) ☐ Además, versiones nuevas en el Código de Comercio | Una fila del decreto ahora. Las versiones del Código de Comercio son un trabajo aparte y no se infieren de aquí |
+| D6 | Tipo de fuente | ☑ **`ley`** ☐ Otro: ______ | `ley` |
+| D7 | Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` | ☑ **Sí**, por PR revisado tras la visibilidad en staging (§7) ☐ No todavía | Cambio de código revisado con evidencia G6, **después** de cargar el texto de D3 |
+| D8 | Promoción | ☑ **V3→V4** ☐ V4→V5 (sin firmar) ☐ Rechazado | Con D1–D7 resueltas |
 
-Nombre: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietario_despacho · Fecha: ____-__-__
+Nombre: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_senior ☑ **propietario_despacho** · Fecha: **2026-11-16** (firma registrada en el §7)
 
 ## 5. Propuesta para D4 (vigencia)
 
@@ -193,5 +193,84 @@ Base y límites:
    - la vigencia recupera el art. 39 en primer lugar;
    - la sociedad de un solo socio recupera el art. 5 en primer lugar;
    - la ejecución ante notario recupera los arts. 16, 15 y 20.
+
+   **Ejecutado en staging el 16-nov-2026** (`mayalexhn-staging`, `aicakncgtuiiuomflkqj`). El Titular aplicó los archivos 1, 2 y 3 en orden en Supabase Studio, sin errores, y la verificación dio `visibles = 0`. Los 4 archivos aplicados tienen los SHA-256 de la tabla anterior, comprobados de nuevo antes de registrar esta nota. Claude repitió por su cuenta la verificación en staging, con una consulta de solo lectura:
+
+   | filas | con embedding | ocultas | visibles | vigencia NULL | `HN` | `HN:DECRETO_284_2013` | artículos distintos | transcripción `ba75b190…36ca` |
+   |---:|---:|---:|---:|---:|---:|---:|---:|---:|
+   | 39 | 39 | 39 | **0** | 39 | 39 | 39 | 39 | 39 |
+
+   `ingested_at` = 2026-11-16 13:49:24 UTC (07:49 en Honduras), el mismo para las 39 filas. **Producción no se tocó.** Las filas siguen ocultas y, además, bloqueadas en el código como solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`, `VIGENCIA_NO_ACREDITADA`) hasta que se firme el §7.
 4. **Visibilidad y vigencia** (`revision_pendiente = false`, `es_norma_vigente` según D4): una escritura aparte, autorizada por el Titular.
 5. **Producción:** requiere una migración revisada y autorización expresa.
+
+## 7. Hoja de firma D4–D8 (con D1–D2, que D8 exige)
+
+> Propuestas técnicas de Claude. **No son revisión jurídica ni aprueban nada.** Cada casilla la marca el CLO. Mientras esta hoja no esté firmada, no se ejecuta ninguna escritura en ninguna base.
+
+**Estado de partida (verificado el 16-nov-2026):** 39 filas en staging, ocultas, con embedding y vigencia NULL (§6.3). Producción no tiene ninguna fila del decreto.
+
+### D1 · Procedencia
+**Propuesta:** acreditada. Copia del TSC (dominio verificado, tier 4), bytes `a7eb221f…`, descargada por el propietario (§0).
+☑ **Acreditada** ☐ No acreditada
+
+### D2 · Identidad
+**Propuesta:** confirmada. Título, número, La Gaceta 33,445, sanción, ejecútese y firmas constan en el PDF del TSC (§1).
+☑ **Confirmada** ☐ Rechazada
+
+### D4 · Vigencia
+**Propuesta:** la declaración del §5, **TRUE_PRESUNTA desde el 5-jun-2014** (art. 39).
+- **En la base:** `es_norma_vigente = true` (la columna es booleana y no admite «presunta») y, en `metadata`: `vigencia = "TRUE_PRESUNTA"`, `vigencia_desde = "2014-06-05"` y `vigencia_base = "art. 39; La Gaceta 33,445; sin reforma ni derogación halladas (búsqueda 15-nov-2026)"`.
+- **Límite que el CLO debe aceptar:** el guardián de recuperación (`clo-guards.ts`) solo lee el booleano. Con `true`, la fila es elegible como fundamento **sin** la advertencia «vigencia presunta»; esa advertencia solo existe en la ruta de versiones (`norma-version.ts`). Si el CLO no lo acepta, la alternativa es dejar `es_norma_vigente = NULL`: visible, pero solo contexto.
+
+☑ **Aprobar la propuesta** (`true` + `TRUE_PRESUNTA` en `metadata`) ☐ Visible solo como contexto (`NULL`) ☐ Modificar: ______
+
+### D5 · Art. 13 y demás artículos modificatorios
+**Propuesta:** mantener **una fila por artículo del decreto** (39) y no crear versiones nuevas del Código de Comercio. Marcar como **solo contexto** (`metadata.rol = "CONTEXT"`, `metadata.motivo_rol = "DISPOSICION_MODIFICATORIA"`) los artículos que **transcriben el texto de otra ley**:
+- **13:** Código de Comercio, 12 artículos;
+- **14:** Código Civil, arts. 1782 y 1789;
+- **26:** D.51-2011, 8 artículos;
+- **27:** Ley APP, arts. 29 y 34.
+
+Motivo: ese texto pudo reformarse después (§5.6) y no debe citarse como el texto vigente de esas leyes. Los arts. 28, 29 (interpretan), 37 y 38 (derogan) y 39 (vigencia) quedan como fundamento citable **del decreto**.
+- **Límite:** la marca `rol` la lee el resolutor exacto (`exact-resolver.ts`). En la ruta semántica solo surte efecto si la RPC devuelve `metadata_clo`, propuesta aún no aplicada (`docs/retrieval/PROPUESTA_NO_APLICADA_buscar_biblioteca_v2_metadata_clo.sql`). Hasta entonces, en esa ruta protegen el bloqueo de D7 y `INSTRUMENTO_DISTINTO_DEL_SOLICITADO`.
+- Las versiones nuevas del Código de Comercio son un trabajo aparte, con su propio pliego.
+
+☑ **Aprobar** (39 filas; 13, 14, 26 y 27 solo contexto) ☐ Una fila por artículo, sin marcas ☐ Además, versiones nuevas en el Código de Comercio (trabajo aparte)
+
+### D6 · Tipo de fuente
+**Propuesta:** `ley`, que ya tienen las 39 filas. Está en `TIPOS_FUENTE_NORMATIVOS`, así que no genera `FUENTE_TIPO_NO_VERIFICADO`.
+☑ **`ley`** ☐ Otro: ______
+
+### D7 · Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO`
+**Propuesta:** sí, mediante un cambio de código revisado y **después** de la escritura de visibilidad en staging:
+1. Quitar `DECRETO_284_2013` de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`, con un comentario que cite esta firma.
+2. Ajustar `tests/d284-2013-pilot.test.ts`: el decreto deja de estar bloqueado, y los arts. 13, 14, 26 y 27 siguen como contexto por `ROL_DECLARADO_CONTEXT`.
+3. Generar la evidencia G6 en el árbol de trabajo con LF (`C:\wtlf`) y abrir un PR con revisión.
+- Hasta que ese PR se fusione y se despliegue, las filas visibles siguen siendo solo contexto. El orden es seguro.
+
+☑ **Sí, por PR revisado**, en dos tiempos: primero la visibilidad en staging y después el PR ☐ No todavía
+
+### D8 · Promoción
+**Propuesta:** **V3→V4** (revisión profesional) ahora, con D1–D7 resueltas. **V4→V5** (producción) **no** se firma en esta hoja: requiere una migración revisada hacia producción y una autorización expresa aparte (§6.5).
+- Rol del firmante: `propietario_despacho`, uno de los dos roles autorizados en `lib/ingesta-oficial/estados.ts`.
+- En las filas: `metadata.estado_v = "V4"` y `metadata.adjudicacion = "ADJUDICACION_CLO_D284_2013 §7"`.
+
+☑ **V3→V4** ☐ V3→V4 y V4→V5 (exige además la migración de producción): **expresamente sin firmar** ☐ Rechazado
+
+### Escritura que se generará tras la firma (solo staging)
+Archivo `out/piloto-d284-2013/visibilidad_staging.sql`. Se genera **después** de la firma, con lo marcado arriba. Es una sola transacción:
+1. Las 39 filas del lote que siguen ocultas y con vigencia NULL pasan a `revision_pendiente = false` y a `es_norma_vigente` según D4. En `metadata` se registran la vigencia (D4), `estado_v` (D8), `adjudicado_por` (texto de la firma) y `revision_pendiente = false`.
+2. Los arts. 13, 14, 26 y 27 reciben `rol = "CONTEXT"` (D5).
+3. La transacción se aborta si el total afectado no es exactamente 39.
+- A continuación se ejecuta una verificación de solo lectura: se esperan 39 visibles, 0 ocultas y 4 con `rol = CONTEXT`.
+- El Titular la aplica en Supabase Studio. Para volver atrás basta con `revision_pendiente = true` en el lote.
+
+### Firma
+«Como CLO/Director, adjudico el Decreto 284-2013 (`HN:DECRETO_284_2013`) según las casillas marcadas en D1, D2 y D4–D8 de esta hoja, y autorizo la escritura de visibilidad **solo en staging** (`aicakncgtuiiuomflkqj`).»
+
+Nombre: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_senior ☑ **propietario_despacho** (CLO / Director Maya Lex) · Fecha: **2026-11-16**
+
+**FIRMADO (16-nov-2026):** el Titular aprobó y firmó expresamente D1, D2 y D4–D8 en los términos exactos de esta hoja (D3 ya estaba firmado en el §3). La autorización se limita **estrictamente a staging** (`aicakncgtuiiuomflkqj`) y no toca producción. V4→V5 queda expresamente sin firmar y reservado para una migración a producción con autorización aparte.
+
+Texto de `adjudicado_por` en las filas: **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**
