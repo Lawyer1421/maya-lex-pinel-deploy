@@ -1,13 +1,14 @@
 """Lista de cotejo D3 del A04 (Decreto 35-2013, La Gaceta 33,222), por artículo del decreto.
 
-Compara, palabra por palabra y CONSERVANDO los guiones, el OCR del PDF del TSC (paquete 2026-11-16, text_sha256 f2c67cb4…) con la transcripción
-candidata (SHA-256 977f0489… sobre los bytes LF del blob de git), ambos sin las líneas de encabezado de página. No corrige nada ni declara nada
+Compara, palabra por palabra y CONSERVANDO los guiones, el OCR del PDF del TSC (paquete 2026-11-16, text_sha256 f2c67cb4…) con una transcripción
+candidata (v1 977f0489… o v2 25d7cc59…, siempre sobre bytes LF), ambos sin las líneas de encabezado de página. No corrige nada ni declara nada
 cotejado: produce la lista de lo que una persona debe comprobar en la imagen de cada página.
 
 Uso (desde la raíz del repositorio, con Python 3, sin dependencias):
-  git show HEAD:docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/A04_transcripcion_candidata.txt > cand_lf.txt
-  python -I docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/generar_lista_cotejo_d3.py cand_lf.txt
-El hash se comprueba sobre los bytes LF: en un checkout de Windows con core.autocrlf=true el archivo del árbol de trabajo tiene CRLF y otro hash.
+  python -I docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/generar_lista_cotejo_d3.py \
+    docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/A04_transcripcion_candidata_v2.txt
+En un checkout de Windows con core.autocrlf=true el archivo del árbol de trabajo puede tener CRLF y otro hash: en ese caso, pasar la salida de
+`git show HEAD:<ruta>` guardada en un archivo. El script rechaza un hash que no sea el de una candidata conocida.
 """
 import csv, difflib, hashlib, json, re, sys
 from collections import Counter
@@ -15,17 +16,38 @@ from pathlib import Path
 
 LOTE = Path('docs/corpus/staging/2026-11-05-hn-001-a04-orientacion')
 OCR_PAQUETE = Path('docs/corpus/inbox/2026-11-16-hn-001-a04-tsc/pending-review/HN-001-A04.fbd87f3396e5.json')
-SHA_CAND = '977f0489225d5cdf058f852b43b0f8af87b5db30f3128828386fcd2c17066355'
 SHA_OCR = 'f2c67cb4a019a094cbacb4690323810e7215d0904297483b1a725a4dbb7fca0a'
-
-# Correcciones firmadas por el CLO el 2026-11-16 (C01–C06) que la candidata 977f0489… todavía NO incorpora.
-FIRMADAS = {
-    5: 'C04 (123-F, «prohíbe») y C05 (207-F, «deudor(a)»): firmadas, pendientes de aplicar a la candidata',
-    6: 'C06: lectura dual «11» (lista) / «511» (rótulo) firmada; el carácter inicial de «11» sigue abierto',
-    10: 'C01: el orden 7)/8) ya está en la candidata (reconstrucción geométrica); falta «A la» (la candidata dice «8) Ala protección»)',
-    11: 'C02 («67»): firmada, pendiente de aplicar a la candidata',
-    14: 'C03 («334»): firmada, pendiente de aplicar a la candidata',
+CANDIDATAS = {
+    '977f0489225d5cdf058f852b43b0f8af87b5db30f3128828386fcd2c17066355': 'v1',
+    '25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685': 'v2',
 }
+
+# Correcciones firmadas por el CLO el 2026-11-16 (C01–C06), según la versión de la candidata.
+FIRMADAS = {
+    'v1': {
+        5: 'C04 y C05: firmadas, sin aplicar',
+        6: 'C06: lectura dual «11»/«511» firmada; carácter inicial de «11» abierto',
+        10: 'C01: orden 7)/8) ya en la candidata; falta «A la»',
+        11: 'C02 («67»): firmada, sin aplicar',
+        14: 'C03 («334»): firmada, sin aplicar',
+    },
+    'v2': {
+        5: 'C04 (123-F, «prohíbe») y C05 (207-F, «deudor(a)»): aplicadas',
+        6: 'C06: lectura dual «11»/«511» (sin cambio); carácter inicial de «11» abierto',
+        10: 'C01 («A la»): aplicada',
+        11: 'C02 («67»): aplicada',
+        14: 'C03 («334»): aplicada',
+    },
+}
+
+# Páginas que comparten dos o más artículos y tienen líneas en el borde derecho. Cada línea se asigna a UN artículo según la posición del rótulo
+# del artículo siguiente, medida con `pdftotext -tsv` (Poppler 25.07) sobre el PDF fbd87f33… (página de 612 pt, columna derecha con x > 306):
+#   pág. 27: «ARTÍCULO 2.-» en la columna derecha, y = 476 → el borde por encima es del art. 1; desde y = 476, del art. 2;
+#   pág. 31: «ARTÍCULO 4.-» en la columna derecha, y = 629 → por encima, art. 3; desde y = 629, art. 4;
+#   pág. 46: el acto termina en la columna IZQUIERDA (arts. 17–19 y firmas); la columna derecha es el acto siguiente: las líneas de su borde
+#            derecho NO son del D.35-2013.
+CORTES = {27: (476, 1, 2), 31: (629, 3, 4)}
+FUERA_DEL_ACTO = {46}
 
 
 def es_encabezado(linea: str) -> bool:
@@ -66,10 +88,8 @@ def articulos(texto: str):
     return res
 
 
-def paginas(texto: str, ini: int, fin: int) -> str:
-    a = texto.count('\f', 0, ini) + 1
-    b = texto.count('\f', 0, max(ini, fin - 1)) + 1
-    return str(a) if a == b else f'{a}–{b}'
+def rango_paginas(texto: str, ini: int, fin: int):
+    return texto.count('\f', 0, ini) + 1, texto.count('\f', 0, max(ini, fin - 1)) + 1
 
 
 def limpiar(fragmento: str):
@@ -83,10 +103,32 @@ def limpiar(fragmento: str):
     return '\n'.join(lineas), quitadas
 
 
+def asignar_borde(lineas_borde, rangos):
+    """Cada línea del borde derecho a UN artículo (o fuera del acto). Falla si una línea queda sin asignar o en dos."""
+    asignacion = {}
+    for r in lineas_borde:
+        p, y = int(r['pagina']), float(r['y_pt'])
+        if p in FUERA_DEL_ACTO:
+            asignacion[r['id']] = 'fuera'
+            continue
+        if p in CORTES:
+            corte, antes, despues = CORTES[p]
+            asignacion[r['id']] = despues if y >= corte else antes
+            continue
+        dueños = [k for k, (a, b) in rangos.items() if a <= p <= b]
+        if len(dueños) != 1:
+            raise SystemExit(f"la línea {r['id']} (pág. {p}) cae en {len(dueños)} artículos y no hay corte declarado")
+        asignacion[r['id']] = dueños[0]
+    assert len(asignacion) == len(lineas_borde)
+    return asignacion
+
+
 def main():
     cand_bytes = Path(sys.argv[1]).read_bytes()
-    if hashlib.sha256(cand_bytes).hexdigest() != SHA_CAND:
-        sys.exit('la candidata no es 977f0489… (¿bytes CRLF? usar git show)')
+    sha_cand = hashlib.sha256(cand_bytes).hexdigest()
+    version = CANDIDATAS.get(sha_cand)
+    if not version:
+        sys.exit(f'la candidata ({sha_cand[:8]}…) no es una versión conocida (¿bytes CRLF? usar git show)')
     cand = cand_bytes.decode('utf-8')
     ocr = json.loads(OCR_PAQUETE.read_text(encoding='utf-8'))['extracted_text']
     if hashlib.sha256(ocr.encode('utf-8')).hexdigest() != SHA_OCR:
@@ -95,11 +137,14 @@ def main():
     lineas_borde = list(csv.DictReader(open(LOTE / 'transcripcion_candidata/borde_derecho_88_lecturas.csv', encoding='utf-8')))
     ac, ao = articulos(cand), articulos(ocr)
     assert [k for k, _, _ in ac] == [k for k, _, _ in ao], 'la serie de artículos difiere entre la candidata y el OCR'
+    rangos = {k: rango_paginas(cand, ci, cf) for k, ci, cf in ac}
+    asignacion = asignar_borde(lineas_borde, rangos)
+    estado = {r['id']: r['estado'] for r in lineas_borde}
 
     filas, resumen = [], []
     for (k, ci, cf), (_, oi, of) in zip(ac, ao):
-        pags = paginas(cand, ci, cf)
-        pa, pb = (int(x) for x in (pags.split('–') + [pags])[:2])
+        pa, pb = rangos[k]
+        pags = str(pa) if pa == pb else f'{pa}–{pb}'
         tc, qc = limpiar(cand[ci:cf])
         to, qo = limpiar(ocr[oi:of])
         wc, wo = tc.split(), to.split()
@@ -112,13 +157,18 @@ def main():
             tipo = 'solo espacios'
         else:
             tipo = 'texto'
-        borde = Counter(r['estado'] for r in lineas_borde if pa <= int(r['pagina']) <= pb)
+        borde = Counter(estado[i] for i, a in asignacion.items() if a == k)
         resumen.append({
             'articulo': k, 'paginas': pags, 'tipo': tipo, 'diferencias': len(dif), 'encabezados_quitados': f'{qo}/{qc}',
-            'borde_derecho': ', '.join(f'{v} {e}' for e, v in sorted(borde.items())) or '—',
-            'pag41': 'sí (11 líneas con carácter inicial ausente)' if pa <= 41 <= pb else '—',
-            'firmadas': FIRMADAS.get(k, '—'),
+            'borde_legible': borde.get('LEGIBLE', 0), 'borde_parcial': borde.get('PARCIAL_BORDE', 0),
+            'borde_ilegible_parcial': borde.get('ILEGIBLE_PARCIAL', 0),
+            'pag41': 'sí (11 líneas con carácter inicial ausente)' if k == 6 else '—',
+            'firmadas': FIRMADAS[version].get(k, '—'),
         })
+    fuera = Counter(estado[i] for i, a in asignacion.items() if a == 'fuera')
+    total = Counter(estado.values())
+    dentro = sum(r['borde_legible'] + r['borde_parcial'] + r['borde_ilegible_parcial'] for r in resumen)
+    assert dentro + sum(fuera.values()) == len(lineas_borde) == 88, 'el reparto del borde no cuadra con las 88 filas'
 
     salida = LOTE / 'transcripcion_candidata'
     with open(salida / 'lista_cotejo_d3_diferencias.csv', 'w', encoding='utf-8', newline='') as f:
@@ -127,8 +177,9 @@ def main():
     with open(salida / 'lista_cotejo_d3_resumen.csv', 'w', encoding='utf-8', newline='') as f:
         w = csv.DictWriter(f, fieldnames=list(resumen[0].keys()), lineterminator='\n')
         w.writeheader(); w.writerows(resumen)
-    json.dump({'candidata_sha256': SHA_CAND, 'ocr_text_sha256': SHA_OCR, 'articulos': len(resumen), 'diferencias': len(filas),
-               'por_tipo': Counter(r['tipo'] for r in resumen)}, sys.stdout, ensure_ascii=False)
+    json.dump({'candidata': version, 'candidata_sha256': sha_cand, 'ocr_text_sha256': SHA_OCR, 'articulos': len(resumen),
+               'diferencias': len(filas), 'por_tipo': Counter(r['tipo'] for r in resumen),
+               'borde_total': dict(total), 'borde_dentro_del_acto': dentro, 'borde_fuera_del_acto': dict(fuera)}, sys.stdout, ensure_ascii=False)
     print()
 
 
