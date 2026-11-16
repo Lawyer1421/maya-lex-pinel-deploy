@@ -148,3 +148,8 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 - A04 en **`CLO_PENDING`** (recibo `../2026-11-16-hn-001-a04-tsc/receipts/…222718Z…`, con revisión documental declarada).
 - `ADJUDICACION_CLO_D35_2013.md`: pliego D1–D8 listo para firma. Reparto: arts. 1–10 `CONTEXT` y arts. 11–19 propios, con constancias en los arts. 1 (C07) y 11 (134/141).
 - SQL de staging preparados en el orden de D7: ingesta → visibilidad → parche de `clo-guards.ts` (`d7/`). Nada se ha ejecutado.
+
+### Actualización (2026-11-16, pliego firmado)
+- El CLO firmó D1, D2 y D4–D7 de `ADJUDICACION_CLO_D35_2013.md`. D5 queda con «art. 11 también `CONTEXT`»: 11 de contexto (arts. 1–11) y 8 principales (arts. 12–19). **D8 (V4→V5) sigue expresamente sin firmar.**
+- `visibilidad_staging.sql` se regeneró al reparto 11/8 (`597ec161…`) y el parche de D7 se actualizó (`55c1991d…`, sin aplicar).
+- Siguiente paso: **D7, paso 1** en `mayalexhn-staging`: `insert_staging.sql`, embeddings y verificación de 19 filas ocultas.
