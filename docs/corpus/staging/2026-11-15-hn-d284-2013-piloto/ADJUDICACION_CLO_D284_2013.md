@@ -1,6 +1,6 @@
 # Paquete de adjudicación CLO · Decreto 284-2013 (piloto)
 
-**Identidad:** `HN:DECRETO_284_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **V4/V5:** ninguno · **Vigencia:** sin declarar
+**Identidad:** `HN:DECRETO_284_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `A7EB221F…EDEE4`, 16 págs. · **D3:** opción (a) aprobada · **V4/V5:** ninguno · **Vigencia:** sin declarar
 
 > Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
 
@@ -48,58 +48,93 @@
 
 **Materia notarial (arts. 15–25):** régimen de ejecución extrajudicial de garantías ante notario. No reforma un artículo concreto: crea un procedimiento. El CLO decide si se registra como relación con el Código del Notariado.
 
-## 3. Cotejo del texto: la capa OCR del TSC tiene defectos
+## 3. Transcripción cotejada (D3, opción a, aprobada por el Titular el 15-nov-2026)
 
-El texto del PDF del TSC es OCR del escaneo, y **en 28 de 39 artículos omite o altera caracteres** frente a la copia del Drive. Comprobado contra la **imagen** de la pág. 16:
-- **Art. 38:** la imagen dice «y 54» y el OCR «y 5».
-- **Art. 37:** el OCR pierde la «y» de «382 y 383».
-- **Art. 39:** el OCR pierde la «a» de «a partir».
+**Documento oficial al que se liga:** PDF del TSC, SHA-256 `A7EB221FDEFF8977AE9CF907F926797B8D45CD7D90DC93ECE7E32EE3581EDEE4`, 16 páginas, La Gaceta N.º 33,445 del 5-jun-2014.
 
-En los tres casos **la copia del Drive coincide con la imagen oficial**. El defecto está en la capa de texto del PDF, no en la extracción: sin recorte por columnas el «4» tampoco aparece.
+**Transcripción candidata:** [`transcripcion/transcripcion_candidata.txt`](transcripcion/transcripcion_candidata.txt) · 48,368 caracteres · SHA-256 **`ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca`**. Sustituye a `def44e48…`, que no se debe firmar. Manifiesto en `transcripcion/transcripcion_manifiesto.json`.
+- **Base:** el texto de la copia del Drive (`ea81bfa6…`, misma edición de La Gaceta).
+- **Encabezados:** se quitaron **112 líneas de encabezado de página** (7 por página × 16), todas listadas en el manifiesto.
+- **Correcciones de cotejo** (`transcripcion/correcciones_cotejo.json`, aplicadas solo si el texto buscado aparece exactamente una vez y registradas en el manifiesto con su línea):
 
-**Consecuencia:** el texto del TSC acredita la procedencia, pero **no debe cargarse tal cual**. Cargaría, por ejemplo, la derogación del «art. 5» del D.51-2011 en lugar del art. 54.
+| Art. | Pág. PDF TSC | Línea | Decía (texto base) | Dice ahora (imagen) | Causa |
+|---|---|---:|---|---|---|
+| 27 (art. 29 reformado de la Ley APP) | 14 | 923 | «Superintendencia de Alianza PúblicoPrivada» | «… Público-Privada» | Guion al final de renglón eliminado al unir renglones |
+| 30 | 15 | 984 | «Decreto Legislativo No. 1432010» | «… No. 143-2010» | Ídem («No. 143-» / «2010»; confirmado en la imagen) |
 
-| Art. | Caracteres (TSC) | sha256 TSC (12) | sha256 Drive (12) | Cotejo del texto | Primera diferencia |
-|---|---:|---|---|---|---|
-| 1 | 556 | `c1d69e5d4e36` | `dd3fafddf9a1` | **difiere** | TSC «…divisionaumedecapitaluotro…» / Drive «…divisionaumentodecapitaluo…» |
-| 2 | 583 | `6124835768c2` | `a120f7abdf09` | **difiere** | TSC «…sconstituidabajoesteregime…» / Drive «…sconstituidasbajoesteregim…» |
-| 3 | 807 | `998f25d55ff7` | `a1c2b57206f7` | **difiere** | TSC «…ulariospuedellenarseyprese…» / Drive «…ulariospuedenllenarseypres…» |
-| 4 | 664 | `81d643512a92` | `07523bc05213` | **difiere** | TSC «…ctronicounicdenivelnaciona…» / Drive «…ctronicounicodenivelnacion…» |
-| 5 | 876 | `0897a736d794` | `fb2ab402e102` | **difiere** | TSC «…esucreacionsdecaracterestr…» / Drive «…esucreacionseradecaractere…» |
-| 6 | 1219 | `25aa631f25a3` | `ff056e4ca260` | **difiere** | TSC «…adesociosyladelosorganosde…» / Drive «…adesociosylasdelosorganosd…» |
-| 7 | 882 | `e4cd405e9291` | `e80cf8f06cac` | igual | — |
-| 8 | 980 | `ffd2359f4dbf` | `ffe60f8c1a29` | **difiere** | TSC «…xtendercopiacualquieradelo…» / Drive «…xtendercopiaacualquieradel…» |
-| 9 | 523 | `da76e30873a4` | `6e12f208dc6c` | **difiere** | TSC «…especiefiscaparaacreditarl…» / Drive «…especiefiscalparaacreditar…» |
-| 10 | 344 | `dc38b4847cb1` | `dea024e129ec` | igual | — |
-| 11 | 1383 | `9feaa92a1ef3` | `2194063c361b` | **difiere** | TSC «…ebecontenerleinformacionne…» / Drive «…ebecontenerlainformacionne…» |
-| 12 | 468 | `89ca2336cbe8` | `fbfb028e6cb4` | **difiere** | TSC «…ansformacioniusiondivision…» / Drive «…ansformacionfusiondivision…» |
-| 13 | 13490 | `231bd8ba1de6` | `0a5795807b33` | **difiere** | TSC «…uerdosyleyeslpamdc5dejunio…» / Drive «…uerdosyleyesgalpamdc5dejun…» |
-| 14 | 1016 | `4e62e731fd1d` | `cc0828118abc` | **difiere** | TSC «…s1782y1789decodigocivillos…» / Drive «…s1782y1789delcodigocivillo…» |
-| 15 | 566 | `e14e854cca2a` | `630bf51fa54f` | igual | — |
-| 16 | 987 | `f49a20e47e87` | `9ffd15704648` | **difiere** | TSC «…uerdosyleyesigalpamdc5deju…» / Drive «…uerdosyleyesgalpamdc5dejun…» |
-| 17 | 849 | `22bfeecf3700` | `ee6007e77496` | **difiere** | TSC «…realizarseunfilmacionenvid…» / Drive «…realizarseunafilmacionenvi…» |
-| 18 | 1549 | `a288dd20d480` | `48e364cee974` | **difiere** | TSC «…fectivoanteenotarioenelpla…» / Drive «…fectivoanteelnotarioenelpl…» |
-| 19 | 344 | `e90b44e83876` | `f861eac38350` | igual | — |
-| 20 | 776 | `5e58a40012ff` | `869007c5bd39` | **difiere** | TSC «…uerdosyleyesalpamdc5dejuni…» / Drive «…uerdosyleyesgalpamdc5dejun…» |
-| 21 | 177 | `8adfbcfe534a` | `7ab991804e2d` | **difiere** | TSC «…sgarantiassodeterminadaspo…» / Drive «…sgarantiassondeterminadasp…» |
-| 22 | 720 | `b9a1a283b495` | `3e3980cac2e7` | **difiere** | TSC «…reedoreshayaautorizadoelem…» / Drive «…reedoreshayanautorizadoele…» |
-| 23 | 240 | `5fb7ddb7512f` | `e7c0d16285fc` | **difiere** | TSC «…creedoresestpuedenponersed…» / Drive «…creedoresestospuedenponers…» |
-| 24 | 556 | `ce9cd4765b7b` | `d836d73cb71d` | igual | — |
-| 25 | 241 | `17fea2520f3c` | `66091d05d8de` | igual | — |
-| 26 | 10177 | `39128f03a6d7` | `e91f9abf5feb` | **difiere** | TSC «…uerdosyleyesigalpamdc5deju…» / Drive «…uerdosyleyesgalpamdc5dejun…» |
-| 27 | 2528 | `b64d604e60b1` | `0ae2c07d77c8` | **difiere** | TSC «…uerdosyleyeslpamdc5dejunio…» / Drive «…uerdosyleyesgalpamdc5dejun…» |
-| 28 | 500 | `c7e74bac225c` | `055defc57a40` | igual | — |
-| 29 | 330 | `137688aa635b` | `6a43d858fca2` | igual | — |
-| 30 | 428 | `aa83803261c7` | `d5859baaf963` | **difiere** | TSC «…ablealconsejnacionaldeinve…» / Drive «…ablealconsejonacionaldeinv…» |
-| 31 | 373 | `896952961957` | `4ad0dc3bd2d4` | **difiere** | TSC «…depromociondlaalianzapubli…» / Drive «…depromociondelaalianzapubl…» |
-| 32 | 258 | `88a906a355ca` | `0a91788fcaca` | **difiere** | TSC «…alasecretariontecnicadelco…» / Drive «…alasecretariatecnicadelcon…» |
-| 33 | 903 | `27401f7548d1` | `58a59a70f3f6` | **difiere** | TSC «…mplimientoalestablecidoenl…» / Drive «…mplimientoaloestablecidoen…» |
-| 34 | 766 | `27ade9da4bf7` | `fea7d81daa5f` | igual | — |
-| 35 | 522 | `38c29d4233cb` | `7c795fceddd4` | igual | — |
-| 36 | 250 | `784cfe3a3517` | `75a36b3c9520` | igual | — |
-| 37 | 210 | `c1fd7552dd67` | `46576aee8afa` | **difiere** | TSC «…los380381382383delcodigode…» / Drive «…los380381382y383delcodigod…» |
-| 38 | 162 | `691a4a847a06` | `339b7bbbf8dd` | **difiere** | TSC «…os36373839y5deldecretolegi…» / Drive «…os36373839y54deldecretoleg…» |
-| 39 | 613 | `6e76bd0b9957` | `faf5c65e3e66` | **difiere** | TSC «…raenvigenciapartirdeldiade…» / Drive «…raenvigenciaapartirdeldiad…» |
+  Detectadas por el Titular en el cotejo visual. Confirmadas en el OCR con posiciones del PDF del TSC: son las únicas 2 palabras de las 4 que terminan en guion a final de renglón donde el guion es real; las otras 2, «físi-» y «pér-» (pág. 4), son divisiones silábicas bien unidas. Tampoco hay en el texto otra palabra que aparezca sin guion en un lugar y con guion en otro.
+- **La ingesta exige este hash exacto** (`--transcripcion-sha256`) y que el PDF sea el del TSC (`a7eb221f…`). Si una sola letra cambia tras la firma, se detiene.
+
+### Lista de cotejo visual
+
+Se compara, palabra por palabra **y conservando los guiones**, el **OCR del PDF del TSC** con la **transcripción candidata**, ambos sin encabezados de página:
+- **28 artículos** con diferencias de texto;
+- **2 artículos** (10 y 24) con diferencias **solo de espacios**;
+- **9 artículos** idénticos: 7, 15, 19, 25, 28, 29, 34, 35 y 36.
+
+En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo que dice la transcripción; «∅» significa que falta. **Hay que comprobar que la imagen de la página indicada diga lo de la derecha.**
+
+> **Importante:** que el OCR y la transcripción coincidan **no prueba** que el texto sea correcto. Los errores de los arts. 27 y 30 estaban en las dos copias y por eso la lista anterior no los mostró. Además, la comparación anterior ignoraba los guiones; esta los conserva. El cotejo visual cubre **todo** el texto, incluidos los 9 artículos idénticos.
+
+| Art. | Pág. PDF TSC | Tipo | N.º | Diferencias (OCR TSC → transcripción) |
+|---|---|---|---:|---|
+| 1 | 1 | texto | 1 | «aume» → «aumento» |
+| 2 | 1–2 | texto | 2 | «Alas» → «A las»; «constituida» → «constituidas» |
+| 3 | 2 | texto | 4 | «formatofísicoo» → «formato físico o»; «puede» → «pueden»; «Lasfirmasdeben» → «Las firmas deben»; «formulariofísicoo» → «formulario físico o» |
+| 4 | 2 | texto | 3 | «únic» → «único»; «únicament» → «únicamente»; «matrícu» → «matrícula» |
+| 5 | 2 | texto | 5 | «s» → «será»; «caráct» → «carácter»; «po» → «por»; «participació» → «participación»; «∅» → «de» |
+| 6 | 2–3 | texto | 11 | «la» → «las»; «mercantil» → «mercantiles»; «siempr» → «siempre»; «mediant» → «mediante»; «deb» → «debe»; «e» → «el»; «d» → «de»; «se» → «ser»; «∅» → «a»; «día» → «días»; «pue» → «pueden» |
+| 7 | 3 | igual | 0 | — |
+| 8 | 3 | texto | 3 | «∅» → «a»; «n i o» → «∅»; «enfísicoo» → «en físico o» |
+| 9 | 3 | texto | 1 | «fisca» → «fiscal» |
+| 10 | 3 | solo espacios | 1 | «defirmaselectrónicas.» → «de firmas electrónicas.» |
+| 11 | 3–4 | texto | 11 | «l e» → «la»; «r» → «∅»; «n» → «∅»; «travé» → «través»; «a» → «∅»; «Impuesto» → «Impuestos»; «Comerci equerida» → «Comercio requerida»; «;ual» → «cual»; «amisión» → «emisión»; «,» → «∅»; «estefindebe» → «este fin debe» |
+| 12 | 4 | texto | 2 | «íusión,» → «fusión,»; «enfísicoo» → «en físico o» |
+| 13 | 4–8 | texto | 36 | «14,15,18,157, 169,189,193,210,222,224,226y228» → «14, 15, 18, 157, 169, 189, 193, 210, 222, 224, 226 y 228»; «deComercio» → «de Comercio»; «^determinado;» → «indeterminado;»; «.» → «∅»; «lafirmasocial;» → «la firma social;»; «XIII. Los» → «XIII.Los»; «capita» → «capital»; «A.M» → «∅»; «t» → «∅»; «gestionarlajudicial» → «gestionarla judicial»; «e» → «∅»; «ón» → «∅»; «s , , o s r s» → «∅»; «accionist» → «accionista»; «ala» → «a la»; «prepara» → «preparar»; «d» → «de»; «tribunale» → «tribunales»; «l» → «la»; «∅» → «a»; «Esto» → «Estos»; «d» → «de»; «lafinalidadsocial» → «la finalidad social»; «177,178» → «177, 178»; «so» → «son»; «E» → «En»; «decidir» → «decidirá»; «acta» → «actas»; «oponible» → «oponibles»; «A MliW» → «∅»; «e o» → «∅»; «disposicione» → «disposiciones»; «sugestión.» → «su gestión.»; «administradoresfrentea» → «administradores frente a»; «228.-Aun» → «228.- Aun»; «percibido» → «percibidos» |
+| 14 | 8–9 | texto | 2 | «de» → «del»; «PARALAFACILITACIÓNDELACCESO» → «PARA LA FACILITACIÓN DEL ACCESO» |
+| 15 | 9 | igual | 0 | — |
+| 16 | 9 | texto | 2 | «∅» → «,»; «∅» → «el» |
+| 17 | 9 | texto | 7 | «direcciónfísicao» → «dirección física o»; «confijaruna» → «con fijar una»; «un» → «una»; «tuerz» → «fuerza legal.»; «o» → «∅»; «proced r» → «proceder»; «o n» → «∅» |
+| 18 | 9–10 | texto | 6 | «e» → «el»; «da» → «dar»; «a» → «al»; «afinde» → «a fin de»; «cuale» → «cuales»; «suspensió» → «suspensión» |
+| 19 | 10 | igual | 0 | — |
+| 20 | 10 | texto | 1 | «garantí» → «garantía,» |
+| 21 | 10 | texto | 1 | «so» → «son» |
+| 22 | 10 | texto | 4 | «haya» → «hayan»; «direcciónfísicapara» → «dirección física para»; «entregárs» → «entregársele»; «s» → «se» |
+| 23 | 10 | texto | 2 | «ést» → «éstos»; «l» → «la» |
+| 24 | 11 | solo espacios | 1 | «aun» → «a un» |
+| 25 | 11 | igual | 0 | — |
+| 26 | 11–14 | texto | 26 | «21,40,42,43,» → «21, 40, 42, 43,»; «51 -2011» → «51-2011»; «17-A.-Aún» → «17-A.- Aún»; «. , e l e» → «∅»; «d» → «de»; «contrat» → «contrato»; «hast» → «hasta»; «u» → «un»; «viabilida» → «viabilidad»; «incorporació» → «incorporación»; «d» → «de»; «n» → «no»; «d» → «de»; «cuyosfinesprincipale» → «cuyos fines principales»; «,» → «∅»; «losfinesa» → «los fines a»; «parafinesespecíficos» → «para fines específicos»; «subcontratado» → «subcontratarlo»; «par» → «para»; «co» → «con»; «s» → «su»; «A. 35» → «∅»; «afinde» → «a fin de»; «permanent» → «permanente»; «Afinde» → «A fin de»; «de» → «del» |
+| 27 | 14–15 | texto | 5 | «PúblicoPrivada,» → «Público-Privada,»; «serfijadomediante» → «ser fijado mediante»; «dichosfideicomisosservirá» → «dichos fideicomisos servirá»; «irifraestructura» → «infraestructura»; «A. ÜJ» → «∅» |
+| 28 | 15 | igual | 0 | — |
+| 29 | 15 | igual | 0 | — |
+| 30 | 15 (entre los arts. 29 y 31; comienzo cortado en el OCR) | texto | 5 | «Consej» → «Consejo»; «e» → «en»; «29,31» → «29, 31»; «1432010» → «143-2010»; «a , a a e o» → «∅» |
+| 31 | 15 | texto | 2 | «d» → «de»; «e» → «en» |
+| 32 | 15 | texto | 4 | «Secretarí ón» → «Secretaría»; «entenders n,» → «entenderse»; «Naciona e» → «Nacional»; «o» → «∅» |
+| 33 | 15 | texto | 14 | «l» → «lo»; «d e» → «de»; «quiene o» → «quienes»; «descrito» → «descritos»; «o» → «∅»; «d» → «de»; «Apartir» → «A partir»; «vigenci» → «vigencia»; «proceso jo» → «procesos»; «n en» → «∅»; «a» → «la»; «afinde» → «a fin de»; «la -» → «las»; «∅» → «a» |
+| 34 | 16 | igual | 0 | — |
+| 35 | 16 | igual | 0 | — |
+| 36 | 16 | igual | 0 | — |
+| 37 | 16 | texto | 2 | «∅» → «y»; «Legislativ» → «Legislativo» |
+| 38 | 16 | texto | 3 | «36,37,38,39» → «36, 37, 38, 39»; «5» → «54»; «51 -2011» → «51-2011» |
+| 39 | 16 | texto | 2 | «∅» → «a»; «día» → «días» |
+
+**Observaciones para el cotejo:**
+- **Arts. 13 y 26:** concentran la mayor parte de las diferencias porque transcriben artículos de otras leyes. Casi todas son palabras cortadas en el borde de la columna o pegadas por el OCR.
+- **Diferencias con efecto jurídico ya comprobadas:** son **tres**, no una.
+  - **art. 38** («5» → «54», pág. 16): artículo derogado;
+  - **art. 30** («1432010» → «143-2010», pág. 15): número de decreto;
+  - **art. 27** («PúblicoPrivada» → «Público-Privada», pág. 14): denominación de la Superintendencia.
+- **Cifras:** conviene revisar con el mismo cuidado todas las cifras y números de decreto de los arts. 13, 14, 26, 27, 30, 37 y 38.
+- **Diferencias marcadas con ∅:** son restos de ruido del escaneo («A. ÜJ», «n i o»…), no texto de la ley.
+
+**Firma del cotejo**, necesaria para pasar `--cotejado-por` a la ingesta:
+«Cotejé la transcripción `ba75b190…36ca` contra las 16 páginas del PDF del TSC `a7eb221f…`, incluidos los artículos de la lista anterior y las 2 correcciones registradas.»
+☑ **Conforme** ☐ Con correcciones (se regeneran la transcripción y su hash).
+
+**FIRMADO (15-nov-2026):** «Confirmo y firmo de conformidad el cotejo íntegro de los 39 artículos del Decreto Legislativo No. 284-2013 (`HN:DECRETO_284_2013`, Diario Oficial La Gaceta No. 33,445 del 5 de junio de 2014) contra las 16 páginas del PDF oficial del TSC (`a7eb221f…`), verificadas las correcciones de `143-2010` (art. 30) y `Público-Privada` (art. 27), bajo el hash SHA-256 definitivo `ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca`.»
+Firmante (texto de `--cotejado-por`): **Abg. y Not. Fredy Omar Pinel Flores — CLO / Director Maya Lex — 2026-11-15**
+
+Esta firma cubre el §3 (D3). D4–D8 (vigencia, art. 13, tipo de fuente, bloqueo CLO y promoción V4/V5) siguen sin firmar. Mientras no se firmen, las filas se cargan ocultas, sin vigencia y bloqueadas como solo contexto.
 
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
 
@@ -107,7 +142,7 @@ En los tres casos **la copia del Drive coincide con la imagen oficial**. El defe
 |---|---|---|---|
 | D1 | Procedencia | ☐ Acreditada ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado), bytes `a7eb221f…`, descargada por el propietario (§0) |
 | D2 | Identidad | ☐ Confirmada ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
-| D3 | Texto que se carga | ☐ (a) Transcripción cotejada contra las imágenes del TSC, tomando como base el texto de la copia del Drive ☐ (b) Nuevo OCR del PDF del TSC ☐ (c) Texto OCR del TSC tal cual | **(a)**. Se cotejan los 28 artículos marcados «difiere» contra la imagen del TSC. **No (c)**: la capa OCR altera números con efecto jurídico (art. 38). La ingesta hoy toma el texto del PDF que se le pasa: hará falta una opción de «texto cotejado» que conserve la procedencia del TSC (cambio pequeño, aparte) |
+| D3 | Texto que se carga | ☑ **(a) Transcripción cotejada contra las páginas del PDF del TSC** — aprobada por el Titular el 15-nov-2026 · ☐ (b) · ☐ (c) | Pendiente solo la **firma del cotejo** del §3 (transcripción `ba75b190…36ca`) |
 | D4 | Vigencia | ☐ Aprobar la propuesta ☐ Modificar: ______ | Ver §5 |
 | D5 | Art. 13 (contiene el texto de 12 artículos reformados del Código de Comercio) | ☐ Una fila del decreto ☐ Además, versiones nuevas en el Código de Comercio | Una fila del decreto ahora. Las versiones del Código de Comercio son un trabajo aparte y no se infieren de aquí |
 | D6 | Tipo de fuente | ☐ `ley` ☐ Otro: ______ | `ley` |
@@ -130,8 +165,33 @@ Base y límites:
 
 ## 6. Qué ocurre después de aprobar (y solo entonces)
 
-1. **Texto según D3:** transcripción cotejada (opción a) y la opción de «texto cotejado» en `scripts/ingesta-lote-staging.ts`.
-2. **Filas, sin escribir en ninguna base:** 39 filas ocultas (`revision_pendiente = true`), vigencia NULL y sin embedding. Identidad `HN:DECRETO_284_2013` y fuente «Decreto 284-2013, Ley para la Generación de Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)», tipo `ley`.
-3. **Staging** (`aicakncgtuiiuomflkqj`): el Titular aplica el SQL y un paso aparte llena los embeddings.
+1. **Texto según D3:** la transcripción firmada en el §3. Si se corrige, se regenera con `tools/corpus/transcripcion-gaceta.ts` y cambia su hash.
+2. **Filas, sin escribir en ninguna base:** 39 filas ocultas (`revision_pendiente = true`), vigencia NULL y sin embedding (ensayado fuera del repositorio con la transcripción `ba75b190…36ca`: 39 filas, 0 excepciones; arts. 27, 30 y 38 con el texto corregido):
+   ```sh
+   npx tsx scripts/ingesta-lote-staging.ts "C:/Users/fredy/Downloads/Ley_gene_empl_dere_inver.pdf" \
+     docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/candidates/PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1.json \
+     HN:DECRETO_284_2013 PILOTO_D284_2013_01 \
+     "Decreto 284-2013, Ley para la Generación de Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)" \
+     out/piloto-d284-2013 2 ley \
+     --transcripcion docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/transcripcion/transcripcion_candidata.txt \
+     --transcripcion-sha256 ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca \
+     --cotejado-por "<nombre, rol y fecha de la firma del §3>"
+   ```
+3. **Staging** (`aicakncgtuiiuomflkqj`): el Titular aplica el SQL. Los embeddings se calculan aparte con `scripts/embeddings-lote-staging.ts`.
+
+   **Generado el 15-nov-2026, tras la firma del §3.** Los archivos están en `out/piloto-d284-2013/`, carpeta que no se versiona. Aplicar en este orden, solo en staging:
+
+   | Orden | Archivo | SHA-256 | Contenido |
+   |---|---|---|---|
+   | — | `rows.jsonl` | `637c7512052dd16e9c8f8bac259fc43020ccc700e34752dcf0e3b994b0db8ffc` | 39 filas (`PILOTO_D284_2013_01`), texto de la transcripción `ba75b190…36ca`, `cotejado_por` del firmante |
+   | 1 | `insert_staging.sql` | `c294ff59293bdd480721ff5189e596332828cb9b871ded97cdd64e326429b437` | 1 INSERT de 39 filas, `ON CONFLICT (id) DO NOTHING`: ocultas, vigencia NULL, embedding NULL |
+   | 2 | `update_embeddings_staging.sql` | `e02ef2bed8cca185dc820d501c87b246f301bfaffe0ae94e280a21519fe9a4e0` | 39 UPDATE en una transacción. Solo filas del lote sin embedding. Modelo `Xenova/multilingual-e5-small`, «passage:», 384 dimensiones |
+   | 3 | `verificacion_staging.sql` | `c20f93b1e5ea3c49ffe4c8681526fc3be29e94e20d79bd57e0cffa0eeea1bd54` | Solo lectura. Se esperan 39 en filas, con embedding, ocultas, vigencia NULL, `HN`, `HN:DECRETO_284_2013` y artículos distintos, y 0 visibles |
+
+   **Prueba de sentido de los embeddings** (consulta con «query:», como la búsqueda real):
+   - la derogación de los arts. 380–383 recupera el art. 37 en primer lugar;
+   - la vigencia recupera el art. 39 en primer lugar;
+   - la sociedad de un solo socio recupera el art. 5 en primer lugar;
+   - la ejecución ante notario recupera los arts. 16, 15 y 20.
 4. **Visibilidad y vigencia** (`revision_pendiente = false`, `es_norma_vigente` según D4): una escritura aparte, autorizada por el Titular.
 5. **Producción:** requiere una migración revisada y autorización expresa.

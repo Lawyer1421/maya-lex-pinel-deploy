@@ -116,3 +116,33 @@ describe('procedencia según el estado del candidato (ya no fija «Drive»)', ()
     expect(procedenciaDelPaquete(estado)).toMatch(/NO verificada/);
   });
 });
+
+import { createHash } from 'node:crypto';
+import { validarTranscripcion } from '@/scripts/ingesta-lote-staging';
+describe('transcripción cotejada (D3 opción a): ligada a la huella del PDF oficial y al hash firmado', () => {
+  const OFICIAL = 'a7eb221fdeff8977ae9cf907f926797b8d45cd7d90dc93ece7e32ee3581edee4';
+  const texto = 'ARTÍCULO 38.- Derogar los Artículos 36, 37, 38, 39 y 54 del Decreto Legislativo No. 51-2011.\r\n';
+  const firmado = createHash('sha256').update(texto.replace(/\r\n/g, '\n'), 'utf8').digest('hex');
+  const paquete = { estado: 'CLO_PENDING', hashes: { bytes_sha256: OFICIAL, text_sha256: '7a1f' } };
+  const base = { bytesSha256: OFICIAL, paquete, transcripcion: texto, shaFirmado: firmado, cotejadoPor: 'Fredy Pinel, propietario_despacho, 2026-11-16' };
+
+  it('acepta exactamente lo firmado y registra origen, hash, cotejo y OCR descartado', () => {
+    const t = validarTranscripcion(base);
+    expect(t.texto).not.toContain('\r');
+    expect(t.meta).toEqual({ texto_origen: 'TRANSCRIPCION_COTEJADA', transcripcion_sha256: firmado, cotejado_por: base.cotejadoPor, ocr_text_sha256: '7a1f' });
+    expect(validarTranscripcion({ ...base, bytesSha256: OFICIAL.toUpperCase(), shaFirmado: firmado.toUpperCase() }).meta.transcripcion_sha256).toBe(firmado);
+  });
+  it('rechaza un PDF que no es el del candidato', () => {
+    expect(() => validarTranscripcion({ ...base, bytesSha256: 'ea81bfa6146f0cb70e275690b19aad19609da794553afe7073ee7df6c97217ae' })).toThrow(/no es el documento oficial/);
+  });
+  it.each(['SOURCE_HOLD', 'QA_FAILED', undefined])('rechaza un candidato en %s', (estado) => {
+    expect(() => validarTranscripcion({ ...base, paquete: { ...paquete, estado } })).toThrow(/CLO_PENDING/);
+  });
+  it('rechaza una transcripción distinta de la firmada (una sola letra) o sin hash firmado', () => {
+    expect(() => validarTranscripcion({ ...base, transcripcion: texto.replace('54', '5') })).toThrow(/no es la firmada/);
+    expect(() => validarTranscripcion({ ...base, shaFirmado: undefined })).toThrow(/falta --transcripcion-sha256/);
+  });
+  it('exige que conste quién cotejó', () => {
+    for (const cotejadoPor of [undefined, '', 'Fredy']) expect(() => validarTranscripcion({ ...base, cotejadoPor })).toThrow(/cotejado-por/);
+  });
+});
