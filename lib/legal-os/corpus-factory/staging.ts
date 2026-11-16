@@ -111,6 +111,45 @@ export function segmentarArticulos(texto: string): Segmentacion {
   return { preambulo: limpio.slice(0, hallazgos[0]?.inicio ?? limpio.length).trim(), articulos, notas };
 }
 
+/**
+ * Segmentación por SERIE CORRELATIVA de un decreto modificatorio publicado en La Gaceta (A04, D.35-2013: arts. 1–19).
+ *
+ * El texto de un decreto que reforma otras leyes transcribe artículos ajenos («"ARTÍCULO 973.- …» del Código Civil, «"ARTÍCULO 140.- …» del Código
+ * de la Niñez): el segmentador general los toma como artículos propios y parte el decreto. Aquí solo cuenta como encabezado el SIGUIENTE número de
+ * la serie (1, 2, 3… hasta `total`), al COMIENZO de una línea y SIN comilla de apertura (las transcripciones ajenas van entre comillas en La Gaceta).
+ * Se acepta el rótulo con las letras espaciadas que deja el OCR («A R T I C U L O 18.-»), con o sin tilde. Todo lo que hay entre dos encabezados de
+ * la serie pertenece al artículo anterior, incluidos los artículos transcritos.
+ *
+ * Estricto: si la serie no está completa (falta algún número entre 1 y `total`) o aparece un encabezado de la serie fuera de orden, lanza un
+ * error en lugar de devolver una segmentación parcial. No separa notas al pie (una publicación de La Gaceta no las tiene): `notas` sale vacío.
+ */
+export function segmentarSerieCorrelativa(texto: string, total: number): Segmentacion {
+  if (!Number.isInteger(total) || total < 1) throw new Error(`serie correlativa inválida: ${total}`);
+  const limpio = texto.replace(/\r\n?/g, '\n');
+  const rotulo = (n: number) => new RegExp(`(?:^|\\n|\\f)[ \\t]*(A[ \\t]*R[ \\t]*T[ \\t]*[ÍI][ \\t]*C[ \\t]*U[ \\t]*L[ \\t]*O|Art[íi]culo)[ \\t]+${n}(?![\\d])[ \\t]*\\.?[ \\t]*[-–—]?`, 'gu');
+  const hallazgos: Array<{ numero: number; inicio: number; fin: number }> = [];
+  let desde = 0;
+  for (let n = 1; n <= total; n++) {
+    const re = rotulo(n);
+    re.lastIndex = desde;
+    const m = re.exec(limpio);
+    if (!m) throw new Error(`serie correlativa incompleta: no se halla el ARTÍCULO ${n} de ${total} después de la posición ${desde}`);
+    const inicio = m.index + m[0].search(/[AÁ]/u);
+    hallazgos.push({ numero: n, inicio, fin: m.index + m[0].length });
+    desde = m.index + m[0].length;
+  }
+  // Un encabezado propio de la serie que reaparece más adelante (p. ej. un segundo «ARTÍCULO 19» al pie) indica una segmentación ambigua.
+  const extra = rotulo(total + 1);
+  extra.lastIndex = desde;
+  if (extra.exec(limpio)) throw new Error(`serie correlativa: aparece un ARTÍCULO ${total + 1} propio después del ${total}`);
+  const articulos: ArticuloSegmentado[] = hallazgos.map((h, i) => {
+    const cuerpo = limpio.slice(h.fin, i + 1 < hallazgos.length ? hallazgos[i + 1].inicio : limpio.length).trim();
+    const numero = String(h.numero);
+    return { numero, ordinal: i + 1, texto: cuerpo, sha256: sha(`${numero}\n${cuerpo}`) };
+  });
+  return { preambulo: limpio.slice(0, hallazgos[0].inicio).trim(), articulos, notas: [] };
+}
+
 // ── QA ───────────────────────────────────────────────────────────────────────
 
 export type Severidad = 'BLOCKER' | 'WARNING' | 'INFO';

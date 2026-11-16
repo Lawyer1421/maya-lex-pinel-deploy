@@ -13,6 +13,7 @@
  *
  * Uso: npx tsx scripts/ingesta-lote-staging.ts <pdf> <paquete.json> <HN:INSTRUMENTO> <ingest_batch> <fuente> <salida_dir> [columnas=1|2] [fuente_tipo=codigo|ley|reglamento|acuerdo]
  *      [--transcripcion <txt> --transcripcion-sha256 <hex firmado por el CLO> --cotejado-por "<quién, rol, fecha>"]
+ *      [--serie-correlativa <N>]  decreto modificatorio: solo los artículos propios 1…N son filas (ver segmentarSerieCorrelativa)
  * Con --transcripcion el texto no sale del PDF: ver validarTranscripcion (el PDF debe ser el del candidato CLO_PENDING y el hash, el firmado).
  * Salida: <salida_dir>/{rows.jsonl, ingest_exceptions.log, REPORTE.md, insert_staging.sql}
  */
@@ -20,7 +21,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { segmentarArticulos } from '../lib/legal-os/corpus-factory/staging';
+import { segmentarArticulos, segmentarSerieCorrelativa } from '../lib/legal-os/corpus-factory/staging';
 import { extraerTextoDosColumnas } from '../tools/corpus/receive-pdf';
 import { normalizarNumeroArticulo } from '../lib/legal-retrieval/clo-guards';
 import { parsearInstrumentRef, type InstrumentRef } from '../lib/legal-retrieval/instrument-ref';
@@ -50,10 +51,12 @@ export interface Excepcion { articulo: string; codigo: string; detalle: string }
 export function construirLote(p: {
   texto: string; instrumentoRef: string; ingestBatch: string; fuente: string; fuenteTipo: FilaLote['fuente_tipo'];
   meta: Record<string, unknown>; hashesPaquete?: ReadonlyMap<string, string>; materia?: string; coleccion?: string;
+  /** Decreto modificatorio publicado en La Gaceta: segmenta solo la serie propia 1…N (los artículos transcritos de otras leyes no parten el texto). */
+  serieCorrelativa?: number;
 }): { filas: FilaLote[]; excepciones: Excepcion[]; resumen: Record<string, number> } {
   // Antes de segmentar: una identidad inválida no produce ninguna fila.
   const { ref, instrumento } = validarRefHN(p.instrumentoRef);
-  const seg = segmentarArticulos(p.texto);
+  const seg = p.serieCorrelativa === undefined ? segmentarArticulos(p.texto) : segmentarSerieCorrelativa(p.texto, p.serieCorrelativa);
   const excepciones: Excepcion[] = [];
   const vistos = new Map<string, number>();
   const filas: FilaLote[] = [];
@@ -178,6 +181,9 @@ function main(): void {
   // Primero la identidad: con HN:<INSTRUMENTO> inválido no se lee el PDF ni se crea el directorio de salida.
   validarRefHN(instrumentoRef);
   const bytes = readFileSync(pdf);
+  const serieTxt = opciones.get('serie-correlativa');
+  const serieCorrelativa = serieTxt === undefined ? undefined : Number(serieTxt);
+  if (serieCorrelativa !== undefined && !(Number.isInteger(serieCorrelativa) && serieCorrelativa > 0)) throw new Error(`--serie-correlativa inválida: ${serieTxt}`);
   const rutaTranscripcion = opciones.get('transcripcion');
   if (rutaTranscripcion) {
     const pkgT = JSON.parse(readFileSync(paquete, 'utf8'));
@@ -185,7 +191,7 @@ function main(): void {
       bytesSha256: sha(bytes), paquete: pkgT, transcripcion: readFileSync(rutaTranscripcion, 'utf8'),
       shaFirmado: opciones.get('transcripcion-sha256'), cotejadoPor: opciones.get('cotejado-por'),
     });
-    escribirLote({ bytes, texto: t.texto, extra: t.meta, pkg: pkgT, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: false });
+    escribirLote({ bytes, texto: t.texto, extra: t.meta, pkg: pkgT, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: false, serieCorrelativa });
     return;
   }
   let r: { status: number | null; stderr: string; stdout: string };
@@ -198,7 +204,7 @@ function main(): void {
     if (r.status !== 0) throw new Error(`pdftotext falló: ${r.stderr}`);
   }
   const pkg = JSON.parse(readFileSync(paquete, 'utf8'));
-  escribirLote({ bytes, texto: r.stdout, extra: {}, pkg, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: true });
+  escribirLote({ bytes, texto: r.stdout, extra: {}, pkg, instrumentoRef, ingestBatch, fuente, salida, tipo, compararConPaquete: true, serieCorrelativa });
 }
 
 /**
@@ -207,7 +213,7 @@ function main(): void {
  */
 function escribirLote(p: {
   bytes: Buffer; texto: string; extra: Record<string, unknown>; pkg: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-  instrumentoRef: string; ingestBatch: string; fuente: string; salida: string; tipo: string; compararConPaquete: boolean;
+  instrumentoRef: string; ingestBatch: string; fuente: string; salida: string; tipo: string; compararConPaquete: boolean; serieCorrelativa?: number;
 }): void {
   const { pkg, instrumentoRef, ingestBatch, fuente, salida, tipo } = p;
   const textoSha = sha(p.texto);
@@ -215,7 +221,7 @@ function escribirLote(p: {
   const cont = new Map<string, number>();
   if (p.compararConPaquete) for (const a of pkg.articulos ?? []) { const k = (cont.get(a.numero) ?? 0) + 1; cont.set(a.numero, k); hashes.set(`${a.numero}#${k}`, a.sha256); }
   const meta = { bytes_sha256: sha(p.bytes), text_sha256: textoSha, paquete: pkg.candidate_id, estado_fuente: pkg.estado, procedencia: procedenciaDelPaquete(pkg.estado), decreto: pkg.identidad?.decree ?? null, ...p.extra };
-  const lote = construirLote({ texto: p.texto, instrumentoRef, ingestBatch, fuente, fuenteTipo: tipo as FilaLote['fuente_tipo'], meta, hashesPaquete: hashes });
+  const lote = construirLote({ texto: p.texto, instrumentoRef, ingestBatch, fuente, fuenteTipo: tipo as FilaLote['fuente_tipo'], meta, hashesPaquete: hashes, serieCorrelativa: p.serieCorrelativa });
   mkdirSync(salida, { recursive: true });
   writeFileSync(join(salida, 'rows.jsonl'), lote.filas.map((f) => JSON.stringify(f)).join('\n') + '\n');
   writeFileSync(join(salida, 'ingest_exceptions.log'), lote.excepciones.map((e) => `${e.codigo}\tart.${e.articulo}\t${e.detalle}`).join('\n') + '\n');
