@@ -115,3 +115,9 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 ### Actualización (2026-11-16, segunda pasada)
 - **Candidata v2** con C01–C05 aplicadas: SHA-256 sobre bytes LF **`25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685`**. Cambian 5 líneas respecto de la v1 y nada más. Aún conserva los encabezados de página.
 - **Lista de cotejo regenerada sobre la v2:** 441 diferencias. El borde derecho se cuenta una sola vez por línea: 86 líneas dentro del acto (31 legibles, 43 parciales y 12 ilegibles parciales) y **2 fuera del acto** (B87 y B88, pág. 46, columna derecha, que es el acto siguiente).
+
+### Actualización (2026-11-16, paquete de resolución textual)
+- `03_RESOLUCION_TEXTUAL_A04.md` y `RESOLUCION_TEXTUAL_A04.csv`. Contenido:
+  - Art. 14: el salto 330 → 332 **está en el impreso**, junto con otros 15 saltos, todos verificados en la imagen.
+  - Tabla de firma: 31 legibles en bloque · 11 líneas de la pág. 41 · 39 parciales con propuesta · 4 parciales para decisión del CLO · 12 lagunas `[ilegible]`, en los arts. 1, 3 y 5, todos CONTEXT por la Decisión 3.
+  - Secuencia de 8 pasos hasta el hash final D3.
