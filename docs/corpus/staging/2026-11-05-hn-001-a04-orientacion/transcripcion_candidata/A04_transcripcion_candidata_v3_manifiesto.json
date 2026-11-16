@@ -5,8 +5,8 @@
     "archivo": "A04_transcripcion_candidata_v2.txt",
     "sha256_lf": "25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685"
   },
-  "transcripcion_sha256": "6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d",
-  "caracteres": 184636,
+  "transcripcion_sha256": "f70d874b4e2f787f4551c722eb776cceda00f0a109a8993683d7c9aa56583abd",
+  "caracteres": 184628,
   "correcciones_de_cotejo": [
     {
       "articulo": "1 (B04, LECTURA_POR_CONTEXTO_CLO)",
@@ -180,12 +180,12 @@
       "linea": 663
     },
     {
-      "articulo": "1 (B24, LAGUNA_DOCUMENTADA)",
+      "articulo": "1 (B24, LECTURA_DE_IMAGEN)",
       "pagina_pdf": 7,
       "buscar": "Niñez y\ny Familia (IHNFA), los",
-      "reemplazar": "Niñez y [ilegible]\nFamilia (IHNFA), los",
-      "motivo": "LAGUNA_DOCUMENTADA: No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia»",
-      "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B24_p07_y789.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md",
+      "reemplazar": "Niñez y la\nFamilia (IHNFA), los",
+      "motivo": "LECTURA_DE_IMAGEN: Rectificado por el CLO el 2026-11-16: el recorte nativo muestra «…de la Niñez y la» completo; el OCR leyó «la» como «y» y la movió a la línea siguiente",
+      "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B24_p07_y789.jpg; recorte nativo p07 y789 (reproducible con pdftoppm -r 200 -f 7 -l 7 -x 833 -y 509 -W 867 -H 95)); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md",
       "linea": 668
     },
     {

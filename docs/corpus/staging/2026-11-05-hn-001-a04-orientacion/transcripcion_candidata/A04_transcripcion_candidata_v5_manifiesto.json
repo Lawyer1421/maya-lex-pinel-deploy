@@ -1,12 +1,12 @@
 {
   "estado": "TEXTO_FINAL_PARA_COTEJO_D3",
-  "advertencia": "v5: texto fijado (resoluciones firmadas del 2026-11-16), sin encabezados de página ni cabecera/sumario de la pág. 1. Los rangos quitados en este paso están pendientes de ratificación del CLO. Solo la firma D3 del CLO sobre este sha256 lo declara cotejado.",
+  "advertencia": "v5: texto fijado (resoluciones firmadas del 2026-11-16), sin encabezados de página ni cabecera/sumario de la pág. 1. Los dos rangos quitados en este paso fueron ratificados expresamente por el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho, 2026-11-16). Solo la firma D3 del CLO sobre este sha256 lo declara cotejado.",
   "base": {
     "archivo": "A04_transcripcion_candidata_v4.txt",
-    "sha256_lf": "091c0871fb7ebaa598668ad40430c9ae54afb2e10bfae8cc85432c4b7bace2b9"
+    "sha256_lf": "a81d0571536ff5305dc4353b3c0957448453c689a26166856e12b12bad305d6b"
   },
-  "transcripcion_sha256": "35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd",
-  "caracteres": 176970,
+  "transcripcion_sha256": "fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e",
+  "caracteres": 176962,
   "rangos_quitados": [
     {
       "desde": 1,

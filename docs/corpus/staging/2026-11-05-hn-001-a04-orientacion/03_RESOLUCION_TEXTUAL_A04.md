@@ -154,7 +154,7 @@ Recortes: `transcripcion_candidata/recortes_borde_izq/p41_y*.jpg` y la hoja de c
 
 | Id | Pág. | Art. | Contexto (OCR) | Por qué no hay propuesta | Decisión |
 |---|---:|---:|---|---|---|
-| B24 | 7 | 1 | …Hondureno de la Niñez y ⏎ y Familia (IHNFA), | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
+| B24 | 7 | 1 | …Hondureno de la Niñez y ⏎ y Familia (IHNFA), | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ~~☑ Laguna~~ → **☑ RECTIFICADO a «la» (lectura de imagen), 2026-11-16, §4** |
 | B33 | 9 | 1 | …este Código y el Códig< ⏎ Procesal Penal conceden | No se propone: dentro del nombre de una ley («Código Procesal Penal») | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
 | B63 | 23 | 1 | …que se le garantice u ⏎ rápida respuesta; | No unívoca: «…se le garantice u[…] rápida respuesta»: «una» por concordancia, pero el revisor leyó «un» y lo cortado podría ser cualquiera de los dos | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
 | B84 | 37 | 5 | …Hondureno de la Niñez y ⏎ Familia (IHNFA) ordenando | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
@@ -220,14 +220,14 @@ Cadena de versiones, con todos los hashes **sobre bytes LF**:
 | Versión | SHA-256 | Caracteres | Qué cambia | Conciliación (alfanuméricos) |
 |---|---|---:|---|---|
 | v2 | `25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685` | 184,466 | C01–C05 aplicadas (PR #146) | — |
-| v3 | `6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d` | 184,636 | 63 correcciones firmadas (`correcciones_cotejo_resolucion.json`: 5 de lectura de imagen, 42 por contexto y 16 lagunas); 64 líneas | +151 = los del JSON |
-| v4 | `091c0871fb7ebaa598668ad40430c9ae54afb2e10bfae8cc85432c4b7bace2b9` | 178,101 | 132 encabezados de página quitados (`transcribirSinEncabezados` con `variantesEspaciadas`), registrados en el manifiesto | −3,842 = los de los 132 encabezados |
-| **v5** | **`35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd`** | **176,970** | Cabecera y sumario de la pág. 1, como 2 rangos declarados | −886 = los de los rangos |
+| v3 | `f70d874b4e2f787f4551c722eb776cceda00f0a109a8993683d7c9aa56583abd` | 184,628 | 63 correcciones firmadas (`correcciones_cotejo_resolucion.json`: 6 de lectura de imagen, con B24 rectificada; 42 por contexto y 15 lagunas) | +145 = los del JSON |
+| v4 | `a81d0571536ff5305dc4353b3c0957448453c689a26166856e12b12bad305d6b` | 178,093 | 132 encabezados de página quitados (`transcribirSinEncabezados` con `variantesEspaciadas`), registrados en el manifiesto | −3,842 = los de los 132 encabezados |
+| **v5 (definitiva)** | **`fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e`** | **176,962** | Cabecera y sumario de la pág. 1, como 2 rangos declarados y **ratificados** | −886 = los de los rangos |
 
 **Comprobaciones de la v5:**
 - 0 ``, 0 `` y **0 encabezados residuales** (filtro de `generar_lista_cotejo_d3.py`);
 - **los 19 artículos en serie**;
-- **16 `[ilegible]`**: art. 1 (9), art. 3 (1) y art. 5 (6), igual que lo firmado;
+- **15 `[ilegible]`**: art. 1 (8), art. 3 (1) y art. 5 (6), igual que lo firmado tras la rectificación de B24;
 - empieza en «D E C R E T O No. 35-2013» y termina en el Ejecútese («Tegucigalpa, M.D.C., 5 de septiembre de 2013») con sus firmas.
 
 **Herramienta:** `tools/corpus/transcripcion-gaceta.ts` ahora tiene la opción `variantesEspaciadas` (patrones de línea completa sobre la línea compactada), con su prueba. **El D.284-2013 no cambia:** al regenerarlo con la herramienta ampliada da otra vez `ba75b190…`. La evidencia G6 no incluye `tools/corpus/`, así que no hace falta regenerarla.
@@ -283,14 +283,18 @@ Cadena de versiones, con todos los hashes **sobre bytes LF**:
 - Desprendióle para su comodidad
 ```
 
-☐ **Ratifico el rango 2 (líneas 43–71).** ☐ **Ratifico el rango 1 (líneas 1–12).**
+☑ **Ratifico el rango 2 (líneas 43–71).** ☑ **Ratifico el rango 1 (líneas 1–12).**
+
+**RATIFICADO (16-nov-2026):** el CLO ratifica expresamente los dos rangos retirados de la pág. 1. Firma: Abg. y Not. Fredy Omar Pinel Flores · propietario_despacho (CLO / Director Maya Lex) · 2026-11-16.
 
 ### Hallazgo posterior a la firma: B24 sí es legible
 Al construir las correcciones se generó el recorte nativo de B24 (pág. 7, y = 789). La imagen dice con claridad **«…del Instituto Hondureño de la Niñez y la»** y, en la línea siguiente, «Familia (IHNFA)». La «la» está impresa y se lee completa. El OCR la leyó como «y» y la pasó a la línea siguiente, y por eso el paquete anterior la clasificó, por error, como parcial sin propuesta. **Se aplicó lo firmado:** laguna (`Niñez y [ilegible]`).
 
 Como es una lectura de imagen y no un suplemento por contexto, el CLO puede rectificarla a «la» (`LECTURA_DE_IMAGEN`) **antes de la firma D3**. La rectificación cambia una sola corrección y el hash final.
 
-☐ Mantener la laguna en B24 ☐ Rectificar B24 a «la» (lectura de imagen)
+☐ Mantener la laguna en B24 ☑ **Rectificar B24 a «la» (lectura de imagen)**
+
+**RECTIFICADO (16-nov-2026):** B24 pasa de laguna a lectura directa de imagen («…de la Niñez y la»), porque el recorte nativo acredita que «la» está impresa completa y es legible. Quedan **15 lagunas** `[ilegible]`: 8 en el art. 1, 1 en el art. 3 y 6 en el art. 5. Firma: Abg. y Not. Fredy Omar Pinel Flores · propietario_despacho (CLO / Director Maya Lex) · 2026-11-16. Se regeneraron la v3, la v4 y la v5.
 
 ### Paso 8: cotejo D3
-La lista de cotejo está regenerada sobre la v5 (`transcripcion_candidata/LISTA_COTEJO_D3_A04.md`). La firma D3 se hace sobre `35e16537…b9bd`, salvo que la ratificación de los rangos o la rectificación de B24 cambien el texto.
+La lista de cotejo está regenerada sobre la v5 (`transcripcion_candidata/LISTA_COTEJO_D3_A04.md`). Tras la ratificación de los rangos y la rectificación de B24, **la firma D3 se hace sobre la v5 definitiva `fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e`**. La v5 anterior, `35e16537…`, queda sustituida.

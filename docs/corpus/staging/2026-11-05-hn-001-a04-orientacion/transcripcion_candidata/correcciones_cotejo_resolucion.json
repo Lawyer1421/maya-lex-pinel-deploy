@@ -152,12 +152,12 @@
     "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B23_p07_y708.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
   },
   {
-    "articulo": "1 (B24, LAGUNA_DOCUMENTADA)",
+    "articulo": "1 (B24, LECTURA_DE_IMAGEN)",
     "pagina_pdf": 7,
     "buscar": "Niñez y\ny Familia (IHNFA), los",
-    "reemplazar": "Niñez y [ilegible]\nFamilia (IHNFA), los",
-    "motivo": "LAGUNA_DOCUMENTADA: No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia»",
-    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B24_p07_y789.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+    "reemplazar": "Niñez y la\nFamilia (IHNFA), los",
+    "motivo": "LECTURA_DE_IMAGEN: Rectificado por el CLO el 2026-11-16: el recorte nativo muestra «…de la Niñez y la» completo; el OCR leyó «la» como «y» y la movió a la línea siguiente",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B24_p07_y789.jpg; recorte nativo p07 y789 (reproducible con pdftoppm -r 200 -f 7 -l 7 -x 833 -y 509 -W 867 -H 95)); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
   },
   {
     "articulo": "1 (B25, LECTURA_DE_IMAGEN)",

@@ -20,11 +20,11 @@ SHA_OCR = 'f2c67cb4a019a094cbacb4690323810e7215d0904297483b1a725a4dbb7fca0a'
 CANDIDATAS = {
     '977f0489225d5cdf058f852b43b0f8af87b5db30f3128828386fcd2c17066355': 'v1',
     '25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685': 'v2',
-    '35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd': 'v5',
+    'fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e': 'v5',
 }
 # La v5 ya no tiene saltos de página (\f): las páginas de cada artículo se toman de la v3, que sí los tiene y conserva los mismos artículos.
 V3 = LOTE / 'transcripcion_candidata/A04_transcripcion_candidata_v3.txt'
-SHA_V3 = '6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d'
+SHA_V3 = 'f70d874b4e2f787f4551c722eb776cceda00f0a109a8993683d7c9aa56583abd'
 
 # Correcciones firmadas por el CLO el 2026-11-16 (C01–C06), según la versión de la candidata.
 FIRMADAS = {
@@ -153,7 +153,7 @@ def main():
     else:
         v3 = V3.read_bytes().replace(b'\r\n', b'\n')
         if hashlib.sha256(v3).hexdigest() != SHA_V3:
-            sys.exit('la v3 de referencia de páginas no es 6b295894…')
+            sys.exit('la v3 de referencia de páginas no es f70d874b…')
         v3t = v3.decode('utf-8')
         a3 = articulos(v3t)
         assert [k for k, _, _ in a3] == [k for k, _, _ in ac], 'la serie de artículos difiere entre la v3 y la candidata'

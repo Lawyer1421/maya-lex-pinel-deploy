@@ -11,10 +11,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { transcribirSinEncabezados } from '../../../../../tools/corpus/transcripcion-gaceta';
 
-const SHA_V3 = '6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d';
+const SHA_V3 = 'f70d874b4e2f787f4551c722eb776cceda00f0a109a8993683d7c9aa56583abd';
 const aqui = dirname(fileURLToPath(import.meta.url));
 const base = readFileSync(process.argv[2]);
-if (createHash('sha256').update(base).digest('hex') !== SHA_V3) throw new Error('la base no es la v3 6b295894… (¿bytes CRLF? usar git show)');
+if (createHash('sha256').update(base).digest('hex') !== SHA_V3) throw new Error('la base no es la v3 f70d874b… (¿bytes CRLF? usar git show)');
 
 const t = transcribirSinEncabezados(base.toString('utf8'), '6 DE SEPTIEMBRE DEL 2013', '33,222', { variantesEspaciadas: true });
 writeFileSync(join(aqui, 'A04_transcripcion_candidata_v4.txt'), t.texto);

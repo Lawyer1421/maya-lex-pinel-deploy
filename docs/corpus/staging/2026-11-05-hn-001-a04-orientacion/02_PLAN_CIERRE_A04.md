@@ -127,3 +127,7 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 - Generadas la v3, la v4 y la **v5: `35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd`** (bytes LF). Conciliación exacta en cada paso.
 - Lista de cotejo regenerada sobre la v5.
 - Pendiente antes de la firma D3: ratificar los dos rangos de la pág. 1 y decidir sobre B24 (es legible en la imagen). Ver `03_RESOLUCION_TEXTUAL_A04.md` §4.
+
+### Actualización (2026-11-16, v5 definitiva)
+- El CLO ratificó los dos rangos de la pág. 1 y rectificó B24 a «la» (lectura de imagen). Quedan 15 lagunas.
+- Se regeneraron la v3 (`f70d874b…`), la v4 (`a81d0571…`) y la **v5 definitiva: `fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e`** (bytes LF). Sustituye a `35e16537…`.

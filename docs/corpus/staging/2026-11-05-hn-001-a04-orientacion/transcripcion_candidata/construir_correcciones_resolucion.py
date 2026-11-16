@@ -20,7 +20,8 @@ ESPECIALES = {
     'P03': ('1906, los\nuales se leerán', '1906, los\ncuales se leerán'),
     'P07': ('debidamente\níconocida, sus', 'debidamente\nreconocida, sus'),
     # B24: la capa de texto movió «la» (leída «y») al comienzo de la línea siguiente.
-    'B24': ('Niñez y\ny Familia (IHNFA), los', 'Niñez y [ilegible]\nFamilia (IHNFA), los'),
+    # Rectificado por el CLO (2026-11-16) de laguna a lectura de imagen: el recorte nativo muestra «…de la Niñez y la» completo.
+    'B24': ('Niñez y\ny Familia (IHNFA), los', 'Niñez y la\nFamilia (IHNFA), los'),
     # B84: la palabra cortada tras «y» no está en la v2; la laguna se inserta en su lugar.
     'B84': ('Niñez y\nFamilia (IHNFA) ordenando', 'Niñez y [ilegible]\nFamilia (IHNFA) ordenando'),
 }

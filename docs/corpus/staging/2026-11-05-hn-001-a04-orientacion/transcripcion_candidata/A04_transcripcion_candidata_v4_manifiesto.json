@@ -3,14 +3,14 @@
   "advertencia": "v4: la v3 sin encabezados de página. Aún conserva la cabecera y el sumario de la pág. 1 (paso 5).",
   "base": {
     "archivo": "A04_transcripcion_candidata_v3.txt",
-    "sha256_lf": "6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d"
+    "sha256_lf": "f70d874b4e2f787f4551c722eb776cceda00f0a109a8993683d7c9aa56583abd"
   },
   "edicion": {
     "fecha": "6 DE SEPTIEMBRE DEL 2013",
     "numero": "33,222"
   },
-  "transcripcion_sha256": "091c0871fb7ebaa598668ad40430c9ae54afb2e10bfae8cc85432c4b7bace2b9",
-  "caracteres": 178101,
+  "transcripcion_sha256": "a81d0571536ff5305dc4353b3c0957448453c689a26166856e12b12bad305d6b",
+  "caracteres": 178093,
   "lineas_quitadas": [
     {
       "linea": 83,
