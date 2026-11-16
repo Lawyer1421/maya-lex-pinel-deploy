@@ -129,8 +129,12 @@ En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo
 
 **Firma del cotejo**, necesaria para pasar `--cotejado-por` a la ingesta:
 «Cotejé la transcripción `ba75b190…36ca` contra las 16 páginas del PDF del TSC `a7eb221f…`, incluidos los artículos de la lista anterior y las 2 correcciones registradas.»
-☐ Conforme ☐ Con correcciones (se regeneran la transcripción y su hash).
-Nombre: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietario_despacho · Fecha: ____-__-__
+☑ **Conforme** ☐ Con correcciones (se regeneran la transcripción y su hash).
+
+**FIRMADO (15-nov-2026):** «Confirmo y firmo de conformidad el cotejo íntegro de los 39 artículos del Decreto Legislativo No. 284-2013 (`HN:DECRETO_284_2013`, Diario Oficial La Gaceta No. 33,445 del 5 de junio de 2014) contra las 16 páginas del PDF oficial del TSC (`a7eb221f…`), verificadas las correcciones de `143-2010` (art. 30) y `Público-Privada` (art. 27), bajo el hash SHA-256 definitivo `ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca`.»
+Firmante (texto de `--cotejado-por`): **Abg. y Not. Fredy Omar Pinel Flores — CLO / Director Maya Lex — 2026-11-15**
+
+Esta firma cubre el §3 (D3). D4–D8 (vigencia, art. 13, tipo de fuente, bloqueo CLO y promoción V4/V5) siguen sin firmar. Mientras no se firmen, las filas se cargan ocultas, sin vigencia y bloqueadas como solo contexto.
 
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
 
@@ -173,6 +177,21 @@ Base y límites:
      --transcripcion-sha256 ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca \
      --cotejado-por "<nombre, rol y fecha de la firma del §3>"
    ```
-3. **Staging** (`aicakncgtuiiuomflkqj`): el Titular aplica el SQL y un paso aparte llena los embeddings.
+3. **Staging** (`aicakncgtuiiuomflkqj`): el Titular aplica el SQL. Los embeddings se calculan aparte con `scripts/embeddings-lote-staging.ts`.
+
+   **Generado el 15-nov-2026, tras la firma del §3.** Los archivos están en `out/piloto-d284-2013/`, carpeta que no se versiona. Aplicar en este orden, solo en staging:
+
+   | Orden | Archivo | SHA-256 | Contenido |
+   |---|---|---|---|
+   | — | `rows.jsonl` | `637c7512052dd16e9c8f8bac259fc43020ccc700e34752dcf0e3b994b0db8ffc` | 39 filas (`PILOTO_D284_2013_01`), texto de la transcripción `ba75b190…36ca`, `cotejado_por` del firmante |
+   | 1 | `insert_staging.sql` | `c294ff59293bdd480721ff5189e596332828cb9b871ded97cdd64e326429b437` | 1 INSERT de 39 filas, `ON CONFLICT (id) DO NOTHING`: ocultas, vigencia NULL, embedding NULL |
+   | 2 | `update_embeddings_staging.sql` | `e02ef2bed8cca185dc820d501c87b246f301bfaffe0ae94e280a21519fe9a4e0` | 39 UPDATE en una transacción. Solo filas del lote sin embedding. Modelo `Xenova/multilingual-e5-small`, «passage:», 384 dimensiones |
+   | 3 | `verificacion_staging.sql` | `c20f93b1e5ea3c49ffe4c8681526fc3be29e94e20d79bd57e0cffa0eeea1bd54` | Solo lectura. Se esperan 39 en filas, con embedding, ocultas, vigencia NULL, `HN`, `HN:DECRETO_284_2013` y artículos distintos, y 0 visibles |
+
+   **Prueba de sentido de los embeddings** (consulta con «query:», como la búsqueda real):
+   - la derogación de los arts. 380–383 recupera el art. 37 en primer lugar;
+   - la vigencia recupera el art. 39 en primer lugar;
+   - la sociedad de un solo socio recupera el art. 5 en primer lugar;
+   - la ejecución ante notario recupera los arts. 16, 15 y 20.
 4. **Visibilidad y vigencia** (`revision_pendiente = false`, `es_norma_vigente` según D4): una escritura aparte, autorizada por el Titular.
 5. **Producción:** requiere una migración revisada y autorización expresa.
