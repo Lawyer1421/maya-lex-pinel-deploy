@@ -17,7 +17,8 @@ export type InstrumentoNormalizado =
   | 'LEY_JUSTICIA_CONSTITUCIONAL'
   | 'CONSTITUCION'
   | 'CODIGO_COMERCIO'
-  | 'DECRETO_284_2013';
+  | 'DECRETO_284_2013'
+  | 'DECRETO_35_2013';
 
 // Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
 // una fila real de la DB para confirmar que pertenece a ese instrumento.
@@ -57,6 +58,10 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   // Anclado al inicio y declarado al final: una fila del Código de Comercio que lo cite («…reformado por el Decreto 284-2013») sigue siendo
   // CODIGO_COMERCIO, y la fuente del decreto no contiene «Código de Comercio» ni «Constitución», cuyos patrones se evalúan antes.
   DECRETO_284_2013: /^\s*decreto\s+(?:legislativo\s+)?(?:n(?:o|º|°|[uú]mero)\.?\s*)?284\s*[-–]\s*2013\b/i,
+  // A04 (2026-11-16): reformas integrales en Familia y Niñez (La Gaceta 33,222). Mismo criterio que el D.284-2013: anclado al inicio. La fuente
+  // de la ingesta no nombra ningún código («Decreto 35-2013, reformas integrales en Familia y Niñez (La Gaceta 33,222)»), así que no la captura
+  // ningún patrón anterior; una fila del Código de Familia que cite «reformado por el Decreto 35-2013» conserva su identidad.
+  DECRETO_35_2013: /^\s*decreto\s+(?:legislativo\s+)?(?:n(?:o|º|°|[uú]mero)\.?\s*)?35\s*[-–]\s*2013\b/i,
 };
 
 /**

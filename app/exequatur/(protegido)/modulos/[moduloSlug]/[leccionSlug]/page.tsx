@@ -49,6 +49,7 @@ function etiquetaInstrumento(instrumento: CanonicalLegalReference['instrumento']
     CONSTITUCION: 'Constitución de la República',
     CODIGO_COMERCIO: 'Código de Comercio',
     DECRETO_284_2013: 'Decreto 284-2013',
+    DECRETO_35_2013: 'Decreto 35-2013',
   };
   return etiquetas[instrumento];
 }
