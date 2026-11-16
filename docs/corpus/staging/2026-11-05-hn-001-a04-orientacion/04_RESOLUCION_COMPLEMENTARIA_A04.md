@@ -6,7 +6,7 @@
 |---|---|
 | Base | v5 `A04_transcripcion_candidata_v5.txt`, SHA-256 (bytes LF) `fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e` |
 | PDF de cotejo | TSC, `FBD87F33…F2FF`, 46 págs., escaneo de 200 ppp (el oficial, sin otra resolución) |
-| Tabla | `RESOLUCION_COMPLEMENTARIA_A04.csv`: **464 cambios en 436 líneas** (K001–K464), con columna `decision_clo` vacía |
+| Tabla | `RESOLUCION_COMPLEMENTARIA_A04.csv`: **464 cambios en 436 líneas** (K001–K464), con la columna `decision_clo` **firmada en las 464 filas** por el CLO (Abg. y Not. Fredy Omar Pinel Flores, `propietario_despacho`, 2026-11-16): 458 en bloque y 6 expresas |
 | Correcciones (formato `aplicarCorrecciones`) | `transcripcion_candidata/correcciones_cotejo_complementaria.json`: 436, una por línea, cada `buscar` único en el orden de aplicación |
 | Recortes | `transcripcion_candidata/recortes_complementaria/`: 57 hojas por página (cada fila: «antes / después» y el renglón del PDF a 200 ppp) y `coordenadas.json` (orden `pdftoppm` de cada línea) |
 | v6 definitiva | 176 506 caracteres · SHA-256 (LF) `7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084` · generada tras la firma (`aplicar_correcciones_complementaria.ts`), coincide con la prevista |

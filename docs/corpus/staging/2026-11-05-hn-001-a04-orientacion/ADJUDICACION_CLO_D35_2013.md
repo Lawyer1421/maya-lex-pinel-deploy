@@ -1,6 +1,6 @@
 # Paquete de adjudicación CLO · Decreto 35-2013 (A04)
 
-**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2, D4–D8:** **PENDIENTES DE FIRMA (§7)** · **Vigencia propuesta:** TRUE_PRESUNTA desde el 6-sep-2013
+**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8 (V4→V5):** expresamente sin firmar · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
 
 > Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego y se fusione el cambio de D7, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
 
@@ -84,14 +84,14 @@ No afectan al texto, pero sí a cualquier matriz de reformas que se construya de
 
 | # | Decisión | Opciones | Propuesta |
 |---|---|---|---|
-| D1 | Procedencia | ☐ Acreditada ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado, tier 4), bytes `fbd87f33…`, descargada por el Bot Auditor por orden del CLO (§0) |
-| D2 | Identidad | ☐ Confirmada ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
+| D1 | Procedencia | ☒ **Acreditada** (firmado 16-nov-2026, §7) ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado, tier 4), bytes `fbd87f33…`, descargada por el Bot Auditor por orden del CLO (§0) |
+| D2 | Identidad | ☒ **Confirmada** (firmado 16-nov-2026, §7) ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
 | D3 | Texto que se carga | ☒ **(a) Transcripción cotejada v6** — firmada el 16-nov-2026 | — |
-| D4 | Vigencia | ☐ Aprobar la propuesta ☐ Visible solo como contexto (`NULL`) ☐ Modificar | Ver §5 |
-| D5 | Rol de los 19 artículos | ☐ Aprobar el reparto del §7 ☐ Modificar | Arts. 1–10 `CONTEXT`; arts. 11–19, disposiciones propias del decreto |
-| D6 | Tipo de fuente | ☐ `ley` ☐ Otro | `ley` |
-| D7 | Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` | ☐ Sí, en el orden de D7 ☐ No todavía | Ingesta en staging → visibilidad en staging → PR de `clo-guards.ts` |
-| D8 | Promoción | ☐ V3→V4 ☐ Rechazado | V3→V4. **V4→V5 expresamente sin firmar** |
+| D4 | Vigencia | ☒ **Aprobar la propuesta** (TRUE_PRESUNTA desde el 6-sep-2013, §7) ☐ Visible solo como contexto (`NULL`) ☐ Modificar | Ver §5 |
+| D5 | Rol de los 19 artículos | ☒ **Art. 11 también `CONTEXT`** (§7): arts. 1–11 `CONTEXT` (11); arts. 12–19 fuente principal (8) ☐ Modificar | Propuesta original: 10/9; el CLO eligió la alternativa 11/8 |
+| D6 | Tipo de fuente | ☒ **`ley`** ☐ Otro | `ley` |
+| D7 | Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` | ☒ **Sí, en el orden estricto de D7, solo en staging** (§7) ☐ No todavía | Ingesta en staging → visibilidad en staging → PR de `clo-guards.ts` |
+| D8 | Promoción | ☐ (casilla D8 sin firmar) · **V4→V5 expresamente sin firmar** | El rótulo V4 de las filas en staging se aplica por la autorización de D6–D7 (§7) |
 
 ## 5. Propuesta para D4 (vigencia)
 
@@ -103,7 +103,7 @@ Base y límites:
 3. **Límite:** en esta adjudicación **no se hizo una búsqueda externa nueva** de reformas del propio D.35-2013. La que se hizo para el D.284-2013 no lo cubre. Tampoco se consultó el registro del Congreso Nacional ni La Gaceta posterior a 2013. Por eso la vigencia es «presunta» y no «verificada». Si el CLO no lo acepta, la alternativa es `NULL`: visible, pero todo el decreto solo contexto.
 4. **Lo que sí se sabe que cambió después:** textos de los **códigos** reformados, no el decreto.
    - **C07:** el art. 21 de la Niñez, en la versión que transcribe el art. 1, fue derogado por el D.130-2017 (art. 632, num. 12). La Gaceta (34,940 o 39,940) y la fecha de efecto **no están cotejadas**. Ver `paquete-revision/EVENTOS_ARTICULO_21.md`.
-   - Por eso los arts. 1–10 son `CONTEXT` (D5) y **ninguna fila del decreto debe presentarse como texto vigente de los códigos** que reforma.
+   - Por eso los arts. 1–10 son `CONTEXT` (D5), igual que el art. 11 mientras esté pendiente su alcance derogatorio, y **ninguna fila del decreto debe presentarse como texto vigente de los códigos** que reforma.
 5. **Disposiciones agotadas:**
    - Los arts. 1–15 son modificatorios o derogatorios, y su efecto quedó incorporado en las leyes afectadas.
    - Los arts. 17 (180 días) y 18 (3 meses) fijan plazos vencidos.
@@ -138,26 +138,26 @@ npx tsx scripts/embeddings-lote-staging.ts out/a04-d35-2013/rows.jsonl out/a04-d
 | **1. Ingesta** | 1 | `insert_staging.sql` | `684273a82302bb34c8b1b1de5aba164d5fba0ba765665ab41daa3290997e560a` | 1 INSERT de 19 filas, `ON CONFLICT (id) DO NOTHING`: ocultas, vigencia NULL, embedding NULL |
 | | 2 | `update_embeddings_staging.sql` | `fdd8e57a267c053b29b88f5b344eb7495fca57f4d8a49bed5d5a1bb2e69345f3` | 19 UPDATE en una transacción. Modelo `Xenova/multilingual-e5-small`, «passage:», 384 dimensiones |
 | | 3 | `verificacion_staging.sql` | `4fdfce0ed01db7f32eb871108de39039c39cc709d53932ff12ef3094ff56ff85` | Solo lectura: 19 en todas las columnas (incl. `norm_id = HN:DECRETO_35_2013`) y **0 visibles** |
-| **2. Visibilidad** | 4 | `visibilidad_staging.sql` | `91cc8e064426d833c281545d1e25cc6c60df34601854935abe7b4b4551518e37` | Bloque atómico (§7): 19 visibles, `TRUE_PRESUNTA`, V4; 10 `CONTEXT` (arts. 1–10); constancias en los arts. 1 y 11; se aborta si los conteos no son exactos. Incluye la verificación y la reversión |
-| **3. Código** | 5 | `d7/D7_clo_guards_DECRETO_35_2013.patch` (versionado) | `36ec972d13113a33af9e449188b0ced8d0d10ac2ee69bc49e10be29fe8d4e302` | Quita `DECRETO_35_2013` de `INSTRUMENTOS_SOLO_CONTEXT` y adapta `tests/d35-2013-catalogo.test.ts`. Se aplica en un PR aparte, **después** de la constancia de visibilidad, con la evidencia G6 regenerada en `C:\wtlf` |
+| **2. Visibilidad** | 4 | `visibilidad_staging.sql` | `597ec161e16d04dbd75ea6bb2b85b322b4fd5ca794cec87c910b80fa208bd999` | Bloque atómico (§7): 19 visibles, `TRUE_PRESUNTA`, V4; **11 `CONTEXT` (arts. 1–11)**; constancias `INTERPRETACION_PENDIENTE_CLO` en los arts. 1 y 11; se aborta si los conteos no son exactos. Incluye la verificación y la reversión. Regenerado el 16-nov-2026 tras la firma (sustituye a `91cc8e06…`, que tenía el reparto 10/9) |
+| **3. Código** | 5 | `d7/D7_clo_guards_DECRETO_35_2013.patch` (versionado) | `55c1991d2f07155e8b93c68d5caebcccb747c44742dc0666f6da7f2b2a60239c` | Actualizado al reparto 11/8 (sustituye a `36ec972d…`). Quita `DECRETO_35_2013` de `INSTRUMENTOS_SOLO_CONTEXT` y adapta `tests/d35-2013-catalogo.test.ts`. Se aplica en un PR aparte, **después** de la constancia de visibilidad, con la evidencia G6 regenerada en `C:\wtlf` |
 
-El parche se probó y luego se revirtió en esta rama: `git apply --check` limpio y 62/62 pruebas con él aplicado. **El código de esta rama sigue bloqueando el decreto**, como exige el orden de D7.
+El parche se probó y luego se revirtió en esta rama: `git apply --check` limpio y 50/50 (d35-2013-catalogo y d284-2013-pilot) pruebas con él aplicado. **El código de esta rama sigue bloqueando el decreto**, como exige el orden de D7.
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
-> Propuestas técnicas de Claude. **No son revisión jurídica ni aprueban nada.** Cada casilla la marca el CLO. Mientras esta hoja no esté firmada, no se ejecuta ninguna escritura en ninguna base.
+> Propuestas técnicas de Claude (no son revisión jurídica). **Las casillas marcadas (☒) son las firmadas por el CLO el 16-nov-2026.**
 
 ### D1 · Procedencia
 **Propuesta:** acreditada (§0).
-☐ Acreditada ☐ No acreditada
+☒ **Acreditada.** Procedencia oficial institucional del TSC: `www.tsc.gob.hn`, `FBD87F3396E5D0B6601A246008A1AE5BD870841B795D75AC42076245A154F2FF`, tier 4, descarga del 2026-11-16 09:26:55 CST / 15:26:55 UTC ☐ No acreditada
 
 ### D2 · Identidad
 **Propuesta:** confirmada (§1).
-☐ Confirmada ☐ Rechazada
+☒ **Confirmada** ☐ Rechazada
 
 ### D4 · Vigencia
 **Propuesta:** la declaración del §5, **TRUE_PRESUNTA desde el 6-sep-2013** (art. 19), con `es_norma_vigente = true` en las 19 filas.
-☐ Aprobar la propuesta ☐ Visible solo como contexto (`NULL`) ☐ Modificar: ______
+☒ **Aprobar la propuesta** (`TRUE_PRESUNTA` desde el 6-sep-2013, La Gaceta 33,222), con la constancia del §5 de que no se efectuó búsqueda externa posterior de reformas del propio decreto ☐ Visible solo como contexto (`NULL`) ☐ Modificar: ______
 
 ### D5 · Reparto de los 19 artículos
 **Propuesta:** una fila por artículo del decreto (19). No se crean versiones nuevas de los códigos; eso es un trabajo aparte, con su propio pliego.
@@ -176,11 +176,15 @@ El parche se probó y luego se revirtió en esta rama: `git apply --check` limpi
 
 **Límite (el mismo del D.284):** la marca `rol` la lee el resolutor exacto. En la ruta semántica solo surte efecto si la RPC devuelve `metadata_clo` (propuesta no aplicada).
 
-☐ Aprobar (arts. 1–10 `CONTEXT`; 11–19 del decreto; constancias en los arts. 1 y 11) ☐ Aprobar con el art. 11 también `CONTEXT` ☐ Modificar: ______
+☐ Aprobar (arts. 1–10 `CONTEXT`; 11–19 del decreto; constancias en los arts. 1 y 11) ☒ **Aprobar con el art. 11 también `CONTEXT`** ☐ Modificar: ______
+
+**Reparto firmado:**
+- **11 `CONTEXT`:** arts. 1–10, que reforman o adicionan el Código de la Niñez, el de Familia, el Civil, el Penal, el Procesal Penal y la Ley contra la Violencia Doméstica, **más el art. 11**. Este queda como contexto mientras esté pendiente el contraste derogatorio de los arts. 134 y 141 del D.73-96 (`INTERPRETACION_PENDIENTE_CLO`). La constancia C07 va en el art. 1.
+- **8 fuente principal del decreto:** arts. 12–19, que son derogaciones propias y disposiciones transitorias, de armonización, de divulgación y de vigencia.
 
 ### D6 · Tipo de fuente
 **Propuesta:** `ley`, que ya tienen las 19 filas.
-☐ `ley` ☐ Otro: ______
+☒ **`ley`** ☐ Otro: ______
 
 ### D7 · Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO`
 **Propuesta:** sí, en tres tiempos y en este orden estricto (§6):
@@ -189,15 +193,30 @@ El parche se probó y luego se revirtió en esta rama: `git apply --check` limpi
 3. **Cambio de código:** PR con el parche de `clo-guards.ts`, las pruebas y la evidencia G6.
 
 Hasta que ese PR se fusione y se despliegue, las filas visibles siguen siendo solo contexto.
-☐ Sí, en el orden de D7 ☐ No todavía
+☒ **Sí, en el orden estricto de D7, únicamente en `mayalexhn-staging` (V4):**
+1. `insert_staging.sql`, los embeddings y la verificación, que debe dar 19 filas ocultas.
+2. `visibilidad_staging.sql`, que debe verificar 19 visibles, 11 `CONTEXT` y 2 constancias.
+3. Por último, el parche de `clo-guards.ts`.
+
+☐ No todavía
 
 ### D8 · Promoción
 **Propuesta:** **V3→V4** (revisión profesional) con D1–D7 resueltas. En las filas: `metadata.estado_v = "V4"` y `metadata.adjudicacion = "ADJUDICACION_CLO_D35_2013 §7"`. **V4→V5** (producción) **no** se firma en esta hoja: requiere una migración revisada hacia producción y una autorización expresa aparte.
-☐ V3→V4 · V4→V5 **expresamente sin firmar** ☐ Rechazado
+☐ (casilla D8 sin firmar) · **V4→V5 (producción) expresamente sin firmar** ☐ Rechazado
+> El CLO firmó D1, D2 y D4–D7 y mantuvo D8 sin firmar. El estado `V4` que la escritura de visibilidad graba en las filas de staging se apoya en la autorización expresa de D6–D7 («visibilidad controlada únicamente en `mayalexhn-staging` (V4)»). No hay ninguna autorización hacia producción.
 
 ### Firma
 «Como CLO/Director, adjudico el Decreto 35-2013 (`HN:DECRETO_35_2013`) según las casillas marcadas en D1, D2 y D4–D8 de esta hoja, y autorizo la ingesta y la escritura de visibilidad **solo en staging** (`aicakncgtuiiuomflkqj`), en el orden de D7.»
 
-Nombre: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietario_despacho · Fecha: ____-__-__
+Nombre: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_senior ☒ **propietario_despacho** (CLO / Director Maya Lex) · Fecha: **2026-11-16**
+
+**FIRMADO (16-nov-2026):** el Titular aprobó y firmó expresamente:
+- D1 y D2;
+- D4, con la constancia del §5;
+- D5, con el art. 11 también `CONTEXT`: 11 de contexto y 8 principales;
+- D6;
+- D7, en orden estricto y solo en staging.
+
+D3 ya estaba firmado sobre la v6 `7c8f40f8…`, con 176,506 caracteres, 19 artículos en serie, 15 lagunas `[ilegible]` y los 16 saltos impresos del art. 14. **D8 (V4→V5) queda expresamente sin firmar.** Producción no se toca.
 
 Texto previsto de `adjudicado_por` en las filas: **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**

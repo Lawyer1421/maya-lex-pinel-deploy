@@ -1,5 +1,5 @@
 diff --git a/lib/legal-retrieval/clo-guards.ts b/lib/legal-retrieval/clo-guards.ts
-index 065cef0..01ad47f 100644
+index 065cef0..9aba0ca 100644
 --- a/lib/legal-retrieval/clo-guards.ts
 +++ b/lib/legal-retrieval/clo-guards.ts
 @@ -97,8 +97,9 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
@@ -10,12 +10,12 @@ index 065cef0..01ad47f 100644
 -  DECRETO_35_2013: 'INSTRUMENTO_SIN_PLIEGO_CLO',
 +  // D.35-2013: retirado de esta lista por la adjudicación CLO (D7, firmada por el propietario_despacho; ADJUDICACION_CLO_D35_2013.md §7 en
 +  // docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/), DESPUÉS de la ingesta y de la visibilidad en staging. Sus filas pueden ser PRIMARY
-+  // solo si cumplen los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 1–10 siguen como CONTEXT por su metadata.rol (D5).
++  // solo si cumplen los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 1–11 siguen como CONTEXT por su metadata.rol (D5: 1–10 modificatorios; 11 por INTERPRETACION_PENDIENTE_CLO).
  });
  
  /** Instrumentos normativos notariales: las filas 03_NOTARIAL con otra identidad (protocolo y práctica) no son norma. */
 diff --git a/tests/d35-2013-catalogo.test.ts b/tests/d35-2013-catalogo.test.ts
-index b09d17e..41dbacb 100644
+index b09d17e..b6948a9 100644
 --- a/tests/d35-2013-catalogo.test.ts
 +++ b/tests/d35-2013-catalogo.test.ts
 @@ -50,29 +50,45 @@ describe('catálogo: DECRETO_35_2013', () => {
@@ -33,14 +33,14 @@ index b09d17e..41dbacb 100644
 +    expect(INSTRUMENTOS_SOLO_CONTEXT.DECRETO_35_2013).toBeUndefined();
 +  });
 +
-+  it.each(['11', '12', '13', '14', '15', '16', '17', '18', '19'])('D5: el art. %s (disposición propia del decreto), vigente y HN, es PRIMARY', (art) => {
++  it.each(['12', '13', '14', '15', '16', '17', '18', '19'])('D5: el art. %s (disposición propia del decreto), vigente y HN, es PRIMARY', (art) => {
 +    const c = clasificarFragmentoClo({ ...vigente, num_articulo: art, metadata: { norm_id: 'HN:DECRETO_35_2013' } });
      expect(c.instrumentId).toBe('DECRETO_35_2013');
 +    expect(c.bloqueos).toEqual([]);
 +    expect(c.rol).toBe('PRIMARY');
 +  });
 +
-+  it.each(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])('D5: el art. %s (transcribe texto de otra ley) sigue CONTEXT por su metadata.rol', (art) => {
++  it.each(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'])('D5: el art. %s (texto de otra ley, o art. 11 con INTERPRETACION_PENDIENTE_CLO) sigue CONTEXT por su metadata.rol', (art) => {
 +    const c = clasificarFragmentoClo({ ...vigente, num_articulo: art, metadata: { norm_id: 'HN:DECRETO_35_2013', rol: 'CONTEXT', motivo_rol: 'DISPOSICION_MODIFICATORIA' } });
      expect(c.rol).toBe('CONTEXT');
 -    expect(c.bloqueos).toEqual(['INSTRUMENTO_SIN_PLIEGO_CLO']);
