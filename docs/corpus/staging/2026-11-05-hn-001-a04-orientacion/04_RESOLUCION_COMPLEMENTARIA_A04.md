@@ -1,6 +1,6 @@
 # A04 · D.35-2013 · Resolución textual complementaria (previa a la v6 y a la firma D3)
 
-**Estado: PENDIENTE DE FIRMA DEL CLO.** Ninguna corrección de esta tabla está aplicada. La v5 (`fa47cc72…`) sigue siendo el último texto generado, pero **no se firma D3 sobre ella**.
+**Estado: FIRMADA por el CLO el 2026-11-16 (aprobación completa, §7) y APLICADA: v6 `7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084`.** La v5 (`fa47cc72…`) queda sustituida y la firma D3 se asienta sobre la v6 (`transcripcion_candidata/LISTA_COTEJO_D3_A04.md`).
 
 | Dato | Valor |
 |---|---|
@@ -9,7 +9,7 @@
 | Tabla | `RESOLUCION_COMPLEMENTARIA_A04.csv`: **464 cambios en 436 líneas** (K001–K464), con columna `decision_clo` vacía |
 | Correcciones (formato `aplicarCorrecciones`) | `transcripcion_candidata/correcciones_cotejo_complementaria.json`: 436, una por línea, cada `buscar` único en el orden de aplicación |
 | Recortes | `transcripcion_candidata/recortes_complementaria/`: 57 hojas por página (cada fila: «antes / después» y el renglón del PDF a 200 ppp) y `coordenadas.json` (orden `pdftoppm` de cada línea) |
-| v6 que resultaría | 176 506 caracteres · SHA-256 (LF) `7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084` · **solo informativo, no firmado** |
+| v6 definitiva | 176 506 caracteres · SHA-256 (LF) `7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084` · generada tras la firma (`aplicar_correcciones_complementaria.ts`), coincide con la prevista |
 | Reproducible | `python -I -X utf8 transcripcion_candidata/construir_correcciones_complementaria.py <v5 LF> <v3 LF>` (se detiene si la base no es `fa47cc72…` o si un texto esperado no está en su línea) |
 
 ## 1. Por qué existe esta tabla
@@ -104,16 +104,19 @@ Lo cubre `tests/segmentacion-serie-correlativa.test.ts`: 19 artículos (1–19) 
 
 | Casilla | Alcance | Decisión |
 |---|---|---|
-| G1 | Aplicar en el art. 6 las 7 lecturas ya aprobadas (K001–K007) | ☐ Aprobado ☐ Rechazado |
-| G2 | Borde izquierdo de la pág. 45 (K008–K014) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G3 | Finales del borde derecho con letra visible (193 casos, K015–K211 salvo los 4 de §3.2) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G3-CTX | K024 «le» · K131 «las» · K160 «al» · K209 «y» | ☐ K024 ☐ K131 ☐ K160 ☐ K209 (marcar los aprobados; el resto pasa a `[ilegible]`) |
-| G4 | Reubicación de las palabras del canal (K212–K250) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G5 | Errores sueltos del OCR (K251–K282) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G6 | Ñ y tildes (K283–K402) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G7 | Unir letras espaciadas (K403–K432) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G8 | Ruido del escaneo (K433–K443) | ☐ Aprobado en bloque ☐ Con excepciones: ____ |
-| G9 | Quitar el recuadro editorial de la pág. 2 y los dos encabezados residuales (K444–K462) | ☐ Aprobado ☐ Rechazado |
-| G10 | Pie de la pág. 36 (K463 y K464) | ☐ K463 ☐ K464 (los no aprobados pasan a `[ilegible]`) |
+| G1 | Aplicar en el art. 6 las 7 lecturas ya aprobadas (K001–K007) | ☒ Aprobado |
+| G2 | Borde izquierdo de la pág. 45 (K008–K014) | ☒ Aprobado en bloque |
+| G3 | Finales del borde derecho con letra visible (193 casos, K015–K211 salvo los 4 de §3.2) | ☒ Aprobado en bloque |
+| G3-CTX | K024 «le» · K131 «las» · K160 «al» · K209 «y» (LECTURA_POR_CONTEXTO_CLO) | ☒ K024 ☒ K131 ☒ K160 ☒ K209 (aprobación expresa de los cuatro) |
+| G4 | Reubicación de las palabras del canal (K212–K250) | ☒ Aprobado en bloque |
+| G5 | Errores sueltos del OCR (K251–K282) | ☒ Aprobado en bloque |
+| G6 | Ñ y tildes (K283–K402) | ☒ Aprobado en bloque |
+| G7 | Unir letras espaciadas (K403–K432) | ☒ Aprobado en bloque |
+| G8 | Ruido del escaneo (K433–K443) | ☒ Aprobado en bloque |
+| G9 | Quitar el recuadro editorial de La Gaceta de la pág. 2 y los dos encabezados residuales (K444–K462) | ☒ Aprobado |
+| G10 | Pie de la pág. 36 (K463 y K464) | ☒ K463 ☒ K464 (aprobación expresa de los dos) |
+| Lagunas | Las 15 lagunas `[ilegible]` firmadas el 2026-11-16 | ☒ Se mantienen intactas (sin reapertura) |
 
-Firma: ______________________ · Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex) · Fecha: __________
+**Resultado:** 464 de 464 casillas aprobadas (458 en bloque y 6 expresas), sin excepciones. Constan en la columna `decision_clo` de `RESOLUCION_COMPLEMENTARIA_A04.csv`.
+
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: **propietario_despacho** (CLO / Director Maya Lex) · Fecha: **2026-11-16**

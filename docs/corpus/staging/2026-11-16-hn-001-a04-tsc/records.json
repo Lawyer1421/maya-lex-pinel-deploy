@@ -1,0 +1,40 @@
+[
+  {
+    "id": "PKG_DECRETO_35_2013_REFORMA_AL_CODIGO_DE_LA_NINEZ",
+    "country": "HN",
+    "jurisdiction": "NACIONAL",
+    "matter": "UNKNOWN",
+    "title": "Decreto 35-2013 (reforma al Código de la Niñez)",
+    "decree": "35-2013",
+    "publication": "UNKNOWN",
+    "gaceta_number": "33,222",
+    "gaceta_date": "UNKNOWN",
+    "effective_date": "UNKNOWN",
+    "official_url": "https://www.tsc.gob.hn/web/leyes/Codigo_niñezyadolescencia_2013.pdf",
+    "pdf_sha256": "fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff",
+    "text_sha256": "f2c67cb4a019a094cbacb4690323810e7215d0904297483b1a725a4dbb7fca0a",
+    "source": "www.tsc.gob.hn",
+    "source_tier": 4,
+    "articles": [],
+    "reforms": [],
+    "derogations": [],
+    "interpretations": [],
+    "constitutional_effects": [],
+    "version": 1,
+    "verification_state": "PENDING_VERIFICATION",
+    "ingestion_state": "HUMAN_VERIFICATION",
+    "presence": "UNKNOWN",
+    "outdated": false,
+    "measures": {
+      "rows": null,
+      "distinct_articles": null
+    },
+    "approvals": [],
+    "notes": [
+      "Importado de paquete externo (retriever=Bot Auditor, por orden expresa del CLO/Director Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho): PowerShell Invoke-WebRequest en el equipo local del CLO, 2026-11-16 09:26:55 hora de Honduras (15:26:55 UTC), método=CURL, retrieved_at=2026-11-16T15:26:55.000Z).",
+      "SOURCE_VALIDATED: dominio verificado en el registro; NO es autoridad hasta CORPUS_QA → CLO → V4/V5.",
+      "document_type=REFORM",
+      "STAGING: CLO_PENDING"
+    ]
+  }
+]

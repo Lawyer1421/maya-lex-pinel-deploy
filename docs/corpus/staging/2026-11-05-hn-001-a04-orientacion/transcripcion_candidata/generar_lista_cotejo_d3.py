@@ -21,6 +21,7 @@ CANDIDATAS = {
     '977f0489225d5cdf058f852b43b0f8af87b5db30f3128828386fcd2c17066355': 'v1',
     '25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685': 'v2',
     'fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e': 'v5',
+    '7c8f40f844cc30f28f7bf6448151e995ed2df88bc3050a6f5b252a39709ce084': 'v6',
 }
 # La v5 ya no tiene saltos de página (\f): las páginas de cada artículo se toman de la v3, que sí los tiene y conserva los mismos artículos.
 V3 = LOTE / 'transcripcion_candidata/A04_transcripcion_candidata_v3.txt'
@@ -47,6 +48,14 @@ FIRMADAS = {
         6: 'C06: lectura dual «11»/«511» (sin cambio); pág. 41 resuelta (LECTURA_POR_CONTEXTO_CLO)',
         10: 'C01 aplicada',
         11: 'C02 aplicada',
+        14: 'C03 aplicada; saltos de la lista verificados en el impreso',
+    },
+    'v6': {
+        1: 'Resolución complementaria aplicada (G3–G9; recuadro editorial de la pág. 2 retirado)',
+        5: 'C04 y C05 aplicadas; resolución del 2026-11-16 y complementaria aplicadas',
+        6: 'C06: lectura dual «11»/«511» (sin cambio); pág. 41 resuelta y aplicada en el art. 6 (G1)',
+        10: 'C01 aplicada',
+        11: 'C02 aplicada; borde izquierdo de la pág. 45 (G2)',
         14: 'C03 aplicada; saltos de la lista verificados en el impreso',
     },
 }
