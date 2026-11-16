@@ -55,3 +55,35 @@ describe('transcripción candidata de La Gaceta: solo se quitan encabezados de p
     }
   });
 });
+
+import { aplicarCorrecciones, type CorreccionCotejo } from '@/tools/corpus/transcripcion-gaceta';
+describe('correcciones de cotejo: la única vía para cambiar una palabra del texto base', () => {
+  const base = transcribirSinEncabezados('ARTÍCULO 30.- … contenida en el Decreto Legislativo No. 1432010 y sus reformas.\n', FECHA, NUM);
+  const c: CorreccionCotejo = {
+    articulo: '30', pagina_pdf: 15, buscar: 'No. 1432010', reemplazar: 'No. 143-2010',
+    motivo: 'Guion de fin de renglón perdido; la imagen dice 143-2010', detectado_por: 'Titular, cotejo visual',
+  };
+  it('aplica la corrección, registra su línea y cambia el hash', () => {
+    const r = aplicarCorrecciones(base, [c]);
+    expect(r.texto).toContain('No. 143-2010');
+    expect(r.texto).not.toContain('1432010');
+    expect(r.aplicadas).toEqual([{ ...c, linea: 1 }]);
+    expect(r.sha256).not.toBe(base.sha256);
+    expect(r.sha256).toBe(createHash('sha256').update(r.texto, 'utf8').digest('hex'));
+  });
+  it('se detiene si el texto a buscar no aparece o aparece más de una vez', () => {
+    expect(() => aplicarCorrecciones(base, [{ ...c, buscar: 'No. 9999' }])).toThrow(/aparece 0 veces/);
+    const doble = transcribirSinEncabezados('No. 1432010 y No. 1432010\n', FECHA, NUM);
+    expect(() => aplicarCorrecciones(doble, [c])).toThrow(/aparece 2 veces/);
+  });
+  it('exige motivo, autor, página y un reemplazo distinto', () => {
+    for (const malo of [{ ...c, motivo: '' }, { ...c, detectado_por: '' }, { ...c, pagina_pdf: 0 }, { ...c, reemplazar: c.buscar }]) {
+      expect(() => aplicarCorrecciones(base, [malo])).toThrow(/incompleta/);
+    }
+  });
+  it('sin correcciones el texto y el hash no cambian', () => {
+    const r = aplicarCorrecciones(base, []);
+    expect(r.texto).toBe(base.texto);
+    expect(r.sha256).toBe(base.sha256);
+  });
+});

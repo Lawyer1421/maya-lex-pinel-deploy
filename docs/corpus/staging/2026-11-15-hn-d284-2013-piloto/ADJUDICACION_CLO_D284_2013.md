@@ -52,19 +52,29 @@
 
 **Documento oficial al que se liga:** PDF del TSC, SHA-256 `A7EB221FDEFF8977AE9CF907F926797B8D45CD7D90DC93ECE7E32EE3581EDEE4`, 16 páginas, La Gaceta N.º 33,445 del 5-jun-2014.
 
-**Transcripción candidata:** [`transcripcion/transcripcion_candidata.txt`](transcripcion/transcripcion_candidata.txt) · 48,366 caracteres · SHA-256 **`def44e4872182d34ec52cffaff1141bceb636c9a968c31a5b7931dcf2dc8b74e`** · manifiesto en `transcripcion/transcripcion_manifiesto.json`.
-- **Base:** el texto de la copia del Drive (`ea81bfa6…`, misma edición de La Gaceta), que en los puntos ya comprobados coincide con la imagen oficial (arts. 37, 38 y 39, pág. 16).
-- **Único cambio sobre la base:** se quitaron **112 líneas de encabezado de página** (7 por página × 16: número de página, «La Gaceta», «REPÚBLICA DE HONDURAS - TEGUC…», «Sección A Acuerdos y Leyes», «…GALPA, M. D. C., 5 DE JUNIO DEL 2014», «No. 33,445» y el rótulo «A.»). Todas quedan listadas en el manifiesto. No se corrigió ni se adivinó ninguna palabra.
-- **La ingesta exige este hash exacto** (`--transcripcion-sha256`) y que el PDF sea el del TSC (`a7eb221f…`). Si una sola letra de la transcripción cambia tras su firma, se detiene.
+**Transcripción candidata:** [`transcripcion/transcripcion_candidata.txt`](transcripcion/transcripcion_candidata.txt) · 48,368 caracteres · SHA-256 **`ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca`**. Sustituye a `def44e48…`, que no se debe firmar. Manifiesto en `transcripcion/transcripcion_manifiesto.json`.
+- **Base:** el texto de la copia del Drive (`ea81bfa6…`, misma edición de La Gaceta).
+- **Encabezados:** se quitaron **112 líneas de encabezado de página** (7 por página × 16), todas listadas en el manifiesto.
+- **Correcciones de cotejo** (`transcripcion/correcciones_cotejo.json`, aplicadas solo si el texto buscado aparece exactamente una vez y registradas en el manifiesto con su línea):
+
+| Art. | Pág. PDF TSC | Línea | Decía (texto base) | Dice ahora (imagen) | Causa |
+|---|---|---:|---|---|---|
+| 27 (art. 29 reformado de la Ley APP) | 14 | 923 | «Superintendencia de Alianza PúblicoPrivada» | «… Público-Privada» | Guion al final de renglón eliminado al unir renglones |
+| 30 | 15 | 984 | «Decreto Legislativo No. 1432010» | «… No. 143-2010» | Ídem («No. 143-» / «2010»; confirmado en la imagen) |
+
+  Detectadas por el Titular en el cotejo visual. Confirmadas en el OCR con posiciones del PDF del TSC: son las únicas 2 palabras de las 4 que terminan en guion a final de renglón donde el guion es real; las otras 2, «físi-» y «pér-» (pág. 4), son divisiones silábicas bien unidas. Tampoco hay en el texto otra palabra que aparezca sin guion en un lugar y con guion en otro.
+- **La ingesta exige este hash exacto** (`--transcripcion-sha256`) y que el PDF sea el del TSC (`a7eb221f…`). Si una sola letra cambia tras la firma, se detiene.
 
 ### Lista de cotejo visual
 
-Se compara, palabra por palabra, el **OCR del PDF del TSC** con la **transcripción candidata**, ambos sin encabezados de página:
+Se compara, palabra por palabra **y conservando los guiones**, el **OCR del PDF del TSC** con la **transcripción candidata**, ambos sin encabezados de página:
 - **28 artículos** con diferencias de texto;
-- **2 artículos** (10 y 24) con diferencias **solo de espacios**: la capa OCR pega palabras;
+- **2 artículos** (10 y 24) con diferencias **solo de espacios**;
 - **9 artículos** idénticos: 7, 15, 19, 25, 28, 29, 34, 35 y 36.
 
-En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo que dice la transcripción; «∅» significa que falta. **Lo que hay que comprobar en cada caso es que la imagen de la página indicada diga lo de la derecha.** La página es la del PDF del TSC (1 a 16).
+En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo que dice la transcripción; «∅» significa que falta. **Hay que comprobar que la imagen de la página indicada diga lo de la derecha.**
+
+> **Importante:** que el OCR y la transcripción coincidan **no prueba** que el texto sea correcto. Los errores de los arts. 27 y 30 estaban en las dos copias y por eso la lista anterior no los mostró. Además, la comparación anterior ignoraba los guiones; esta los conserva. El cotejo visual cubre **todo** el texto, incluidos los 9 artículos idénticos.
 
 | Art. | Pág. PDF TSC | Tipo | N.º | Diferencias (OCR TSC → transcripción) |
 |---|---|---|---:|---|
@@ -94,10 +104,10 @@ En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo
 | 24 | 11 | solo espacios | 1 | «aun» → «a un» |
 | 25 | 11 | igual | 0 | — |
 | 26 | 11–14 | texto | 26 | «21,40,42,43,» → «21, 40, 42, 43,»; «51 -2011» → «51-2011»; «17-A.-Aún» → «17-A.- Aún»; «. , e l e» → «∅»; «d» → «de»; «contrat» → «contrato»; «hast» → «hasta»; «u» → «un»; «viabilida» → «viabilidad»; «incorporació» → «incorporación»; «d» → «de»; «n» → «no»; «d» → «de»; «cuyosfinesprincipale» → «cuyos fines principales»; «,» → «∅»; «losfinesa» → «los fines a»; «parafinesespecíficos» → «para fines específicos»; «subcontratado» → «subcontratarlo»; «par» → «para»; «co» → «con»; «s» → «su»; «A. 35» → «∅»; «afinde» → «a fin de»; «permanent» → «permanente»; «Afinde» → «A fin de»; «de» → «del» |
-| 27 | 14–15 | texto | 4 | «serfijadomediante» → «ser fijado mediante»; «dichosfideicomisosservirá» → «dichos fideicomisos servirá»; «irifraestructura» → «infraestructura»; «A. ÜJ» → «∅» |
+| 27 | 14–15 | texto | 5 | «PúblicoPrivada,» → «Público-Privada,»; «serfijadomediante» → «ser fijado mediante»; «dichosfideicomisosservirá» → «dichos fideicomisos servirá»; «irifraestructura» → «infraestructura»; «A. ÜJ» → «∅» |
 | 28 | 15 | igual | 0 | — |
 | 29 | 15 | igual | 0 | — |
-| 30 | 15 (entre los arts. 29 y 31; comienzo cortado en el OCR) | texto | 4 | «Consej» → «Consejo»; «e» → «en»; «29,31» → «29, 31»; «a , a a e o» → «∅» |
+| 30 | 15 (entre los arts. 29 y 31; comienzo cortado en el OCR) | texto | 5 | «Consej» → «Consejo»; «e» → «en»; «29,31» → «29, 31»; «1432010» → «143-2010»; «a , a a e o» → «∅» |
 | 31 | 15 | texto | 2 | «d» → «de»; «e» → «en» |
 | 32 | 15 | texto | 4 | «Secretarí ón» → «Secretaría»; «entenders n,» → «entenderse»; «Naciona e» → «Nacional»; «o» → «∅» |
 | 33 | 15 | texto | 14 | «l» → «lo»; «d e» → «de»; «quiene o» → «quienes»; «descrito» → «descritos»; «o» → «∅»; «d» → «de»; «Apartir» → «A partir»; «vigenci» → «vigencia»; «proceso jo» → «procesos»; «n en» → «∅»; «a» → «la»; «afinde» → «a fin de»; «la -» → «las»; «∅» → «a» |
@@ -109,13 +119,17 @@ En cada diferencia, «izquierda» es lo que dice el OCR del TSC y «derecha» lo
 | 39 | 16 | texto | 2 | «∅» → «a»; «día» → «días» |
 
 **Observaciones para el cotejo:**
-- **Arts. 13 y 26:** concentran 62 diferencias (36 y 26) porque transcriben artículos de otras leyes. Casi todas son palabras cortadas en el borde de la columna o pegadas por el OCR.
-- **Art. 38 (pág. 16):** es la única diferencia ya comprobada que cambia un número con efecto jurídico («5» → «54»). Conviene revisar con el mismo cuidado **todas las cifras** de las listas de artículos de los arts. 13, 14, 26, 27, 37 y 38.
+- **Arts. 13 y 26:** concentran la mayor parte de las diferencias porque transcriben artículos de otras leyes. Casi todas son palabras cortadas en el borde de la columna o pegadas por el OCR.
+- **Diferencias con efecto jurídico ya comprobadas:** son **tres**, no una.
+  - **art. 38** («5» → «54», pág. 16): artículo derogado;
+  - **art. 30** («1432010» → «143-2010», pág. 15): número de decreto;
+  - **art. 27** («PúblicoPrivada» → «Público-Privada», pág. 14): denominación de la Superintendencia.
+- **Cifras:** conviene revisar con el mismo cuidado todas las cifras y números de decreto de los arts. 13, 14, 26, 27, 30, 37 y 38.
 - **Diferencias marcadas con ∅:** son restos de ruido del escaneo («A. ÜJ», «n i o»…), no texto de la ley.
 
 **Firma del cotejo**, necesaria para pasar `--cotejado-por` a la ingesta:
-«Cotejé la transcripción `def44e48…` contra las 16 páginas del PDF del TSC `a7eb221f…`, incluidos los artículos de la lista anterior.»
-☐ Conforme ☐ Con correcciones (se regenera la transcripción y su hash).
+«Cotejé la transcripción `ba75b190…36ca` contra las 16 páginas del PDF del TSC `a7eb221f…`, incluidos los artículos de la lista anterior y las 2 correcciones registradas.»
+☐ Conforme ☐ Con correcciones (se regeneran la transcripción y su hash).
 Nombre: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietario_despacho · Fecha: ____-__-__
 
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
@@ -124,7 +138,7 @@ Nombre: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietari
 |---|---|---|---|
 | D1 | Procedencia | ☐ Acreditada ☐ No acreditada | **Acreditada:** copia del TSC (dominio verificado), bytes `a7eb221f…`, descargada por el propietario (§0) |
 | D2 | Identidad | ☐ Confirmada ☐ Rechazada | **Confirmada:** título, número, Gaceta, sanción, ejecútese y firmas constan en el PDF del TSC (§1) |
-| D3 | Texto que se carga | ☑ **(a) Transcripción cotejada contra las páginas del PDF del TSC** — aprobada por el Titular el 15-nov-2026 · ☐ (b) · ☐ (c) | Pendiente solo la **firma del cotejo** del §3 (transcripción `def44e48…`) |
+| D3 | Texto que se carga | ☑ **(a) Transcripción cotejada contra las páginas del PDF del TSC** — aprobada por el Titular el 15-nov-2026 · ☐ (b) · ☐ (c) | Pendiente solo la **firma del cotejo** del §3 (transcripción `ba75b190…36ca`) |
 | D4 | Vigencia | ☐ Aprobar la propuesta ☐ Modificar: ______ | Ver §5 |
 | D5 | Art. 13 (contiene el texto de 12 artículos reformados del Código de Comercio) | ☐ Una fila del decreto ☐ Además, versiones nuevas en el Código de Comercio | Una fila del decreto ahora. Las versiones del Código de Comercio son un trabajo aparte y no se infieren de aquí |
 | D6 | Tipo de fuente | ☐ `ley` ☐ Otro: ______ | `ley` |
@@ -148,9 +162,16 @@ Base y límites:
 ## 6. Qué ocurre después de aprobar (y solo entonces)
 
 1. **Texto según D3:** la transcripción firmada en el §3. Si se corrige, se regenera con `tools/corpus/transcripcion-gaceta.ts` y cambia su hash.
-2. **Filas, sin escribir en ninguna base:** 39 filas ocultas (`revision_pendiente = true`), vigencia NULL y sin embedding (ensayado el 15-nov: 39 filas, 0 excepciones, art. 38 con «54»):
+2. **Filas, sin escribir en ninguna base:** 39 filas ocultas (`revision_pendiente = true`), vigencia NULL y sin embedding (ensayado fuera del repositorio con la transcripción `ba75b190…36ca`: 39 filas, 0 excepciones; arts. 27, 30 y 38 con el texto corregido):
    ```sh
-   npx tsx scripts/ingesta-lote-staging.ts C:UsersredyDownloadsLey_gene_empl_dere_inver.pdf      docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/candidates/PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1.json      HN:DECRETO_284_2013 PILOTO_D284_2013_01      "Decreto 284-2013, Ley para la Generación de Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)"      out/piloto-d284-2013 2 ley      --transcripcion docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/transcripcion/transcripcion_candidata.txt      --transcripcion-sha256 def44e4872182d34ec52cffaff1141bceb636c9a968c31a5b7931dcf2dc8b74e      --cotejado-por "<nombre, rol y fecha de la firma del §3>"
+   npx tsx scripts/ingesta-lote-staging.ts "C:/Users/fredy/Downloads/Ley_gene_empl_dere_inver.pdf" \
+     docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/candidates/PKG_DECRETO_284_2013_REFORMA_AL_CODIGO_DE_COMERCIO@v1.json \
+     HN:DECRETO_284_2013 PILOTO_D284_2013_01 \
+     "Decreto 284-2013, Ley para la Generación de Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)" \
+     out/piloto-d284-2013 2 ley \
+     --transcripcion docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/transcripcion/transcripcion_candidata.txt \
+     --transcripcion-sha256 ba75b190d7e04e0e85851ee204d6d2deafba80f5e1a03e5e592f7968003436ca \
+     --cotejado-por "<nombre, rol y fecha de la firma del §3>"
    ```
 3. **Staging** (`aicakncgtuiiuomflkqj`): el Titular aplica el SQL y un paso aparte llena los embeddings.
 4. **Visibilidad y vigencia** (`revision_pendiente = false`, `es_norma_vigente` según D4): una escritura aparte, autorizada por el Titular.

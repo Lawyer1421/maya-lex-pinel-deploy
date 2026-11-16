@@ -1,0 +1,18 @@
+[
+  {
+    "articulo": "27 (texto del art. 29 reformado de la Ley de Promoción de la Alianza Público-Privada)",
+    "pagina_pdf": 14,
+    "buscar": "Superintendencia de Alianza PúblicoPrivada",
+    "reemplazar": "Superintendencia de Alianza Público-Privada",
+    "motivo": "Guion al final de renglón impreso («Público-» / «Privada») eliminado al unir renglones en la capa de texto del PDF. La imagen de la pág. 14 dice «Público-Privada».",
+    "detectado_por": "Titular (cotejo visual, 15-nov-2026); confirmado por Claude en el OCR con posiciones: única palabra «Público-» a final de renglón de la pág. 14"
+  },
+  {
+    "articulo": "30",
+    "pagina_pdf": 15,
+    "buscar": "Decreto Legislativo No. 1432010",
+    "reemplazar": "Decreto Legislativo No. 143-2010",
+    "motivo": "Guion al final de renglón impreso («No. 143-» / «2010») eliminado al unir renglones en la capa de texto del PDF. La imagen de la pág. 15 dice «No. 143-2010».",
+    "detectado_por": "Titular (cotejo visual, 15-nov-2026); confirmado por Claude en la imagen de la pág. 15"
+  }
+]
