@@ -45,3 +45,7 @@ yarn-error.log*
 
 # Backups locales de datos reales (contienen PII de clientes) — nunca a git
 backups/
+
+# Caché de Python (scripts de los lotes del corpus)
+__pycache__/
+*.pyc
