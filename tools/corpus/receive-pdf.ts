@@ -100,7 +100,7 @@ export const PERFILES: Readonly<Record<string, PerfilPaquete>> = Object.freeze({
     nombre: 'Decreto 35-2013 (reforma al Código de la Niñez)', tipo: 'REFORM', huellaPaginas: null,
     titulo: [/decreto.{0,25}35\s*[-–]\s*2013/, /reforma.{0,60}codigo de la ninez/], numero: [/\b35\s*[-–]\s*2013\b/],
     contexto: { terminos: ['ninez', 'adolescencia', 'gaceta'], minimo: 2 },
-    incompatibles: [{ etiqueta: 'Código de Comercio', patron: /codigo de comercio/ }], decreto: '35-2013', numerosPermitidos: ['73-96'], consolidado: true, gaceta: '33,222',
+    incompatibles: [{ etiqueta: 'Código de Comercio', patron: /codigo de comercio/ }], decreto: '35-2013', numerosPermitidos: ['73-96'], consolidado: true, gaceta: '33,222', instrumentRef: 'HN:DECRETO_35_2013',
   },
 
   // ── Tramo B (HN-002): seis instrumentos fundamentales ya presentes en el corpus heredado SIN verificar (AVAILABLE_PARTIAL). Sustituirlos exige

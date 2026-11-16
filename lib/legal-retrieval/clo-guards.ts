@@ -38,7 +38,7 @@ export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 
 export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([
   'CODIGO_PROCESAL_PENAL', 'CODIGO_PENAL', 'CODIGO_PROCESAL_CIVIL', 'CODIGO_CIVIL', 'CODIGO_TRABAJO', 'CODIGO_FAMILIA', 'CODIGO_NOTARIADO',
   'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'LEY_ESPECIAL_ADOPCIONES',
-  'DECRETO_77_2006', 'DECRETO_284_2013',
+  'DECRETO_77_2006', 'DECRETO_284_2013', 'DECRETO_35_2013',
 ] as const);
 
 export const esInstrumentId = (v: unknown): v is InstrumentId => typeof v === 'string' && (INSTRUMENT_IDS as readonly string[]).includes(v);
@@ -97,6 +97,8 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
   // docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/ADJUDICACION_CLO_D284_2013.md §7). Sus filas pueden ser PRIMARY solo si cumplen
   // los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 13, 14, 26 y 27 siguen como CONTEXT por su metadata.rol (D5).
+  /** D.35-2013 (A04, La Gaceta 33,222; 2026-11-16): solo CONTEXT hasta que el CLO apruebe su pliego (docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/02_PLAN_CIERRE_A04.md). */
+  DECRETO_35_2013: 'INSTRUMENTO_SIN_PLIEGO_CLO',
 });
 
 /** Instrumentos normativos notariales: las filas 03_NOTARIAL con otra identidad (protocolo y práctica) no son norma. */
@@ -202,6 +204,8 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['DECRETO_77_2006', /^decreto\s+(?:no\.?\s*)?77-2006\b/],
   // Piloto de adjudicación (2026-11-15): la fuente debe EMPEZAR por el decreto; un comentario o una fila del Código de Comercio que lo cite no.
   ['DECRETO_284_2013', /^decreto\s+(?:legislativo\s+)?(?:no\.?\s*|n[º°]\.?\s*|numero\s+)?284\s*-\s*2013\b/],
+  // A04 (2026-11-16): mismo criterio; el número va anclado, así que «Decreto 135-2013» no es este decreto.
+  ['DECRETO_35_2013', /^decreto\s+(?:legislativo\s+)?(?:no\.?\s*|n[º°]\.?\s*|numero\s+)?35\s*-\s*2013\b/],
   ['REGLAMENTO_NOTARIADO', new RegExp(`^reglamento\\s+(?:(?:de|del|al|para)\\s+)?(?:el\\s+)?codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_NOTARIADO', new RegExp(`^codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_PROCESAL_PENAL', new RegExp(`^codigo\\s+procesal\\s+penal${CIERRE}`)],
@@ -607,6 +611,7 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   LEY_ESPECIAL_ADOPCIONES: ['ley especial de adopciones'],
   DECRETO_77_2006: ['77-2006'],
   DECRETO_284_2013: ['284-2013', 'ley para la generacion de empleo'],
+  DECRETO_35_2013: ['35-2013'],
 });
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
