@@ -103,3 +103,11 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 1. ¿Se acepta la lectura por contexto **marcada** (2.2 y 2.3) si no aparece un segundo ejemplar, o se espera a tenerlo?
 2. ¿Los arts. 134/141 y C07 quedan como relaciones pendientes, sin bloquear V4?
 3. **D5:** casi todo el decreto transcribe texto de otras leyes. ¿Esas filas quedan como CONTEXT, como los arts. 13, 14, 26 y 27 del D.284?
+
+## 4. Avance (2026-11-16)
+
+| Entregable | Estado |
+|---|---|
+| Recortes del borde derecho (2.3.1) | **Hecho, con un límite:** el escaneo es de **200 ppp** y no existe una resolución mayor. A resolución nativa, de los 19 dudosos, **4 pasan a legibles**, **3 dejan ver más letras** y **12 siguen cortados** por el borde. Total de los 88: 33 legibles · 43 parciales · 12 ilegibles parciales · 0 pendientes. Ver `transcripcion_candidata/LISTA_COTEJO_D3_A04.md` |
+| Lista de cotejo D3 por artículo (2.5.1) | **Hecha** sobre los bytes LF `977f0489…`: 19 artículos y 434 diferencias, con un script reproducible. C02–C05 y la parte «A la» de C01 están firmadas pero **aún no aplicadas** a la candidata |
+| Alta de `HN:DECRETO_35_2013` en el catálogo, solo CONTEXT (paso 5) | **PR #144** |
