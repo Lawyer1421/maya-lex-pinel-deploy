@@ -131,3 +131,13 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 ### Actualización (2026-11-16, v5 definitiva)
 - El CLO ratificó los dos rangos de la pág. 1 y rectificó B24 a «la» (lectura de imagen). Quedan 15 lagunas.
 - Se regeneraron la v3 (`f70d874b…`), la v4 (`a81d0571…`) y la **v5 definitiva: `fa47cc72000a34c4dc56acc9af4ee53b32cc359f72202e4cddd56e0ca78c5b0e`** (bytes LF). Sustituye a `35e16537…`.
+
+### Actualización (2026-11-16, firma D3 detenida)
+- **No se asentó la firma D3 sobre la v5 `fa47cc72…`.** El barrido de las 46 páginas encontró defectos que el OCR y la candidata comparten, y que la lista de cotejo (OCR ≠ candidata) no podía mostrar:
+  - las 7 lecturas aprobadas del art. 6 sin aplicar;
+  - 197 finales cortados del borde derecho (el resto del inventario de 629 líneas nunca se resolvió);
+  - las palabras del canal entre columnas;
+  - el recuadro editorial de la pág. 2 dentro del art. 1;
+  - la ñ y las tildes perdidas, entre otros.
+- Paquete para firma: `04_RESOLUCION_COMPLEMENTARIA_A04.md` y `RESOLUCION_COMPLEMENTARIA_A04.csv` (464 cambios en 436 líneas), con hojas de recortes. Si se firma tal cual, la v6 sería `7c8f40f8…` (no firmada).
+- Segmentación por serie correlativa (`--serie-correlativa 19`) para la ingesta: 19 filas, arts. 1–19.
