@@ -1,6 +1,21 @@
 # A04 — Hoja de decisión para el CLO (C01–C06)
 
-**Decreto 35-2013 · La Gaceta 33,222 · 6-sep-2013.** Estado: `RECEIVED / SOURCE_HOLD` · Vigencia: **SIN DECLARAR** · PDF íntegro SHA-256 `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` · Procedencia institucional no acreditada (copia del Drive del propietario).
+**Decreto 35-2013 · La Gaceta 33,222 · 6-sep-2013.** Estado: `RECEIVED`: el extracto de las págs. 1–46 sigue pendiente del cotejo humano del rango, y ya no está detenido por la procedencia · Vigencia: **SIN DECLARAR** · PDF íntegro SHA-256 `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` · **Procedencia institucional: acreditada por el TSC** (`www.tsc.gob.hn`, ver abajo).
+
+### Procedencia institucional (16-nov-2026)
+| Dato | Valor |
+|---|---|
+| URL institucional | <https://www.tsc.gob.hn/web/leyes/Codigo_niñezyadolescencia_2013.pdf> |
+| Dominio en el registro | `www.tsc.gob.hn`: `VERIFIED`, `OFFICIAL_COMPILATION`, tier 4 (el mismo que acreditó el D.284-2013) |
+| Descarga | Manual en navegador, por el propietario (Abg. y Not. Fredy Omar Pinel Flores, `propietario_despacho`), el **2026-11-16 a las 09:26:55 hora de Honduras (15:26:55 UTC)** · HTTP 200 · `%PDF-1.7` · el servidor declara `Last-Modified` 29-oct-2013 |
+| Tamaño y huella | 18,625,608 bytes · SHA-256 **`FBD87F3396E5D0B6601A246008A1AE5BD870841B795D75AC42076245A154F2FF`**. Claude la recalculó sobre el archivo descargado y coincide en los 64 caracteres con la copia del Drive ya analizada |
+| Recibo | `docs/corpus/staging/2026-11-16-hn-001-a04-tsc/receipts/HN-001-A04-20261116T161141Z-fbd87f3396e5.md`: `RECEIVED`, identidad CONFIRMADA, cierre y firma hallados, sin entrada efectiva del D.107-2013. Paquete: `docs/corpus/inbox/2026-11-16-hn-001-a04-tsc/pending-review/HN-001-A04.fbd87f3396e5.json` (`source_url` y `source_domain` del TSC) |
+| Texto extraído | `text_sha256` `f2c67cb4…7fca0a` (190,755 caracteres, Poppler 25.07) frente a `423f965c…9375b` (185,071, extracción del 5-nov). **Solo difieren los espacios.** Sin espacios, ambos textos son idénticos: 153,020 caracteres, 30,838 palabras y 0 bloques distintos. El hash del texto depende de la versión del extractor; el de los bytes, no |
+
+**Alcance de esta acreditación.** Al tener exactamente el mismo SHA-256, el archivo del TSC es **el mismo ejemplar, byte por byte**, que la copia del Drive. Eso:
+- **acredita la procedencia institucional oficial** del ejemplar A04 (compilación oficial del TSC, tier 4) y levanta el motivo de `SOURCE_HOLD`;
+- **no constituye un segundo ejemplar distinto.** Las imágenes, los bordes recortados y las manchas son los mismos. Ninguna casilla «Cotejar con otro ejemplar», ningún pasaje ilegible y ninguna discrepancia (C06, los 88 finales, la pág. 41, los arts. 134 y 141, y C07) se resuelve con esta descarga. Para eso sigue haciendo falta otra edición (La Gaceta original u otra reproducción oficial con bytes distintos);
+- no declara la vigencia ni promueve a V4/V5.
 
 **Actualización (retoma desde `15fe5c6`):** las fuentes de cotejo pedidas (repositorio de la UNAH y Portal Único del IAIP) **no fueron accesibles** desde esta sesión (proxy 403 / host fuera de los dominios permitidos); no hay segundo ejemplar, ni hash, ni portada, ni correspondencia de páginas que registrar. Todas las lecturas siguen apoyadas **solo** en el ejemplar A04. Ver `FUENTES_DE_COTEJO.md`. Cada punto abierto conserva su recorte; donde falta evidencia legible, la incidencia sigue abierta.
 
@@ -23,12 +38,22 @@ Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
 Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
 
 ## C04 — Art. 5 (Código de Familia): segundo artículo tras 123-E · pág. 38, col. izquierda
-**Bruto:** «ARTÍCULO **123-E**- Se prohibe a toda autoridad, permitir o promover:» (rótulo repetido) · **Propuesta:** **123-F** (la imagen dice «ARTÍCULO 123-F.-»; el art. 5 declara 123-F entre los que adiciona). **Recorte:** `p38_izq_art5_123E-123F.png`.
+**Bruto:** «ARTÍCULO **123-E**- Se prohibe a toda autoridad, permitir o promover:» (rótulo repetido) · **Propuesta:** **123-F**. La imagen dice, completo: **«ARTÍCULO 123-F.- Se prohíbe a toda autoridad, permitir o promover:»**, con tilde en «prohíbe»; el OCR la perdió («prohibe»). El art. 5 declara 123-F entre los que adiciona. La propuesta corrige el rótulo y la tilde porque ambos constan en la imagen. **Recorte:** `p38_izq_art5_123E-123F.png`.
 Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
 
 ## C05 — Art. 5 (Código de Familia): segundo artículo tras 207-E · pág. 40, col. izquierda
 **Bruto:** «ARTÍCULO **207-E**- Mientras el(la) deudora) no cumpla…» · **Propuesta:** **207-F** («ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla…»; el art. 5 declara 207-F). **Recorte:** `p40_izq_art5_207E_medio.png`.
 Decisión: ☐ Aprobar ☐ Rechazar ☐ Cotejar
+
+### Constancia de fidelidad al texto impreso (C01–C05)
+Las propuestas **no modernizan ni normalizan** la ortografía de la publicación. Solo corrigen lo que el OCR leyó mal frente a la imagen:
+- **C01:** conserva **«ésta»** («la transgresión a ésta disposición») y **«sólo»** («sólo podrá ser conocido»), con tilde, tal como están impresos en la pág. 45 (recorte `p45_izq_arriba_art10_inc7-8.png`). Solo reordena los rótulos 7) y 8) con sus cuerpos.
+- **C02:** **«67»**, la cifra impresa (serie 62–82), no «57».
+- **C03:** **«334»**, la cifra impresa, no «^34».
+- **C04:** el rótulo **«123-F.-»** y **«prohíbe»** con tilde, ambos impresos (ver arriba).
+- **C05:** la imagen dice **«ARTÍCULO 207-F.- Mientras el(la) deudor(a) no cumpla»** (recorte `p40_izq_art5_207E_medio.png`). **«deudora)» no está en el impreso:** es una lectura del OCR, que se conserva sin cambios en el campo «Bruto». La propuesta sigue la imagen: «deudor(a)».
+
+En todos los casos, el campo «Bruto» conserva sin cambios lo que extrajo el OCR.
 
 ## C06 — Art. 6 (Código Civil): lista introductoria y rótulo del cuerpo, **por separado** · pág. 41
 | Parte | Dónde | Lectura de la imagen | OCR | Estado |
