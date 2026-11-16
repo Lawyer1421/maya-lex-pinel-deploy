@@ -1,0 +1,544 @@
+{
+  "estado": "SIN_ENCABEZADOS_CON_CABECERA_PAG1",
+  "advertencia": "v4: la v3 sin encabezados de página. Aún conserva la cabecera y el sumario de la pág. 1 (paso 5).",
+  "base": {
+    "archivo": "A04_transcripcion_candidata_v3.txt",
+    "sha256_lf": "6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d"
+  },
+  "edicion": {
+    "fecha": "6 DE SEPTIEMBRE DEL 2013",
+    "numero": "33,222"
+  },
+  "transcripcion_sha256": "091c0871fb7ebaa598668ad40430c9ae54afb2e10bfae8cc85432c4b7bace2b9",
+  "caracteres": 178101,
+  "lineas_quitadas": [
+    {
+      "linea": 83,
+      "texto": "R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 134,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 135,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 182,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 232,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 233,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 282,
+      "texto": "L a Gaceta | R E P Ú B L I C A D E H O N D U R A S - T E G U C I G A"
+    },
+    {
+      "linea": 329,
+      "texto": "•Ps&PIII^^ Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 330,
+      "texto": "LPA, M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 380,
+      "texto": "R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 428,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 429,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,22:"
+    },
+    {
+      "linea": 477,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 525,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 526,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 576,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 626,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 627,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 677,
+      "texto": "L a Gaceta REPÚBLICA D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 727,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 728,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 775,
+      "texto": "La Gaceta R E P U B L I C A DE HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 825,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 826,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 876,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 928,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 976,
+      "texto": "L a Gaceta R E P U B L I C A DE HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 1026,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1027,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1077,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 1125,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1126,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1176,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 1225,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1226,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1274,
+      "texto": "R E P U B L I C A D E HONDURAS - T E G U C I G A L P A"
+    },
+    {
+      "linea": 1324,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1325,
+      "texto": ", M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1375,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 1424,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1425,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1474,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 1524,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1525,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1572,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 1621,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1622,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1671,
+      "texto": "L a Gaceta REPÚBLICA D E HONDURAS T E G U C I G A L"
+    },
+    {
+      "linea": 1721,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1722,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2 0 Í 3 No. 33,222"
+    },
+    {
+      "linea": 1772,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 1822,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1823,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1870,
+      "texto": "La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 1920,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 1921,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 1971,
+      "texto": "La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 2020,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2021,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2070,
+      "texto": "La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 2118,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2119,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2168,
+      "texto": "R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 2216,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2217,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,22"
+    },
+    {
+      "linea": 2268,
+      "texto": "R E P U B L I C A DE HONDURAS - T E G U C I G A L P A"
+    },
+    {
+      "linea": 2314,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2315,
+      "texto": ", M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2363,
+      "texto": "REPÚBLICA D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 2413,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2414,
+      "texto": "PA, M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2462,
+      "texto": "La Gaceta REPÚBLICA D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 2512,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2513,
+      "texto": "L P A , M . D. C . , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2563,
+      "texto": "L a Gaceta REPUBLICA D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 2611,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2612,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2660,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 2709,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2710,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2757,
+      "texto": "La Gaceta REPUBLICA DE HONDURAS - TEGUCIGALPA,"
+    },
+    {
+      "linea": 2807,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2808,
+      "texto": "M. D. C , 6 DE SEPTIEMBRE DEL 2013 No. 33,22"
+    },
+    {
+      "linea": 2857,
+      "texto": "L a Gaceta R E P U B L I C A DE HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 2906,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 2907,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 2956,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 3006,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3007,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3056,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 3107,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3108,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3156,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 3206,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3207,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3255,
+      "texto": "La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 3304,
+      "texto": "Sección A Acuerdos y Ley es"
+    },
+    {
+      "linea": 3305,
+      "texto": "A , M . D . C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3356,
+      "texto": "L a Gaceta REPUBLICA DE HONDURAS - TEGUCIGALPA,"
+    },
+    {
+      "linea": 3406,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3407,
+      "texto": "M. D. C , 6 DE SEPTIEMBRE DEL 2013 No. 33,222"
+    },
+    {
+      "linea": 3455,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 3503,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3504,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3554,
+      "texto": "L a Gaceta R E P U B L I C A DE HONDURAS - T E G U C I G"
+    },
+    {
+      "linea": 3603,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3604,
+      "texto": "A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,22"
+    },
+    {
+      "linea": 3654,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 3703,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3704,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33.222"
+    },
+    {
+      "linea": 3755,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 3805,
+      "texto": "A , M . D. C . , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 3855,
+      "texto": "A. 39"
+    },
+    {
+      "linea": 3856,
+      "texto": "L a Gaceta REPÚBLICA D E HONDURAS - T E G U C I G A"
+    },
+    {
+      "linea": 3906,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 3907,
+      "texto": "L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33.222"
+    },
+    {
+      "linea": 3955,
+      "texto": "L a Gaceta REPÚBLICA D E HONDURAS - T E G U C I G A L P"
+    },
+    {
+      "linea": 4005,
+      "texto": "A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 4053,
+      "texto": "A. 41"
+    },
+    {
+      "linea": 4054,
+      "texto": "R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 4102,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 4103,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 4152,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 4202,
+      "texto": "P A , M . D. C . , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 4254,
+      "texto": "A. 43"
+    },
+    {
+      "linea": 4255,
+      "texto": "La Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 4304,
+      "texto": "Sección A Acuerdos y Leyes"
+    },
+    {
+      "linea": 4305,
+      "texto": "P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 4354,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A L"
+    },
+    {
+      "linea": 4404,
+      "texto": "P A , M . D. C . , 6 D E S E P T I E M B R E D E L 2013 No. 33,222"
+    },
+    {
+      "linea": 4454,
+      "texto": "A. 45"
+    },
+    {
+      "linea": 4455,
+      "texto": "L a Gaceta R E P U B L I C A D E HONDURAS - T E G U C I G A"
+    }
+  ]
+}

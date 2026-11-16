@@ -121,3 +121,9 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
   - Art. 14: el salto 330 → 332 **está en el impreso**, junto con otros 15 saltos, todos verificados en la imagen.
   - Tabla de firma: 31 legibles en bloque · 11 líneas de la pág. 41 · 39 parciales con propuesta · 4 parciales para decisión del CLO · 12 lagunas `[ilegible]`, en los arts. 1, 3 y 5, todos CONTEXT por la Decisión 3.
   - Secuencia de 8 pasos hasta el hash final D3.
+
+### Actualización (2026-11-16, texto final)
+- Las 66 casillas de la tabla de resolución están firmadas.
+- Generadas la v3, la v4 y la **v5: `35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd`** (bytes LF). Conciliación exacta en cada paso.
+- Lista de cotejo regenerada sobre la v5.
+- Pendiente antes de la firma D3: ratificar los dos rangos de la pág. 1 y decidir sobre B24 (es legible en la imagen). Ver `03_RESOLUCION_TEXTUAL_A04.md` §4.

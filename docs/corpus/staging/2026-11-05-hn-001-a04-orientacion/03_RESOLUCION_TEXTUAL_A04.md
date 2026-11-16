@@ -84,7 +84,7 @@ Por la **Decisión 3 del CLO**, esos artículos van como `CONTEXT`. Una laguna e
 | B77 | 35 | 4 | «imidación que vicie el consentimiento;» → **consentimiento:** | «consentimiento;» | sí |
 | B86 | 40 | 5 | «…costos de su crianza y» → **y** | «y» | no |
 
-☐ **Apruebo en bloque los 31 finales legibles** (marca `LECTURA_DE_IMAGEN`).
+☑ **Apruebo en bloque los 31 finales legibles** (marca `LECTURA_DE_IMAGEN`).
 
 ### B. Pág. 41 (art. 6, columna izquierda): 11 líneas con el carácter inicial ausente
 Recortes: `transcripcion_candidata/recortes_borde_izq/p41_y*.jpg` y la hoja de contacto `transcripcion_candidata/hojas/hoja_borde_izq.jpg`.
@@ -94,70 +94,70 @@ Recortes: `transcripcion_candidata/recortes_borde_izq/p41_y*.jpg` y la hoja de c
 | Id | y (pt) | Se ve en la imagen | Candidata v2 | Propuesta | Cambio en la candidata | Decisión |
 |---|---:|---|---|---|---|---|
 | P01 | 484 | «11,» | «11,» | **—** | no | — (C06) |
-| P02 | 500 | «nediante (media «m»)» | «íediante» | **mediante** | sí | ☐ Aprobar ☐ Laguna |
-| P03 | 517 | «uales» | «uales» | **cuales** | sí | ☐ Aprobar ☐ Laguna |
-| P04 | 564 | «e oiga» | «se oiga» | **se** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P05 | 582 | «omprendidos(as)» | «comprendidos(as)» | **comprendidos(as)** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P06 | 598 | «ompañero(a)» | «compañero(a)» | **compañero(a)** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P07 | 615 | «econocida» | «íconocida» | **reconocida** | sí | ☐ Aprobar ☐ Laguna |
-| P08 | 631 | «dad.» | «de edad.» | **edad** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P09 | 647 | «us parientes» | «oídos sus parientes» | **sus** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P10 | 698 | «os colaterales» | «a los colaterales» | **los** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
-| P11 | 746 | «erbalmente» | «verbalmente» | **verbalmente** | no (ya la trae) | ☐ Aprobar ☐ Laguna |
+| P02 | 500 | «nediante (media «m»)» | «íediante» | **mediante** | sí | ☑ Aprobar ☐ Laguna |
+| P03 | 517 | «uales» | «uales» | **cuales** | sí | ☑ Aprobar ☐ Laguna |
+| P04 | 564 | «e oiga» | «se oiga» | **se** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P05 | 582 | «omprendidos(as)» | «comprendidos(as)» | **comprendidos(as)** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P06 | 598 | «ompañero(a)» | «compañero(a)» | **compañero(a)** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P07 | 615 | «econocida» | «íconocida» | **reconocida** | sí | ☑ Aprobar ☐ Laguna |
+| P08 | 631 | «dad.» | «de edad.» | **edad** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P09 | 647 | «us parientes» | «oídos sus parientes» | **sus** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P10 | 698 | «os colaterales» | «a los colaterales» | **los** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
+| P11 | 746 | «erbalmente» | «verbalmente» | **verbalmente** | no (ya la trae) | ☑ Aprobar ☐ Laguna |
 
 ### C. 43 finales de línea parciales (se ve el comienzo de la palabra)
 **39 con propuesta unívoca** (`LECTURA_POR_CONTEXTO_CLO`). La candidata v2 conserva en todos el token defectuoso del OCR, así que **los 39 cambian el texto** si se aprueban.
 
 | Id | Pág. | Art. | Contexto (OCR) | Se ve | Candidata v2 | Propuesta | Decisión |
 |---|---:|---:|---|---|---|---|---|
-| B04 | 3 | 1 | …impuso la sanción, dentro d( ⏎ los tres (3) | «de» | «d(» | **de** | ☐ Aprobar ☐ Laguna |
-| B05 | 5 | 1 | …143.- Los(as) Directores(as) de lo; ⏎ hospitales públicos y | «los» | «lo;» | **los** | ☐ Aprobar ☐ Laguna |
-| B06 | 5 | 1 | …y de los demás Centro: ⏎ Asistenciales, están obligados | «Centros» | «Centro:» | **Centros** | ☐ Aprobar ☐ Laguna |
-| B07 | 5 | 1 | …a informar sobre los niños; ⏎ niñas abandonados en | «y» | «niños;» | **niños y** | ☐ Aprobar ☐ Laguna |
-| B09 | 5 | 1 | …Los(as) jefes de las misione: ⏎ diplomáticas y consulares | «misiones» | «misione:» | **misiones** | ☐ Aprobar ☐ Laguna |
-| B10 | 5 | 1 | …o niña hondureño(a) ha sid( ⏎ privado de su | «sido» | «sid(» | **sido** | ☐ Aprobar ☐ Laguna |
-| B11 | 5 | 1 | …hayan producido y en s ⏎ caso el IHNFA | «su» | «s» | **su** | ☐ Aprobar ☐ Laguna |
-| B12 | 5 | 1 | …gestiones necesarias a fin d ⏎ lograr su repatriación." | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B13 | 5 | 1 | …valor más alto, la qu< ⏎ impondrá el titular | «que» | «qu<» | **que** | ☐ Aprobar ☐ Laguna |
-| B14 | 5 | 1 | …institución a quien corresponda. L ⏎ indicada multa se | «La» | «L» | **La** | ☐ Aprobar ☐ Laguna |
-| B15 | 5 | 1 | …causales de las situaciones d ⏎ abandono y de | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B16 | 5 | 1 | …derechos de la niñez e ⏎ sede administrativa. | «en» | «e» | **en** | ☐ Aprobar ☐ Laguna |
-| B18 | 7 | 1 | …niña el goce de su< ⏎ derechos. | «sus» | «su<» | **sus** | ☐ Aprobar ☐ Laguna |
-| B19 | 7 | 1 | …ejercicio de sus libertades; e ⏎ derecho a la | «el» | «e» | **el** | ☐ Aprobar ☐ Laguna |
-| B21 | 7 | 1 | …la incomunicación rechazante; y e ⏎ castigo por medio | «el» | «e» | **el** | ☐ Aprobar ☐ Laguna |
-| B22 | 7 | 1 | …inmediatamente la correspondiente denuncia a ⏎ Ministerio Público, para | «al» | «a» | **al** | ☐ Aprobar ☐ Laguna |
-| B23 | 7 | 1 | …Familia (IHNFA), con multa d ⏎ uno (1) a | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B28 | 9 | 1 | …responsabilidad a los funcionarios > ⏎ empleados judiciales, administrativos | «y» | «>» | **y** | ☐ Aprobar ☐ Laguna |
-| B31 | 9 | 1 | …de sanciones, salvo los necesario: ⏎ para los fines | «necesarios + signo final dudoso» | «necesario:» | **necesarios** | ☐ Aprobar ☐ Laguna |
-| B35 | 9 | 1 | …a ocho (8) años, plaz> ⏎ que cuando se | «plazo» | «plaz>» | **plazo** | ☐ Aprobar ☐ Laguna |
-| B36 | 11 | 1 | …efectos de éste Código, U ⏎ medida prevista en | «la» | «U» | **la** | ☐ Aprobar ☐ Laguna |
-| B37 | 11 | 1 | …vida, la integridad personal, U ⏎ libertad personal o | «la» | «U» | **la** | ☐ Aprobar ☐ Laguna |
-| B38 | 11 | 1 | …fuga u obstrucción de k ⏎ investigación. | «la» | «k» | **la** | ☐ Aprobar ☐ Laguna |
-| B39 | 11 | 1 | …Fiscal fundamentará la solicitud d ⏎ a Medidas y, | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B41 | 13 | 1 | …y reinserción social de E ⏎ Niño(a). | «El» | «E» | **El** | ☐ Aprobar ☐ Laguna |
-| B42 | 13 | 1 | …Privación de Libertad es d ⏎ carácter excepcional, la | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B43 | 13 | 1 | …su domicilio y con s ⏎ familia. | «su» | «s» | **su** | ☐ Aprobar ☐ Laguna |
-| B44 | 13 | 1 | …domicilio, se practicará en l ⏎ casa de cualquier | «la» | «l» | **la** | ☐ Aprobar ☐ Laguna |
-| B46 | 15 | 1 | …así como resolver sobre f ⏎ revocación de la | «la» | «f» | **la** | ☐ Aprobar ☐ Laguna |
-| B47 | 15 | 1 | …la acción penal o h ⏎ reanudación del Proceso | «la» | «h» | **la** | ☐ Aprobar ☐ Laguna |
-| B48 | 15 | 1 | …de las formas alternativas d< ⏎ solución de conflictos | «de» | «d<» | **de** | ☐ Aprobar ☐ Laguna |
-| B49 | 15 | 1 | …Juicio y resolver los asunto: ⏎ sometidos a su | «asuntos» | «asunto:» | **asuntos** | ☐ Aprobar ☐ Laguna |
-| B50 | 15 | 1 | …responsabilidad penal o inocencia d< ⏎ Niños(as) en Proceso; | «de» | «d<» | **de** | ☐ Aprobar ☐ Laguna |
-| B51 | 15 | 1 | …en este Código, la proporcionalida< ⏎ y racionalidad de | «proporcionalidad» | «proporcionalida<» | **proporcionalidad** | ☐ Aprobar ☐ Laguna |
-| B53 | 15 | 1 | …ser contrarias al proceso d ⏎ reinserción social; | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B56 | 19 | 1 | …acusador privado, la ausencia d ⏎ este último no | «de» | «d» | **de** | ☐ Aprobar ☐ Laguna |
-| B67 | 27 | 2 | …I el Capítulo IV; l ⏎ denominación del Título | «la» | «l» | **la** | ☐ Aprobar ☐ Laguna |
-| B78 | 37 | 5 | …el caso de los(as) niños(a< ⏎ el indígenas y | «niños(as…» | «niños(a<» | **niños(as)** | ☐ Aprobar ☐ Laguna |
-| B85 | 37 | 5 | …ingreso de niño(s) o niña( ⏎ por adoptar, al | «niña(s…» | «niña(» | **niña(s)** | ☐ Aprobar ☐ Laguna |
+| B04 | 3 | 1 | …impuso la sanción, dentro d( ⏎ los tres (3) | «de» | «d(» | **de** | ☑ Aprobar ☐ Laguna |
+| B05 | 5 | 1 | …143.- Los(as) Directores(as) de lo; ⏎ hospitales públicos y | «los» | «lo;» | **los** | ☑ Aprobar ☐ Laguna |
+| B06 | 5 | 1 | …y de los demás Centro: ⏎ Asistenciales, están obligados | «Centros» | «Centro:» | **Centros** | ☑ Aprobar ☐ Laguna |
+| B07 | 5 | 1 | …a informar sobre los niños; ⏎ niñas abandonados en | «y» | «niños;» | **niños y** | ☑ Aprobar ☐ Laguna |
+| B09 | 5 | 1 | …Los(as) jefes de las misione: ⏎ diplomáticas y consulares | «misiones» | «misione:» | **misiones** | ☑ Aprobar ☐ Laguna |
+| B10 | 5 | 1 | …o niña hondureño(a) ha sid( ⏎ privado de su | «sido» | «sid(» | **sido** | ☑ Aprobar ☐ Laguna |
+| B11 | 5 | 1 | …hayan producido y en s ⏎ caso el IHNFA | «su» | «s» | **su** | ☑ Aprobar ☐ Laguna |
+| B12 | 5 | 1 | …gestiones necesarias a fin d ⏎ lograr su repatriación." | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B13 | 5 | 1 | …valor más alto, la qu< ⏎ impondrá el titular | «que» | «qu<» | **que** | ☑ Aprobar ☐ Laguna |
+| B14 | 5 | 1 | …institución a quien corresponda. L ⏎ indicada multa se | «La» | «L» | **La** | ☑ Aprobar ☐ Laguna |
+| B15 | 5 | 1 | …causales de las situaciones d ⏎ abandono y de | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B16 | 5 | 1 | …derechos de la niñez e ⏎ sede administrativa. | «en» | «e» | **en** | ☑ Aprobar ☐ Laguna |
+| B18 | 7 | 1 | …niña el goce de su< ⏎ derechos. | «sus» | «su<» | **sus** | ☑ Aprobar ☐ Laguna |
+| B19 | 7 | 1 | …ejercicio de sus libertades; e ⏎ derecho a la | «el» | «e» | **el** | ☑ Aprobar ☐ Laguna |
+| B21 | 7 | 1 | …la incomunicación rechazante; y e ⏎ castigo por medio | «el» | «e» | **el** | ☑ Aprobar ☐ Laguna |
+| B22 | 7 | 1 | …inmediatamente la correspondiente denuncia a ⏎ Ministerio Público, para | «al» | «a» | **al** | ☑ Aprobar ☐ Laguna |
+| B23 | 7 | 1 | …Familia (IHNFA), con multa d ⏎ uno (1) a | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B28 | 9 | 1 | …responsabilidad a los funcionarios > ⏎ empleados judiciales, administrativos | «y» | «>» | **y** | ☑ Aprobar ☐ Laguna |
+| B31 | 9 | 1 | …de sanciones, salvo los necesario: ⏎ para los fines | «necesarios + signo final dudoso» | «necesario:» | **necesarios** | ☑ Aprobar ☐ Laguna |
+| B35 | 9 | 1 | …a ocho (8) años, plaz> ⏎ que cuando se | «plazo» | «plaz>» | **plazo** | ☑ Aprobar ☐ Laguna |
+| B36 | 11 | 1 | …efectos de éste Código, U ⏎ medida prevista en | «la» | «U» | **la** | ☑ Aprobar ☐ Laguna |
+| B37 | 11 | 1 | …vida, la integridad personal, U ⏎ libertad personal o | «la» | «U» | **la** | ☑ Aprobar ☐ Laguna |
+| B38 | 11 | 1 | …fuga u obstrucción de k ⏎ investigación. | «la» | «k» | **la** | ☑ Aprobar ☐ Laguna |
+| B39 | 11 | 1 | …Fiscal fundamentará la solicitud d ⏎ a Medidas y, | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B41 | 13 | 1 | …y reinserción social de E ⏎ Niño(a). | «El» | «E» | **El** | ☑ Aprobar ☐ Laguna |
+| B42 | 13 | 1 | …Privación de Libertad es d ⏎ carácter excepcional, la | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B43 | 13 | 1 | …su domicilio y con s ⏎ familia. | «su» | «s» | **su** | ☑ Aprobar ☐ Laguna |
+| B44 | 13 | 1 | …domicilio, se practicará en l ⏎ casa de cualquier | «la» | «l» | **la** | ☑ Aprobar ☐ Laguna |
+| B46 | 15 | 1 | …así como resolver sobre f ⏎ revocación de la | «la» | «f» | **la** | ☑ Aprobar ☐ Laguna |
+| B47 | 15 | 1 | …la acción penal o h ⏎ reanudación del Proceso | «la» | «h» | **la** | ☑ Aprobar ☐ Laguna |
+| B48 | 15 | 1 | …de las formas alternativas d< ⏎ solución de conflictos | «de» | «d<» | **de** | ☑ Aprobar ☐ Laguna |
+| B49 | 15 | 1 | …Juicio y resolver los asunto: ⏎ sometidos a su | «asuntos» | «asunto:» | **asuntos** | ☑ Aprobar ☐ Laguna |
+| B50 | 15 | 1 | …responsabilidad penal o inocencia d< ⏎ Niños(as) en Proceso; | «de» | «d<» | **de** | ☑ Aprobar ☐ Laguna |
+| B51 | 15 | 1 | …en este Código, la proporcionalida< ⏎ y racionalidad de | «proporcionalidad» | «proporcionalida<» | **proporcionalidad** | ☑ Aprobar ☐ Laguna |
+| B53 | 15 | 1 | …ser contrarias al proceso d ⏎ reinserción social; | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B56 | 19 | 1 | …acusador privado, la ausencia d ⏎ este último no | «de» | «d» | **de** | ☑ Aprobar ☐ Laguna |
+| B67 | 27 | 2 | …I el Capítulo IV; l ⏎ denominación del Título | «la» | «l» | **la** | ☑ Aprobar ☐ Laguna |
+| B78 | 37 | 5 | …el caso de los(as) niños(a< ⏎ el indígenas y | «niños(as…» | «niños(a<» | **niños(as)** | ☑ Aprobar ☐ Laguna |
+| B85 | 37 | 5 | …ingreso de niño(s) o niña( ⏎ por adoptar, al | «niña(s…» | «niña(» | **niña(s)** | ☑ Aprobar ☐ Laguna |
 
 **4 sin propuesta: decide el CLO.** Tres caen dentro de un nombre propio y en el otro la lectura no es unívoca.
 
 | Id | Pág. | Art. | Contexto (OCR) | Por qué no hay propuesta | Decisión |
 |---|---:|---:|---|---|---|
-| B24 | 7 | 1 | …Hondureno de la Niñez y ⏎ y Familia (IHNFA), | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☐ Laguna |
-| B33 | 9 | 1 | …este Código y el Códig< ⏎ Procesal Penal conceden | No se propone: dentro del nombre de una ley («Código Procesal Penal») | ☐ Lectura: ______ ☐ Laguna |
-| B63 | 23 | 1 | …que se le garantice u ⏎ rápida respuesta; | No unívoca: «…se le garantice u[…] rápida respuesta»: «una» por concordancia, pero el revisor leyó «un» y lo cortado podría ser cualquiera de los dos | ☐ Lectura: ______ ☐ Laguna |
-| B84 | 37 | 5 | …Hondureno de la Niñez y ⏎ Familia (IHNFA) ordenando | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☐ Laguna |
+| B24 | 7 | 1 | …Hondureno de la Niñez y ⏎ y Familia (IHNFA), | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
+| B33 | 9 | 1 | …este Código y el Códig< ⏎ Procesal Penal conceden | No se propone: dentro del nombre de una ley («Código Procesal Penal») | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
+| B63 | 23 | 1 | …que se le garantice u ⏎ rápida respuesta; | No unívoca: «…se le garantice u[…] rápida respuesta»: «una» por concordancia, pero el revisor leyó «un» y lo cortado podría ser cualquiera de los dos | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
+| B84 | 37 | 5 | …Hondureno de la Niñez y ⏎ Familia (IHNFA) ordenando | No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia» | ☐ Lectura: ______ ☑ **Laguna** `[ilegible]` |
 
 ### D. 12 ilegibles parciales: laguna documentada `[ilegible]`
 En los 12 solo se ve la primera letra de la palabra final; el resto lo cortó el borde del escaneo. No se pueden recuperar de este ejemplar (200 ppp, sin resolución mayor). **En el texto, la palabra entera se sustituye por `[ilegible]`**: la primera letra visible no basta para fijarla («c…» puede ser «o» cortada).
@@ -181,7 +181,7 @@ En los 12 solo se ve la primera letra de la palabra final; el resto lo cortó el
 
 **Otros pasajes ilegibles:** no hay otros fuera de esta tabla. La pág. 45 no tiene caracteres ausentes en la imagen (`01_INVENTARIO_PASAJES_ILEGIBLES.md`), y el carácter inicial de «11» (P01, C06) está resuelto como lectura dual, no como laguna. **Fuera del acto:** B87 y B88 (pág. 46, columna derecha) no son del D.35-2013 y no entran.
 
-☐ **Apruebo marcar como laguna documentada los 12 ilegibles parciales.**
+☑ **Apruebo marcar como laguna documentada los 12 ilegibles parciales.**
 
 ## 3. Secuencia para fijar el texto y obtener el hash final D3
 
@@ -205,4 +205,92 @@ Cada paso parte del resultado del anterior. Todos los hashes se calculan **sobre
 
 ## Firma del CLO
 
-Firmante: ______________________ · Rol: ☐ abogado_revisor_senior ☐ propietario_despacho · Fecha: ____-__-__
+Firmante: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_senior ☑ **propietario_despacho** (CLO / Director Maya Lex) · Fecha: **2026-11-16**
+
+**FIRMADO (16-nov-2026).** El CLO adjudica las 66 casillas pendientes:
+- **Grupo A:** los 31 finales legibles, aprobados en bloque (`LECTURA_DE_IMAGEN`), con los 5 cambios B25, B45, B61, B74 y B77.
+- **Grupo B:** P01 se mantiene intacta como cifra dual («11»/«511», C06). P02 «mediante», P03 «cuales», P07 «reconocida», P04–P06 y P08–P11, aprobadas expresamente como lectura unívoca `LECTURA_POR_CONTEXTO_CLO`.
+- **Grupo C1:** los 39 parciales con propuesta, aprobados expresamente como `LECTURA_POR_CONTEXTO_CLO`.
+- **Grupo C2 (B24, B33, B63 y B84) y grupo D (12 ilegibles parciales):** las 16 filas quedan como **laguna documentada `[ilegible]`**. Se aplica estrictamente la regla de no suplir nombres propios ni lecturas ambiguas sin segundo ejemplar. El impacto sobre los fundamentos jurídicos es cero: los artículos donde caen (1, 3 y 5) van como `CONTEXT` por la Decisión 3.
+
+## 4. Ejecución de los pasos 2 a 8 (2026-11-16)
+
+Cadena de versiones, con todos los hashes **sobre bytes LF**:
+
+| Versión | SHA-256 | Caracteres | Qué cambia | Conciliación (alfanuméricos) |
+|---|---|---:|---|---|
+| v2 | `25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685` | 184,466 | C01–C05 aplicadas (PR #146) | — |
+| v3 | `6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d` | 184,636 | 63 correcciones firmadas (`correcciones_cotejo_resolucion.json`: 5 de lectura de imagen, 42 por contexto y 16 lagunas); 64 líneas | +151 = los del JSON |
+| v4 | `091c0871fb7ebaa598668ad40430c9ae54afb2e10bfae8cc85432c4b7bace2b9` | 178,101 | 132 encabezados de página quitados (`transcribirSinEncabezados` con `variantesEspaciadas`), registrados en el manifiesto | −3,842 = los de los 132 encabezados |
+| **v5** | **`35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd`** | **176,970** | Cabecera y sumario de la pág. 1, como 2 rangos declarados | −886 = los de los rangos |
+
+**Comprobaciones de la v5:**
+- 0 ``, 0 `` y **0 encabezados residuales** (filtro de `generar_lista_cotejo_d3.py`);
+- **los 19 artículos en serie**;
+- **16 `[ilegible]`**: art. 1 (9), art. 3 (1) y art. 5 (6), igual que lo firmado;
+- empieza en «D E C R E T O No. 35-2013» y termina en el Ejecútese («Tegucigalpa, M.D.C., 5 de septiembre de 2013») con sus firmas.
+
+**Herramienta:** `tools/corpus/transcripcion-gaceta.ts` ahora tiene la opción `variantesEspaciadas` (patrones de línea completa sobre la línea compactada), con su prueba. **El D.284-2013 no cambia:** al regenerarlo con la herramienta ampliada da otra vez `ba75b190…`. La evidencia G6 no incluye `tools/corpus/`, así que no hace falta regenerarla.
+
+### Paso 5: rangos quitados de la pág. 1, para ratificación del CLO
+**Rango 2 (líneas 43–71)** es el que se pidió: está entre «DECRETA: … estamentos legales correspondientes:» y el título «CODIGO DE LA NIÑEZ Y DE LA ADOLESCENCIA», que **se conserva** porque es texto del decreto antes del art. 1.
+
+**Rango 1 (líneas 1–12)** está **fuera** de lo que se pidió: es la cabecera del diario que precede a «D E C R E T O No. 35-2013». Se quitó por el mismo motivo, porque no es texto del decreto. **Requiere ratificación expresa.** Si no se ratifica, se repone y cambia el hash.
+
+```diff
+@@ v4, líneas 1–12 · sha256 b1bbcbb2de0e4bcb… @@
+- DIARIO OFICIAL DE LA REPUBLICA
+- La primera imprenta l egó a Honduras en 1829, siendo
+- instalada en Tegucigalpa, en el cuartel San Fran-
+- cisco, lo primero que se imprimió fue una proclama
+- del General Morazán, con fecha 4 de diciembre de
+- 1829. EMPRESA NACIONAL
+- E.N.A.G
+- AÑO CXXXVi TEGUCIGALPA, M. D. C , HONDURAS, C. A.
+- Sección
+- Poder Legislativo
+- 
+- *
+@@ v4, líneas 43–71 · sha256 11b05ca795e6d7d8… @@
+- DE HONDURAS
+- Después se imprimió el primer periódico oficial del
+- Gobierno con fecha 25 de mayo de 1830, conocido
+- hoy, como Diario Oficial "La Gaceta".
+- DE ARTES GRÁFICAS
+- 
+- VIERNES 6 DE SEPTIEMBRE DEL 2013. NUM. 33,222
+- A
+- SUMARIO
+- Sección A
+- Decretos y Acuerdos
+- PODER LEGISLATIVO
+- 35-2013 Decreta: CÓDIGO DE LA NIÑEZ Y LA
+- ADOLESCENCIA. A. 1-46
+- 
+- Decretos Nos.: 107-2013,120-2013,
+- 170-2013,173-2013,176-2013 y 196-2013. A.46-7Í
+- 
+- PODER E J E C U T I V O
+- PCM-043- Decreta: Autorizar la transferencia o traslado
+- 2013 de los recursos económicos y de la cartera
+- de préstamos vigentes y préstamos en mora
+- del "Fondo Especial de Crédito de
+- Emergencia para Locatarios y Vende-
+- dores Ambulantes de los Mercados del
+- Distrito Central", A.72-76
+- Sección B
+- Avisos Legales B. 1-16
+- Desprendióle para su comodidad
+```
+
+☐ **Ratifico el rango 2 (líneas 43–71).** ☐ **Ratifico el rango 1 (líneas 1–12).**
+
+### Hallazgo posterior a la firma: B24 sí es legible
+Al construir las correcciones se generó el recorte nativo de B24 (pág. 7, y = 789). La imagen dice con claridad **«…del Instituto Hondureño de la Niñez y la»** y, en la línea siguiente, «Familia (IHNFA)». La «la» está impresa y se lee completa. El OCR la leyó como «y» y la pasó a la línea siguiente, y por eso el paquete anterior la clasificó, por error, como parcial sin propuesta. **Se aplicó lo firmado:** laguna (`Niñez y [ilegible]`).
+
+Como es una lectura de imagen y no un suplemento por contexto, el CLO puede rectificarla a «la» (`LECTURA_DE_IMAGEN`) **antes de la firma D3**. La rectificación cambia una sola corrección y el hash final.
+
+☐ Mantener la laguna en B24 ☐ Rectificar B24 a «la» (lectura de imagen)
+
+### Paso 8: cotejo D3
+La lista de cotejo está regenerada sobre la v5 (`transcripcion_candidata/LISTA_COTEJO_D3_A04.md`). La firma D3 se hace sobre `35e16537…b9bd`, salvo que la ratificación de los rangos o la rectificación de B24 cambien el texto.

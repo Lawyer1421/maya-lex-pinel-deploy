@@ -20,7 +20,11 @@ SHA_OCR = 'f2c67cb4a019a094cbacb4690323810e7215d0904297483b1a725a4dbb7fca0a'
 CANDIDATAS = {
     '977f0489225d5cdf058f852b43b0f8af87b5db30f3128828386fcd2c17066355': 'v1',
     '25d7cc59fe3542df3d0de666eab4a47e217ef5398fe2bae6920f683168f40685': 'v2',
+    '35e16537fba0d80e46850613b48b6ba31e5f6b9638195ed28cd37cf61795b9bd': 'v5',
 }
+# La v5 ya no tiene saltos de página (\f): las páginas de cada artículo se toman de la v3, que sí los tiene y conserva los mismos artículos.
+V3 = LOTE / 'transcripcion_candidata/A04_transcripcion_candidata_v3.txt'
+SHA_V3 = '6b2958945d4e3cba8895eeceacf14550f3fb0e7e5ecbed0f3e768c811eca207d'
 
 # Correcciones firmadas por el CLO el 2026-11-16 (C01–C06), según la versión de la candidata.
 FIRMADAS = {
@@ -37,6 +41,13 @@ FIRMADAS = {
         10: 'C01 («A la»): aplicada',
         11: 'C02 («67»): aplicada',
         14: 'C03 («334»): aplicada',
+    },
+    'v5': {
+        5: 'C04 y C05 aplicadas; resolución del 2026-11-16 aplicada',
+        6: 'C06: lectura dual «11»/«511» (sin cambio); pág. 41 resuelta (LECTURA_POR_CONTEXTO_CLO)',
+        10: 'C01 aplicada',
+        11: 'C02 aplicada',
+        14: 'C03 aplicada; saltos de la lista verificados en el impreso',
     },
 }
 
@@ -137,7 +148,16 @@ def main():
     lineas_borde = list(csv.DictReader(open(LOTE / 'transcripcion_candidata/borde_derecho_88_lecturas.csv', encoding='utf-8')))
     ac, ao = articulos(cand), articulos(ocr)
     assert [k for k, _, _ in ac] == [k for k, _, _ in ao], 'la serie de artículos difiere entre la candidata y el OCR'
-    rangos = {k: rango_paginas(cand, ci, cf) for k, ci, cf in ac}
+    if '\f' in cand:
+        rangos = {k: rango_paginas(cand, ci, cf) for k, ci, cf in ac}
+    else:
+        v3 = V3.read_bytes().replace(b'\r\n', b'\n')
+        if hashlib.sha256(v3).hexdigest() != SHA_V3:
+            sys.exit('la v3 de referencia de páginas no es 6b295894…')
+        v3t = v3.decode('utf-8')
+        a3 = articulos(v3t)
+        assert [k for k, _, _ in a3] == [k for k, _, _ in ac], 'la serie de artículos difiere entre la v3 y la candidata'
+        rangos = {k: rango_paginas(v3t, ci, cf) for k, ci, cf in a3}
     asignacion = asignar_borde(lineas_borde, rangos)
     estado = {r['id']: r['estado'] for r in lineas_borde}
 
@@ -163,6 +183,7 @@ def main():
             'borde_legible': borde.get('LEGIBLE', 0), 'borde_parcial': borde.get('PARCIAL_BORDE', 0),
             'borde_ilegible_parcial': borde.get('ILEGIBLE_PARCIAL', 0),
             'pag41': 'sí (11 líneas con carácter inicial ausente)' if k == 6 else '—',
+            'lagunas_ilegible': tc.count('[ilegible]'),
             'firmadas': FIRMADAS[version].get(k, '—'),
         })
     fuera = Counter(estado[i] for i, a in asignacion.items() if a == 'fuera')

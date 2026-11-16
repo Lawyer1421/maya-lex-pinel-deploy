@@ -1,0 +1,506 @@
+[
+  {
+    "articulo": "1 (B04, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 3,
+    "buscar": "dentro d(\nlos",
+    "reemplazar": "dentro de\nlos",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B04_p03_y813.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B05, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "de lo;\nhospitales",
+    "reemplazar": "de los\nhospitales",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «los»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B05_p05_y063.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B06, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "demás Centro:\nAsistenciales,",
+    "reemplazar": "demás Centros\nAsistenciales,",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «Centros»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B06_p05_y079.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B07, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "los niños;\nniñas",
+    "reemplazar": "los niños y\nniñas",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «y»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B07_p05_y095.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B09, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "las misione:\ndiplomáticas",
+    "reemplazar": "las misiones\ndiplomáticas",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «misiones»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B09_p05_y190.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B10, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "ha sid(\nprivado",
+    "reemplazar": "ha sido\nprivado",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «sido»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B10_p05_y222.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B11, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "en s\ncaso",
+    "reemplazar": "en su\ncaso",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «su»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B11_p05_y386.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B12, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "fin d\nlograr",
+    "reemplazar": "fin de\nlograr",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B12_p05_y402.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B13, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "la qu<\nimpondrá",
+    "reemplazar": "la que\nimpondrá",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «que»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B13_p05_y500.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B14, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "corresponda. L\nindicada",
+    "reemplazar": "corresponda. La\nindicada",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «La»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B14_p05_y517.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B15, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "situaciones d\nabandono",
+    "reemplazar": "situaciones de\nabandono",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B15_p05_y681.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B16, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 5,
+    "buscar": "niñez e\nsede",
+    "reemplazar": "niñez en\nsede",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «en»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B16_p05_y698.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B17, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 7,
+    "buscar": "disciplinarias c\ncorrectivas,",
+    "reemplazar": "disciplinarias [ilegible]\ncorrectivas,",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «c»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B17_p07_y151.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B17_p07_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B18, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 7,
+    "buscar": "de su<\nderechos.",
+    "reemplazar": "de sus\nderechos.",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «sus»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B18_p07_y167.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B19, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 7,
+    "buscar": "libertades; e\nderecho",
+    "reemplazar": "libertades; el\nderecho",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «el»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B19_p07_y249.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B20, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 7,
+    "buscar": "médicos c\nquirúrgicos",
+    "reemplazar": "médicos [ilegible]\nquirúrgicos",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «c»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B20_p07_y445.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B20_p07_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B21, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 7,
+    "buscar": "y e\ncastigo",
+    "reemplazar": "y el\ncastigo",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «el»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B21_p07_y510.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B22, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 7,
+    "buscar": "denuncia a\nMinisterio",
+    "reemplazar": "denuncia al\nMinisterio",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «al»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B22_p07_y593.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B23, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 7,
+    "buscar": "multa d\nuno",
+    "reemplazar": "multa de\nuno",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B23_p07_y708.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B24, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 7,
+    "buscar": "Niñez y\ny Familia (IHNFA), los",
+    "reemplazar": "Niñez y [ilegible]\nFamilia (IHNFA), los",
+    "motivo": "LAGUNA_DOCUMENTADA: No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B24_p07_y789.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B25, LECTURA_DE_IMAGEN)",
+    "pagina_pdf": 9,
+    "buscar": "del mismo;\nque",
+    "reemplazar": "del mismo,\nque",
+    "motivo": "LECTURA_DE_IMAGEN: lectura de la imagen",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B25_p09_y085.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B28, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 9,
+    "buscar": "funcionarios >\nempleados",
+    "reemplazar": "funcionarios y\nempleados",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «y»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B28_p09_y356.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B29, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 9,
+    "buscar": "autoridad c\nvulnerado",
+    "reemplazar": "autoridad [ilegible]\nvulnerado",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «c»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B29_p09_y387.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B29_p09_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B31, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 9,
+    "buscar": "los necesario:\npara",
+    "reemplazar": "los necesarios\npara",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «necesarios + signo final dudoso»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B31_p09_y547.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B32, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 9,
+    "buscar": "Público e\nejercicio",
+    "reemplazar": "Público [ilegible]\nejercicio",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «e»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B32_p09_y647.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B32_p09_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B33, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 9,
+    "buscar": "el Códig<\nProcesal",
+    "reemplazar": "el [ilegible]\nProcesal",
+    "motivo": "LAGUNA_DOCUMENTADA: No se propone: dentro del nombre de una ley («Código Procesal Penal»)",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B33_p09_y678.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B35, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 9,
+    "buscar": "años, plaz>\nque",
+    "reemplazar": "años, plazo\nque",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «plazo»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B35_p09_y806.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B36, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 11,
+    "buscar": "Código, U\nmedida",
+    "reemplazar": "Código, la\nmedida",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B36_p11_y457.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B37, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 11,
+    "buscar": "personal, U\nlibertad",
+    "reemplazar": "personal, la\nlibertad",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B37_p11_y632.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B38, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 11,
+    "buscar": "de k\ninvestigación.",
+    "reemplazar": "de la\ninvestigación.",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B38_p11_y744.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B39, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 11,
+    "buscar": "solicitud d\nMedidas",
+    "reemplazar": "solicitud de\nMedidas",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B39_p11_y791.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B41, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 13,
+    "buscar": "de E\nNiño(a).",
+    "reemplazar": "de El\nNiño(a).",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «El»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B41_p13_y442.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B42, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 13,
+    "buscar": "es d\ncarácter",
+    "reemplazar": "es de\ncarácter",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B42_p13_y594.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B43, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 13,
+    "buscar": "con s\nfamilia.",
+    "reemplazar": "con su\nfamilia.",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «su»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B43_p13_y728.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B44, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 13,
+    "buscar": "en l\ncasa",
+    "reemplazar": "en la\ncasa",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B44_p13_y778.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B45, LECTURA_DE_IMAGEN)",
+    "pagina_pdf": 15,
+    "buscar": "Proceso i\nPrueba",
+    "reemplazar": "Proceso a\nPrueba",
+    "motivo": "LECTURA_DE_IMAGEN: lectura de la imagen",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B45_p15_y071.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B46, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "sobre f\nrevocación",
+    "reemplazar": "sobre la\nrevocación",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B46_p15_y087.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B47, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "o h\nreanudación",
+    "reemplazar": "o la\nreanudación",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B47_p15_y167.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B48, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "alternativas d<\nsolución",
+    "reemplazar": "alternativas de\nsolución",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B48_p15_y216.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B49, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "los asunto:\nsometidos",
+    "reemplazar": "los asuntos\nsometidos",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «asuntos»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B49_p15_y314.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B50, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "inocencia d<\nNiños(as)",
+    "reemplazar": "inocencia de\nNiños(as)",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B50_p15_y363.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B51, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "la proporcionalida<\ny",
+    "reemplazar": "la proporcionalidad\ny",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «proporcionalidad»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B51_p15_y412.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B53, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 15,
+    "buscar": "proceso d\nreinserción",
+    "reemplazar": "proceso de\nreinserción",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B53_p15_y690.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B56, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 19,
+    "buscar": "ausencia d\neste",
+    "reemplazar": "ausencia de\neste",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «de»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B56_p19_y571.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B60, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 23,
+    "buscar": "establecidos e\neste",
+    "reemplazar": "establecidos [ilegible]\neste",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «e»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B60_p23_y294.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B60_p23_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B61, LECTURA_DE_IMAGEN)",
+    "pagina_pdf": 23,
+    "buscar": "vínculo afectivo;\ne)",
+    "reemplazar": "vínculo afectivo:\ne)",
+    "motivo": "LECTURA_DE_IMAGEN: lectura de la imagen",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B61_p23_y470.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B62, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 23,
+    "buscar": "garanticen s\nlos",
+    "reemplazar": "garanticen [ilegible]\nlos",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «s»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B62_p23_y519.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B62_p23_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "1 (B63, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 23,
+    "buscar": "garantice u\nrápida",
+    "reemplazar": "garantice [ilegible]\nrápida",
+    "motivo": "LAGUNA_DOCUMENTADA: No unívoca: «…se le garantice u[…] rápida respuesta»: «una» por concordancia, pero el revisor leyó «un» y lo cortado podría ser cualquiera de los dos",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B63_p23_y711.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "2 (B67, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 27,
+    "buscar": "IV; l\ndenominación",
+    "reemplazar": "IV; la\ndenominación",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «la»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B67_p27_y525.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "3 (B70, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 29,
+    "buscar": "abandono e\nsede",
+    "reemplazar": "abandono [ilegible]\nsede",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «e»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B70_p29_y532.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B70_p29_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "3 (B74, LECTURA_DE_IMAGEN)",
+    "pagina_pdf": 31,
+    "buscar": "Social s\nentiende",
+    "reemplazar": "Social se\nentiende",
+    "motivo": "LECTURA_DE_IMAGEN: lectura de la imagen",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B74_p31_y518.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B74_p31_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "4 (B77, LECTURA_DE_IMAGEN)",
+    "pagina_pdf": 35,
+    "buscar": "el consentimiento;\ny",
+    "reemplazar": "el consentimiento:\ny",
+    "motivo": "LECTURA_DE_IMAGEN: lectura de la imagen",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B77_p35_y088.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B78, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 37,
+    "buscar": "los(as) niños(a<\nindígenas",
+    "reemplazar": "los(as) niños(as)\nindígenas",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «niños(as…»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B78_p37_y180.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B78_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B79, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "para s\nadopción",
+    "reemplazar": "para [ilegible]\nadopción",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «s»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B79_p37_y196.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B79_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B80, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "de s\nidentidad,",
+    "reemplazar": "de [ilegible]\nidentidad,",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «s»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B80_p37_y244.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B80_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B81, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "que s\nles",
+    "reemplazar": "que [ilegible]\nles",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «s»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B81_p37_y340.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B81_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B82, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "consentimiento d\ndar",
+    "reemplazar": "consentimiento [ilegible]\ndar",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «d»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B82_p37_y403.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B82_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B83, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "uno d\nlos",
+    "reemplazar": "uno [ilegible]\nlos",
+    "motivo": "LAGUNA_DOCUMENTADA: Solo se ve «d»; el resto está cortado por el borde del escaneo",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B83_p37_y453.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B83_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B84, LAGUNA_DOCUMENTADA)",
+    "pagina_pdf": 37,
+    "buscar": "Niñez y\nFamilia (IHNFA) ordenando",
+    "reemplazar": "Niñez y [ilegible]\nFamilia (IHNFA) ordenando",
+    "motivo": "LAGUNA_DOCUMENTADA: No se propone: dentro del nombre «Instituto Hondureño de la Niñez y la Familia»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B84_p37_y646.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B84_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "5 (B85, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 37,
+    "buscar": "o niña(\npor",
+    "reemplazar": "o niña(s)\npor",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: Visible: «niña(s…»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_derecho/B85_p37_y662.jpg; transcripcion_candidata/recortes_borde_derecho_nativo/B85_p37_nativo.png); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "6 (P02, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 41,
+    "buscar": "emitido\níediante Decreto",
+    "reemplazar": "emitido\nmediante Decreto",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: «…emitido ⏎ mediante Decreto Ejecutivo No.76…»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_izq/p41_y500.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "6 (P03, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 41,
+    "buscar": "1906, los\nuales se leerán",
+    "reemplazar": "1906, los\ncuales se leerán",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: «…de 1906, los ⏎ cuales se leerán así:»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_izq/p41_y516.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  },
+  {
+    "articulo": "6 (P07, LECTURA_POR_CONTEXTO_CLO)",
+    "pagina_pdf": 41,
+    "buscar": "debidamente\níconocida, sus",
+    "reemplazar": "debidamente\nreconocida, sus",
+    "motivo": "LECTURA_POR_CONTEXTO_CLO: «…unión de hecho debidamente ⏎ reconocida»",
+    "detectado_por": "Claude (recorte transcripcion_candidata/recortes_borde_izq/p41_y614.jpg); decisión firmada por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho), 2026-11-16, 03_RESOLUCION_TEXTUAL_A04.md"
+  }
+]

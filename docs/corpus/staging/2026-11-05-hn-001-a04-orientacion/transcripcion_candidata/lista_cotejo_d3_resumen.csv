@@ -1,20 +1,20 @@
-articulo,paginas,tipo,diferencias,encabezados_quitados,borde_legible,borde_parcial,borde_ilegible_parcial,pag41,firmadas
-1,1–27,texto,268,121/75,21,39,6,—,—
-2,27–28,texto,5,2/1,0,1,0,—,—
-3,28–31,texto,54,17/11,6,0,1,—,—
-4,31–36,texto,42,25/14,3,0,0,—,—
-5,36–41,texto,42,20/13,1,3,5,—,"C04 (123-F, «prohíbe») y C05 (207-F, «deudor(a)»): aplicadas"
-6,41–42,texto,3,8/5,0,0,0,sí (11 líneas con carácter inicial ausente),C06: lectura dual «11»/«511» (sin cambio); carácter inicial de «11» abierto
-7,42,texto,1,0/0,0,0,0,—,—
-8,42–44,texto,14,11/6,0,0,0,—,—
-9,44,texto,3,0/0,0,0,0,—,—
-10,44–45,texto,5,2/1,0,0,0,—,C01 («A la»): aplicada
-11,45,texto,1,0/0,0,0,0,—,C02 («67»): aplicada
-12,45,texto,1,1/0,0,0,0,—,—
-13,45,igual,0,2/1,0,0,0,—,—
-14,45,texto,1,0/0,0,0,0,—,C03 («334»): aplicada
-15,45,igual,0,0/0,0,0,0,—,—
-16,45,igual,0,0/0,0,0,0,—,—
-17,45–46,texto,1,4/2,0,0,0,—,—
-18,46,igual,0,0/0,0,0,0,—,—
-19,46,igual,0,0/0,0,0,0,—,—
+articulo,paginas,tipo,diferencias,encabezados_quitados,borde_legible,borde_parcial,borde_ilegible_parcial,pag41,lagunas_ilegible,firmadas
+1,1–27,texto,307,121/0,21,39,6,—,9,—
+2,27–28,texto,6,2/0,0,1,0,—,0,—
+3,28–31,texto,56,17/0,6,0,1,—,1,—
+4,31–36,texto,43,25/0,3,0,0,—,0,—
+5,36–41,texto,50,20/0,1,3,5,—,6,C04 y C05 aplicadas; resolución del 2026-11-16 aplicada
+6,41–42,texto,6,8/0,0,0,0,sí (11 líneas con carácter inicial ausente),0,C06: lectura dual «11»/«511» (sin cambio); pág. 41 resuelta (LECTURA_POR_CONTEXTO_CLO)
+7,42,texto,1,0/0,0,0,0,—,0,—
+8,42–44,texto,14,11/0,0,0,0,—,0,—
+9,44,texto,3,0/0,0,0,0,—,0,—
+10,44–45,texto,5,2/0,0,0,0,—,0,C01 aplicada
+11,45,texto,1,0/0,0,0,0,—,0,C02 aplicada
+12,45,texto,1,1/0,0,0,0,—,0,—
+13,45,igual,0,2/0,0,0,0,—,0,—
+14,45,texto,1,0/0,0,0,0,—,0,C03 aplicada; saltos de la lista verificados en el impreso
+15,45,igual,0,0/0,0,0,0,—,0,—
+16,45,igual,0,0/0,0,0,0,—,0,—
+17,45–46,texto,1,4/0,0,0,0,—,0,—
+18,46,igual,0,0/0,0,0,0,—,0,—
+19,46,igual,0,0/0,0,0,0,—,0,—

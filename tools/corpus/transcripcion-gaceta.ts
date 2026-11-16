@@ -45,14 +45,44 @@ export function patronesEncabezado(fecha: string, numero: string): RegExp[] {
   ];
 }
 
-export function transcribirSinEncabezados(texto: string, fecha: string, numero: string): Transcripcion {
-  const patrones = patronesEncabezado(fecha, numero);
+/** Línea sin espacios y en mayúsculas: «R E P U B L I C A D E HONDURAS» y «REPÚBLICA DE HONDURAS» quedan iguales. */
+export const compactarLinea = (l: string): string => l.replace(/\s+/g, '').toUpperCase();
+
+/**
+ * Encabezados de página ESPACIADOS o partidos que deja la capa OCR de un escaneo (A04, D.35-2013, La Gaceta 33,222): «L a Gaceta R E P U B L I C A
+ * D E HONDURAS - T E G U C I G A L P», «A L P A , M . D. C , 6 D E S E P T I E M B R E D E L 2013 No. 33,222», «Sección A Acuerdos y Ley es», «A. 41».
+ * Se comparan contra la línea COMPACTADA (`compactarLinea`). Siguen siendo patrones de línea COMPLETA y anclados: una línea de texto que solo
+ * menciona «República», «Tegucigalpa» o «La Gaceta» no coincide. No cubren la cabecera de la primera página (nombre del diario, año, sumario):
+ * esa se quita como un rango de líneas declarado por una persona, nunca por patrón.
+ */
+export function patronesEncabezadoEspaciados(fecha: string, numero: string): RegExp[] {
+  const fechaC = escapar(compactarLinea(fecha)).replace(/1/g, '[1Í]'); // el OCR lee a veces «2 0 Í 3»
+  const num = compactarLinea(numero);
+  const numC = `${escapar(num.slice(0, -1)).replace(/,/g, '[.,]')}(?:${escapar(num.slice(-1))}|:)?`; // «33,222», «33.222», «33,22», «33,22:»
+  return [
+    /^LA[GC]ACETA\|?(?:REP[ÚU]BLICADEHONDURAS-?TEGUC[A-Z]*,?)?$/,
+    /^REP[ÚU]BLICADEHONDURAS-?TEGUC[A-Z]*,?$/,
+    new RegExp(`^[A-Z]{0,5},?M\\.D\\.C\\.?,?${fechaC}(?:NO\\.?${numC})?$`),
+    /^.{0,12}SECCI[ÓO]NAACUERDOSYLE[YV]ES$/,
+    /^A\.\d{1,3}$/,
+  ];
+}
+
+export interface OpcionesTranscripcion {
+  /** También quita los encabezados espaciados o partidos de `patronesEncabezadoEspaciados`. Por defecto no (el D.284-2013 no lo usa). */
+  variantesEspaciadas?: boolean;
+}
+
+export function transcribirSinEncabezados(texto: string, fecha: string, numero: string, opciones: OpcionesTranscripcion = {}): Transcripcion {
+  const base = patronesEncabezado(fecha, numero);
+  const espaciados = opciones.variantesEspaciadas ? patronesEncabezadoEspaciados(fecha, numero) : [];
+  const esEncabezado = (l: string) => base.some((p) => p.test(l)) || espaciados.some((p) => p.test(compactarLinea(l)));
   // El salto de página (\f) separa el número de página del encabezado siguiente: se trata como fin de línea.
   const lineas = texto.replace(/\r\n?/g, '\n').replace(/\f/g, '\n').split('\n');
   const quitadas: LineaQuitada[] = [];
   const quedan: string[] = [];
   lineas.forEach((l, i) => {
-    if (patrones.some((p) => p.test(l.trim()))) quitadas.push({ linea: i + 1, texto: l.trim() });
+    if (esEncabezado(l.trim())) quitadas.push({ linea: i + 1, texto: l.trim() });
     else quedan.push(l);
   });
   // Las líneas vacías que dejan los encabezados se reducen a una sola (separación de párrafo), sin tocar el texto.
