@@ -274,3 +274,14 @@ Nombre: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_seni
 **FIRMADO (16-nov-2026):** el Titular aprobó y firmó expresamente D1, D2 y D4–D8 en los términos exactos de esta hoja (D3 ya estaba firmado en el §3). La autorización se limita **estrictamente a staging** (`aicakncgtuiiuomflkqj`) y no toca producción. V4→V5 queda expresamente sin firmar y reservado para una migración a producción con autorización aparte.
 
 Texto de `adjudicado_por` en las filas: **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**
+
+### Constancia de ejecución: visibilidad en staging (16-nov-2026)
+El Titular aplicó `out/piloto-d284-2013/visibilidad_staging.sql` (SHA-256 `c828ab8035aae5479dc3327dd90e6dc12f134a3213087b56a94cebdac2f351a0`) en **`mayalexhn-staging`** (`aicakncgtuiiuomflkqj`) el **2026-11-16**. El bloque atómico terminó sin abortar. La consulta de verificación devolvió exactamente los valores esperados, y Claude obtuvo los mismos valores con una consulta propia de solo lectura:
+
+| filas | visibles | ocultas | vigentes (`TRUE_PRESUNTA`, `V4`) | `rol = CONTEXT` | con embedding |
+|---:|---:|---:|---:|---|---:|
+| 39 | 39 | 0 | 39 | 4 (arts. 13, 14, 26 y 27) | 39 |
+
+`adjudicado_por` (el mismo valor en las 39 filas): **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**.
+
+**Estado del piloto:** el D.284-2013 queda en **V4** en staging. El bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` se retira con este PR (D7, segundo tiempo). **Producción no se tocó.** V4→V5 sigue sin firmar.
