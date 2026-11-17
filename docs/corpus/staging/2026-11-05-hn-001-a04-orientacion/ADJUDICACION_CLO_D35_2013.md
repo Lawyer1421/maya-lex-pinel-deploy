@@ -1,6 +1,6 @@
 # Paquete de adjudicación CLO · Decreto 35-2013 (A04)
 
-**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8 (V4→V5):** expresamente sin firmar · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
+**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8:** V3→V4 solo en staging firmada el 17-nov-2026; **V4→V5 (producción) expresamente sin firmar** · **D7, paso 1:** verificado en staging el 17-nov-2026 (§6) · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
 
 > Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego y se fusione el cambio de D7, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
 
@@ -91,7 +91,7 @@ No afectan al texto, pero sí a cualquier matriz de reformas que se construya de
 | D5 | Rol de los 19 artículos | ☒ **Art. 11 también `CONTEXT`** (§7): arts. 1–11 `CONTEXT` (11); arts. 12–19 fuente principal (8) ☐ Modificar | Propuesta original: 10/9; el CLO eligió la alternativa 11/8 |
 | D6 | Tipo de fuente | ☒ **`ley`** ☐ Otro | `ley` |
 | D7 | Quitar el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` | ☒ **Sí, en el orden estricto de D7, solo en staging** (§7) ☐ No todavía | Ingesta en staging → visibilidad en staging → PR de `clo-guards.ts` |
-| D8 | Promoción | ☐ (casilla D8 sin firmar) · **V4→V5 expresamente sin firmar** | El rótulo V4 de las filas en staging se aplica por la autorización de D6–D7 (§7) |
+| D8 | Promoción | ☒ **V3→V4 solo en staging** (firmado 17-nov-2026, §7) · **V4→V5 (producción) expresamente sin firmar** | El rótulo V4 de las filas en staging tiene firma expresa en D8 |
 
 ## 5. Propuesta para D4 (vigencia)
 
@@ -143,9 +143,26 @@ npx tsx scripts/embeddings-lote-staging.ts out/a04-d35-2013/rows.jsonl out/a04-d
 
 El parche se probó y luego se revirtió en esta rama: `git apply --check` limpio y 50/50 (d35-2013-catalogo y d284-2013-pilot) pruebas con él aplicado. **El código de esta rama sigue bloqueando el decreto**, como exige el orden de D7.
 
+### Constancia · D7, paso 1 (ingesta en staging): verificado el 17-nov-2026
+- **Aplicado por el CLO** en el SQL Editor de `mayalexhn-staging` (`aicakncgtuiiuomflkqj`), en orden: `insert_staging.sql` (`684273a8…`), `update_embeddings_staging.sql` (`fdd8e57a…`) y `verificacion_staging.sql` (`4fdfce0e…`). El Bot Auditor había verificado antes las tres huellas y que apuntan solo a staging.
+- **Verificación independiente de Claude** (consulta de solo lectura sobre `public.biblioteca_vectores`, lote `A04_D35_2013_01`, 17-nov-2026):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas · artículos distintos | 19 · 19 | **19 · 19** (1–19, sin huecos) |
+| Con embedding (384 dimensiones, mín. y máx.) | 19 | **19** |
+| Ocultas (`revision_pendiente = true`) · visibles | 19 · 0 | **19 · 0** |
+| `es_norma_vigente` NULL | 19 | **19** |
+| `jurisdiccion = 'HN'` · `fuente_tipo = 'ley'` | 19 · 19 | **19 · 19** |
+| `metadata.norm_id = 'HN:DECRETO_35_2013'` | 19 | **19** |
+| `metadata.transcripcion_sha256` = v6 `7c8f40f8…` | 19 | **19** |
+| Con `metadata.rol` o `metadata.estado_v` | 0 | **0** |
+
+- Las 19 filas cumplen la precondición de `visibilidad_staging.sql` (`597ec161…`). **Siguiente: D7, paso 2** (visibilidad), y su constancia aquí antes del paso 3. El parche de `clo-guards.ts` sigue sin aplicar. Producción no se tocó.
+
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
-> Propuestas técnicas de Claude (no son revisión jurídica). **Las casillas marcadas (☒) son las firmadas por el CLO el 16-nov-2026.**
+> Propuestas técnicas de Claude (no son revisión jurídica). **Las casillas marcadas (☒) son las firmadas por el CLO el 16-nov-2026, salvo D8 · V3→V4 solo en staging, firmada el 17-nov-2026.**
 
 ### D1 · Procedencia
 **Propuesta:** acreditada (§0).
@@ -202,8 +219,8 @@ Hasta que ese PR se fusione y se despliegue, las filas visibles siguen siendo so
 
 ### D8 · Promoción
 **Propuesta:** **V3→V4** (revisión profesional) con D1–D7 resueltas. En las filas: `metadata.estado_v = "V4"` y `metadata.adjudicacion = "ADJUDICACION_CLO_D35_2013 §7"`. **V4→V5** (producción) **no** se firma en esta hoja: requiere una migración revisada hacia producción y una autorización expresa aparte.
-☐ (casilla D8 sin firmar) · **V4→V5 (producción) expresamente sin firmar** ☐ Rechazado
-> El CLO firmó D1, D2 y D4–D7 y mantuvo D8 sin firmar. El estado `V4` que la escritura de visibilidad graba en las filas de staging se apoya en la autorización expresa de D6–D7 («visibilidad controlada únicamente en `mayalexhn-staging` (V4)»). No hay ninguna autorización hacia producción.
+☒ **V3→V4 solo en staging** (`mayalexhn-staging`, `aicakncgtuiiuomflkqj`) — firmado expresamente por **Abg. y Not. Fredy Omar Pinel Flores**, rol ☒ **propietario_despacho** (CLO / Director Maya Lex), **2026-11-17** · ☐ **V4→V5 a producción: expresamente sin firmar** ☐ Rechazado
+> El 16-nov-2026 el CLO firmó D1, D2 y D4–D7 y dejó D8 sin firmar. El 17-nov-2026, por recomendación del Bot Auditor y para evitar cualquier ambigüedad futura, firmó expresamente la promoción **V3→V4 solo en staging**, que es el `estado_v = "V4"` que graba `visibilidad_staging.sql`. **V4→V5 hacia producción sigue expresamente sin firmar** y requiere una migración revisada y una autorización aparte. El texto de `adjudicado_por` en las filas conserva la fecha de la firma del pliego (2026-11-16); la firma de D8 consta aquí.
 
 ### Firma
 «Como CLO/Director, adjudico el Decreto 35-2013 (`HN:DECRETO_35_2013`) según las casillas marcadas en D1, D2 y D4–D8 de esta hoja, y autorizo la ingesta y la escritura de visibilidad **solo en staging** (`aicakncgtuiiuomflkqj`), en el orden de D7.»
@@ -218,5 +235,7 @@ Nombre: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☐ abogado_revisor_seni
 - D7, en orden estricto y solo en staging.
 
 D3 ya estaba firmado sobre la v6 `7c8f40f8…`, con 176,506 caracteres, 19 artículos en serie, 15 lagunas `[ilegible]` y los 16 saltos impresos del art. 14. **D8 (V4→V5) queda expresamente sin firmar.** Producción no se toca.
+
+**FIRMADO (17-nov-2026):** el Titular firmó expresamente **D8 · V3→V4 solo en staging** (Abg. y Not. Fredy Omar Pinel Flores, `propietario_despacho`). **V4→V5 a producción sigue expresamente sin firmar.**
 
 Texto previsto de `adjudicado_por` en las filas: **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**
