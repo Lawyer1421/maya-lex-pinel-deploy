@@ -153,3 +153,13 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 - El CLO firmó D1, D2 y D4–D7 de `ADJUDICACION_CLO_D35_2013.md`. D5 queda con «art. 11 también `CONTEXT`»: 11 de contexto (arts. 1–11) y 8 principales (arts. 12–19). **D8 (V4→V5) sigue expresamente sin firmar.**
 - `visibilidad_staging.sql` se regeneró al reparto 11/8 (`597ec161…`) y el parche de D7 se actualizó (`55c1991d…`, sin aplicar).
 - Siguiente paso: **D7, paso 1** en `mayalexhn-staging`: `insert_staging.sql`, embeddings y verificación de 19 filas ocultas.
+
+### Actualización (2026-11-17, D7 paso 1 verificado y D8 V3→V4 firmada)
+- **D7, paso 1** aplicado por el CLO en `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) y verificado por Claude con una consulta de solo lectura: 19 filas del lote `A04_D35_2013_01` (arts. 1–19, v6 `7c8f40f8…`), 19 con embedding de 384 dimensiones, 19 ocultas, 0 visibles y 0 con `rol`/`estado_v`. Constancia en `ADJUDICACION_CLO_D35_2013.md` §6.
+- **D8:** el CLO firmó expresamente **V3→V4 solo en staging** (2026-11-17). **V4→V5 a producción sigue expresamente sin firmar.**
+- Siguiente en ese momento: **D7, paso 2** (`visibilidad_staging.sql`, `597ec161…`).
+
+### Actualización (2026-11-17, D7 paso 2 verificado — visibilidad)
+- **D7, paso 2** aplicado por el CLO en el SQL Editor de `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) con `visibilidad_staging.sql` (`597ec161e16d04dbd75ea6bb2b85b322b4fd5ca794cec87c910b80fa208bd999`). Bloque de reversión: comentado, no ejecutado.
+- Resultado verificado del lote `A04_D35_2013_01`: **19** filas; **19** visibles / **0** ocultas; **19** vigentes / **19** `TRUE_PRESUNTA` / **19** V4; **11** `CONTEXT` (arts. 1–11); constancias `INTERPRETACION_PENDIENTE_CLO` en arts. **1 y 11**; **19** con embedding. Constancia en `ADJUDICACION_CLO_D35_2013.md` §6.
+- **Habilitado el paso 3 final de D7:** aplicar el parche `55c1991d…` en `clo-guards.ts` (PR aparte). Producción no se toca.
