@@ -1,6 +1,6 @@
 # Paquete de adjudicación CLO · Decreto 35-2013 (A04)
 
-**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8:** V3→V4 solo en staging firmada el 17-nov-2026; **V4→V5 (producción) expresamente sin firmar** · **D7, paso 1:** verificado en staging el 17-nov-2026 (§6) · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
+**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8:** V3→V4 solo en staging firmada el 17-nov-2026; **V4→V5 (producción) expresamente sin firmar** · **D7, pasos 1 y 2:** verificados en staging el 17-nov-2026 (§6) · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
 
 > Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego y se fusione el cambio de D7, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
 
@@ -158,7 +158,22 @@ El parche se probó y luego se revirtió en esta rama: `git apply --check` limpi
 | `metadata.transcripcion_sha256` = v6 `7c8f40f8…` | 19 | **19** |
 | Con `metadata.rol` o `metadata.estado_v` | 0 | **0** |
 
-- Las 19 filas cumplen la precondición de `visibilidad_staging.sql` (`597ec161…`). **Siguiente: D7, paso 2** (visibilidad), y su constancia aquí antes del paso 3. El parche de `clo-guards.ts` sigue sin aplicar. Producción no se tocó.
+- Las 19 filas cumplían la precondición de `visibilidad_staging.sql` (`597ec161…`). El paso 2 quedó asentado a continuación. Producción no se tocó.
+
+### Constancia · D7, paso 2 (visibilidad en staging): verificado el 17-nov-2026
+- **Aplicado por el CLO** en el SQL Editor de `mayalexhn-staging` (`aicakncgtuiiuomflkqj`): `visibilidad_staging.sql` con SHA-256 **`597ec161e16d04dbd75ea6bb2b85b322b4fd5ca794cec87c910b80fa208bd999`**, lote `A04_D35_2013_01` (`HN:DECRETO_35_2013`). El bloque de reversión se mantuvo comentado y **no se ejecutó**.
+- **Resultado verificado** (post-aplicación, 17-nov-2026):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 19 | **19** |
+| Visibles · ocultas | 19 · 0 | **19 · 0** |
+| Vigentes (`es_norma_vigente`) · `TRUE_PRESUNTA` · `estado_v = V4` | 19 · 19 · 19 | **19 · 19 · 19** |
+| `rol = CONTEXT` (arts. 1–11) | 11 | **11** (`arts_context`: 1,2,3,4,5,6,7,8,9,10,11) |
+| Constancias `INTERPRETACION_PENDIENTE_CLO` | arts. 1 y 11 | **1,11** |
+| Con embedding | 19 | **19** |
+
+- **Siguiente: D7, paso 3** (parche `d7/D7_clo_guards_DECRETO_35_2013.patch`, SHA-256 `55c1991d…`) en un PR aparte. El código de esta rama **sigue bloqueando** el decreto (`INSTRUMENTOS_SOLO_CONTEXT`). Producción no se tocó.
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
