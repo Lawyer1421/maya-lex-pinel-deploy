@@ -97,8 +97,9 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
   // docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/ADJUDICACION_CLO_D284_2013.md §7). Sus filas pueden ser PRIMARY solo si cumplen
   // los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 13, 14, 26 y 27 siguen como CONTEXT por su metadata.rol (D5).
-  /** D.35-2013 (A04, La Gaceta 33,222; 2026-11-16): solo CONTEXT hasta que el CLO apruebe su pliego (docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/02_PLAN_CIERRE_A04.md). */
-  DECRETO_35_2013: 'INSTRUMENTO_SIN_PLIEGO_CLO',
+  // D.35-2013: retirado de esta lista por la adjudicación CLO (D7, firmada por el propietario_despacho; ADJUDICACION_CLO_D35_2013.md §7 en
+  // docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/), DESPUÉS de la ingesta y de la visibilidad en staging. Sus filas pueden ser PRIMARY
+  // solo si cumplen los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 1–11 siguen como CONTEXT por su metadata.rol (D5: 1–10 modificatorios; 11 por INTERPRETACION_PENDIENTE_CLO).
 });
 
 /** Instrumentos normativos notariales: las filas 03_NOTARIAL con otra identidad (protocolo y práctica) no son norma. */
