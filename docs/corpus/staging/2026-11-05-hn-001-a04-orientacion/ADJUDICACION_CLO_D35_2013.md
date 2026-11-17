@@ -1,8 +1,8 @@
 # Paquete de adjudicación CLO · Decreto 35-2013 (A04)
 
-**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8:** V3→V4 solo en staging firmada el 17-nov-2026; **V4→V5 (producción) expresamente sin firmar** · **D7, pasos 1 y 2:** verificados en staging el 17-nov-2026 (§6) · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
+**Identidad:** `HN:DECRETO_35_2013` · **Estado:** `CLO_PENDING` (fuente institucional validada: TSC, tier 4) · **PDF oficial:** SHA-256 `FBD87F33…F2FF`, 46 págs. · **D3:** firmado el 16-nov-2026 sobre la v6 `7c8f40f8…` · **D1, D2 y D4–D7:** firmadas el 16-nov-2026 (§7) · **D8:** V3→V4 solo en staging firmada el 17-nov-2026; **V4→V5 (producción) expresamente sin firmar** · **D7, pasos 1–3:** pasos 1 y 2 verificados en staging el 17-nov-2026; paso 3 (parche `55c1991d…`) aplicado en este PR (§6) · **Vigencia:** TRUE_PRESUNTA desde el 6-sep-2013 · **D5:** 11 `CONTEXT` (arts. 1–11) / 8 principales (arts. 12–19)
 
-> Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Hasta que el CLO apruebe este pliego y se fusione el cambio de D7, toda fila del decreto es solo contexto (`INSTRUMENTO_SIN_PLIEGO_CLO`).
+> Este documento **no aprueba nada**: reúne lo comprobado y deja cada decisión al CLO. Solo los roles `abogado_revisor_senior` o `propietario_despacho` pueden promover V3→V4 y V4→V5 (`lib/ingesta-oficial/estados.ts`), y cada intento queda en `ingestion_audit_log`. Tras fusionar el PR del paso 3 de D7, el bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` deja de aplicar al decreto; los arts. 1–11 siguen `CONTEXT` por `metadata.rol` (D5). **V4→V5 a producción sigue expresamente sin firmar.**
 
 ## 0. Procedencia institucional (hecho)
 
@@ -141,7 +141,7 @@ npx tsx scripts/embeddings-lote-staging.ts out/a04-d35-2013/rows.jsonl out/a04-d
 | **2. Visibilidad** | 4 | `visibilidad_staging.sql` | `597ec161e16d04dbd75ea6bb2b85b322b4fd5ca794cec87c910b80fa208bd999` | Bloque atómico (§7): 19 visibles, `TRUE_PRESUNTA`, V4; **11 `CONTEXT` (arts. 1–11)**; constancias `INTERPRETACION_PENDIENTE_CLO` en los arts. 1 y 11; se aborta si los conteos no son exactos. Incluye la verificación y la reversión. Regenerado el 16-nov-2026 tras la firma (sustituye a `91cc8e06…`, que tenía el reparto 10/9) |
 | **3. Código** | 5 | `d7/D7_clo_guards_DECRETO_35_2013.patch` (versionado) | `55c1991d2f07155e8b93c68d5caebcccb747c44742dc0666f6da7f2b2a60239c` | Actualizado al reparto 11/8 (sustituye a `36ec972d…`). Quita `DECRETO_35_2013` de `INSTRUMENTOS_SOLO_CONTEXT` y adapta `tests/d35-2013-catalogo.test.ts`. Se aplica en un PR aparte, **después** de la constancia de visibilidad, con la evidencia G6 regenerada en `C:\wtlf` |
 
-El parche se probó y luego se revirtió en esta rama: `git apply --check` limpio y 50/50 (d35-2013-catalogo y d284-2013-pilot) pruebas con él aplicado. **El código de esta rama sigue bloqueando el decreto**, como exige el orden de D7.
+El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-catalogo y d284-2013-pilot) antes de asentar el paso 3. La evidencia G6 de reversión (`docs/governance/evidence/g6-rollback-evidence.json`) se regeneró sobre bytes LF de `clo-guards.ts` tras aplicar el parche.
 
 ### Constancia · D7, paso 1 (ingesta en staging): verificado el 17-nov-2026
 - **Aplicado por el CLO** en el SQL Editor de `mayalexhn-staging` (`aicakncgtuiiuomflkqj`), en orden: `insert_staging.sql` (`684273a8…`), `update_embeddings_staging.sql` (`fdd8e57a…`) y `verificacion_staging.sql` (`4fdfce0e…`). El Bot Auditor había verificado antes las tres huellas y que apuntan solo a staging.
@@ -173,7 +173,13 @@ El parche se probó y luego se revirtió en esta rama: `git apply --check` limpi
 | Constancias `INTERPRETACION_PENDIENTE_CLO` | arts. 1 y 11 | **1,11** |
 | Con embedding | 19 | **19** |
 
-- **Siguiente: D7, paso 3** (parche `d7/D7_clo_guards_DECRETO_35_2013.patch`, SHA-256 `55c1991d…`) en un PR aparte. El código de esta rama **sigue bloqueando** el decreto (`INSTRUMENTOS_SOLO_CONTEXT`). Producción no se tocó.
+- Con estos conteos exactos queda habilitado el **paso 3** de D7. **D8 · V4→V5 a producción sigue expresamente sin firmar.** Producción no se tocó.
+
+### Constancia · D7, paso 3 (código — retiro del bloqueo): asentado el 17-nov-2026
+- **Parche aplicado:** `d7/D7_clo_guards_DECRETO_35_2013.patch` · SHA-256 **`55c1991d2f07155e8b93c68d5caebcccb747c44742dc0666f6da7f2b2a60239c`** (huella verificada antes de `git apply`).
+- **Efecto:** `DECRETO_35_2013` sale de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Régimen adjudicado D5: arts. **1–11** `CONTEXT` (constancias `INTERPRETACION_PENDIENTE_CLO` en **1 y 11**); arts. **12–19** elegibles PRIMARY si cumplen los demás guardianes.
+- **Pruebas:** 50/50 en `tests/d35-2013-catalogo.test.ts` + `tests/d284-2013-pilot.test.ts`; `npm run typecheck` limpio; evidencia G6 regenerada (`g6-rollback-evidence.json`, hash LF de `clo-guards.ts` = `a0a94b7c…`).
+- **Límites:** staging V4 del lote `A04_D35_2013_01` (pasos 1–2). **V4→V5 a producción expresamente sin firmar.** Producción no se toca.
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 

@@ -163,3 +163,8 @@ Accesibilidad probada desde el equipo del CLO el 16-nov-2026 (en noviembre falla
 - **D7, paso 2** aplicado por el CLO en el SQL Editor de `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) con `visibilidad_staging.sql` (`597ec161e16d04dbd75ea6bb2b85b322b4fd5ca794cec87c910b80fa208bd999`). Bloque de reversión: comentado, no ejecutado.
 - Resultado verificado del lote `A04_D35_2013_01`: **19** filas; **19** visibles / **0** ocultas; **19** vigentes / **19** `TRUE_PRESUNTA` / **19** V4; **11** `CONTEXT` (arts. 1–11); constancias `INTERPRETACION_PENDIENTE_CLO` en arts. **1 y 11**; **19** con embedding. Constancia en `ADJUDICACION_CLO_D35_2013.md` §6.
 - **Habilitado el paso 3 final de D7:** aplicar el parche `55c1991d…` en `clo-guards.ts` (PR aparte). Producción no se toca.
+
+### Actualización (2026-11-17, D7 paso 3 — cierre A04 staging V4)
+- Parche `55c1991d2f07155e8b93c68d5caebcccb747c44742dc0666f6da7f2b2a60239c` aplicado: `DECRETO_35_2013` sale de `INSTRUMENTOS_SOLO_CONTEXT`; arts. 1–11 siguen CONTEXT por metadata; arts. 12–19 elegibles PRIMARY.
+- Evidencia G6 regenerada sobre bytes LF (`g6-rollback-evidence.json`). Pruebas 50/50 (d35 + d284) y typecheck en verde.
+- **D8 · V4→V5 a producción sigue expresamente sin firmar.** Producción intacta. Constancia en `ADJUDICACION_CLO_D35_2013.md` §6.
