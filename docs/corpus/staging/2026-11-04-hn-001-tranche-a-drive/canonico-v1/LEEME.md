@@ -56,3 +56,16 @@ python -I docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/canonico-v1/ensa
    - las 35 diferencias menores frente al texto de 1996.
 3. **C07** (art. 21).
 4. **D4–D8** del pliego de `HN:CODIGO_NINEZ`: vigencia, roles, tipo `codigo`, retiro del bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` y promoción.
+
+## Auditoría de los 141 artículos no tocados (2026-11-18)
+- **Herramienta y resultado:** [`auditar_no_tocados.py`](auditar_no_tocados.py) compara la v1 con el texto de 1996 (`.doc` `15e3875d…`, texto `44c5fbe1…`, orientativo; no se versiona). Resultados en [`AUDITORIA_NO_TOCADOS_V1.md`](AUDITORIA_NO_TOCADOS_V1.md) (`0eea4f4f…`) y [`auditoria_no_tocados_v1.csv`](auditoria_no_tocados_v1.csv) (`ad6ee236…`).
+- **Conteo:**
+
+  | Categoría | Artículos |
+  |---|---:|
+  | a) Idénticos o solo formato | 95 |
+  | b) Solo sustitución del art. 280-A | 10 |
+  | c) Secretarías de Estado | 14 |
+  | d) Diferencias textuales | 22 |
+
+- **Defecto de la v1 detectado:** el **art. 284** arrastra una fuga de nota al pie de A03 («el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013.»). Debe quitarse en la v2.

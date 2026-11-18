@@ -1,0 +1,142 @@
+numero,categoria,comparado_con,aplica_280A,fuga_nota_a03,n_diferencias,diferencias
+2,a_IDENTICO_O_FORMATO,1996,no,,0,
+3,a_IDENTICO_O_FORMATO,1996,no,,0,
+4,a_IDENTICO_O_FORMATO,1996,no,,0,
+6,d_DIFERENCIA_TEXTUAL,1996,no,,1,"cambia: «determinan,» → «determinarán,»"
+7,d_DIFERENCIA_TEXTUAL,1996,no,,1,solo en v1: «» → «(1)»
+8,a_IDENTICO_O_FORMATO,1996,no,,0,
+9,a_IDENTICO_O_FORMATO,1996,no,,0,
+10,a_IDENTICO_O_FORMATO,1996,no,,0,
+11,a_IDENTICO_O_FORMATO,1996,no,,0,
+12,d_DIFERENCIA_TEXTUAL,1996,no,,2,solo en v1: «» → «su» | cambia: «realice» → «realicen»
+13,d_DIFERENCIA_TEXTUAL,1996,no,,1,solo en 1996: «la» → «»
+14,d_DIFERENCIA_TEXTUAL,1996,no,,3,solo en v1: «» → «(48)» | solo en v1: «» → «(6)» | solo en v1: «» → «los»
+15,a_IDENTICO_O_FORMATO,1996,no,,0,
+16,a_IDENTICO_O_FORMATO,1996,no,,0,
+17,a_IDENTICO_O_FORMATO,1996,no,,0,
+18,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «ofrecerá» → «ofrecerán»
+19,c_SECRETARIAS_DE_ESTADO,1996,no,,2,solo en 1996: «Pública y Asistencia Social.» → «» | solo en 1996: «Pública y Asistencia Social» → «»
+22,a_IDENTICO_O_FORMATO,1996,no,,0,
+23,a_IDENTICO_O_FORMATO,1996,no,,0,
+24,a_IDENTICO_O_FORMATO,1996,no,,0,
+25,a_IDENTICO_O_FORMATO,1996,no,,0,
+26,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «incluida» → «incluidas»
+27,a_IDENTICO_O_FORMATO,1996,no,,0,
+28,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «sicológico.» → «psicológico.»
+29,a_IDENTICO_O_FORMATO,1996,no,,0,
+30,a_IDENTICO_O_FORMATO,1996,no,,0,
+31,a_IDENTICO_O_FORMATO,1996,no,,0,
+33,a_IDENTICO_O_FORMATO,1996,no,,0,
+34,a_IDENTICO_O_FORMATO,1996,no,,0,
+35,d_DIFERENCIA_TEXTUAL,1996,no,,1,solo en 1996: «públicas» → «»
+36,a_IDENTICO_O_FORMATO,1996,no,,0,
+37,a_IDENTICO_O_FORMATO,1996,no,,0,
+38,a_IDENTICO_O_FORMATO,1996,no,,0,
+39,a_IDENTICO_O_FORMATO,1996,no,,0,
+40,d_DIFERENCIA_TEXTUAL,1996,no,,1,solo en 1996: «a» → «»
+41,a_IDENTICO_O_FORMATO,1996,no,,0,
+42,a_IDENTICO_O_FORMATO,1996,no,,0,
+43,a_IDENTICO_O_FORMATO,1996,no,,0,
+44,a_IDENTICO_O_FORMATO,1996,no,,0,
+45,a_IDENTICO_O_FORMATO,1996,no,,0,
+46,a_IDENTICO_O_FORMATO,1996,no,,0,
+47,a_IDENTICO_O_FORMATO,1996,no,,0,
+48,a_IDENTICO_O_FORMATO,1996,no,,0,
+49,a_IDENTICO_O_FORMATO,1996,no,,0,
+50,d_DIFERENCIA_TEXTUAL,1996+280A,si,,2,"solo en v1: «» → «de» | solo en v1: «» → «(IHNFA),»"
+51,a_IDENTICO_O_FORMATO,1996,no,,0,
+52,a_IDENTICO_O_FORMATO,1996,no,,0,
+53,a_IDENTICO_O_FORMATO,1996,no,,0,
+54,a_IDENTICO_O_FORMATO,1996,no,,0,
+55,a_IDENTICO_O_FORMATO,1996,no,,0,
+56,a_IDENTICO_O_FORMATO,1996,no,,0,
+57,a_IDENTICO_O_FORMATO,1996,no,,0,
+58,a_IDENTICO_O_FORMATO,1996,no,,0,
+59,a_IDENTICO_O_FORMATO,1996,no,,0,
+60,a_IDENTICO_O_FORMATO,1996,no,,0,
+61,a_IDENTICO_O_FORMATO,1996,no,,0,
+83,a_IDENTICO_O_FORMATO,1996,no,,0,
+84,a_IDENTICO_O_FORMATO,1996,no,,0,
+85,a_IDENTICO_O_FORMATO,1996,no,,0,
+86,a_IDENTICO_O_FORMATO,1996,no,,0,
+87,a_IDENTICO_O_FORMATO,1996,no,,0,
+88,a_IDENTICO_O_FORMATO,1996,no,,0,
+89,a_IDENTICO_O_FORMATO,1996,no,,0,
+90,a_IDENTICO_O_FORMATO,1996,no,,0,
+91,a_IDENTICO_O_FORMATO,1996,no,,0,
+92,a_IDENTICO_O_FORMATO,1996,no,,0,
+93,a_IDENTICO_O_FORMATO,1996,no,,0,
+94,a_IDENTICO_O_FORMATO,1996,no,,0,
+95,a_IDENTICO_O_FORMATO,1996,no,,0,
+100,a_IDENTICO_O_FORMATO,1996,no,,0,
+101,a_IDENTICO_O_FORMATO,1996,no,,0,
+103,a_IDENTICO_O_FORMATO,1996,no,,0,
+106,a_IDENTICO_O_FORMATO,1996,no,,0,
+107,a_IDENTICO_O_FORMATO,1996,no,,0,
+108,a_IDENTICO_O_FORMATO,1996,no,,0,
+109,d_DIFERENCIA_TEXTUAL,1996+280A,si,,1,"cambia: «previsión,» → «prevención,»"
+110,d_DIFERENCIA_TEXTUAL,1996+280A,si,,1,cambia: «deberá» → «deberán»
+111,c_SECRETARIAS_DE_ESTADO,1996+280A,si,,4,"cambia: «corresponde» → «corresponden» | cambia: «Promoverá,» → «Promover,» | solo en 1996: «Pública» → «» | solo en 1996: «y Asistencia Social,» → «»"
+112,c_SECRETARIAS_DE_ESTADO,1996+280A,si,,1,solo en 1996: «Pública y Asistencia Social» → «»
+114,a_IDENTICO_O_FORMATO,1996,no,,0,
+115,a_IDENTICO_O_FORMATO,1996,no,,0,
+116,a_IDENTICO_O_FORMATO,1996,no,,0,
+117,a_IDENTICO_O_FORMATO,1996,no,,0,
+118,c_SECRETARIAS_DE_ESTADO,1996,no,,2,"cambia: «Previsión» → «Seguridad» | solo en 1996: «Pública,» → «»"
+119,c_SECRETARIAS_DE_ESTADO,1996,no,,2,cambia: «Previsión» → «Seguridad» | solo en v1: «» → «a»
+120,a_IDENTICO_O_FORMATO,1996,no,,0,
+121,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «deberán» → «deberá»
+122,c_SECRETARIAS_DE_ESTADO,1996,no,,6,cambia: «inflamantes» → «inflamables» | cambia: «acústicas.» → «cáusticas.» | cambia: «entrañen» → «extrañen» | cambia: «Previsión» → «Seguridad» | solo en 1996: «Pública.» → «» | cambia: «desempleados» → «desempeñados»
+123,a_IDENTICO_O_FORMATO,1996,no,,0,
+124,c_SECRETARIAS_DE_ESTADO,1996,no,,2,cambia: «La persona» → «Las personas» | cambia: «Previsión» → «Seguridad»
+125,d_DIFERENCIA_TEXTUAL,1996,no,,2,solo en 1996: «dieciséis» → «» | cambia: «dieciocho» → «diez y ocho»
+126,c_SECRETARIAS_DE_ESTADO,1996,no,,1,cambia: «Previsión» → «Seguridad»
+127,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «la» → «las»
+129,a_IDENTICO_O_FORMATO,1996,no,,0,
+130,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «reconocidos» → «reconocidas»
+131,a_IDENTICO_O_FORMATO,1996,no,,0,
+132,c_SECRETARIAS_DE_ESTADO,1996,no,,1,cambia: «Previsión» → «Seguridad»
+133,c_SECRETARIAS_DE_ESTADO,1996,no,,1,cambia: «Previsión» → «Seguridad»
+135,a_IDENTICO_O_FORMATO,1996,no,,0,
+136,c_SECRETARIAS_DE_ESTADO,1996,no,,1,cambia: «Previsión» → «Seguridad»
+137,c_SECRETARIAS_DE_ESTADO,1996,no,,1,cambia: «Previsión» → «Seguridad»
+138,c_SECRETARIAS_DE_ESTADO,1996+280A,si,,3,"cambia: «Previsión» → «Seguridad» | solo en 1996: «Pública y Asistencia Social,» → «» | cambia: «adecuamente» → «adecuadamente»"
+144,a_IDENTICO_O_FORMATO,1996,no,,0,
+151,b_SUSTITUCION_280A,1996+280A,si,,0,
+153,c_SECRETARIAS_DE_ESTADO,1996+280A,si,,2,"cambia: «Gobernación» → «Interior» | cambia: «Justicia,» → «Población,»"
+155,b_SUSTITUCION_280A,1996+280A,si,,0,
+156,d_DIFERENCIA_TEXTUAL,1996+280A,si,,2,cambia: «prevista» → «previa» | cambia: «el» → «al»
+157,b_SUSTITUCION_280A,1996+280A,si,,0,
+158,b_SUSTITUCION_280A,1996+280A,si,,0,
+159,d_DIFERENCIA_TEXTUAL,1996+280A,si,,1,solo en 1996: «Hondureño» → «»
+160,d_DIFERENCIA_TEXTUAL,1996+280A,si,,1,cambia: «al» → «el»
+161,b_SUSTITUCION_280A,1996+280A,si,,0,
+172,a_IDENTICO_O_FORMATO,1996,no,,0,
+174,b_SUSTITUCION_280A,1996+280A,si,,0,
+175,a_IDENTICO_O_FORMATO,1996,no,,0,
+176,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «Farmamacodependencia» → «Farmacodependencia»
+177,a_IDENTICO_O_FORMATO,1996,no,,0,
+178,a_IDENTICO_O_FORMATO,1996,no,,0,
+179,a_IDENTICO_O_FORMATO,1996,no,,0,
+266,a_IDENTICO_O_FORMATO,1996,no,,0,
+267,a_IDENTICO_O_FORMATO,1996,no,,0,
+268,a_IDENTICO_O_FORMATO,1996,no,,0,
+269,b_SUSTITUCION_280A,1996+280A,si,,0,
+270,b_SUSTITUCION_280A,1996+280A,si,,0,
+271,a_IDENTICO_O_FORMATO,1996,no,,0,
+272,a_IDENTICO_O_FORMATO,1996,no,,0,
+273,a_IDENTICO_O_FORMATO,1996,no,,0,
+274,b_SUSTITUCION_280A,1996+280A,si,,0,
+275,d_DIFERENCIA_TEXTUAL,1996,no,,1,cambia: «ch)» → «d)»
+276,b_SUSTITUCION_280A,1996+280A,si,,0,
+277,a_IDENTICO_O_FORMATO,1996,no,,0,
+278,a_IDENTICO_O_FORMATO,1996,no,,0,
+279,a_IDENTICO_O_FORMATO,1996,no,,0,
+280,a_IDENTICO_O_FORMATO,1996,no,,0,
+281,a_IDENTICO_O_FORMATO,1996,no,,0,
+283,a_IDENTICO_O_FORMATO,1996,no,,0,
+284,a_IDENTICO_O_FORMATO,1996,no,"el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013.",0,
+285,a_IDENTICO_O_FORMATO,1996,no,,0,
+286,a_IDENTICO_O_FORMATO,1996,no,,0,
+287,a_IDENTICO_O_FORMATO,1996,no,,0,
+288,a_IDENTICO_O_FORMATO,1996,no,,0,
