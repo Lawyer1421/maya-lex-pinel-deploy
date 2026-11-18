@@ -51,7 +51,7 @@ Decisión: ☐ Aprobar las 2 · ☐ Rechazar · ☐ Decidir por separado: B08 �
 
 - **69 finales del borde derecho** coinciden con la v6, puntuación incluida: «mismo;» (B25), «afectivo;» (B61) y «consentimiento;» (B77) llevan punto y coma, como en la v6.
 - **C01–C05** y el **borde izquierdo de la pág. 41**: coinciden con lo firmado.
-- **Art. 11 (arts. 134/141):** el ejemplar 2 imprime la misma frase. **La interpretación sigue abierta** (`PASAJES_134_141.md`). Para resolverla hace falta el texto original del D. 73-96 (paso 1 de `02_PLAN_CIERRE_A04.md` §2.4). El 2026-11-18 el Titular aportó una copia de la Biblioteca Electrónica del Poder Judicial (© 1997), que **todavía no está registrada en el repositorio**.
+- **Art. 11 (arts. 134/141):** el ejemplar 2 imprime la misma frase. **La interpretación sigue abierta** (`PASAJES_134_141.md`). Para resolverla hace falta el texto original del D. 73-96 (paso 1 de `02_PLAN_CIERRE_A04.md` §2.4). El 2026-11-18 el Titular aportó una copia de la Biblioteca Electrónica del Poder Judicial (© 1997), registrada como fuente orientativa en `paquete-revision/FUENTE_ORIENTATIVA_D73_96_ORIGINAL.md` (`UNVERIFIED` / `DISCOVERY_ONLY`).
 - **B87 y B88** (pág. 46) pertenecen al Decreto 107-2013 y quedan fuera de este cotejo.
 
 ## Firma
