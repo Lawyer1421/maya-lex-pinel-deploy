@@ -80,6 +80,21 @@ No afectan al texto, pero sí a cualquier matriz de reformas que se construya de
 - **La ingesta exige este hash exacto** (`--transcripcion-sha256`) y que el PDF sea el del TSC (`fbd87f33…`). Si cambia una sola letra, se detiene.
 - Las 15 lagunas `[ilegible]` están en los arts. 1, 3 y 5. Los tres son `CONTEXT` por D5 (Decisión 3 de la resolución textual).
 
+### Firma D3 sobre la v7 — FIRMADA (2026-11-18)
+
+| Campo | Valor |
+|---|---|
+| Instrumento | `HN:DECRETO_35_2013` · Decreto Legislativo No. 35-2013 · La Gaceta No. 33,222 del 6-sep-2013 |
+| Versión aprobada D3 | **v7**: [`transcripcion_candidata/A04_transcripcion_candidata_v7.txt`](transcripcion_candidata/A04_transcripcion_candidata_v7.txt) · 176.391 caracteres · **0 lagunas `[ilegible]`** |
+| SHA-256 (bytes LF) | **`460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023`** |
+| Origen | v6 (`7c8f40f8…`, D3 del 16-nov-2026) + las 18 correcciones del cotejo con el ejemplar 2 (sello CEDIJ, `b5db8bf7…`), firmadas en `07_HOJA_DECISION_COTEJO_EJEMPLAR2.md` |
+| Firmante | **Abg. y Not. Fredy Omar Pinel Flores** · rol **propietario_despacho** (CLO / Director Maya Lex) · **2026-11-18** |
+| Texto de `--cotejado-por` | `Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex), firma D3 del 2026-11-18 sobre la v7 (ADJUDICACION_CLO_D35_2013.md §3)` |
+
+- **Alcance de la firma, según el CLO:** registra la D3 de la v7 en su manifiesto (`…_v7_manifiesto.json`, `estado = TEXTO_DEFINITIVO_FIRMA_D3`) y en este pliego, y prepara el SQL de actualización controlada para `mayalexhn-staging`. El SQL **no se ejecuta** hasta que el CLO lo revise (§6, constancia D3-v7).
+- **La v6 conserva su D3 del 16-nov-2026** y sigue siendo el texto cargado en staging hasta que se aplique esa actualización. Producción: V4→V5 **sin firmar**.
+- La ingesta con la v7 exige este hash (`--transcripcion-sha256 460e493d…`) y el PDF del TSC (`fbd87f33…`). Con esos datos produjo **19 filas y 0 excepciones**, con los mismos `id` que la v6.
+
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
 
 | # | Decisión | Opciones | Propuesta |
@@ -180,6 +195,88 @@ El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-cata
 - **Efecto:** `DECRETO_35_2013` sale de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Régimen adjudicado D5: arts. **1–11** `CONTEXT` (constancias `INTERPRETACION_PENDIENTE_CLO` en **1 y 11**); arts. **12–19** elegibles PRIMARY si cumplen los demás guardianes.
 - **Pruebas:** 50/50 en `tests/d35-2013-catalogo.test.ts` + `tests/d284-2013-pilot.test.ts`; `npm run typecheck` limpio; evidencia G6 regenerada (`g6-rollback-evidence.json`, hash LF de `clo-guards.ts` = `a0a94b7c…`).
 - **Límites:** staging V4 del lote `A04_D35_2013_01` (pasos 1–2). **V4→V5 a producción expresamente sin firmar.** Producción no se toca.
+
+### Constancia · D3-v7: actualización de staging PREPARADA, NO APLICADA (2026-11-18)
+- **Generación** (carpeta `out/`, no versionada):
+  1. Ingesta con la v7, con el mismo comando del §6 y la v7, su hash y la firma D3 de la v7, en `out/a04-d35-2013-v7/`: 19 filas, 0 excepciones.
+  2. Embeddings con `scripts/embeddings-lote-staging.ts`.
+  3. SQL con [`d3v7/generar_actualizacion_v7_staging.py`](d3v7/generar_actualizacion_v7_staging.py) (`python -I`, determinista).
+
+| Archivo | SHA-256 | Contenido |
+|---|---|---|
+| `out/a04-d35-2013-v7/rows.jsonl` · `update_embeddings_staging.sql` | `be5003aa1ea1b6b91b1432e5ea5d01a057b6bd4b9fcc86980863c6cdad4e2c20` · `e8f5db3199be3330fc78a3d1b49f530f47e366cff651900b69e802062a7fd861` | 19 filas v7, mismos `id` que la v6 |
+| **`out/a04-d35-2013-v7/actualizacion_v7_staging.sql`** | **`0de36a7ca6b484bd8ecbed9d2486136ce8a414bb6d2868a85fc1b00640221c76`** | Bloque atómico (`DO`) con precondición y postcondición. Ver el detalle debajo de la tabla. |
+| `out/a04-d35-2013-v7/reversion_v7_a_v6_staging.sql` | `47d0b9662fd99d3b8e0f85cff1d6d637fa63f65f1e7d986bd473d51657f35bd3` | Vuelta exacta a la v6 (texto, hashes, embeddings y claves). **Solo por orden del CLO.** |
+
+**Qué hace `actualizacion_v7_staging.sql`:**
+- **Arts. 1, 3, 5 y 6:** pasan al texto v7. Cambian `contenido`, `hash_contenido`, `article_sha256` y `embedding`.
+- **Las 19 filas:** cambian solo `transcripcion_sha256`, `text_sha256` y `cotejado_por`, y se agregan `transcripcion_anterior_sha256` y `transcripcion_version = v7`. **No toca** visibilidad, vigencia, `rol`, `estado_v`, constancias ni `es_norma_vigente`.
+
+- **Qué cambia y qué no (comprobado al generar):**
+  - El texto solo cambia en los arts. 1, 3, 5 y 6 del decreto, que contienen las 18 correcciones.
+  - En los otros 15 artículos el texto es idéntico al de la v6, igual que su embedding.
+  - En los arts. 1, 3 y 5 el embedding también sale idéntico: el modelo e5-small lee los primeros 512 tokens y las correcciones caen más adelante. **Solo cambia el embedding del art. 6.**
+  - Los textos incrustados en los dos SQL cumplen `sha256(contenido) = hash_contenido`.
+- **Precondición verificada en staging** (consulta de solo lectura, 2026-11-18):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 19 | **19** |
+| En v6, visibles, vigentes, V4, con embedding | 19 | **19** |
+| `CONTEXT` | 11 | **11** |
+| Texto v6 en los arts. 1, 3, 5 y 6 (`hash_contenido`) | 4 | **4** |
+| Constancias `INTERPRETACION_PENDIENTE_CLO` (arts. 1 y 11) | 2 | **2** |
+| `TRUE_PRESUNTA` | 19 | **19** |
+
+- **Aplicada el 2026-11-18** mediante la variante compacta con normalización a `
+` (ver la constancia de aplicación más abajo). **Producción no se toca. V4→V5 sigue sin firmar.**
+- La resolución de los puntos (a)–(d) de los arts. 134 y 141 (`paquete-revision/PASAJES_134_141.md`) **no está en este SQL**. Si el CLO la firma, va en un bloque aparte, generado y revisado por separado.
+
+### Resolución del CLO sobre el art. 11 (arts. 134 y 141 del D. 73-96) — FIRMADA (2026-11-18)
+- **Firma:** Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho, 2026-11-18. El texto completo está en `paquete-revision/PASAJES_134_141.md` §6.
+- **Decisiones:**
+  - (a) Los literales ch) y d) pertenecen al **art. 141**; las notas 23 y 24 de A03 son un error editorial.
+  - (b) Los literales e) y f) quedaron **derogados del art. 141**.
+  - (c) «Artículos 134» **deroga íntegramente el art. 134**; el delito de explotación económica pasa al art. 179-F del Código Penal por el art. 8 del decreto.
+  - (d) Para este pliego **basta** La Gaceta 33,222 (TSC y CEDIJ) con la fuente orientativa del D. 73-96. **El cotejo con La Gaceta 28,053 queda para D1–D2 de `HN:CODIGO_NINEZ`.**
+- **D5 no cambia:** el art. 11 sigue `CONTEXT` y el reparto sigue siendo 11/8. La constancia del art. 1 (C07) sigue pendiente.
+
+| Archivo (`out/a04-d35-2013-v7/`) | SHA-256 | Contenido |
+|---|---|---|
+| `actualizacion_v7_staging_compacta.sql` | **`fd434655e5bae537ddf64428d642d9bffb585863d1570f2399b6842f9d401782`** (aplicada). Primera versión `90345086…`: abortada sin cambios | **Mismo efecto** que `actualizacion_v7_staging.sql` (`0de36a7c…`), con las mismas precondiciones y postcondiciones, **más** la normalización a `\n` (paso 0) y la postcondición `sha256(contenido) = hash_contenido` sin `\r` en las 19 filas. Ver las notas debajo de la tabla. |
+| `resolucion_art11_staging.sql` | `d17191e721da0ae0c210db9135bb44ff4c38d39043b31812d91d3b223ca4a1a0` | Exige la v7 aplicada en las 19 filas. En el art. 11: `INTERPRETACION_PENDIENTE_CLO` → `interpretacion_estado = RESUELTO_CLO_2026_11_18`, con el resumen de la resolución (se conserva el texto anterior) y `motivo_rol = DISPOSICION_DEROGATORIA…`. Postcondición: 1 pendiente (art. 1), 1 resuelta (art. 11), 11 `CONTEXT`. Incluye la verificación final y la reversión, comentada. |
+
+**Sobre la variante compacta:**
+- **Qué hace:** en lugar de incrustar el texto íntegro (167 KB), aplica en la base las 18 sustituciones firmadas sobre el texto v6 ya cargado. Después se **aborta** si el `sha256(contenido)` que calcula Postgres no es el `hash_contenido` de la v7.
+- **Por qué existe:** el archivo completo no cabe de forma fiable en una llamada de la herramienta de Supabase.
+- **Verificación local:** las 18 sustituciones están una vez cada una en su fila y reproducen byte a byte el texto v7 de los arts. 1, 3, 5 y 6.
+
+### Constancia · D3-v7 y resolución del art. 11 APLICADAS en staging (2026-11-18)
+- **Autorización:** el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho) autorizó expresamente la ejecución en `mayalexhn-staging` (`aicakncgtuiiuomflkqj`), en este orden: la actualización v7 y después la resolución del art. 11. Aprobó la variante compacta y la normalización a `\n`. Ejecutó Claude con la herramienta de Supabase, en transacciones atómicas.
+- **Intento 1 (`90345086…`): ABORTADO, sin cambios.**
+  - La postcondición de hash dio 0 de 4.
+  - **Causa:** el contenido de las 19 filas del lote estaba guardado con `\r\n`. La carga v6 del 17-nov pasó por un editor de Windows: es el mismo problema de fin de línea de la evidencia G6.
+  - Consultas de solo lectura: 19/19 filas con `\r`; `sha256(contenido) = hash_contenido` en 0/19 tal como estaba guardado y en **19/19 al normalizar a `\n`**. El texto era correcto; solo cambiaba el fin de línea. Los embeddings ya se habían calculado sobre `\n`.
+- **Intento 2 (`fd434655…`): APLICADO.**
+  - Antes de normalizar comprueba que las 19 filas recuperan su hash v6 sin los `\r`.
+  - Después aplica la v7 y comprueba todas las postcondiciones.
+- **Resolución del art. 11 (`d17191e7…`): APLICADA** después de la v7.
+- **Verificación independiente** (solo lectura, después de las dos transacciones):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 19 | **19** |
+| Visibles, vigentes, V4, con embedding | 19 | **19** |
+| En v7 (`460e493d…`) con `sha256(contenido) = hash_contenido` | 19 | **19** |
+| Lagunas `[ilegible]` · filas con `\r` | 0 · 0 | **0 · 0** |
+| `TRUE_PRESUNTA` | 19 | **19** |
+| `CONTEXT` · fuente principal (rol vacío, elegibles PRIMARY según `clo-guards.ts`) | 11 · 8 | **11 · 8** |
+| Constancia pendiente · constancia resuelta | art. 1 · art. 11 | **1 · 11** |
+| Art. 6: lista «434, / 511, 516…» | sí | **sí** |
+| Embedding del art. 6 frente al vector v7 local (384 dimensiones) | idéntico | **diferencia máxima 0,0** |
+
+- **Fuera de esta operación:** el lote **`PILOTO_D284_2013_01`** (D. 284-2013) también tiene `\r` en el contenido: 39 filas, 58 en toda la tabla menos las 19 de este lote. **No se tocó.** Su normalización requiere decisión aparte.
+- **Producción (`thgrhueckkjdutjvcufp`) no se tocó. V4→V5 sigue sin firmar.**
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
