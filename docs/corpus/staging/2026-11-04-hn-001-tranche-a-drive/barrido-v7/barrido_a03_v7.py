@@ -26,6 +26,7 @@ DEROGADOS_ART11 = {str(n) for n in range(62, 83)} | {'134', '170', '171'}
 LITERALES_141 = 'ch), d), e) y f) del art. 141 (art. 11; resolución del CLO 2026-11-18)'
 D130_2017 = {'21'}  # C07: reformado por el D.35-2013 y derogado después por el D.130-2017 (art. 632, num. 12), sin cotejar
 
+REF = seg['v7'].get('version', 'v7')  # versión de la transcripción del D.35-2013 (v7 por defecto)
 internos = {x['numero']: x for x in seg['v7']['internos']}
 reformados = {k for k, x in internos.items() if x['articulo_decreto'] == '1'}
 adicionados = {k for k, x in internos.items() if x['articulo_decreto'] == '3'}
@@ -96,22 +97,22 @@ for a in seg['a03']['articulos']:
             'notas_a03': len(notas), 'nota_cita_d35_2013': 'si' if cita35 else 'no', 'accion_d35_2013': '', 'referencia': '',
             'estado': '', 'similitud': '', 'diferencias': '', 'observacion': ''}
     if num in D130_2017:
-        fila.update(accion_d35_2013='REFORMA (art. 1)', referencia='v7 art. 1',
+        fila.update(accion_d35_2013='REFORMA (art. 1)', referencia=f'{REF} art. 1',
                     estado='DEROGADO_POSTERIOR_D130_2017' if derog_a03 else 'REVISAR_D130_2017',
                     observacion='C07: reformado por el D.35-2013 y derogado después por el D.130-2017 (sin cotejar); pendiente del CLO')
     elif num in DEROGADOS_ART11:
-        fila.update(accion_d35_2013='DEROGA (art. 11)', referencia='v7 art. 11',
+        fila.update(accion_d35_2013='DEROGA (art. 11)', referencia=f'{REF} art. 11',
                     estado='DEROGADO_CONCUERDA' if derog_a03 else 'DEROGADO_EN_D35_PERO_A03_CONSERVA_TEXTO')
         if num == '134':
             fila['observacion'] = 'Resolución del CLO 2026-11-18: el art. 134 queda derogado íntegro; A03 (notas 23 y 24) solo anota ch) y d)'
     elif num in reformados:
         e, r, dif = comparar(txt, internos[num]['texto'])
-        fila.update(accion_d35_2013='REFORMA (art. 1)', referencia='v7 art. 1', estado=e, similitud=r, diferencias=dif)
+        fila.update(accion_d35_2013='REFORMA (art. 1)', referencia=f'{REF} art. 1', estado=e, similitud=r, diferencias=dif)
         if num == '141':
             fila['observacion'] = f'Además, el art. 11 deroga los literales {LITERALES_141}'
     elif num in adicionados:
         e, r, dif = comparar(txt, internos[num]['texto'])
-        fila.update(accion_d35_2013='ADICIONA (art. 3)', referencia='v7 art. 3', estado=e, similitud=r, diferencias=dif)
+        fila.update(accion_d35_2013='ADICIONA (art. 3)', referencia=f'{REF} art. 3', estado=e, similitud=r, diferencias=dif)
     else:
         fila['accion_d35_2013'] = 'NO_TOCADO'
         if derog_a03:
@@ -136,7 +137,7 @@ for a in seg['a03']['articulos']:
 presentes = {a['numero'] for a in seg['a03']['articulos']}
 for num in sorted(set(internos) - presentes, key=lambda x: (int(re.match(r'\d+', x).group()), x)):
     filas.append({'numero': num, 'ordinal': '', 'sha256_a03': '', 'caracteres_a03': 0, 'notas_a03': 0, 'nota_cita_d35_2013': '',
-                  'accion_d35_2013': 'REFORMA (art. 1)' if num in reformados else 'ADICIONA (art. 3)', 'referencia': 'v7',
+                  'accion_d35_2013': 'REFORMA (art. 1)' if num in reformados else 'ADICIONA (art. 3)', 'referencia': REF,
                   'estado': 'FALTA_EN_A03', 'similitud': '', 'diferencias': '', 'observacion': 'Artículo de la v7 que A03 no contiene'})
 
 with open(salida, 'w', encoding='utf-8', newline='') as f:
@@ -144,7 +145,7 @@ with open(salida, 'w', encoding='utf-8', newline='') as f:
     w.writeheader()
     w.writerows(filas)
 
-print(f'filas: {len(filas)} (A03: {len(seg["a03"]["articulos"])}) · v7: {len(reformados)} reformados, {len(adicionados)} adicionados'
+print(f'filas: {len(filas)} (A03: {len(seg["a03"]["articulos"])}) · {REF}: {len(reformados)} reformados, {len(adicionados)} adicionados'
       f' · 1996: {len(texto_1996)} artículos (sha256 del texto {sha_1996})')
 for k, v in sorted(Counter((x['accion_d35_2013'].split(' ')[0], x['estado']) for x in filas).items()):
     print(f'{v:4d}  {k[0]:<10} {k[1]}')

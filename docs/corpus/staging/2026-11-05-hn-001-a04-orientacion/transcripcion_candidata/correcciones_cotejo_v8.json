@@ -1,0 +1,26 @@
+[
+  {
+    "articulo": "1 (art. 152 reformado; V8-1)",
+    "pagina_pdf": 7,
+    "buscar": "por Íos(las)\npeticionarios",
+    "reemplazar": "por los(las)\npeticionarios",
+    "motivo": "V8-1 ERROR_OCR_V7: los dos ejemplares imprimen «los(las)»; la «Í» de la v7 es una mancha del escaneo TSC sobre la «l»",
+    "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md"
+  },
+  {
+    "articulo": "1 (art. 217 reformado; V8-2)",
+    "pagina_pdf": 16,
+    "buscar": "interés público; x\nc)",
+    "reemplazar": "interés público;\nc)",
+    "motivo": "V8-2 ERROR_OCR_V7: no hay ninguna «x» impresa tras el inciso b) en ningún ejemplar; es un trazo del escaneo TSC",
+    "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md"
+  },
+  {
+    "articulo": "1 (art. 217 reformado; V8-3)",
+    "pagina_pdf": 16,
+    "buscar": "que al efecto haya\n\nEl Ministerio Público velará",
+    "reemplazar": "que al efecto haya\ndictado el Ministerio Público.\n\nEl Ministerio Público velará",
+    "motivo": "V8-3 OMISION_V7: la última línea de la pág. 16 («dictado el Ministerio Público.») está impresa en los dos ejemplares y la capa de texto del TSC la perdió",
+    "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md"
+  }
+]

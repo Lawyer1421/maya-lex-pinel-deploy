@@ -57,26 +57,28 @@ def diferencias(a, b):
             continue
         ctx_a = ' '.join(ta[max(0, i1 - 5):i1])
         ctx_d = ' '.join(ta[i2:i2 + 5])
-        contenido.append({'tipo': {'replace': 'cambia', 'delete': 'solo en A03', 'insert': 'solo en v7'}[op],
+        contenido.append({'tipo': {'replace': 'cambia', 'delete': 'solo en A03', 'insert': f'solo en {REF}'}[op],
                           'a03': ' '.join(ta[i1:i2]), 'v7': ' '.join(tb[j1:j2]), 'antes': ctx_a, 'despues': ctx_d})
     return contenido, formato
 
 
+REF = seg['v7'].get('version', 'v7')
+SHA_REF = seg['v7']['sha256']
 v7 = {x['numero']: x['texto'] for x in seg['v7']['internos']}
 a03 = {a['numero']: a['texto'] for a in seg['a03']['articulos']}
-sel = [f for f in filas if f['estado'] == 'DIFIERE' and f['referencia'].startswith('v7')]
+sel = [f for f in filas if f['estado'] == 'DIFIERE' and f['referencia'].startswith(REF)]
 sel += [f for f in filas if f['numero'] in EXTRA and f not in sel]
 
 out = []
 w = out.append
-w('# A03 · Hoja de decisión del CLO: artículos que difieren de la v7 del D. 35-2013')
+w(f'# A03 · Hoja de decisión del CLO: artículos que difieren de la {REF} del D. 35-2013')
 w('')
-w('**Fuente de A03:** consolidado `bd115673…` (procedencia NO ACREDITADA, `SOURCE_HOLD`) · **Referencia:** v7 `460e493d…`, transcripción firmada (D3) de La Gaceta 33,222 · **Fecha:** 2026-11-18.')
+w(f'**Fuente de A03:** consolidado `bd115673…` (procedencia NO ACREDITADA, `SOURCE_HOLD`) · **Referencia:** {REF} `{SHA_REF[:8]}…`, transcripción firmada (D3) de La Gaceta 33,222 · **Fecha:** 2026-11-18.')
 w('')
 w('> Lecturas generadas por comparación automática. **No deciden nada.** Para cada artículo, el CLO elige qué texto queda en el D3 canónico de `HN:CODIGO_NINEZ`:')
-w('> ☐ **v7** (La Gaceta 33,222) · ☐ **A03** (consolidado) · ☐ **Otro** (redacción del CLO). Las diferencias de formato (mayúsculas, tildes, puntuación, espacios) se cuentan aparte y no se listan.')
+w(f'> ☐ **{REF}** (La Gaceta 33,222) · ☐ **A03** (consolidado) · ☐ **Otro** (redacción del CLO). Las diferencias de formato (mayúsculas, tildes, puntuación, espacios) se cuentan aparte y no se listan.')
 w('')
-w(f'Artículos: {len(sel)} (17 `DIFIERE` frente a la v7 y los arts. 5 y 96, `DIFIERE_MENOR` con cambio de una palabra).')
+w(f'Artículos: {len(sel)} ({len(sel) - len([f for f in sel if f["numero"] in EXTRA])} `DIFIERE` frente a la {REF} y los arts. 5 y 96, `DIFIERE_MENOR` con cambio de una palabra).')
 w('')
 resumen = []
 for f in sel:
@@ -88,7 +90,7 @@ for f in sel:
     w('')
     w(f'**Diferencias de contenido ({len(cont)})** · diferencias solo de formato: {fmt}')
     w('')
-    w('| # | Tipo | Contexto previo | A03 | v7 / La Gaceta 33,222 | Contexto siguiente |')
+    w(f'| # | Tipo | Contexto previo | A03 | {REF} / La Gaceta 33,222 | Contexto siguiente |')
     w('|---|---|---|---|---|---|')
     for k, c in enumerate(cont, 1):
         esc = lambda s: (s or '—').replace('|', '\\|')
@@ -98,11 +100,11 @@ for f in sel:
     w('')
     w(f'**A03:** {a}')
     w('')
-    w(f'**v7 (La Gaceta 33,222):** {b}')
+    w(f'**{REF} (La Gaceta 33,222):** {b}')
     w('')
     w('</details>')
     w('')
-    w('Decisión: ☐ v7 · ☐ A03 · ☐ Otro: ____________________')
+    w(f'Decisión: ☐ {REF} · ☐ A03 · ☐ Otro: ____________________')
     w('')
 
 w('## Resumen')
