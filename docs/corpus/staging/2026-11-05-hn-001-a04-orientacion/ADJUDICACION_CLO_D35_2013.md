@@ -80,6 +80,21 @@ No afectan al texto, pero sí a cualquier matriz de reformas que se construya de
 - **La ingesta exige este hash exacto** (`--transcripcion-sha256`) y que el PDF sea el del TSC (`fbd87f33…`). Si cambia una sola letra, se detiene.
 - Las 15 lagunas `[ilegible]` están en los arts. 1, 3 y 5. Los tres son `CONTEXT` por D5 (Decisión 3 de la resolución textual).
 
+### Firma D3 sobre la v7 — FIRMADA (2026-11-18)
+
+| Campo | Valor |
+|---|---|
+| Instrumento | `HN:DECRETO_35_2013` · Decreto Legislativo No. 35-2013 · La Gaceta No. 33,222 del 6-sep-2013 |
+| Versión aprobada D3 | **v7**: [`transcripcion_candidata/A04_transcripcion_candidata_v7.txt`](transcripcion_candidata/A04_transcripcion_candidata_v7.txt) · 176.391 caracteres · **0 lagunas `[ilegible]`** |
+| SHA-256 (bytes LF) | **`460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023`** |
+| Origen | v6 (`7c8f40f8…`, D3 del 16-nov-2026) + las 18 correcciones del cotejo con el ejemplar 2 (sello CEDIJ, `b5db8bf7…`), firmadas en `07_HOJA_DECISION_COTEJO_EJEMPLAR2.md` |
+| Firmante | **Abg. y Not. Fredy Omar Pinel Flores** · rol **propietario_despacho** (CLO / Director Maya Lex) · **2026-11-18** |
+| Texto de `--cotejado-por` | `Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex), firma D3 del 2026-11-18 sobre la v7 (ADJUDICACION_CLO_D35_2013.md §3)` |
+
+- **Alcance de la firma, según el CLO:** registra la D3 de la v7 en su manifiesto (`…_v7_manifiesto.json`, `estado = TEXTO_DEFINITIVO_FIRMA_D3`) y en este pliego, y prepara el SQL de actualización controlada para `mayalexhn-staging`. El SQL **no se ejecuta** hasta que el CLO lo revise (§6, constancia D3-v7).
+- **La v6 conserva su D3 del 16-nov-2026** y sigue siendo el texto cargado en staging hasta que se aplique esa actualización. Producción: V4→V5 **sin firmar**.
+- La ingesta con la v7 exige este hash (`--transcripcion-sha256 460e493d…`) y el PDF del TSC (`fbd87f33…`). Con esos datos produjo **19 filas y 0 excepciones**, con los mismos `id` que la v6.
+
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
 
 | # | Decisión | Opciones | Propuesta |
@@ -180,6 +195,41 @@ El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-cata
 - **Efecto:** `DECRETO_35_2013` sale de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Régimen adjudicado D5: arts. **1–11** `CONTEXT` (constancias `INTERPRETACION_PENDIENTE_CLO` en **1 y 11**); arts. **12–19** elegibles PRIMARY si cumplen los demás guardianes.
 - **Pruebas:** 50/50 en `tests/d35-2013-catalogo.test.ts` + `tests/d284-2013-pilot.test.ts`; `npm run typecheck` limpio; evidencia G6 regenerada (`g6-rollback-evidence.json`, hash LF de `clo-guards.ts` = `a0a94b7c…`).
 - **Límites:** staging V4 del lote `A04_D35_2013_01` (pasos 1–2). **V4→V5 a producción expresamente sin firmar.** Producción no se toca.
+
+### Constancia · D3-v7: actualización de staging PREPARADA, NO APLICADA (2026-11-18)
+- **Generación** (carpeta `out/`, no versionada):
+  1. Ingesta con la v7, con el mismo comando del §6 y la v7, su hash y la firma D3 de la v7, en `out/a04-d35-2013-v7/`: 19 filas, 0 excepciones.
+  2. Embeddings con `scripts/embeddings-lote-staging.ts`.
+  3. SQL con [`d3v7/generar_actualizacion_v7_staging.py`](d3v7/generar_actualizacion_v7_staging.py) (`python -I`, determinista).
+
+| Archivo | SHA-256 | Contenido |
+|---|---|---|
+| `out/a04-d35-2013-v7/rows.jsonl` · `update_embeddings_staging.sql` | `be5003aa1ea1b6b91b1432e5ea5d01a057b6bd4b9fcc86980863c6cdad4e2c20` · `e8f5db3199be3330fc78a3d1b49f530f47e366cff651900b69e802062a7fd861` | 19 filas v7, mismos `id` que la v6 |
+| **`out/a04-d35-2013-v7/actualizacion_v7_staging.sql`** | **`0de36a7ca6b484bd8ecbed9d2486136ce8a414bb6d2868a85fc1b00640221c76`** | Bloque atómico (`DO`) con precondición y postcondición. Ver el detalle debajo de la tabla. |
+| `out/a04-d35-2013-v7/reversion_v7_a_v6_staging.sql` | `47d0b9662fd99d3b8e0f85cff1d6d637fa63f65f1e7d986bd473d51657f35bd3` | Vuelta exacta a la v6 (texto, hashes, embeddings y claves). **Solo por orden del CLO.** |
+
+**Qué hace `actualizacion_v7_staging.sql`:**
+- **Arts. 1, 3, 5 y 6:** pasan al texto v7. Cambian `contenido`, `hash_contenido`, `article_sha256` y `embedding`.
+- **Las 19 filas:** cambian solo `transcripcion_sha256`, `text_sha256` y `cotejado_por`, y se agregan `transcripcion_anterior_sha256` y `transcripcion_version = v7`. **No toca** visibilidad, vigencia, `rol`, `estado_v`, constancias ni `es_norma_vigente`.
+
+- **Qué cambia y qué no (comprobado al generar):**
+  - El texto solo cambia en los arts. 1, 3, 5 y 6 del decreto, que contienen las 18 correcciones.
+  - En los otros 15 artículos el texto es idéntico al de la v6, igual que su embedding.
+  - En los arts. 1, 3 y 5 el embedding también sale idéntico: el modelo e5-small lee los primeros 512 tokens y las correcciones caen más adelante. **Solo cambia el embedding del art. 6.**
+  - Los textos incrustados en los dos SQL cumplen `sha256(contenido) = hash_contenido`.
+- **Precondición verificada en staging** (consulta de solo lectura, 2026-11-18):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 19 | **19** |
+| En v6, visibles, vigentes, V4, con embedding | 19 | **19** |
+| `CONTEXT` | 11 | **11** |
+| Texto v6 en los arts. 1, 3, 5 y 6 (`hash_contenido`) | 4 | **4** |
+| Constancias `INTERPRETACION_PENDIENTE_CLO` (arts. 1 y 11) | 2 | **2** |
+| `TRUE_PRESUNTA` | 19 | **19** |
+
+- **Pendiente:** revisión del CLO y aplicación en el SQL Editor de `mayalexhn-staging`. Después, una verificación independiente de Claude (la consulta del final del SQL: 19 · 19 · 4 · 19 · 11 · 2). **Producción no se toca. V4→V5 sigue sin firmar.**
+- La resolución de los puntos (a)–(d) de los arts. 134 y 141 (`paquete-revision/PASAJES_134_141.md`) **no está en este SQL**. Si el CLO la firma, va en un bloque aparte, generado y revisado por separado.
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
