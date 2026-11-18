@@ -3,7 +3,8 @@
 
 Cambios respecto de la v1 (solo en los 141 artículos A03; los 137 de la v8 y los 24 derogados no se tocan):
   1. Correcciones dictaminadas «mantener 1996» (cada una debe aparecer exactamente una vez):
-     art. 35 «escuelas gratuitas» → «escuelas públicas gratuitas»; art. 125 b) «El mayor de (16)» → «El mayor de dieciséis (16)»;
+     art. 35 «escuelas gratuitas» → «escuelas públicas gratuitas»; art. 125 b) «El mayor de (16)» → «El mayor de dieciséis (16)» y
+     art. 125 c) «menores de diez y ocho (18)» → «menores de dieciocho (18)»;
      art. 156 «situación previa» → «situación prevista»; art. 159 «el Instituto de la Niñez» → «el Instituto Hondureño de la Niñez»;
      art. 275 «y, d) Deba» → «y, ch) Deba».
   2. Fuga de nota al pie de A03 en el art. 284: se elimina.
@@ -51,13 +52,14 @@ JNBS = [(re.compile(r'\b([Dd])e la Junta Nacional de Bienestar Social'), lambda 
 
 CORRECCIONES = {
     '35': [('escuelas gratuitas', 'escuelas públicas gratuitas')],
-    '125': [('b) El mayor de (16) años', 'b) El mayor de dieciséis (16) años')],
+    '125': [('b) El mayor de (16) años', 'b) El mayor de dieciséis (16) años'),
+            ('menores de diez y ocho (18)', 'menores de dieciocho (18)')],  # inciso c): dictamen del CLO del 2026-11-18 (segundo)
     '156': [('en la situación previa en esta', 'en la situación prevista en esta')],
     '159': [('el Instituto de la Niñez y la Familia', 'el Instituto Hondureño de la Niñez y la Familia')],
     '275': [('y, d) Deba darse', 'y, ch) Deba darse')],
     '284': [(' el Diario Oficial La Gaceta No. 33,222 de fecha 6 de septiembre de 2013.', '')],
 }
-MOTIVO = {'35': 'mantener 1996', '125': 'mantener 1996 (inciso b)', '156': 'mantener 1996 (errata «previa» de A03)',
+MOTIVO = {'35': 'mantener 1996', '125': 'mantener 1996 (incisos b y c)', '156': 'mantener 1996 (errata «previa» de A03)',
           '159': 'denominación legal completa (art. 280-A)', '275': 'mantener 1996 (literal ch)', '284': 'fuga de nota al pie de A03'}
 
 
@@ -156,8 +158,6 @@ for num, txt in arts:
             m['correcciones_clo'] = aplicadas
         if espacios:
             m['espacios_insertados'] = espacios
-        if num == '125':
-            m.setdefault('observaciones', []).append('PENDIENTE: inciso c) «menores de diez y ocho (18)» (v1/A03) frente a «dieciocho» (1996); no fue objeto del dictamen.')
     for clave in ('sha256', 'caracteres'):
         m.pop(clave, None)
     txt = unicodedata.normalize('NFC', txt)
@@ -177,8 +177,8 @@ manifiesto = {
     'instrumento': 'HN:CODIGO_NINEZ', 'version': 'canonico-v2', 'estado': 'TEXTO_DEFINITIVO_FIRMA_D3',
     'advertencia': ('v2 = v1 (69760d6a…) + dictamen del CLO ' + FIRMA + ' sobre los 141 artículos no tocados por el D.35-2013 '
                     '(AUDITORIA_NO_TOCADOS_V1.md): 5 correcciones «mantener 1996», fuga del art. 284 eliminada y espacios pegados normalizados. '
-                    'Firma D3 sobre este sha256 el 2026-11-18. La procedencia (D1) de los artículos tomados de A03 sigue en el pliego. '
-                    'Sin vigencia declarada; no cargado en ninguna base.'),
+                    'Firma D3 sobre este sha256 el 2026-11-18 (incluye el art. 125 c, segundo dictamen). Pliego D1–D8 firmado el 2026-11-18 '
+                    '(ADJUDICACION_CLO_CODIGO_NINEZ.md): D1 (b), los 141 artículos de A03 con reserva y solo CONTEXT.'),
     'base': {'archivo': '../canonico-v1/HN_CODIGO_NINEZ_canonico_v1.txt', 'sha256': SHA_V1},
     'cotejo_1996': {'archivo_doc_sha256': '15e3875d835d8be9ed1029cf6c2d3bf8e5635e68e58b70e62e184a410b9c90ce', 'texto_sha256': SHA_1996,
                     'estado': 'UNVERIFIED / DISCOVERY_ONLY'},
@@ -188,8 +188,8 @@ manifiesto = {
     'espacios_insertados_total': total_espacios,
     'correcciones_clo': [{'articulo': '96', 'buscar': 'Juegos artificiales', 'reemplazar': 'Fuegos artificiales', 'motivo': 'errata de imprenta de La Gaceta 33,222', 'firma': FIRMA}]
                        + [{'articulo': n, 'buscar': b, 'reemplazar': r, 'motivo': MOTIVO[n], 'firma': FIRMA} for n, lst in CORRECCIONES.items() for b, r in lst],
-    'pendiente': ['C07 (art. 21)', 'Art. 125 c): «diez y ocho» frente a «dieciocho» (no dictaminado)',
-                  'Preámbulo y rótulos de Libros/Títulos/Capítulos/Secciones', 'D1, D2 y D4–D8 del pliego'],
+    'pendiente': ['C07 (art. 21)',
+                  'Preámbulo y rótulos de Libros/Títulos/Capítulos/Secciones', 'Cotejo de La Gaceta 28,053 y PDF CEDIJ para los 141 artículos con reserva D1 (b)'],
     'notas_editoriales': '../canonico-v1/HN_CODIGO_NINEZ_notas_editoriales_A03.json',
     'articulos_detalle': detalle,
 }
