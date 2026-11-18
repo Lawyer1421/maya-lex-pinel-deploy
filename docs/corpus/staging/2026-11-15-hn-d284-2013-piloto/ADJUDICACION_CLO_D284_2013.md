@@ -285,3 +285,34 @@ El Titular aplicó `out/piloto-d284-2013/visibilidad_staging.sql` (SHA-256 `c828
 `adjudicado_por` (el mismo valor en las 39 filas): **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**.
 
 **Estado del piloto:** el D.284-2013 queda en **V4** en staging. El bloqueo `INSTRUMENTO_SIN_PLIEGO_CLO` se retira con este PR (D7, segundo tiempo). **Producción no se tocó.** V4→V5 sigue sin firmar.
+
+### Constancia: normalización de fin de línea en staging — APLICADA (2026-11-18)
+- **Hallazgo:** el contenido de las **39 filas** del lote `PILOTO_D284_2013_01` quedó guardado con `\r\n`. La carga del 16-nov pasó por un editor de Windows, el mismo defecto que se corrigió el 2026-11-18 en el lote `A04_D35_2013_01` (`../2026-11-05-hn-001-a04-orientacion/ADJUDICACION_CLO_D35_2013.md`). La transcripción cotejada (`ba75b190…`) y `hash_contenido` usan `\n`.
+- **Diagnóstico** (consultas de solo lectura sobre `mayalexhn-staging`, 2026-11-18):
+
+| Comprobación | Resultado |
+|---|---|
+| Filas · visibles · vigentes (`TRUE_PRESUNTA`, V4) · con embedding · `CONTEXT` | 39 · 39 · 39 · 39 · 4 |
+| Filas con `\r` · con `\r` suelto · con `\n` suelto | 39 · 0 · 0 |
+| `sha256(contenido) = hash_contenido` tal como está guardado | **0 / 39** |
+| Lo mismo tras convertir `\r\n` a `\n` | **39 / 39** |
+
+- **Efecto:** el texto es el cotejado; solo cambia el fin de línea. Los embeddings se calcularon sobre `\n`. Toda comprobación de integridad del tipo `sha256(contenido) = hash_contenido` falla hoy en este lote.
+- **SQL preparado** (versionado): [`normalizacion_lf_staging.sql`](normalizacion_lf_staging.sql) · SHA-256 (bytes LF) **`29fe21bba02b99795571bf43c6fc1ff6060f5a001b0c5cd031f201bb269cc869`**.
+  - Bloque atómico: solo reemplaza `\r\n` por `\n` en `contenido`.
+  - **Precondiciones:** 39 filas visibles, V4, con la transcripción `ba75b190…`; 4 `CONTEXT`; ningún `\r` suelto; las 39 recuperan su hash al normalizar.
+  - **Postcondiciones:** 39 con `sha256(contenido) = hash_contenido` y sin `\r`; el régimen queda intacto.
+  - No toca texto, hash, embedding, visibilidad, vigencia, rol ni metadata.
+  - **Reversión exacta:** `\n` → `\r\n`. Se comprobó que no hay `\n` sueltos.
+- **Aplicada el 2026-11-18** (ver abajo). **Producción no se toca.** V4→V5 sigue sin firmar.
+- **Aplicación:** autorizada expresamente por el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho) el 2026-11-18. Claude ejecutó `normalizacion_lf_staging.sql` (`29fe21bb…`) en `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) con la herramienta de Supabase, en una transacción atómica. Terminó **sin abortar**.
+- **Verificación independiente** (solo lectura, después de aplicar):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 39 | **39** |
+| `sha256(contenido) = hash_contenido` | 39 | **39** |
+| Filas con `\r` (lote · toda la tabla) | 0 · 0 | **0 · 0** |
+| Visibles, vigentes, V4, con embedding | 39 | **39** |
+| `CONTEXT` | 4 | **4** |
+| Control: lote `A04_D35_2013_01` con `sha256(contenido) = hash_contenido` | 19 | **19** |
