@@ -1,0 +1,3071 @@
+{
+ "instrumento": "HN:CODIGO_NINEZ",
+ "version": "canonico-v1",
+ "estado": "CANONICO_V1_PARCIAL_PENDIENTE_D1_D3",
+ "advertencia": "Texto ensamblado según el dictamen del CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 (HOJA_DECISION_A03_DIFIERE_V8.md). Solo los 137 artículos de la v8 (La Gaceta 33,222, D3 firmada) y las 24 derogaciones del art. 11 del D.35-2013 tienen respaldo cotejado; los 141 artículos no tocados vienen del consolidado A03 (procedencia NO acreditada) y están pendientes de D1–D3. Sin vigencia declarada. No se carga en ninguna base hasta completar D1–D8.",
+ "fuentes": {
+  "v8": {
+   "archivo": "../../2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/A04_transcripcion_candidata_v8.txt",
+   "sha256": "6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb"
+  },
+  "a03": {
+   "bytes_sha256": "bd11567310af8ab74730a2a002eb957303789e35f56488a1e846ffd48ac793cb",
+   "text_sha256": "67116d82003fb897c0affd62250e651d5646309697b17fa41d094ae342783a40",
+   "procedencia": "NO_ACREDITADA (SOURCE_HOLD)"
+  },
+  "dictamen": "../barrido-v7/HOJA_DECISION_A03_DIFIERE_V8.md"
+ },
+ "texto_sha256": "69760d6a56c5f2b32d3eb111bdb863f7f018a1be04a9692f8bc51010ccda6064",
+ "caracteres": 187212,
+ "articulos": 302,
+ "conteo_por_estado": {
+  "A03_PENDIENTE_VERIFICACION": 141,
+  "DEROGADO": 23,
+  "DEROGADO_INTEGRO": 1,
+  "TEXTO_V8_D3": 122,
+  "TEXTO_V8_D3_ADICIONADO": 14,
+  "TEXTO_V8_D3_C07_PENDIENTE": 1
+ },
+ "correcciones_clo": [
+  {
+   "articulo": "96",
+   "buscar": "Juegos artificiales",
+   "reemplazar": "Fuegos artificiales",
+   "motivo": "Errata material de imprenta de La Gaceta 33,222 (numeral 2)",
+   "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
+  }
+ ],
+ "pendiente": [
+  "Preámbulo del D.73-96 y rótulos de Libros/Títulos/Capítulos/Secciones (incluidas las denominaciones reformadas por el art. 2 y derogadas por el art. 12 del D.35-2013)",
+  "D1–D3 de los 141 artículos no tocados (A03_PENDIENTE_VERIFICACION)",
+  "C07 (art. 21)",
+  "D4–D8 del pliego de HN:CODIGO_NINEZ"
+ ],
+ "parrafos": "v8: párrafos de la transcripción (líneas en blanco). A03: reconstrucción heurística (cierre en . : ; seguido de mayúscula o enumerador).",
+ "notas_editoriales": {
+  "archivo": "HN_CODIGO_NINEZ_notas_editoriales_A03.json",
+  "cantidad": 153
+ },
+ "articulos_detalle": [
+  {
+   "numero": "1",
+   "ordinal": 1,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7f836df1223cfeb3bdf40194af0d5ed4c9761e7a796ce1bc0bd16461a26ed2d4",
+   "caracteres": 698,
+   "notas_a03": [
+    "70249de9284bd70f73ed0e28b6dd11b67510806c1a83502e9f906fa7204fb762"
+   ]
+  },
+  {
+   "numero": "2",
+   "ordinal": 2,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "edd675e73eb9064732cdc0fa1194c3e3774d985df5c4eae3485a6121019ea4cf",
+   "caracteres": 951,
+   "notas_a03": []
+  },
+  {
+   "numero": "3",
+   "ordinal": 3,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "539c853516e0cdb5526bcf0a95736bddded9b1a5de89d4553ac0ae09c422e824",
+   "caracteres": 371,
+   "notas_a03": []
+  },
+  {
+   "numero": "4",
+   "ordinal": 4,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "954457b85f84568963b59265ea187ba21ebe838672fa58868f920476645724f2",
+   "caracteres": 619,
+   "notas_a03": []
+  },
+  {
+   "numero": "5",
+   "ordinal": 5,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "cb8a0be2d6a2124aaa04ce68bd01fe2d4f454f8e1147cbcd3baf682c01541ac7",
+   "caracteres": 1365,
+   "notas_a03": [
+    "446f7251cf39e600fcfd30cb5a67dff80af03aa92b615f99cb013f5e1d43b106"
+   ]
+  },
+  {
+   "numero": "6",
+   "ordinal": 6,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "8f18ac4b4d4e16f60bbd954170ea72cd44618479bc6cc26ec4a5037883bea7ac",
+   "caracteres": 492,
+   "notas_a03": []
+  },
+  {
+   "numero": "7",
+   "ordinal": 7,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "088c55a00ff788d7ef95cc67d56a39c9ad152b36aece8452203f23b632d2c613",
+   "caracteres": 455,
+   "notas_a03": []
+  },
+  {
+   "numero": "8",
+   "ordinal": 8,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "88a96049cce13ac3efcb3499d78f5f4fc3db18ba1f276bd068e66e69e86555b9",
+   "caracteres": 156,
+   "notas_a03": []
+  },
+  {
+   "numero": "9",
+   "ordinal": 9,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a59d5c313744c619db330ee6e77bafcea5e0b2c10a2281040c9f474845b36359",
+   "caracteres": 538,
+   "notas_a03": []
+  },
+  {
+   "numero": "10",
+   "ordinal": 10,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f35a0acb8cf230b23d6f7e869cd9f31efe84d0500a1ffb47300c80d50bb52c56",
+   "caracteres": 244,
+   "notas_a03": []
+  },
+  {
+   "numero": "11",
+   "ordinal": 11,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "706b808091a706b5487ad738214ce4040349ee38855a3f557c564f99ab880ea9",
+   "caracteres": 468,
+   "notas_a03": []
+  },
+  {
+   "numero": "12",
+   "ordinal": 12,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "0217693678070e055126fb3e5e18ed904888bd8b71b988bf2c8295632cb3ae0b",
+   "caracteres": 303,
+   "notas_a03": []
+  },
+  {
+   "numero": "13",
+   "ordinal": 13,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "e5343facbfc41298dc89edf3fcf8dbf686f05859ff809515692c6cbd30322e4b",
+   "caracteres": 216,
+   "notas_a03": []
+  },
+  {
+   "numero": "14",
+   "ordinal": 14,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "1ff7976f1f8093a375969dacd860e75ab6a514f8fe59a0721513b213abe4f00c",
+   "caracteres": 2256,
+   "notas_a03": []
+  },
+  {
+   "numero": "15",
+   "ordinal": 15,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "cbb013bc3341a40e85484185ec5f839386e6127cc085cf02b69749a9d8ae0e2a",
+   "caracteres": 146,
+   "notas_a03": []
+  },
+  {
+   "numero": "16",
+   "ordinal": 16,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "4cb3df6f2b72760f81a835ac074973433a5e70001be3d1b1f7db90870cc7ec6c",
+   "caracteres": 1959,
+   "notas_a03": []
+  },
+  {
+   "numero": "17",
+   "ordinal": 17,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "08ff171ca9ab6bb6d598095f79849634bf4ac0b93d39b8aaeefbec9396325c75",
+   "caracteres": 358,
+   "notas_a03": []
+  },
+  {
+   "numero": "18",
+   "ordinal": 18,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2953cc2c7b59df96f09d0d744235c0773e03f1d1d2eb4c1f70c6ce290785bfe9",
+   "caracteres": 221,
+   "notas_a03": []
+  },
+  {
+   "numero": "19",
+   "ordinal": 19,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2900a47b293d0cd3728fa95ff59f1018bfad12c76597992b77b8f616a97d5efa",
+   "caracteres": 1129,
+   "notas_a03": []
+  },
+  {
+   "numero": "20",
+   "ordinal": 20,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "cb1fe4d64748fdac93a055df77eea0c46bfed3cf176f37c5b1007ac61b50e52c",
+   "caracteres": 256,
+   "notas_a03": [
+    "28ba699ee17cd9b8cdc5803d562278b8dffbf30899bd1da417a8da6818307860"
+   ]
+  },
+  {
+   "numero": "21",
+   "ordinal": 21,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_C07_PENDIENTE",
+   "sha256": "020260a05b2369d1b24fb54f2e0cb96859990ddd6d2a97f2d82e2b707311369c",
+   "caracteres": 476,
+   "notas_a03": [
+    "71bcfd44d3bddc6af2aad464867e440965b13b6a29ab7436ef2f478f97fee631"
+   ],
+   "observaciones": [
+    "C07: derogado después por el D.130-2017 (art. 632, num. 12); La Gaceta 34,940 / 39,940 y fecha de efecto sin cotejar (EVENTOS_ARTICULO_21.md)."
+   ]
+  },
+  {
+   "numero": "22",
+   "ordinal": 22,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "567ba9e8e4297a1b265f5e7d237187574be15513bd1b4d8126b7de2bfcf055d0",
+   "caracteres": 673,
+   "notas_a03": []
+  },
+  {
+   "numero": "23",
+   "ordinal": 23,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "25f1109e64a3589e5642c974917a6087107b9afaf76cc796542cca41a14e22e0",
+   "caracteres": 347,
+   "notas_a03": []
+  },
+  {
+   "numero": "24",
+   "ordinal": 24,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "da7be88e2cff116652c2b8eb96aa45cd06ea2ed6fb78c51102fecb0ea95f6e7f",
+   "caracteres": 377,
+   "notas_a03": []
+  },
+  {
+   "numero": "25",
+   "ordinal": 25,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f77beac70dc124d59f3cc3522fb6c4746249d2d732183cdaa2da9015510ce08b",
+   "caracteres": 148,
+   "notas_a03": []
+  },
+  {
+   "numero": "26",
+   "ordinal": 26,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d4e81f79e7d04a1ea830626c2b72538e087b3fd915e059c560c36f97cea951c4",
+   "caracteres": 180,
+   "notas_a03": []
+  },
+  {
+   "numero": "27",
+   "ordinal": 27,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2cfead23d5be4251e259dee8eae8fe79ec5c432f1244029cdbd837e214fc1fed",
+   "caracteres": 167,
+   "notas_a03": []
+  },
+  {
+   "numero": "28",
+   "ordinal": 28,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7b4770c5907f26efcce264280f58437ba68520555587836a5a59e89ee14e691f",
+   "caracteres": 1231,
+   "notas_a03": []
+  },
+  {
+   "numero": "29",
+   "ordinal": 29,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a3884b6bc1e1915836d4b0fe5b96ded939c6bd5363d55b1633b77642ca78fbbc",
+   "caracteres": 169,
+   "notas_a03": []
+  },
+  {
+   "numero": "30",
+   "ordinal": 30,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "cb3082a087d5ef554b0c47de126a29ad1da5afb25a17cfecb91dc0ae91485797",
+   "caracteres": 305,
+   "notas_a03": []
+  },
+  {
+   "numero": "31",
+   "ordinal": 31,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "8d1a46c1e216d5847ddde5b77bd58759ced4d2f67648eb969a1e30cf2500d934",
+   "caracteres": 209,
+   "notas_a03": []
+  },
+  {
+   "numero": "31-A",
+   "ordinal": 32,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "43d8d06d7bcfe8559ffc497ab688669a2159cde8c6eeb860ee07d5e1ed0d416d",
+   "caracteres": 352,
+   "notas_a03": [
+    "af597cfa07c2c2722e13c42d2716f732e361f93adbab4868269c30222080a520"
+   ]
+  },
+  {
+   "numero": "31-B",
+   "ordinal": 33,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "23dc36fab23845b292ec3d22bd60656bc34215484b1408b0ba12c3078e1223b4",
+   "caracteres": 495,
+   "notas_a03": [
+    "eb97f17b805bf4d8d5921bee8772d39036381f0c667b038b99fef015f724de03"
+   ]
+  },
+  {
+   "numero": "32",
+   "ordinal": 34,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "76483754b7f7427b3a58addc194eff0f71bdff2c5a2d517cc9b8e76adf2936d8",
+   "caracteres": 1078,
+   "notas_a03": [
+    "26e4d140a0b8b164706d97d09f69ab813b1528ed039916502770880bcd25b472"
+   ]
+  },
+  {
+   "numero": "33",
+   "ordinal": 35,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "faa74e142b6e36f06894d98a27b2dbb6674e57807323bedc52ee7e436df50d5e",
+   "caracteres": 283,
+   "notas_a03": []
+  },
+  {
+   "numero": "34",
+   "ordinal": 36,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "31ba985adc4d1c62ff181b36179f19927536214b31e9718c72791af5535604e6",
+   "caracteres": 410,
+   "notas_a03": []
+  },
+  {
+   "numero": "35",
+   "ordinal": 37,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2911a370f9639480fdab06713293df1ea6bbea0d4482a02a9c6257422469d037",
+   "caracteres": 898,
+   "notas_a03": []
+  },
+  {
+   "numero": "36",
+   "ordinal": 38,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f686f78e93567407cd2a5a3853e6f0bed2ce4da12ddb919bbe256a5780cd9e1d",
+   "caracteres": 1284,
+   "notas_a03": []
+  },
+  {
+   "numero": "37",
+   "ordinal": 39,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "43da4b1e3556bfeaa48f3053874776e1da9dedf9ffc3cb2711818c9cc7030a3b",
+   "caracteres": 117,
+   "notas_a03": []
+  },
+  {
+   "numero": "38",
+   "ordinal": 40,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a53031481023124dee81324844ddc3277a68c92212bf14a415c16e857976822c",
+   "caracteres": 119,
+   "notas_a03": []
+  },
+  {
+   "numero": "39",
+   "ordinal": 41,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "739e17e5d0f5b2e34f2a30afbf6a75bcf48fd4b973c2f77610278e6c23ebcf63",
+   "caracteres": 484,
+   "notas_a03": []
+  },
+  {
+   "numero": "40",
+   "ordinal": 42,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "86d9402bd0c6f1c028e549ecf104a6b2d81a3d6da96d84535d5ebfb70a1c3685",
+   "caracteres": 1779,
+   "notas_a03": []
+  },
+  {
+   "numero": "41",
+   "ordinal": 43,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f69cdc9ab88376c78f4919b5b75cd71641ddee480cfc1c1d334d1c073c634798",
+   "caracteres": 160,
+   "notas_a03": []
+  },
+  {
+   "numero": "42",
+   "ordinal": 44,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "3db5fa5e787f2da0b3199012a3b9dbf889257b88891a17d61ec5b4db2e24c887",
+   "caracteres": 506,
+   "notas_a03": []
+  },
+  {
+   "numero": "43",
+   "ordinal": 45,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d7284780bad26c2992005e0dc0292f23161f742ce87bb675352a55b22a06874c",
+   "caracteres": 333,
+   "notas_a03": []
+  },
+  {
+   "numero": "44",
+   "ordinal": 46,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "ed7137c42277e17c1675a3cd0edfe3d3a16b34416d49a8fe65861a7ae625f430",
+   "caracteres": 264,
+   "notas_a03": []
+  },
+  {
+   "numero": "45",
+   "ordinal": 47,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "10a7cb7ca0d067ac69ee99ebfc8b4aaf363fd21912d3a1af8541adbcfcc1dbdc",
+   "caracteres": 364,
+   "notas_a03": []
+  },
+  {
+   "numero": "46",
+   "ordinal": 48,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "eae3ef73071664b987c4e36326c5128f515e012ca626400e23f442a65b377c27",
+   "caracteres": 476,
+   "notas_a03": []
+  },
+  {
+   "numero": "47",
+   "ordinal": 49,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "0c4bc3d0374c2496c6699999030e894dec44cd1a4e0dbe1c9d23d8b7526b34c2",
+   "caracteres": 200,
+   "notas_a03": []
+  },
+  {
+   "numero": "48",
+   "ordinal": 50,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "c2bba05396e414d6e802a1f0ff0891491ab907976102e4e43ff3a97d035487b6",
+   "caracteres": 621,
+   "notas_a03": []
+  },
+  {
+   "numero": "49",
+   "ordinal": 51,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "ce3348274d63b0ba26e873318a342ee2a3d9bf8583264655f306945877ffac20",
+   "caracteres": 300,
+   "notas_a03": []
+  },
+  {
+   "numero": "50",
+   "ordinal": 52,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "10f8ce9e3003bc5853049fd7de95f7a44926ac6f69bfada34ec5390ea43fe5e2",
+   "caracteres": 1612,
+   "notas_a03": []
+  },
+  {
+   "numero": "51",
+   "ordinal": 53,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "8f0b0066494a375fab8016f7ebf2828dfd3fbe5dd25a989d7b03fd7d63dbfc68",
+   "caracteres": 347,
+   "notas_a03": []
+  },
+  {
+   "numero": "52",
+   "ordinal": 54,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "638d45938572908fb2b2a0eeec3487c00c7a2f8eac49c5e0a0a252d381f69ecb",
+   "caracteres": 636,
+   "notas_a03": []
+  },
+  {
+   "numero": "53",
+   "ordinal": 55,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "4faad57e24cca5822a5995d7b79baefeb521bdb946f029769c55e7127b8ca59f",
+   "caracteres": 327,
+   "notas_a03": []
+  },
+  {
+   "numero": "54",
+   "ordinal": 56,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "88d8ffd2515203f37441170d2b21e3fe60a6d44c0f936483f74f624c7c077b78",
+   "caracteres": 110,
+   "notas_a03": []
+  },
+  {
+   "numero": "55",
+   "ordinal": 57,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "338aab09926b892e1f57181c56dd771b89a5e3897d7802710f21c47642ffe334",
+   "caracteres": 223,
+   "notas_a03": []
+  },
+  {
+   "numero": "56",
+   "ordinal": 58,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "594e29f4063a38617ae01b4187236654579b1439791a714df0502cda302c2646",
+   "caracteres": 313,
+   "notas_a03": []
+  },
+  {
+   "numero": "57",
+   "ordinal": 59,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "21b0a399eab05554417be7657f1fdb53507de3b40e503495287932edfbc6071e",
+   "caracteres": 485,
+   "notas_a03": []
+  },
+  {
+   "numero": "58",
+   "ordinal": 60,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "ee28c1bdf5aa8cb0b26312470488ae80a9b1ba25a65e97fa9dd05dbc26b783e8",
+   "caracteres": 290,
+   "notas_a03": []
+  },
+  {
+   "numero": "59",
+   "ordinal": 61,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7fb55420fd723d57b572e43060f54b1029cf7efffb837a4000da96fc938925f2",
+   "caracteres": 515,
+   "notas_a03": []
+  },
+  {
+   "numero": "60",
+   "ordinal": 62,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "953aca5f18bd316e8b4be7cceaa079c9e419fee7e6f8bb977ecf4747506c05e2",
+   "caracteres": 119,
+   "notas_a03": []
+  },
+  {
+   "numero": "61",
+   "ordinal": 63,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2f9cf4a9307f9983c5bd5976b5325a36c1f35ca33ad6e8455325a83ce74b5dc6",
+   "caracteres": 166,
+   "notas_a03": []
+  },
+  {
+   "numero": "62",
+   "ordinal": 64,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "31777514e543d0df85e088480e07b8a4c88e1da488eddd5333eebf45243f69fe",
+   "caracteres": 44,
+   "notas_a03": [
+    "c1364b2a55b2213346a0d50a4623001dcff685abc4979d9d15778670f4a2fd27"
+   ]
+  },
+  {
+   "numero": "63",
+   "ordinal": 65,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "f818840dabf9a3f1862658650ac4b69411092002f516c38dd3e9f2f4842d52e9",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "64",
+   "ordinal": 66,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "c42cedb7044655f813d3bfff526265872749c00ecc9d453dd05ec4d0a7e9ee71",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "65",
+   "ordinal": 67,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "2ddd05d7e41a187c7356b9c04624dbf850abaf9bc461fc1f8d7eda8dd2c80318",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "66",
+   "ordinal": 68,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "909488e441fe19cbfae8cfa6ef4d020139583e1c9db45277493c1d6a9870fae8",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "67",
+   "ordinal": 69,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "96aabf492292448e107c2ac32fbe81d36cf9f17247a4d0bd8f4a79943c114ce0",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "68",
+   "ordinal": 70,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "78aa884350ef9d24ba3c8957c07830f66446e57b23a9c0ef1493010bed536948",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "69",
+   "ordinal": 71,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "06a64bfa2a1225f3e515aebf2c64735c7501638f0d91b83fa3e4a6399f8f83ad",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "70",
+   "ordinal": 72,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "3efc58e3d25e9c21845db2e4ee5bb148b4ee2fbc83c2507f11f150239d7b01ed",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "71",
+   "ordinal": 73,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "6b483d1a469e76d45c890e78a212142df7703a3691d95d65ef3b865a57f86606",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "72",
+   "ordinal": 74,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "35abfc7104ec9a320f5c669adec0ba94ef273e9ff87dcab2e227f0814ee55566",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "73",
+   "ordinal": 75,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "11e5c1420f9e065ebd1b3cfefe177ebf926930b934ab98fc6551139b1be0e41a",
+   "caracteres": 44,
+   "notas_a03": [
+    "a15047bb826124f2cf44298d0c56cd25cd16e1da4b2a9f6f27d31020f8f203f2"
+   ]
+  },
+  {
+   "numero": "74",
+   "ordinal": 76,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "40ee99acd907663f17d8c9b9a79a99af1d0f6209a4af0fa19edbd0c652e3a024",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "75",
+   "ordinal": 77,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "4e6d60c789b346e5313c03b8c15e345f9e0eeb412afa8937d9e87bc2a3c7545d",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "76",
+   "ordinal": 78,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "62b69cb52d19006f2b7423e2cd21d1231890463f607fa4fc9a461396f2d46319",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "77",
+   "ordinal": 79,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "131326b28d334c2f14d56a9f1096a755bf65327ecb6f9ac2960f92d07828dcf6",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "78",
+   "ordinal": 80,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "3bfc19f61732c05e6d8689974d8e8477470c9ac862fc7b7974cb8c3de05fd11d",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "79",
+   "ordinal": 81,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "16df4045a2262846af44b861e80a5d51f0705b523a877c963159436ea6f92212",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "80",
+   "ordinal": 82,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "9cc2c5953d80a3bd7981d59a37f66d32114c2ec4e2b98d9cda1d9bae83435e26",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "81",
+   "ordinal": 83,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "6f6c24594fad2cfccc87d1913215dce612e82f814b75549bceb9551d6ef24104",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "82",
+   "ordinal": 84,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "94a9bf2352b036ce0b89289579e4eb8357bf3efdb5734093694e83c8978e00d0",
+   "caracteres": 44,
+   "notas_a03": []
+  },
+  {
+   "numero": "83",
+   "ordinal": 85,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9970c47768585686bef2d5a32644c2a044a25fc480b185ad21a4387ed668bd90",
+   "caracteres": 344,
+   "notas_a03": []
+  },
+  {
+   "numero": "84",
+   "ordinal": 86,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "dcb50d4947e8e47c77ff24fbf5b801542d4c67adfac42f48c2f2510b6559bfc6",
+   "caracteres": 244,
+   "notas_a03": []
+  },
+  {
+   "numero": "85",
+   "ordinal": 87,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "0014addf028371675c79162515c681333f9502932c69d7e41fbfd9cdfb0b4124",
+   "caracteres": 732,
+   "notas_a03": []
+  },
+  {
+   "numero": "86",
+   "ordinal": 88,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "4489199d931c1cacc128260b99372c418c7fc8db8f3bae48fec32d3c9f24f6cd",
+   "caracteres": 276,
+   "notas_a03": []
+  },
+  {
+   "numero": "87",
+   "ordinal": 89,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "101f85ef4d5438ad3eac20e496443fc0d78d7b63e4b63580f2ebac05da833320",
+   "caracteres": 420,
+   "notas_a03": []
+  },
+  {
+   "numero": "88",
+   "ordinal": 90,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "c5af16306fe50a5e47c81297cdc1efa45c29af00a51edfd903f150eca3ccd176",
+   "caracteres": 159,
+   "notas_a03": []
+  },
+  {
+   "numero": "89",
+   "ordinal": 91,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9674172b65ea32b6d040340338901d4788db98d3a0e478e455b013aea781c5f2",
+   "caracteres": 383,
+   "notas_a03": []
+  },
+  {
+   "numero": "90",
+   "ordinal": 92,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "93a64f25e85c0c23023a664dd0d4ff369f0140b97dbcd18c5b869321ee164669",
+   "caracteres": 164,
+   "notas_a03": []
+  },
+  {
+   "numero": "91",
+   "ordinal": 93,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "34f1a04a7940f5dc6992acee3f2a89332140b3616ffc141dc50b8d17e51128e0",
+   "caracteres": 158,
+   "notas_a03": []
+  },
+  {
+   "numero": "92",
+   "ordinal": 94,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "fd6c10ac64bdc2455f2f67b98cf325c6985ab036e11e426ec641d8914ab2095a",
+   "caracteres": 688,
+   "notas_a03": []
+  },
+  {
+   "numero": "93",
+   "ordinal": 95,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7179fee0e05f8f66a371ba4a76ada2db8f29a7a4493f87860edd5cf5cec8a9a5",
+   "caracteres": 152,
+   "notas_a03": []
+  },
+  {
+   "numero": "94",
+   "ordinal": 96,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "3b97ba2179df966a1ca55aa3bb2c5df56483f4de94c124b7ce7be41f96f58b95",
+   "caracteres": 507,
+   "notas_a03": []
+  },
+  {
+   "numero": "95",
+   "ordinal": 97,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2bd78bb78e28b3b6a2e136517a747bd8322fe98eb975b583b88c87e7b7ce7d04",
+   "caracteres": 242,
+   "notas_a03": []
+  },
+  {
+   "numero": "96",
+   "ordinal": 98,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "624dc1bac3cd6f9113bb82a815e3f69228d91e4598a07a888970a9fbc9c491fe",
+   "caracteres": 711,
+   "notas_a03": [
+    "bcd90189ee7c90045414ae68125c465814a71d8adaf10c2bf886a3afe094eb9f"
+   ],
+   "correcciones_clo": [
+    {
+     "buscar": "Juegos artificiales",
+     "reemplazar": "Fuegos artificiales",
+     "motivo": "Errata material de imprenta de La Gaceta 33,222 (numeral 2); corrección expresa del CLO",
+     "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
+    }
+   ]
+  },
+  {
+   "numero": "97",
+   "ordinal": 99,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "87fece9d90078d39c397c2e913f72b8e0b0f779addd9c1de01b3bd1094f2764e",
+   "caracteres": 666,
+   "notas_a03": [
+    "cdfb19897c952a8e8e46cebe9fc03cd2a26915db0d36b8ee25d416dd515748a7"
+   ]
+  },
+  {
+   "numero": "98",
+   "ordinal": 100,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f697a87710fbdd7f598a1ae7d40f6f1f854bd7d12754b73e891aaf348aade3a5",
+   "caracteres": 836,
+   "notas_a03": [
+    "5823d3bfcac15fe044f228deaa469cf7986fa502f3a6218066a4e86c452057f9"
+   ]
+  },
+  {
+   "numero": "99",
+   "ordinal": 101,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "aa52b961f97b427e0d89a1038333dc104440ff3935df519c7f9ed00c999346b7",
+   "caracteres": 980,
+   "notas_a03": [
+    "fb72bb731bbb56edcbac49685f143cd7890d05f08a8c222d9c0aeaf4495910ed"
+   ]
+  },
+  {
+   "numero": "100",
+   "ordinal": 102,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "53c10c994823dff3a27e9651fc559144b8b6dd63e6f9a004b203e72e65c86957",
+   "caracteres": 234,
+   "notas_a03": []
+  },
+  {
+   "numero": "100-A",
+   "ordinal": 103,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "9d5e0704db20c57425bbabc279633d88785d97c3a23fe5f82189abd365f9804d",
+   "caracteres": 445,
+   "notas_a03": [
+    "8c4a8970c11ac2d7bafea1adaf2977871a6447d1a41aa5b06a1075714ccf6b92"
+   ]
+  },
+  {
+   "numero": "101",
+   "ordinal": 104,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9a9f0c80509f8a46577fa069afcf18e73a053738f30510454feb3d77f48b14be",
+   "caracteres": 407,
+   "notas_a03": []
+  },
+  {
+   "numero": "102",
+   "ordinal": 105,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "235bf60aef4ab4920a4fb94506b7cc4811d55282a6824236c3cd947f3365f95f",
+   "caracteres": 475,
+   "notas_a03": [
+    "404787fd26c37292e0d5fd05b49f1aa2f85d7fca24dba6c44b7dc6105ee0284c"
+   ]
+  },
+  {
+   "numero": "102-A",
+   "ordinal": 106,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "9c34537f031a8c4291182e057a565eece8eac397e087b87bff6ce0d5037b9e42",
+   "caracteres": 1078,
+   "notas_a03": [
+    "c94d27720543de002e6db2c5e2afb077b21b33f4421687afb09ba7f475c8fbb4"
+   ]
+  },
+  {
+   "numero": "103",
+   "ordinal": 107,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d32bb876a4aaad575baa61683f6a15337344722fabae63c9383e73aae5b6073f",
+   "caracteres": 564,
+   "notas_a03": []
+  },
+  {
+   "numero": "104",
+   "ordinal": 108,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d160643ce293bc97d31d6cb55106de9199d0fd417da69154f96895c1262d64dd",
+   "caracteres": 433,
+   "notas_a03": [
+    "7f25763a88bab2d8d6078febdb8aba73995661c95f897eb13637afe7ec913367"
+   ]
+  },
+  {
+   "numero": "104-A",
+   "ordinal": 109,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "f5ebf524a33f8f039472fd29b46b8016c98a159a3e3e4e5ce2a36e9ac0f2a0b9",
+   "caracteres": 886,
+   "notas_a03": [
+    "4604573562d71723d080089c5046ca1c97f9b3897e64fbfc307bafddca9db54a"
+   ]
+  },
+  {
+   "numero": "105",
+   "ordinal": 110,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "fe57140c82d29efe47cdc519e17680e5476c1242b5767f7e9c41013f86c80c2c",
+   "caracteres": 1491,
+   "notas_a03": [
+    "a5057fb10e1e1754bd79af76c877230beb264ab5210043c7cab9db1637e8e88c"
+   ]
+  },
+  {
+   "numero": "106",
+   "ordinal": 111,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d6294aecb689c03f1a0e8156ead953e0995b65ce733e781f25d805af00e6c498",
+   "caracteres": 248,
+   "notas_a03": []
+  },
+  {
+   "numero": "107",
+   "ordinal": 112,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "99e5c44612d8f76d937aa9ff48c83e36d7eecde8d31e71c6f769277247ff5c8c",
+   "caracteres": 299,
+   "notas_a03": []
+  },
+  {
+   "numero": "108",
+   "ordinal": 113,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "aea8dbc3c437b20282960f17e9ac3f096078abf13afcc15f1e463777b7bc9aac",
+   "caracteres": 675,
+   "notas_a03": []
+  },
+  {
+   "numero": "109",
+   "ordinal": 114,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2e8c8007915cafcb748b7b67d9592b1df7a38db89f34414eb75fa53c85e8b4fb",
+   "caracteres": 862,
+   "notas_a03": []
+  },
+  {
+   "numero": "110",
+   "ordinal": 115,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "e330c4c3c352d2b08f447633efba63f3447787d6c245aed9bef8ce245d878a94",
+   "caracteres": 645,
+   "notas_a03": []
+  },
+  {
+   "numero": "111",
+   "ordinal": 116,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7958c49e2d0b9508803097172590957b3597e32a8b6a8aa88d133432985342ad",
+   "caracteres": 992,
+   "notas_a03": []
+  },
+  {
+   "numero": "112",
+   "ordinal": 117,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "0a58b59d2c66a0368435906c688c0592113da547760e05b6393276a7793b2795",
+   "caracteres": 1588,
+   "notas_a03": []
+  },
+  {
+   "numero": "113",
+   "ordinal": 118,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "68835507eab805aabdc6c0238c90135a2d067c6e0d63299c577688bca3651d50",
+   "caracteres": 940,
+   "notas_a03": [
+    "d73388b170cac644d97ccd7d9d5283055f36dc8d17c974cf588be65b21aba8ea"
+   ]
+  },
+  {
+   "numero": "114",
+   "ordinal": 119,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "fb6b6f78b78ef24b9c17677b45ea69ed42850fdcda53f67c5872dac5a73ee9a5",
+   "caracteres": 241,
+   "notas_a03": []
+  },
+  {
+   "numero": "115",
+   "ordinal": 120,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9cdccadfa4ad236b63735cff60feee65d5794c8d19e3e52b3cfac87cb445e457",
+   "caracteres": 779,
+   "notas_a03": []
+  },
+  {
+   "numero": "116",
+   "ordinal": 121,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "689029edc76564d41ef5ec6bde3a4152ac01490453c788e8bceb41b1759f07e5",
+   "caracteres": 94,
+   "notas_a03": []
+  },
+  {
+   "numero": "117",
+   "ordinal": 122,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "347ff8e719c41a870e5e821cf751b7623bf5bdc8d3858d0acbb8b206820a0005",
+   "caracteres": 81,
+   "notas_a03": []
+  },
+  {
+   "numero": "118",
+   "ordinal": 123,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "fe17eada046cd651d31d2a5cee68765d3edd8f9f9c2213336757cc655bfad69b",
+   "caracteres": 256,
+   "notas_a03": []
+  },
+  {
+   "numero": "119",
+   "ordinal": 124,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "336c38af9728073841caef826173d20f50997946500e1d5f60e529c5b2f1f233",
+   "caracteres": 1040,
+   "notas_a03": []
+  },
+  {
+   "numero": "120",
+   "ordinal": 125,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d4d806562f7921e1cbd0ba389ec0af6f4d20b36a6e9bf88aa25bf02062d8669e",
+   "caracteres": 266,
+   "notas_a03": []
+  },
+  {
+   "numero": "121",
+   "ordinal": 126,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "20570d30951eff0b4cbc30d88e7753d185bb84219bc706b2a25ed5f7349759f6",
+   "caracteres": 627,
+   "notas_a03": []
+  },
+  {
+   "numero": "122",
+   "ordinal": 127,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "1e124eb4c9cc87bf897c707f55df2e8ae0480a81ee5ac67ecb4e8510c442164f",
+   "caracteres": 3773,
+   "notas_a03": []
+  },
+  {
+   "numero": "123",
+   "ordinal": 128,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "bc1f63a2972e97cdaf44c9af75ca7a5fe494aefa12211f97c19eb9002b35ae3b",
+   "caracteres": 380,
+   "notas_a03": []
+  },
+  {
+   "numero": "124",
+   "ordinal": 129,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b86251a78d0ceda9f7e19343ce0f2f41702cc5d40569ca6c9d8c9b56aec1a525",
+   "caracteres": 235,
+   "notas_a03": []
+  },
+  {
+   "numero": "125",
+   "ordinal": 130,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "dcddd6a89cf476dfef760e6ddadbb5c01f97f25b554911bd5cc44b27551c714b",
+   "caracteres": 708,
+   "notas_a03": []
+  },
+  {
+   "numero": "126",
+   "ordinal": 131,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "edc0f08bef4885f4f9a2e99a6f606c40de05c6213a137f49a0c43ccdbe258393",
+   "caracteres": 757,
+   "notas_a03": []
+  },
+  {
+   "numero": "127",
+   "ordinal": 132,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "5bfd4697ad5d188fcd3bcec45cb5fb533a15fba82eae1057e01b3626fe3f4d2f",
+   "caracteres": 144,
+   "notas_a03": []
+  },
+  {
+   "numero": "128",
+   "ordinal": 133,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "216c2a686b663eb53d3d8cc33299c9dc54a70379941c0f5435868a527c0a91e7",
+   "caracteres": 800,
+   "notas_a03": [
+    "38c5948eba576aa6edda0808009cad6b9c45b8d0c7277d3912281015117a8f15"
+   ]
+  },
+  {
+   "numero": "129",
+   "ordinal": 134,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "821e256aeba038fbc07decc3937c025be29b005de994584d6cc40cb95bb94c1a",
+   "caracteres": 235,
+   "notas_a03": []
+  },
+  {
+   "numero": "130",
+   "ordinal": 135,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "c1b20eea61377c9d72b27404517ff7d2bbf0a2699f0bf0b3051438348fd0cef8",
+   "caracteres": 442,
+   "notas_a03": []
+  },
+  {
+   "numero": "131",
+   "ordinal": 136,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9b5b1e175037a52ea1ea6b219bae6c33bcb027b100096b75a2932e7eb9b71a88",
+   "caracteres": 375,
+   "notas_a03": []
+  },
+  {
+   "numero": "132",
+   "ordinal": 137,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "134d0b217973e326d18d967964048fa209fd39cd517021699c025a17b3d46460",
+   "caracteres": 628,
+   "notas_a03": []
+  },
+  {
+   "numero": "133",
+   "ordinal": 138,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "197ba03ea0e0adec4a79cf8b03b23e13577edd82c0096021c182b7c1ba788701",
+   "caracteres": 680,
+   "notas_a03": []
+  },
+  {
+   "numero": "134",
+   "ordinal": 139,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO_INTEGRO",
+   "sha256": "ec58292777a8b59ce054af3859469165e4535c9c50cdf4ada0bdf79d97ea957d",
+   "caracteres": 44,
+   "notas_a03": [
+    "edd9541443f4d4bb9c11074ee7154d7aa25dc4b777d5ae20db0d89a61c3cadfb",
+    "44a8c8adf6bdc68f1e0ce27abdc874ea4d4b6453487d4cf1f3dba04fea4ca1d8"
+   ],
+   "observaciones": [
+    "Derogado íntegro (resolución del CLO 2026-11-18, PASAJES_134_141.md §6); el tipo pasa al art. 179-F del Código Penal (art. 8 del D.35-2013). A03 conservaba a)–c): no se adopta."
+   ]
+  },
+  {
+   "numero": "135",
+   "ordinal": 140,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "0d5e10bc1e61bcdc8091bc679ddc8565df5ec631f15d7a4fddc5ab38f1975862",
+   "caracteres": 215,
+   "notas_a03": []
+  },
+  {
+   "numero": "136",
+   "ordinal": 141,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "097649542077e10477c26586391cb41cd5aaf04a0f1d03eea761daca4698f9e1",
+   "caracteres": 225,
+   "notas_a03": []
+  },
+  {
+   "numero": "137",
+   "ordinal": 142,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "fe6d19ebede38f3b6ddc00b575fdb802ce1c540684da2e996dad1e482617a012",
+   "caracteres": 295,
+   "notas_a03": []
+  },
+  {
+   "numero": "138",
+   "ordinal": 143,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "be52436b995b5741586100551a044a157ddde515e7caa46d318833398a59f30c",
+   "caracteres": 862,
+   "notas_a03": []
+  },
+  {
+   "numero": "139",
+   "ordinal": 144,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "511e4b6ad7849bf769d16626ef04dbd2b59f45d6596e5742243680ec42e748e1",
+   "caracteres": 631,
+   "notas_a03": [
+    "085e19a4565ca7a568f875160289b83d9e0e6921dfbc688774a91cd1f407adfc"
+   ]
+  },
+  {
+   "numero": "140",
+   "ordinal": 145,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "e803e512ecf3b402eb10a289f7a40b67d56d4ce5709e45b3a53ebd876feeac41",
+   "caracteres": 130,
+   "notas_a03": [
+    "f85376cb2eeb55925c148e1a1b8fc6174ca1a5e719572afdf86ab975620d27cc"
+   ]
+  },
+  {
+   "numero": "141",
+   "ordinal": 146,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "3639d4570face98da5e7e57448061893344e2f8fd6c901f98a64d19c38395c46",
+   "caracteres": 361,
+   "notas_a03": [
+    "ebbaec7da4db612855b1183365053f95edb0900fbda50322ebc09e994fc20fbc"
+   ],
+   "observaciones": [
+    "Texto reformado (a–c); el art. 11 del D.35-2013 deroga los literales ch)–f) del 141 original (resolución del CLO 2026-11-18)."
+   ]
+  },
+  {
+   "numero": "142",
+   "ordinal": 147,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d91c65861a5a1f061a4f310b0c81387a66d6cbf6f158ec3dbd74ebade3108654",
+   "caracteres": 409,
+   "notas_a03": [
+    "97348e6daf461bbe09c2a281f6eb0e5f110f4375c30ca24b2d064352f4d0e6b0"
+   ]
+  },
+  {
+   "numero": "143",
+   "ordinal": 148,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "2f5e2f3089c9cfca34824858329e964eb505155d46332c1dc54e46f03ef8d95a",
+   "caracteres": 329,
+   "notas_a03": [
+    "e55d6902de6ebd131616b8263e0f294a52b4c916bba957d0c41cf727bd18cd5e"
+   ]
+  },
+  {
+   "numero": "144",
+   "ordinal": 149,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b1ab75bc169ad25e943adb7d29670d8e3c68dca8931130f30513e245423db8c6",
+   "caracteres": 303,
+   "notas_a03": []
+  },
+  {
+   "numero": "145",
+   "ordinal": 150,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "b37e5c11659746963ad909f4e59559c179c8f219f7c68bef9a469a2d2d0f8ecf",
+   "caracteres": 695,
+   "notas_a03": [
+    "c7030f5e9d911853e2718c93f8df25dac263e5d18fab5df1561d180d738ee273"
+   ]
+  },
+  {
+   "numero": "146",
+   "ordinal": 151,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "56b0b93a3778e5813419386863ba1600eb3d525a9f4f9aaebfd7474a09ec91d2",
+   "caracteres": 535,
+   "notas_a03": [
+    "6aef0ce036c2a5fda333f1b68c2a9e794d424cd1d76a1b1ce3769f0eb9b78898"
+   ]
+  },
+  {
+   "numero": "147",
+   "ordinal": 152,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "928bd0cd95fbe17889b916028c3b530d0e45be1341482f15fbe11be4de63fcba",
+   "caracteres": 1853,
+   "notas_a03": [
+    "e8d800e957144f5ea38e7084e6e13b2e20b95d56652cc220b8b643cf785ea726"
+   ]
+  },
+  {
+   "numero": "147-A",
+   "ordinal": 153,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "10c55104f4466124f3ff471a113fd3531cd70c938683c16d52747a51238c784d",
+   "caracteres": 1451,
+   "notas_a03": [
+    "d0df97ff8d9964b50f513ee47162fe5a45f99d59476f72968fd51c894c1843d7"
+   ]
+  },
+  {
+   "numero": "147-B",
+   "ordinal": 154,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "6e24a66ec2b83984e1ef3ebf55d838d59ef08771f020e71a626297d66c0042df",
+   "caracteres": 1074,
+   "notas_a03": [
+    "3e2c9c46fc0e50f31bdc21a316bcea4bf5d95df0a381f731465a6bfaeb4bb263"
+   ]
+  },
+  {
+   "numero": "147-C",
+   "ordinal": 155,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "545fd887a66e1020d818e9c6cba36425e5ce8aa21ff26b0c69294ff042170380",
+   "caracteres": 512,
+   "notas_a03": [
+    "95e1b9145152c0af7e35b1a0d62b7c0ee01bd8a8fb6a97a1036ec39861d2ebcb"
+   ]
+  },
+  {
+   "numero": "147-D",
+   "ordinal": 156,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "2b9c07cc80f8cfbc1c880a16d93bf6480ea0e7e0a79b67f441d45fd8991d60c9",
+   "caracteres": 759,
+   "notas_a03": [
+    "06373ebccfd54c3a300128ea04e8a19d599c9b3df77b24f71bca43973c9e0803"
+   ]
+  },
+  {
+   "numero": "147-E",
+   "ordinal": 157,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "fe6aa540ee90bcbd5fe340b4c2f33ecd2228157d86d83f823f0f318a05fadb10",
+   "caracteres": 306,
+   "notas_a03": [
+    "28e913b9f9991b7091b8f9f2ad9ff44af69c0fda826829c82d4a15cef3f8a709"
+   ]
+  },
+  {
+   "numero": "148",
+   "ordinal": 158,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7476d2a36319f4c23e8677c2e49894394c59764689a2eb055266a193c16e64d1",
+   "caracteres": 339,
+   "notas_a03": [
+    "c3c2b337dacf0608162fcfc7b2382568617a66b4b17d9ac3c0c909a911113af0"
+   ]
+  },
+  {
+   "numero": "149",
+   "ordinal": 159,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "63398b9920c455b2064517dcaa27fd16d952707c5b5242e3c72d5087ef8268c4",
+   "caracteres": 818,
+   "notas_a03": [
+    "7882889a49f8efab98f2aa7c0b9287fb9648ec6b11b9e8c6e1a44aaea5522b3d"
+   ]
+  },
+  {
+   "numero": "150",
+   "ordinal": 160,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "315369d631db59e9ce3c4e7aa50c0e5d3895e7bfe280f3170dc3dd65be11fb79",
+   "caracteres": 1216,
+   "notas_a03": [
+    "56fc21bf6b1d48da9bc41fca0584bd7fef2897589d8f997fc5c47e00c2b9524a"
+   ]
+  },
+  {
+   "numero": "151",
+   "ordinal": 161,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7d6d91c8bb5283f6847e74f43e08d3aa62b89902db3b935a2316639872e25d70",
+   "caracteres": 711,
+   "notas_a03": []
+  },
+  {
+   "numero": "152",
+   "ordinal": 162,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "2dd38daefb3bc9bcce0f2fd207888689ddc6d427330f69e27eee4b132c46a014",
+   "caracteres": 641,
+   "notas_a03": [
+    "08cab880b411eb3cbd5471abbc831a369aa66daae1f10ebb0dbba003a8b7eb94"
+   ]
+  },
+  {
+   "numero": "153",
+   "ordinal": 163,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "7a5fb68e917419375f7c89aac70d06f8dd1e6bed95f5f46b50981cc77254f766",
+   "caracteres": 265,
+   "notas_a03": []
+  },
+  {
+   "numero": "154",
+   "ordinal": 164,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "6025d52760d42343a5f7dc6748a3ca807aa1f2f6b0be12ca92bb056502799184",
+   "caracteres": 277,
+   "notas_a03": [
+    "9dbedb02a47f8903815d8f85c4b9200824dc1c2dd78e261b4b28bb38421c15e7"
+   ]
+  },
+  {
+   "numero": "155",
+   "ordinal": 165,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f1a9996df380048faef79d2f0d9e45839aee1171638b626516766e65c660a859",
+   "caracteres": 408,
+   "notas_a03": []
+  },
+  {
+   "numero": "156",
+   "ordinal": 166,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b61aabb8b6ebd10790de61abf8a1647ec5691286f9214098dbdcf79c6662f463",
+   "caracteres": 677,
+   "notas_a03": []
+  },
+  {
+   "numero": "157",
+   "ordinal": 167,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "79af127a5cbc70f79f1ff5284b7652a7724028a0c057e8d2555d9289c9e044f2",
+   "caracteres": 444,
+   "notas_a03": []
+  },
+  {
+   "numero": "158",
+   "ordinal": 168,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "64e109647fd055f2fd013fa254d415c45ae212825c6741549f6e2937afc53433",
+   "caracteres": 469,
+   "notas_a03": []
+  },
+  {
+   "numero": "159",
+   "ordinal": 169,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "1c4d81b8ec87b532d8a6d8075c8018cf51fa52f9a692c864041e7633172813fe",
+   "caracteres": 316,
+   "notas_a03": []
+  },
+  {
+   "numero": "160",
+   "ordinal": 170,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "93a13087ce4584c5758845da6227b3b4d0c446b61cd0580bb04abadc0c9db092",
+   "caracteres": 230,
+   "notas_a03": []
+  },
+  {
+   "numero": "161",
+   "ordinal": 171,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "92da48e30a443caaeafe6b41fd65a4d8938a51b640e6c8df6b271b94940bda61",
+   "caracteres": 143,
+   "notas_a03": []
+  },
+  {
+   "numero": "162",
+   "ordinal": 172,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d7c6b2650686cf833fb61a0c0840509c59a6805158fe6912a56902532120b41c",
+   "caracteres": 545,
+   "notas_a03": [
+    "f059f8d9b0c961ba922ae86d5bec03c2c056cef69a3a272175a7c6fa5f82a058"
+   ]
+  },
+  {
+   "numero": "163",
+   "ordinal": 173,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f3e0c3dce8a0ff8c9a990e3b371c76c9df4c08bee50cd600a45372b6a9e4361c",
+   "caracteres": 960,
+   "notas_a03": [
+    "29bf2d9f92c9a29ded28196c3a814b90cef912c301dfedf4d8ac23678284816b"
+   ]
+  },
+  {
+   "numero": "164",
+   "ordinal": 174,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f3fb5703a24a1b5a0022d9fd3ac118044144e5293b55bf211ce4727f14b88e82",
+   "caracteres": 634,
+   "notas_a03": [
+    "f02034f5b6994a599a304e49e736fd5e5637cd6b599451d4226a938e221d34f5"
+   ]
+  },
+  {
+   "numero": "165",
+   "ordinal": 175,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "563bd58bfcb5d6f83f67e6aede04f8b62e0f8a3b0fe20002851071a43f7fe0ec",
+   "caracteres": 845,
+   "notas_a03": [
+    "522e56a2173db896435c282480e47341d21484c7530dfa9d6448d63f527aee22"
+   ]
+  },
+  {
+   "numero": "166",
+   "ordinal": 176,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7dcdce5d6f83b3cd28a4d5f2b7739bf7631ef7ba29ffecda06fbb566abe7fb76",
+   "caracteres": 748,
+   "notas_a03": [
+    "855e516c3142e383248475b0964dad93e8114c119e94d3f3bcb6f1e6429ce119"
+   ]
+  },
+  {
+   "numero": "167",
+   "ordinal": 177,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "57560d85b10f637169947992f2553e61c17516078ce1a06f202fa79c4ef996be",
+   "caracteres": 263,
+   "notas_a03": [
+    "ce0282472f0fee3cc0574e58cedb171d6eaa7b8d379430d945c9eea860ba32c7"
+   ]
+  },
+  {
+   "numero": "168",
+   "ordinal": 178,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "bddd42c2af8933d2d22c131f48af65d5b1489263d6f17d3b5d476ebdd5154314",
+   "caracteres": 729,
+   "notas_a03": [
+    "6748fb058f6b4499bcf06dc96575a4f77f5201c1cdffeefadcb69237373d86a9"
+   ]
+  },
+  {
+   "numero": "169",
+   "ordinal": 179,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "c882c3717cad3103962a53ee0d5f152529d8f79f9fabf48bd6fe8e37b10360fc",
+   "caracteres": 318,
+   "notas_a03": [
+    "bc5ed644f21b90aa92876924c9852def40bdf276ab4bc9a9ec02653f970bad5f"
+   ]
+  },
+  {
+   "numero": "170",
+   "ordinal": 180,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "2ddc1f453e5c0eeae6627a59ec5c3965350e45e70dd7a4469ba1d79681513669",
+   "caracteres": 44,
+   "notas_a03": [
+    "25b7285bd2ca151cc4bb32ede02e8a1c16f5236fe47630080fa6f55a2b08e1f4"
+   ]
+  },
+  {
+   "numero": "171",
+   "ordinal": 181,
+   "fuente": "D35_2013_ART_11",
+   "estado": "DEROGADO",
+   "sha256": "2c50ed08aadfbb75573a5ae9b7d26301b6553ca36a5e12f661e60562aaff720e",
+   "caracteres": 44,
+   "notas_a03": [
+    "75f9888474a5bef250f2191af53583a2cbdcd09f22c5342989d1f0ac0c234724"
+   ]
+  },
+  {
+   "numero": "172",
+   "ordinal": 182,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2d229ba5716a13f4847ce5d4310772b220f02ab6215f72720f71cc3c83f61b4d",
+   "caracteres": 214,
+   "notas_a03": []
+  },
+  {
+   "numero": "173",
+   "ordinal": 183,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d583e8bf2a52e23f28f07d9233665fb21c20ae74e8b8774b7012b988af8c2a38",
+   "caracteres": 1275,
+   "notas_a03": [
+    "407378774e1f21c001603aada0e684536c318d3065aa21f030b113bd10479349"
+   ]
+  },
+  {
+   "numero": "174",
+   "ordinal": 184,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "ddad4ff7bc848a0c37666472719b6bf71984c2972f0c9ad79daed8331d8bfda6",
+   "caracteres": 238,
+   "notas_a03": []
+  },
+  {
+   "numero": "175",
+   "ordinal": 185,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "00685378712263a5a980889ea658ae6b448b38454ae777d282200611783036f2",
+   "caracteres": 555,
+   "notas_a03": []
+  },
+  {
+   "numero": "176",
+   "ordinal": 186,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b280aa3b116db04fa67732261d91f2abb546689e0f1ebf1cd6ec9e23249cacaa",
+   "caracteres": 595,
+   "notas_a03": []
+  },
+  {
+   "numero": "177",
+   "ordinal": 187,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "dccd1a9c2cba12062228edc797158096cb4eae04b304b5e4ed4339200bca7595",
+   "caracteres": 1147,
+   "notas_a03": []
+  },
+  {
+   "numero": "178",
+   "ordinal": 188,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "e3acd2a414b5d8cbd4226c289a9fd3ae9befe03a580bac28aa2727d03198c233",
+   "caracteres": 242,
+   "notas_a03": []
+  },
+  {
+   "numero": "179",
+   "ordinal": 189,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "84adfe98b09edd673b61a579fc5c4c960122af7d247dfd77d4fbe9acc38b7725",
+   "caracteres": 439,
+   "notas_a03": []
+  },
+  {
+   "numero": "180",
+   "ordinal": 190,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f7deee4cda762a96fd3899c59297a13e2b71c6d598c7aee57a92b454eaaabedc",
+   "caracteres": 2200,
+   "notas_a03": [
+    "28c596014ba96a11b3ce7833ad42abeaa4d97067fd4e0902f7e03db0afaf37ee"
+   ]
+  },
+  {
+   "numero": "180-A",
+   "ordinal": 191,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "59595377254f1fe8ec3f387f3a296686a7d8945a323a505d9f781c11d8cf4c99",
+   "caracteres": 1302,
+   "notas_a03": [
+    "5e57f0866624b9de8069293610cc6995af6ed9e8465e1210a174c584d1cfafc7"
+   ]
+  },
+  {
+   "numero": "180-B",
+   "ordinal": 192,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "4a60645bf597dccf7efa66cd0ae2659fb3e43152c47a526246d8cc3ba712b423",
+   "caracteres": 4038,
+   "notas_a03": [
+    "8089b8e525bac29c817053b73797a8face506d11e30e86171e10173ae21cfc80"
+   ]
+  },
+  {
+   "numero": "181",
+   "ordinal": 193,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "657e2330078ea2446110aa7365768a6ab3536c2eb5adaa42f268c28ca5cd850e",
+   "caracteres": 3189,
+   "notas_a03": [
+    "9dfd2a153940d4ccada1e4cbe126be97c93ab75054a47309965f57ff54dc73d0"
+   ]
+  },
+  {
+   "numero": "182",
+   "ordinal": 194,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f7e1c78d77a5bfb47ece41780c5678bee39b5c7e24f064dc88a6cd0611fa77fe",
+   "caracteres": 1159,
+   "notas_a03": [
+    "cc6b052f5712eaf8ffa694d37c2312872c6b892eff3ab368b99dfc5d353dcdef"
+   ]
+  },
+  {
+   "numero": "183",
+   "ordinal": 195,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "b18804faf17e1c8f4fd57957f899471e7c7e68116f85d18d04130acd6200556e",
+   "caracteres": 978,
+   "notas_a03": [
+    "ceb92b8ed78434cb6690afb85876474956b44446b2a0cb12746b8c83c959fdc7"
+   ]
+  },
+  {
+   "numero": "184",
+   "ordinal": 196,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "1027dd7c454aaee2ed420538927ac1ee04d702dc16dc1a7eb68733902946382f",
+   "caracteres": 419,
+   "notas_a03": [
+    "3874db9d1a138e5770ad4e671a2d5226d01484d36075cbfb07a83ca699e64867"
+   ]
+  },
+  {
+   "numero": "185",
+   "ordinal": 197,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "9a9d71e233050c0de06c0afd42596664937538c730818cfc34ea03676a985c23",
+   "caracteres": 260,
+   "notas_a03": [
+    "259d53b4abdd834c16ac6ad2e9f066f93e33f16e325750cd5b54089262108c90"
+   ]
+  },
+  {
+   "numero": "186",
+   "ordinal": 198,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "04bc2f5528c7a24f3bd3e1c8d5fe683e70fbf3bff77fabe0c7963fb15acd06a1",
+   "caracteres": 731,
+   "notas_a03": [
+    "c57d125539d9963b5988002026eb4ab73ae3a6ba01d86fa2f04baf0bb7868db1"
+   ]
+  },
+  {
+   "numero": "187",
+   "ordinal": 199,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "6ae9c7a406b13f36a1ca2e1f0675fcf0876aa8634e799556594858cfbdfcea0b",
+   "caracteres": 454,
+   "notas_a03": [
+    "8691e996a278f6c8cb7e5f1a81aaaa2c13242f11fe522beafa4272c20c1e07a5"
+   ]
+  },
+  {
+   "numero": "187-A",
+   "ordinal": 200,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "4e3ff4d913a5fc0651e8ea72f24efec9c69fdc83275668d2933047034cd1eaf0",
+   "caracteres": 316,
+   "notas_a03": [
+    "9f5254c04f61e545b438432f61f11e4b58cfe2dd4d9ad464b43d84818f926f2c"
+   ]
+  },
+  {
+   "numero": "188",
+   "ordinal": 201,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "63238e6d0319d5fe21cd3cca4ace5a353e9da9abc7f4949bd3d3a7e515980f4c",
+   "caracteres": 657,
+   "notas_a03": [
+    "9081ca232bd25e5b660ccb41757f3df8c60d75d1230057bc6c72afe0cb66cf4c"
+   ]
+  },
+  {
+   "numero": "189",
+   "ordinal": 202,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "9862865ec2d4702d7172fc4bf2196243e60fbd7c14ebb901eeea8d1f6115aa7b",
+   "caracteres": 210,
+   "notas_a03": [
+    "db85c142855fa30ed02b0daf9cfa93f1419189883dd31a8108dcf40afaa4577f"
+   ]
+  },
+  {
+   "numero": "190",
+   "ordinal": 203,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "da015b12f0c4866833259f3fd59f882b379a4c3cc6c8705c28141f400336e699",
+   "caracteres": 1208,
+   "notas_a03": [
+    "83e3f108417d7f71218a4a95c1b27597439442be98f6994f3e9c9c964b8eaca3"
+   ]
+  },
+  {
+   "numero": "191",
+   "ordinal": 204,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "ab5267e987f80d78574b0c9ded54b4201dc803a2ad77eb1f5819cd3e95fc126b",
+   "caracteres": 1258,
+   "notas_a03": [
+    "9d68d5e445e0f073bcf56f9079cdf058fa74a959049347308925d782902d49b5"
+   ]
+  },
+  {
+   "numero": "192",
+   "ordinal": 205,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "28ec8b41ecb77aa71adfecd3f924df58c836a4539cc28c4dbc0b28ec6988939e",
+   "caracteres": 1623,
+   "notas_a03": [
+    "1e5d610b4ae97ce7954f3de10f4f39ce13d39e6015a7eec55e9e49d8a7d2b921"
+   ]
+  },
+  {
+   "numero": "193",
+   "ordinal": 206,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "fac6180b34aae215fd678489cdb91809190b6753f024aee9c6a899042e3d33f5",
+   "caracteres": 458,
+   "notas_a03": [
+    "b495a03a9876c5fc8dde37f2a7340fa132dded9cadf1856511150d11e9aa6fba"
+   ]
+  },
+  {
+   "numero": "194",
+   "ordinal": 207,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "448db49cc9e9847ae42ef1d5aac3395334c1881a01bdadf02e9dcb3fcf0396b1",
+   "caracteres": 492,
+   "notas_a03": [
+    "ec3a4900f765bf824b7e4b1704b076ef464e42d1e7cdb4578a09c394234799bc"
+   ]
+  },
+  {
+   "numero": "195",
+   "ordinal": 208,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "705269c2c39f8bdfe903ab49bd6f2621d3b3f9d51474f90fcf4df6297c79669f",
+   "caracteres": 1644,
+   "notas_a03": [
+    "1ffe3bb9a3f90c8ccc2fa7083167c7e713acceba1fff7378c404169e9275ba2b"
+   ]
+  },
+  {
+   "numero": "196",
+   "ordinal": 209,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "966c0261734e12ff9dfff4e271ca47a198586240394976a356fe6fd7f24ba70e",
+   "caracteres": 749,
+   "notas_a03": [
+    "3c55402ec48377e94de8dfa74812a574f5daccd29e36f421e3d60dace6fe83da"
+   ]
+  },
+  {
+   "numero": "197",
+   "ordinal": 210,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "3cdc4a4bd5566afa481c5d47fdba7e09580bfb814f45dbdff44d8f09f7fe3a70",
+   "caracteres": 534,
+   "notas_a03": [
+    "a209acfcdbfdc82e5ec8b87d836c06fa844ea44a6dc43255b77b39647d0672b3"
+   ]
+  },
+  {
+   "numero": "198",
+   "ordinal": 211,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "07c11710a697659e114a130e189ec8544e4cd124e29bcaeb4e85d75c95c0e1ab",
+   "caracteres": 1022,
+   "notas_a03": [
+    "d41a98ce0ac4eda24f69e54215f6079446c3493479ac5b785c453fdeb21537c3"
+   ]
+  },
+  {
+   "numero": "199",
+   "ordinal": 212,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "99cb558b432ce27e66be06ecc5465589bb88d00ac0a9de9b68deb6cf643002bd",
+   "caracteres": 752,
+   "notas_a03": [
+    "bac0738a31c8e1671b7ae7de2e8254dabdd9c1986022c971ffd9ee599b894e47"
+   ]
+  },
+  {
+   "numero": "200",
+   "ordinal": 213,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "65f423a2eb61c592fc223ba8bb5dfa4335f48780f27e3b2050ccb8fae1ce764f",
+   "caracteres": 429,
+   "notas_a03": [
+    "4c24948ee72449cbda964b7eb11aa919aad787c6d4dd20849f3d0231f28a0346"
+   ]
+  },
+  {
+   "numero": "201",
+   "ordinal": 214,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7564f3e304c15b59af9442a62f090a7d078c1bd8589d4dfb7fcec94e17cc926b",
+   "caracteres": 328,
+   "notas_a03": [
+    "5356d823c0ca75aeb3c4b32b65eb225e8eb1216d61e20aa12218511380e83170"
+   ]
+  },
+  {
+   "numero": "202",
+   "ordinal": 215,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "6e5ff16c838ee47abed4f7df77f823b0c3bc70850b5e330219c69b2b04161145",
+   "caracteres": 465,
+   "notas_a03": [
+    "19a5672e4471b69f327ab4bf7ac0464c6558ca76cec7979da175875d746a409b"
+   ]
+  },
+  {
+   "numero": "203",
+   "ordinal": 216,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "c922585ea85a43ff2efc45ab3efce1d63f7828f3150a8cb1ef3fdb9979e2cf40",
+   "caracteres": 468,
+   "notas_a03": [
+    "cbf675717051eb66ed996c02170383b34c0f02ae6e4fd8427ad823a7d71e3d4f"
+   ]
+  },
+  {
+   "numero": "204",
+   "ordinal": 217,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "92a18b725e30fd4170b3d6f9cd03a5dcf2922d9b8d4f1d409904876972df428e",
+   "caracteres": 494,
+   "notas_a03": [
+    "cb1b5a5603bad4f67076433fc6ee7157e0ad27e9c5419cb6725e135a0bef8a2e"
+   ]
+  },
+  {
+   "numero": "205",
+   "ordinal": 218,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "75fb673861cba6e9ba8c4d876957565acfedd67bc5ba4bf2e753bc7ade2a3b5f",
+   "caracteres": 1027,
+   "notas_a03": [
+    "068114cd17bd97fb55cdd46a124c7183b4dffeba97ad0859cb6d8c9999002305"
+   ]
+  },
+  {
+   "numero": "206",
+   "ordinal": 219,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7cd541b0ff28065beb331c20e3e6124ac0da6511d27dd64b47503923ee465e4c",
+   "caracteres": 747,
+   "notas_a03": [
+    "6a251b55835aaf4fda3ec67bcc382d502822594dd325144854779310d8215b32"
+   ]
+  },
+  {
+   "numero": "207",
+   "ordinal": 220,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "29e12d47f90e9b0f0c7cfd2393bd6b5bc4bfe52c69827235604c03d0eff6a685",
+   "caracteres": 471,
+   "notas_a03": [
+    "a1d87ae1842a0122f7367420367fa8a02ff93dd95a78894d65a5560ceaca93bf"
+   ]
+  },
+  {
+   "numero": "208",
+   "ordinal": 221,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "80304f4b08d29e8e25f68e3ea9ae52dd1cba8fd8b2992a73b5c463b45b6d7204",
+   "caracteres": 342,
+   "notas_a03": [
+    "ede646c382d5b60c88a5d7397d6755b8c947adb57b76f4e36c46a8676b415551"
+   ]
+  },
+  {
+   "numero": "209",
+   "ordinal": 222,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "bd09dcf576f9f0711ed814bed042d2c1d8ef44b869374601d4e83fa626dcbfc4",
+   "caracteres": 791,
+   "notas_a03": [
+    "e09ad860ed9626d52397677f1e428996e694ba4278863860eaa741942816cf6b"
+   ]
+  },
+  {
+   "numero": "210",
+   "ordinal": 223,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "188b26946789cbf202198bae6d7b8a6595d7be59e5f307c867fd43bbfa10b3c2",
+   "caracteres": 668,
+   "notas_a03": [
+    "fbbaa86ca36cca9fda7e6d27ba25a29510110588e5023dbb53a0d13c396794ee"
+   ]
+  },
+  {
+   "numero": "211",
+   "ordinal": 224,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f5391d1883601e72dad3970fc1b5862db949f50663abf9e75d772e7833787616",
+   "caracteres": 983,
+   "notas_a03": [
+    "603cd43b26bbd1d6937550b7b1d06391b589cdd1c85dd444d5373ec6b61a3539"
+   ]
+  },
+  {
+   "numero": "212",
+   "ordinal": 225,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "4051a81f08573e5cb3dcfca0437b3d534a696b10f43dbd028785ca4165213365",
+   "caracteres": 546,
+   "notas_a03": [
+    "ec0ee738e2ab8fdccf9c8d393ecf09a6f119038b09ea049115c3a0612e3da425"
+   ]
+  },
+  {
+   "numero": "213",
+   "ordinal": 226,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "af64ffc4efbfb7a9bbf96a89561d9813f2ef8b2cfd1385b2a01cdf87d23c9679",
+   "caracteres": 1641,
+   "notas_a03": [
+    "6fbf6a5edc57173e018335b8cab8aaaa65f5f388ea8b822c8653031e9fc010cc"
+   ]
+  },
+  {
+   "numero": "214",
+   "ordinal": 227,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "126bd591829784aeff58534a0aa048948fb6891ef9833cc707bcd79a6f8b9211",
+   "caracteres": 420,
+   "notas_a03": [
+    "cb70621978088269e2cfe30074d7af37dd2c438654ee0d99a82828824ac4516d"
+   ]
+  },
+  {
+   "numero": "215",
+   "ordinal": 228,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "9d821818e02acddd475a85db5317497e3ef10737a67eef2a1915c9a8a37d3f21",
+   "caracteres": 324,
+   "notas_a03": [
+    "a182879d401a4b9d9d91efa613bfc8ec93609cd8334c5a62a8d7377dd1673b3f"
+   ]
+  },
+  {
+   "numero": "216",
+   "ordinal": 229,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "b3e00a784b9107cbd76584aa66d5624fd5493624cab66e798dd4141ceaa0ee60",
+   "caracteres": 221,
+   "notas_a03": [
+    "8c712a319b7e2fd2e95a4519faa8b8ef5f7962c39441f551fc56c7b3792b2a35"
+   ]
+  },
+  {
+   "numero": "217",
+   "ordinal": 230,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "1996af82c32585c9d961e163521fba29f0c64e85e9d0d704acbff53f75be946f",
+   "caracteres": 2506,
+   "notas_a03": [
+    "7af83e8c93431eac86cd82020a3233bf2682a30447a43b8d285aa00a7d7bb1f6"
+   ]
+  },
+  {
+   "numero": "218",
+   "ordinal": 231,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "dc6a3a74f754854f79644a3303925756048f06c620c8ff6f89d1e64dcd0d83b8",
+   "caracteres": 1963,
+   "notas_a03": [
+    "97dc772faa03bf4c4fb5e6cb6ca218cd3a6bb11be5f7d4d4aedca32d2a38a4e9"
+   ]
+  },
+  {
+   "numero": "219",
+   "ordinal": 232,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "c1dbb228f34e919bad5fd01d2a2e4a3f5761cb5435f33a0e98166ec6f843b562",
+   "caracteres": 368,
+   "notas_a03": [
+    "553a3f40b2f27bf8e06c64fbf1b43ff84851c7d77cd9f1c126624d59d6320db8"
+   ]
+  },
+  {
+   "numero": "220",
+   "ordinal": 233,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "152d78166b75f211d039b2debb126a0b52c7cdbe3fe6a1d0d366f01a7ae376bf",
+   "caracteres": 694,
+   "notas_a03": [
+    "61214eb82fe2e7a8efbd011cad47f242054819805a27656232245b2c93661863"
+   ]
+  },
+  {
+   "numero": "221",
+   "ordinal": 234,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "a17d44c9c3aed06fab3d5f0fba36c3aa72d3ee391d467cc14b0ce6d285ff0383",
+   "caracteres": 670,
+   "notas_a03": [
+    "79dd02c2ec92189c5ea17082ad89f3604c48a122b9c9d8db9f4b6f8ac155c902"
+   ]
+  },
+  {
+   "numero": "222",
+   "ordinal": 235,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "865c40c1ce7b5a7709f71766a53ca525f1e4eb8ae0e599c9e066a46354038ea3",
+   "caracteres": 2062,
+   "notas_a03": [
+    "7dd06806c5ec813448ee4b17778699c2da4e380bf9ceceeb8006633e8c49892e"
+   ]
+  },
+  {
+   "numero": "223",
+   "ordinal": 236,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "2e4be41e7a977a913153fc3198097894bbcddcfdc8726e4932d54693ebf29e0c",
+   "caracteres": 482,
+   "notas_a03": [
+    "254ce430c94505d33d3d730cce73d662c6e400a804d7349042de19c1a7f50096"
+   ]
+  },
+  {
+   "numero": "224",
+   "ordinal": 237,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f392243028033b837f4557e2196200c125f2c6155ccb28136c4db6e97c67a497",
+   "caracteres": 245,
+   "notas_a03": [
+    "38041d6355b4a33af5281c0b0bdf2afce3721b345a169912086f87c6f4d3efe9"
+   ]
+  },
+  {
+   "numero": "225",
+   "ordinal": 238,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "441f34e2f2f0c4c5a6bff32e00103f28bac5ec4979f7cc2ef2d823e135e6c810",
+   "caracteres": 554,
+   "notas_a03": [
+    "05d2c926f974d686b9774ad828234d1a005855e59998b78b51add69839d3bf73"
+   ]
+  },
+  {
+   "numero": "226",
+   "ordinal": 239,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "62630020e5644e937f745e67242fd8e94ff4b50b36902e3a23f5788ff71b486c",
+   "caracteres": 657,
+   "notas_a03": [
+    "0f0257528f87986528eb41d68a467f9ca063800fe1c1beaa432f3eb262dd3f12"
+   ]
+  },
+  {
+   "numero": "227",
+   "ordinal": 240,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "876a83c2f939931f88e56060717bb2e56f4116af4919ffeb850d2467a8798bbb",
+   "caracteres": 623,
+   "notas_a03": [
+    "e6f27b93b076c924f41d5ad6e464eda494edfc3714fc40ced4744b1a90787171"
+   ]
+  },
+  {
+   "numero": "228",
+   "ordinal": 241,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "61997f0f4f9c868b4b29004e0a95432a0a5881df4652646d6a49fffffe7c36b9",
+   "caracteres": 416,
+   "notas_a03": [
+    "5d99102ffe285c4740bbdb66f61dd3f5513d8a55988b551b1caaa8cd559d4cb3"
+   ]
+  },
+  {
+   "numero": "229",
+   "ordinal": 242,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "9a31e31f2ed15a72f3ac097fce240d3e1929dfc8bcb5aca92baf054eca48fb1b",
+   "caracteres": 423,
+   "notas_a03": [
+    "b4a035d2d9802af1f6612781743e60c91182d1555268b61b8c485a4a80ec0cbf"
+   ]
+  },
+  {
+   "numero": "230",
+   "ordinal": 243,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "6ad3a760569f8107df0f101bf821853b0c5cedfdca1fd52a29ae1fc2451d97d6",
+   "caracteres": 3054,
+   "notas_a03": [
+    "ece695a78362b348793a189d70d011f303597b93e3fe8b7ede29afac9df477af"
+   ]
+  },
+  {
+   "numero": "231",
+   "ordinal": 244,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "3f17a41f40a04b9ac1da8cfd06b92eca1ddd2d4b6087c1444b9aae1bee70b320",
+   "caracteres": 1345,
+   "notas_a03": [
+    "fd67b386579fe8380c6ea64c156ccf73d93d91c32880a857c809f7ab2a683254"
+   ]
+  },
+  {
+   "numero": "232",
+   "ordinal": 245,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "cc8cb82961ed5de2f415220566ac5338aa14c0cc7f14c92fb0f2c5a192870ad2",
+   "caracteres": 733,
+   "notas_a03": [
+    "2c0df943b0899ac4ffb339750c0b110311a0c3141b1e0a651b746db6ab17cdc9"
+   ]
+  },
+  {
+   "numero": "233",
+   "ordinal": 246,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "08f9ce7f434a8ff9dc13768c9ca0e0f7603aa3cc2f2da01311a663decd4121dc",
+   "caracteres": 577,
+   "notas_a03": [
+    "b7bd5df09d176c5f8a179b8cd39319846e819eeb23864464039505022a025006"
+   ]
+  },
+  {
+   "numero": "234",
+   "ordinal": 247,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "a5f25f9571a1a60f2f38804367aa919399c7595103faf11a9c811d7dbbc8295d",
+   "caracteres": 152,
+   "notas_a03": [
+    "e31fee860093758b1ffabd85f8069ff9819f077b61ecf07feb73d0ea6f41effe"
+   ]
+  },
+  {
+   "numero": "235",
+   "ordinal": 248,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "8ef6ca8c56383e7a05368dd215c2acf191c0bffe583ba8b7287e40ebde8d6f7f",
+   "caracteres": 1307,
+   "notas_a03": [
+    "7361021eaf8cdaf90adfdcf66ae60d242201509be8919cb366ef28acccb1c866"
+   ]
+  },
+  {
+   "numero": "236",
+   "ordinal": 249,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f1a8da36b18d55c53eb0d1e2a8b6cd213bb712d7fc3f542d9d352578f37a576d",
+   "caracteres": 1645,
+   "notas_a03": [
+    "a1b9fc4d761099bffa9a90af6f2b14b657c45560579bafe3d6579788a4b7616c"
+   ]
+  },
+  {
+   "numero": "237",
+   "ordinal": 250,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "bfe2104b570df63cf358d576447f6ca8e4ae720fb19c0251aa94491b4bae1873",
+   "caracteres": 962,
+   "notas_a03": [
+    "88eb705fb9a0c8809acd3463efcc53edf6e1f666325f72887ec7b0e3a55c4827"
+   ]
+  },
+  {
+   "numero": "238",
+   "ordinal": 251,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "287148501355042d265124be7be803d477e48ece58cc1108a34964cf12e2473e",
+   "caracteres": 1377,
+   "notas_a03": [
+    "fdf1417fb6125b7c2d86980bc76d83c5ad368fa8e35884fd76fddeacf35e9f9a"
+   ]
+  },
+  {
+   "numero": "239",
+   "ordinal": 252,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "298d29c329d715df3607b3a04c87a8f96aa79ac2b6715eac15edaa7b2b17cc81",
+   "caracteres": 438,
+   "notas_a03": [
+    "2319d8bdf47aed2eae25d069a3b14b0d24845ea9a8fda3280b83dec874614dd0"
+   ]
+  },
+  {
+   "numero": "240",
+   "ordinal": 253,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "65367c84655545e80eaee293963f3d735fdbdc08a2ca76a1da52d2a7f8eea2d1",
+   "caracteres": 645,
+   "notas_a03": [
+    "356f70eb40ac510f6651ef83c5baf078c1f47130a77426fda8fb4356481e8998"
+   ]
+  },
+  {
+   "numero": "241",
+   "ordinal": 254,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "20e7ae1ad76671741a1eb5a12e534922978796991e61bd985c0e8b86c6b95db8",
+   "caracteres": 680,
+   "notas_a03": [
+    "dba93bcfd98b9dfad8095c845b9b1c7f46e306e898b2475da9f215adf7a6efdc"
+   ]
+  },
+  {
+   "numero": "242",
+   "ordinal": 255,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "12bf8ff0df9488a73d26fbf7f1411d28106e972a8f0034b96da4efc15cf676cc",
+   "caracteres": 1227,
+   "notas_a03": [
+    "b210bd624a0ebd9256113543684c7f12edee6f560db52b2415bd7fd7588578b9"
+   ]
+  },
+  {
+   "numero": "243",
+   "ordinal": 256,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "be8b202a6a37c9cf8a4842c49ea7fc721eabfde3dc24e213539d84d964aed53e",
+   "caracteres": 810,
+   "notas_a03": [
+    "fec21db1db046dadf109a56cf29cd3eba1e7f5d36a7c5b795adf1c49b6e57e57"
+   ]
+  },
+  {
+   "numero": "244",
+   "ordinal": 257,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "79e5e863846dfbb783bfe6587e636ec3c66be8fa2fea55488964e1fac19c31e7",
+   "caracteres": 2725,
+   "notas_a03": [
+    "684a31ff25b1d79493cae80edfcc96b370a855f4b86d790c6254d60ebc35920b"
+   ]
+  },
+  {
+   "numero": "245",
+   "ordinal": 258,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "e20545b5ba82bafc7bfccb67d05684bba9600d84c6d17f420fc36496ac82e74e",
+   "caracteres": 695,
+   "notas_a03": [
+    "28a5a76498a94369aecea9f9bbc2bdf8059815f1b3082e002baecc9bf494d95d"
+   ]
+  },
+  {
+   "numero": "246",
+   "ordinal": 259,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "cb8d5b425437507ac50eae576b8c4d590242a911e3bf4ac606b3e64b0c4d4e1c",
+   "caracteres": 445,
+   "notas_a03": [
+    "377abb41672db5e353038e9ed5d50bfa7b896917e2c6a01d4965bf96ad781456"
+   ]
+  },
+  {
+   "numero": "247",
+   "ordinal": 260,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "1193c9b8193d65a19ae161299fd8eae265aa7886185f93315179492914ac14d4",
+   "caracteres": 3938,
+   "notas_a03": [
+    "6dcb626479967554585de9fe530a800061450f3f610260c4bb243b580179f262"
+   ]
+  },
+  {
+   "numero": "248",
+   "ordinal": 261,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "7690c034e96e0d6cd1ec11638747d352ed30dce7778a2ab357be4b5645b76e81",
+   "caracteres": 417,
+   "notas_a03": [
+    "75cf9ab828f25fa33beec0d9c5a9a5d73e3b2054e43ca46f9219a89ab4f9afe6"
+   ]
+  },
+  {
+   "numero": "249",
+   "ordinal": 262,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "cea7044f8aedebd8e86ce70e131fcb9e62e9d1f4a3da57e3b057af268298f39a",
+   "caracteres": 609,
+   "notas_a03": [
+    "f41326566e0c70d110eea974285cd59c52ac7c35f5f01199fe5fb8771958e98a"
+   ]
+  },
+  {
+   "numero": "250",
+   "ordinal": 263,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d2a4f9aae5a323bcac861c10801bb88294aec0a4f36b5a10e1d4142ed2fef328",
+   "caracteres": 316,
+   "notas_a03": [
+    "ff2afc42a192085ceeec284b2bfd568c5bd3cd112c867ea0704bc6e8967209c9"
+   ]
+  },
+  {
+   "numero": "251",
+   "ordinal": 264,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "b66cacbd3222e77a680aab10f0918c148d8836ce695d4d89c7a1804fc1eb7055",
+   "caracteres": 603,
+   "notas_a03": [
+    "364bd207d86abbfb6e84000975cf337b8e8fdff53d0a823512543723c3028002"
+   ]
+  },
+  {
+   "numero": "252",
+   "ordinal": 265,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f507076c4ccf4596598720b0dced4b05591a3420718347556c6deb7420827c6a",
+   "caracteres": 846,
+   "notas_a03": [
+    "dce1b424b02bfe5c9b6dc745756aeef67b12a5b3a2211b217dde3e500c596a22"
+   ]
+  },
+  {
+   "numero": "253",
+   "ordinal": 266,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "15a6a529e749e2a0f3650a864f206dbb24fffd2ef687975ce8780d1f4c08d198",
+   "caracteres": 1205,
+   "notas_a03": [
+    "0001fb15f017b523ffa7bcc80f8b7d1d868b71900c482cc475f4c11d65e5eef5"
+   ]
+  },
+  {
+   "numero": "254",
+   "ordinal": 267,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "d90bc9b88397561b5a80f12f8a85c8a5f8e869f6edfe09a073e901da99c2215d",
+   "caracteres": 527,
+   "notas_a03": [
+    "1b68d774ba3fd1ea9384e4928b96d6f16ebd8652a5d5f20761bf4fa31f5ff769"
+   ]
+  },
+  {
+   "numero": "255",
+   "ordinal": 268,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "77799641b0dbb0cc5ea63165c9c0731739f526577ffd84399c363bfcc0e3b8ec",
+   "caracteres": 238,
+   "notas_a03": [
+    "ad3729a78155df0c9f88c82f9ec1cf7d3c2b2673294250c3754b32064fb0e26f"
+   ]
+  },
+  {
+   "numero": "256",
+   "ordinal": 269,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "1c8f9dfdca919498a0431d3fb9aabf59107cd53f5bdd193a17543e12a8bfba26",
+   "caracteres": 706,
+   "notas_a03": [
+    "4f8521d13e567d43ff232cde1050fe121834359ce88f1254ce48a460f2e274a7"
+   ]
+  },
+  {
+   "numero": "257",
+   "ordinal": 270,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "869a84e7071b56e6bbabb7c1e4dfbb6619f1b08ef33e2f739c8fb9adb3330bd2",
+   "caracteres": 653,
+   "notas_a03": [
+    "fa25e96107ba454344f0e13a96aadcbe0c05e752c5d7102ac91a27c476411329"
+   ]
+  },
+  {
+   "numero": "258",
+   "ordinal": 271,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "c67efb8ded43d0b0393406d9170e881e4ef114cb77a04710a61542d49c2f5159",
+   "caracteres": 320,
+   "notas_a03": [
+    "a2c863611a8ac8162c1753c6cff2f3b7f13194392e14a8661ffcdbb3e9f0ae04"
+   ]
+  },
+  {
+   "numero": "259",
+   "ordinal": 272,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "ac1b0a6fc448d002e684ec7079ced6f094a200756d1810575885d429cf7c9536",
+   "caracteres": 569,
+   "notas_a03": [
+    "dd4775e5f4898bbe9f5f3c769b12aa19f107d42990218dd9302f5fe3304d578b"
+   ]
+  },
+  {
+   "numero": "260",
+   "ordinal": 273,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "3a583329dc7f3383569975d0f8412cfa565f30f26aceb40da4af3810ecc127ab",
+   "caracteres": 515,
+   "notas_a03": [
+    "1c3098cf8ce5d1ac843236ee60b3c85a8677b8f46539f86f5757367632b26950"
+   ]
+  },
+  {
+   "numero": "261",
+   "ordinal": 274,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "152df7d6247ca770e9a8f37197408cf0200924b40890646af4f0670ce2eee2c0",
+   "caracteres": 344,
+   "notas_a03": [
+    "0a3896b0f0168565a28af3fbd3a357ae96b5d07b350556e3980096f494ed398c"
+   ]
+  },
+  {
+   "numero": "262",
+   "ordinal": 275,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "0c38b5ad8f05561c4bd9d27b3288137e9bc371843774dae3defdc8dfa43ff5dd",
+   "caracteres": 101,
+   "notas_a03": [
+    "82ffe2edc1371b5adb408b557244bcd2c0bdde4866ab3ae79cce76f833ea7f2c"
+   ]
+  },
+  {
+   "numero": "263",
+   "ordinal": 276,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "671c0515effd16489525763f25602c47d00ae0fda5bc4ea7c53c26bfc02ef1fa",
+   "caracteres": 134,
+   "notas_a03": [
+    "1cae021e3ae743957c28e4573b28f7d1ce526589de2b2fe9687f7c58270b730e"
+   ]
+  },
+  {
+   "numero": "264",
+   "ordinal": 277,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "8730abded29baf4298b7dbe6d942382b4e722045bf06e0dbc0deb1568ba8a4a5",
+   "caracteres": 586,
+   "notas_a03": [
+    "7850e9b719bfee9f415d7e84d44b9cd8d1fb75432df12e251493a0c280d95819"
+   ]
+  },
+  {
+   "numero": "265",
+   "ordinal": 278,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "918f81a76c7ad19d1cecc13a84d6cf4b7348af119a864fe1d47732286fbef14f",
+   "caracteres": 571,
+   "notas_a03": [
+    "115cf1b66609d6ed85b7990024552dc04bf65978d17199c8c16053a52cece7e5"
+   ]
+  },
+  {
+   "numero": "266",
+   "ordinal": 279,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a0aa4745c523ca0bfc37b36b2055dc180eaecd03cccfa09017885faef9b43846",
+   "caracteres": 256,
+   "notas_a03": []
+  },
+  {
+   "numero": "267",
+   "ordinal": 280,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2c3205529c846c8a667acf58f760ad9342a362e9c0b179895d2ea89ece824015",
+   "caracteres": 242,
+   "notas_a03": []
+  },
+  {
+   "numero": "268",
+   "ordinal": 281,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "3aa797cb1221a24ee5dc32220b37225fdc0dd8282f5f3ae5c7a22b38b1aff466",
+   "caracteres": 97,
+   "notas_a03": []
+  },
+  {
+   "numero": "269",
+   "ordinal": 282,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "6d8005aa6ec644b7d04d9a15e848bec697b87c583d7e57c4803029db4d8c34ea",
+   "caracteres": 249,
+   "notas_a03": []
+  },
+  {
+   "numero": "270",
+   "ordinal": 283,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "46c3ff8b64ead2da2c84ed3e7631ab0f1d40e315d87f359693e3b5b4a974e004",
+   "caracteres": 446,
+   "notas_a03": []
+  },
+  {
+   "numero": "271",
+   "ordinal": 284,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a82e1947bc4478f33a746eb04fb9b43afbda0cfe80914a1cbea3b21dc094ff4a",
+   "caracteres": 194,
+   "notas_a03": []
+  },
+  {
+   "numero": "272",
+   "ordinal": 285,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "682f9d456723b74b8b71a104259072470f8401f50d404bc37e4d65b4473e3053",
+   "caracteres": 326,
+   "notas_a03": []
+  },
+  {
+   "numero": "273",
+   "ordinal": 286,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b28810c8047867f56a833045057fd8cba3b40ba8f8c2fec3b31a562697742650",
+   "caracteres": 395,
+   "notas_a03": []
+  },
+  {
+   "numero": "274",
+   "ordinal": 287,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "8e5b1617450c490edc966a52ca8d75b5de4be7376dbfd8966a3f5526b719cb2c",
+   "caracteres": 282,
+   "notas_a03": []
+  },
+  {
+   "numero": "275",
+   "ordinal": 288,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "13dbedf4a6057abce149bc9213c0bc568b6cb4afab6d6af51172c8a36fbb2082",
+   "caracteres": 523,
+   "notas_a03": []
+  },
+  {
+   "numero": "276",
+   "ordinal": 289,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "b854f4bd122affdc715bfd460177f719a7c19c017428dc02b1571657b7429ff5",
+   "caracteres": 344,
+   "notas_a03": []
+  },
+  {
+   "numero": "277",
+   "ordinal": 290,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "e46fb9f3be2f937ff24ebeb4cc34ff8c34dfe012a23ee984e86bc3c6207fef83",
+   "caracteres": 312,
+   "notas_a03": []
+  },
+  {
+   "numero": "278",
+   "ordinal": 291,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "6bd0956a040639f5da0855c85b426acec34dd80e8a90e9d83e5f3d7acaf580b1",
+   "caracteres": 138,
+   "notas_a03": []
+  },
+  {
+   "numero": "279",
+   "ordinal": 292,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "5f67cef677564723be4912ac37b1a0ce24578af61c83d0620ecba49739a034b6",
+   "caracteres": 270,
+   "notas_a03": []
+  },
+  {
+   "numero": "280",
+   "ordinal": 293,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "4758fcbac890b759e4c55a58622223e0cf05c0d58560b5fd1b975335c43ea2f7",
+   "caracteres": 226,
+   "notas_a03": []
+  },
+  {
+   "numero": "280-A",
+   "ordinal": 294,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3_ADICIONADO",
+   "sha256": "ecad27ec91f3a487e588081932330cf538efe106510b7c2bf2daf485ec3ef2f8",
+   "caracteres": 186,
+   "notas_a03": [
+    "20ec634341e3538317008d6b8600d6c742f5c97e8534bf816cf9d7ccddd3cdd3"
+   ]
+  },
+  {
+   "numero": "281",
+   "ordinal": 295,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "d791050b77f958e5b9583664aa67adc52107a402f59a7c7f9c792ce0fe8007cc",
+   "caracteres": 546,
+   "notas_a03": []
+  },
+  {
+   "numero": "282",
+   "ordinal": 296,
+   "fuente": "V8_LA_GACETA_33222",
+   "estado": "TEXTO_V8_D3",
+   "sha256": "f77b706fae854c1486bfecd632bec526acddde97ecc88ff8edfc9313572db5ab",
+   "caracteres": 151,
+   "notas_a03": [
+    "eb632246716a5e0b7c718292fa88295b31b67c1c13fc1473438a42e281f246a4"
+   ]
+  },
+  {
+   "numero": "283",
+   "ordinal": 297,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "9999b5b9085f500527c7c887c4a2c7408b0fcecdb720b3e520354c448db51462",
+   "caracteres": 306,
+   "notas_a03": []
+  },
+  {
+   "numero": "284",
+   "ordinal": 298,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "016b86c1d1b21d7b3df15e3229b139f84bda6bb8d4009a56092787a866f5fa9e",
+   "caracteres": 870,
+   "notas_a03": []
+  },
+  {
+   "numero": "285",
+   "ordinal": 299,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2cee3b44965ac45ef99c473278d9c93d756a2aac2c1fb6d35e3a4f083f493f9f",
+   "caracteres": 677,
+   "notas_a03": []
+  },
+  {
+   "numero": "286",
+   "ordinal": 300,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "a1d6efa9c4fe5b1eb020d31b63bb6db5204324141283fef70cd99c957f621371",
+   "caracteres": 297,
+   "notas_a03": []
+  },
+  {
+   "numero": "287",
+   "ordinal": 301,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "2bb1f10966c8d36487b0560d187ba181a9291b2bf60bd84e52d84d764adaf2a9",
+   "caracteres": 174,
+   "notas_a03": []
+  },
+  {
+   "numero": "288",
+   "ordinal": 302,
+   "fuente": "A03_CONSOLIDADO",
+   "estado": "A03_PENDIENTE_VERIFICACION",
+   "sha256": "f989747eaac1e8ff72283eac7d94b8bdf86dad52e6a1a5f41794402983f8fa7b",
+   "caracteres": 642,
+   "notas_a03": []
+  }
+ ]
+}

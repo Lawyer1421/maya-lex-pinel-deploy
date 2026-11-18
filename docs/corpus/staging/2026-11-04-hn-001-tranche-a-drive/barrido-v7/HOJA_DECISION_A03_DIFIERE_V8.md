@@ -25,7 +25,7 @@ Artículos: 19 (17 `DIFIERE` frente a la v8 y los arts. 5 y 96, `DIFIERE_MENOR` 
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 97 · REFORMA (art. 1) · DIFIERE (similitud 0.9579)
 
@@ -45,7 +45,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 102 · REFORMA (art. 1) · DIFIERE (similitud 0.7778)
 
@@ -67,7 +67,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 102-A · ADICIONA (art. 3) · DIFIERE (similitud 0.9596)
 
@@ -86,7 +86,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 105 · REFORMA (art. 1) · DIFIERE (similitud 0.9637)
 
@@ -112,7 +112,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 113 · REFORMA (art. 1) · DIFIERE (similitud 0.964)
 
@@ -135,7 +135,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 139 · REFORMA (art. 1) · DIFIERE (similitud 0.9273)
 
@@ -157,7 +157,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 143 · REFORMA (art. 1) · DIFIERE (similitud 0.9333)
 
@@ -178,7 +178,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 152 · REFORMA (art. 1) · DIFIERE (similitud 0.9665)
 
@@ -197,7 +197,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 163 · REFORMA (art. 1) · DIFIERE (similitud 0.8904)
 
@@ -217,7 +217,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 187-A · ADICIONA (art. 3) · DIFIERE (similitud 0.85)
 
@@ -236,7 +236,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 194 · REFORMA (art. 1) · DIFIERE (similitud 0.9554)
 
@@ -257,7 +257,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 199 · REFORMA (art. 1) · DIFIERE (similitud 0.9655)
 
@@ -275,7 +275,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 209 · REFORMA (art. 1) · DIFIERE (similitud 0.963)
 
@@ -297,7 +297,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 217 · REFORMA (art. 1) · DIFIERE (similitud 0.9575)
 
@@ -317,7 +317,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 230 · REFORMA (art. 1) · DIFIERE (similitud 0.9443)
 
@@ -338,7 +338,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 257 · REFORMA (art. 1) · DIFIERE (similitud 0.9372)
 
@@ -357,7 +357,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 5 · REFORMA (art. 1) · DIFIERE_MENOR (similitud 0.9955)
 
@@ -375,7 +375,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☑ **v8** (firmado por el CLO, 2026-11-18) · ☐ A03 · ☐ Otro
 
 ## Art. 96 · REFORMA (art. 1) · DIFIERE_MENOR (similitud 0.9784)
 
@@ -396,7 +396,7 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 </details>
 
-Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
+Decisión: ☐ v8 · ☐ A03 · ☑ **Otro** (firmado por el CLO, 2026-11-18): texto de la **v8** con una sola corrección: la errata material de imprenta de La Gaceta en el numeral 2), «Juegos artificiales» → **«Fuegos artificiales»**. Constancia expresa en el manifiesto D3 de `HN:CODIGO_NINEZ`.
 
 ## Resumen
 
@@ -424,4 +424,15 @@ Decisión: ☐ v8 · ☐ A03 · ☐ Otro: ____________________
 
 ## Firma
 
-Decide el CLO: ________________________ · Rol: ☐ propietario_despacho ☐ abogado_revisor_senior · Fecha: __________
+**FIRMADO (2026-11-18).** Decide el CLO: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☑ **propietario_despacho** ☐ abogado_revisor_senior · Fecha: **2026-11-18**.
+
+**Dictamen:**
+1. **Regla general de prevalencia: v8 (La Gaceta 33,222)** en los 19 artículos de esta hoja. Incluye:
+   - art. 5, «atenderá»;
+   - art. 97, «expendan»;
+   - art. 152;
+   - art. 163, que restituye el párrafo del maltrato intelectual por omisión;
+   - art. 217, con el párrafo final completo del ejemplar TSC;
+   - art. 257, que suprime la oración interpolada en A03.
+2. **Única excepción, art. 96 (`Otro`):** texto de la v8 con la errata de imprenta corregida en el numeral 2), «Juegos» → «Fuegos artificiales». Queda constancia en el manifiesto D3.
+3. **Art. 134 del Código de la Niñez: `DEROGADO_INTEGRO`.** Fundamento: la resolución del CLO del 2026-11-18 sobre el art. 11 del D. 35-2013, que lo deroga íntegro y traslada el tipo de explotación económica al art. 179-F del Código Penal. No se mantienen vigentes los literales a)–c) que conserva A03.
