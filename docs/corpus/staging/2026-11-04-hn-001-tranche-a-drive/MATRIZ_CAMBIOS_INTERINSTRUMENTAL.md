@@ -30,18 +30,39 @@ A03 es una edición **consolidada** («Actualizado al Nuevo Codigo Penal», Word
 **Coherencia interna comprobada:** los 22 artículos que el consolidado marca «Derogado» (21, 62–71, 73–81, 170, 171) son los de las notas de derogación (62–72 y 73–82, de los cuales el 72 y el 82 traen adosado el rótulo de la división siguiente; 170 y 171; 21 por el D.130-2017). El art. 134 pierde los incisos ch) y d) según sus notas.
 **Notas cuyo texto extraído no trae completa la cita de La Gaceta** (errores de extracción o de la edición): 73 a 82, 102, 187-A, 245, 280-A.
 
-## 3. Decreto 35-2013 según A04 (La Gaceta 33,222) — DECLARADO_SIN_TEXTO
-**Sin comprobar: el archivo íntegro no está en el entorno** (el conector de Drive rechaza archivos > 10 MB). El propietario comprobó visualmente que el Decreto 35-2013 incluye derogaciones relativas al **Código de la Niñez, Código de Familia, Código Civil y Código Penal**, «especialmente en sus artículos 11, 13, 14 y 15». Se registra así, **sin ningún artículo concreto**, hasta tener el texto:
-| Art. del decreto | Instrumento afectado (declarado) | Artículos | Estado |
-|---|---|---|---|
-| 11 | por determinar | por determinar | DECLARADO_SIN_TEXTO |
-| 13 | por determinar | por determinar | DECLARADO_SIN_TEXTO |
-| 14 | por determinar | por determinar | DECLARADO_SIN_TEXTO |
-| 15 | por determinar | por determinar | DECLARADO_SIN_TEXTO |
-**Cómo se completará:** del texto de A04 delimitado por columnas y cierre (el Decreto 35-2013 termina en la columna izquierda de la pág. 46, donde comienza el Decreto 107-2013), y se **contrastará** con las notas de A03: A03 solo anota cambios al Código de la Niñez; cualquier derogación sobre Familia, Civil o Penal solo puede salir de A04 y de esos códigos.
+## 3. Decreto 35-2013 según A04 (La Gaceta 33,222) — COMPROBADO_EN_TEXTO
+**Actualizado el 2026-11-17.** Sustituye el registro anterior `DECLARADO_SIN_TEXTO` (que solo mencionaba Niñez, Familia, Civil y Penal en los arts. 11, 13, 14 y 15). **Fuente:** copia del TSC (`www.tsc.gob.hn`, tier 4), PDF de 46 págs., SHA-256 `fbd87f3396e5d0b6601a246008a1ae5bd870841b795d75ac42076245a154f2ff` (mismos bytes que la copia del Drive del propietario: no es un segundo ejemplar), con transcripción cotejada v6 firmada (D3, 16-nov-2026) y procedencia e identidad firmadas (D1, D2). Tabla tomada de `docs/corpus/staging/2026-11-05-hn-001-a04-orientacion/ADJUDICACION_CLO_D35_2013.md` §1; el detalle artículo por artículo está en esa carpeta (`RESOLUCION_TEXTUAL_A04.csv`, `paquete-revision/matriz_preliminar_reformas_derogaciones.csv`). El decreto termina en la pág. 46, donde comienza el Decreto 107-2013.
+
+**Instrumentos afectados (seis):** Código de la Niñez y de la Adolescencia (D.73-96), Código de Familia (D.76-84), Código Civil (Decreto Ejecutivo 76 de 1906), Código Penal (D.144-83), Código Procesal Penal (D.9-99-E) y Ley contra la Violencia Doméstica (D.132-97).
+
+| Art. del decreto | Acción | Instrumento afectado | Alcance (tal como está impreso) | Págs. | Estado |
+|---|---|---|---|---|---|
+| 1 | Reforma | Código de la Niñez y de la Adolescencia (D.73-96) | 123 artículos de la lista (1, 5, 20, 21, 32, 96 … 265 y 282) | 1–27 | COMPROBADO_EN_TEXTO |
+| 2 | Reforma | D.73-96 | Denominaciones de títulos, capítulos y secciones del Libro II | 27–28 | COMPROBADO_EN_TEXTO |
+| 3 | Adiciona | D.73-96 | «23 nuevos artículos» (la lista trae 14 denominaciones: 31-A … 280-A) | 28–31 | COMPROBADO_EN_TEXTO |
+| 4 | Reforma | Código de Familia (D.76-84) | 28 artículos (11, 16, 23 … 320, 331) | 31–36 | COMPROBADO_EN_TEXTO |
+| 5 | Adiciona | D.76-84 | «treinta y seis (36) nuevos Artículos» (la lista trae 34 denominaciones: 119-A … 332-A) | 36–41 | COMPROBADO_EN_TEXTO |
+| 6 | Reforma | Código Civil (Decreto Ejecutivo 76 de 1906) | 37, 234, 271, 434, «11»/«511» (lectura dual, C06), 516, 559, 960, 963, 972 y 973 | 41–42 | COMPROBADO_EN_TEXTO (salvo la lectura dual) |
+| 7 | Reforma | Código Penal (D.144-83) | Título IV del Libro II y art. 147-A | 42 | COMPROBADO_EN_TEXTO |
+| 8 | Adiciona | D.144-83 | «ocho (8) nuevos artículos» (la lista trae 9: 147-B … 179-G) | 42–44 | COMPROBADO_EN_TEXTO |
+| 9 | Reforma (supresión parcial) | Código Procesal Penal (D.9-99-E) | Art. 27 | 44 | COMPROBADO_EN_TEXTO |
+| 10 | Reforma | Ley contra la Violencia Doméstica (D.132-97) | Art. 23 | 44–45 | COMPROBADO_EN_TEXTO |
+| 11 | **Deroga** | D.73-96 | Arts. 62–82; «Artículos 134; los literales ch), d), e) y f) del Artículo 141»; 170 y 171 | 45 | COMPROBADO_EN_TEXTO; alcance sobre 134/141 en `INTERPRETACION_PENDIENTE_CLO` |
+| 12 | **Deroga** | D.73-96 | Denominaciones del Título II del Libro II | 45 | COMPROBADO_EN_TEXTO |
+| 13 | **Deroga** | D.76-84 | Art. 131 | 45 | COMPROBADO_EN_TEXTO |
+| 14 | **Deroga** | Código Civil (Decreto Ejecutivo 76 de 1906) | 324 artículos de la lista: 21 … 409 (con los saltos impresos), 427, 432, 433 y 965–970 | 45 | COMPROBADO_EN_TEXTO |
+| 15 | **Deroga** | D.144-83 (impreso «de fecha 23 de agosto de 1993») | Art. 179-C | 45 | COMPROBADO_EN_TEXTO |
+| 16–19 | Transitoria, mandato, divulgación y vigencia | — | Régimen de hechos anteriores; armonización en 180 días; divulgación en 3 meses; vigencia desde su publicación en La Gaceta | 45–46 | COMPROBADO_EN_TEXTO; la vigencia efectiva queda a cotejo |
+
+**Discrepancias visibles con las notas de A03 (§2), sin resolver aquí:**
+- El art. 1 incluye el **21** en la lista de reformas; A03 no anota reforma del 21 por el D.35-2013 y lo da por derogado por el D.130-2017 (ver `paquete-revision/EVENTOS_ARTICULO_21.md`).
+- El art. 11 dice, impreso, «Artículos 134; los literales ch), d), e) y f) del Artículo 141», pero el 141 reformado solo tiene a), b) y c), y A03 anota la derogación de los **incisos ch) y d) del art. 134**. El alcance queda pendiente del CLO y la relación `DEROGA` no se aplica a ninguna versión (ver `paquete-revision/PASAJES_134_141.md`).
+- Arts. 3, 5 y 8: el número de artículos nuevos que se anuncia no coincide con el de las denominaciones listadas (23/14, 36/34, 8/9).
+
+**Límites:** solo los arts. 1–3 y 11–12 afectan al Código de la Niñez; Familia, Civil, Penal, Procesal Penal y Violencia Doméstica solo salen de A04 (A03 no los anota). En el corpus de staging los arts. 1–11 del decreto están como `CONTEXT` (disposición modificatoria), según el reparto firmado en la adjudicación; esta matriz no reconstruye el texto de los códigos afectados ni declara vigencia.
 
 ## 4. Pendientes jurídicos de esta matriz
-1. Contrastar las notas de A03 con el texto del Decreto 35-2013 (A04) artículo por artículo.
+1. Contrastar las notas de A03 con el texto del Decreto 35-2013 (A04) artículo por artículo, empezando por las discrepancias visibles de la §3 (art. 21; arts. 134 y 141).
 2. Cotejar la fecha de entrada en vigencia de cada acto (D.284-2013 art. 39; D.35-2013; D.130-2017) con La Gaceta; no se declara vigencia aquí.
 3. Reconstruir por versiones los artículos de los códigos afectados; no sustituir un texto histórico por una consolidación no verificada.
 4. Identificar a qué título o capítulo se refieren las 10 notas de división.
