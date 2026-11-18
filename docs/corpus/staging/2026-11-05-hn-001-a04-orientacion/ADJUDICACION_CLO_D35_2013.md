@@ -231,6 +231,25 @@ El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-cata
 - **Pendiente:** revisión del CLO y aplicación en el SQL Editor de `mayalexhn-staging`. Después, una verificación independiente de Claude (la consulta del final del SQL: 19 · 19 · 4 · 19 · 11 · 2). **Producción no se toca. V4→V5 sigue sin firmar.**
 - La resolución de los puntos (a)–(d) de los arts. 134 y 141 (`paquete-revision/PASAJES_134_141.md`) **no está en este SQL**. Si el CLO la firma, va en un bloque aparte, generado y revisado por separado.
 
+### Resolución del CLO sobre el art. 11 (arts. 134 y 141 del D. 73-96) — FIRMADA (2026-11-18)
+- **Firma:** Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho, 2026-11-18. El texto completo está en `paquete-revision/PASAJES_134_141.md` §6.
+- **Decisiones:**
+  - (a) Los literales ch) y d) pertenecen al **art. 141**; las notas 23 y 24 de A03 son un error editorial.
+  - (b) Los literales e) y f) quedaron **derogados del art. 141**.
+  - (c) «Artículos 134» **deroga íntegramente el art. 134**; el delito de explotación económica pasa al art. 179-F del Código Penal por el art. 8 del decreto.
+  - (d) Para este pliego **basta** La Gaceta 33,222 (TSC y CEDIJ) con la fuente orientativa del D. 73-96. **El cotejo con La Gaceta 28,053 queda para D1–D2 de `HN:CODIGO_NINEZ`.**
+- **D5 no cambia:** el art. 11 sigue `CONTEXT` y el reparto sigue siendo 11/8. La constancia del art. 1 (C07) sigue pendiente.
+
+| Archivo (`out/a04-d35-2013-v7/`) | SHA-256 | Contenido |
+|---|---|---|
+| `actualizacion_v7_staging_compacta.sql` | `903450869220726f673ce51010e9b6c006365744a22fa85616ac9d0ff4052b43` | **Mismo efecto** que `actualizacion_v7_staging.sql` (`0de36a7c…`), con las mismas precondiciones y postcondiciones. Ver la nota debajo de la tabla. |
+| `resolucion_art11_staging.sql` | `d17191e721da0ae0c210db9135bb44ff4c38d39043b31812d91d3b223ca4a1a0` | Exige la v7 aplicada en las 19 filas. En el art. 11: `INTERPRETACION_PENDIENTE_CLO` → `interpretacion_estado = RESUELTO_CLO_2026_11_18`, con el resumen de la resolución (se conserva el texto anterior) y `motivo_rol = DISPOSICION_DEROGATORIA…`. Postcondición: 1 pendiente (art. 1), 1 resuelta (art. 11), 11 `CONTEXT`. Incluye la verificación final y la reversión, comentada. |
+
+**Sobre la variante compacta:**
+- **Qué hace:** en lugar de incrustar el texto íntegro (167 KB), aplica en la base las 18 sustituciones firmadas sobre el texto v6 ya cargado. Después se **aborta** si el `sha256(contenido)` que calcula Postgres no es el `hash_contenido` de la v7.
+- **Por qué existe:** el archivo completo no cabe de forma fiable en una llamada de la herramienta de Supabase.
+- **Verificación local:** las 18 sustituciones están una vez cada una en su fila y reproducen byte a byte el texto v7 de los arts. 1, 3, 5 y 6.
+
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 
 > Propuestas técnicas de Claude (no son revisión jurídica). **Las casillas marcadas (☒) son las firmadas por el CLO el 16-nov-2026, salvo D8 · V3→V4 solo en staging, firmada el 17-nov-2026.**
