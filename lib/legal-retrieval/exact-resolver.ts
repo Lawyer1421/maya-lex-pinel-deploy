@@ -170,6 +170,7 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_CIVIL', /c[oó]digo\s+civil\b/i],
   ['CODIGO_TRABAJO', /c[oó]digo\s+(?:del?\s+)?trabajo\b/i],
   ['CODIGO_FAMILIA', /c[oó]digo\s+de\s+familia\b/i],
+  ['CODIGO_NINEZ', /c[oó]digo\s+de\s+la\s+ni[nñ]ez(?:\s+y\s+(?:de\s+)?la\s+adolescencia)?\b/i],
   // Alias P1 (intención instrumental explícita): "reglamento notarial" y
   // "reglamento de la función notarial" son el Reglamento. "ley notarial" NO
   // es alias de ningún instrumento: no se asimila al Código del Notariado.

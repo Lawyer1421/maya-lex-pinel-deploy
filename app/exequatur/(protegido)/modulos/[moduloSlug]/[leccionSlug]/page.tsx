@@ -48,6 +48,7 @@ function etiquetaInstrumento(instrumento: CanonicalLegalReference['instrumento']
     LEY_JUSTICIA_CONSTITUCIONAL: 'Ley sobre Justicia Constitucional',
     CONSTITUCION: 'Constitución de la República',
     CODIGO_COMERCIO: 'Código de Comercio',
+    CODIGO_NINEZ: 'Código de la Niñez y de la Adolescencia',
     DECRETO_284_2013: 'Decreto 284-2013',
     DECRETO_35_2013: 'Decreto 35-2013',
   };
