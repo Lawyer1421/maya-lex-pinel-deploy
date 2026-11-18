@@ -60,7 +60,9 @@ export function hashArchivos(rutas: readonly string[], raiz = process.cwd()): Re
   const out: Record<string, string> = {};
   for (const ruta of [...rutas].sort()) {
     try {
-      out[ruta] = createHash('sha256').update(readFileSync(join(raiz, ruta))).digest('hex');
+      // Canonical LF bytes keep evidence hashes identical across Windows and Unix checkouts.
+      const textoLf = readFileSync(join(raiz, ruta), 'utf8').replace(/\r\n?/g, '\n');
+      out[ruta] = createHash('sha256').update(textoLf, 'utf8').digest('hex');
     } catch {
       out[ruta] = 'ARCHIVO_AUSENTE';
     }

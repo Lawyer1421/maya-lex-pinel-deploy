@@ -6,11 +6,13 @@
 import { describe, expect, it } from 'vitest';
 import { identidadDeFuente, RE_FUENTE_POR_INSTRUMENTO } from '@/lib/legal-retrieval/instrument-identity';
 import { parsearInstrumentRef } from '@/lib/legal-retrieval/instrument-ref';
-import { clasificarFragmentoClo, INSTRUMENT_IDS, INSTRUMENTOS_SOLO_CONTEXT, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
+import { clasificarFragmentoClo, INSTRUMENT_IDS, INSTRUMENTOS_SOLO_CONTEXT, instrumentIdDeFragmento, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
 import { PERFILES } from '@/tools/corpus/receive-pdf';
 import { construirLote } from '@/scripts/ingesta-lote-staging';
+import { detectarInstrumentoDesdeTexto } from '@/lib/legal-retrieval/exact-resolver';
 
 const FUENTE_D35 = 'Decreto 35-2013, reformas integrales en Familia y Niñez (La Gaceta 33,222)';
+const FUENTE_NINEZ = 'Código de la Niñez y de la Adolescencia (Decreto No. 73-96)';
 
 describe('catálogo: DECRETO_35_2013', () => {
   it('es un instrumento del catálogo y HN:DECRETO_35_2013 es una identidad válida', () => {
@@ -48,6 +50,19 @@ describe('catálogo: DECRETO_35_2013', () => {
     expect(textoNombraInstrumento('Según el Decreto 35-2013, artículo 5…', 'DECRETO_35_2013')).toBe(true);
     expect(textoNombraInstrumento('Según el Decreto 135-2013…', 'DECRETO_35_2013')).toBe(false);
   });
+
+  it('CODIGO_NINEZ es una identidad estrictamente anclada y no captura ninguna de las 19 filas del D.35', () => {
+    expect(identidadDeFuente(FUENTE_NINEZ)).toBe('CODIGO_NINEZ');
+    expect(detectarInstrumentoDesdeTexto('Artículo 5 del Código de la Niñez y de la Adolescencia')).toBe('CODIGO_NINEZ');
+    expect(Object.keys(RE_FUENTE_POR_INSTRUMENTO)).toContain('CODIGO_NINEZ');
+    expect(parsearInstrumentRef('HN:CODIGO_NINEZ')).toMatchObject({ ok: true, pais: 'HN', instrumento: 'CODIGO_NINEZ' });
+    expect(INSTRUMENT_IDS).toContain('CODIGO_NINEZ');
+    const identidadesD35 = Array.from({ length: 19 }, (_, i) => {
+      const fila = { fuente: FUENTE_D35, num_articulo: String(i + 1), jurisdiccion: 'HN', fuente_tipo: 'ley', metadata: { norm_id: 'HN:DECRETO_35_2013' } };
+      return { fuente: identidadDeFuente(fila.fuente), clo: instrumentIdDeFragmento(fila) };
+    });
+    expect(identidadesD35).toEqual(Array.from({ length: 19 }, () => ({ fuente: 'DECRETO_35_2013', clo: 'DECRETO_35_2013' })));
+  });
 });
 
 describe('CLO: adjudicación del pliego D1–D8 (ADJUDICACION_CLO_D35_2013.md §7)', () => {
@@ -55,6 +70,17 @@ describe('CLO: adjudicación del pliego D1–D8 (ADJUDICACION_CLO_D35_2013.md §
 
   it('D7: el decreto ya no está bloqueado por falta de pliego', () => {
     expect(INSTRUMENTOS_SOLO_CONTEXT.DECRETO_35_2013).toBeUndefined();
+  });
+
+  it('A03 queda solo CONTEXT hasta que el CLO adjudique el pliego', () => {
+    expect(INSTRUMENTOS_SOLO_CONTEXT.CODIGO_NINEZ).toBe('INSTRUMENTO_SIN_PLIEGO_CLO');
+    const c = clasificarFragmentoClo({
+      fuente: FUENTE_NINEZ, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, num_articulo: '1',
+      metadata: { norm_id: 'HN:CODIGO_NINEZ' },
+    });
+    expect(c.instrumentId).toBe('CODIGO_NINEZ');
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
   });
 
   it.each(['12', '13', '14', '15', '16', '17', '18', '19'])('D5: el art. %s (disposición propia del decreto), vigente y HN, es PRIMARY', (art) => {

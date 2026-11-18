@@ -4,6 +4,7 @@
  * «apagado» con la misma ruta de producción; (4) el rollback no modifica el código jurídico de producción.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ARCHIVOS_PRODUCCION_JURIDICA, evidenciaVigente, hashArchivos } from '@/lib/ai-gateway/canary/evidence-integrity';
@@ -88,6 +89,12 @@ describe('G6-F rollback: el despacho shadow vuelve a apagado sin tocar la respue
 });
 
 describe('G6-F rollback: no modifica el código jurídico de producción', () => {
+  it('calcula la evidencia sobre bytes UTF-8 normalizados a LF', () => {
+    const ruta = 'lib/legal-retrieval/clo-guards.ts';
+    const textoLf = readFileSync(join(RAIZ, ruta), 'utf8').replace(/\r\n?/g, '\n');
+    const esperado = createHash('sha256').update(textoLf, 'utf8').digest('hex');
+    expect(hashArchivos([ruta])).toEqual({ [ruta]: esperado });
+  });
   it('retrieval, Exact Resolver, Evidence Gate y abstención tienen los mismos hashes antes y después del ensayo', () => {
     for (const d of DISPARADORES) ensayar(d);
     expect(hashArchivos(ARCHIVOS_PRODUCCION_JURIDICA)).toEqual(antes);

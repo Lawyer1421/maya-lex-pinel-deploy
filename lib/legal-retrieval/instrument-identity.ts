@@ -17,6 +17,7 @@ export type InstrumentoNormalizado =
   | 'LEY_JUSTICIA_CONSTITUCIONAL'
   | 'CONSTITUCION'
   | 'CODIGO_COMERCIO'
+  | 'CODIGO_NINEZ'
   | 'DECRETO_284_2013'
   | 'DECRETO_35_2013';
 
@@ -53,6 +54,8 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   // CODIGO_FAMILIA, etc.), el contenido ingerido SÍ trae el encabezado real
   // "Articulo N" -- no se agrega a INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL.
   CODIGO_COMERCIO: /c[oó]digo\s+de\s+comercio/i,
+  // A03: anclado al principio para que el Decreto 35-2013, que menciona la Niñez en su título, conserve su identidad propia.
+  CODIGO_NINEZ: /^\s*c[oó]digo\s+de\s+la\s+ni[nñ]ez\s+y\s+(?:de\s+)?la\s+adolescencia\b/i,
   // Piloto de adjudicación (2026-11-15). La fuente que escribe la ingesta EMPIEZA por el decreto: «Decreto 284-2013, Ley para la Generación de
   // Empleo, Fomento a la Iniciativa Empresarial, Formalización de Negocios y Protección a los Derechos de los Inversionistas (La Gaceta 33,445)».
   // Anclado al inicio y declarado al final: una fila del Código de Comercio que lo cite («…reformado por el Decreto 284-2013») sigue siendo

@@ -37,7 +37,7 @@ export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 
 /** Lista cerrada de instrument_id válidos. Cualquier otro valor ('', 'UNKNOWN', 'null', texto libre) no identifica nada. */
 export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([
   'CODIGO_PROCESAL_PENAL', 'CODIGO_PENAL', 'CODIGO_PROCESAL_CIVIL', 'CODIGO_CIVIL', 'CODIGO_TRABAJO', 'CODIGO_FAMILIA', 'CODIGO_NOTARIADO',
-  'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'LEY_ESPECIAL_ADOPCIONES',
+  'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'CODIGO_NINEZ', 'LEY_ESPECIAL_ADOPCIONES',
   'DECRETO_77_2006', 'DECRETO_284_2013', 'DECRETO_35_2013',
 ] as const);
 
@@ -94,6 +94,8 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
+  /** Código de la Niñez (A03): solo CONTEXT hasta que el CLO adjudique su texto consolidado y el cotejo histórico. */
+  CODIGO_NINEZ: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
   // docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/ADJUDICACION_CLO_D284_2013.md §7). Sus filas pueden ser PRIMARY solo si cumplen
   // los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 13, 14, 26 y 27 siguen como CONTEXT por su metadata.rol (D5).
@@ -211,6 +213,7 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['CODIGO_NOTARIADO', new RegExp(`^codigo\\s+(?:del?\\s+)?notariado${CIERRE}`)],
   ['CODIGO_PROCESAL_PENAL', new RegExp(`^codigo\\s+procesal\\s+penal${CIERRE}`)],
   ['CODIGO_PROCESAL_CIVIL', new RegExp(`^codigo\\s+procesal\\s+civil${CIERRE}`)],
+  ['CODIGO_NINEZ', new RegExp(`^codigo\\s+de\\s+la\\s+ninez\\s+y\\s+(?:de\\s+)?la\\s+adolescencia${CIERRE}`)],
   // Decreto 211-2006: texto legislativo oficial del CPC (decisión del propietario, 2-nov-2026). Nombre EXACTO; el comentado de Romero no entra.
   ['CODIGO_PROCESAL_CIVIL', /^cpc_texto_base_d211-2006$/],
   ['CODIGO_PENAL', new RegExp(`^codigo\\s+penal${CIERRE}`)],
@@ -609,6 +612,7 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   LEY_JUSTICIA_CONSTITUCIONAL: ['ley sobre justicia constitucional', 'ley de justicia constitucional', 'ljc'],
   CONSTITUCION: ['constitucion de la republica', 'constitucion politica', 'constitucion'],
   CODIGO_COMERCIO: ['codigo de comercio'],
+  CODIGO_NINEZ: ['codigo de la ninez y la adolescencia', 'codigo de la ninez y de la adolescencia'],
   LEY_ESPECIAL_ADOPCIONES: ['ley especial de adopciones'],
   DECRETO_77_2006: ['77-2006'],
   DECRETO_284_2013: ['284-2013', 'ley para la generacion de empleo'],
