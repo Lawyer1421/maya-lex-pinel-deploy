@@ -1,0 +1,89 @@
+id,pagina,final_de_linea_en_ejemplar_2,lectura_ejemplar_2,lectura_revisor_ejemplar_1,estado_ejemplar_1,texto_v6,resultado
+B01,3,permitir el ingreso y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B02,3,"moteles, pensiones y",y,y,LEGIBLE,coincide,CONFIRMA_V6
+B03,3,"sus padres, madres o",o,o,LEGIBLE,coincide,CONFIRMA_V6
+B04,3,"sanción, dentro de",de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B05,5,Directores(as) de los,los,los,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B06,5,de los demás Centros,Centros,Centros,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B07,5,sobre los niños y,y,y,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B08,5,y a entregarlos al,al,a,LEGIBLE,a («entregarlos a Instituto»),DIFIERE_DE_V6
+B09,5,jefes de las misiones,misiones,misiones,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B10,5,hondureño(a) ha sido,sido,sido,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B11,5,producido y en su,su,su,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B12,5,necesarias a fin de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B13,5,"más alto, la que",que,que,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B14,5,quien corresponda. La,La,La,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B15,5,de las situaciones de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B16,5,derechos de la niñez en,en,en,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B17,7,medidas disciplinarias o,o,c…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B18,7,el goce de sus,sus,sus,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B19,7,de sus libertades; el,el,el,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B20,7,procedimientos médicos o,o,c…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B21,7,rechazante; y el,el,el,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B22,7,correspondiente denuncia al,al,al,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B23,7,"(IHNFA), con multa de",de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B24,7,Hondureño de la Niñez y la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B25,9,cualquier fase del mismo;,mismo;,"mismo,",LEGIBLE,coincide,CONFIRMA_V6
+B26,9,"por sí mismo, a",a,a,LEGIBLE,coincide,CONFIRMA_V6
+B27,9,de conformidad a,a,a,LEGIBLE,coincide,CONFIRMA_V6
+B28,9,a los funcionarios y,y,y,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B29,9,de su autoridad o,o (con una marca sobre la letra: «ó» o mancha; decide el CLO),c…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B30,9,en trámite o,o,(,LEGIBLE,coincide,CONFIRMA_V6
+B31,9,salvo los necesarios,necesarios,necesarios + signo final dudoso,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B32,9,Ministerio Público el,el,e…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B33,9,este Código y el Código,Código,Código,PARCIAL_BORDE,[ilegible],RESUELVE_ILEGIBLE_V6
+B34,9,término equivalente al,al,a,LEGIBLE,a («equivalente a máximo»),DIFIERE_DE_V6
+B35,9,"(8) años, plazo",plazo,plazo,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B36,11,"de éste Código, la",la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B37,11,"integridad personal, la",la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B38,11,u obstrucción de la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B39,11,fundamentará la solicitud de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B40,13,Órdenes de Orientación y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B41,13,reinserción social de El,El,El,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B42,13,Privación de Libertad es de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B43,13,su domicilio y con su,su,su,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B44,13,se practicará en la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B45,15,Suspensión del Proceso a,a,a,LEGIBLE,coincide,CONFIRMA_V6
+B46,15,como resolver sobre la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B47,15,la acción penal o la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B48,15,las formas alternativas de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B49,15,y resolver los asuntos,asuntos,asuntos,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B50,15,penal o inocencia de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B51,15,"Código, la proporcionalidad",proporcionalidad,proporcionalidad,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B52,15,al Juez de Ejecución:,Ejecución:,Ejecución:,LEGIBLE,coincide,CONFIRMA_V6
+B53,15,contrarias al proceso de,de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B54,15,las sanciones impuestas;,impuestas;,impuestas;,LEGIBLE,coincide,CONFIRMA_V6
+B55,17,"(20) días, contados a",a,a,LEGIBLE,coincide,CONFIRMA_V6
+B56,19,"privado, la ausencia de",de,de,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B57,19,o se pronuncie el,el,e,LEGIBLE,coincide,CONFIRMA_V6
+B58,21,en forma clara y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B59,21,de la Sanción y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B60,23,Derechos establecidos en,en,e…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B61,23,un vínculo afectivo;,afectivo;,afectivo:,LEGIBLE,coincide,CONFIRMA_V6
+B62,23,que garanticen su,su,s…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B63,23,que se le garantice una,una,un,PARCIAL_BORDE,[ilegible],RESUELVE_ILEGIBLE_V6
+B64,25,"formación, supervisión y",y,y,LEGIBLE,coincide,CONFIRMA_V6
+B65,25,Hondureño de la Niñez y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B66,26,en Medida Cautelar o,o,o,LEGIBLE,coincide,CONFIRMA_V6
+B67,27,el Capítulo IV; la,la,la,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B68,29,sede administrativa y al,y al,y,LEGIBLE,coincide,CONFIRMA_V6
+B69,29,"Familia (IHNFA), así",así,a,LEGIBLE,coincide,CONFIRMA_V6
+B70,29,declarar el abandono en,en,e…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B71,31,"respeto, responsabilidad y",y,y,LEGIBLE,coincide,CONFIRMA_V6
+B72,31,durante el mismo y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B73,31,de cualquier ley o,o,o,LEGIBLE,coincide,CONFIRMA_V6
+B74,31,de Bienestar Social se,se,se,LEGIBLE,coincide,CONFIRMA_V6
+B75,31,derecho del hombre y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B76,33,"al padre, madre o",o,o,LEGIBLE,coincide,CONFIRMA_V6
+B77,35,vicie el consentimiento;,consentimiento;,consentimiento:,LEGIBLE,coincide,CONFIRMA_V6
+B78,37,de los(as) niños(as),niños(as),niños(as…,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B79,37,se preferirá para su,su,s…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B80,37,usos y costumbres de su,su,s…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B81,37,a fin de que se,se,s…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B82,37,den su consentimiento de,de,d…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B83,37,exclusiva de uno de,de,d…,ILEGIBLE_PARCIAL,[ilegible],RESUELVE_ILEGIBLE_V6
+B84,37,de la Niñez y la,y la,y l…,PARCIAL_BORDE,[ilegible],RESUELVE_ILEGIBLE_V6
+B85,37,niño(s) o niña(s),niña(s),niña(s…,PARCIAL_BORDE,coincide,CONFIRMA_V6
+B86,40,costos de su crianza y,y,y,LEGIBLE,coincide,CONFIRMA_V6
+B87,46,destinado a recaudar y,y,y,LEGIBLE,— (fuera del D.35-2013),FUERA_DE_ALCANCE_D107_2013
+B88,46,de las regulaciones y,y,y,LEGIBLE,— (fuera del D.35-2013),FUERA_DE_ALCANCE_D107_2013

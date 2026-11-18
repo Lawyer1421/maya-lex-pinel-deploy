@@ -8,3 +8,4 @@ Fase cerrada con este paquete local. `RECEIVED / SOURCE_HOLD` · vigencia **SIN 
 3. `transcripcion_candidata/` (incl. `RECONCILIACION_250_Y_2.md`, `palabras_reunidas_61.csv`, `borde_derecho_88_lecturas.csv`) — candidata separada del bruto, registro de las 171 líneas, 467 bloques, reconciliación.
 4. `paquete-revision/` — matriz (publicado en A04 | anotado en A03 | decisión pendiente), `PASAJES_134_141.md`, `EVENTOS_ARTICULO_21.md`, `INCIDENCIAS_A04.csv` (cantidades y fechas tal como están impresas), cobertura por página y columna, recortes.
 5. `INFORME_A04_VERIFICACION.md` y `superseded-primera-extraccion/` — fase anterior.
+6. `06_SEGUNDO_EJEMPLAR_REGISTRO.md` y `07_HOJA_DECISION_COTEJO_EJEMPLAR2.md` (2026-11-18) — segundo ejemplar con sello CEDIJ (procedencia no acreditada), cotejo de los 88 finales, C01–C06 y pág. 41, y decisiones pendientes del CLO.
