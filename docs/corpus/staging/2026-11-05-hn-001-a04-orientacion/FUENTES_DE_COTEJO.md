@@ -1,5 +1,7 @@
 # Fuentes de cotejo para A04 — intento de acceso y estado
 
+> **Actualización 2026-11-18 — hay segundo ejemplar.** El Titular aportó una copia con sello CEDIJ (SHA-256 `b5db8bf7…a4aad34b9`, 46 págs., 300 ppp, sin capa de texto, procedencia **NO ACREDITADA**). Se siguió la lista de pasos de abajo: registro en `06_SEGUNDO_EJEMPLAR_REGISTRO.md`, cotejo de los 88 finales en `paquete-revision/cotejo_ejemplar2_borde_derecho_88.csv` y decisiones en `07_HOJA_DECISION_COTEJO_EJEMPLAR2.md`. Resultado: la pág. 41 y el art. 6 quedan legibles («511»), 15 `[ilegible]` de la v6 tienen lectura, 2 lecturas de la v6 difieren («al») y C01–C05 se confirman. **Sigue abierto, y pendiente del CLO, lo que el cotejo no resuelve:** la interpretación de los arts. 134/141 y C07. El estado de la tabla final de este archivo se conserva tal como estaba el 2026-11-05.
+
 Fecha de los intentos: 2026-11-05T14:32:33Z. Fuentes pedidas: **repositorio de la UNAH** y **Portal Único del IAIP**. Resultado: **no se obtuvo ningún archivo**. No hay, por tanto, URL de descarga, tamaño, SHA-256, portada ni correspondencia de páginas que registrar; no se inventa ninguno.
 
 | Fuente | Host probado | Vía | Resultado exacto |
