@@ -228,7 +228,8 @@ El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-cata
 | Constancias `INTERPRETACION_PENDIENTE_CLO` (arts. 1 y 11) | 2 | **2** |
 | `TRUE_PRESUNTA` | 19 | **19** |
 
-- **Pendiente:** revisión del CLO y aplicación en el SQL Editor de `mayalexhn-staging`. Después, una verificación independiente de Claude (la consulta del final del SQL: 19 · 19 · 4 · 19 · 11 · 2). **Producción no se toca. V4→V5 sigue sin firmar.**
+- **Aplicada el 2026-11-18** mediante la variante compacta con normalización a `
+` (ver la constancia de aplicación más abajo). **Producción no se toca. V4→V5 sigue sin firmar.**
 - La resolución de los puntos (a)–(d) de los arts. 134 y 141 (`paquete-revision/PASAJES_134_141.md`) **no está en este SQL**. Si el CLO la firma, va en un bloque aparte, generado y revisado por separado.
 
 ### Resolución del CLO sobre el art. 11 (arts. 134 y 141 del D. 73-96) — FIRMADA (2026-11-18)
@@ -242,13 +243,40 @@ El parche se verificó con `git apply --check` limpio y **50/50** (d35-2013-cata
 
 | Archivo (`out/a04-d35-2013-v7/`) | SHA-256 | Contenido |
 |---|---|---|
-| `actualizacion_v7_staging_compacta.sql` | `903450869220726f673ce51010e9b6c006365744a22fa85616ac9d0ff4052b43` | **Mismo efecto** que `actualizacion_v7_staging.sql` (`0de36a7c…`), con las mismas precondiciones y postcondiciones. Ver la nota debajo de la tabla. |
+| `actualizacion_v7_staging_compacta.sql` | **`fd434655e5bae537ddf64428d642d9bffb585863d1570f2399b6842f9d401782`** (aplicada). Primera versión `90345086…`: abortada sin cambios | **Mismo efecto** que `actualizacion_v7_staging.sql` (`0de36a7c…`), con las mismas precondiciones y postcondiciones, **más** la normalización a `\n` (paso 0) y la postcondición `sha256(contenido) = hash_contenido` sin `\r` en las 19 filas. Ver las notas debajo de la tabla. |
 | `resolucion_art11_staging.sql` | `d17191e721da0ae0c210db9135bb44ff4c38d39043b31812d91d3b223ca4a1a0` | Exige la v7 aplicada en las 19 filas. En el art. 11: `INTERPRETACION_PENDIENTE_CLO` → `interpretacion_estado = RESUELTO_CLO_2026_11_18`, con el resumen de la resolución (se conserva el texto anterior) y `motivo_rol = DISPOSICION_DEROGATORIA…`. Postcondición: 1 pendiente (art. 1), 1 resuelta (art. 11), 11 `CONTEXT`. Incluye la verificación final y la reversión, comentada. |
 
 **Sobre la variante compacta:**
 - **Qué hace:** en lugar de incrustar el texto íntegro (167 KB), aplica en la base las 18 sustituciones firmadas sobre el texto v6 ya cargado. Después se **aborta** si el `sha256(contenido)` que calcula Postgres no es el `hash_contenido` de la v7.
 - **Por qué existe:** el archivo completo no cabe de forma fiable en una llamada de la herramienta de Supabase.
 - **Verificación local:** las 18 sustituciones están una vez cada una en su fila y reproducen byte a byte el texto v7 de los arts. 1, 3, 5 y 6.
+
+### Constancia · D3-v7 y resolución del art. 11 APLICADAS en staging (2026-11-18)
+- **Autorización:** el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho) autorizó expresamente la ejecución en `mayalexhn-staging` (`aicakncgtuiiuomflkqj`), en este orden: la actualización v7 y después la resolución del art. 11. Aprobó la variante compacta y la normalización a `\n`. Ejecutó Claude con la herramienta de Supabase, en transacciones atómicas.
+- **Intento 1 (`90345086…`): ABORTADO, sin cambios.**
+  - La postcondición de hash dio 0 de 4.
+  - **Causa:** el contenido de las 19 filas del lote estaba guardado con `\r\n`. La carga v6 del 17-nov pasó por un editor de Windows: es el mismo problema de fin de línea de la evidencia G6.
+  - Consultas de solo lectura: 19/19 filas con `\r`; `sha256(contenido) = hash_contenido` en 0/19 tal como estaba guardado y en **19/19 al normalizar a `\n`**. El texto era correcto; solo cambiaba el fin de línea. Los embeddings ya se habían calculado sobre `\n`.
+- **Intento 2 (`fd434655…`): APLICADO.**
+  - Antes de normalizar comprueba que las 19 filas recuperan su hash v6 sin los `\r`.
+  - Después aplica la v7 y comprueba todas las postcondiciones.
+- **Resolución del art. 11 (`d17191e7…`): APLICADA** después de la v7.
+- **Verificación independiente** (solo lectura, después de las dos transacciones):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas del lote | 19 | **19** |
+| Visibles, vigentes, V4, con embedding | 19 | **19** |
+| En v7 (`460e493d…`) con `sha256(contenido) = hash_contenido` | 19 | **19** |
+| Lagunas `[ilegible]` · filas con `\r` | 0 · 0 | **0 · 0** |
+| `TRUE_PRESUNTA` | 19 | **19** |
+| `CONTEXT` · fuente principal (rol vacío, elegibles PRIMARY según `clo-guards.ts`) | 11 · 8 | **11 · 8** |
+| Constancia pendiente · constancia resuelta | art. 1 · art. 11 | **1 · 11** |
+| Art. 6: lista «434, / 511, 516…» | sí | **sí** |
+| Embedding del art. 6 frente al vector v7 local (384 dimensiones) | idéntico | **diferencia máxima 0,0** |
+
+- **Fuera de esta operación:** el lote **`PILOTO_D284_2013_01`** (D. 284-2013) también tiene `\r` en el contenido: 39 filas, 58 en toda la tabla menos las 19 de este lote. **No se tocó.** Su normalización requiere decisión aparte.
+- **Producción (`thgrhueckkjdutjvcufp`) no se tocó. V4→V5 sigue sin firmar.**
 
 ## 7. Hoja de firma D1, D2 y D4–D8 (D3 ya firmado)
 

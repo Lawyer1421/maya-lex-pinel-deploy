@@ -42,7 +42,7 @@ Ya hay un texto anterior a la reforma de los arts. 134 y 141: `FUENTE_ORIENTATIV
 - **(c) Alcance de «Artículos 134»:** **deroga íntegramente el art. 134** del D. 73-96. «Artículos» es un plural tipográfico de imprenta en La Gaceta 33,222. Armoniza con el art. 8 del propio D. 35-2013, que trasladó el delito de explotación económica infantil al **art. 179-F del Código Penal** (D. 144-83). Constancia: la transcripción v7 recoge en el art. 8 la adición del 179-F («Incurrirá en el delito de explotación económica quien haga trabajar a un(a) niño o niña…»).
 - **(d) Suficiencia probatoria:** para el pliego del D. 35-2013 (`HN:DECRETO_35_2013`) **basta** el texto oficial de La Gaceta 33,222 (ejemplares TSC `fbd87f33…` y CEDIJ `b5db8bf7…`) junto con la fuente orientativa del D. 73-96 (`15e3875d…`). **El cotejo directo con La Gaceta 28,053 se reserva para la acreditación D1–D2 del paquete A03 (`HN:CODIGO_NINEZ`).**
 
-**Efecto en staging:**
+**Efecto en staging (APLICADO el 2026-11-18; ver la constancia en `../ADJUDICACION_CLO_D35_2013.md`):**
 - La constancia del **art. 11** pasa de `INTERPRETACION_PENDIENTE_CLO` a **`RESUELTO_CLO_2026_11_18`**, con el resumen de esta resolución. Lo hace `out/a04-d35-2013-v7/resolucion_art11_staging.sql`, generado por `../d3v7/generar_actualizacion_v7_staging.py` y que se aplica después de la actualización v7.
 - El art. 11 **sigue siendo `CONTEXT`** por el reparto 11/8 de D5. Su `motivo_rol` pasa a «DISPOSICION_DEROGATORIA».
 - **La constancia del art. 1 (C07, art. 21 derogado después por el D. 130-2017) sigue pendiente.**

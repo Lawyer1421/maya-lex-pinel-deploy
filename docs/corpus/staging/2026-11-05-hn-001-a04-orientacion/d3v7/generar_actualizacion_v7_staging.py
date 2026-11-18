@@ -186,6 +186,15 @@ c_('BEGIN')
 inicio = L.index('BEGIN') + 1
 fin_pre = next(k for k, s in enumerate(L) if s.startswith('  -- 1) Texto'))
 C.extend(L[inicio:fin_pre])
+c_('  -- 0) Normalización de fin de línea (decisión del CLO, 2026-11-18): la carga v6 dejó «\\r\\n» en el contenido de las 19 filas')
+c_('  --    (el SQL pasó por un editor de Windows). Solo se aplica si, quitando los «\\r», las 19 filas vuelven a su hash_contenido v6.')
+c_(f"  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = '{LOTE}'")
+c_("    AND encode(sha256(convert_to(replace(contenido, E'\\r\\n', E'\\n'), 'UTF8')), 'hex') = hash_contenido;")
+c_("  IF n <> 19 THEN RAISE EXCEPTION 'precondición: solo % filas recuperan su hash v6 al normalizar a LF', n; END IF;")
+c_(f"  UPDATE public.biblioteca_vectores SET contenido = replace(contenido, E'\\r\\n', E'\\n') WHERE ingest_batch = '{LOTE}' AND position(E'\\r' IN contenido) > 0;")
+c_(f"  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = '{LOTE}' AND encode(sha256(convert_to(contenido, 'UTF8')), 'hex') = hash_contenido;")
+c_("  IF n <> 19 THEN RAISE EXCEPTION 'normalización: solo % filas coinciden con su hash v6', n; END IF;")
+c_('')
 c_('  -- 1) Las 18 sustituciones, fila por fila (cada texto buscado está exactamente una vez en su fila v6).')
 for i in cambian:
     expr = 'contenido'
@@ -202,7 +211,11 @@ c_("  IF n <> 4 THEN RAISE EXCEPTION 'el sha256 del texto resultante no es el de
 c_('')
 ini2 = next(k for k, s in enumerate(L) if s.startswith('  -- 2) Claves'))
 fin = L.index('COMMIT;')
-C.extend(L[ini2:fin + 1])
+C.extend(L[ini2:fin - 2])
+c_(f"  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = '{LOTE}' AND encode(sha256(convert_to(contenido, 'UTF8')), 'hex') = hash_contenido")
+c_("    AND position(E'\\r' IN contenido) = 0;")
+c_("  IF n <> 19 THEN RAISE EXCEPTION 'postcondición: sha256(contenido) = hash_contenido y sin CR en solo % de 19 filas', n; END IF;")
+C.extend(L[fin - 2:fin + 1])
 C.extend(L[fin + 1:])
 
 # ── Resolución del CLO sobre el art. 11 (PASAJES_134_141.md §6), aparte de la v7.
