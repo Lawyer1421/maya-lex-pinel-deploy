@@ -29,3 +29,6 @@ Notas de A03:
 - El 134 del consolidado A03 tiene exactamente los literales a), b), c), ch), d); el 141 de A03 y el reformado por A04 tienen a), b), c).
 - **Decisión del CLO:** (a) a qué artículo pertenecen los literales ch) y d) (¿134, como anota A03, o 141, como dice A04?); (b) qué pasa con e) y f); (c) si «Artículos 134» deroga el artículo entero o es una lista que se leyó mal; (d) si hace falta el texto pre-reforma del Decreto 73-96 para decidir. Hasta entonces: **SIN DECLARAR**.
 - No confundir con el artículo 134 del **Código de Familia**, que el art. 4 del decreto reforma (adopción; pág. 33).
+
+## 5. Actualización 2026-11-18 — texto original del D. 73-96 (fuente orientativa)
+Ya hay un texto anterior a la reforma de los arts. 134 y 141: `FUENTE_ORIENTATIVA_D73_96_ORIGINAL.md` (compilación electrónica del Poder Judicial, © 1997; SHA-256 `15e3875d…`). Es `UNVERIFIED` / `DISCOVERY_ONLY`, con procedencia no acreditada y sin ingesta. Según ese texto, el **134 original** tiene a), b), c), ch), d) **sin e) ni f)**, y el **141 original** tiene a)–f). El cuadro comparativo y las observaciones están en ese archivo. **Los puntos (a)–(d) siguen pendientes del CLO.** Además, el segundo ejemplar con sello CEDIJ imprime el art. 11 igual que el del TSC (`06_SEGUNDO_EJEMPLAR_REGISTRO.md`).
