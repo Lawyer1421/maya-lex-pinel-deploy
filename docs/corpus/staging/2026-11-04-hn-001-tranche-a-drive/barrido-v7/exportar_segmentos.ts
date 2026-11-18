@@ -14,7 +14,14 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { segmentarArticulos, segmentarSerieCorrelativa } from '../../../../../lib/legal-os/corpus-factory/staging';
 
 const RAIZ = 'docs/corpus';
-const SHA_V7 = '460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023';
+// Versión firmada de la transcripción del D.35-2013 contra la que se compara (2.º argumento opcional; por defecto la v7 del primer barrido).
+const VERSIONES: Record<string, string> = {
+  v7: '460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023',
+  v8: '6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb',
+};
+const VERSION = process.argv[3] ?? 'v7';
+const SHA_V7 = VERSIONES[VERSION];
+if (!SHA_V7) throw new Error(`versión desconocida: ${VERSION}`);
 const sha = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex');
 
 const pkg = JSON.parse(readFileSync(`${RAIZ}/inbox/2026-11-04-hn-001-tranche-a-drive/HN-001-A03.json`, 'utf8'));
@@ -25,8 +32,8 @@ if (a03.articulos.length !== 302 || a03.articulos.some((a, i) => cand.articulos[
   throw new Error('la segmentación de A03 no reproduce los 302 artículos del candidato');
 }
 
-const v7 = readFileSync(`${RAIZ}/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/A04_transcripcion_candidata_v7.txt`, 'utf8').replace(/\r\n?/g, '\n');
-if (sha(v7) !== SHA_V7) throw new Error('la v7 no tiene el hash firmado (460e493d…)');
+const v7 = readFileSync(`${RAIZ}/staging/2026-11-05-hn-001-a04-orientacion/transcripcion_candidata/A04_transcripcion_candidata_${VERSION}.txt`, 'utf8').replace(/\r\n?/g, '\n');
+if (sha(v7) !== SHA_V7) throw new Error(`la ${VERSION} no tiene el hash firmado (${SHA_V7.slice(0, 8)}…)`);
 const decreto = segmentarSerieCorrelativa(v7, 19).articulos;
 const ENCABEZADO_INTERNO = /^[ \t]*["“][ \t]*ART[ÍI]CULO[ \t]+(\d{1,4}(?:[ \t]*-[ \t]*[A-Z])?)[ \t]*\.?[ \t]*-?/gm;
 const internos: Array<{ articulo_decreto: string; numero: string; texto: string }> = [];
@@ -41,6 +48,7 @@ for (const n of ['1', '3']) {
 
 writeFileSync(process.argv[2], JSON.stringify({
   a03: { bytes_sha256: cand.hashes.bytes_sha256, text_sha256: cand.hashes.text_sha256, articulos: a03.articulos, notas: a03.notas },
-  v7: { sha256: SHA_V7, decreto: decreto.map((a) => ({ numero: a.numero, texto: a.texto })), internos },
+  // La clave se llama «v7» por compatibilidad con el primer barrido; `version` dice cuál es.
+  v7: { ...(VERSION === 'v7' ? {} : { version: VERSION }), sha256: SHA_V7, decreto: decreto.map((a) => ({ numero: a.numero, texto: a.texto })), internos },
 }, null, 1));
-console.log(`A03: ${a03.articulos.length} artículos (hashes del candidato OK), ${a03.notas.length} notas · v7: ${internos.length} artículos transcritos en los arts. 1 y 3`);
+console.log(`A03: ${a03.articulos.length} artículos (hashes del candidato OK), ${a03.notas.length} notas · ${VERSION}: ${internos.length} artículos transcritos en los arts. 1 y 3`);

@@ -93,3 +93,25 @@ La columna `diferencias` muestra los tres primeros cambios con el texto real.
 1. El CLO revisa las **17 filas `DIFIERE`** frente a la v7 (15 reformadas y 2 adicionadas), y decide qué texto prevalece en cada caso.
 2. **D1 de la Opción B:** descarga del consolidado desde el CEDIJ con URL, fecha y responsable. Si su hash es `bd115673…`, este barrido vale tal cual.
 3. **Opción A:** conseguir La Gaceta 28,053 para cotejar los 141 artículos no tocados y las 16 sustituciones de nombres.
+
+## 7. Actualización 2026-11-18 — barrido contra la v8
+
+**Por qué se repitió:** la v7 tenía tres errores en los arts. 152 y 217, corregidos en la **v8** (`6691924624fd…`, firma D3 del 2026-11-18, `08_HOJA_DECISION_V8_ARTS_152_217.md`). Se repitió el barrido contra la v8 con los mismos scripts, que ahora aceptan la versión como argumento. Con la v7 siguen dando exactamente los mismos resultados (`segmentos.json` `93d8d227…`, CSV `fb793f1c…`).
+
+```sh
+npx tsx docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/exportar_segmentos.ts out/barrido-a03/segmentos_v8.json v8
+python -I docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/barrido_a03_v7.py out/barrido-a03/segmentos_v8.json docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/barrido_a03_v8.csv <texto_d73_96.txt>
+python -I docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/detalle_difiere.py out/barrido-a03/segmentos_v8.json docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/barrido_a03_v8.csv docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/barrido-v7/HOJA_DECISION_A03_DIFIERE_V8.md
+```
+
+| Salida | SHA-256 |
+|---|---|
+| `segmentos_v8.json` (en `out/`) | `58f43ae36793…` |
+| [`barrido_a03_v8.csv`](barrido_a03_v8.csv) | `b70ed50c407e659973113fa7b40bc5756944b16ebbcd24e3ab05cd00ef197d15` |
+| [`HOJA_DECISION_A03_DIFIERE_V8.md`](HOJA_DECISION_A03_DIFIERE_V8.md) | `87eeee9df7a010169855795f979b8919a26f7f764623175ef25ace6e249b6924` |
+
+**Resultado:** los conteos por estado son los mismos que con la v7, porque las correcciones no cambian ningún estado.
+- **Art. 152:** la similitud sube de 0,9569 a 0,9665. Ya no aparece «Íos»; quedan «les dieronlugar» y «los(as)» de A03.
+- **Art. 217:** pasa de 5 diferencias de contenido a 3. Ya no aparecen la «x» ni la omisión de «dictado el Ministerio Público.». Quedan «uno»/«alguno», «casoindividual» y el párrafo final, que **A03 omite** y el CLO mantuvo por V8-4.
+
+**La hoja de decisión vigente para A03 es la de la v8.** La de la v7 se conserva como historial.

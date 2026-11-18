@@ -1,0 +1,54 @@
+{
+  "estado": "TEXTO_DEFINITIVO_FIRMA_D3",
+  "advertencia": "v8: v7 (firma D3 del 2026-11-18) + 3 correcciones del cotejo visual de los arts. 152 y 217 (V8-1 a V8-3) y V8-4 (se mantiene el párrafo final del art. 217 del ejemplar TSC; el ejemplar CEDIJ y el consolidado A03 lo omiten), firmadas por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md. Firma D3 sobre este sha256 el 2026-11-18. Producción (V4→V5) sin firmar.",
+  "base": {
+    "archivo": "A04_transcripcion_candidata_v7.txt",
+    "sha256_lf": "460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023"
+  },
+  "firma_d3": {
+    "firmante": "Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex), firma D3 del 2026-11-18 sobre la v8 (ADJUDICACION_CLO_D35_2013.md §3)",
+    "fecha": "2026-11-18",
+    "rol": "propietario_despacho",
+    "sha256_lf": "6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb",
+    "registro": "../ADJUDICACION_CLO_D35_2013.md §3"
+  },
+  "resolucion": {
+    "documento": "../08_HOJA_DECISION_V8_ARTS_152_217.md",
+    "recortes": "../paquete-revision/recortes/v8/",
+    "puntos": 4,
+    "correcciones": 3,
+    "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
+  },
+  "transcripcion_sha256": "6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb",
+  "caracteres": 176420,
+  "lagunas_ilegible": 0,
+  "correcciones_de_cotejo": [
+    {
+      "articulo": "1 (art. 152 reformado; V8-1)",
+      "pagina_pdf": 7,
+      "buscar": "por Íos(las)\npeticionarios",
+      "reemplazar": "por los(las)\npeticionarios",
+      "motivo": "V8-1 ERROR_OCR_V7: los dos ejemplares imprimen «los(las)»; la «Í» de la v7 es una mancha del escaneo TSC sobre la «l»",
+      "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md",
+      "linea": 506
+    },
+    {
+      "articulo": "1 (art. 217 reformado; V8-2)",
+      "pagina_pdf": 16,
+      "buscar": "interés público; x\nc)",
+      "reemplazar": "interés público;\nc)",
+      "motivo": "V8-2 ERROR_OCR_V7: no hay ninguna «x» impresa tras el inciso b) en ningún ejemplar; es un trazo del escaneo TSC",
+      "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md",
+      "linea": 1433
+    },
+    {
+      "articulo": "1 (art. 217 reformado; V8-3)",
+      "pagina_pdf": 16,
+      "buscar": "que al efecto haya\n\nEl Ministerio Público velará",
+      "reemplazar": "que al efecto haya\ndictado el Ministerio Público.\n\nEl Ministerio Público velará",
+      "motivo": "V8-3 OMISION_V7: la última línea de la pág. 16 («dictado el Ministerio Público.») está impresa en los dos ejemplares y la capa de texto del TSC la perdió",
+      "detectado_por": "Claude (cotejo visual de los ejemplares TSC fbd87f33… y CEDIJ b5db8bf7…, 2026-11-18; recortes en ../paquete-revision/recortes/v8/); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 08_HOJA_DECISION_V8_ARTS_152_217.md",
+      "linea": 1464
+    }
+  ]
+}

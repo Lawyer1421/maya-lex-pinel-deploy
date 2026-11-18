@@ -1,6 +1,6 @@
 # A04 — Hoja de decisión del CLO: corrección de la v7 (arts. 152 y 217) → v8
 
-**Instrumento:** `HN:DECRETO_35_2013` · **Texto vigente con D3:** v7 `460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023` (firma D3 del 2026-11-18, cargado en `mayalexhn-staging`, lote `A04_D35_2013_01`, fila del art. 1 del decreto) · **Fecha:** 2026-11-18 · **Estado:** **PENDIENTE de la firma del CLO**.
+**Instrumento:** `HN:DECRETO_35_2013` · **Texto vigente con D3:** v7 `460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023` (firma D3 del 2026-11-18, cargado en `mayalexhn-staging`, lote `A04_D35_2013_01`, fila del art. 1 del decreto) · **Fecha:** 2026-11-18 · **Estado:** **FIRMADA por el CLO el 2026-11-18** (V8-1 a V8-4 aprobados).
 
 > Lecturas visuales de Claude sobre los dos ejemplares de La Gaceta 33,222. **No son revisión jurídica y no cambian nada por sí mismas.** La v7, staging y producción no se tocan. Si el CLO aprueba, se genera una **v8** con su propio script y manifiesto (como la v7), y después hace falta una **nueva firma D3** sobre la v8 y un SQL de actualización de staging aparte.
 
@@ -32,7 +32,7 @@ Cada punto: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está en la v7.
 **Motivo:** error de OCR de la v7. La «Í» es la mancha del escaneo TSC sobre la «l»; los dos ejemplares imprimen «los(las)».
 **Corrección:** `«por Íos(las)\npeticionarios»` → `«por los(las)\npeticionarios»` (línea 506 de la v7).
 
-Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-18) · ☐ Rechazar · ☐ Dejar como está
 
 ## V8-2 · Art. 217, inciso b) · pág. 16, columna derecha
 
@@ -43,7 +43,7 @@ Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
 **Motivo:** error de OCR de la v7. No hay ninguna «x» impresa.
 **Corrección:** `«interés público; x\nc)»` → `«interés público;\nc)»` (línea 1433 de la v7).
 
-Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-18) · ☐ Rechazar · ☐ Dejar como está
 
 ## V8-3 · Art. 217, cierre del penúltimo párrafo · última línea de la pág. 16, columna derecha
 
@@ -54,7 +54,7 @@ Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
 **Motivo:** omisión de la v7. La línea está impresa en los dos ejemplares; la capa de texto del TSC la perdió al pie de la página, y el cotejo D3 no la detectó.
 **Corrección:** `«que al efecto haya\n\nEl Ministerio Público velará»` → `«que al efecto haya\ndictado el Ministerio Público.\n\nEl Ministerio Público velará»` (línea 1464 de la v7).
 
-Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
+Decisión: ☑ **Aprobar** (firmado por el CLO, 2026-11-18) · ☐ Rechazar · ☐ Dejar como está
 
 ## V8-4 · Art. 217, párrafo final: los dos ejemplares DIFIEREN en la pág. 17
 
@@ -67,14 +67,14 @@ Decisión: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está
 
 **Propuesta:** **mantener el párrafo**, como en la v7. El ejemplar TSC tiene la procedencia acreditada en D1 y el CEDIJ no. Además, queda abierta como constancia la diferencia de composición de la pág. 17 entre ejemplares: hay que cotejarla con un tercer ejemplar (por ejemplo, de la ENAG) o con una fe de erratas.
 
-Decisión: ☐ Mantener el párrafo (TSC) · ☐ Quitar el párrafo (CEDIJ) · ☐ Otro: ____________________
+Decisión: ☑ **Mantener el párrafo (TSC)** (firmado por el CLO, 2026-11-18) · ☐ Quitar el párrafo (CEDIJ) · ☐ Otro. Queda constancia documental de que el ejemplar CEDIJ y el consolidado A03 omiten ese párrafo.
 
 ## Resultado previsto si se aprueban V8-1 a V8-3 (con V8-4 «mantener»)
 
 | Campo | Valor |
 |---|---|
 | Base | v7 `460e493d…` (bytes LF) |
-| Correcciones | `transcripcion_candidata/correcciones_cotejo_v8_pendiente.json` (3, aplicadas con `aplicarCorrecciones`; cada `buscar` aparece una sola vez) |
+| Correcciones | `transcripcion_candidata/correcciones_cotejo_v8.json` (3, aplicadas con `aplicarCorrecciones`; cada `buscar` aparece una sola vez) |
 | **v8 prevista** | **`6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb`** · 176.420 caracteres (+29) · 0 lagunas `[ilegible]` |
 | Efecto en staging | Solo cambia el texto del **art. 1 del decreto** (los arts. 152 y 217 del Código están transcritos dentro de él). Sigue en `CONTEXT`. Hará falta un SQL v7→v8 aparte |
 
@@ -86,4 +86,6 @@ Decisión: ☐ Mantener el párrafo (TSC) · ☐ Quitar el párrafo (CEDIJ) · �
 
 ## Firma
 
-Decide el CLO: ________________________ · Rol: ☐ propietario_despacho ☐ abogado_revisor_senior · Fecha: __________
+**FIRMADO (2026-11-18).** Decide el CLO: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☑ **propietario_despacho** ☐ abogado_revisor_senior · Fecha: **2026-11-18**.
+
+Quedan **APROBADOS V8-1, V8-2 y V8-3** y **V8-4 «mantener el párrafo (TSC)»**. Con la misma firma, el CLO firma la **D3 de la v8** (`ADJUDICACION_CLO_D35_2013.md` §3) y autoriza la actualización v7→v8 de `mayalexhn-staging`. Producción, sin cambios.

@@ -95,6 +95,21 @@ No afectan al texto, pero sí a cualquier matriz de reformas que se construya de
 - **La v6 conserva su D3 del 16-nov-2026** y sigue siendo el texto cargado en staging hasta que se aplique esa actualización. Producción: V4→V5 **sin firmar**.
 - La ingesta con la v7 exige este hash (`--transcripcion-sha256 460e493d…`) y el PDF del TSC (`fbd87f33…`). Con esos datos produjo **19 filas y 0 excepciones**, con los mismos `id` que la v6.
 
+### Firma D3 sobre la v8 — FIRMADA (2026-11-18)
+
+| Campo | Valor |
+|---|---|
+| Instrumento | `HN:DECRETO_35_2013` · Decreto Legislativo No. 35-2013 · La Gaceta No. 33,222 del 6-sep-2013 |
+| Versión aprobada D3 | **v8**: [`transcripcion_candidata/A04_transcripcion_candidata_v8.txt`](transcripcion_candidata/A04_transcripcion_candidata_v8.txt) · 176.420 caracteres · **0 lagunas `[ilegible]`** |
+| SHA-256 (bytes LF) | **`6691924624fd5fd82e2e95f87d5d5deefdd37056b318adcbd4e21f57773421eb`** |
+| Origen | v7 (`460e493d…`) + las 3 correcciones de `08_HOJA_DECISION_V8_ARTS_152_217.md` (V8-1 «los(las)», art. 152; V8-2 sin «x» y V8-3 «dictado el Ministerio Público.», art. 217), con `transcripcion_candidata/aplicar_correcciones_v8.ts` y `correcciones_cotejo_v8.json`. **V8-4:** se mantiene el párrafo final del art. 217 del ejemplar TSC. Queda constancia de que el ejemplar CEDIJ y el consolidado A03 lo omiten |
+| Firmante | **Abg. y Not. Fredy Omar Pinel Flores** · rol **propietario_despacho** (CLO / Director Maya Lex) · **2026-11-18** |
+| Texto de `--cotejado-por` | `Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex), firma D3 del 2026-11-18 sobre la v8 (ADJUDICACION_CLO_D35_2013.md §3)` |
+
+- **Diferencia con la v7:** exactamente 3 líneas (506, 1433 y 1465 nueva).
+- **Manifiesto:** `…_v8_manifiesto.json`, en estado `TEXTO_DEFINITIVO_FIRMA_D3` y con el bloque `firma_d3`.
+- **La v8 sustituye a la v7 como texto con D3.** La v7 y la v6 se conservan como historial. La actualización de staging v7→v8 tiene su constancia en el §6.
+
 ## 4. Decisiones del CLO (solo una persona; ninguna la toma el código)
 
 | # | Decisión | Opciones | Propuesta |
@@ -357,3 +372,33 @@ D3 ya estaba firmado sobre la v6 `7c8f40f8…`, con 176,506 caracteres, 19 artí
 **FIRMADO (17-nov-2026):** el Titular firmó expresamente **D8 · V3→V4 solo en staging** (Abg. y Not. Fredy Omar Pinel Flores, `propietario_despacho`). **V4→V5 a producción sigue expresamente sin firmar.**
 
 Texto previsto de `adjudicado_por` en las filas: **Abg. y Not. Fredy Omar Pinel Flores — propietario_despacho (CLO / Director Maya Lex) — 2026-11-16**
+
+### Constancia · D3-v8: actualización v7 → v8 APLICADA en staging (2026-11-18)
+- **Autorización:** el CLO (Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho) autorizó expresamente la ejecución en `mayalexhn-staging` (`aicakncgtuiiuomflkqj`). Ejecutó Claude con la herramienta de Supabase, en una transacción atómica. **Producción no se tocó.**
+- **Generación** (carpeta `out/`, no versionada):
+  1. Ingesta con la v8 en `out/a04-d35-2013-v8/`: 19 filas, 0 excepciones; `rows.jsonl` `b7222fd6561be85d9943a41fd89c9d5bcb2fdaf5a61b07807f325d6bf3dfa9cc`.
+  2. Embeddings: **idénticos a los de la v7** en las 19 filas, porque las correcciones caen fuera de los 512 tokens que lee el modelo.
+  3. SQL con [`d3v8/generar_actualizacion_v8_staging.py`](d3v8/generar_actualizacion_v8_staging.py), determinista.
+
+| Archivo (`out/a04-d35-2013-v8/`) | SHA-256 | Contenido |
+|---|---|---|
+| `actualizacion_v8_staging.sql` | **`58c1e7d9342d1e1ef6122e35a53a16f677ed4b676e10ecd89d02be22b9d88495`** (aplicado) | Ver la nota debajo de la tabla |
+| `reversion_v8_a_v7_staging.sql` | `80fe66e562d21fbaf31319b0f9ad870366d679d1369ff8dfd78c8bdac5c8dbf5` | Vuelta exacta a la v7. **Solo por orden del CLO** |
+
+**Qué hace `actualizacion_v8_staging.sql`:**
+- Aplica en la base las 3 sustituciones firmadas sobre el art. 1 del decreto.
+- Se aborta si `sha256(contenido)` no es el `hash_contenido` v8 (`a5334ac0…`).
+- Actualiza las claves de la transcripción en las 19 filas.
+- No toca embeddings, visibilidad, vigencia, `rol`, `estado_v` ni constancias.
+
+- **Verificación independiente** (solo lectura, después de aplicar):
+
+| Comprobación | Esperado | Resultado |
+|---|---|---|
+| Filas · en v8 (`66919246…`) · `sha256(contenido) = hash_contenido` | 19 · 19 · 19 | **19 · 19 · 19** |
+| Restos de los errores de la v7 (`[ilegible]`, «Íos(las)», «público; x») | 0 | **0** |
+| Art. 1: «por los(las) peticionarios» · «…haya / dictado el Ministerio Público.» | sí · sí | **sí · sí** |
+| Visibles, vigentes, V4, con embedding · `CONTEXT` | 19 · 11 | **19 · 11** |
+| Constancia pendiente · constancia resuelta | art. 1 · art. 11 | **1 · 11** |
+
+- **V4→V5 a producción sigue sin firmar.**
