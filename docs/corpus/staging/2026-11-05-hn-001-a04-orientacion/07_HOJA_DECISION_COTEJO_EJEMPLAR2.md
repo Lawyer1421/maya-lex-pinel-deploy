@@ -12,7 +12,7 @@ Cada punto: ☐ Aprobar · ☐ Rechazar · ☐ Dejar como está en la v6.
 |---|---|---|
 | «37,234,271,434, **11**,516,559,960,963,972 y 973» (lectura dual firmada: «11» en la lista y «511» en el rótulo) | «37, 234, 271, 434, / **511**, 516, …»: el «5» se ve completo al comienzo de la segunda línea | Cerrar la lectura dual: **«511»** en la lista, igual que el rótulo del cuerpo |
 
-Decisión: ☐ Aprobar «511» · ☐ Rechazar · ☐ Mantener la lectura dual
+Decisión: ☑ **Aprobar «511»** (firmado por el CLO, 2026-11-18) · ☐ Rechazar · ☐ Mantener la lectura dual. La lista queda «37, 234, 271, 434, 511, 516, 559, 960, 963, 972 y 973», igual que el rótulo del cuerpo. Se cierra la lectura dual.
 
 ## B. Quince `[ilegible]` de la v6 que el ejemplar 2 permite leer (borde derecho)
 
@@ -34,7 +34,7 @@ Decisión: ☐ Aprobar «511» · ☐ Rechazar · ☐ Mantener la lectura dual
 | B83 | 37 | «exclusiva de uno **[ilegible]** los padres» | «uno de» | **de** |
 | B84 | 37 | «Niñez y **[ilegible]** Familia (IHNFA)» | «Niñez y la» | **la** |
 
-Decisión: ☐ Aprobar las 15 · ☐ Aprobar todas salvo: ________ · ☐ Rechazar
+Decisión: ☑ **Aprobar las 15** (firmado por el CLO, 2026-11-18) · ☐ Aprobar todas salvo: ________ · ☐ Rechazar. **B29:** se adopta **«o» sin tilde**, por ortografía RAE y uniformidad textual. Queda constancia de la marca tipográfica que se observa sobre la letra en el ejemplar 2.
 
 ## C. Dos lecturas de la v6 que el ejemplar 2 contradice
 
@@ -45,7 +45,7 @@ En el ejemplar 1 la «l» final está cortada por el borde. El revisor la leyó 
 | B08 | 5 | art. 143: «y a entregarlos **a** Instituto Hondureño…» | «y a entregarlos **al**» | **al** |
 | B34 | 9 | art. 182: «un término equivalente **a** máximo de duración…» | «término equivalente **al**» | **al** |
 
-Decisión: ☐ Aprobar las 2 · ☐ Rechazar · ☐ Decidir por separado: B08 ☐ / B34 ☐
+Decisión: ☑ **Aprobar las 2** (firmado por el CLO, 2026-11-18) · ☐ Rechazar · ☐ Decidir por separado: B08 ☐ / B34 ☐. B08 (art. 143): «y a entregarlos al Instituto Hondureño…». B34 (art. 182): «un término equivalente al máximo de duración…».
 
 ## D. Confirmaciones (no cambian el texto)
 
@@ -56,6 +56,12 @@ Decisión: ☐ Aprobar las 2 · ☐ Rechazar · ☐ Decidir por separado: B08 �
 
 ## Firma
 
-Decide el CLO: ________________________ · Rol: ☐ propietario_despacho ☐ abogado_revisor_senior · Fecha: __________
+**FIRMADO (2026-11-18).** Decide el CLO: **Abg. y Not. Fredy Omar Pinel Flores** · Rol: ☑ **propietario_despacho** ☐ abogado_revisor_senior · Fecha: **2026-11-18**.
 
-Alcance: si se aprueba, la corrección se aplica **solo a una nueva versión del texto (v7)** y a lo que el CLO firme después. **La promoción V4→V5 a producción no forma parte de esta hoja.**
+Quedan **APROBADOS los 18 puntos**, sin excepciones: A (C06 «511»), B (las 15 lecturas; B29 «o» sin tilde) y C (B08 y B34 «al»).
+
+Alcance de la firma, en los términos del CLO:
+- Autoriza asentar la decisión en esta hoja y generar la versión **v7** del texto candidato, con su propio manifiesto de huellas SHA-256, en un PR aparte.
+- La **v6** firmada, **`mayalexhn-staging` (V4)** y **producción (V4→V5 sin firmar)** permanecen sin cambios hasta una orden expresa posterior.
+
+**Resultado:** `transcripcion_candidata/A04_transcripcion_candidata_v7.txt`, SHA-256 `460e493db5e97a9dba53345010281dc338642edee525b6cfbc9fee2f3ddab023`, 176.391 caracteres, **0 lagunas `[ilegible]`**. Se genera desde la v6 (`7c8f40f8…`) con `transcripcion_candidata/aplicar_correcciones_ejemplar2.ts` y `correcciones_cotejo_ejemplar2.json` (18 correcciones), y el manifiesto queda en `A04_transcripcion_candidata_v7_manifiesto.json`. La v7 **no tiene firma D3**: no se carga ni sustituye a la v6.

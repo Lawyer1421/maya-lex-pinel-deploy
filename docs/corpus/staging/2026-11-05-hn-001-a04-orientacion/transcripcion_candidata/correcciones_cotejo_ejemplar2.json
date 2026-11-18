@@ -1,0 +1,146 @@
+[
+  {
+    "articulo": "6 (Código Civil, lista introductoria; C06)",
+    "pagina_pdf": 41,
+    "buscar": "434,\n11,516",
+    "reemplazar": "434,\n511,516",
+    "motivo": "C06 LECTURA_EJEMPLAR_2: en el ejemplar 2 se ve el «5» inicial; la lista queda igual que el rótulo «ARTÍCULO 511.-» y se cierra la lectura dual",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 143 reformado; B08)",
+    "pagina_pdf": 5,
+    "buscar": "entregarlos a\nInstituto",
+    "reemplazar": "entregarlos al\nInstituto",
+    "motivo": "B08 LECTURA_EJEMPLAR_2: el ejemplar 2 imprime «al»; en el ejemplar 1 la «l» final estaba cortada por el borde y se leyó «a»",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 164 reformado; B17)",
+    "pagina_pdf": 7,
+    "buscar": "disciplinarias [ilegible]\ncorrectivas",
+    "reemplazar": "disciplinarias o\ncorrectivas",
+    "motivo": "B17 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 165 reformado; B20)",
+    "pagina_pdf": 7,
+    "buscar": "médicos [ilegible]\nquirúrgicos",
+    "reemplazar": "médicos o\nquirúrgicos",
+    "motivo": "B20 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 181 reformado; B29)",
+    "pagina_pdf": 9,
+    "buscar": "autoridad [ilegible]\nvulnerado",
+    "reemplazar": "autoridad o\nvulnerado",
+    "motivo": "B29 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2. Se adopta «o» sin tilde (decisión del CLO: ortografía RAE y uniformidad); constancia: en el ejemplar 2 la letra tiene una marca encima",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 182 reformado; B32)",
+    "pagina_pdf": 9,
+    "buscar": "Público [ilegible]\nejercicio",
+    "reemplazar": "Público el\nejercicio",
+    "motivo": "B32 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 182 reformado; B33)",
+    "pagina_pdf": 9,
+    "buscar": "y el [ilegible]\nProcesal Penal",
+    "reemplazar": "y el Código\nProcesal Penal",
+    "motivo": "B33 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 182 reformado; B34)",
+    "pagina_pdf": 9,
+    "buscar": "equivalente a\nmáximo",
+    "reemplazar": "equivalente al\nmáximo",
+    "motivo": "B34 LECTURA_EJEMPLAR_2: el ejemplar 2 imprime «al»; en el ejemplar 1 la «l» final estaba cortada por el borde y se leyó «a»",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 244 reformado; B60)",
+    "pagina_pdf": 23,
+    "buscar": "establecidos [ilegible]\neste Código",
+    "reemplazar": "establecidos en\neste Código",
+    "motivo": "B60 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 244 reformado; B62)",
+    "pagina_pdf": 23,
+    "buscar": "garanticen [ilegible]\nadecuado",
+    "reemplazar": "garanticen su\nadecuado",
+    "motivo": "B62 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "1 (art. 244 reformado; B63)",
+    "pagina_pdf": 23,
+    "buscar": "garantice [ilegible]\nrápida",
+    "reemplazar": "garantice una\nrápida",
+    "motivo": "B63 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "3 (art. 147-B adicionado; B70)",
+    "pagina_pdf": 29,
+    "buscar": "abandono [ilegible]\nsede",
+    "reemplazar": "abandono en\nsede",
+    "motivo": "B70 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 122-A; B79)",
+    "pagina_pdf": 37,
+    "buscar": "para [ilegible]\nadopción",
+    "reemplazar": "para su\nadopción",
+    "motivo": "B79 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 122-A; B80)",
+    "pagina_pdf": 37,
+    "buscar": "de [ilegible]\nidentidad",
+    "reemplazar": "de su\nidentidad",
+    "motivo": "B80 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 123-C; B81)",
+    "pagina_pdf": 37,
+    "buscar": "que [ilegible]\nles informe",
+    "reemplazar": "que se\nles informe",
+    "motivo": "B81 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 123-C; B82)",
+    "pagina_pdf": 37,
+    "buscar": "consentimiento [ilegible]\ndar a",
+    "reemplazar": "consentimiento de\ndar a",
+    "motivo": "B82 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 123-C; B83)",
+    "pagina_pdf": 37,
+    "buscar": "uno [ilegible]\nlos padres",
+    "reemplazar": "uno de\nlos padres",
+    "motivo": "B83 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  },
+  {
+    "articulo": "5 (Código de Familia, art. 123-D; B84)",
+    "pagina_pdf": 37,
+    "buscar": "Niñez y [ilegible]\nFamilia (IHNFA) ordena",
+    "reemplazar": "Niñez y la\nFamilia (IHNFA) ordena",
+    "motivo": "B84 LECTURA_EJEMPLAR_2: la laguna [ilegible] del ejemplar 1 (letra cortada por el borde derecho) es legible en el ejemplar 2",
+    "detectado_por": "Claude (cotejo visual con el ejemplar 2, sello CEDIJ, SHA-256 b5db8bf7…a4aad34b9, 2026-11-18); firmado por el CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 en 07_HOJA_DECISION_COTEJO_EJEMPLAR2.md"
+  }
+]
