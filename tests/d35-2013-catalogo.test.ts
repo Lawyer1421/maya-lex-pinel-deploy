@@ -72,15 +72,37 @@ describe('CLO: adjudicación del pliego D1–D8 (ADJUDICACION_CLO_D35_2013.md §
     expect(INSTRUMENTOS_SOLO_CONTEXT.DECRETO_35_2013).toBeUndefined();
   });
 
-  it('A03 queda solo CONTEXT hasta que el CLO adjudique el pliego', () => {
-    expect(INSTRUMENTOS_SOLO_CONTEXT.CODIGO_NINEZ).toBe('INSTRUMENTO_SIN_PLIEGO_CLO');
+  it('D7: Código de la Niñez puede ser PRIMARY tras adjudicación, si cumple los demás guardianes', () => {
+    expect(INSTRUMENTOS_SOLO_CONTEXT.CODIGO_NINEZ).toBeUndefined();
     const c = clasificarFragmentoClo({
       fuente: FUENTE_NINEZ, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, num_articulo: '1',
       metadata: { norm_id: 'HN:CODIGO_NINEZ' },
     });
     expect(c.instrumentId).toBe('CODIGO_NINEZ');
+    expect(c.rol).toBe('PRIMARY');
+    expect(c.bloqueos).toEqual([]);
+  });
+
+  it('D4/D5: la metadata conserva los artículos reservados como CONTEXT', () => {
+    const c = clasificarFragmentoClo({
+      fuente: FUENTE_NINEZ, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, num_articulo: '2',
+      metadata: { norm_id: 'HN:CODIGO_NINEZ', rol: 'CONTEXT', motivo_rol: 'RESERVA_D1_B' },
+    });
+    expect(c.instrumentId).toBe('CODIGO_NINEZ');
     expect(c.rol).toBe('CONTEXT');
-    expect(c.bloqueos).toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
+    expect(c.bloqueos).toContain('ROL_DECLARADO_CONTEXT');
+    expect(c.bloqueos).not.toContain('INSTRUMENTO_SIN_PLIEGO_CLO');
+  });
+
+  it('C07: el artículo 21 con vigencia NULL sigue siendo solo CONTEXT', () => {
+    const c = clasificarFragmentoClo({
+      fuente: FUENTE_NINEZ, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: null, num_articulo: '21',
+      metadata: { norm_id: 'HN:CODIGO_NINEZ', rol: 'CONTEXT', interpretacion_pendiente_clo: 'INTERPRETACION_PENDIENTE_CLO (C07)' },
+    });
+    expect(c.instrumentId).toBe('CODIGO_NINEZ');
+    expect(c.rol).toBe('CONTEXT');
+    expect(c.bloqueos).toContain('VIGENCIA_NO_ACREDITADA');
+    expect(c.bloqueos).toContain('ROL_DECLARADO_CONTEXT');
   });
 
   it.each(['12', '13', '14', '15', '16', '17', '18', '19'])('D5: el art. %s (disposición propia del decreto), vigente y HN, es PRIMARY', (art) => {

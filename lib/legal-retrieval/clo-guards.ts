@@ -94,8 +94,8 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
-  /** Código de la Niñez (A03): solo CONTEXT hasta que el CLO adjudique su texto consolidado y el cotejo histórico. */
-  CODIGO_NINEZ: 'INSTRUMENTO_SIN_PLIEGO_CLO',
+  // CODIGO_NINEZ: retirado por la adjudicación CLO D1–D8 firmada el 2026-11-18; las filas siguen sujetas a vigencia y metadata.rol.
+  // docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/canonico-v2/ADJUDICACION_CLO_CODIGO_NINEZ.md §7.
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
   // docs/corpus/staging/2026-11-15-hn-d284-2013-piloto/ADJUDICACION_CLO_D284_2013.md §7). Sus filas pueden ser PRIMARY solo si cumplen
   // los demás guardianes (vigencia TRUE, HN, tipo `ley`); los arts. 13, 14, 26 y 27 siguen como CONTEXT por su metadata.rol (D5).
