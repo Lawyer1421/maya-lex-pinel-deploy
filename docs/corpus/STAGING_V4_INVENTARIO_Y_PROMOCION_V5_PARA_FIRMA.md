@@ -1,8 +1,8 @@
 # Inventario de staging V4 y plan de promoción controlada a V5
 
-**Estado:** BORRADOR PARA FIRMA · **Corte:** 2026-11-21  
-**Staging autorizado:** `mayalexhn-staging` · project ref `aicakncgtuiiuomflkqj`  
-**Producción objetivo:** project ref `thgrhueckkjdutjvcufp`  
+**Estado:** BORRADOR PARA FIRMA · **Corte:** 2026-11-21
+**Staging autorizado:** `mayalexhn-staging` · project ref `aicakncgtuiiuomflkqj`
+**Producción objetivo:** project ref `thgrhueckkjdutjvcufp`
 **Ejecución en producción:** ninguna. Este documento no autoriza escrituras.
 
 ## 1. Alcance y calidad de la evidencia
@@ -52,6 +52,6 @@ Al firmar, se aprueba el flujo y los controles descritos; **no** se autoriza nin
 
 **Decisión:** ☐ Aprobar el plan para preparar el preflight y la migración revisable · ☐ Rechazar · ☐ Requiere cambios
 
-**Nombre y rol autorizado:** ______________________________________________  
-**Firma:** ____________________________________  **Fecha:** ______________  
+**Nombre y rol autorizado:** ______________________________________________
+**Firma:** ____________________________________  **Fecha:** ______________
 **Observaciones / alcance que debe excluirse:** ____________________________
