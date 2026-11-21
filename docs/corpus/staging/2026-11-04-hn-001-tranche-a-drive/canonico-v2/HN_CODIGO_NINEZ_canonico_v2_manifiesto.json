@@ -2,7 +2,7 @@
  "instrumento": "HN:CODIGO_NINEZ",
  "version": "canonico-v2",
  "estado": "TEXTO_DEFINITIVO_FIRMA_D3",
- "advertencia": "v2 = v1 (69760d6a…) + dictamen del CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 sobre los 141 artículos no tocados por el D.35-2013 (AUDITORIA_NO_TOCADOS_V1.md): 5 correcciones «mantener 1996», fuga del art. 284 eliminada y espacios pegados normalizados. Firma D3 sobre este sha256 el 2026-11-18. La procedencia (D1) de los artículos tomados de A03 sigue en el pliego. Sin vigencia declarada; no cargado en ninguna base.",
+ "advertencia": "v2 = v1 (69760d6a…) + dictamen del CLO Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18 sobre los 141 artículos no tocados por el D.35-2013 (AUDITORIA_NO_TOCADOS_V1.md): 5 correcciones «mantener 1996», fuga del art. 284 eliminada y espacios pegados normalizados. Firma D3 sobre este sha256 el 2026-11-18 (incluye el art. 125 c, segundo dictamen). Pliego D1–D8 firmado el 2026-11-18 (ADJUDICACION_CLO_CODIGO_NINEZ.md): D1 (b), los 141 artículos de A03 con reserva y solo CONTEXT.",
  "base": {
   "archivo": "../canonico-v1/HN_CODIGO_NINEZ_canonico_v1.txt",
   "sha256": "69760d6a56c5f2b32d3eb111bdb863f7f018a1be04a9692f8bc51010ccda6064"
@@ -16,14 +16,14 @@
   "firmante": "Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex), firma D3 del 2026-11-18 sobre la v2 de HN:CODIGO_NINEZ (ADJUDICACION_CLO_CODIGO_NINEZ.md §3)",
   "fecha": "2026-11-18",
   "rol": "propietario_despacho",
-  "sha256_lf": "a7bbbfc9c4ca4f0aa4bc6294065ab1886a4c67181b7c74d76b9187fef3b428c5",
+  "sha256_lf": "99d911ac26acbdce3f3f0fc1af6e1162de32e3573ce5d791863f53a4b7219d36",
   "dictamenes": [
    "../barrido-v7/HOJA_DECISION_A03_DIFIERE_V8.md",
    "../canonico-v1/AUDITORIA_NO_TOCADOS_V1.md"
   ]
  },
- "texto_sha256": "a7bbbfc9c4ca4f0aa4bc6294065ab1886a4c67181b7c74d76b9187fef3b428c5",
- "caracteres": 186884,
+ "texto_sha256": "99d911ac26acbdce3f3f0fc1af6e1162de32e3573ce5d791863f53a4b7219d36",
+ "caracteres": 186882,
  "articulos": 302,
  "conteo_por_estado": {
   "DEROGADO": 23,
@@ -53,7 +53,14 @@
    "articulo": "125",
    "buscar": "b) El mayor de (16) años",
    "reemplazar": "b) El mayor de dieciséis (16) años",
-   "motivo": "mantener 1996 (inciso b)",
+   "motivo": "mantener 1996 (incisos b y c)",
+   "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
+  },
+  {
+   "articulo": "125",
+   "buscar": "menores de diez y ocho (18)",
+   "reemplazar": "menores de dieciocho (18)",
+   "motivo": "mantener 1996 (incisos b y c)",
    "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
   },
   {
@@ -87,9 +94,8 @@
  ],
  "pendiente": [
   "C07 (art. 21)",
-  "Art. 125 c): «diez y ocho» frente a «dieciocho» (no dictaminado)",
   "Preámbulo y rótulos de Libros/Títulos/Capítulos/Secciones",
-  "D1, D2 y D4–D8 del pliego"
+  "Cotejo de La Gaceta 28,053 y PDF CEDIJ para los 141 artículos con reserva D1 (b)"
  ],
  "notas_editoriales": "../canonico-v1/HN_CODIGO_NINEZ_notas_editoriales_A03.json",
  "articulos_detalle": [
@@ -1446,15 +1452,18 @@
     {
      "buscar": "b) El mayor de (16) años",
      "reemplazar": "b) El mayor de dieciséis (16) años",
-     "motivo": "mantener 1996 (inciso b)",
+     "motivo": "mantener 1996 (incisos b y c)",
+     "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
+    },
+    {
+     "buscar": "menores de diez y ocho (18)",
+     "reemplazar": "menores de dieciocho (18)",
+     "motivo": "mantener 1996 (incisos b y c)",
      "firma": "Abg. y Not. Fredy Omar Pinel Flores (propietario_despacho, CLO / Director Maya Lex), 2026-11-18"
     }
    ],
-   "observaciones": [
-    "PENDIENTE: inciso c) «menores de diez y ocho (18)» (v1/A03) frente a «dieciocho» (1996); no fue objeto del dictamen."
-   ],
-   "sha256": "856dd3f143d50a17a817c8431af39ec3143f950e1ec9f1b56eb3e46c936f80c1",
-   "caracteres": 718
+   "sha256": "25a7856e60598f34c46cf99338cb898516a4a24d6eb63d207455f081e5b0e466",
+   "caracteres": 716
   },
   {
    "numero": "126",
