@@ -81,7 +81,7 @@ describe('OLA 5 · cierre de D5 por el art. 63 del D.102-2018', () => {
   it('122-A y 135 (Cap. I) y 175-A (Cap. VI) derogados; 165 (Cap. IV) CONTEXT vigente', () => {
     for (const n of ['122-A', '135', '175-A']) expect(DICTAMENES_CLO[n].clasificacion).toMatchObject({ vigencia: 'DEROGADO', rol: 'CONTEXT' });
     expect(DICTAMENES_CLO['165'].clasificacion).toMatchObject({ vigencia: 'VIGENTE', rol: 'CONTEXT' });
-    expect(DICTAMENES_CLO['175-A'].constancia.texto).toMatch(/Capítulo VI.*34,841|34,841.*Capítulo VI/s);
+    expect(DICTAMENES_CLO['175-A'].constancia.texto).toMatch(/Capítulo VI[\s\S]*34,841|34,841[\s\S]*Capítulo VI/);
     expect(DICTAMENES_CLO['165'].constancia.tipo).toBe('DICTAMEN_CLO');
   });
 });
