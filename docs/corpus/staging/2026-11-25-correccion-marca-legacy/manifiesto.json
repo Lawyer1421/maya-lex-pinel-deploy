@@ -1,0 +1,21 @@
+{
+  "ola": "CORRECCION_C1",
+  "ingest_batch": "MARCA_LEGACY_OLA3_OLA9",
+  "descripcion": "Marca sustituido_por_lote en el legacy de OLA 3 (378) y OLA 9 (215) con metadata NULL",
+  "pliego": "docs/corpus/staging/2026-11-25-correccion-marca-legacy/DICTAMEN_CORRECCION_MARCA_LEGACY.md",
+  "firma": "C1 FIRMADA",
+  "refs": {
+    "staging": "aicakncgtuiiuomflkqj",
+    "prod": "thgrhueckkjdutjvcufp"
+  },
+  "archivos": [
+    {
+      "ruta": "01_marcar_legacy_ola3_ola9_prod.sql",
+      "bytes": 2144,
+      "sha256": "853a78b72959f90debe6761662b8657aa1644edea7c44f49fe8e245380ed4dbe",
+      "destino": "prod",
+      "orden": 1,
+      "requiereFirma": true
+    }
+  ]
+}
