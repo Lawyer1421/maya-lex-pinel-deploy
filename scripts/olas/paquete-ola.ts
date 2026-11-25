@@ -223,6 +223,10 @@ export function escribirPaquete(p: { cfg: ConfigOla; filas: FilaOla[]; embedding
     'BEGIN;',
     `DO $do$ BEGIN IF to_regclass('public.${backup}') IS NOT NULL THEN RAISE EXCEPTION 'El respaldo ${backup} ya existe: revisar antes de reintentar'; END IF; END $do$;`,
     `CREATE TABLE public.${backup} AS SELECT b.* FROM public.biblioteca_vectores b WHERE b.ingest_batch = ${b} OR b.instrumento_id = ${lit(cfg.instrumentoId)} OR b.metadata->>'norm_id' = ${lit(cfg.normId)}${legacy ? ` OR (${legacy.condicion})` : ''};`,
+    // Los privilegios por omisión de Supabase en public dan a anon/authenticated TRUNCATE, REFERENCES, TRIGGER y MAINTAIN, y RLS no
+    // impide TRUNCATE: el respaldo nace con RLS sin políticas y sin privilegio alguno para esos roles (blindaje del 2026-11-25).
+    `ALTER TABLE public.${backup} ENABLE ROW LEVEL SECURITY;`,
+    `REVOKE ALL ON TABLE public.${backup} FROM anon, authenticated;`,
     'DO $do$ DECLARE n int; BEGIN',
     `  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = ${b} AND metadata->>'estado_v' = 'V5';`,
     "  IF n > 0 THEN RAISE EXCEPTION 'El lote ya tiene % filas V5: la ola ya fue promovida', n; END IF;",

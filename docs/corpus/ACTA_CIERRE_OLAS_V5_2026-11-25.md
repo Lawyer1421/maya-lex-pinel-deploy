@@ -2,16 +2,16 @@
 
 **Fecha:** 2026-11-25 · **Producción:** `thgrhueckkjdutjvcufp` · **Responsable:** Abg. y Not. Fredy Omar Pinel Flores (CLO / Director Maya Lex)
 
-## 1. Estado certificado en producción
+## 1. Estado reportado en producción
 
-Lectura única de verificación, solo lectura, el 2026-11-25. Se hizo con `scripts/olas/verificacion-cierre-prod.sql` y la comprobación posterior a la corrección C1.
+Lecturas de solo lectura del 2026-11-25, por el conector Supabase: `scripts/olas/verificacion-cierre-prod.sql`, la comprobación posterior a la corrección C1 y la revisión de respaldos (§4). Esto es lo que esas consultas reportaron; no es una certificación independiente de la base.
 
 | Control | Resultado |
 |---|---|
 | Filas V5 visibles | **7,415** de 7,415, en 17 lotes, todos exactos |
 | Embedding 384D válido (no nulo ni de ceros) | 7,415 |
 | Texto que no coincide con `hash_contenido` (SHA-256) | **0** |
-| Filas legacy sustituidas ocultas y marcadas con `sustituido_por_lote` | **7,349** de 7,349 |
+| Filas legacy sustituidas ocultas y marcadas con `sustituido_por_lote` | **8,464** de 8,464 (1,115 de las OLAS 1 y 2; 7,349 de los 12 paquetes del 2026-11-25) |
 | Filas legacy sustituidas aún visibles | 0 |
 | Filas ocultas con `metadata` NULL | 0 |
 
@@ -19,9 +19,9 @@ Lectura única de verificación, solo lectura, el 2026-11-25. Se hizo con `scrip
 
 | Lote | Instrumento | Filas V5 | Legacy oculto | Pliego |
 |---|---|---:|---:|---|
-| `A03_CODIGO_NINEZ_01`, `A04_D35_2013_01`, `PILOTO_D284_2013_01` | Lotes previos (2026-11-21) | 360 | — | anteriores |
-| `OLA1_CPP_2024_01` | Código Procesal Penal | 480 | | [OLA 1](staging/2026-11-24-hn-cpp-ola1/) |
-| `OLA2_CP_2017_01` | Código Penal | 638 | | [OLA 2](staging/2026-11-24-hn-cp-ola2/) |
+| `A03_CODIGO_NINEZ_01`, `A04_D35_2013_01`, `PILOTO_D284_2013_01` | Lotes previos (2026-11-21) | 360 | — | [inventario de promoción](STAGING_V4_INVENTARIO_Y_PROMOCION_V5_PARA_FIRMA.md) |
+| `OLA1_CPP_2024_01` | Código Procesal Penal | 480 | 480 | [OLA 1](staging/2026-11-24-hn-cpp-ola1/) |
+| `OLA2_CP_2017_01` | Código Penal | 638 | 635 | [OLA 2](staging/2026-11-24-hn-cp-ola2/) |
 | `OLA3_CON_2021_01` | Constitución de la República | 381 | 378 | [OLA 3](staging/2026-11-24-hn-con-ola3/EXPEDIENTE_AUDITORIA_CON_OLA3.md) |
 | `OLA4_CC_2014_01` | Código Civil | 2,372 | 2,372 | [OLA 4](staging/2026-11-24-hn-cc-ola4/) |
 | `OLA5_CF_2023_01` | Código de Familia | 379 | 373 | [OLA 5](staging/2026-11-24-hn-cf-ola5/) |
@@ -34,29 +34,64 @@ Lectura única de verificación, solo lectura, el 2026-11-25. Se hizo con `scrip
 | `OLA12_LOAT_2007_01` | Ley de Organización y Atribuciones de los Tribunales | 264 | — | [OLA 12 LOAT](staging/2026-11-24-hn-loat-ola12/) |
 | `OLA12_LP_2007_01` | Ley de Propiedad | 142 | — | [OLA 12 LP](staging/2026-11-24-hn-lp-ola12/) |
 | `OLA12_LA_2015_01` | Ley Especial contra el Lavado de Activos | 93 | — | [OLA 12 LA](staging/2026-11-24-hn-la-ola12/) |
-| **Total** | | **7,415** | **7,349** | |
+| **Total** | | **7,415** | **8,464** | |
 
-Las filas legacy de las OLAS 1 y 2 se ocultaron en su propia promoción. Ninguna fila legacy se borró: cada ola dejó su respaldo `biblioteca_vectores_<lote>_backup` y su reversión 99 firmada.
+Ninguna fila legacy se borró. Cada ola dejó su respaldo `biblioteca_vectores_<lote>_backup` y su reversión 99 firmada; la reversión no se ha ejecutado.
 
-## 3. Incidencia corregida: C1
+Los SQL que se corrieron, con sus huellas, están en [`produccion-ejecutada/`](produccion-ejecutada/README.md).
 
-Las 378 filas legacy de la OLA 3 y las 215 de la OLA 9 tenían `metadata` NULL. Por eso quedaron ocultas sin la marca que usa la reversión 99.
+## 3. Quién ejecutó cada ola y cuándo
 
-El CLO firmó la corrección C1 ([dictamen](staging/2026-11-25-correccion-marca-legacy/DICTAMEN_CORRECCION_MARCA_LEGACY.md), SQL `853a78b7…4dbe`) y la ejecutó con el ejecutor seguro. La verificación posterior confirma las 593 marcas.
+**Quién.** Lo indica el informe del CLO en la sesión de trabajo. Los `ejecutar_prod.ps1` se conectan con la `DATABASE_URL` que el CLO teclea oculta, y la base no registra a la persona.
 
-El generador `scripts/olas/paquete-ola.ts` quedó corregido para las olas futuras: usa `coalesce` y comprueba cuántas filas quedan marcadas.
+**Cuándo.** Es la hora de carga del paso 01 de cada lote, tomada de `created_at`. La base no guarda la hora de los pasos 00, 02 y 03 ni de C1, porque `track_commit_timestamp` está desactivado. Honduras está en UTC−6.
 
-## 4. Pendientes que quedan abiertos
+| Lote | Ejecutó | Carga (paso 01), UTC | Hora de Honduras |
+|---|---|---|---|
+| `A03_CODIGO_NINEZ_01` (150 filas) | CLO, SQL Editor (intento truncado) | 2026-11-21 20:05:28 | 2026-11-21 14:05 |
+| `A03` (152), `A04_D35_2013_01` (19) y `PILOTO_D284_2013_01` (39) | CLO, `ejecutar_v5_prod.ps1` según §7 del inventario de promoción | 2026-11-24 14:30:50 a 14:30:52 | 2026-11-24 08:30 |
+| `OLA1_CPP_2024_01` | CLO, `out/ola1-cpp/ejecutar_prod.ps1` | 2026-11-24 22:10:15 | 2026-11-24 16:10 |
+| `OLA2_CP_2017_01` | CLO, `out/ola2-cp/ejecutar_prod.ps1` | 2026-11-24 22:19:21 | 2026-11-24 16:19 |
+| `OLA3_CON_2021_01` | CLO, `out/ola3-con/ejecutar_prod.ps1` | 2026-11-25 12:50:15 | 2026-11-25 06:50 |
+| `OLA4_CC_2014_01` | CLO, `out/ola4-cc/ejecutar_prod.ps1` | 2026-11-25 12:54:43 | 2026-11-25 06:54 |
+| `OLA5_CF_2023_01` | CLO, `out/ola5-cf/ejecutar_prod.ps1` | 2026-11-25 12:59:01 | 2026-11-25 06:59 |
+| `OLA6_CPC_2024_01` | CLO, `out/ola6-cpc/ejecutar_prod.ps1` | 2026-11-25 13:02:24 | 2026-11-25 07:02 |
+| `OLA7_CT_2023_01` | CLO, `out/ola7-ct/ejecutar_prod.ps1` | 2026-11-25 13:05:53 | 2026-11-25 07:05 |
+| `OLA9_CTRIB_2024_01` | CLO, `out/ola9-ctrib/ejecutar_prod.ps1` | 2026-11-25 13:08:54 | 2026-11-25 07:08 |
+| `OLA10_NOT_2006_01` | CLO, `out/ola10-not/ejecutar_prod.ps1` | 2026-11-25 13:11:34 | 2026-11-25 07:11 |
+| `OLA11_ADOP_2019_01` | CLO, `out/ola11-adop/ejecutar_prod.ps1` | 2026-11-25 13:14:05 | 2026-11-25 07:14 |
+| `OLA12_LJC_2007_01` | CLO, `out/ola12-ljc/ejecutar_prod.ps1` | 2026-11-25 13:16:17 | 2026-11-25 07:16 |
+| `OLA12_LOAT_2007_01` | CLO, `out/ola12-loat/ejecutar_prod.ps1` | 2026-11-25 13:19:28 | 2026-11-25 07:19 |
+| `OLA12_LP_2007_01` | CLO, `out/ola12-lp/ejecutar_prod.ps1` | 2026-11-25 13:21:54 | 2026-11-25 07:21 |
+| `OLA12_LA_2015_01` | CLO, `out/ola12-la/ejecutar_prod.ps1` | 2026-11-25 14:37:37 | 2026-11-25 08:37 |
+| Corrección C1 (marcas OLA 3 y OLA 9) | CLO, `ejecutar_prod.ps1` del dictamen C1 | no registrada | — |
+| Blindaje de respaldos (§4) | Claude Code, conector Supabase, por instrucción del CLO | no registrada (2026-11-25) | — |
+
+El 2026-11-21, el inventario de promoción habla de «81 registros ya existentes», pero la base muestra 150 filas de A03 creadas ese día. Queda anotado para que el CLO lo aclare.
+
+## 4. Incidencias corregidas
+
+**C1 · marca de sustitución.** Las 378 filas legacy de la OLA 3 y las 215 de la OLA 9 tenían `metadata` NULL, y quedaron ocultas sin la marca que usa la reversión 99. El CLO firmó la corrección C1 ([dictamen](staging/2026-11-25-correccion-marca-legacy/DICTAMEN_CORRECCION_MARCA_LEGACY.md), SQL `853a78b7…4dbe`) y la ejecutó con el ejecutor seguro. La verificación posterior confirma las 593 marcas. El generador `scripts/olas/paquete-ola.ts` quedó corregido: usa `coalesce` y comprueba cuántas filas quedan marcadas.
+
+**Blindaje de respaldos.** Revisión del 2026-11-25 de las 15 tablas `public.biblioteca_vectores_*_backup`.
+
+- **Antes:** 14 tenían RLS desactivado; solo la del 2026-11-21 lo tenía activo. `anon` y `authenticated` no podían leer ni escribir filas en ninguna. Sí tenían `TRUNCATE`, `REFERENCES`, `TRIGGER` y `MAINTAIN` en las 15, y RLS no impide `TRUNCATE`.
+- **Corrección:** [`2026-11-25_blindaje_respaldos_prod.sql`](produccion-ejecutada/2026-11-25_blindaje_respaldos_prod.sql) activó RLS sin políticas y revocó todos los privilegios de `anon` y `authenticated`.
+- **Después:** las 15 tienen RLS activo, 0 políticas y ningún privilegio para `anon` ni `authenticated`. Solo conservan acceso `postgres`, que es el dueño, y `service_role`. Las 7,415 filas V5 siguen visibles.
+- **Olas futuras:** el paso 00 de `paquete-ola.ts` ya crea el respaldo así.
+
+## 5. Pendientes que quedan abiertos
 
 1. **Reserva 4.2 de la OLA 3:** la nota 120 de la edición atribuye al art. 374 una constancia de interpretación que en realidad se refiere al 373 (D.169-86). Falta cotejarla contra La Gaceta.
 2. **OLA 8, Código de Comercio:** pausada por el CLO hasta disponer de la edición CEDIJ ([dictamen de fuente](staging/2026-11-24-hn-com-ola8/DICTAMEN_FUENTE_COMERCIO_OLA8.md)).
 3. **Ley de Garantías Mobiliarias:** bloqueada; solo hay una versión escaneada y hace falta OCR.
 4. **Reformas posteriores al corte de cada edición:** quedan para revisión incremental, según las reservas de cada expediente. Por ejemplo, las reformas constitucionales de 2022 a 2026 y las reformas de 2009 a 2012 de la Ley de Propiedad (D5).
 
-## 5. Herramientas de auditoría
+## 6. Herramientas de auditoría
 
 - `scripts/olas/paquete-ola.ts`: genera los paquetes.
 - `scripts/olas/ejecutar-sql.ts`: ejecutor seguro. Verifica el project ref, la huella SHA-256 de cada SQL y la firma en la línea **Estado** del pliego.
 - `scripts/olas/verificar-firmadas.ts`: control de no regresión del extractor común `cedij.ts`, con el extractor fijado en xpdf 4.06.
 - `scripts/olas/verificacion-cierre-prod.sql`: lectura de cierre.
+- `docs/corpus/produccion-ejecutada/`: copia de los SQL ejecutados en producción, con sus huellas.
 - `docs/corpus/INVENTARIO_OLAS_V5_2026-11-24.md`: inventario de fuentes y olas.
