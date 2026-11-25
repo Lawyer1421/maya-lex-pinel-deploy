@@ -2,7 +2,7 @@
 
 **Corte:** 2026-11-24 · **Bases consultadas (solo lectura, conector Supabase):** staging `aicakncgtuiiuomflkqj` y producción `thgrhueckkjdutjvcufp` · **Escrituras:** 0
 
-> **Actualización 2026-11-25:** las olas firmadas (1 a 7 y 9 a 12) ya están en producción: 7,415 filas V5 y 7,349 legacy ocultas y marcadas. Ver el [acta de cierre](ACTA_CIERRE_OLAS_V5_2026-11-25.md). Este inventario conserva el estado de planificación del 2026-11-24.
+> **Actualización 2026-11-25:** las olas firmadas (1 a 7 y 9 a 12) ya están en producción: 7,415 filas V5 y 8,464 legacy ocultas y marcadas (7,349 de los 12 paquetes del 2026-11-25 más 1,115 de las OLAS 1 y 2). Ver el [acta de cierre](ACTA_CIERRE_OLAS_V5_2026-11-25.md). Este inventario conserva el estado de planificación del 2026-11-24.
 
 ## 1. Estado verificado de las bases
 

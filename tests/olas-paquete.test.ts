@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sanear, refluir, problemasDeIntegridad, tipificarNota, clasificar, articulosDeNota, aplicarEfectosPosteriores } from '../scripts/olas/ola1-cpp';
@@ -86,6 +86,19 @@ describe('paquete de ola · generador, ejecutor y .ps1', () => {
     expect(archivos.map((a) => a.ruta)).toContain('prod/03_activacion_v5_prod.sql');
     expect(archivos.find((a) => a.ruta === 'staging/01_insert_staging.sql')!.requiereFirma).toBe(false);
     expect(archivos.find((a) => a.ruta === 'prod/01_datos_prod.sql')!.requiereFirma).toBe(true);
+  });
+  it('el respaldo nace con RLS y sin privilegios para anon/authenticated (blindaje 2026-11-25)', () => {
+    const sql00 = readFileSync(join(dir, 'prod/00_precheck_y_respaldo_prod.sql'), 'utf8');
+    expect(sql00).toContain('ALTER TABLE public.biblioteca_vectores_olat_01_backup ENABLE ROW LEVEL SECURITY;');
+    expect(sql00).toContain('REVOKE ALL ON TABLE public.biblioteca_vectores_olat_01_backup FROM anon, authenticated;');
+  });
+  it('la marca de sustitución sobrevive a metadata NULL (incidencia C1)', () => {
+    const dirL = mkdtempSync(join(tmpdir(), 'ola-legacy-'));
+    const cfgL: ConfigOla = { ...CFG, legacy: { condicion: "b.id LIKE 'legacy:%'", esperadas: 7, descripcion: 'legacy de prueba' } };
+    escribirPaquete({ cfg: cfgL, filas, embeddings: new Map(filas.map((f, i) => [f.id, vec(i + 2)])), salida: dirL });
+    const sql03 = readFileSync(join(dirL, 'prod/03_activacion_v5_prod.sql'), 'utf8');
+    expect(sql03).toContain("metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('sustituido_por_lote', 'OLAT_01'");
+    expect(sql03).toMatch(/legacy marcadas para la reversión: % \(esperadas 7\)/);
   });
   it('el ejecutor exige el ref correcto en la URL', () => {
     expect(() => planificar({ manifiesto, dirManifiesto: dir, raiz: dir, destino: 'prod', ref: REF_PROD, url: urlProd.replace(REF_PROD, REF_STAGING), desde: 0, hasta: 98 })).toThrow(/no apunta|otro destino/);

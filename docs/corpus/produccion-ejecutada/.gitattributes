@@ -1,0 +1,3 @@
+# Evidencia: copias byte a byte de los SQL ejecutados en producción. Sin conversión de fin de línea (algunos llevan CR,
+# como 00a de la promoción del 2026-11-21); cualquier conversión cambiaría la huella SHA-256 citada en README.md.
+*.sql -text
