@@ -48,8 +48,8 @@ Los SQL que se corrieron, con sus huellas, están en [`produccion-ejecutada/`](p
 
 | Lote | Ejecutó | Carga (paso 01), UTC | Hora de Honduras |
 |---|---|---|---|
-| `A03_CODIGO_NINEZ_01` (150 filas) | CLO, SQL Editor (intento truncado) | 2026-11-21 20:05:28 | 2026-11-21 14:05 |
-| `A03` (152), `A04_D35_2013_01` (19) y `PILOTO_D284_2013_01` (39) | CLO, `ejecutar_v5_prod.ps1` según §7 del inventario de promoción | 2026-11-24 14:30:50 a 14:30:52 | 2026-11-24 08:30 |
+| `A03_CODIGO_NINEZ_01` (150 filas, arts. 1 a 145 con sus bis) | CLO, SQL Editor: `01_promocion_v5_datos.sql` completo, en una transacción | 2026-11-21 20:05:28 | 2026-11-21 14:05 |
+| `A03` (152), `A04_D35_2013_01` (19) y `PILOTO_D284_2013_01` (39) | CLO, vía `ligeros/` (`01_datos_01` a `08`, ocho transacciones) | 2026-11-24 14:30:50 a 14:30:52 | 2026-11-24 08:30 |
 | `OLA1_CPP_2024_01` | CLO, `out/ola1-cpp/ejecutar_prod.ps1` | 2026-11-24 22:10:15 | 2026-11-24 16:10 |
 | `OLA2_CP_2017_01` | CLO, `out/ola2-cp/ejecutar_prod.ps1` | 2026-11-24 22:19:21 | 2026-11-24 16:19 |
 | `OLA3_CON_2021_01` | CLO, `out/ola3-con/ejecutar_prod.ps1` | 2026-11-25 12:50:15 | 2026-11-25 06:50 |
@@ -67,7 +67,20 @@ Los SQL que se corrieron, con sus huellas, están en [`produccion-ejecutada/`](p
 | Corrección C1 (marcas OLA 3 y OLA 9) | CLO, `ejecutar_prod.ps1` del dictamen C1 | no registrada | — |
 | Blindaje de respaldos (§4) | Claude Code, conector Supabase, por instrucción del CLO | no registrada (2026-11-25) | — |
 
-El 2026-11-21, el inventario de promoción habla de «81 registros ya existentes», pero la base muestra 150 filas de A03 creadas ese día. Queda anotado para que el CLO lo aclare.
+### Nota sobre la promoción del 2026-11-21 (lotes A03, A04 y piloto D.284-2013)
+
+Esta jornada corresponde a los tres lotes previos, no a las OLAS 1 y 2: esas se cargaron el 2026-11-24 a las 16:10 y 16:19, hora de Honduras, y sus 1,115 filas legacy ocultas no intervienen aquí. El CLO confirmó el 2026-11-25 que usó la vía `ligeros/`. La base lo corrobora, en lectura del 2026-11-25:
+
+- **2026-11-21 a las 20:05:28 UTC:** una sola transacción insertó exactamente las 150 filas del archivo completo `01_promocion_v5_datos.sql`, que son los arts. 1 a 145 de A03 con sus bis. Ese archivo, el del intento que se creyó truncado, llegó a confirmarse entero.
+- **2026-11-24:** hubo 8 transacciones entre las 14:30:50 y las 14:30:52 UTC. Coinciden una a una con `ligeros/01_datos_01` a `08`: las filas nuevas de cada una (2, 32, 27, 27, 31, 29, 31 y 31) y sus ids son exactamente las de cada archivo, descontadas las 150 ya presentes. Esas 150 las saltó `ON CONFLICT DO NOTHING`.
+- **Embeddings:** que se cargaran con `ligeros/02_emb_*` es lo que reporta el CLO. La base no lo puede confirmar, porque no guarda la hora de los UPDATE de `embedding` (no hay `updated_at` y `track_commit_timestamp` está desactivado).
+
+**«81» frente a 150.** El inventario de promoción (§7) habla de «81 registros ya existentes», pero en la base había 150. La diferencia de 69 no corresponde a derogados ni CONTEXT ni a otro lote de esa jornada:
+
+- **No es una selección:** las 150 filas tienen la mezcla normal del código. Son 24 PRIMARY vigentes, 103 CONTEXT vigentes, 22 CONTEXT derogados y 1 CONTEXT sin vigencia.
+- **No pudo haber un estado intermedio de 81:** las 150 entraron en una sola transacción atómica, así que nunca existió en la base un estado con 81 filas de ese archivo.
+- **Conclusión:** la cifra de 81 se anotó mal en el inventario. La correcta es 150.
+- **Sin efecto en el resultado:** las 360 filas del lote quedaron activas con hash correcto.
 
 ## 4. Incidencias corregidas
 

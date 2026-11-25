@@ -15,10 +15,11 @@ Pliego: [`STAGING_V4_INVENTARIO_Y_PROMOCION_V5_PARA_FIRMA.md`](../STAGING_V4_INV
   - **`00a`:** el md5 del cuerpo de `resolver_articulo_exacto` (`ec9a0d25…`) y de `buscar_biblioteca_v3` (`96e6ad99…`) coincide exactamente con los de 00a pegados con CRLF. No coincide con `supabase/migrations/20261107010000_*` ni con `20261115000000_*`, así que esas dos RPC de producción **no** corresponden a las migraciones del repositorio.
   - **`00`:** existe `biblioteca_vectores_v5_20261121_backup`.
   - **`03`:** hay 360 filas V5 activas.
-- **No consta** cuál de las dos vías de carga se completó: los `01_*`/`02_*` completos o los `ligeros/` para el SQL Editor. Se incluyen ambas.
-- **Lo que sí muestra la base (`created_at`):** 150 filas de A03 se crearon el 2026-11-21 a las 20:05:28 UTC. Las 210 restantes (152 de A03, 19 de A04 y 39 del piloto) se crearon el 2026-11-24 entre las 14:30:50 y las 14:30:52 UTC.
-- **Discrepancia con el inventario:** §7 del inventario de promoción habla de «81 registros ya existentes», pero la base muestra 150 filas del 2026-11-21.
-- El CLO debe confirmar qué vía usó.
+- **Vía de carga:** el 2026-11-24 se usó `ligeros/`, según confirmó el CLO el 2026-11-25, y la base lo corrobora. Las 8 transacciones de ese día coinciden una a una, en cantidad de filas nuevas y en ids, con `ligeros/01_datos_01` a `08`.
+- **Archivo completo del 2026-11-21:** de él solo se confirmó `01_promocion_v5_datos.sql`, en una transacción: las 150 filas de A03, arts. 1 a 145 con sus bis, el 2026-11-21 a las 20:05:28 UTC.
+- **Sin rastro en la base:** `01_promocion_v5_datos_parte_2/3` no insertaron nada; sus filas entraron con los `ligeros/` del 2026-11-24. De `02_promocion_v5_emb_*` la base no permite saber si se corrieron. Ambos se conservan porque los cita el inventario de promoción.
+- **Embeddings:** que se cargaron con `ligeros/02_emb_*` es lo que reporta el CLO. La base no guarda la hora de los UPDATE de `embedding`.
+- **Discrepancia «81» frente a 150:** está aclarada en la nota de la §3 del [acta de cierre](../ACTA_CIERRE_OLAS_V5_2026-11-25.md).
 
 | Archivo | Bytes | SHA-256 |
 |---|---:|---|
