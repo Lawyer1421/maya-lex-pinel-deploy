@@ -1,0 +1,5612 @@
+{
+  "instrumento": "HN:CONSTITUCION_REPUBLICA",
+  "ingest_batch": "OLA3_CON_2021_01",
+  "pdf_fuente": "Constitucion de la Republica (actualizada noviembre 2021).pdf",
+  "pdf_sha256": "6d6e8e880a33dafd9b6dd8c4ac07291fb77af9ada0456e1b6cf0b0b17d882482",
+  "texto_sha256": "0c7106d8121cce263d29e6178d4aae7100f105c20bd659ace014e7b18e453ebe",
+  "notas_al_pie": 121,
+  "conteos": {
+    "total": 381,
+    "primary": 378,
+    "contextVigente": 0,
+    "contextDerogado": 3,
+    "contextPendiente": 0
+  },
+  "legacy": {
+    "filas_legacy": 378,
+    "faltan_en_legacy": [
+      "43-A",
+      "43-B",
+      "379"
+    ],
+    "legacy_sin_articulo": [],
+    "misma_vigencia": 374,
+    "cambios_de_vigencia": [
+      {
+        "numero": "225",
+        "legacy": "false",
+        "ola": "VIGENTE"
+      },
+      {
+        "numero": "232",
+        "legacy": "false",
+        "ola": "VIGENTE"
+      },
+      {
+        "numero": "234",
+        "legacy": "false",
+        "ola": "VIGENTE"
+      },
+      {
+        "numero": "377",
+        "legacy": "VIGENTE",
+        "ola": "DEROGADO"
+      }
+    ],
+    "texto_identico": 246,
+    "texto_desde_095": 297,
+    "texto_bajo_090": [
+      {
+        "numero": "200",
+        "dice": 0
+      },
+      {
+        "numero": "225",
+        "dice": 0
+      },
+      {
+        "numero": "232",
+        "dice": 0
+      },
+      {
+        "numero": "234",
+        "dice": 0
+      },
+      {
+        "numero": "370",
+        "dice": 0
+      },
+      {
+        "numero": "377",
+        "dice": 0
+      },
+      {
+        "numero": "55",
+        "dice": 0.0268
+      },
+      {
+        "numero": "53",
+        "dice": 0.0282
+      },
+      {
+        "numero": "233",
+        "dice": 0.0322
+      },
+      {
+        "numero": "329",
+        "dice": 0.0746
+      },
+      {
+        "numero": "5",
+        "dice": 0.0848
+      },
+      {
+        "numero": "378",
+        "dice": 0.169
+      },
+      {
+        "numero": "54",
+        "dice": 0.1888
+      },
+      {
+        "numero": "51",
+        "dice": 0.2459
+      },
+      {
+        "numero": "92",
+        "dice": 0.2619
+      },
+      {
+        "numero": "67",
+        "dice": 0.2953
+      },
+      {
+        "numero": "102",
+        "dice": 0.325
+      },
+      {
+        "numero": "52",
+        "dice": 0.3355
+      },
+      {
+        "numero": "194",
+        "dice": 0.3407
+      },
+      {
+        "numero": "116",
+        "dice": 0.3529
+      },
+      {
+        "numero": "249",
+        "dice": 0.3662
+      },
+      {
+        "numero": "93",
+        "dice": 0.3817
+      },
+      {
+        "numero": "317",
+        "dice": 0.4021
+      },
+      {
+        "numero": "171",
+        "dice": 0.4412
+      },
+      {
+        "numero": "304",
+        "dice": 0.4444
+      },
+      {
+        "numero": "71",
+        "dice": 0.4528
+      },
+      {
+        "numero": "145",
+        "dice": 0.5235
+      },
+      {
+        "numero": "112",
+        "dice": 0.5405
+      },
+      {
+        "numero": "182",
+        "dice": 0.561
+      },
+      {
+        "numero": "186",
+        "dice": 0.5838
+      },
+      {
+        "numero": "294",
+        "dice": 0.6263
+      },
+      {
+        "numero": "274",
+        "dice": 0.6584
+      },
+      {
+        "numero": "213",
+        "dice": 0.6596
+      },
+      {
+        "numero": "23",
+        "dice": 0.6605
+      },
+      {
+        "numero": "185",
+        "dice": 0.6862
+      },
+      {
+        "numero": "313",
+        "dice": 0.6904
+      },
+      {
+        "numero": "222",
+        "dice": 0.6918
+      },
+      {
+        "numero": "202",
+        "dice": 0.7172
+      },
+      {
+        "numero": "17",
+        "dice": 0.72
+      },
+      {
+        "numero": "243",
+        "dice": 0.7385
+      },
+      {
+        "numero": "303",
+        "dice": 0.7402
+      },
+      {
+        "numero": "183",
+        "dice": 0.7477
+      },
+      {
+        "numero": "271",
+        "dice": 0.75
+      },
+      {
+        "numero": "240",
+        "dice": 0.7529
+      },
+      {
+        "numero": "316",
+        "dice": 0.7598
+      },
+      {
+        "numero": "266",
+        "dice": 0.7826
+      },
+      {
+        "numero": "272",
+        "dice": 0.7847
+      },
+      {
+        "numero": "263",
+        "dice": 0.7945
+      },
+      {
+        "numero": "235",
+        "dice": 0.8077
+      },
+      {
+        "numero": "282",
+        "dice": 0.8296
+      },
+      {
+        "numero": "236",
+        "dice": 0.8367
+      },
+      {
+        "numero": "320",
+        "dice": 0.8387
+      },
+      {
+        "numero": "205",
+        "dice": 0.8404
+      },
+      {
+        "numero": "286",
+        "dice": 0.8529
+      },
+      {
+        "numero": "238",
+        "dice": 0.8533
+      },
+      {
+        "numero": "311",
+        "dice": 0.8544
+      },
+      {
+        "numero": "268",
+        "dice": 0.8627
+      },
+      {
+        "numero": "218",
+        "dice": 0.8814
+      },
+      {
+        "numero": "10",
+        "dice": 0.8864
+      },
+      {
+        "numero": "223",
+        "dice": 0.8889
+      },
+      {
+        "numero": "199",
+        "dice": 0.8989
+      }
+    ],
+    "residuos": {
+      "marcas_de_pagina": 0,
+      "cabeceras_cedij": 0,
+      "vacias_o_cortas": [
+        "225",
+        "232",
+        "370"
+      ]
+    }
+  },
+  "derogados_con_texto": [
+    "200"
+  ],
+  "articulos_detalle": [
+    {
+      "numero": "1",
+      "sha256": "04ef8d1464de31f64f89b35af0a788d9fba8d8782033689691238c68e284c752",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "2",
+      "sha256": "28eee2542386aa4230d4f7bd53acada9492f2d4e8befe4acbd718a3ebfc5fb21",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "3",
+      "sha256": "9e6cff3f630a8f2a80b5de0780b8deb9f09f2b0e92a20eb8fd8940156c551b51",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "4",
+      "sha256": "849370cbc6829886b007711280c5c0b9687fee163c2dcf600c9b52db7ecae907",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "5",
+      "sha256": "0b844775ca80dbf2abfdcaa46f366692d4669a5c7daf2b6c73fcde1fd7f0a5a3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 1,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "6",
+      "sha256": "2f254639299de4783ae04b5d85d699fe5ada7a501720e58ed7a8cffe9ce91a92",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "7",
+      "sha256": "d011a06a2c3106606af67d7621ed444797a5f299a944cf324980ddf4ee13ee94",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "8",
+      "sha256": "6e217344c6bb6e5fb1d033e5ccf068d2da94cd57bc54af3d4d6a73b085a3fe82",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "9",
+      "sha256": "7d3d01b700516f36dd9c529e9b0b3051ed5ac29f8d6dc3fbbb4ec58e62eb4b5c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "10",
+      "sha256": "a19b26c3d41e720c9fb7d90859a03c6d6c89f778237be10c12ec082aae07c798",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "11",
+      "sha256": "166235b42e1320d61abb97e5bef1066c25f47c72a4c676a711389eb8632d8c05",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "12",
+      "sha256": "a9ad23d1fdfae71d93c88989939f9b3f92e322c4555ee37e80091ebb49944a17",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "13",
+      "sha256": "9b416820c89748c20f63ceac3438cb69d6cfb8710151ade500e89df50ceac63e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "14",
+      "sha256": "220b498bad7222677d248e2e01a0966852fdd18f7e3a49163660fa44b0793434",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "15",
+      "sha256": "c641fc71ca2a3b8e27873d52b5bc7aff7297187622c12a7951e5d2e93ef481d0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "16",
+      "sha256": "9533abc51ac156a15d2e558044b093439d6bb44b13904574a73f0601c2329d5b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "17",
+      "sha256": "b420a4409d05b6c9cd4d8b86991ea2fc627aa7ef76034ad5fa1efab82ed0bd80",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 2,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "18",
+      "sha256": "0524de0635bb3e3801af99ffa66b842916d116a919029fa3bfd0b8f30d2ae4c1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "19",
+      "sha256": "d9848e905b0022e4c9e8c1e83a16f55b177c2071397e867de1c607b76d3f2720",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "20",
+      "sha256": "3e50f7c0d601f5419eab38a826371c33537d6d2a11c2e76f92383f0a85c40f26",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "21",
+      "sha256": "ca080dc4804da4be7160ae528afc0933047521fa2b50a5a9b9b7623e32dd49e6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "22",
+      "sha256": "d3bef68832c0e916ff0ad242747937c6c6432f51fd4172474204566a4fc854ae",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "23",
+      "sha256": "9841349a2df8dcf6895549eea711d8034c552b269bd26e3a07b31b19d0009b61",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 3,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "13-2001"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "24",
+      "sha256": "34a76d9e406e2b80a36c2806c292681e062742d9f245e080dc05c9de67d85f6d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "25",
+      "sha256": "faf5e8d1d34242d41c972d978cc0cf5b503d7bfeea7de949056de0ecbc5236e9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "26",
+      "sha256": "a61ea98331779602ab41c83975970b285adc2a1b0bd7a39c614943abc9198e51",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "27",
+      "sha256": "f6f61a5589fbd56d2e6912f40e14060955e03a0121a234bf61488c53d07fecb2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "28",
+      "sha256": "88c5350dbf00213e2073b4a9837eb6279dddb36ce23353bc46d7181816d23bc8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 4,
+          "tipo": "REFORMA",
+          "decretos": [
+            "345-2002",
+            "31-2003"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "29",
+      "sha256": "e2e8d931eb6ef9d8d58926a7a7e9b0ac29dff9f798e5fed64feea053d3d17ab9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 5,
+          "tipo": "REFORMA",
+          "decretos": [
+            "345-2002",
+            "31-2003"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "30",
+      "sha256": "57731e96625c8c49c97663936ae89bdcbeeb985b765dc59fd1104db217a033e6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "31",
+      "sha256": "f2d1439a275a6ac0f7ff47b6023463f4607a1ced8005df5f6ddeda1e79777511",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "32",
+      "sha256": "052a3d14171a5cf1d2f090b66ef68325d62e365bf4ff29a02376fa38b2581488",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "33",
+      "sha256": "1a4b161f1bc1111cd12e92b2b22f421aa9b8a80828e4fd9652faeff9b9b715a3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "34",
+      "sha256": "b3f4e87dfd59efbfe5093d73f83c21558df0551cf558b79a3b9e0197034e87d4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "35",
+      "sha256": "925324565ee3055d1de8e8ce57d1e19392d083c41a33f8f4767f5a862bd5b5bf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "36",
+      "sha256": "dba608d5a5b20a9f19ff7f55d7b01ce463639002cc5e7301e88d77720f3cf585",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "37",
+      "sha256": "93ca54bff0ddd5cbebbe112dd2ce38baf97b5d6a34fb2dd05bba47fbc3aca731",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "38",
+      "sha256": "51dc03c1d538552261dc34e7344504b2ae2b817c6487e5f0d3686cccade0230a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "39",
+      "sha256": "73c13607458a72f01ebaa2edb50b7a5aa36683146df3e830266f0cee9ba8a123",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "40",
+      "sha256": "70933fb016238409818d853f92ea00400948f0b9acb7bbd7ba42b0c25efe8ce7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "41",
+      "sha256": "4ad4eb8459dda83cafab5ef11a781bdb89b2e8a0da1d9a332d6b570761ca9fb2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "42",
+      "sha256": "6f89d3e37254e1f0e678cd8a7c9664982d50b883e8c5a3104750bcb20b9db2ba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "43",
+      "sha256": "367327b7cf59e9c6cd1162c11c6a496105a488752f15df1fa2638bbd7e6ee40f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 6,
+          "tipo": "ADICION",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "43-A",
+      "sha256": "c3b9b08cb2ec341c2fed1b39a2858f2ae1cc8519318de543b4c24c5e594a75a9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 7,
+          "tipo": "ADICION",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "43-B",
+      "sha256": "93c30cd480e6dd3dfec03d24dfa18d920ed358e6d79eed5781c73394323a91b4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 8,
+          "tipo": "ADICION",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "44",
+      "sha256": "bbe567e3d2984fdb032c80069966f91cff5f5ca51991e2eb7fb069c6730215d4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "45",
+      "sha256": "938d1b3068184df135bc299358de2a3c2eea74ab1aa383934d63400d1907529f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "46",
+      "sha256": "3acee68be01e5ed0c54aaa757c93bd8260cefb20ce41e9fa820056c812603201",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "47",
+      "sha256": "cda2192beb0a6b6dbd759f9c0bf51754cc72cb4f808122419008b433b688ffb9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "48",
+      "sha256": "c9647f989d6d3f12b4a7a7bdbd2d926fe7bc7e6d2da8775de05a3e2c7f806f1f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "49",
+      "sha256": "e839501c8709e11f3cbd58e3cd11e228a99dc6df0c97b5fb5b3d66deb0099441",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "50",
+      "sha256": "c6873eb5b2ec34b928f19bfe048f0cae632e9da3dc90273cde5942a19474f231",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "51",
+      "sha256": "f4efe74acdf077afda685bdd8bde4be2cee8189ed157d6d4f2bf241022ec98e5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 9,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "52",
+      "sha256": "cce28c84760b6e9ff3672e788afa9059076bac3a97f90b1acc489f3b004803db",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 10,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "53",
+      "sha256": "4a5991c0ff2850089422755170929e2f9c1a338db143b8a0b51a4bdf91dd24e0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 11,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "54",
+      "sha256": "6e9796f911948e8b798dd137cb4a6c00ab80530b5f1d3b22d4ce3af848a161c7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 12,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "55",
+      "sha256": "0b0b29624d494d257188bf1d4f5bd6aeaac6a065a27d99e03776c0a7df01089b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 13,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "56",
+      "sha256": "47bd9820bb217918a1f7dcac15ab25a6b6fb5f70fc130fac33bf2446c76323fd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "57",
+      "sha256": "835cb043f13a3805ef0471eb34d33fac6e9b3d75ac12cbac0c36ee1fcbda85e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "58",
+      "sha256": "52711877f6a61ab9e827fc9ab4d47a9b591c099631a05843d85ef009cce60ba7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "59",
+      "sha256": "ddd320f9b7be5fdffe2d68c53c953721f6c670bf456532497b68a37e2b934abc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 14,
+          "tipo": "REFORMA",
+          "decretos": [
+            "191-94",
+            "2-95"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "60",
+      "sha256": "52e0b9cd3bee7d5e702fefb7929a911d0e49bca6cfe4be66ec7264ab3a753227",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "61",
+      "sha256": "c9692dc7b613199ba8e0a0479168507a1e2123274fbeef1bd39a7d643d566aaa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "62",
+      "sha256": "ef8a5fd81649fa02ac02d956b78c55c25132da7441bd4bf95584eb5049ccf2e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "63",
+      "sha256": "afa42b7898b93e45f8f9a957d1ae20bac29feb2806db0786980c6ec687f1b2ff",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "64",
+      "sha256": "737bdc745ba3514a4899da6326c1889b7df8438b4387500b92cb570a75cef1f1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "65",
+      "sha256": "409a464ad52ac4c1c6acf7eb71bd14466888397dbb2af1ff2a5776044da30d9c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "66",
+      "sha256": "37ae8777ab21f2ba26d205963dde11776f745ea90ba5d0f912df00a852b113f5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "67",
+      "sha256": "a85a990786a7ab501c5e741f6a1a5c264a7a5bd0b8108cbf852d6ca80a303108",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 15,
+          "tipo": "REFORMA",
+          "decretos": [
+            "192-2020",
+            "3-2021"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "68",
+      "sha256": "72e12054acb560a7dfd18a5fe0c067096afd0f96c70855867cd01d73175437b5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "69",
+      "sha256": "8c5b8b93a17ecd81395885d3e02886502fb793fe310b5abc2a98ea4c2ec97df5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "70",
+      "sha256": "02720f88bdd70b9335ebf5a174e227e1b5d63dced70e81e4474db965bb5735be",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "71",
+      "sha256": "5813f6c80e9bc7bd54749fbfd1374b0d36a8a0ba552b626aae105869952abb65",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 16,
+          "tipo": "REFORMA",
+          "decretos": [
+            "106-2011",
+            "88-2012"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "72",
+      "sha256": "1e6afc3726b1c4818cd23f24498b18a20bd62654cb1bfb418df6b55feedfb6e3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "73",
+      "sha256": "3bafe833690327fa6b4e7398ae34945a6b292d64e2228c4648cc5c7e25554126",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "74",
+      "sha256": "dfa6de055d5401949ad80248e106db5dc5faa2686d46cf44fc0820c47b0ebcad",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "75",
+      "sha256": "f7681c43335a29916628f0177dc78f1ff3d383ce443326f3188bbcfa2f5503f4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "76",
+      "sha256": "046b868d505f1f879acad34af69ff43a64189823855819fda426aba75a07c5b6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "77",
+      "sha256": "f5bae330a74b8dfe7a9c9788ca873b017c7f66eddd6c127b56a40fda479ea1db",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "78",
+      "sha256": "81a346faafde6a88bd249c9e2eb2b90901b21eff632b18186593509fc3995867",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "79",
+      "sha256": "f12fc7e8492f1ad1f0205763a8eb27ec19ee0fc300a4b5f4b1a7eed7e856c50a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "80",
+      "sha256": "2e7995c0d00ca19fc5204da91fefb6306a8609dde3601f298207a97c3105b755",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "81",
+      "sha256": "ac70f039dbf47acb7d3816bf39cf07a2cea6164a51dfc68261ec8ed9f61d7fbb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "82",
+      "sha256": "c1bdcf6dbac6fffb28a1ba5ddbc4497d050b4c8a84282dda9aafa28050fdbf7b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "83",
+      "sha256": "b3c67c2bed5137b4f2dcea9ae11f67bd4943f37444b57445f397469d50de4a8b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "84",
+      "sha256": "e079ef1b3b4e15e29f935d448dde54928fbc7db7a56464fa102c4ef1a3521f46",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "85",
+      "sha256": "d49f444e0a409b02755605979e477821ea6cb7f28f0a934972d248e10be153bf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "86",
+      "sha256": "6d8ae876d5106b9112242130ee2415b43b360fc3aa67298a644c4f4d7eeb2e5d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "87",
+      "sha256": "1e549449c7af165285174b64de613f5c29a9131ed3764c2315f50fc95d95aee4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "88",
+      "sha256": "69df45f753f523fa240555cfe1f257f065279795e792321d37351d942187454d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "89",
+      "sha256": "a40b108473be425703c1a4eeb5163bb0000ba15bf95dcd5d40a5f24ef197175a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "90",
+      "sha256": "ea0289333ed6ec746e798d76962cf1fdee552fc0b1e5cd1ff0e64d20192af643",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 17,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "58-93"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "91",
+      "sha256": "d00002f4f57443e6b99447d76757a8579cf7434347b878b8a74393dc18e94b31",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "92",
+      "sha256": "f51d26748723294fc50aaea4da0cac0d13ebb9c58740629d5d365fa22b9466ba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 18,
+          "tipo": "REFORMA",
+          "decretos": [
+            "106-2011",
+            "88-2012"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "93",
+      "sha256": "f9b8354f40ae75f3a54e984ff210848f2990d2970aa26e4a301000ab7a3f9854",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "94",
+      "sha256": "4c607d6d11f5a28ffe9cbe9117f1ba15b3ce45831b9ec41e25d7b4d55bda4530",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "95",
+      "sha256": "60c0f4a5fe0b637bb3087b70d5899f47829e8fd068e357ee760f091cf9db568d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "96",
+      "sha256": "a4f78fb8fe60ccc05700e17a05c854616fefd8aba0781d003ddfb780d0e3daed",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "97",
+      "sha256": "71d88f1108e839d5e6ee8853da906637cffee58fbf666dc8585d03438b600bb7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 19,
+          "tipo": "REFORMA",
+          "decretos": [
+            "46-97",
+            "258-98"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "98",
+      "sha256": "8c42a634f6d56332e0903b4e926875745107855ec57819cd231d6d77ee246b7f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "99",
+      "sha256": "656b215c9c7b4c8bde7a560eddfaae411ec7cf5a46cf00c93b1b5f1218ef31da",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "100",
+      "sha256": "b7aca9b6a52ee885f4e36050bd5584f38ed50b9e10058043a18e253abc62e5fb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "101",
+      "sha256": "a56b0d839b207f5778cedd38d7edcb194707258876c84d7df604f41ef04e5da0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "102",
+      "sha256": "50d881b88eedc0b4f3b372ba316b92c3008121f32bd449c0714aaef6fdf5b442",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 20,
+          "tipo": "REFORMA",
+          "decretos": [
+            "269-2011",
+            "2-2012"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "103",
+      "sha256": "b8a8777a0d283ea5a9a5065121040e5704751bef9f8e5e578a4ec97cf35640e9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "104",
+      "sha256": "b8815e8bf3e4a74c5f7b24808b5d47c9f8764857dcc614f502d128371be4e4da",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "105",
+      "sha256": "4b6514e3df0875d34749451a235a031dfef397420d35d0724d336fba8a71b225",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "106",
+      "sha256": "e94aa3165731ef240cf082c0c5eb430acf49ae32f4d0c979ff7b025e6aba2d8f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "107",
+      "sha256": "867b8b221de88a2e4aaf3f5b7c1049f55b9a2c06ee0b1a26e6ee503a5448328e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "108",
+      "sha256": "8eb9a727ea94d2df8dd60d53196a19f8aca859f8d3c5f71749b5c998c2d3bc6e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "109",
+      "sha256": "56d79a7f91da431b7d7560902e5e278af9520e9091648df3ae122fefc441a4eb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "110",
+      "sha256": "da763eaca1788288073b325e03886489b09526908fe8cb50394ddb30b6a20d5b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "111",
+      "sha256": "4da67a3eb43cde35a4a958aef9f44f684275b6725863af5663699b8ecbbf919a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "112",
+      "sha256": "01f7e77c647021a1c4c0ad0e9fc39c6d09ffdc15e518ba01e5311305bb704eba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 21,
+          "tipo": "REFORMA",
+          "decretos": [
+            "192-2020",
+            "3-2021"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "113",
+      "sha256": "c8eb658df94d043976f41b46e494e1354b19e348c206d5226ff83bb34846e06d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "114",
+      "sha256": "294d39d426e8a029596016825caa9f4a1bc95bbd027d06ff71dac183fd45d636",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "115",
+      "sha256": "b4c08be7e27c21a3683aeb43f787484f03b5d4a9ae32c9693aa3882b1c4d7541",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "116",
+      "sha256": "48c950b880591b6405d829f161497cf6c75c55305446a2d62c368767081693bc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 22,
+          "tipo": "REFORMA",
+          "decretos": [
+            "176-2004",
+            "36-2005"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "117",
+      "sha256": "f537091dbc574f08c5179603a4f3430839d6b62abbfc571dbe50f1f9fbfc2798",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "118",
+      "sha256": "7009efbeb673e90a0080dac96034482f3d8d03e962b332ba9719ed38c950f547",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "119",
+      "sha256": "e31c082bc3f87c0fc832d1ebe3f71fd64bb88325ea10c3e5f86033b9afc02c46",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "120",
+      "sha256": "19c5475ef93f338d9d1d4a83cf2ec92c50c613b56c806d1cb93892f8ec30ac72",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "121",
+      "sha256": "543e9c264c33e56ef997d6be5dff48f048c8ad1abcdb223cd62778639883a96c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "122",
+      "sha256": "a959ebe05382362644a132f7df53f86aa41bf6cd5f183960aade1200cd480073",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 23,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "41-95"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "123",
+      "sha256": "26bbd11acff4cb33e0e93d98d063b1a964827922e96ffcf5436e166870944c19",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "124",
+      "sha256": "492de546ad95713385b3a5cd9d270bf91b54cf6c93f317e3603878eefa534590",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "125",
+      "sha256": "ba65c690bc37ce3847048814de18f00f2ce223e3264b31e54c4fd33f2536702c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "126",
+      "sha256": "9a41307a2be382b11e9961726470a5ba9c3c5748001c4c9e2796cf1a1eda0c7a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "127",
+      "sha256": "f4f76bf7af39f486926363e7f7719f396502bfc99be285b52948e1fa76b1aec8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "128",
+      "sha256": "f79a587f27bfd9e1f63b054763339ddaf0bc9919feebb0f9f2a48a2ab14864a1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "129",
+      "sha256": "22bfabfa5b4ab1538f7eef3f58e843399f49b83b2b09a0269bb07bb24a5adf16",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "130",
+      "sha256": "f57b79e4a7dca41d5ecbbdef5aaa0cc49fcd23440343dc3ee9041c74bb87e7e4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "131",
+      "sha256": "d3262fafa57cee2482c99d4f5fc315828198954b13e0a38a35e60ff550d07f30",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "132",
+      "sha256": "efce5f0328d65a536bfde64a32a138589ea2f4ade898032756c735db82fbffc4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "133",
+      "sha256": "6d1011259ab6f91094fb854a6e29cc4abeb9156f876ee2c71c5e4b9099cd7292",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "134",
+      "sha256": "f8c6f6362e155c215840aa59e7b54f3e58961a47b670e1b10d01ed717cc4eb8a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "135",
+      "sha256": "44f83e1c2e2c6edc8f8b3c3262dc6034d76d2bf11fe16e663df940b3f360e301",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "136",
+      "sha256": "ef7391310782304c8160d444680651468dd523cc5807b9bde03251de2713b484",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "137",
+      "sha256": "3e8577f661355d34390beb0c226d89c659054adef114d8fd84633702db0cde07",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "138",
+      "sha256": "7ca54a5d50af0520a499c1d79f0538c33147dcd5087ed93bfd0d14da1554a435",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "139",
+      "sha256": "7dab0440e6140c66074914803c714332b859c82711ab606761b08cd7f90b6ec9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "140",
+      "sha256": "b7aa26ae96f7e8228aa55a781d331c2e4d5d4dbc8dc978f3c77b995a630c53ee",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "141",
+      "sha256": "be4f00f32d807152d97926c4eb8396f2a9e4a1d3e0fce8dea0f32568922c65e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "142",
+      "sha256": "97c2f70c5b3f05779f8ce039b912432cde2905d7878c4e69e7a578d55b89459d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "143",
+      "sha256": "163d6b02e28dbec2e2c6bef5fabe88f3916b38a856b8c7c27f07ca83569bb1b5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "144",
+      "sha256": "ce4988eaaf74468c9e21a016c2194290f8cefed11fd2778dc8318081379c1df8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "145",
+      "sha256": "18bd391f74a91b7b94027ff506c698d9f196fd6c53541329dfbf8bc5405a7489",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 24,
+          "tipo": "REFORMA",
+          "decretos": [
+            "270-2011",
+            "232-2012"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "146",
+      "sha256": "eafbd900602451ae0d30275ec20f0dc5aba1c0cadcd908f084ee69b1f2ea70c6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "147",
+      "sha256": "da186a8bc2864fbf1a79dec4c5290b191c8c7ee4fcee109b091ba4ab97480e75",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "148",
+      "sha256": "372a71e169e073e247d151c68df2cb4d795fd3c1bec848d607cab0d56dfee9af",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "149",
+      "sha256": "abec29ac644a3ba853c51a93261d1ed949f0e8b94f56623f1a54492b25571baa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "150",
+      "sha256": "75d0156ed65ee58ae5d4ce53095dacc688ed1fd1e8c303a24e66d59d440294a4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "151",
+      "sha256": "028b93510e74d658d677e2eb64a47d55119d0df7a9d385eacd91df3efa0dffac",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "152",
+      "sha256": "c887f16f0fd2806eef24d4bba773171dcfad4cc8415fdf735b4eb8f32976cf7c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "153",
+      "sha256": "3c132363efcc1f069c5fee2230829587d606a5e81297720bbf57866b65d04786",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "154",
+      "sha256": "17e3605740016cd0bf9fdff3efa69aa8226bc19819a34550e67bac9087f64346",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "155",
+      "sha256": "5f086a037385e8310912858d46829043699dcd56cb74f1d834eeb5d9c51438d9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "156",
+      "sha256": "af1c5500219780a46fa4c8dc198655a689ddaf6ced224c6c592b50e9223879e1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "157",
+      "sha256": "040a11c1572bb7f537ccc7c4f92067113c68f8461d82e750e7b77abb19b544e2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "158",
+      "sha256": "97b421709482faa015312787b4f7ce3bf1715a206addd0d386b9db23b3842eba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "159",
+      "sha256": "a49fdc7f7c303f6de609454357ba1457042aeba83b9c22257127f960aa9472ef",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "160",
+      "sha256": "51e007a67411955a6ae1467b25f8acea1f969c10f676dfdfad267969402afb0c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 25,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "160-82"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "161",
+      "sha256": "5f6b274514b5172c3201a84f1629dcef0f12bd6073346d779aa5c74000f6f029",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "162",
+      "sha256": "6d1fb5fc9a56a2e7a15fc6f6d85ca38d62fb8fbd8259f4f7483e5fe56effa3e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "163",
+      "sha256": "4eff5306d8e2410130e54c7288953064f4193ef16094314372ff1b1d92098b65",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "164",
+      "sha256": "1145e31a4942865403dd71ab33e93b5419ccd00ee48e88b6d410040c11ee0e30",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 26,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "227-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "165",
+      "sha256": "dad2e3546e027799d54dda9ae322473393cb03d8dc280ef54bbbf9bd6b4f5f44",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "166",
+      "sha256": "729d39cbb772549523ae7eb45f900aa7f7ad9741a5b6a51fc8ca5cdf27e65ffb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "167",
+      "sha256": "11b9432442304afb0e1ba90189f65529eb3aa2da8677d73d16e5cf3c6d7acb25",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "168",
+      "sha256": "20f8d5934bbfcfb2c258b8876412152625b115c43edf55672bafca13dc3be8df",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "169",
+      "sha256": "60aac70f5d293592f6f195333a0807edef773e1ebe537c89b354e31a5e5e9510",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "170",
+      "sha256": "fa2af423bbf11e4b3952d6a0ef4fdf373cac5366d4c742048773e3eb6630a599",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "171",
+      "sha256": "a6ffe4be2bb4507ae5ce39ddfe89bc64e76532f21e8fce9c1d0d4375acf75db9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 27,
+          "tipo": "REFORMA",
+          "decretos": [
+            "273-2011",
+            "232-2012"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "172",
+      "sha256": "ea6f1e3a683b8e6b8879517da231d45f1425df0e73f0e54dac3092242c9fa658",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "173",
+      "sha256": "208ab0ad0c2c2404e9341786243d0f50377eba8e10dba896aa5d30b4ed33155c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "174",
+      "sha256": "35a0740401e9522b2ac6c2c051411771a90fea3d7a776506ee32aa208be39c3b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "175",
+      "sha256": "93d47fde4177edee33d4acda24062e853010f6627439f5533491ec84d9cf14bf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "176",
+      "sha256": "0a57b756d83e0f7881ac6c9aca28076f927fb1e44e8a09626ec841fa05638f8b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "177",
+      "sha256": "1cb1d35c8a7cee01c0719fe07b8e6df4736403694b84b6725565d0899bde987b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "178",
+      "sha256": "20c939392e576f614796fc8cade2ab71572c2e99731d960db20aa88b08942e61",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "179",
+      "sha256": "6646935ceb5babb3e0960fa36a9e4bf62b2163b229ce53f931ce2e80615304b8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "180",
+      "sha256": "c84c8fb4a7299a4097c4c2d03e6f61e78608628f92a69baec4035acb5d98f23b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "181",
+      "sha256": "aaceb46e5601e1a9199b25930e6b4d82f0c5fd4de0c16926d4f8b3ef5a1bc6ed",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "182",
+      "sha256": "edeb3b2a1147f610356d41f04bec7999f3ab737ee66e22518c52e33c3bd551f2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 28,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "183",
+      "sha256": "d7419024a23f0a31f912d7add6a4ee6a7e128e06d238435927b7d70c9c14391a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 29,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "184",
+      "sha256": "82729b3eb75765a77bd31758bc64ce950b9819d6326c5db2a5f6c19caa7f78fe",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 30,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "185",
+      "sha256": "371c83116e5ca8ef8eb1d501657c233bf91fd1369089fc3f97769d2a47bd42b2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 31,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "186",
+      "sha256": "7640a3145ff9729ae1e9c60be4c6ed88e2a08e992470d7f7b79ccad50cdab774",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 32,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "187",
+      "sha256": "98219a60589442b1f856841c1a2114afa810ad349e89db5a1da6f5d51ef3123a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "188",
+      "sha256": "226aea376005a91c1f2ef37de402113c1b23626122ee179faa04fa9d35b8adff",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "189",
+      "sha256": "cc7cee829e82a3ce85b81bcf8aa33262e439ca03c0f8393c72e3aacf36c4cbfb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 33,
+          "tipo": "REFORMA",
+          "decretos": [
+            "235-2012",
+            "6-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "190",
+      "sha256": "04c63a6276678eab40b1659a10af8eef45023afe760aff37a506abad67cc5681",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "191",
+      "sha256": "d41852a3d22a14f271113a40544009606afd71deecc1fb26102d9e890e04c9a6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "192",
+      "sha256": "bea20bce5c7e669be552917f04c5e3df40f524842b3ed7fe187f21cf9345e628",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "193",
+      "sha256": "171f258166879da57cc91d60e28eb5502e91b4dfaa5b8117b28281faae44b90d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "194",
+      "sha256": "0a25db02f154a46cfff2e606d054a5d285d2bb2bd1f87005cfef2df6619a79c5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "195",
+      "sha256": "9cfbb8187237d9eb564fde78e9ed729d48c5b7e07505f5b6b755d1c20e986063",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "196",
+      "sha256": "5c12dbe62570824648e1583ec833c5f3cc5d9c9c9820becb40dadc96155e18ec",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "197",
+      "sha256": "54d4dd9ca22359a9a16118acb4f698727c9915b45c79f271d4fec080486b4c2c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "198",
+      "sha256": "de9634ac39fe111880612b13fda1b8416631b767b57b7f53be1d2f5344f1d559",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "199",
+      "sha256": "e6bad70b86716cf14af666562ddc9c5c30e3058121f187d8153252c0bcda6953",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 34,
+          "tipo": "REFORMA",
+          "decretos": []
+        },
+        {
+          "nota": 35,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        },
+        {
+          "nota": 36,
+          "tipo": "REFORMA",
+          "decretos": [
+            "298-2002",
+            "2-2002"
+          ]
+        },
+        {
+          "nota": 37,
+          "tipo": "REFORMA",
+          "decretos": [
+            "163",
+            "10-84"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "200",
+      "sha256": "a867606253b9cba77bbe521c6d03e340edd7777aa31fef90cac8c78ab6f4d1c8",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO: la edición imprime el artículo y sus numerales 1 a 5 como «Derogado» (nota 38: D.175-2003); cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 38,
+          "tipo": "DEROGACION_PARCIAL",
+          "decretos": [
+            "175-2003",
+            "105-2004"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "201",
+      "sha256": "979cac4683ef6de91f234637631ad91c9bcafd5cdc2d9f1c413bc1f456c830a7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "202",
+      "sha256": "e8c9c1889e4683775cf5600e1c3c8633066138e9ce6fb320f8cab973adbfc504",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 39,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "203",
+      "sha256": "90e1edfcf545d7c8151b9f8e8ae86593ec969fdc28ee42435c7ab35adfddc389",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "204",
+      "sha256": "39009b44bbcfb47df5a9b8040cba181ac59065495713341d3c5ad61b67ea74cd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "205",
+      "sha256": "30328ab19aa250bdd9a36ea49e755fb2a224db7b97aae7569f97f4c9ec845c4f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 40,
+          "tipo": "REFORMA",
+          "decretos": [
+            "235-2012",
+            "6-2013"
+          ]
+        },
+        {
+          "nota": 41,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        },
+        {
+          "nota": 42,
+          "tipo": "REFORMA",
+          "decretos": [
+            "262-2000",
+            "38-2001"
+          ]
+        },
+        {
+          "nota": 43,
+          "tipo": "REFORMA",
+          "decretos": [
+            "276-2002",
+            "241-2003"
+          ]
+        },
+        {
+          "nota": 44,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        },
+        {
+          "nota": 45,
+          "tipo": "REFORMA",
+          "decretos": []
+        },
+        {
+          "nota": 46,
+          "tipo": "REFORMA",
+          "decretos": []
+        },
+        {
+          "nota": 47,
+          "tipo": "REFORMA",
+          "decretos": [
+            "231-2012",
+            "8-2013"
+          ]
+        },
+        {
+          "nota": 48,
+          "tipo": "REFORMA",
+          "decretos": [
+            "2-2005"
+          ]
+        },
+        {
+          "nota": 49,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        },
+        {
+          "nota": 50,
+          "tipo": "REFORMA",
+          "decretos": [
+            "163",
+            "10-84"
+          ]
+        },
+        {
+          "nota": 51,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "206",
+      "sha256": "f95cb3f559fb1002a3a3bce015a8b8c5f9a8021d8a3136ce4e3f4440ec829bda",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "207",
+      "sha256": "94470f0c5f14fcc869f69645975ade936e1c740f90e1e8f39f8a5148bce99d8b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "208",
+      "sha256": "4d4b0571624852df7c0fb52c0b7360152a85fa8debce344c405987149cbd5e0f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 52,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        },
+        {
+          "nota": 53,
+          "tipo": "REFORMA",
+          "decretos": [
+            "166-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "209",
+      "sha256": "3f1f78f96b587eda01624d2a84c8c2a2327f6400aa7b9230a3ff97e4980657db",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "210",
+      "sha256": "57a9fc6c7dc085cd3dcd886bd7a96dd9026d4b6fcae8d2120557fc0d2271cb93",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "211",
+      "sha256": "793228978171b2fd4bfe9b0a22f79a8f3907dc6d9acd26c229f0ebec5430571f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "212",
+      "sha256": "e872b192e764dca59bc7248427ebe1277d6f1ddb6b68b1a419a53367584322ce",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "213",
+      "sha256": "7117674ec35d06b6baac488674c9ca075f89289b1bfe9651df5134527f3add65",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 54,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "214",
+      "sha256": "1e4ce51f342e35d3a1635c29d2530425459ccbc07ef7c678879088028b3fc1e9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "215",
+      "sha256": "3bed64c5347a5975c2e8fbb29543d34e5bd1ddd4a67a4d723f53615447d82641",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "216",
+      "sha256": "94b7b10d557198e4822d7ca2ba9abc0146e86ca50c6bce1a370f027bff898161",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "217",
+      "sha256": "6d75aafff0c67893fa283e2add60b77adc0e42ef27a97b675b3bc60b7ddbe716",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 55,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "218",
+      "sha256": "9f9bfe42ca4faf70bff5922036e051c8c15916261ada14d083cade2ce00a4366",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 56,
+          "tipo": "REFORMA",
+          "decretos": [
+            "307-98",
+            "161-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "219",
+      "sha256": "f2f2807f75ea0e44bb1689c9e4995859c0f7d486ffd82b982366174949600b61",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "220",
+      "sha256": "f0b3fbf574fc28ca6d50a86b338efaf9139912daa0dcb3168e089a80a21e5c07",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "221",
+      "sha256": "829e52b104fcc8178205c431875bfee40dcc32d1b7ef5163517efb30cf94d5ff",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "222",
+      "sha256": "2adddf7a4a8c8ded55b95c09cb1c6a1e1dab163bef8e4c1da88b14ddeca3f6a6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 57,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "223",
+      "sha256": "b391be7dce3e5b923a1d395a2e14c052c038815f61ffa7ab1f7e007b8e3cb38f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 58,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "224",
+      "sha256": "2226884882142ad2b14ddc40815a245009551a04af1de99328ee0a02f0212751",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 59,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "225",
+      "sha256": "1fcea5d87c04cd764d558b127ed8c8669d12401b1874e6cf6ea2a7db118586c0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 60,
+          "tipo": "REFORMA",
+          "decretos": [
+            "150-2007",
+            "185-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "226",
+      "sha256": "2fed9d136b9a253e36ea3c5fa53828d364467c2f058b464333abc03684353dad",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 61,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "227",
+      "sha256": "f31fc4acb992ecc222ca1748d7e1aa372891dfc1aeb2121da8b865fce6677fb5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 62,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "228",
+      "sha256": "2530fb98fb5447f8057b2cbfc353ed13ce5f1ad9255a2acac355ff48ddde6dba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "229",
+      "sha256": "3a81f3f368b93d0d0b47b8e2f2dc6e11d0b9d39c26721fec3bc14e254a2dc1f8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 63,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "230",
+      "sha256": "3d0997241c11a75ec7fe58371b81a068097501c8c5caac16ed8eeb17c6900663",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 64,
+          "tipo": "REFORMA",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "231",
+      "sha256": "61d6043f5b26d0ba2aa9759f37cddbebc046cda0c5617f30ae89d9ab27b3d951",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "232",
+      "sha256": "228e927cef3ed576332589f27dafd415ffa95813e7c4a36b52db70988900bd83",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 65,
+          "tipo": "REFORMA",
+          "decretos": [
+            "150-2007",
+            "185-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "233",
+      "sha256": "4a3b25c22420b329293d81f765410916f5a1266c218d8c6e8ce999ac81eb200e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 66,
+          "tipo": "REFORMA",
+          "decretos": [
+            "231-2012",
+            "8-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "234",
+      "sha256": "682850066d8124f82fecab6bee8816d57ab63eddf27e2662f98dc3c4bfc51071",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 67,
+          "tipo": "REFORMA",
+          "decretos": [
+            "231-2012",
+            "8-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "235",
+      "sha256": "d6495ac1bf344a7d6aad00cb9f66bc650e6c9d83e4abe04e14bfcc891cbda6df",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 68,
+          "tipo": "REFORMA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "236",
+      "sha256": "975f95a6cbe01354dfc930cca86cb17def6a60a97e5773526f213e07dba7989a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 69,
+          "tipo": "REFORMA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "237",
+      "sha256": "e127959ca6bf2cd84b3a5b2bd513e02cfe8e4755f504046d394ec581573e50eb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "238",
+      "sha256": "540ccac945f009ee3c761ba2f325c97a8d186b01069eba00d542faae4f77671a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 70,
+          "tipo": "REFORMA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "239",
+      "sha256": "4f35f0e5373bbe9405ef42591572ff9c8ead3370375dfa17e1d9f7b421985616",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 71,
+          "tipo": "REFORMA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "240",
+      "sha256": "a9887e0d4409da8c7b2df28421a0933854ff28f7f0468649bab9639642bf111a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (derogación parcial anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 72,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        },
+        {
+          "nota": 73,
+          "tipo": "DEROGACION_PARCIAL",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        },
+        {
+          "nota": 74,
+          "tipo": "REFORMA",
+          "decretos": [
+            "166-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "241",
+      "sha256": "366bcd3462bad4519beacb000a2fdc15408806eb38e1336abdf5ca8ecde36be3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "242",
+      "sha256": "7a53759ac768a2535d6fee2832aa8ccc9def1744d3158e0f09be5b0406eaf455",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 75,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "243",
+      "sha256": "e6053cf9769a6504cb3360422e2866367bf6f5f32d7f4a1807b855bd21cdcb3a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 76,
+          "tipo": "REFORMA",
+          "decretos": [
+            "166-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "244",
+      "sha256": "72740c6c9db31aa0ab2e6df0ff36422449445abf86c0d9a0b20a5ed34acfac0b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 77,
+          "tipo": "REFORMA",
+          "decretos": [
+            "166-2008"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "245",
+      "sha256": "fc4ea87434e490db46713754d7f1b70daf7a535e671e1f79ca6463a4556dd9c4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 78,
+          "tipo": "REFORMA",
+          "decretos": [
+            "412-2002",
+            "154-2003"
+          ]
+        },
+        {
+          "nota": 79,
+          "tipo": "REFORMA",
+          "decretos": [
+            "163",
+            "10-84"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "246",
+      "sha256": "90365ab40c05194db0cbfaae52b8c459b2d9db9a3049017b30bc47a41c6eae89",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "247",
+      "sha256": "a87f38c72ada5659c1be9c5341350d7f7c95675827010f7f90e91c64c3c4f94e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "248",
+      "sha256": "158d5f868e99142b3f4d02d50e037234f0ed41625d1f2d0f2522c1fce3dc128b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "249",
+      "sha256": "db6f8d9bbcaa2e541bbca1df8486a6e127323c98f78ac201a5c2eaa444ec0475",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 80,
+          "tipo": "REFORMA",
+          "decretos": [
+            "273-2010",
+            "6-2011"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "250",
+      "sha256": "a952c2a152b689275e1b5c73954def7dfc128e7e53e32fd7903df5a6b3a2f27e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 81,
+          "tipo": "REFORMA",
+          "decretos": [
+            "248-98",
+            "4-90"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "251",
+      "sha256": "ed772ae17c72f4ac465f2b960c3f9035348f8d01d1a4dcb39bd773427c81b67c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "252",
+      "sha256": "669732ac7f84e3aeff9111a208feb04f69e8ab9d20329749592794b0982f6f79",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "253",
+      "sha256": "bdd855c2660fdcdc37f1584fde48c5e5a19726dfa9b02dc97f6a055d13b6e6a4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "254",
+      "sha256": "e1789ca31a799eb6472863b23039c49b511479a28d01ace89a39b16a6b323952",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "255",
+      "sha256": "022dad4ffccf17b84b2094bd3b022ff1a1a4c004a66e6cd80e4d736e752a6eed",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "256",
+      "sha256": "3d66bed7dfce909dd21dfc73e2abd7dd32d3b9633033e34741aebae8fe8bc1a7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "257",
+      "sha256": "5c984009213bde6057655d86ef022d8da8575e3bdf11e477edadafc3519a55c8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "258",
+      "sha256": "eb39ba8f97891595c1254ac314705f9ba701cd74fbb2b86361dfc27eae7fb19b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "259",
+      "sha256": "81ee66c8754e871641f96549eb0a51cb77861338204f42826db7587481670292",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "260",
+      "sha256": "e2f2b21a829f6a594d8c56e864422c63299a5a9a9be294dec2132ee014313f08",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "261",
+      "sha256": "6d1d91c500d1197bb3b082965f943996363a24aa15bf2289691bb8f9498b211d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "262",
+      "sha256": "9279441dc785dd2671cc1abe0beda0240d12ffb0fe23dac7823eff41ea165034",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "263",
+      "sha256": "ec56f1929189d162820c2755f02abc73d10f570ec30a7cf0c008339d80445f22",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 82,
+          "tipo": "REFORMA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "264",
+      "sha256": "9c1a7138f189737f5416a5e4ec190ce3afe4c75a21512bc548c28388204e68e1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "265",
+      "sha256": "b6bb537d90ecf7bbd0daaa07b7efad5361be0387e3f036f032cc2fabc2a27e15",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "266",
+      "sha256": "5b68bb5f4d652d4852e31eac0db251365af36226d56bc55c55c05a11612d343e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "267",
+      "sha256": "f71565bb0a484213659ec0373cee46cf840cea59cbaef39a89318e433e655e3f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 83,
+          "tipo": "REFORMA",
+          "decretos": [
+            "58-86",
+            "57-87"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "268",
+      "sha256": "94b65b48289d0f35cb5a98e7868612862e0dbf40e7b94092728b4dfed1eea8bf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "269",
+      "sha256": "4975a5abcdb70e166d7a25958c1c073505caf45024fa9b9777045aa0cb3f0277",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "270",
+      "sha256": "0bd3f0e471c080f5444d6c4b77fb30137a0f858199398036b085c86287c43c0d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "271",
+      "sha256": "c0b4f0d1baff556bb37d031da9af20482e1a02189cae10c10273a5caf247329d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "272",
+      "sha256": "51c7ad31ec191a994087c279df140fa5c2916938d74aa203956e8e5573f564fb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 84,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "273",
+      "sha256": "057a899881057ee2f69ac5a834c76a5324b1ed96747278882706f318c918aeca",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 85,
+          "tipo": "REFORMA",
+          "decretos": [
+            "136-95",
+            "229-96"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "274",
+      "sha256": "76ba0572fa42fcb781de6e0f69b6498752ff16b1721c6a5808ac3b6ad291fd0f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 86,
+          "tipo": "REFORMA",
+          "decretos": [
+            "2-99"
+          ]
+        },
+        {
+          "nota": 87,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018"
+          ]
+        },
+        {
+          "nota": 88,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "223-2011"
+          ]
+        },
+        {
+          "nota": 89,
+          "tipo": "REFORMA",
+          "decretos": [
+            "283-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "275",
+      "sha256": "36455b5914066a316d3d916c3755ecd2cd8a59362527ece610cd59376d45fc69",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "276",
+      "sha256": "d20fa1f359fa600b486a38c6ee7e2cf6138d700bd80db174dbd10a4d7aef4d4b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 90,
+          "tipo": "REFORMA",
+          "decretos": [
+            "24-94",
+            "65-95"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "277",
+      "sha256": "bae36e9c27f67b3fee392ad1cde6825843ed4ebd51725e2d31ed881cca4704d5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 91,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "278",
+      "sha256": "4f769e00be39ebd267b7993d6e123cc8ca61c72bb7afa118ab60051c1a7544df",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 92,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "279",
+      "sha256": "7a216861c0fd14095b2fd60f81b4c4b807156c881b5b96dbb028b7fe0995d5aa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 93,
+          "tipo": "REFORMA",
+          "decretos": [
+            "234-2012",
+            "7-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "280",
+      "sha256": "c07aa313811537edc0c7794e42364a25e5195a47d393c90615d1147c98a14899",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 94,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "281",
+      "sha256": "576cd3a2f81fea6d25c2fb843bf8496303276250f4f0eec1f963ac518475877e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 95,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "282",
+      "sha256": "d9ccccff127f76f9538021bf4e0e19b91f8292a70807242b082efbb5624887ce",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 96,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "283",
+      "sha256": "ddb65cd59bcd3dd88832be5996acd569ffb921d71295d8d4a83dcf90e2b9ab79",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 97,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "284",
+      "sha256": "1151623b23e6c8a5dfb54fb9a98b17698e8648c9015d5741225ef6373631d051",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 98,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "285",
+      "sha256": "495a1fa152361fc510561cf861f6e4be68b5d6a25415a788ef9e100f935b7613",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 99,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "286",
+      "sha256": "2bcab8f34af87924fca92f14483147e5c14a9547c83dc621bd74935c9b032b18",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 100,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "287",
+      "sha256": "3f6a247ddf75fda4bc9be7d4ffcdd4ba9e836b30a893a5de65d8e36861b5c773",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "288",
+      "sha256": "f4bd3ac7cceaac9c2b17450a6c4a206fcf1c42024d95779186d2cb2d9fd2f65b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 101,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "289",
+      "sha256": "6f36122414e8952a3ad04e35267b56bff95cf8290ac08edb2e8a0212e28053f7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "290",
+      "sha256": "fc6464975585078c8084cf649061fe86bc5e450c1512b921eb8a3ee90da282a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 102,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "291",
+      "sha256": "aa5da1b09ded44e887675eb0dab939e6d9dfa03e32cadc626fe24bcb3500d552",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 103,
+          "tipo": "REFORMA",
+          "decretos": [
+            "245-98",
+            "2-99"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "292",
+      "sha256": "534ac9feb22a012808d31972281bb98a1725679b652769e4a076bb46d6736c16",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "293",
+      "sha256": "7cbd8adcc84adc661fbb5df428af76055247293310689c28b5910c0680dabc6e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 104,
+          "tipo": "REFORMA",
+          "decretos": [
+            "136-95",
+            "229-96"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "294",
+      "sha256": "475646aba9b5e9f76eadc8b5f50c6211177364906d5944a04d05da9f0469f420",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 105,
+          "tipo": "REFORMA",
+          "decretos": [
+            "236-2012",
+            "9-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "295",
+      "sha256": "bd5657c0e9dab2833166eb8d22f6a95f24fdd11f83ac9976d7ade331aec62459",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "296",
+      "sha256": "1efcee55dd1df2c443e3096df9edb9d212e9d1b7d480843d1b036c097332d45b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "297",
+      "sha256": "5a597c9dbc06df57ee770c0ef37c4f3bab29548c774787e99ab7dfb0594a6be8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "298",
+      "sha256": "24ab14afa9a2f4c78c4fcc68cb3d78786ff915ba8f1422e5bcfef4f8add35150",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "299",
+      "sha256": "7e65e9a016969a003eb0eba52765146f8e589c2b0d82c90b5f33c28bab2d7c3d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "300",
+      "sha256": "922752ab49176b5d74315770ae5325edb264d55c44123742d332fa2d67d2cbff",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "301",
+      "sha256": "a4a0bf877db0b96a84db6ceabf5398d84e94cf5e9c3b4f2ac728e07b68b784e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "302",
+      "sha256": "1ebcd8e5c19f5944adc079fe056b1f8d576ddafe4ac7b7521b9fdb3a2c8fb3ea",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 106,
+          "tipo": "REFORMA",
+          "decretos": [
+            "262-2000",
+            "38-2001"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "303",
+      "sha256": "edae88bdda7672563527a568f7e4db384220aa31579371c7b07671bda034f811",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 107,
+          "tipo": "REFORMA",
+          "decretos": [
+            "200-2018",
+            "2-2019"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "304",
+      "sha256": "628ae99b566403376a4285d7eff1ba97ed247bd23858a04e48bf8cc095232d83",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "305",
+      "sha256": "7d68f5d1012c1cfde4918823bc7796befbe3eba810baed2f450f15d0f3cb1091",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "306",
+      "sha256": "0a87833a664d1af62fa45e32b25f89b6e2d3ea9e13f9cb8f950463b5724840a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "307",
+      "sha256": "9c72c1b527cc8860bcef12f11a1041784807632e66fd95119a913dfda1481223",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "308",
+      "sha256": "a2b7c1a3d9e22bb876285c4a937ed9f8f8d45ab566bed2d7f29d8396e0daa6ff",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "309",
+      "sha256": "d8ee01f9f80647d1230ce176b5ca6cfcc85374ab902fe32040d6542ff0fd0f24",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 108,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        },
+        {
+          "nota": 109,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "10-90"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "310",
+      "sha256": "00224350063e8144370e42fdf968ae0c5ae934a6df6f02abc47f710faef62784",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "311",
+      "sha256": "b384ec8a52baca0952b679bf4dd1aa992c2ce3fe86037f8000600979d648e04a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "312",
+      "sha256": "8037d31e3b4801c6cee642ce77aad5c1aacafd99da1d89d965b87703b2ac760c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "313",
+      "sha256": "d7a8c8d1f1ee9d386be556faed98e9587e6ede04dae168f986d7f98733f7cb42",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 110,
+          "tipo": "REFORMA",
+          "decretos": [
+            "282-2010",
+            "5-2011"
+          ]
+        },
+        {
+          "nota": 111,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        },
+        {
+          "nota": 112,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "275-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "314",
+      "sha256": "66f1aca2ec22d93cf2f00400624df4a3fa83931588ba9479981677db5db8de7a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "315",
+      "sha256": "58d73ea28050dacc25d48a81bdef94b8203444d773f743eb833be0adcbfa5b83",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "316",
+      "sha256": "4edcabc7e26c53164671e22c8a71916722ac5dd32bb62f3e829d38cd310c2e61",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 113,
+          "tipo": "REFORMA",
+          "decretos": [
+            "237-2012",
+            "10-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "317",
+      "sha256": "f39a998d4185326882f98b35ffe7502e4bc0ab49d860cd173e2fbd2f71329f85",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 114,
+          "tipo": "REFORMA",
+          "decretos": [
+            "282-2010",
+            "5-2011"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "318",
+      "sha256": "89b276b94ed7259c32790b6e9c4baf059306b77daf69eb9f480be11dc25e97e5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "319",
+      "sha256": "a58f46ac965cafd1272185c1614d8f2fab0bb9b6795ef6868027edefdae6b281",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "320",
+      "sha256": "166f4f409d5638c88e23ec56350808ae57f526eecd0cccf20e3493ceb47a2c37",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "321",
+      "sha256": "88893d051c60fb72b56bd5cfd48a912e64c9fc1dcbd5707ea73a68cb2d5102bc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "322",
+      "sha256": "c6b79b8d7d407cdd513c1c5617e84a564c5c9f418b233e8deeeed4018d86c7e6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "323",
+      "sha256": "31b0b4794c8f31bff5e50766cf956a802f984faf8c4a25a14ac373227a308293",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "324",
+      "sha256": "95d61839738d337be8979bcdfcc4f4ed42f666664c2afc965f4b4468d84a5c8d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "325",
+      "sha256": "ce5fcf6b3bb33ebd87a693a6240fb622a0c7ffbd5f77e68e28ae60362ddb0ac8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "326",
+      "sha256": "c5c45ba4609a5eac2da42e30d8b5600c02da90fba52789ea936074733d788c38",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "327",
+      "sha256": "1a8f5bf8e9363f98cd918c4af353544c160e18c3ac868f28af0c54dcf98de1c5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "328",
+      "sha256": "0da2071da151c59ae7abf644e3df014ccf9b20e707de302855eec3296779c129",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "329",
+      "sha256": "685cdcacde0d3659a575596fc9413ab882f81f97bf4acc7f007a8d8ca98d3aa0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 115,
+          "tipo": "REFORMA",
+          "decretos": [
+            "236-2012",
+            "9-2013"
+          ]
+        },
+        {
+          "nota": 116,
+          "tipo": "REFORMA",
+          "decretos": [
+            "283-2013"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "330",
+      "sha256": "b99bcb59af5852eeabaf1f8f99cedb8380aa5258828f1075e44d75bb47b2a678",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "331",
+      "sha256": "24280efc1a13008aeaea14a74bff6d6ca3cc74069db2e944d6791ae2bf280d79",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "332",
+      "sha256": "05c364958c41420c99736a325de786e36a443d336a06631512c3c8e242beba9c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "333",
+      "sha256": "e912fac218efdffa9ec1f576d2434ce37618bff3071e7f207999d5cc9c2be86d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "334",
+      "sha256": "f2b4d81da23424064c319a6307b2aaef10248b7ba1304c795fa4efd851d9c231",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "335",
+      "sha256": "4e87da1f37f8a1bd7283987dd37bf14342534b651f7eaa24e2497f35a2e17258",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "336",
+      "sha256": "e0b40b5965ec58b74683fb973cb9ff0385c7d8f26396705b6a53ce94191a7bc6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "337",
+      "sha256": "df6bf22489577e5ac1b2ffa6599b3bac52825b8758a81a600afb8f1c96962fe0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "338",
+      "sha256": "c34c6d37369868d3659279e0e9232d0cfbec89ce0d68b8358efb84866fe3f35b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "339",
+      "sha256": "c50be67e135eb652bfbeb28abac2c401a468acbbd8bd344ad20750ab8e1a88bd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "340",
+      "sha256": "d307e0a4f1403706048e5a3ab432395a3de63fbe823b08a4f542fd550dbc909b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "341",
+      "sha256": "6457e903b782ccd4604a3b402cbf0da2b2329d71eb140cfe2eb30c4178e22f91",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "342",
+      "sha256": "99d3dadceab9169640bf241320d9573f235baa3a317bb1a4929d10af1610f4a1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "343",
+      "sha256": "7ff691626123bd734b47db32081f9abd14ae118ba29df86dd78f8fb3805355c6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "344",
+      "sha256": "478a9ae3962b65672021d44003bad7649bdf2839b4ca1a55cd2d3285daf3d594",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "345",
+      "sha256": "01fe56ad96e29d97899da74f8b5c1c4676d50ca4416a2b3919b1a30ada7efdcf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "346",
+      "sha256": "b542117557071d7ab5676914312c2e3a14e8d218260f0c551ab7ad723595cc3a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "347",
+      "sha256": "c1e6dcab83bcfd11cc1603d051656cbd4ff489126e4a9871d0231fa53b928781",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "348",
+      "sha256": "b00bcb82d2bb61ab7133d24bdd14228592e789ff7e04fb64b0dd106c790d4d8a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "349",
+      "sha256": "8387264b77d694120ec8ef92213316c3b688cc4349bc370b528a4e70f9a35aa8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "350",
+      "sha256": "c970f70eeffd42ad5ffc49f267ddb1ab9dec88ca0d636636d27318ed9721a2dc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "351",
+      "sha256": "f4038c329c06cb0e0b6a5ba410f2224f0ad3fb1f962cfc27adfb8c1d41660531",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "352",
+      "sha256": "c738941306714ec174506927280d61c744e55b823ca2f75d7b09f48fdb644569",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "353",
+      "sha256": "cb4a6d9477d8e37272db8b756984c86508e8fde34f059e1a717e5937ec907de8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "354",
+      "sha256": "c18d3e917fb4ce78b438d3f5e092b5c377358816115635ad6e35964587f005e9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "355",
+      "sha256": "4c7b3109d2e9858fc85b6146a0e54a70276b483ddc21906a2371be41d7f2392d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "356",
+      "sha256": "9e6dcb2cc112fbe1fca90862e9dd0ef47fa35b0b477bb5a4898635c924235779",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "357",
+      "sha256": "f1acd9f765c8d0a0224a34d3870c1d42559657cc52342586a407b888a2480aa7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "358",
+      "sha256": "ebac76b3b67a63857df37e5b1b2420c02e77780354926ebc1f69d70dc9205c8f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "359",
+      "sha256": "5c525629c0e140f2480e5e19a9b874328f34522b1380c80542823597e741e1e4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "360",
+      "sha256": "4e302360179e248ed1672ec3ea9397732f0ed57bc96531e62f49e6155e20403d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "361",
+      "sha256": "68109045c2e056f60d109ef22bf193ff9a648250d39f41244e833adb954dc53b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "362",
+      "sha256": "a81db93f42a6c9761529f8536c29f98c2a94a37b38e67cb372557f5bdbe4c966",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "363",
+      "sha256": "69b54a361547d63ad028560266861e95c196190c25bcb196b85a2ea4ae74c95d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "364",
+      "sha256": "e131a16239b55cc866282be8434c4344c69552814bd49f2e72fd3f4f2cfe9b74",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "365",
+      "sha256": "761fa80748d3a29e6a9303a7f5ebfaf4f653dbff259bf44f4bdf26573fda1280",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 117,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "366",
+      "sha256": "9affebbbc2370efa3cea8052938683ca46f08815536ccd15d5a47029b793d16e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "367",
+      "sha256": "58e7bde504b57ad6b3dde315787367c5ae0bcf2a0b6a8b04e3ef9ef40097b200",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "368",
+      "sha256": "ac35c515320cd5b4b1c4f9d8f89f832372d20c89655ecd47ccce1f5838e26691",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "369",
+      "sha256": "ea80d26228412e72fe1607720eeb4926a60b75bfed56db720f1414a8af194f1a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "370",
+      "sha256": "82ae0c99685fbe507ce253c745b8e6d7b7ae6bbbcd5f3eba6efccfda805740e7",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO por D.268-2002 según la edición CEDIJ; cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 118,
+          "tipo": "DEROGACION_TOTAL",
+          "decretos": [
+            "268-2002",
+            "2-2002"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "371",
+      "sha256": "08973b146d18ed742a9f7b25d1eeb879d30cdb616ee5fc080be419a658683cc5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "372",
+      "sha256": "fd3042aee7e497bb5385d3e557530c65ea6e3cd9b9f21035408f667c84137101",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "373",
+      "sha256": "ecc759a01050777484ca8213607e9369b1e833039a1a14a82e0e82bee2fcca86",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 119,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "374",
+      "sha256": "9334e6ab8f0d664f83b744bd8f314a0208aa9d70684f832c731c728c26afe468",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 120,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "169-86"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "375",
+      "sha256": "8f79044df2eaf2f1448d3d51f01008cff5304bdbca8ac1f57143123185ff1b43",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "376",
+      "sha256": "0fb46851209ba0c7df37bad8dda442ac8e8547e4237362bbbe85138fce8a5e5f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "377",
+      "sha256": "82ae0c99685fbe507ce253c745b8e6d7b7ae6bbbcd5f3eba6efccfda805740e7",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO por D.262-2000 según la edición CEDIJ; cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 121,
+          "tipo": "DEROGACION_TOTAL",
+          "decretos": [
+            "262-2000",
+            "38-2001"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "378",
+      "sha256": "5b2655b5ef18ee0562e60e346b4bc075519818ee7429a20093e20e7abb373174",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "379",
+      "sha256": "9040b78d0e5584f02d9e8b978e44768cd05af525af2ac00ce2457302f4a67caf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    }
+  ]
+}
