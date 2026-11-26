@@ -193,3 +193,27 @@ Contexto de staging: 954 filas en total = 728 visibles + 226 ocultas, que son ex
 Contexto de staging: 954 filas en total, todas visibles (0 ocultas).
 
 **Precondición de producción:** se cumple. El lote queda apto para P0–P3 con el mismo paquete (huellas de §7).
+
+## 11. Cierre en producción (pasos P0–P3)
+
+**Lectura de verificación (2026-11-26, solo lectura, producción `thgrhueckkjdutjvcufp`), después de que el CLO corriera `ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3`. Resultado: conforme. `OLA13_RLMUN_1993_01` queda cerrada en V5.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Estado previo (antes de P0) | 91,937 filas / 12,705 visibles / 7,733 V5; ninguna fila ni respaldo del Reglamento | idéntico | ✔ |
+| Filas del lote | 226 | 226 (226 `num_articulo_norm` distintos); ninguna con número 26 ni 219 (D5) | ✔ |
+| Visibles en V5 | 226 | 226 | ✔ |
+| PRIMARY vigentes (`es_norma_vigente = true`, sin `rol`) | 226 | 226; 0 con `rol` o `clasificacion_propuesta` | ✔ |
+| `motivo_rol` / `adjudicacion` | únicos | «PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)» / «EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md (D1–D8)» | ✔ |
+| Identidad | única | `REGLAMENTO_LEY_MUNICIPALIDADES` / `HN:REGLAMENTO_LEY_MUNICIPALIDADES` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS` | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 226 | 226 | ✔ |
+| Huella del lote | `af3ca3b3f42d8566eacfdcbec4f8878d` | idéntica a staging y a `rows.jsonl` | ✔ |
+| Embeddings | 226 de 384D, sumas 12.5105 / 13.8660 | iguales a staging | ✔ |
+| Totales de producción | 92,163 / 12,931 / 7,959 V5 | 92,163 filas / 12,931 visibles / 7,959 V5 (+226 en cada cifra) | ✔ |
+| Ley de Municipalidades | intacta | 162 filas, 162 visibles en V5; 0 huellas comunes con el Reglamento | ✔ |
+| Respaldo de P0 | creado vacío, con RLS y sin privilegios públicos | `biblioteca_vectores_ola13_rlmun_1993_01_backup`: 0 filas, RLS activo, 0 privilegios para `anon`/`authenticated` | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('REGLAMENTO_LEY_MUNICIPALIDADES', …)` | art. 25 → 1; art. 219 → 0 | 1 y 0 | ✔ |
+| `buscar_biblioteca_v3` con el embedding del art. 25 | el propio artículo primero | art. 25 del Reglamento con similitud 1.0000 | ✔ |
+
+**Pendiente autorizado por D8:** el PR de código que retira `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` (hasta entonces la aplicación trata el Reglamento como contexto) y añade el lote a `verificar-firmadas.ts`.
