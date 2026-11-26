@@ -150,4 +150,24 @@ Después de S3, Claude Code verifica staging en solo lectura antes de S4; despu�
 
 ## 9. Auditoría de staging (pasos S1–S3)
 
-*Pendiente: se completa con la lectura de verificación de Claude Code después de que el CLO corra S1–S3.*
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 1 -HastaPaso 3` (226 filas cargadas ocultas). Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Huellas SHA-256 en disco de S1–S4, P0–P3 y R | §7 | 9 de 9 idénticas | ✔ |
+| Filas del lote `OLA13_RLMUN_1993_01` | 226 | 226 (226 `id` y 226 `num_articulo_norm` distintos); ninguna con número 26 ni 219 (D5) | ✔ |
+| Ocultas (`revision_pendiente = true`) | 226 | 226; ninguna otra fila oculta en staging | ✔ |
+| `es_norma_vigente` | `NULL` hasta V4 | 226 `NULL` | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 226 | 226 | ✔ |
+| Huella del lote (md5 de `id\|hash_contenido`, orden C) frente a `rows.jsonl` | `af3ca3b3f42d8566eacfdcbec4f8878d` | idéntica | ✔ |
+| Embeddings | 226 de 384D | 226 de 384D; las sumas de control de la 1.ª y la 384.ª componente (12.5105 y 13.8660) coinciden con S2 | ✔ |
+| `instrumento_id` / `norm_id` / jurisdicción / colección / materia / fuente | únicos | `REGLAMENTO_LEY_MUNICIPALIDADES` / `HN:REGLAMENTO_LEY_MUNICIPALIDADES` / `HN` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS` / «Reglamento General de la Ley de Municipalidades de Honduras (Acuerdo No. 018-93)» | ✔ |
+| Clasificación propuesta | 226 VIGENTE, 0 CONTEXT | 226 PRIMARY propuestos; sin `estado_v` ni `rol` todavía (los asigna S4) | ✔ |
+| Constancias | 0 | 0 | ✔ |
+| Correcciones de §1 | aplicadas | el art. 25 contiene «Son causales de suspensión: … d)…» (D5); el art. 218 termina en «…y sus fundamentos.», sin la nota editorial del 219; la `ubicacion` del art. 8 es «TITULO II / CAPITULO I / De la Municipalidad»; sin residuos en ningún artículo | ✔ |
+| Separación de la Ley | 0 | 0 ids y 0 huellas comunes con `OLA13_LMUN_2009_01`, cuyas 162 filas siguen intactas (V4 y visibles) | ✔ |
+| Las RPC no exponen el lote oculto | 0 | `buscar_biblioteca_v3` y `resolver_articulo_exacto` (md5 `4392a97a…` / `37735385…`): 0 filas del Reglamento | ✔ |
+
+Contexto de staging: 954 filas en total = 728 visibles + 226 ocultas, que son exactamente las de este lote.
+
+**Precondición de S4:** se cumple (226 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
