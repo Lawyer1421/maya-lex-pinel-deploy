@@ -1,6 +1,6 @@
 # Dictamen R1 · Sincronización de las RPC de producción con el repositorio
 
-**Estado:** PENDIENTE DE FIRMA
+**Estado:** R1 FIRMADA
 **Fecha:** 2026-11-25 · **Destinos:** staging `aicakncgtuiiuomflkqj` (validación) y producción `thgrhueckkjdutjvcufp`
 
 > **Cómo se firma.** Para firmar, el CLO sustituye en la línea **Estado** el texto `PENDIENTE DE FIRMA` por la fórmula R1 y la palabra FIRMADA, y completa el bloque de firma de §6. El ejecutor (`scripts/olas/ejecutar-sql.ts`) lee la firma solo en esa línea y exige que este dictamen cite la huella completa de la migración (§5).
@@ -75,10 +75,50 @@ El ensayo detectó que, tras el rollback (00a en LF), la primera versión de la 
 4. **Producción:** `pwsh -File docs\corpus\fase2\rpc-sync\ejecutar_prod.ps1`, con la frase `SINCRONIZAR RPC EN PROD`.
 5. **Verificación final en solo lectura** en producción.
 
+## 5 bis. Validación en staging (antes de firmar)
+
+Estado de staging antes de la migración (solo lectura, 2026-11-25): `resolver_articulo_exacto` en `37735385…` (repo, LF) y `buscar_biblioteca_v3` en `df4381e8…` (repo, CRLF).
+
+**Criterios para firmar**, comprobados en solo lectura por Claude Code después de `ejecutar_staging.ps1`:
+1. md5 de `prosrc`: `resolver_articulo_exacto` = `3773538539da7da81472ab8f9fd9cee5` y `buscar_biblioteca_v3` = `4392a97aebc5ae90860a8ed2caa8124e`, idénticos al cuerpo de `supabase/migrations/` en LF;
+2. `pg_get_functiondef` sin diferencias de comportamiento frente al repositorio;
+3. llamada con `jurisdiccion_filtro = 'XX'`: error `22023` con el texto «jurisdiccion_filtro **inválida**»;
+4. `EXECUTE` solo para `postgres` y `service_role`.
+
+**Resultado (2026-11-26, solo lectura, después de `ejecutar_staging.ps1` → «OK: RPC sincronizadas en STAGING.»): los 4 criterios se cumplen.**
+
+| # | Criterio | Observado en staging | |
+|---|---|---|---|
+| 1 | md5 de `prosrc` | `resolver_articulo_exacto` = `3773538539da7da81472ab8f9fd9cee5`; `buscar_biblioteca_v3` = `4392a97aebc5ae90860a8ed2caa8124e`; ninguno con CR | ✔ |
+| 2 | `pg_get_functiondef` frente al repositorio | md5 `c459b76836dfa2de7efe662072a6bd93` y `ffe0e372aa27b0eb5129a9c9640c97be`, **idénticos byte a byte** a `repo_resolver_articulo_exacto.sql` y `repo_buscar_biblioteca_v3.sql` (en LF). Firma, `STABLE`, `SECURITY INVOKER` y `search_path` sin cambios | ✔ |
+| 3 | Llamada con `jurisdiccion_filtro = 'XX'` | `SQLSTATE 22023`: «buscar_biblioteca_v3: jurisdiccion_filtro **inválida**: 'XX'» | ✔ |
+| 4 | Privilegios | ACL de ambas: `{postgres=X/postgres,service_role=X/postgres}`; `has_function_privilege` = falso para `anon` y `authenticated`, verdadero para `service_role` | ✔ |
+
+Observaciones:
+- el ejecutor no registra la migración en `supabase_migrations.schema_migrations`, por diseño; el historial de staging sigue terminando en `20261112175334`, y se mantiene la advertencia de §3 sobre `db push`;
+- tras la sincronización, las dos RPC siguen excluyendo las filas ocultas: `resolver_articulo_exacto('LEY_PROCEDIMIENTO_ADMINISTRATIVO','1')` y `buscar_biblioteca_v3` no devuelven ninguna fila de la OLA 13, que sigue con `revision_pendiente = true`;
+- **hallazgo ajeno a R1, corregido por autorización del CLO (2026-11-26):** en staging, `public.biblioteca_vectores_v5_20261121_backup` conservaba `TRUNCATE`, `REFERENCES`, `TRIGGER` y `MAINTAIN` (`Dxtm`) para `anon` y `authenticated`. `TRUNCATE` no está sujeto a RLS. Se ejecutó `REVOKE ALL … FROM anon, authenticated`, en una transacción con guardas sobre la ACL previa y la resultante. La ACL quedó en `{postgres=arwdDxtm/postgres,service_role=Dxtm/postgres}`, idéntica a la de producción, donde los 15 respaldos `biblioteca_vectores_*_backup` ya tienen RLS y no conceden privilegios a `anon`/`authenticated`. Reversión, si se pidiera: `GRANT TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON public.biblioteca_vectores_v5_20261121_backup TO anon, authenticated;`.
+
+**Dictamen:** R1 queda apta para firma. La huella que autoriza producción es la de §5: `9632b97cc90f7cf7df88c9fa716693083add95eedcf6c44a7bf2fa09399eb8b6`, verificada de nuevo en el disco el 2026-11-26.
+
 ## 6. Decisión del CLO
 
 | # | Decisión | Decisión del CLO |
 |---|---|---|
-| R1 | Adoptar la opción A y ejecutar la migración en staging y luego en producción, exactamente con la huella de §5 | ☐ |
+| R1 | Adoptar la opción A y ejecutar la migración en staging y luego en producción, exactamente con la huella de §5 | ☑ **Aprobada** por el CLO (2026-11-26) |
 
-Firma: ____________________ · Abg. y Not. Fredy Omar Pinel Flores (CLO / Director Maya Lex) · Fecha: __________
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** (CLO / Director Maya Lex) · Fecha: **2026-11-26** · *Registrada por Claude Code por orden expresa del CLO, tras aprobar la validación en staging (§5 bis).*
+
+## 7. Cierre: verificación en producción
+
+**Lectura de verificación (2026-11-26, solo lectura, producción `thgrhueckkjdutjvcufp`), después de que el CLO corriera `ejecutar_prod.ps1`. Resultado: conforme. R1 cerrada.**
+
+| Criterio | Observado en producción | |
+|---|---|---|
+| md5 de `prosrc` | `resolver_articulo_exacto` = `3773538539da7da81472ab8f9fd9cee5`; `buscar_biblioteca_v3` = `4392a97aebc5ae90860a8ed2caa8124e`; sin CR | ✔ |
+| `pg_get_functiondef` | `c459b768…` y `ffe0e372…`, idénticos byte a byte al repositorio y a staging | ✔ |
+| Mensaje de error | el cuerpo contiene «jurisdiccion_filtro **inválida**» (cuerpo idéntico al validado en staging con `22023`) | ✔ |
+| Privilegios | ACL de ambas: `{postgres=X/postgres,service_role=X/postgres}` | ✔ |
+| Funcionamiento | búsqueda semántica y resolución exacta correctas sobre los lotes de la OLA 13 (ver §11 de cada expediente) | ✔ |
+
+Producción y staging tienen ya las mismas RPC que `supabase/migrations/`. El historial de migraciones de producción sigue sin registrar `20261125000000`, como se previó en §3: sigue prohibido `supabase db push` contra producción.

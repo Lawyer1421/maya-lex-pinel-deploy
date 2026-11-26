@@ -1,6 +1,6 @@
 # Expediente de auditoría · OLA 13 · lote 1 · `HN:LEY_PROCEDIMIENTO_ADMINISTRATIVO`
 
-**Estado:** PENDIENTE DE FIRMA
+**Estado:** D1–D8 FIRMADAS
 **Instrumento:** Ley de Procedimiento Administrativo (Decreto No. 152-87, La Gaceta No. 25,391 del 1-dic-1987) · lote `OLA13_LPA_2014_01`
 **Fecha del paquete:** 2026-11-25 · **Generador:** `scripts/olas/ola13-lpa.ts` + `scripts/olas/cedij.ts` + `scripts/olas/paquete-ola.ts`
 **Staging:** `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) · **Producción:** `thgrhueckkjdutjvcufp`
@@ -64,16 +64,18 @@
 
 | # | Decisión propuesta | Decisión del CLO |
 |---|---|---|
-| D1 | Fuente PRIMARY: edición CEDIJ para el texto base y La Gaceta 33,336 para los 9 artículos reformados por el D.266-2013, con las reservas 5.1 y 5.2 | ☐ |
-| D2 | Aceptar la extracción, la integración de las 9 reformas del D.266-2013 y la corrección de la nota 5 (art. 154) | ☐ |
-| D3 | Firma del texto consolidado de 156 artículos (huella en §7) | ☐ |
-| D4 | Vigencia: 156 `true`; el D.266-2013 no deroga ningún artículo de la LPA (§2); derogaciones tácitas, según la reserva 5.4 | ☐ |
-| D5 | Materia `10_LEYES_REGLAMENTOS` (o la que indique el CLO; cambiarla obliga a regenerar) | ☐ |
-| D6 | Constancias por fila (16; ver `constancias.csv`) | ☐ |
-| D7 | Sin legacy que ocultar | ☐ |
-| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7 | ☐ |
+| D1 | Fuente PRIMARY: edición CEDIJ para el texto base y La Gaceta 33,336 para los 9 artículos reformados por el D.266-2013, con las reservas 5.1 y 5.2 | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D2 | Aceptar la extracción, la integración de las 9 reformas del D.266-2013 y la corrección de la nota 5 (art. 154) | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D3 | Firma del texto consolidado de 156 artículos (huella en §7) | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D4 | Vigencia: 156 `true`; el D.266-2013 no deroga ningún artículo de la LPA (§2); derogaciones tácitas, según la reserva 5.4 | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D5 | Materia `10_LEYES_REGLAMENTOS` (o la que indique el CLO; cambiarla obliga a regenerar) | ☑ **Aprobada** por el CLO (2026-11-25), junto con las reservas de §5 |
+| D6 | Constancias por fila (16; ver `constancias.csv`) | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D7 | Sin legacy que ocultar | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7 | ☑ **Aprobada** por el CLO (2026-11-26) |
 
-Firma: ____________________ · Abg. y Not. Fredy Omar Pinel Flores (CLO / Director Maya Lex) · Fecha: __________
+*Aprobación parcial (2026-11-25).* El CLO aprobó D5 y las reservas documentadas, y autorizó los pasos S1–S3 en staging. D1–D4 y D6–D8 quedan para la firma, después de la auditoría de staging (§9).
+
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** (CLO / Director Maya Lex) · Fecha: **2026-11-26** · *Registrada por Claude Code por orden expresa del CLO, tras aprobar la auditoría de staging (§9).*
 
 ## 7. Paquete SQL y huellas (lo que autoriza D8)
 
@@ -111,3 +113,47 @@ pwsh -File out\ola13-lpa\ejecutar_prod.ps1
 ```
 
 Después de S3, Claude Code verifica staging en solo lectura antes de S4; después de P3, verifica producción en solo lectura.
+
+## 9. Auditoría de staging (pasos S1–S3)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 1 -HastaPaso 3` (156 filas cargadas ocultas). Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Huellas SHA-256 en disco de S1–S4, P0–P3 y R | §7 | 9 de 9 idénticas | ✔ |
+| Filas del lote `OLA13_LPA_2014_01` | 156 | 156 (156 `id` y 156 `num_articulo_norm` distintos) | ✔ |
+| Ocultas (`revision_pendiente = true`) | 156 | 156; **0** filas de la OLA 13 visibles | ✔ |
+| `es_norma_vigente` | `NULL` hasta V4 | 156 `NULL` | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 156 | 156 | ✔ |
+| Huella del lote (md5 de `id\|hash_contenido`, orden C) frente a `rows.jsonl` | `d0f8d66a9a23b3e1a262215ea0eace6a` | idéntica | ✔ |
+| Embeddings | 156 de 384D | 156 de 384D; las sumas de control de la 1.ª y la 384.ª componente (7.9283 y 9.0611) coinciden con S2 | ✔ |
+| `instrumento_id` / `norm_id` / jurisdicción / colección / materia | únicos | `LEY_PROCEDIMIENTO_ADMINISTRATIVO` / `HN:LEY_PROCEDIMIENTO_ADMINISTRATIVO` / `HN` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS` | ✔ |
+| Clasificación propuesta | 156 VIGENTE, 0 CONTEXT | 156 / 0; sin `estado_v` ni `rol` todavía (los asigna S4) | ✔ |
+| Constancias en `metadata` | 16 | 16 | ✔ |
+| Legacy u otras filas del mismo instrumento o `norm_id` | 0 | 0 | ✔ |
+| Las RPC no exponen el lote oculto | 0 | `resolver_articulo_exacto` y `buscar_biblioteca_v3`: 0 filas | ✔ |
+
+Contexto de staging: 728 filas en total = 410 visibles + 318 ocultas, que son exactamente las 156 de este lote y las 162 de `OLA13_LMUN_2009_01`.
+
+**Precondición de S4:** se cumple (156 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
+
+## 10. Verificación de V4 en staging (paso S4)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera S4 tras la firma D1–D8. Resultado: conforme.**
+
+- **Visibilidad y clasificación:** 156 de 156 filas visibles y en `V4`; 156 PRIMARY vigentes (`TRUE_PRESUNTA`), 0 CONTEXT y 0 con vigencia `NULL`; `clasificacion_propuesta` retirada; `adjudicacion` = D1–D8 en las 156.
+- **Huellas:** `sha256(contenido) = hash_contenido = article_sha256` en 156 de 156. La huella del lote (`d0f8d66a…`) y las sumas de control de los embeddings (7.9283 / 9.0611) no cambiaron desde S3. Las 16 constancias siguen intactas.
+- **RPC sincronizadas** (md5 `37735385…` / `4392a97a…`): `buscar_biblioteca_v3` devuelve el art. 87 como primer resultado de su propio embedding (similitud 1.0000); `resolver_articulo_exacto` resuelve 29-A (vigente) y 154.
+- **Staging:** 728 filas, todas visibles y ninguna oculta.
+- **Producción, solo lectura antes de P0:** 0 filas del lote, del instrumento o del `norm_id`; no existe el respaldo `biblioteca_vectores_ola13_lpa_2014_01_backup`; las RPC siguen en la variante 00a (`ec9a0d25…` / `96e6ad99…`), estado aceptado por la precondición de R1. Línea base: 91,619 filas, 12,387 visibles y 7,415 V5.
+
+## 11. Cierre: verificación en producción (pasos P0–P3)
+
+**Lectura de verificación (2026-11-26, solo lectura, producción `thgrhueckkjdutjvcufp`), después de que el CLO corriera R1 y `ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3`. Resultado: conforme. Lote cerrado en V5.**
+
+- **Lote:** 156 de 156 filas visibles y en `V5`; 156 PRIMARY vigentes (`TRUE_PRESUNTA`), 0 CONTEXT y 0 con vigencia `NULL`; 156 `num_articulo_norm` distintos; materia `10_LEYES_REGLAMENTOS`.
+- **Huellas:** `sha256(contenido) = hash_contenido = article_sha256` en 156 de 156. La huella del lote (`d0f8d66a9a23b3e1a262215ea0eace6a`) y las sumas de control de los embeddings (7.9283 / 9.0611) son idénticas a las de staging. 16 constancias.
+- **Respaldo P0:** `biblioteca_vectores_ola13_lpa_2014_01_backup` tiene 0 filas (no había legacy) y RLS activo. Su ACL es `{postgres=arwdDxtm/postgres,service_role=Dxtm/postgres}`: ningún privilegio para `anon` ni `authenticated`.
+- **RPC:** `buscar_biblioteca_v3` devuelve el art. 87 como primer resultado de su propio embedding (similitud 1.0000); `resolver_articulo_exacto` resuelve el 29-A (vigente).
+- **Totales de producción:** 91,937 filas (91,619 + 318), 12,705 visibles (12,387 + 318) y 7,733 V5 (7,415 + 318), contando los dos lotes de la OLA 13.
+- **Reversión:** no se ejecutó. `prod/99_reversion_prod.sql` (`c0365931…`) queda disponible solo por orden del CLO.
