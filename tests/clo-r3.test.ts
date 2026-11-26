@@ -281,7 +281,9 @@ describe('A-2b (re-auditoría): R4 — ninguna mención de artículo o instrumen
   });
   it('instrumento mencionado sin ningún fragmento de ese instrumento → abstención; instrumento fuera de la tabla (Ley, Decreto) también', () => {
     expect(mencionesNoValidadas('El Código Penal sanciona el hurto.', [f173])).toContain('INSTRUMENTO_SIN_FRAGMENTO:CODIGO_PENAL');
-    expect(mencionesNoValidadas('La Ley de Municipalidades regula el tema.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    // La Ley de Municipalidades entró al catálogo con la OLA 13 (2026-11-26): ya no es desconocida, pero sin fragmento suyo sigue abstenida.
+    expect(mencionesNoValidadas('La Ley de Inquilinato regula el tema.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('La Ley de Municipalidades regula el tema.', [f173])).toContain('INSTRUMENTO_SIN_FRAGMENTO:LEY_MUNICIPALIDADES');
     expect(mencionesNoValidadas('El Decreto 99-2020 lo regula.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
   });
   it('un nombre completo conocido («Código Procesal Penal») no se confunde con un instrumento desconocido', () => {
@@ -396,7 +398,8 @@ describe('D-1 (auditoría 3): el detector de la ruta D cubre «Arto.», unidades
   });
   it('rutas con corpus: siglas y nombres en minúscula son instrumentos desconocidos', () => {
     expect(mencionesNoValidadas('El D.L. 130-2017 regula la materia.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
-    expect(mencionesNoValidadas('La ley de municipalidades regula la materia.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('La ley de inquilinato regula la materia.', [f173])).toContain('INSTRUMENTO_DESCONOCIDO');
+    expect(mencionesNoValidadas('La ley de municipalidades regula la materia.', [f173])).toContain('INSTRUMENTO_SIN_FRAGMENTO:LEY_MUNICIPALIDADES');
     expect(mencionesNoValidadas('Según el código procesal penal, art. 173, procede.', [f173])).not.toContain('INSTRUMENTO_DESCONOCIDO');
   });
 });
