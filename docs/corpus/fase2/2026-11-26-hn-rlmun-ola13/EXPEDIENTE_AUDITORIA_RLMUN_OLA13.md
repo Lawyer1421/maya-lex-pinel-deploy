@@ -94,10 +94,12 @@ Controles:
 | D2 | Aceptar la extracción por coordenadas, la separación de la Ley (§1) y las correcciones de §1 | ☐ |
 | D3 | Firma del texto consolidado de 226 artículos (huella en §7) | ☐ |
 | D4 | Vigencia: 226 `true` (`TRUE_PRESUNTA`), con la reserva 5.2 | ☐ |
-| D5 | Arts. 26 y 219 sin fila (§4); materia `10_LEYES_REGLAMENTOS` | ☐ |
+| D5 | Arts. 26 y 219 sin fila (§4); materia `10_LEYES_REGLAMENTOS` | ☑ **Aprobada** por el CLO (2026-11-26): no se crean filas sintéticas para el art. 26 (su texto permanece integrado en el art. 25 tal como lo imprime la edición AMHON) ni para el art. 219 (no publicado en La Gaceta); ambas observaciones constan en §4 y en `manifiesto_articulos.json` (`no_impresos`). Total: 226 artículos |
 | D6 | Sin constancias por fila (la edición no anota reformas); los no impresos constan en `manifiesto_articulos.json` | ☐ |
 | D7 | Sin legacy que ocultar; separación de `OLA13_LMUN_2009_01` verificada (§1) | ☐ |
 | D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar el cambio de código que retira `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Hasta ese cambio, la aplicación trata sus filas como CONTEXT aunque estén en V5 | ☐ |
+
+*Aprobación parcial (2026-11-26).* El CLO aprobó D5 en los términos indicados y autorizó los pasos S1–S3 en staging, que no requieren firma. D1–D4 y D6–D8 quedan para la firma, después de la auditoría de staging (§9).
 
 Firma: ____________________ · Abg. y Not. Fredy Omar Pinel Flores (CLO / Director Maya Lex) · Fecha: __________
 
@@ -145,3 +147,7 @@ pwsh -File out\ola13-rlmun\ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3
 ```
 
 Después de S3, Claude Code verifica staging en solo lectura antes de S4; después de P3, verifica producción en solo lectura. Con D8 firmada, el retiro de `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` va en su propio PR.
+
+## 9. Auditoría de staging (pasos S1–S3)
+
+*Pendiente: se completa con la lectura de verificación de Claude Code después de que el CLO corra S1–S3.*
