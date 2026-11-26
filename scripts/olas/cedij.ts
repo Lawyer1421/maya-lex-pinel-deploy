@@ -190,6 +190,14 @@ export interface ParamsCedij {
   marcasEnLinea?: RegExp;
   /** Nombre de la edición en los motivos de clasificación y en `texto_origen` (por omisión «CEDIJ»). */
   edicion?: string;
+  /**
+   * Números que la edición NO imprime y que no se suplen (no hay legacy ni texto oficial disponible): número → motivo verificado en el
+   * PDF. Se excluyen del control de numeración 1..N, se listan en `manifiesto_articulos.json` y el expediente los somete al CLO. Si
+   * la edición sí imprime uno de ellos, falla.
+   */
+  noImpresos?: Readonly<Record<string, string>>;
+  /** Descripción de la fuente en el motivo PRIMARY (por omisión «edición consolidada <edición> con reformas integradas»). */
+  motivoPrimary?: string;
 }
 
 export interface ArticuloCedij { fila: FilaOla; constancias: Constancia[]; correcciones: string[]; ubicacion: string[]; derogadoConTexto: boolean }
@@ -290,7 +298,8 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
     if (nombrado && nombrado !== cae && !nombraVarios && !deOtraLey) problemas.push(`nota ${n.num} nombra el art. ${nombrado} pero su llamada cae en el art. ${notaArt.get(n.num)}`);
   }
   const base = brutos.map((a) => a.numero).filter((n) => /^\d+$/.test(n)).map(Number);
-  const faltan = Array.from({ length: p.ultimoBase }, (_, k) => k + 1).filter((n) => !base.includes(n));
+  for (const n of Object.keys(p.noImpresos ?? {})) if (base.includes(Number(n))) problemas.push(`art. ${n}: declarado no impreso, pero la edición lo imprime`);
+  const faltan = Array.from({ length: p.ultimoBase }, (_, k) => k + 1).filter((n) => !base.includes(n) && !Object.prototype.hasOwnProperty.call(p.noImpresos ?? {}, String(n)));
   if (faltan.length) problemas.push(`faltan artículos base: ${faltan.join(', ')}`);
   // Notas que nombran varios artículos en su cabeza («Artículos 128, 129 y 131 Derogados…», «Artículo 188 y 190.»): su constancia se
   // liga también a cada artículo nombrado, aunque la llamada caiga en uno solo.
@@ -385,7 +394,7 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
     } else {
       const tipos = new Set(constancias.map((c) => c.tipo));
       const anot = tipos.has('DEROGACION_PARCIAL') ? ' (derogación parcial anotada)' : tipos.has('INTERPRETACION_AUTENTICA') ? ' (interpretación auténtica anotada)' : tipos.has('ADICION') ? ' (artículo adicionado)' : tipos.has('REFORMA') ? ' (reforma integrada)' : '';
-      clasificacion = { vigencia: 'VIGENTE', rol: null, motivo: `PRIMARY elegible${anot}: edición consolidada ${ed} con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)` };
+      clasificacion = { vigencia: 'VIGENTE', rol: null, motivo: `PRIMARY elegible${anot}: ${p.motivoPrimary ?? `edición consolidada ${ed} con reformas integradas`}; cotejo íntegro con La Gaceta pendiente (D1)` };
     }
     if (suplidos.has(a.numero)) {
       correcciones.push('TEXTO_DE_LEGACY_NO_IMPRESO_EN_EDICION');
@@ -472,6 +481,7 @@ export async function emitirOlaCedij(p: ParamsCedij & { salida: string; expedien
     texto_sha256: sha256(filas.map((f) => `${f.num_articulo}\n${f.contenido}`).join('\n\n')), notas_al_pie: notas.length,
     conteos: contar(filas), legacy,
     derogados_con_texto: articulos.filter((a) => a.derogadoConTexto).map((a) => a.fila.num_articulo),
+    ...(p.noImpresos ? { no_impresos: p.noImpresos } : {}),
     articulos_detalle: articulos.map((a) => ({
       numero: a.fila.num_articulo, sha256: a.fila.hash_contenido, vigencia: a.fila.clasificacion.vigencia, rol: a.fila.clasificacion.rol ?? 'PRIMARY',
       motivo: a.fila.clasificacion.motivo, constancias: a.constancias.map((c) => ({ nota: c.nota, tipo: c.tipo, decretos: c.decretos })), correcciones: a.correcciones,
