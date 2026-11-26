@@ -1,0 +1,2509 @@
+{
+  "instrumento": "HN:REGLAMENTO_LEY_MUNICIPALIDADES",
+  "ingest_batch": "OLA13_RLMUN_1993_01",
+  "pdf_fuente": "LEY DE MUNICIPALIDADES.pdf",
+  "pdf_sha256": "b711caf62cc5996650e18a4294ed761501b7a9066060dc9555ff34234ec181ee",
+  "texto_sha256": "5d78859178f728cc81b7d04da3b5a95d05d5487ccb92dd43fd7b5fb91ce87d97",
+  "notas_al_pie": 0,
+  "conteos": {
+    "total": 226,
+    "primary": 226,
+    "contextVigente": 0,
+    "contextDerogado": 0,
+    "contextPendiente": 0
+  },
+  "legacy": null,
+  "derogados_con_texto": [],
+  "no_impresos": {
+    "26": "La edición AMHON no imprime el encabezado del art. 26: entre el art. 25 y el art. 27 el texto sigue sin corte («Son causales de suspensión: a)… d)…»), que queda dentro del art. 25 tal como se imprime; cotejo con La Gaceta del 18-feb-1993 pendiente (D1).",
+    "219": "La edición AMHON anota en su lugar: «NOTA: El ARTÍCULO 219 no aparece publicado en el Diario Oficial la Gaceta». La nota se retiró del texto del art. 218."
+  },
+  "articulos_detalle": [
+    {
+      "numero": "1",
+      "sha256": "38d64ffabeb3c8aa66dc1f90fe6bc4455985a9e23abdd7194af3c288c5fc9a9e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "2",
+      "sha256": "b31945bb0d86176dbdc90ee8adf0340e9caa8574c3fe2ca1bc80fd1dd7c30705",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "3",
+      "sha256": "e7c1ae360a7c3139607f7d40cb41ee64b6a0295107fbf75dfe6a193bcf797920",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "4",
+      "sha256": "b3f1dc7d39edaf45031f86f026cde1b14af45af0c1002c902faf4d702daee145",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "5",
+      "sha256": "0412b58c72526b2860dcd0761f59af92c1421af81f09bd47b5811ac8152bb8c1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "6",
+      "sha256": "d7a0559231d044157db4e4f7140263244eb65adcb5e3850c821e7b543b393239",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "7",
+      "sha256": "3fb7d79c34aa5b151571fda622b67d917764ecaa71c65e9828f41af3b20ee834",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "8",
+      "sha256": "368b3f0396afdcdf0f5b34e8937f6c82751bafa81857118071304d338c6c4eef",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "9",
+      "sha256": "e10bf78ccb55f49484827c216c30d37f8fcd0911296d388ece33587d1aa8d593",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "10",
+      "sha256": "dfa555b2fcd085d7933b8bf27cd7eece1b6ef25f3420796871a7447b26216f27",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "11",
+      "sha256": "182ee947c70643f79a9a878482818c8324b230740d4f38c68614a047eb598adf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "12",
+      "sha256": "4bed0d751a382912adf8dd4e7d585cfbd6d6673979755d517c16f58bdf56ac32",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "13",
+      "sha256": "e268f00f7e1ae1bf492220e642ce789337ce109296adf37c3cb72c235b08b9f7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "14",
+      "sha256": "df16251bef9a38d440aaf3ec1d47b7d3244bef8c03d7a5e183a019c42b7ed13a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "15",
+      "sha256": "d74993233aae27e30a72c6e6e9e6bbfe28fb3b23d19ec53e95cee36dd7069eaf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "16",
+      "sha256": "1f1b2d71a14a2e0c059731dfc36280432d2bd559d28cc9701821667686ba813a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "17",
+      "sha256": "1c0ef930d357ea18678e37546b2858bfe2ca7d99a531fde4937e2508d7cb6d99",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "18",
+      "sha256": "abf20e24e706626faf964d1c3b29ff1c7c1ee3ad84a835ea81985db3b336a4f8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "19",
+      "sha256": "a19420a3ad1e7f03397cd09bd0cc8ea8b6048eda9ec9dcad0e1eb40b2e82cfe0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "20",
+      "sha256": "753ecaa87ab075938976c857815057a099bab755b094adb234a93d1977db13e4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "21",
+      "sha256": "ae1522e2601ee0fa496050d5099837ae1e5dd240324d4aa5777e42158c9ba1f9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "22",
+      "sha256": "6acb80c4f6aceafe41e569c77e02fb023ea5066051bed7705359533ff8b19032",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "23",
+      "sha256": "83ab1b4c77426f33e5345c19df06ae7be58ebabac025ded3fb2e7ab2f9132753",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "24",
+      "sha256": "98e8a8ca2ac0efcd1c74f2801b46b830782a5777e9ec9bb525c108aba88f833d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "25",
+      "sha256": "04a32483285cd0f6b3aaf8ca58857eb2eb16a8e0d917b1152b8d668027c8d20b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "27",
+      "sha256": "f42b87335d8b963606b3d786bfce5cb5d42e4b9e25160402965628223e7a35db",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "28",
+      "sha256": "ca33b07c9caba34eb38ed95a8214bb472d4fa8f9219ce3ac0b7772cb77bceb3f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "29",
+      "sha256": "7441533de41b48917595877e2b2894be54e9677f8d6d06ae9cc80de65070abd2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "30",
+      "sha256": "2653da78196a525f374005e1d8df6b76ca00f81ffea13c286b7dd42d5e7ea75e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "31",
+      "sha256": "5d011e0f4a7429f54bf68599d787a5e8414f462a46b6821da06c6700d797ec0c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "32",
+      "sha256": "9f1baa526c2bc6d120986bbad6691c6192a35badc6d093a96c09995940831574",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "33",
+      "sha256": "130137c13cd9beac99de7dc1e6ce4c4cd3145b8166720b0c52dddde50b74deb7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "34",
+      "sha256": "27fa965f59bff1377738d0aaa932c7cca19d28bf28650dee5d441859a78ab310",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "35",
+      "sha256": "5a36969926fad75ccdffd408c8b6e3c687bb3deffd025608000acf30ab06b624",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "36",
+      "sha256": "25231e98ea2f48e872d4920f0dae16a4229dcfa1cd4f56686cec8b7fc457a712",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "37",
+      "sha256": "f456f40b2c08e374c013fd4199524fbe4e3b9fe89c586d78bba1dff2c67f41ba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "38",
+      "sha256": "26ef2d93ece086ebf6dd83208d5390b29b0afaa3bdb3990f6576903262575610",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "39",
+      "sha256": "c8a224f5fb23213e3e1084aa0ca11da67479712f59fdbce6ae19e5ee02063fe4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "40",
+      "sha256": "6db70ceb9ede4211df837ba7c76617c0c6835e484a8a7817894cd4a570c68e9a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "41",
+      "sha256": "741240869d183c511fc44318bf7004a2dcf50e53788187db6830b0ba32a7be2f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "42",
+      "sha256": "0fd57773cdfefc7dd3cd22cae703daee86b304ae20ea609f88cfc03540cce203",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "43",
+      "sha256": "bd5028e3023a7bbc7df234f134f9cdaa471460be4d4767f0513fce3db10448c3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "44",
+      "sha256": "236d66b2680ad1e332b6906e60672da126a85d24f53f977d6ad80b1549947c65",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "45",
+      "sha256": "7248188f5975c7db77f928a6643ba24010a9e61247c67e10d5b25d788e905a4f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "46",
+      "sha256": "558ee88e6b07e3ddf3c56e8f553268e172dc26a547b55cb2cfda82775147aa55",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "47",
+      "sha256": "e1b81469a48b38c427cf305084e1e0547c41720bee3162bded1f419fb0bac768",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "48",
+      "sha256": "30397e0941b582d444d7da5d1afce79d8dbda9742fdbf223ebde10f1f1481d31",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "49",
+      "sha256": "a31aeea1269f6e522dd757e4998a8d49c1c7687382dbc1ebd586de43de870cc8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "50",
+      "sha256": "d3e4ecc70b9cd9d814ca7639db7c3f53478b837810f62abd73fcdf4ffb8ef2cf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "51",
+      "sha256": "6e7ad485fb37d5c309c957b6c253ee32ce7811f21dae3a0085e2b8ff39d0d877",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "52",
+      "sha256": "87cc240bca4773133dc6739fb8d36896b1f73c790882c6b79573433f5b471496",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "53",
+      "sha256": "347803e402119b85e70c788b436c6148f6027afbc66f93663ae360fdc431eea3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "54",
+      "sha256": "e48e335d2796e6d5297cc702073b398c076569f7bbc34b98723a1f2f31187411",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "55",
+      "sha256": "7113c9bc9562b455414a4058b3b1366e30564663be5cae145268c40d96ee8d0a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "56",
+      "sha256": "0560edeaf231124276bddc967367be0c5d4c3783fb08402155b3fe3ca8a505fb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "57",
+      "sha256": "a8aaf5d0845cfdf1a17b77a45179aae8e287c3cfdaa670cf31107c3b76f54dbc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "58",
+      "sha256": "cfc7b0e1dfb365300419e4ae0b443f25771991417c833d452a68d4e365c977e3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "59",
+      "sha256": "e3b905a3a7b9c3bf7243f7dd5b390a7c8d07f1098e17ff29a1e92ff87a570965",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "60",
+      "sha256": "349bc0bf362f490170faaf651855cc19b4017bcf905e5c15397469e665b6b2ad",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "61",
+      "sha256": "0bca06422887d7122b5aa9e62c8ac3e293e9bf9096f9842cc0ecfb2ff1eb99f5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "62",
+      "sha256": "a1e713966f4696cbbd44e197f904d960399d89cd081f51923a51371bc089d3e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "63",
+      "sha256": "d913cabc5e8fcf2c49cd98e9c209578ebbc03f05778ccec53318a5437100d58d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "64",
+      "sha256": "a901f7ada89be3fb65e9b61f5c98335cd45b3ea69cafa82b04eeb8fd91a72462",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "65",
+      "sha256": "124803f271d46bdd19b2409ef5816e579aa4fcb1f07eb69b062852b8f109a874",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "66",
+      "sha256": "8ee22005ca12f2320b29141c38d0c348f13b5fda66e91bf4a7d3a277739dfd79",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "67",
+      "sha256": "adb78d69a4c0463a1e00d4f671a7031ce5330018de097e01bdfbf1cd25f0051a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "68",
+      "sha256": "db68b780686a5154e45db597f59ae49fda54191bab3c89a0de147f56223e93a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "69",
+      "sha256": "2d4461fc99a7c6c71693af08fa16de99fa0461cba2f79dd30ec6f1cf0ede31c8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "70",
+      "sha256": "0347e831005c2d74ecb5fa0d6fd5f52ca2b734e5eeab1794aed747ea3483fd71",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "71",
+      "sha256": "3e402207fdc62a9c4b60b3b37d43d8b047c30b6e7c4398d46e0dcfcf1a6b4917",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "72",
+      "sha256": "05cb82ca2715bc5079163c4555328093be0760aba68b347516b8391551220a94",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "73",
+      "sha256": "22224462e265dc48865d999ac700ab4ea304cbb954d15928138c44f5958b3ec9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "74",
+      "sha256": "b592dceeb8d8db1b71371dcf62ca8132f0b3a732a1b9b72925f42e97479dbdea",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "75",
+      "sha256": "9c94f2a41d7df44d6c426525de40e37b1a8fabaf008dd817b44c12a6714616e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "76",
+      "sha256": "241b8ab75c073c8d591610479f54a81caf115565a7da29bf1af5df435dfdf247",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "77",
+      "sha256": "902b942e3b6dd604a1bd135cc9ae445a5bb6f9cc3748c8652c62beb8fb6d6477",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "78",
+      "sha256": "5dfa78d2ec74e19975d98dc44010afb2bb07b4fbeefe4c991e32a21d29b07570",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "79",
+      "sha256": "1540fe404fd0025fd607783bce9af4695773c6f18783b585f1f027b31a04aa70",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "80",
+      "sha256": "62af1498996022d104790e8ccc1e7a1366148bc4831858617b036241021782ca",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "81",
+      "sha256": "02a20bc800ad6ed4973ca7f4901588652e627cdf167de52af73ab2a46f9718a9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "82",
+      "sha256": "f40f09cf57154b09da9c2d5704db14792964c1fad448502f4222f7c1753ad924",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "83",
+      "sha256": "53a7e38e9b0243c8285af89b1589e4662bd694406f194be137e6066e304ad215",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "84",
+      "sha256": "84922161a1984f492a8945eb619352dfc59ce08897bc846301e27827febce169",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "85",
+      "sha256": "f31235a5cba7caad4b12a10481a05eee0352b41d0d7b9bf1fd8004d90a3289b1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "86",
+      "sha256": "8330bcb08842fe1d88dd9b2bbbb102ef7a7fa46bcea4b0bb1f677b1da0359494",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "87",
+      "sha256": "d0c3e58cdc2798d33e6ba51e39d56de5b7f36dbf6e3c41d89f1d517596ac5a0a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "88",
+      "sha256": "588508130e312a39ce278fbe3ca329e79f48b59398881ac7cf14ad0ca065503f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "89",
+      "sha256": "dd9030ec59e631cecf7a7dc3f108f644c7a2ee3a559f766042a9b315d4063f55",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "90",
+      "sha256": "bb07afa2cd7c11e0bad7963075ed828a87fc0aeb6dbea55663e220643ea72b25",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "91",
+      "sha256": "47bbc8247607f670c756229eedc5000d9856587f1350707257b90285a9e170f9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "92",
+      "sha256": "f9711abf8159d3a36f7787c237f084f80135cef6e48cafd8c10f115f080b170b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "93",
+      "sha256": "042a9a7582bec0e184f1dc3f0f5369879a65ce13b8c5610334497ba60cb0dd94",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "94",
+      "sha256": "7538ce20f0acf1a61ef3fedeb68f2b2447414113a48a98be3d8a018ccc2b381a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "95",
+      "sha256": "56fe87329c0893b7d926617a950a786d6ea78831a4270bbbe0c9b5894325aba7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "96",
+      "sha256": "0940e10a37a6f65d30ca69b126ab5c29ff34bb8d1e7f09a587214b0c97a3d38a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "97",
+      "sha256": "9ad54ac09cdbc6d292ad8167f199974f452ec1b35ea5d573b6b7c38dbd5f05fa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "98",
+      "sha256": "d6b6e0a615a35470109f0cd29cd7f45a8122f8de4a713339c913003ae89370a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "99",
+      "sha256": "2207e2597079d2df259d441042d8eca6ec760b95770f965364832369290c1d11",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "100",
+      "sha256": "667d57d9b53b03e957db7d073efbd442a6c9813eed14a89e5012d0d8448290c6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "101",
+      "sha256": "7aed44bff1373d8607b5845f0c111e55c73fb09fbbaf4d4288a611833d09af2b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "102",
+      "sha256": "62ea7909424b825afc3598f3875be1f8ca0d2184a089c9d0ea5893dbb40a18b1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "103",
+      "sha256": "3cf20463f525b806831ade88825b61121b922609db7cd3c0de133b22d980caa5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "104",
+      "sha256": "307d65127a81c73d08f5f91e5af03177ca0bf98d3043679912c858a481ca11a0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "105",
+      "sha256": "4e383a2dbb27c26a53573f53a742971ecbd34e2e259173012a90008c0a67eda5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "106",
+      "sha256": "389caad9b0b4c95278a85f606c104c6992125efc411172ed59b69e52313c6a34",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "107",
+      "sha256": "c067c1470fa8e691106014c0afced23745813a36c7102b021a75c710162301ef",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "108",
+      "sha256": "035019f0aa8ebee814e7b540d6b670ca0189bdda835fbd06acf321f408bea1f0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "109",
+      "sha256": "2af1d9a027026f5f0455fcf32a914d8570d24d5c63b81640fff7a2c8539b78a7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "110",
+      "sha256": "41ca9fbf7bb0e39c0ba682b06d6fd01278fd3a45483d6011ffbffb614b860bb2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "111",
+      "sha256": "329cb0f5f54f4d5cc8d6205066c7acd06988396c79554f26dceeec7dfcc89fcc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "112",
+      "sha256": "f356f7e5f82052c46dfaa07530d8ee189938dfb924fb584da34d077f5214f4fb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "113",
+      "sha256": "9965558c15700415c99e13cc1a0a4424891e431f26d6983e577d165bb7db0608",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "114",
+      "sha256": "816bf0814c0b74d1ee61a988bf0d9ed15cc10a74b0eab16cb273be55e9cfb1cc",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "115",
+      "sha256": "fb0ca66f6086eb62607783b9f529cea01d676b295010bff4481281e3e89cdf12",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "116",
+      "sha256": "3c69c431ceeac625aff3bedfb0ce939d5a4fee2a039112dc767ca3a4fa83fedb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "117",
+      "sha256": "0b3e438aff9175c3109b31b5bc98aa93d69fde8a9260539a0887585d2473b768",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "118",
+      "sha256": "9c9e169e74d6f7b615209fb0bcf274350fc8f74ba385ea16b8fdac387743bbe6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "119",
+      "sha256": "842fa3440468451ee51947f487043e0e210be7c5863311155bdeae4d681462a7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "120",
+      "sha256": "3b4070dfc19742c4451aec97b5cf4164770711b56578a26a74e8a829dcb36f6c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "121",
+      "sha256": "f7546555f5e8cfa53a3bd01c6d3078d5f7c18bf526c85a38cab276e1843fdfd4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "122",
+      "sha256": "2063c61141b29ec11a67d0a3e5867363508392db9dce007a08954b3fd343286b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "123",
+      "sha256": "902f994214450c8ce256d4083f37667a3c228c6c6aad27f2af4f6702ea6d4129",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "124",
+      "sha256": "719c25c52ba27fbba746b80c8d3227feb8455a306b9ead5da07e4959ea5f9aea",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "125",
+      "sha256": "2023e50bf34b674cf1a22dd4d5a6e121da3e716e3d7a19998ad177ad84c681ac",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "126",
+      "sha256": "357b1f15a9031e652bde96c5ded907b4db57bbcc8a20a8ffa2628bb9cce14161",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "127",
+      "sha256": "3c18be1dfdb52ccfea43f9a2ab4ac4d1c7aecf573fc6a8be18acb42e43e5d021",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "128",
+      "sha256": "43b0a9c79d4108650654022a89cfff317a478713d0209bce5766a5359c8f40f4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "129",
+      "sha256": "468297e74a63401937f20ad211d0e740b5d399cf445f85ec1384272bb9c42282",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "130",
+      "sha256": "a14f24f4b1dcd2da8303012b5483af534daa32fdba73afe612938d6a84675269",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "131",
+      "sha256": "9f0bf57b5e84e3707a56c807bcbddb99ac07f09965df72b104002e76f3048bf4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "132",
+      "sha256": "72486f9c96ae47eebda6bb012913e360f0d7cd21f7a41d327183c94f02a82c68",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "133",
+      "sha256": "1b1f447abb1ce9c9e3c671d743886319c6bf313eb48a0db35b5f3c206b7d90a9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "134",
+      "sha256": "e0a068759ab3d2a057f8b5c6a463ffbaa1239a6dcd85082bcbf850acf14f3778",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "135",
+      "sha256": "5fed509e7a3f715eee5b8f7b3af1e909052f9263f70d2da2e197575ae9f9bac9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "136",
+      "sha256": "30c193bb302a5c861fdb8d92133192476e8beb3f6d8ab91184c08e542b3b00e2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "137",
+      "sha256": "8a92fbf95d82c1b44ff7126502f045074a11e1d53079b687569a6c4d53216249",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "138",
+      "sha256": "c3ba9662fb8944c9e8997e37af8322422e9b439de0d656180efc98c7dcb3d27a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "139",
+      "sha256": "7640c91d05ee58b9c2d9497ac78032e1285982359e25a86f8fe45058eef282d5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "140",
+      "sha256": "6a38a579935e2e85eba986325409885dbf57574f5566cf75a6674835b54a614f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "141",
+      "sha256": "da091c67f28b8d15c9c6b5f0887d7c0d6e5612c26d6315bb80645d8a69750936",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "142",
+      "sha256": "075b4728946b3b28a44133d807c73e33c6db0c3a4d9429c40cc9812f41e38d5a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "143",
+      "sha256": "56f65e388a7f1c9a54e0db7f6f8e0dc0f4d4b7374ef3bc21b720aa443925aab7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "144",
+      "sha256": "ae07e861397188e4ec302908acda4dc8276a6f377c8eae6b415d35405ec0e5b1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "145",
+      "sha256": "c44190cccf1208e5c3dea499191cd28ba99c30a5985414b969e661159bc1bba7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "146",
+      "sha256": "2627d958e8171d6428b5139bd234d4b876aeb44bdd29067552859af320e7d4e1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "147",
+      "sha256": "09c2bb1b0a9053426bcd2f9ebdc59db11a1810d8415f517e7c9b5e6000622e06",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "148",
+      "sha256": "a04756a7142dc842d71ef962f81df796e843744c6be0df28820d83bdaedb4816",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "149",
+      "sha256": "8a71ff87ba6e4c8be932c5b01c461e5c8b85860db605c1e2a5bb0d1ca950cb8c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "150",
+      "sha256": "9492b30a661ad5a2b9d938edd987ba5feb3103f18ae4f896181423776f072d27",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "151",
+      "sha256": "c657de9ffecc905fdaa7de0fc64892c155cec3d47a1b85e6f66c48a714da7663",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "152",
+      "sha256": "3b282e7023f05962c7e4f6a9a7dc17d61be4c9726ca4d68c37e9713d8c5e555d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "153",
+      "sha256": "ff3cae388e62fef12357181ef9bb8c7330d0a58017c277f4aec55aaffd2a1e59",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "154",
+      "sha256": "d921aa70d096f555c79ba651d134d29652f5a2bc8f8572e37b78d50729f45a73",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "155",
+      "sha256": "054f3f3f2f4d41d99009314fa6f68152061103abf9c57a73f45e1b1943bd8ae8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "156",
+      "sha256": "414f6708bee5a41a71f0d28afba65464c0957c68fe5851a763cbeb38bebbfcae",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "157",
+      "sha256": "1a1391d683f1b961b1a8ed9290d86027076511381961b02f164821ec109df92e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "158",
+      "sha256": "a333365ce5732998180aa9c32f4375e6a90e7ad7cfdcec6e3b433636da58b2b8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "159",
+      "sha256": "37181abaa980eeeb2abfe5eec2b2e13a953684bc6367373d8a89045c01a1fcc2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "160",
+      "sha256": "b7f34538c740cee001e3f86db853fa7f22ca33691b3d2e61e1e3b65297538dc2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "161",
+      "sha256": "db451a4dbe5db5db5e18794a9863ea7324d4f70c80cfd428026336dd69cd1a77",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "162",
+      "sha256": "199015a49d11f9c8ed5f01b8adfb13c1443cc89ea44cb3c4202c4d48847dc89e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "163",
+      "sha256": "8d269f825d1b779b605cc49f43dd91fae9c6c4c4630197b051adc35d8f6ac6e5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "164",
+      "sha256": "e969c3263156302426e3ec5d9f9f30f62ffe5fd6a75c08cfd593cb2a04791b18",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "165",
+      "sha256": "cdfa37bd1398372a5a7106a675ec808648aac9cd74090dccfc0654712a89d75b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "166",
+      "sha256": "4ba6e3331c9ce1ebe76f0ac44d898fe795275b05f1a160b8eec1ed95c140e34b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "167",
+      "sha256": "c0a38a081090973eb048bc2949b4e47d3c8ce9cff5618b6faadf79068d2e9549",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "168",
+      "sha256": "8cb8f9848157fc9c4150d6d44acae9834962b89780fae01dc13da4d411cb48db",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "169",
+      "sha256": "73de542123cedd72271b05a0f706cab5ad86ce4c45e877a02f95764f35015eda",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "170",
+      "sha256": "492997236edcf23662f51d4dc5b516fcc03f2b9e256bd60156ca379216d8533f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "171",
+      "sha256": "193a97ea76bcc67ee024599bbf11a1f8a20f11df07859ca5a6b1d3fcf6d6abbe",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "172",
+      "sha256": "d8c567ee3bb35b4a42f485d0693234f77cc02db32ec4851303ac9e3f5c3eb473",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "173",
+      "sha256": "93f86f94db84be48b61dddca3a91b68fb79e3110ebb4a58f67175432dafd5ea3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "174",
+      "sha256": "f7942b200c8423c9df0e04a60a11dd70ce1d95bdb6d8f8884af70387d56f5766",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "175",
+      "sha256": "c4751a3c55843df0009446b74e00639ce4607dc014f175fa87f74c356bf2de09",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "176",
+      "sha256": "dca3b480d63117286f55f2f79d9807cf2458d1ee2a459c678e97cf738355fa86",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "177",
+      "sha256": "2280910c4de797ed61f6fce334a6c7daa1b7d3fc737cb9f8b91c9409223c9034",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "178",
+      "sha256": "3c2faa41dab5e1c3dc30f9ac13bdf4d07a5da017985d113e3434eae56b02b748",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "179",
+      "sha256": "e06e0af9db9ddf19a5cb61d5e46487d11eb44ec357a4bc5791231a84f06b1ccd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "180",
+      "sha256": "e899eeb6db0e774e5ed156cb76564570782527d34e161ac4677b9bd64b58fc35",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "181",
+      "sha256": "711ac5690438b2623e825828acbf7cf1003311186399891689851931a38a9d66",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "182",
+      "sha256": "3145151311123f8d5c266f85fb23c40f30d0a10676f9563be5229c5474cceb01",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "183",
+      "sha256": "d18e50e3f74d60e3f6a9b2d0fbc9f9ef480d8c69f211928eb15d547260802ec4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "184",
+      "sha256": "1b0025a25098b5840e246b15b3c13b447e9c2f2e09ab4836a62f114db8ba6729",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "185",
+      "sha256": "18d16afe78053ceabdb0e9a15df9023475e57abcd0107e5f156d4306f90cb90f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "186",
+      "sha256": "c8463bf38063e037fe4cd75f21ec0a549929bb4e240460755942eed2085a1086",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "187",
+      "sha256": "a2312330263b46183b3eb4ba52c19dbb70e2dbf4a6f8c406b7b5ef99abce1494",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "188",
+      "sha256": "979900e58d5c0fa1a6fd036e0e74049c620a1adb2be65234e23d5b8bb88d2758",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "189",
+      "sha256": "bc14f91ef9abc644c94b5d3312ebbc153af43c6d6fe7406b1b26d0b24a5bdcbf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "190",
+      "sha256": "05f2d917ddd8683d61bc83b293d245ebf56c5d53c9d9fd1de7120c219486124a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "191",
+      "sha256": "225917566e1b5a3e90b2aa184d5c66073e78f08d53dbf828245a4f45cbeffd2c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "192",
+      "sha256": "bf1ec49b10f24dedc47bcd424c769900b4ebda2280443e65082bc37e06d36452",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "193",
+      "sha256": "5e1588fde2d7a8098ab5acc3f86638762ef23b385b51a0cc2a1b5682905f3e69",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "194",
+      "sha256": "3be851b64a70a9c2e8ed81b036f8b764d0cec4b35ff8ca7e2e49643b48baebd3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "195",
+      "sha256": "684348df78de99fcda4a4551a501b5092b5cf81a3e16e523fb474efbed351f6b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "196",
+      "sha256": "1eebe049aaf16e39a66f54347fa5d24bc13663f0035d7f103f4777f7ac2268e9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "197",
+      "sha256": "7390f2febb73fa54d75e6d6ccb46fbc83b44667992f841cda04385cec60c9576",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "198",
+      "sha256": "823127f90250867ff5da095248323d566c14d89bdcf191ac50ec13226ccf7574",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "199",
+      "sha256": "a1b961a096e22b919ff9d26492a0e3fa78eef25b4b673b516637d7503aa916a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "200",
+      "sha256": "1386b7b8ef614f73dc8faf6af3f1c29ba2d86aa7ae419e4570e02e7e9c86a689",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "201",
+      "sha256": "ccf1428e57cbe1e0e7810ee031986d58dea5995549d31f3e2f6f3b7dd1b74099",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "202",
+      "sha256": "1ae88b9a1b904cfef58b20707446ff08c24e38fc8f1f2377c44ea25f0c22dab7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "203",
+      "sha256": "68dff9390c3d81556ef4bd12655375d52e8acef6b52d840c471df85660288b70",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "204",
+      "sha256": "871b777022699cf6563355cd923b894384c4eb9cae2971dea919abaa8740cd36",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "205",
+      "sha256": "93f5d9726b4d94b064d8b36120218abc9602bcddd4adf304ab9cc0b2e4fc5d2a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "206",
+      "sha256": "2897b655573a695fb6133cda7cc5759b23f4f37af7cffa4ef7406bb8d8898bec",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "207",
+      "sha256": "fea96a404bd195c06ad7a65aedf8721a2ff4874b8fd1d4b20553508eaca3cc7c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "208",
+      "sha256": "1ccf53ee99e7740ea6be0062ed114724a7626dea022ab9c6ecca4d09e03e0df3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "209",
+      "sha256": "bf27119a2fcc4db9e95b74554f1c0f1a407e5950611e0d474793d63ba73a6d49",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "210",
+      "sha256": "579c38e4db27c446e565826f7b0f252b784c357d1915a844349f2bc3ef7643b5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "211",
+      "sha256": "174ce699a1be36565558aa7cf1b7e52daff0e1bb0fe52c3cd8bc77286c75db0f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "212",
+      "sha256": "5d8075314a6c4e2d10f91f03a5d03e52cca632ce06143bfa9dff64944ea19bb5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "213",
+      "sha256": "f029901d7e6db4b2f414fbb1d1dc4b698456d420df58a7e902847cf17c779cc5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "214",
+      "sha256": "0477e3ed17069e70b2bc29a3542c55523d75cd3f438d414e79f3e07267409646",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "215",
+      "sha256": "a22e0d48bf6f84ab22df831179b6602f64ab8638e10363fca923d198a812b37e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "216",
+      "sha256": "c04e54d6d63b0cd2e29882693865d986ecd14cc7033b3f1dd2fb6ed7abfb1f98",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "217",
+      "sha256": "ad977ec27e69ff99b0964baa6c75604636f871aef91438da8e49f44424a7b995",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "218",
+      "sha256": "7634a098578b31b8ebf3ebfed108871fcac3258d077a790ce854bb1f89eaf3eb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "220",
+      "sha256": "d9f3387a1cbe5a1d9ef103c14967e9a25aeeb1e921b7286190f1bde296ebe40a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "221",
+      "sha256": "f1b902dffdf396ff666cdeaa80d216219e9dc416c3151926447b933faa890221",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "222",
+      "sha256": "50f9d6a69994fd67820ec01298b7ef8fe97b4ee280b1917c58459c847c017303",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "223",
+      "sha256": "889c8d234af92b0c8a98c9b165caa599f31de70cc90654ab08ebbe683bfe2027",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "224",
+      "sha256": "a5effb53606df10883c8fa3357937a1f37495f2c58888508a6d6b5f76cbf7921",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "225",
+      "sha256": "268f3b16313d031cf2f2657d0573e589d235a1b9029803d2bf8dc63e72dd6018",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "226",
+      "sha256": "f28f91a90fee475df00dee5efcbe57e3be7812a13b137ab58695602ee8ca7fdf",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "227",
+      "sha256": "f61d1eb4532e8db23b2e35700cd4c08edd04032e01f4bba4256e15514fa3d0a8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "228",
+      "sha256": "057eaf805a39a3add89b3046b25bc7a6e84ec2635d5007e2be0a0f309457d8a9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    }
+  ]
+}

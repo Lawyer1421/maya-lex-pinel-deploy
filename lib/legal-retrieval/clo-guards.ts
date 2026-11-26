@@ -31,14 +31,25 @@ import { esJurisdiccionV3, parsearInstrumentRef, refCoincideConJurisdiccion, typ
 export type RolEvidencia = 'PRIMARY' | 'CONTEXT';
 export type TipoFuenteClo = 'NORMA' | 'JURISPRUDENCIA' | 'DOCTRINA' | 'PRACTICA_NOTARIAL' | 'DOCUMENTAL';
 
-/** Identificadores de instrumento: los del Exact Resolver más dos instrumentos presentes en el corpus que el resolver no modela. */
-export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 'DECRETO_77_2006';
+/**
+ * Leyes de las olas V5 firmadas (OLA 12 y OLA 13) que el Exact Resolver todavía no modela. Sin identidad, sus filas V5 caían en
+ * SIN_INSTRUMENT_ID y nunca podían ser PRIMARY (hallazgo MEDIO del PR #170, 2026-11-26). `REGLAMENTO_LEY_MUNICIPALIDADES` queda registrado
+ * para OLA13_RLMUN, pero solo como CONTEXT mientras su expediente D1–D8 no esté firmado (ver INSTRUMENTOS_SOLO_CONTEXT).
+ */
+export type InstrumentoOlaV5 =
+  | 'LEY_ORGANIZACION_TRIBUNALES' | 'LEY_PROPIEDAD' | 'LEY_LAVADO_ACTIVOS'
+  | 'LEY_PROCEDIMIENTO_ADMINISTRATIVO' | 'LEY_MUNICIPALIDADES' | 'REGLAMENTO_LEY_MUNICIPALIDADES';
+
+/** Identificadores de instrumento: los del Exact Resolver, dos instrumentos del corpus que el resolver no modela y las leyes V5 de las olas 12–13. */
+export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 'DECRETO_77_2006' | InstrumentoOlaV5;
 
 /** Lista cerrada de instrument_id válidos. Cualquier otro valor ('', 'UNKNOWN', 'null', texto libre) no identifica nada. */
 export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([
   'CODIGO_PROCESAL_PENAL', 'CODIGO_PENAL', 'CODIGO_PROCESAL_CIVIL', 'CODIGO_CIVIL', 'CODIGO_TRABAJO', 'CODIGO_FAMILIA', 'CODIGO_NOTARIADO',
   'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'CODIGO_NINEZ', 'LEY_ESPECIAL_ADOPCIONES',
   'DECRETO_77_2006', 'DECRETO_284_2013', 'DECRETO_35_2013',
+  'LEY_ORGANIZACION_TRIBUNALES', 'LEY_PROPIEDAD', 'LEY_LAVADO_ACTIVOS', 'LEY_PROCEDIMIENTO_ADMINISTRATIVO', 'LEY_MUNICIPALIDADES',
+  'REGLAMENTO_LEY_MUNICIPALIDADES',
 ] as const);
 
 export const esInstrumentId = (v: unknown): v is InstrumentId => typeof v === 'string' && (INSTRUMENT_IDS as readonly string[]).includes(v);
@@ -94,6 +105,11 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
+  /**
+   * OLA13_RLMUN (Reglamento General de la Ley de Municipalidades, Acuerdo 018-93): expediente D1–D8 en preparación. Se retira de esta
+   * lista solo después de la firma del CLO, igual que el D.284-2013 y el D.35-2013.
+   */
+  REGLAMENTO_LEY_MUNICIPALIDADES: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   // CODIGO_NINEZ: retirado por la adjudicación CLO D1–D8 firmada el 2026-11-18; las filas siguen sujetas a vigencia y metadata.rol.
   // docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/canonico-v2/ADJUDICACION_CLO_CODIGO_NINEZ.md §7.
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
@@ -222,9 +238,19 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['CODIGO_FAMILIA', new RegExp(`^codigo\\s+de\\s+familia${CIERRE}`)],
   ['CODIGO_TRIBUTARIO', new RegExp(`^codigo\\s+tributario${CIERRE}`)],
   ['CODIGO_COMERCIO', new RegExp(`^codigo\\s+de\\s+comercio${CIERRE}`)],
-  ['LEY_JUSTICIA_CONSTITUCIONAL', /^ley\s+(?:sobre|de)\s+justicia\s+constitucional(?=\s*\(|,|\s*$)/],
+  // OLA 12 (2026-11-26): la fuente V5 es «Ley sobre Justicia Constitucional de Honduras (Decreto No. 244-2003)»; sin el CIERRE común,
+  // «de Honduras» impedía identificarla y sus 124 filas caían en SIN_INSTRUMENT_ID.
+  ['LEY_JUSTICIA_CONSTITUCIONAL', new RegExp(`^ley\\s+(?:sobre|de)\\s+justicia\\s+constitucional${CIERRE}`)],
   ['CONSTITUCION', new RegExp(`^constitucion\\s+(?:politica\\s+)?de\\s+la\\s+republica${CIERRE}`)],
   ['LEY_ESPECIAL_ADOPCIONES', new RegExp(`^ley\\s+especial\\s+de\\s+adopciones${CIERRE}`)],
+  // Olas V5 12–13. Mismo criterio: anclados al inicio y cerrados, de modo que «Ley de Propiedad Intelectual» o un comentario no se confunden.
+  // El Reglamento va antes que la Ley de Municipalidades (aunque el ancla ya los separa: la fuente del Reglamento empieza por «Reglamento»).
+  ['LEY_ORGANIZACION_TRIBUNALES', new RegExp(`^ley\\s+de\\s+organizacion\\s+y\\s+atribuciones\\s+de\\s+los\\s+tribunales${CIERRE}`)],
+  ['LEY_PROPIEDAD', new RegExp(`^ley\\s+de\\s+(?:la\\s+)?propiedad${CIERRE}`)],
+  ['LEY_LAVADO_ACTIVOS', new RegExp(`^ley\\s+especial\\s+contra\\s+el\\s+lavado\\s+de\\s+activos${CIERRE}`)],
+  ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(`^ley\\s+de\\s+procedimientos?\\s+administrativos?${CIERRE}`)],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?de\\s+la\\s+ley\\s+de\\s+municipalidades${CIERRE}`)],
+  ['LEY_MUNICIPALIDADES', new RegExp(`^ley\\s+de\\s+municipalidades${CIERRE}`)],
 ];
 
 /** metadata.norm_id con valores EXACTOS conocidos (sin patrones). Cualquier otro valor no identifica nada. */
@@ -617,12 +643,25 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   DECRETO_77_2006: ['77-2006'],
   DECRETO_284_2013: ['284-2013', 'ley para la generacion de empleo'],
   DECRETO_35_2013: ['35-2013'],
+  // Olas V5 12–13: solo nombres completos. Siglas como «lp», «la» o «lpa» chocarían con palabras comunes.
+  LEY_ORGANIZACION_TRIBUNALES: ['ley de organizacion y atribuciones de los tribunales'],
+  LEY_PROPIEDAD: ['ley de propiedad', 'ley de la propiedad'],
+  LEY_LAVADO_ACTIVOS: ['ley especial contra el lavado de activos', 'ley contra el lavado de activos'],
+  LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['ley de procedimiento administrativo', 'ley de procedimientos administrativos'],
+  LEY_MUNICIPALIDADES: ['ley de municipalidades'],
+  REGLAMENTO_LEY_MUNICIPALIDADES: ['reglamento general de la ley de municipalidades', 'reglamento de la ley de municipalidades'],
 });
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Instrumentos cuyos alias contienen los de otro (clave): esas menciones se descartan antes de buscar la clave. Solo para pares nuevos. */
+const ALIAS_CONTENEDORES: Readonly<Partial<Record<InstrumentId, readonly InstrumentId[]>>> = Object.freeze({
+  LEY_MUNICIPALIDADES: ['REGLAMENTO_LEY_MUNICIPALIDADES'],
+});
 
 /** ¿El texto nombra el instrumento del fragmento? (alias exactos con fronteras de palabra; las siglas no se confunden con subcadenas). */
 export function textoNombraInstrumento(texto: string, id: InstrumentId): boolean {
-  const t = norm(texto);
+  let t = norm(texto);
+  // Un alias contenido en el de otro instrumento no cuenta dentro de esa mención: citar el Reglamento General no es nombrar la Ley.
+  for (const otro of ALIAS_CONTENEDORES[id] ?? []) for (const a of ALIAS_INSTRUMENTO[otro]) t = t.replace(new RegExp(`(?<![a-z0-9])${escapar(a)}(?![a-z0-9])`, 'g'), ' ');
   return ALIAS_INSTRUMENTO[id].some((a) => new RegExp(`(?<![a-z0-9])${escapar(a)}(?![a-z0-9])`).test(t));
 }
 
