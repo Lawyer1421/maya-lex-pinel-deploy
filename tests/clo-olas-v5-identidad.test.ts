@@ -78,13 +78,20 @@ describe('OLA13_RLMUN: desbloqueado por D8 (D1–D8 firmadas y cargado en produc
     expect(instrumentIdDeFragmento({ fuente: FUENTES_V5[5][2] })).toBe('LEY_MUNICIPALIDADES');
   });
 
-  it('una fila real del paquete firmado (art. 1, metadata incluida) sale PRIMARY', () => {
-    const c = clasificarFragmentoClo(fila(FUENTE_RLMUN, {
-      num_articulo: '1', instrumento_id: 'REGLAMENTO_LEY_MUNICIPALIDADES', coleccion: 'mayalex_normativos', materia: '10_LEYES_REGLAMENTOS',
-      metadata: { norm_id: 'HN:REGLAMENTO_LEY_MUNICIPALIDADES', instrumento_id: 'REGLAMENTO_LEY_MUNICIPALIDADES', estado_v: 'V5', vigencia: 'TRUE_PRESUNTA' },
-    }));
+  it('una fila real del paquete firmado, tal como la entrega la búsqueda semántica (sin metadata), sale PRIMARY', () => {
+    const c = clasificarFragmentoClo(fila(FUENTE_RLMUN, { num_articulo: '1', id: 'OLA13_RLMUN_1993_01:REGLAMENTO_LEY_MUNICIPALIDADES:1' }));
     expect(c).toMatchObject({ instrumentId: 'REGLAMENTO_LEY_MUNICIPALIDADES', rol: 'PRIMARY', bloqueos: [] });
   });
+
+  it.each(FUENTES_V5.filter(([id]) => id !== 'LEY_JUSTICIA_CONSTITUCIONAL'))(
+    'HUECO CONOCIDO (%s): con metadata.norm_id «HN:…» sigue CONTEXT hasta que instrument-identity la registre (PR del resolver)',
+    (id, _lote, fuente) => {
+      // La búsqueda exacta (lib/rag/search.ts) sí lee metadata.norm_id; parsearInstrumentRef rechaza estos instrumentos (INSTRUMENTO_DESCONOCIDO)
+      // y el guardián país falla cerrado. Hoy no es alcanzable: el resolver de consultas aún no reconoce estas leyes por su nombre.
+      const c = clasificarFragmentoClo(fila(fuente, { metadata: { norm_id: `HN:${id}` } }));
+      expect(c).toMatchObject({ instrumentId: id, rol: 'CONTEXT', bloqueos: ['IDENTIDAD_PAIS_INCONSISTENTE'] });
+    },
+  );
 
   it('los demás bloqueos de instrumento siguen intactos (Reglamento del Notariado y D.77-2006)', () => {
     expect(INSTRUMENTOS_SOLO_CONTEXT).toEqual({ REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO', DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO' });
