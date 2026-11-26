@@ -1,6 +1,6 @@
 # Expediente de auditoría · OLA 13 · lote 3 · `HN:REGLAMENTO_LEY_MUNICIPALIDADES`
 
-**Estado:** PENDIENTE DE FIRMA
+**Estado:** D1–D8 FIRMADAS
 **Instrumento:** Reglamento General de la Ley de Municipalidades (Acuerdo Ejecutivo No. 018-93, 1-feb-1993; La Gaceta del 18-feb-1993) · lote `OLA13_RLMUN_1993_01`
 **Fecha del paquete:** 2026-11-26 · **Generador:** `scripts/olas/ola13-rlmun.ts` + `scripts/olas/cedij.ts` + `scripts/olas/paquete-ola.ts`
 **Staging:** `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) · **Producción:** `thgrhueckkjdutjvcufp`
@@ -90,18 +90,18 @@ Controles:
 
 | # | Decisión propuesta | Decisión del CLO |
 |---|---|---|
-| D1 | Fuente PRIMARY: edición AMHON 2011, solo el Reglamento General (págs. 114–221), con las reservas 5.1 y 5.2 | ☐ |
-| D2 | Aceptar la extracción por coordenadas, la separación de la Ley (§1) y las correcciones de §1 | ☐ |
-| D3 | Firma del texto consolidado de 226 artículos (huella en §7) | ☐ |
-| D4 | Vigencia: 226 `true` (`TRUE_PRESUNTA`), con la reserva 5.2 | ☐ |
+| D1 | Fuente PRIMARY: edición AMHON 2011, solo el Reglamento General (págs. 114–221), con las reservas 5.1 y 5.2 | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D2 | Aceptar la extracción por coordenadas, la separación de la Ley (§1) y las correcciones de §1 | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D3 | Firma del texto consolidado de 226 artículos (huella en §7) | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D4 | Vigencia: 226 `true` (`TRUE_PRESUNTA`), con la reserva 5.2 | ☑ **Aprobada** por el CLO (2026-11-26) |
 | D5 | Arts. 26 y 219 sin fila (§4); materia `10_LEYES_REGLAMENTOS` | ☑ **Aprobada** por el CLO (2026-11-26): no se crean filas sintéticas para el art. 26 (su texto permanece integrado en el art. 25 tal como lo imprime la edición AMHON) ni para el art. 219 (no publicado en La Gaceta); ambas observaciones constan en §4 y en `manifiesto_articulos.json` (`no_impresos`). Total: 226 artículos |
-| D6 | Sin constancias por fila (la edición no anota reformas); los no impresos constan en `manifiesto_articulos.json` | ☐ |
-| D7 | Sin legacy que ocultar; separación de `OLA13_LMUN_2009_01` verificada (§1) | ☐ |
-| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar el cambio de código que retira `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Hasta ese cambio, la aplicación trata sus filas como CONTEXT aunque estén en V5 | ☐ |
+| D6 | Sin constancias por fila (la edición no anota reformas); los no impresos constan en `manifiesto_articulos.json` | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D7 | Sin legacy que ocultar; separación de `OLA13_LMUN_2009_01` verificada (§1) | ☑ **Aprobada** por el CLO (2026-11-26) |
+| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar el cambio de código que retira `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` en `lib/legal-retrieval/clo-guards.ts`. Hasta ese cambio, la aplicación trata sus filas como CONTEXT aunque estén en V5 | ☑ **Aprobada** por el CLO (2026-11-26). Incluye la autorización expresa del cambio de código que retira `REGLAMENTO_LEY_MUNICIPALIDADES` de `INSTRUMENTOS_SOLO_CONTEXT` para desbloquear RLMUN en la aplicación, en un PR posterior a su carga en producción (P3) |
 
 *Aprobación parcial (2026-11-26).* El CLO aprobó D5 en los términos indicados y autorizó los pasos S1–S3 en staging, que no requieren firma. D1–D4 y D6–D8 quedan para la firma, después de la auditoría de staging (§9).
 
-Firma: ____________________ · Abg. y Not. Fredy Omar Pinel Flores (CLO / Director Maya Lex) · Fecha: __________
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** (CLO / Director Maya Lex) · Fecha: **2026-11-26** · *Registrada por Claude Code por orden expresa del CLO, tras aprobar la auditoría de staging (§9).*
 
 ## 7. Paquete SQL y huellas (lo que autoriza D8)
 
