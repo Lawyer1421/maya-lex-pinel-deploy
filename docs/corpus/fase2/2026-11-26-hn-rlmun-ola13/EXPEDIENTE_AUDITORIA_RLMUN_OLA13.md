@@ -171,3 +171,25 @@ Después de S3, Claude Code verifica staging en solo lectura antes de S4; despu�
 Contexto de staging: 954 filas en total = 728 visibles + 226 ocultas, que son exactamente las de este lote.
 
 **Precondición de S4:** se cumple (226 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
+
+## 10. Verificación de staging tras S4 (V4)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 4 -HastaPaso 4` con el expediente firmado. Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Filas del lote | 226 | 226 (226 `id` y 226 `num_articulo_norm` distintos); ninguna con número 26 ni 219 (D5) | ✔ |
+| Visibles (`revision_pendiente = false`) en V4 | 226 | 226, todas con `metadata.estado_v = 'V4'` | ✔ |
+| PRIMARY vigentes (`es_norma_vigente = true`, sin `rol`) | 226 | 226; 0 con `rol`, 0 con `clasificacion_propuesta` | ✔ |
+| Metadatos de V4 | únicos | `vigencia = TRUE_PRESUNTA` y `revision_pendiente = false` en 226; `motivo_rol` único: «PRIMARY elegible: edición AMHON del Acuerdo 018-93, sin reformas anotadas; cotejo íntegro con La Gaceta pendiente (D1)»; `adjudicacion` = «EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md (D1–D8)» | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 226 | 226 | ✔ |
+| Huella del lote (md5 de las líneas `id\|hash_contenido`, ordenadas en C) | `af3ca3b3f42d8566eacfdcbec4f8878d` | idéntica (S4 no altera texto ni identidad) | ✔ |
+| Embeddings | 226 de 384D, sumas 12.5105 / 13.8660 | iguales a §9 | ✔ |
+| Ley de Municipalidades (`OLA13_LMUN_2009_01`) | intacta | 162 filas, 162 visibles, 162 V4; 0 huellas comunes con el Reglamento | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('REGLAMENTO_LEY_MUNICIPALIDADES', …)` | art. 25 → 1; art. 219 → 0 | 1 y 0; `LEY_MUNICIPALIDADES` art. 25 sigue devolviendo su propia fila | ✔ |
+| `buscar_biblioteca_v3` (colección `mayalex_normativos`, HN, solo vigentes) con el embedding del art. 25 | el propio artículo primero | art. 25 del Reglamento con similitud 1.0000; a continuación, artículos de la Ley y del Reglamento | ✔ |
+
+Contexto de staging: 954 filas en total, todas visibles (0 ocultas).
+
+**Precondición de producción:** se cumple. El lote queda apto para P0–P3 con el mismo paquete (huellas de §7).
