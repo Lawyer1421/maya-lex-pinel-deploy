@@ -15,8 +15,9 @@ const FUENTES_V5: Array<[InstrumentId, string, string]> = [
   ['LEY_LAVADO_ACTIVOS', 'OLA12_LA_2015_01', 'Ley Especial contra el Lavado de Activos de Honduras (Decreto No. 144-2014)'],
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', 'OLA13_LPA_2014_01', 'Ley de Procedimiento Administrativo de Honduras (Decreto No. 152-87)'],
   ['LEY_MUNICIPALIDADES', 'OLA13_LMUN_2009_01', 'Ley de Municipalidades de Honduras (Decreto No. 134-90)'],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', 'OLA13_RLMUN_1993_01', 'Reglamento General de la Ley de Municipalidades de Honduras (Acuerdo No. 018-93)'],
 ];
-const FUENTE_RLMUN = 'Reglamento General de la Ley de Municipalidades de Honduras (Acuerdo No. 018-93)';
+const FUENTE_RLMUN = FUENTES_V5[6][2];
 
 const fila = (fuente: string, extra: Record<string, unknown> = {}) =>
   ({ fuente, fuente_tipo: 'codigo', jurisdiccion: 'HN', es_norma_vigente: true, num_articulo: '25', ...extra });
@@ -70,16 +71,23 @@ describe('identidad CLO de las leyes V5 de las olas 12 y 13', () => {
   });
 });
 
-describe('OLA13_RLMUN: patrón listo, bloqueado hasta la firma D1–D8', () => {
+describe('OLA13_RLMUN: desbloqueado por D8 (D1–D8 firmadas y cargado en producción, 2026-11-26)', () => {
   it('el Reglamento tiene identidad propia, distinta de la Ley', () => {
     expect(instrumentIdDeFragmento({ fuente: FUENTE_RLMUN })).toBe('REGLAMENTO_LEY_MUNICIPALIDADES');
     expect(instrumentIdDeFragmento({ fuente: 'Reglamento de la Ley de Municipalidades' })).toBe('REGLAMENTO_LEY_MUNICIPALIDADES');
+    expect(instrumentIdDeFragmento({ fuente: FUENTES_V5[5][2] })).toBe('LEY_MUNICIPALIDADES');
   });
 
-  it('solo puede ser CONTEXT mientras no haya pliego firmado', () => {
-    expect(INSTRUMENTOS_SOLO_CONTEXT.REGLAMENTO_LEY_MUNICIPALIDADES).toBe('INSTRUMENTO_SIN_PLIEGO_CLO');
-    const c = clasificarFragmentoClo(fila(FUENTE_RLMUN));
-    expect(c).toMatchObject({ instrumentId: 'REGLAMENTO_LEY_MUNICIPALIDADES', rol: 'CONTEXT', bloqueos: ['INSTRUMENTO_SIN_PLIEGO_CLO'] });
+  it('una fila real del paquete firmado (art. 1, metadata incluida) sale PRIMARY', () => {
+    const c = clasificarFragmentoClo(fila(FUENTE_RLMUN, {
+      num_articulo: '1', instrumento_id: 'REGLAMENTO_LEY_MUNICIPALIDADES', coleccion: 'mayalex_normativos', materia: '10_LEYES_REGLAMENTOS',
+      metadata: { norm_id: 'HN:REGLAMENTO_LEY_MUNICIPALIDADES', instrumento_id: 'REGLAMENTO_LEY_MUNICIPALIDADES', estado_v: 'V5', vigencia: 'TRUE_PRESUNTA' },
+    }));
+    expect(c).toMatchObject({ instrumentId: 'REGLAMENTO_LEY_MUNICIPALIDADES', rol: 'PRIMARY', bloqueos: [] });
+  });
+
+  it('los demás bloqueos de instrumento siguen intactos (Reglamento del Notariado y D.77-2006)', () => {
+    expect(INSTRUMENTOS_SOLO_CONTEXT).toEqual({ REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO', DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO' });
   });
 });
 

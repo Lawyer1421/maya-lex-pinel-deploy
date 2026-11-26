@@ -33,8 +33,8 @@ export type TipoFuenteClo = 'NORMA' | 'JURISPRUDENCIA' | 'DOCTRINA' | 'PRACTICA_
 
 /**
  * Leyes de las olas V5 firmadas (OLA 12 y OLA 13) que el Exact Resolver todavía no modela. Sin identidad, sus filas V5 caían en
- * SIN_INSTRUMENT_ID y nunca podían ser PRIMARY (hallazgo MEDIO del PR #170, 2026-11-26). `REGLAMENTO_LEY_MUNICIPALIDADES` queda registrado
- * para OLA13_RLMUN, pero solo como CONTEXT mientras su expediente D1–D8 no esté firmado (ver INSTRUMENTOS_SOLO_CONTEXT).
+ * SIN_INSTRUMENT_ID y nunca podían ser PRIMARY (hallazgo MEDIO del PR #170, 2026-11-26). `REGLAMENTO_LEY_MUNICIPALIDADES` (OLA13_RLMUN) es
+ * citable desde la firma de su expediente D1–D8 y su carga en producción (D8, 2026-11-26); su identidad sigue separada de la Ley.
  */
 export type InstrumentoOlaV5 =
   | 'LEY_ORGANIZACION_TRIBUNALES' | 'LEY_PROPIEDAD' | 'LEY_LAVADO_ACTIVOS'
@@ -105,11 +105,9 @@ export const INSTRUMENTOS_SOLO_CONTEXT: Readonly<Partial<Record<InstrumentId, Co
   REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO',
   /** D.77-2006: texto no cotejado (Gaceta 31,091 NO_OBTENIDA). Decisión CLO 24-oct-2026. */
   DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO',
-  /**
-   * OLA13_RLMUN (Reglamento General de la Ley de Municipalidades, Acuerdo 018-93): expediente D1–D8 en preparación. Se retira de esta
-   * lista solo después de la firma del CLO, igual que el D.284-2013 y el D.35-2013.
-   */
-  REGLAMENTO_LEY_MUNICIPALIDADES: 'INSTRUMENTO_SIN_PLIEGO_CLO',
+  // REGLAMENTO_LEY_MUNICIPALIDADES: retirado de esta lista por la decisión D8 del expediente OLA13_RLMUN (D1–D8 firmadas por el CLO el
+  // 2026-11-26), después de su carga en producción (P3, 226 filas V5). docs/corpus/fase2/2026-11-26-hn-rlmun-ola13/EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md
+  // §6 y §11. Sus filas pueden ser PRIMARY solo si cumplen los demás guardianes (vigencia TRUE, HN, metadata.rol).
   // CODIGO_NINEZ: retirado por la adjudicación CLO D1–D8 firmada el 2026-11-18; las filas siguen sujetas a vigencia y metadata.rol.
   // docs/corpus/staging/2026-11-04-hn-001-tranche-a-drive/canonico-v2/ADJUDICACION_CLO_CODIGO_NINEZ.md §7.
   // D.284-2013: retirado de esta lista por la adjudicación CLO del 16-nov-2026 (D7, firmada por el propietario_despacho;
