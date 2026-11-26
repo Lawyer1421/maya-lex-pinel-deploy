@@ -1,0 +1,2762 @@
+{
+  "instrumento": "HN:LEY_MUNICIPALIDADES",
+  "ingest_batch": "OLA13_LMUN_2009_01",
+  "pdf_fuente": "LEY DE MUNICIPALIDADES.pdf",
+  "pdf_sha256": "b711caf62cc5996650e18a4294ed761501b7a9066060dc9555ff34234ec181ee",
+  "texto_sha256": "7aec21172922b29aa13d3c61c50a021b995bb6d28bcd5a02b3f8a482eb534d37",
+  "notas_al_pie": 16,
+  "conteos": {
+    "total": 162,
+    "primary": 159,
+    "contextVigente": 0,
+    "contextDerogado": 3,
+    "contextPendiente": 0
+  },
+  "legacy": null,
+  "derogados_con_texto": [
+    "81",
+    "127"
+  ],
+  "articulos_detalle": [
+    {
+      "numero": "1",
+      "sha256": "b81020fa76b2fd99b27c1cea26371ecdc619fde45372172d902f8b1f5ecc7665",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "2",
+      "sha256": "69c6b38107c612af3a8fd6ce168ae74600f60c3afbb37010df5484b3a33feab3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "3",
+      "sha256": "25b9e426773c47ce79397cf313bed8acb65f6b595d0474f67a247c3f96c5bccb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "4",
+      "sha256": "f1cd34f63a6f8514ed49ede910fd1bb2a6eb17c9e0df2b0fefb851e7248679ee",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "5",
+      "sha256": "d8e6de538881352c3e851afa0b2d3c912ca503b871e03afa785e80d563b2e7f2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "6",
+      "sha256": "5a831a728ffe20c33f013befb67b44e8515f046fa9c3befe73869dbcc895e647",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "7",
+      "sha256": "3c9ff9d1a476c7298656a54b3c114a9739c386c964688a94f7038b6cce714d4d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "8",
+      "sha256": "3448e30b9bb55227a7d52602710aa1c8666912eb172a1f3890f46d1e306aea4a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "9",
+      "sha256": "0093cde81b12edb4539a97001aee45b91fb4ded3000d247d3c7ff1723f6bfc8d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "10",
+      "sha256": "e8b9c9e0ff6fbd52f9494bde5ba3dc8c48f64d5d1e8fb5e40a6b21f1cabc641d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "11",
+      "sha256": "84658fe7726592af9d706c36dfe4e1f36244c810ddb9f9327fc1470500c681c3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "12",
+      "sha256": "f7caf2072d75233b9430f423dfe19d72ee43948ef4daddf86372ba060d35ef45",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "12-A",
+      "sha256": "0a7a40ec8d210c815f9351944f71b5797dbda7dc3d0a9e6b39a8653df7eeba86",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "13",
+      "sha256": "022dd010b8a6556c05031a8aa473202dc0c0926662d4185861d769be80434c8a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "14",
+      "sha256": "a7b295406eb6035e7c2c162344f042450c73add2d6e7904bb5a9934ec60e4216",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "15",
+      "sha256": "50814f6e2339309e6ae26c695b98072d0034856ead635780d05a6d86b828331b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "16",
+      "sha256": "1d696ef7cccbfe79c02deec5ab98aa14507bec517fa0d134cbd474f26687e52f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "16-A",
+      "sha256": "9b5204a76850af1bf25c9a779d4266f9e8a70f4a4a78e9ceaf0e9f6a3af3fa6a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "16-B",
+      "sha256": "f6e5cfb2eb372e7bac8dfd7e6da1445bb8891bbfde119a69bbc9996460ba0c59",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "17",
+      "sha256": "86e5dbd8fcab26155628fd9f2f5ed0abdfb5e5547f6ea023644c8a382731e032",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "18",
+      "sha256": "c96c5201d4c75f2764a7e654589108f4c90ed30a744b15e9dfde2d14dcec1cb6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "19",
+      "sha256": "b520044c3823d44b44d1da5e4d3d9537709acb7f6881c0ef95166468091a914f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "20",
+      "sha256": "4ec5ea6736b3e6e214406a40ade3a667b2f711154223303bcf29942c4e86e4b3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-A",
+      "sha256": "91df51150cdbc3d11fcafcbbd8e384a5e3e9f4cfc8dba9093814c03f3878180e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-B",
+      "sha256": "4edb119aa84e29bf4e71642bbab3f44cd544d4853ca0d25aa6fd86fc05900e17",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-C",
+      "sha256": "3396f039cb2d7beb7e574eb77e78f78ec0ae4d9d10a18007ea8d4a447d828bfe",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-D",
+      "sha256": "ec6da3e63664b88463beb13cf9bda5c32754203d2feffcb515122b92733e2bf2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-E",
+      "sha256": "903b5a297f89835a9a8c2296526f186e84ee01a2f69e7a23ddebafb4f72c2d29",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-F",
+      "sha256": "98e5bc654652f4af958ebe815ccb5d4c0242ec0007098dd28e860477af706e0e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "20-G",
+      "sha256": "ef790539d00ae0a54b6fffeaa76da57ce2d4e0fa42d9d3d74221f897d8e4763f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "21",
+      "sha256": "036b98f68b386c00f90b310c45384e8fe73a1c11f5f4edc55f8a3aa7ccc86ab9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "22",
+      "sha256": "708cf261f7adcd2587f7345fa369660195a03768e49fc5110b1c1671cb25a34f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "23",
+      "sha256": "9f2934e75ceb9203dda52396043114a3d47d851e9a79da02e0ef9dcd519bb874",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "24",
+      "sha256": "6fecac3f1251b8dea5c158e754fa0dc2b65f782d427930ed55e0acef7a2fc4e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "25",
+      "sha256": "3148ff01c2584ded1440a31737af9a40d5ce5651f8ed6a5a3a0119e21a780422",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "26",
+      "sha256": "ab5fe917925a4bd970fe39cdfa37e906e32e8f6d3e6fde4c67abd3339f5ff68f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 1,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "27",
+      "sha256": "e7896a3cb27b46189d93c2d2dec0748513c7c7a2399673afa717554b3a4b1f04",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "28",
+      "sha256": "b4ec35fe2c43b10bc7c7837581c3d9c5bc51b5af5dac1560ef6b0fa7410bda8d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "29",
+      "sha256": "85a35c680febcd9259f51d7087d23e791dea55f02e026e3c78ccae8b981885b6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "30",
+      "sha256": "e374cb468365a272c7e1108836bc5819b147efed75221a24522659c078b66eef",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "31",
+      "sha256": "a99c08361fae6d3f06cbbab0f5fc93b304c12a9a64687906b04a049626e3ed53",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "31-A",
+      "sha256": "bbfc0f078f94ee931bc7ea957cbea79e686e155c6816c0a26c073c29ca92fe27",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "31-B",
+      "sha256": "5f7c9f239f2670173686909932357d7be50bff90ea565723c8d7f6e71ae74375",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO por D.143-2009 según la edición AMHON; cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "DEROGACION_TOTAL",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1",
+        "ARTICULO_REDUCIDO_A_MARCA_DE_DEROGACION"
+      ]
+    },
+    {
+      "numero": "31-C",
+      "sha256": "3872c0f9440fc74c44aee2009d67b6f31f8532bd90ad30c85036430c18ecd982",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "32",
+      "sha256": "91032b7447cd5604325d866cfedde9b76311355a80654907b07acd117749252b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "32-A",
+      "sha256": "1517c465a9c4c209c9e1d8f4e8391e65f9ffbf91e8ec7c9603718e31e668f748",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "32-B",
+      "sha256": "ff8bb1daa3ace72877da45c396b8519b466c9548d1bbecbebc34207cc016633f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 2,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "33",
+      "sha256": "660570d27288756e041b4473f51029497d2e63d0c652d254c0aba77386dddad5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "34",
+      "sha256": "733c8fd96820d8890c002ea0981ff8462a656fd299203228e17505bfb1bad931",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "35",
+      "sha256": "8e5856fda31051016aa9cc510fba2851b5e75d8d03a7a04720b7cfffe7ff978f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "36",
+      "sha256": "d950747ae63fcb2d01d15bd724de89b6e1a73405b9e804ca5a4357ea7ba0e256",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "37",
+      "sha256": "d4d58828cd4c4d0f7db8e9a14d521e5bd63d7bc4e30b7b1d6d17914283a1d7e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "37-A",
+      "sha256": "a6699b5dcd469ae2dcead713051ffab0568d6d4c187fee65b37824b8286f88e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "38",
+      "sha256": "acc73d2569aaf9e631944ec4410f48b9889c19746af46d88f16089dc0efa3ce1",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "39",
+      "sha256": "f9e3b3e40c32bfc6e0ea41539b082cb44d91e9b55f8c6ee7ca93d46941c8074c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "40",
+      "sha256": "fdb8b484ba70481264cf932a081841259e0bb1e5540d204af1121ccbd7916dcd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 3,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "41",
+      "sha256": "1c12a32b3585a2ca2354faae9e4914a9366cbe9a75745ddcdc9ad84920fc0108",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "42",
+      "sha256": "b8cc52320cb4e5923ba0bd983fc4d6a72808d6d21b7ac3097be13bc819633647",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 4,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS"
+      ]
+    },
+    {
+      "numero": "43",
+      "sha256": "301d6ea20ff54d87ac9ca37ae5be0bd82934b4ccf70ed4b5bc7e923f31753e03",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "44",
+      "sha256": "a9ec5f18e670bbe2d2e127a24326e7d006cbc9e681b7831367e24ac26aa228b9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "45",
+      "sha256": "33718862551ba89b8981bf643bfcd875f2af8fef8d12e8dfb3f5bc9514cca7b7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "46",
+      "sha256": "95a76b99e7a6470e5ee4be8d886c757f876fcded8175184b704d869f88250185",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "47",
+      "sha256": "4db66399b979008562b5af9dcf7b7cc97aed5a4db7f65e59106b9ef71e8d7151",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "48",
+      "sha256": "410b76cbf4558211a31e6739073fda854688d1d4485bec80aa904d06dccd7dd9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "49",
+      "sha256": "c18248151301c64c9363a3867226b6e678b5d0321af0fb7cd4615824e0f4b5fa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "50",
+      "sha256": "36c5ce4c6080029fabbdb0172abef109e785f10cdb87bbd11330eafea82d2668",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "51",
+      "sha256": "8e530bdfa4b555e99af38fd607071920b0e74778dce822bb34664a50e97b8d4e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "52",
+      "sha256": "6690295cf64fae83fecbab1b8ceb0fa6e8fcee4eebcbec41576b2d8a7df5db47",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "53",
+      "sha256": "ca4916c77f7d2b36918e58d7739313d4c5329f38bed57bc272601913c8559a8e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "54",
+      "sha256": "588194d6f2ea636727ff98b7b0ae1eee46d022fad8185e00b226f139eccfd495",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "55",
+      "sha256": "51eec58303bea16006e07110aafbbe1136f76500910f7871d4581671a985b3c0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "56",
+      "sha256": "eea78bd29da63b800d462bc97173e641a6344837db94081571e595c76ddfb062",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "57",
+      "sha256": "337a827db5a841f3f80ce0e022e57b43076b1f9aa3fb776312c383671d8beb5a",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 5,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "58",
+      "sha256": "89acb675248841ecd3b440e51a0b8c36ef6dccdf6cddba6e6dbb0445e56b0fab",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59",
+      "sha256": "637d40c53d91de046eef89d3f60afa54cb154d29819f148a41c9eaf46aebac1e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-A",
+      "sha256": "00fd1cb17fb91581e5e8c42c182ac043fc876ec02e378fcd50226062556fd326",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-B",
+      "sha256": "f20d9a976df6a341c20c4d6a764190012f7e388b8a002e389eae246d46859204",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-C",
+      "sha256": "d319d7f509b2dfdc7cfcff0d82f9c4329fd5da5502cfa593cf46448832e43cab",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-D",
+      "sha256": "6d5ea497689350d549fa4697599e95e72f9b884bfe9b1fccd67acb579eef8624",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-E",
+      "sha256": "e4cc625ad4b61782a14740106fff8b948cd93a66c3f99a33d82dcd541aae365b",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 6,
+          "tipo": "REFERENCIA",
+          "decretos": [
+            "143-2009"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-F",
+      "sha256": "e8c31ba66c67f6093ae120081244bcd6a5ce684e88117dfa2ee47843d7712854",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "59-G",
+      "sha256": "2c06143152bde7cb370ae649b08796335c3336245293113bd5a2ff2b14994bab",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "60",
+      "sha256": "6d8d2c684e873e0398289f39b3ae79d67cd6e1c6e37c3356cda293de72a718aa",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "61",
+      "sha256": "b35fccad7b61ec91f563674bfd3ae3fd4ed749bae0746fdbdcfbc916729d31e2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "62",
+      "sha256": "ef915d9241203dda6f81e2f25899e693a441a653247efb23f0cf557e1bbb7da3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "63",
+      "sha256": "6123c6485ba2530f58939d88a84434afd60600e33fa3c768d5161f2eb6df79ba",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "64",
+      "sha256": "c79630c5d168dd0f3ee66dbfc556e0a784a8f6a8957360992b3aee32945f04a7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "65",
+      "sha256": "9c9d09e9fc5c25618ab7b29bbf0c09545475c18d9ada019bf67f157d8ffaa629",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "66",
+      "sha256": "3c06684d5fa2201c179c74165cd3a9a1bb5d73429b3ccdd6d4d2b0794854c357",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "67",
+      "sha256": "9f21faf44a09f907fd3270c58a5057f023d33b5de2c4661bf20091dc7d4d97b4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "67-A",
+      "sha256": "55a584280aa7c93f9b7070274c2f4d3869cc18f5195366e489712d62f070dba2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "67-B",
+      "sha256": "ddc329f83f7394816adf8037f8a218e9e3f765c1cfbcb6c0366f1a4048dbad1c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "67-C",
+      "sha256": "ca5b033bcee6a153ff47673e6692a63c29b8a5a57c8cc0fca3891b2f8792a3e7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "68",
+      "sha256": "848102dc13ec00cd6665c6e7cad139c58cc4e8a6045599c7b654b850b93d465f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "69",
+      "sha256": "9777292acb449a1369a2821835a95a5b3775d9c1d957b6e7582d152cc2a20736",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "70",
+      "sha256": "5abcb8bebecd2698eedbe0dec3a98d8f6ae127e8c10c9487d526a03606ac6844",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "71",
+      "sha256": "602ec3ee759371737f745f9436a209b585cc913f8a5f1fdf97870fdab8cbd1c2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "72",
+      "sha256": "07be481c0e51541c54d21d764604ff5336f7c9952ce63a5c78a614e2cb8a37ca",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 7,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "133-96"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": []
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:2"
+      ]
+    },
+    {
+      "numero": "73",
+      "sha256": "139c79cc5cf6aba549c582f802b1ebf707d0959fe1345e5811d0f218e26167d3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "74",
+      "sha256": "1eb1da32b556e29334e0ac4691a9cc51da5e7806ae699303d56f4fb38ff9f6bb",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "75",
+      "sha256": "25ac56c27167b7050e35efec282241755c55abe11a9dbf65e3d232d1e9f324cd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "177-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "76",
+      "sha256": "94844eae0c35f08467f8f3a31f4bdb70f4892bfcc92b1be6096b3c18929d17a0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 8,
+          "tipo": "REFORMA",
+          "decretos": [
+            "124-95"
+          ]
+        },
+        {
+          "nota": 9,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        },
+        {
+          "nota": 11,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "171-98",
+            "124-95"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "124-95"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:2"
+      ]
+    },
+    {
+      "numero": "77",
+      "sha256": "c25683c534bdf1b87b3d12cc90e1ef107490b7a410773e722b91d6b42f161ab2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "78",
+      "sha256": "72a1d3eef4feb9c2a299d5db525978139a5c75a49ccf2f01eb70d614e431d2ce",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 10,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        },
+        {
+          "nota": 12,
+          "tipo": "REFERENCIA",
+          "decretos": []
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "79",
+      "sha256": "f817cfc511dea7813379122596f3809c5b66cfa0849d7b947043aa9c78384bb9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "177-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "80",
+      "sha256": "795788e3b21d5b1e1e489cdfa22afe6fccb6a63ad1fbe08ef88ce1c56d8ea5e5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "81",
+      "sha256": "2e491a1b03f052a14ef525fd9aa3f597b5a1da0ea74884b476016c315b217e6a",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO por D.48-91 según la edición AMHON (marca en línea y título de margen «DEROGADO»); la edición conserva el texto, que se mantiene como antecedente; cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "DEROGACION_TOTAL",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "82",
+      "sha256": "6da372092422cffc03b3a19567db58516bacd06084b3ba313f9e5462ef3254c4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "83",
+      "sha256": "a5722d9ed0c5e1c2c75614058b7af88fc346cf722bb409418f61230a9c71d02d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "84",
+      "sha256": "5988e29b842138b9dc317bf200ac8b6c8d8445cb3aeb3392b30925845ecf9098",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "85",
+      "sha256": "7e3ae0fb0d2f586543112d3f84934ce07df209821cf2e3f93b423bd56dffb677",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (interpretación auténtica anotada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 13,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": [
+            "171-98"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "INTERPRETACION_AUTENTICA",
+          "decretos": []
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "86",
+      "sha256": "77d81c0bca7f5155fd79d2f38933af66602600ff8b299b97af3f40147dffb505",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "87",
+      "sha256": "bc6ddbc2018fdf9d421527b454d4e02beb46dbee6e78ca54dc618251c92696b9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "88",
+      "sha256": "7f9d75b5e9e40ac40a9664670ebe641935f191749a99df11136dcf5ee22e66a9",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "89",
+      "sha256": "052d35ce02957bb154e754156029153c5b2499c7de9aada327a1f9d0339aa20c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "90",
+      "sha256": "0c4fac83a6013d0f536c80e28319834d3f267d394d2f1bc5b3b466866954dd89",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "91",
+      "sha256": "ec8f3119d94375df50d2e43a656ab70e6fa7c0e48e98b86172cf3a13d75c4a60",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 14,
+          "tipo": "REFERENCIA",
+          "decretos": [
+            "143-2009"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "92",
+      "sha256": "15d2999892ef321eeb78002fea117f9c6b79fcf7738d6a19c35c46b127beee16",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "93",
+      "sha256": "539c6e55b7f18ba3b71d54e0708320ab58b2fdfdb136f9341230191f756304e3",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "94",
+      "sha256": "e4d75ac965076c357fc17a4e676f35bfce97e4ca94b885d0b23ddd7bfb3c5ede",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "95",
+      "sha256": "208931e575ff461b460c809dadd7925e217cbfc091c2b02255d087871f5669da",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "96",
+      "sha256": "78459d66d725f8cccb7cc46c330a2b5965eb3e752a77ed152a95d7d4e965a638",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "97",
+      "sha256": "d473224e06edbed2657a6685dfe6920085b2c50211aa5d51b411e68e9a5adac6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "98",
+      "sha256": "724f90883b6f673c53580db72e08aa02ba27f5e10ec727c66fd321ee6cf46d6f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:2"
+      ]
+    },
+    {
+      "numero": "99",
+      "sha256": "a1d542c0c1b6fd700a57c0579378617c7a39d5006213418e5bbdde86518dcd86",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "99-A",
+      "sha256": "c3f295f9680e28cb7edc6b1835510762f6fbde4750d3347974621266a1dc9c84",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "100",
+      "sha256": "5bf426d420ff7cd267cea121e7b3c31a73f632dfbc06a8d3bb9ebb9d875f9ba2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "101",
+      "sha256": "2192354d2e0ef72c43d749226be967d3af282657ab4d429105c4605187ac322d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "102",
+      "sha256": "e29e27dec506b6367e0d078f81d7711281a9cbbb9c79511660c33a29600dcd20",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "103",
+      "sha256": "5cd842e455616eceed94f17c0582de2c6701e93af8158d0c20fd925e84d9af4c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "104",
+      "sha256": "a19dee7df027f0a92d2e2a7555ff3c2501efbac56bde188c83be452954165dc6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "105",
+      "sha256": "2fd5b69048106fad0ed55309662b74c21508c4eabcb90c44dbb506e78dacc0de",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "106",
+      "sha256": "567793684942358bde7654fbceba75e8b92df556516dd268982e7788fc7f7ca5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "107",
+      "sha256": "c08825da163e510434e6165d03084f139ce646a4fa6211cfdfd28c9820def7e8",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "108",
+      "sha256": "dfa7d3bd4f59923947fcf46414dac29692416b4c336a0cfc29fd5a440a52b2d7",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 15,
+          "tipo": "REFERENCIA",
+          "decretos": [
+            "125-2000"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "125-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "109",
+      "sha256": "c1cbde35fc5e14840644956f586d5f50bc8b0c1f418032b89d0790bfca36df7e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "110",
+      "sha256": "7edfffc93756120a7611b3b87f8a0233b78b37c25b00f84b1db276b538b1f5f0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "111",
+      "sha256": "3b23a817a928cab54371eedd02b5fe67f7426c9397a3ccc8d2c091f84176a1c6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "112",
+      "sha256": "0fe972c6ea66493ef9dbe8bc944f5480eab602a0c4c2a6e296a35286276e4a54",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "113",
+      "sha256": "5693e6bb3e4e30aedb45deefe4a5a7caac7a505987a60c0273769e6241e47e8d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "114",
+      "sha256": "7639ddb671118cc3af32851c0396364531a85d9ecac7b1c5dc9a05efcd7655c2",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "115",
+      "sha256": "d62443985843b8c6ae2c6eb916608f40a921c8712e850517ce54dad59cdda907",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "116",
+      "sha256": "741bb58f7b468018ff796c4478d7b30257735a2902b83c7bc05b44f804644f14",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "117",
+      "sha256": "24b90a4240ad6298e5b8a5ef22e80a0629b9a20bada2c485990591a2d76653f5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "118",
+      "sha256": "ed994039fcb27647571475044361c0cbfb7c3687dbe33323a12f3071e0069862",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (derogación parcial anotada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": 16,
+          "tipo": "DEROGACION_PARCIAL",
+          "decretos": [
+            "127-2000"
+          ]
+        },
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "LLAMADAS_DE_NOTA_RETIRADAS",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "119",
+      "sha256": "be9402c6c01d97bc528288974e504686bd6af3d6be964da9c6dd8e0cb7af23c4",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "120",
+      "sha256": "e728f54ad29f5638d1cfb47342e3d2df576e5905c9ef596b7015f3c43b766e8f",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "121",
+      "sha256": "8f493c71c8926e690759ca726bda04571bc23c6d49a47c8c9f1432eb366daf5d",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "122",
+      "sha256": "23280c125af9e0b0cceb1e323effaffac07b582e4778949c62b4cb1fb029b795",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "122-A",
+      "sha256": "24a74eb68d4004b111565e48a74178169b944d334db73ddb3ef92b93b4263bc6",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "122-B",
+      "sha256": "55554306d3efa37798e95026197286b964a6b8b6ee74e48329043903aab4e928",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "122-C",
+      "sha256": "3457746b149560a64471ff9627291c39e83e0511307763f61c5aeb50715a926e",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "122-D",
+      "sha256": "7ccc00458add192e1cec3f1139253188561c6ffb9802774254481ec3c0d03299",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "123",
+      "sha256": "c90766ee2259294c9f36760b2e09317a3595e43e75021ca05250e251b91e25f5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "124",
+      "sha256": "b54c52e18e3a494a560482ac7c95df54c3878ddaf2ad58b3eefd15dbfefd24d5",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "125",
+      "sha256": "b700f24ca14794aac8a720f54c5debae80a0cffc2ed210fed244186ec058c3dd",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "127-2000"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "125-A",
+      "sha256": "569d743b52038d2e7130c3f76b83910c94869ece328c6ed253b26951b72f4538",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "143-2009"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "126",
+      "sha256": "5dfd936580236b146e0c8890de673256aae54e431e3f0b3252582adf279df37c",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    },
+    {
+      "numero": "127",
+      "sha256": "7a9542c592ba2ae75620ec4f177009b05d33d124ab02da985956ba7677249ceb",
+      "vigencia": "DEROGADO",
+      "rol": "CONTEXT",
+      "motivo": "DEROGADO por D.48-91 según la edición AMHON (marca en línea y título de margen «DEROGADO»); la edición conserva el texto, que se mantiene como antecedente; cotejo con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "DEROGACION_TOTAL",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "127-A",
+      "sha256": "bbce323afa17111ee45c88a4ded0d732e9a7e67eac45c912d5d264fde18a8f55",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (artículo adicionado): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "ADICION",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "128",
+      "sha256": "2ba951b9bbd8d6d925092dffd602d6971a6abe9a7c4f54069c611e3de266bb58",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible (reforma integrada): edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [
+        {
+          "nota": null,
+          "tipo": "REFORMA",
+          "decretos": [
+            "48-91"
+          ]
+        }
+      ],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO",
+        "MARCAS_EN_LINEA_A_CONSTANCIAS:1"
+      ]
+    },
+    {
+      "numero": "129",
+      "sha256": "ea4d65ea750bfbc025ffbe355f5cc31a36e0dd9f58621647ba1d48c19af410e0",
+      "vigencia": "VIGENTE",
+      "rol": "PRIMARY",
+      "motivo": "PRIMARY elegible: edición consolidada AMHON con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)",
+      "constancias": [],
+      "correcciones": [
+        "ENCABEZADO_RETIRADO"
+      ]
+    }
+  ]
+}

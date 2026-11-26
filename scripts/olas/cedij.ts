@@ -177,6 +177,19 @@ export interface ParamsCedij {
   estructura?: RegExp;
   /** Unir palabras partidas con guion al final de línea (maquetación de libro). */
   deguionar?: boolean;
+  /**
+   * Reformas posteriores al corte de la edición, tomadas de La Gaceta: el texto oficial sustituye al de la edición, que queda
+   * referenciado por su huella (`texto_edicion_sha256`), y la constancia de la reforma se agrega al artículo.
+   */
+  reformasPosteriores?: Readonly<Record<string, { texto: string; constancia: Constancia }>>;
+  /**
+   * Marcas de reforma impresas dentro del texto en lugar de en nota al pie (p. ej. la edición AMHON de la Ley de Municipalidades:
+   * «(Según reforma por Decreto 48-91)»). Cada coincidencia (expresión con bandera g, entre paréntesis) se retira del texto y pasa a
+   * constancia, tipificada igual que una nota.
+   */
+  marcasEnLinea?: RegExp;
+  /** Nombre de la edición en los motivos de clasificación y en `texto_origen` (por omisión «CEDIJ»). */
+  edicion?: string;
 }
 
 export interface ArticuloCedij { fila: FilaOla; constancias: Constancia[]; correcciones: string[]; ubicacion: string[]; derogadoConTexto: boolean }
@@ -210,6 +223,7 @@ export function problemasDeIntegridadCedij(numero: string, contenido: string, so
 const PDFTOTEXT_FIRMADO = process.env.OLAS_PDFTOTEXT ?? 'C:/Program Files/Git/mingw64/bin/pdftotext.exe';
 
 export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; notas: Nota[]; pdfSha: string } {
+  const ed = p.edicion ?? 'CEDIJ';
   const pdfSha = sha256(readFileSync(p.pdf));
   const crudo = p.extraerTexto
     ? p.extraerTexto(p.pdf).replace(/\r\n?/g, '\n')
@@ -327,6 +341,35 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
     }
     const llamadas = [...new Set([...a.llamadas, ...(notasPorNombre.get(a.numero) ?? [])])].sort((x, y) => x - y);
     const constancias: Constancia[] = llamadas.map((n) => { const t = notas[n - 1].texto.replace(/\s+/g, ' '); return { nota: n, tipo: tipificarNotaCedij(t), texto: t, decretos: decretosCedij(t) }; });
+    const deMarca = new Set<Constancia>();
+    if (p.marcasEnLinea) {
+      if (!p.marcasEnLinea.global) throw new Error('marcasEnLinea requiere la bandera g');
+      let marcas = 0;
+      contenido = contenido.replace(p.marcasEnLinea, (m) => {
+        const t = m.replace(/^\(\s*|\s*\)$/g, '').replace(/\s+/g, ' ').replace(/(\d)-\s+(\d)/g, '$1-$2');
+        const c: Constancia = { nota: null, tipo: tipificarNotaCedij(t), texto: t, decretos: decretosCedij(t) };
+        constancias.push(c);
+        deMarca.add(c);
+        marcas++;
+        return '';
+      }).replace(/^[ \t]+/gm, '').replace(/[ \t]{2,}/g, ' ').replace(/ +([.,;:])/g, '$1').replace(/\n{3,}/g, '\n\n').trim()
+        // «(Según reforma por Decreto 124-95), el Impuesto…»: la coma que seguía a la marca no abre el artículo.
+        .replace(/^[,;:]\s*/, '');
+      if (marcas) correcciones.push(`MARCAS_EN_LINEA_A_CONSTANCIAS:${marcas}`);
+      // Artículo que la edición reduce a su marca de derogación («ARTÍCULO 31-B.- (Derogado Según artículo 5 del Decreto 143-2009)»):
+      // queda como el «Derogado.» de las ediciones CEDIJ, para que se clasifique como derogado.
+      if (!contenido && constancias.some((c) => c.nota === null && c.tipo === 'DEROGACION_TOTAL')) {
+        contenido = 'Derogado.';
+        correcciones.push('ARTICULO_REDUCIDO_A_MARCA_DE_DEROGACION');
+      }
+    }
+    const reforma = p.reformasPosteriores?.[a.numero];
+    const textoEdicionSha = reforma ? sha256(contenido) : null;
+    if (reforma) {
+      contenido = reforma.texto.normalize('NFC');
+      constancias.push(reforma.constancia);
+      correcciones.push(`TEXTO_SUSTITUIDO_POR_REFORMA_POSTERIOR:${reforma.constancia.decretos.join(',')}`);
+    }
     const soloDerogado = /^Derogad[oa]\.?$/.test(contenido);
     const derogTotalPropia = constancias.find((c) => c.tipo === 'DEROGACION_TOTAL' && (articuloDeNota(c.texto) === a.numero || (notasPorNombre.get(a.numero) ?? []).includes(c.nota!)));
     let clasificacion: Clasificacion;
@@ -335,23 +378,26 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
     if (soloDerogado || derogTotalPropia) {
       const c = derogTotalPropia ?? constancias.find((x) => /DEROGACION_(TOTAL|DE_TITULO)/.test(x.tipo));
       const dec = c ? decretoDerogatorio(c.texto) : null;
-      clasificacion = { vigencia: 'DEROGADO', rol: 'CONTEXT', motivo: `DEROGADO${dec ? ` por D.${dec}` : ''} según la edición CEDIJ; cotejo con La Gaceta pendiente (D1)${soloDerogado ? '' : '; la edición conserva el texto, que se mantiene como antecedente'}` };
+      clasificacion = { vigencia: 'DEROGADO', rol: 'CONTEXT', motivo: `DEROGADO${dec ? ` por D.${dec}` : ''} según la edición ${ed}; cotejo con La Gaceta pendiente (D1)${soloDerogado ? '' : '; la edición conserva el texto, que se mantiene como antecedente'}` };
     } else if (constancias.some((c) => c.tipo === 'REFORMA_TACITA')) {
       // Mismo criterio que la OLA 1 (firmada): reforma tácita sin texto actualizado → CONTEXT vigente hasta dictamen.
       clasificacion = { vigencia: 'VIGENTE', rol: 'CONTEXT', motivo: 'REFORMA_TACITA: la edición anota una reforma tácita que el texto no incorpora; CONTEXT hasta dictamen del CLO (D5)' };
     } else {
       const tipos = new Set(constancias.map((c) => c.tipo));
       const anot = tipos.has('DEROGACION_PARCIAL') ? ' (derogación parcial anotada)' : tipos.has('INTERPRETACION_AUTENTICA') ? ' (interpretación auténtica anotada)' : tipos.has('ADICION') ? ' (artículo adicionado)' : tipos.has('REFORMA') ? ' (reforma integrada)' : '';
-      clasificacion = { vigencia: 'VIGENTE', rol: null, motivo: `PRIMARY elegible${anot}: edición consolidada CEDIJ con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)` };
+      clasificacion = { vigencia: 'VIGENTE', rol: null, motivo: `PRIMARY elegible${anot}: edición consolidada ${ed} con reformas integradas; cotejo íntegro con La Gaceta pendiente (D1)` };
     }
     if (suplidos.has(a.numero)) {
       correcciones.push('TEXTO_DE_LEGACY_NO_IMPRESO_EN_EDICION');
       constancias.push({ nota: null, tipo: 'REVISION_PENDIENTE_CLO', decretos: [],
-        texto: `La edición CEDIJ no imprime este artículo (salta del anterior al siguiente). Texto tomado de la fila legacy de producción ${p.idLegacy(a.numero)}, pendiente de cotejo con La Gaceta.` });
-      clasificacion = { vigencia: 'VIGENTE', rol: 'CONTEXT', motivo: 'CONTEXT vigente: artículo no impreso en la edición CEDIJ; texto del legacy pendiente de cotejo con La Gaceta (D5)' };
+        texto: `La edición ${ed} no imprime este artículo (salta del anterior al siguiente). Texto tomado de la fila legacy de producción ${p.idLegacy(a.numero)}, pendiente de cotejo con La Gaceta.` });
+      clasificacion = { vigencia: 'VIGENTE', rol: 'CONTEXT', motivo: `CONTEXT vigente: artículo no impreso en la edición ${ed}; texto del legacy pendiente de cotejo con La Gaceta (D5)` };
     }
     const dictamen = p.dictamenes?.[a.numero];
     if (dictamen) { clasificacion = dictamen.clasificacion; if (dictamen.constancia) constancias.push(dictamen.constancia); }
+    // Dictamen de derogación total sobre un artículo cuya marca en línea («(Derogado según Decreto 48-91)») no lo nombra: la regla de
+    // arriba la había tomado por parcial; vuelve a total. Solo afecta a constancias de `marcasEnLinea`, nunca a notas al pie.
+    if (dictamen?.clasificacion.vigencia === 'DEROGADO') for (const c of deMarca) if (c.tipo === 'DEROGACION_PARCIAL') c.tipo = 'DEROGACION_TOTAL';
     for (const pr of problemasDeIntegridadCedij(a.numero, contenido, soloDerogado, sinCierre)) problemas.push(`art. ${a.numero}: ${pr}`);
     // Encabezado del artículo siguiente tragado por este (caso real: «ARTÍCULO 420.-» en mayúsculas dentro del 419 del CPC).
     const sig = /^\d+$/.test(a.numero) ? Number(a.numero) + 1 : null;
@@ -361,9 +407,10 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
       coleccion: 'mayalex_normativos', materia: p.materia, contenido, num_articulo: a.numero, fuente: p.fuenteCanonica,
       metadata: {
         norm_id: p.cfg.normId, instrumento_id: p.cfg.instrumentoId, ingest_batch: p.cfg.ingestBatch, ola: p.cfg.ola, ordinal: i + 1, decreto: p.decreto,
-        texto_origen: 'PDF_CONSOLIDADO_CEDIJ_SANEADO', edicion_fuente: p.edicionFuente, pdf_sha256: pdfSha, article_sha256: sha256(contenido),
+        texto_origen: `PDF_CONSOLIDADO_${ed}_SANEADO`, edicion_fuente: p.edicionFuente, pdf_sha256: pdfSha, article_sha256: sha256(contenido),
         ubicacion: miUbicacion, constancias, correcciones_saneamiento: correcciones, sustituye_id_legacy: p.idLegacy(a.numero),
-        ...(clasificacion.vigencia === 'DEROGADO' ? { derogado_por: [...new Set(constancias.filter((c) => /DEROGACION_(TOTAL|DE_TITULO)/.test(c.tipo)).map((c) => decretoDerogatorio(c.texto)).filter(Boolean))].map((d) => `D.${d}`).join(', ') || 'edición CEDIJ' } : {}),
+        ...(textoEdicionSha ? { texto_edicion_sha256: textoEdicionSha } : {}),
+        ...(clasificacion.vigencia === 'DEROGADO' ? { derogado_por: [...new Set(constancias.filter((c) => /DEROGACION_(TOTAL|DE_TITULO)/.test(c.tipo)).map((c) => decretoDerogatorio(c.texto)).filter(Boolean))].map((d) => `D.${d}`).join(', ') || `edición ${ed}` } : {}),
       },
       jurisdiccion: 'HN', fuente_tipo: 'codigo', instrumento_id: p.cfg.instrumentoId, num_articulo_norm: normalizarNumeroArticulo(a.numero),
       hash_contenido: sha256(contenido), ingest_batch: p.cfg.ingestBatch, clasificacion,

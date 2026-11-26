@@ -1,0 +1,2 @@
+# Las migraciones que corre el ejecutor seguro (scripts/olas/ejecutar-sql.ts) se verifican por SHA-256 sobre LF.
+20261125000000_sincronizar_rpc_prod.sql text eol=lf
