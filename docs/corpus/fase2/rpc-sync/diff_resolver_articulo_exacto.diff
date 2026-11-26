@@ -1,0 +1,11 @@
+--- repo (staging = supabase/migrations)
++++ producción (00a)
+@@ -8,7 +8,7 @@
+   FROM public.biblioteca_vectores b
+   WHERE p_instrumento_id IS NOT NULL
+     AND p_num_articulo_norm IS NOT NULL
+-    AND b.instrumento_id    = p_instrumento_id
++    AND b.instrumento_id = p_instrumento_id
+     AND b.num_articulo_norm = p_num_articulo_norm
+     AND b.revision_pendiente = false
+   ORDER BY b.id

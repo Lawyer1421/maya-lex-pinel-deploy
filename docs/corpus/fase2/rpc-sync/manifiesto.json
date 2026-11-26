@@ -1,0 +1,29 @@
+{
+  "ola": "FASE2_R1",
+  "ingest_batch": "SYNC_RPC_2026_11_25",
+  "descripcion": "Sincroniza resolver_articulo_exacto y buscar_biblioteca_v3 de producción con supabase/migrations",
+  "pliego": "docs/corpus/fase2/rpc-sync/DICTAMEN_SYNC_RPC.md",
+  "firma": "R1 FIRMADA",
+  "refs": {
+    "staging": "aicakncgtuiiuomflkqj",
+    "prod": "thgrhueckkjdutjvcufp"
+  },
+  "archivos": [
+    {
+      "ruta": "../../../../supabase/migrations/20261125000000_sincronizar_rpc_prod.sql",
+      "bytes": 6544,
+      "sha256": "9632b97cc90f7cf7df88c9fa716693083add95eedcf6c44a7bf2fa09399eb8b6",
+      "destino": "staging",
+      "orden": 1,
+      "requiereFirma": false
+    },
+    {
+      "ruta": "../../../../supabase/migrations/20261125000000_sincronizar_rpc_prod.sql",
+      "bytes": 6544,
+      "sha256": "9632b97cc90f7cf7df88c9fa716693083add95eedcf6c44a7bf2fa09399eb8b6",
+      "destino": "prod",
+      "orden": 1,
+      "requiereFirma": true
+    }
+  ]
+}

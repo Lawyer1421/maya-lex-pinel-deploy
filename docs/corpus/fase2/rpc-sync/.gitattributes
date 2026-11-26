@@ -1,0 +1,3 @@
+*.sql text eol=lf
+*.diff text eol=lf
+manifiesto.json text eol=lf

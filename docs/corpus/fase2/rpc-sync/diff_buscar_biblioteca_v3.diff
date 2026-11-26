@@ -1,0 +1,25 @@
+--- repo (staging = supabase/migrations)
++++ producción (00a)
+@@ -5,15 +5,17 @@
+  SET search_path TO 'public', 'pg_temp'
+ AS $function$
+ BEGIN
+-  IF jurisdiccion_filtro IS NULL OR jurisdiccion_filtro NOT IN ('HN', 'SV', 'GT', 'CR', 'NI', 'PA') THEN
+-    RAISE EXCEPTION 'buscar_biblioteca_v3: jurisdiccion_filtro inválida: %', coalesce(quote_literal(jurisdiccion_filtro), 'NULL')
++  IF jurisdiccion_filtro IS NULL
++     OR jurisdiccion_filtro NOT IN ('HN', 'SV', 'GT', 'CR', 'NI', 'PA') THEN
++    RAISE EXCEPTION 'buscar_biblioteca_v3: jurisdiccion_filtro invalida: %',
++      coalesce(quote_literal(jurisdiccion_filtro), 'NULL')
+       USING ERRCODE = '22023';
+   END IF;
+ 
+   RETURN QUERY
+-  SELECT b.id, b.contenido, b.num_articulo, b.fuente,
+-         b.fuente_tipo, b.jurisdiccion, b.es_norma_vigente,
+-         (1 - (b.embedding <=> query_embedding))::double precision AS similarity
++  SELECT b.id, b.contenido, b.num_articulo, b.fuente, b.fuente_tipo,
++         b.jurisdiccion, b.es_norma_vigente,
++         (1 - (b.embedding <=> query_embedding))::double precision
+   FROM public.biblioteca_vectores b
+   WHERE b.coleccion = coleccion_filtro
+     AND b.jurisdiccion = jurisdiccion_filtro
