@@ -244,3 +244,28 @@ Contexto de staging: 1,085 filas en total = 954 visibles + 131 ocultas, que son 
 | `buscar_biblioteca_v3` (`mayalex_normativos`, HN, solo vigentes) con el embedding del art. 5 | el propio artículo primero | art. 5 de la LGAP con similitud 1.000; el art. 82, derogado, no aparece entre los vigentes | ✔ |
 
 **Precondición de producción:** se cumple. Producción (solo lectura, 2026-11-26) sigue en 92,163 filas, 12,931 visibles y 7,959 V5, sin filas ni respaldo de la LGAP, y con las mismas RPC. Las huellas de P0–P3 en disco coinciden con §7.
+
+## 11. Cierre en producción (pasos P0–P3)
+
+**Lectura de verificación (2026-11-26, solo lectura, producción `thgrhueckkjdutjvcufp`), después de que el CLO corriera `ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3`. Resultado: conforme. `OLA14_LGAP_2014_01` queda cerrada en V5.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Estado previo (antes de P0) | 92,163 filas / 12,931 visibles / 7,959 V5; ni filas ni respaldo de la LGAP (§10) | idéntico | ✔ |
+| Totales de producción | 92,294 / 13,062 / 8,090 V5 | 92,294 filas / 13,062 visibles / 8,090 V5 (+131 en cada cifra) | ✔ |
+| Filas del lote | 131, sin 4-A | 131 (131 `num_articulo_norm` distintos); ninguna 4-A | ✔ |
+| Visibles en V5 | 131 | 131 | ✔ |
+| PRIMARY vigentes | 94 | 94 | ✔ |
+| CONTEXT vigentes | 11 | 11: arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 | ✔ |
+| CONTEXT derogados | 26 | 26, con `vigencia = DEROGADO`; ninguna fila con vigencia `NULL`, derogada sin `rol` CONTEXT ni con `clasificacion_propuesta` | ✔ |
+| Identidad / `adjudicacion` | únicas | `LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS`; «EXPEDIENTE_AUDITORIA_LGAP_OLA14.md (D1–D8)» | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica a staging y a `rows.jsonl` | ✔ |
+| Embeddings | 131 de 384D, sumas 7.8883 / 7.4502 | iguales a staging | ✔ |
+| Respaldo de P0 | creado vacío, con RLS y sin privilegios públicos | `biblioteca_vectores_ola14_lgap_2014_01_backup`: 0 filas, RLS activo, 0 privilegios para `anon`/`authenticated` | ✔ |
+| Separación de la LPA y de los demás lotes | intacta | LPA (`OLA13_LPA_2014_01`): 156 filas, 156 visibles en V5. 0 textos sustantivos comunes con otros lotes: las únicas huellas compartidas son las marcas «Derogado» y «Derogado.», iguales a las de los derogados de los Códigos Civil, de Familia y del Trabajo y de la Ley de Municipalidades | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('LEY_GENERAL_ADMINISTRACION_PUBLICA', …)` | art. 29 → 1; art. 4-A → 0 | 1 y 0; `LEY_PROCEDIMIENTO_ADMINISTRATIVO` art. 29 sigue devolviendo su propia fila | ✔ |
+| `buscar_biblioteca_v3` (`mayalex_normativos`, HN, solo vigentes) con el embedding del art. 5 | el propio artículo primero | art. 5 de la LGAP con similitud 1.000; el art. 82, derogado, no aparece entre los vigentes | ✔ |
+
+**Pendiente autorizado por D8:** el PR de código que registra `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre. Hasta entonces, la aplicación trata las filas de la LGAP como CONTEXT (`SIN_INSTRUMENT_ID`), lo que falla cerrado. El mismo PR debe agregar el lote a `verificar-firmadas.ts`.
