@@ -1,8 +1,8 @@
 # Dictamen · Corrección C2 · Ley de Propiedad, art. 28 → CONTEXT vigente
 
-**Estado:** PENDIENTE DE FIRMA DEL CLO (fórmula de firma: «C2 FIRMADA»)
+**Estado:** C2 FIRMADA (2026-11-27, Abg. y Not. Fredy Omar Pinel Flores, CLO)
 **Fecha:** 2026-11-27 · **Destino:** producción `thgrhueckkjdutjvcufp`, con ensayo previo en staging `aicakncgtuiiuomflkqj`
-**Aprobación de la propuesta:** el CLO aprobó en la sesión del 2026-11-27 reclasificar la fila como CONTEXT vigente con constancia expresa de la reforma por adición. Este pliego concreta esa propuesta y **todavía no autoriza ejecutar nada**: eso solo ocurre cuando la línea Estado diga «C2 FIRMADA».
+**Aprobación:** el CLO aprobó en la sesión del 2026-11-27 la propuesta, el tipo de constancia `ADICION` (§2) y las decisiones C2-a, C2-b y C2-c (§6), con las huellas de §3. La reversión 99 **no** está autorizada.
 
 ## 1. Hallazgo
 
@@ -98,13 +98,13 @@ Las lecturas de producción y staging usadas para este pliego fueron todas de so
 
 | # | Decisión | Decisión del CLO |
 |---|---|---|
-| C2-a | Ensayar en staging `01_ensayo_staging.sql` (termina en ROLLBACK), con la huella de §3 | ☐ Aprueba · ☐ Rechaza |
-| C2-b | Ejecutar en producción `01_respaldo_prod.sql` y `02_reclasificar_prod.sql`, exactamente con las huellas de §3: art. 28 de la Ley de Propiedad → CONTEXT vigente con la constancia del art. 83 del D.182-2009 | ☐ Aprueba y autoriza · ☐ Rechaza |
-| C2-c | La reversión `99_reversion_prod.sql` queda preparada pero **no** autorizada: requerirá su propia firma si se necesita | ☐ Conforme |
+| C2-a | Ensayar en staging `01_ensayo_staging.sql` (termina en ROLLBACK), con la huella de §3 | ☑ **Aprueba** |
+| C2-b | Ejecutar en producción `01_respaldo_prod.sql` y `02_reclasificar_prod.sql`, exactamente con las huellas de §3: art. 28 de la Ley de Propiedad → CONTEXT vigente con la constancia del art. 83 del D.182-2009 | ☑ **Aprueba y autoriza**, incluida la transición de metadata `c1cb8cdc…` → `d804aedc…` y la constancia de tipo `ADICION` |
+| C2-c | La reversión `99_reversion_prod.sql` queda preparada pero **no** autorizada: requerirá su propia firma si se necesita | ☑ **Conforme**: 99 no autorizada |
 
-Firma: ________________ · Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex) · Fecha: ________
+Firma: **aprobado** · Abg. y Not. Fredy Omar Pinel Flores, propietario_despacho (CLO / Director Maya Lex) · Fecha: 2026-11-27
 
-*Para firmar:* cambiar la línea Estado a `**Estado:** C2 FIRMADA (fecha, nombre, CLO)` y marcar §6. El ejecutor solo lee la firma en esa línea y exige que este pliego cite la huella completa de cada SQL que requiere firma.
+*Registro de la firma.* El CLO comunicó en la sesión de trabajo del 2026-11-27 la aprobación expresa del tipo de constancia `ADICION`, de las decisiones C2-a, C2-b y C2-c y de las huellas SHA-256 de §3. Claude Code la registró aquí por orden expresa del CLO. Los SQL no se modificaron: la firma cubre exactamente las huellas citadas en §3.
 
 ## 7. Ejecución tras la firma (la hace el CLO; Claude Code nunca tiene la `DATABASE_URL`)
 
