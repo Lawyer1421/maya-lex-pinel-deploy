@@ -10,7 +10,7 @@ import {
 } from '@/lib/legal-retrieval/exact-resolver';
 import { identidadDeFuente, RE_FUENTE_POR_INSTRUMENTO } from '@/lib/legal-retrieval/instrument-identity';
 import { clasificarIntencionInstrumental, elegibilidadSemantica, IDENTIFICADORES_DOCUMENTALES } from '@/lib/legal-retrieval/instrument-gate';
-import { instrumentIdDeFragmento } from '@/lib/legal-retrieval/clo-guards';
+import { instrumentIdDeFragmento, textoNombraInstrumento } from '@/lib/legal-retrieval/clo-guards';
 
 const LEYES: Array<[InstrumentoNormalizado, string, string, string]> = [
   // id, fuente de producción, nombre en una consulta, número de decreto o acuerdo
@@ -123,6 +123,49 @@ describe('detector de consultas: nombre completo, con las exclusiones', () => {
     expect(detectarInstrumentoDesdeTexto('artículo 5 de la Ley sobre Justicia Constitucional')).toBe('LEY_JUSTICIA_CONSTITUCIONAL');
     expect(detectarInstrumentoDesdeTexto('artículo 72 del Reglamento del Código del Notariado')).toBe('REGLAMENTO_NOTARIADO');
     expect(clasificarIntencionInstrumental('artículo 3 de la Ley de Inquilinato').estado).toBe('SPECIFIC_UNRESOLVED');
+  });
+});
+
+describe('ajustes de precisión (hallazgos BAJO del #173)', () => {
+  it.each([
+    'art. 25 del Reglamento de Ley de Municipalidades',
+    'art. 25 del Reglamento General de Ley de Municipalidades',
+    'art. 25 del Reglamento a la Ley de Municipalidades',
+    'art. 25 del Reglamento General a la Ley de Municipalidades',
+  ])('«%s» → siempre el Reglamento, nunca la Ley', (q) => {
+    expect(detectarInstrumentoDesdeTexto(q)).toBe('REGLAMENTO_LEY_MUNICIPALIDADES');
+    expect(detectarIdentidadesDesdeTexto(q).map((i) => i.instrumento)).toEqual(['REGLAMENTO_LEY_MUNICIPALIDADES']);
+    expect(clasificarIntencionInstrumental(q)).toMatchObject({ estado: 'SPECIFIC_RESOLVED', identidades: ['REGLAMENTO_LEY_MUNICIPALIDADES'] });
+    expect(textoNombraInstrumento(q.replace(/^art\. 25 del /, 'El '), 'LEY_MUNICIPALIDADES')).toBe(false);
+    expect(textoNombraInstrumento(q.replace(/^art\. 25 del /, 'El '), 'REGLAMENTO_LEY_MUNICIPALIDADES')).toBe(true);
+  });
+
+  it('la fuente del Reglamento sin artículo tampoco confirma la Ley', () => {
+    expect(identidadDeFuente('Reglamento de Ley de Municipalidades (Acuerdo No. 018-93)')).toBe('REGLAMENTO_LEY_MUNICIPALIDADES');
+    expect(RE_FUENTE_POR_INSTRUMENTO.LEY_MUNICIPALIDADES.test('Reglamento de Ley de Municipalidades (Acuerdo No. 018-93)')).toBe(false);
+  });
+
+  it.each([
+    'Ley de Propiedad Rural', 'Ley de Propiedad Vehicular', 'Ley de Propiedad Literaria', 'Ley de Propiedad Agraria', 'Ley de Propiedad Comunal',
+    'Ley de Propiedad Literaria y Artística', 'Ley de la Propiedad Horizontal', 'Ley de Propiedad Inmobiliaria',
+    'Ley de Propiedad del Reino de España', 'Ley de Propiedad de España', 'Ley de Propiedad de la República de Colombia',
+    'Ley de Propiedad de la Tierra', 'Ley de Propiedad de Vehículos',
+  ])('«%s» no se resuelve a la Ley de Propiedad hondureña', (titulo) => {
+    const q = `artículo 5 de la ${titulo}`;
+    expect(detectarInstrumentoDesdeTexto(q)).toBeNull();
+    expect(clasificarIntencionInstrumental(q).estado).toBe('SPECIFIC_UNRESOLVED');
+  });
+
+  it.each([
+    ['artículo 5 de la Ley de Propiedad', 'LEY_PROPIEDAD'],
+    ['artículo 5 de la Ley de Propiedad de Honduras', 'LEY_PROPIEDAD'],
+    ['artículo 5 de la Ley de Propiedad de la República de Honduras', 'LEY_PROPIEDAD'],
+    ['artículo 5 de la Ley de Propiedad (Decreto 82-2004)', 'LEY_PROPIEDAD'],
+    ['según la Ley de Propiedad, ¿qué es el Instituto de la Propiedad?', 'LEY_PROPIEDAD'],
+    ['la Ley de la Propiedad establece', 'LEY_PROPIEDAD'],
+  ])('«%s» sigue resolviéndose a la Ley de Propiedad', (q, id) => {
+    expect(detectarInstrumentoDesdeTexto(q)).toBe(id);
+    expect(clasificarIntencionInstrumental(q)).toMatchObject({ estado: 'SPECIFIC_RESOLVED', identidades: [id] });
   });
 });
 

@@ -241,7 +241,7 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['LEY_PROPIEDAD', new RegExp(`^ley\\s+de\\s+(?:la\\s+)?propiedad${CIERRE}`)],
   ['LEY_LAVADO_ACTIVOS', new RegExp(`^ley\\s+especial\\s+contra\\s+el\\s+lavado\\s+de\\s+activos${CIERRE}`)],
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(`^ley\\s+de\\s+procedimientos?\\s+administrativos?${CIERRE}`)],
-  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?de\\s+la\\s+ley\\s+de\\s+municipalidades${CIERRE}`)],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?(?:de|a)\\s+(?:la\\s+)?ley\\s+de\\s+municipalidades${CIERRE}`)],
   ['LEY_MUNICIPALIDADES', new RegExp(`^ley\\s+de\\s+municipalidades${CIERRE}`)],
 ];
 
@@ -641,7 +641,10 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   LEY_LAVADO_ACTIVOS: ['ley especial contra el lavado de activos', 'ley contra el lavado de activos'],
   LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['ley de procedimiento administrativo', 'ley de procedimientos administrativos'],
   LEY_MUNICIPALIDADES: ['ley de municipalidades'],
-  REGLAMENTO_LEY_MUNICIPALIDADES: ['reglamento general de la ley de municipalidades', 'reglamento de la ley de municipalidades'],
+  REGLAMENTO_LEY_MUNICIPALIDADES: [
+    'reglamento general de la ley de municipalidades', 'reglamento de la ley de municipalidades', 'reglamento general de ley de municipalidades',
+    'reglamento de ley de municipalidades', 'reglamento general a la ley de municipalidades', 'reglamento a la ley de municipalidades',
+  ],
 });
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Instrumentos cuyos alias contienen los de otro (clave): esas menciones se descartan antes de buscar la clave. Solo para pares nuevos. */
