@@ -211,6 +211,41 @@ Pliego: [`EXPEDIENTE_AUDITORIA_LA_OLA12.md`](../staging/2026-11-24-hn-la-ola12/E
 | `ola12-la/02_embeddings_prod.sql` | 363,239 | `23d8f5b48d1a80df7d1c0bd35fe7aaec67ceb08d4338cf0daaad5299e47f4b5a` |
 | `ola12-la/03_activacion_v5_prod.sql` | 7,699 | `91bbe381d44ab3ea974dd657d11372815fb6e9c5e074843b41e52e80d7073fab` |
 
+### OLA 13 · Ley de Procedimiento Administrativo · `OLA13_LPA_2014_01`
+
+Pliego: [`EXPEDIENTE_AUDITORIA_LPA_OLA13.md`](../fase2/2026-11-25-hn-lpa-ola13/EXPEDIENTE_AUDITORIA_LPA_OLA13.md) (cierre en producción en su §11)
+
+| Archivo | Bytes | SHA-256 |
+|---|---:|---|
+| `ola13-lpa/00_precheck_y_respaldo_prod.sql` | 1,507 | `15253ba1a76104fd99906255753189787bffb1a43c496166fc9d137532291e07` |
+| `ola13-lpa/01_datos_prod.sql` | 277,704 | `ec7ff6e8a5b1805930559390a5f704f828742737c96b522e7ea306943b5a1903` |
+| `ola13-lpa/02_embeddings_prod.sql` | 611,022 | `f0ba383a14532433a4ed3b3087f84faf9f8dad10e09c8c7f97005fddcad8d3a7` |
+| `ola13-lpa/03_activacion_v5_prod.sql` | 13,928 | `863f9a1f0725fbedbdfb182e6662a3e58112d1775537c7cd41c6edb6df52bc37` |
+
+### OLA 13 · Ley de Municipalidades · `OLA13_LMUN_2009_01`
+
+Pliego: [`EXPEDIENTE_AUDITORIA_LMUN_OLA13.md`](../fase2/2026-11-25-hn-lmun-ola13/EXPEDIENTE_AUDITORIA_LMUN_OLA13.md) (cierre en producción en su §11)
+
+| Archivo | Bytes | SHA-256 |
+|---|---:|---|
+| `ola13-lmun/00_precheck_y_respaldo_prod.sql` | 1,477 | `2761d6092531654933840d2b1331e5ede14faf6406f2c52d2dd4a9ca4d83447e` |
+| `ola13-lmun/01_datos_prod.sql` | 346,776 | `c09ce5a459bea8185a0a06730c84dc03963917239c27f22a44758b598e50c1b9` |
+| `ola13-lmun/02_embeddings_prod.sql` | 632,730 | `f65a1cc0069db64e839eb21f1b2b0a996db3523a6b95190acff57cf01e51b4e4` |
+| `ola13-lmun/03_activacion_v5_prod.sql` | 14,799 | `cc4d63233b1ff82577a7fd4b6da86ba053957370a94dc3bf7cdac099c5131694` |
+
+### OLA 13 · Reglamento General de la Ley de Municipalidades · `OLA13_RLMUN_1993_01`
+
+Pliego: [`EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md`](../fase2/2026-11-26-hn-rlmun-ola13/EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md) (cierre en producción en su §11)
+
+| Archivo | Bytes | SHA-256 |
+|---|---:|---|
+| `ola13-rlmun/00_precheck_y_respaldo_prod.sql` | 1,519 | `116449d9a65849f3079080b6475d0b4ae8648b7d478749551642ad52c6424e78` |
+| `ola13-rlmun/01_datos_prod.sql` | 445,611 | `23330caef1173e010aaa35592d29e1944ea057e3014015e4b46b47106b856394` |
+| `ola13-rlmun/02_embeddings_prod.sql` | 885,240 | `12e13e43b91ed2af80269af211a28b9869be0421a7ffa8de9ed46ef5bd93e571` |
+| `ola13-rlmun/03_activacion_v5_prod.sql` | 16,891 | `5cbd08540748ddebe7e4b28eae11e02a135e8eef54e82cc43231e671956b3e33` |
+
+**Copia (2026-11-26):** cada archivo se copió byte a byte desde su paquete `out/`. Su huella coincide con la de `manifiesto_paquete.json`, que el ejecutor seguro comprobó antes de correrlo, y con la que cita el pliego firmado. La sincronización de las RPC (R1, Fase II) corrió desde `supabase/migrations/20261125000000_sincronizar_rpc_prod.sql` (6,544 bytes, `9632b97cc90f7cf7df88c9fa716693083add95eedcf6c44a7bf2fa09399eb8b6`), ya versionado con esos mismos bytes; su dictamen es [`DICTAMEN_SYNC_RPC.md`](../fase2/rpc-sync/DICTAMEN_SYNC_RPC.md).
+
 ## 3. Correcciones posteriores
 
 | Archivo | Bytes | SHA-256 | Ejecución |
