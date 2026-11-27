@@ -246,6 +246,19 @@ Pliego: [`EXPEDIENTE_AUDITORIA_RLMUN_OLA13.md`](../fase2/2026-11-26-hn-rlmun-ola
 
 **Copia (2026-11-26):** cada archivo se copió byte a byte desde su paquete `out/`. Su huella coincide con la de `manifiesto_paquete.json`, que el ejecutor seguro comprobó antes de correrlo, y con la que cita el pliego firmado. La sincronización de las RPC (R1, Fase II) corrió desde `supabase/migrations/20261125000000_sincronizar_rpc_prod.sql` (6,544 bytes, `9632b97cc90f7cf7df88c9fa716693083add95eedcf6c44a7bf2fa09399eb8b6`), ya versionado con esos mismos bytes; su dictamen es [`DICTAMEN_SYNC_RPC.md`](../fase2/rpc-sync/DICTAMEN_SYNC_RPC.md).
 
+### OLA 14 · Ley General de la Administración Pública · `OLA14_LGAP_2014_01`
+
+Pliego: [`EXPEDIENTE_AUDITORIA_LGAP_OLA14.md`](../fase2/2026-11-26-hn-lgap-ola14/EXPEDIENTE_AUDITORIA_LGAP_OLA14.md) (cierre en producción en su §11)
+
+| Archivo | Bytes | SHA-256 |
+|---|---:|---|
+| `ola14-lgap/00_precheck_y_respaldo_prod.sql` | 1,522 | `25330f0043cde773805ccf8f16090b61f4eefb9432167fe0b535e743efaed00b` |
+| `ola14-lgap/01_datos_prod.sql` | 308,669 | `15efce3344da131edc4de488f8890f4d57ef11f6d18f82ddf12f131b6a31a75f` |
+| `ola14-lgap/02_embeddings_prod.sql` | 513,616 | `e9b8b26a72b622942774c7542c34e731609a95458b011b52c458ef37c23a4690` |
+| `ola14-lgap/03_activacion_v5_prod.sql` | 15,831 | `6f404997a9a060bc6763419bbc224715b3e3a25bc202690d81b3c515b33c3e71` |
+
+**Copia (2026-11-26):** byte a byte desde el paquete `out/ola14-lgap/`. Cada huella coincide con la de `manifiesto_paquete.json`, que el ejecutor seguro comprobó antes de correr el archivo, y con la que cita el pliego firmado (D1–D8).
+
 ## 3. Correcciones posteriores
 
 | Archivo | Bytes | SHA-256 | Ejecución |
