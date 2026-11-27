@@ -183,11 +183,18 @@ const NO_EXTRANJERA = String.raw`(?!\s+(?:(?:de|del|en)\s+(?:la\s+rep[uú]blica\
  */
 const SOLO_LEY_PROPIEDAD = String.raw`(?!\s+(?:intelectual|industrial|horizontal|rural|urbana|vehicular|literaria|art[ií]stica|agraria|comunal|inmobiliaria|minera|privada|p[uú]blica|social|colectiva|cooperativa|ind[ií]gena|forestal|ejidal|ra[ií]z|mueble|muebles|inmueble|inmuebles|estatal|municipal|nacional)${FIN_PALABRA})(?!\s+(?:de|del)\s+(?!(?:honduras|la\s+rep[uú]blica(?:\s+de\s+honduras)?|(?:su\s+|el\s+|los\s+)?art(?:[ií]culos?|s?\.)|\d)${FIN_PALABRA}|\d))`;
 /**
- * Conector entre «Reglamento (General)» y «Ley de Municipalidades»: «de», «a», «para» o «sobre», con artículo opcional y «nueva» opcional
- * («Reglamento para la Ley…», «Reglamento sobre la Ley…», «Reglamento de la nueva Ley…»). El detector del Reglamento y la exclusión de la
- * Ley usan la misma forma: lo que es Reglamento nunca resuelve a la Ley.
+ * Conector entre «Reglamento (General)» y «Ley de Municipalidades»: «de», «a», «para», «sobre» o una locución preposicional («conforme a»,
+ * «con arreglo a», «en/de aplicación de», «en/de ejecución de», «en/de desarrollo de»; hallazgo BAJO del #177, 2026-11-27), con artículo
+ * opcional y «nueva» opcional («Reglamento para la Ley…», «Reglamento conforme a la Ley…», «Reglamento de ejecución de la nueva Ley…»). El
+ * detector del Reglamento y la exclusión de la Ley usan la misma forma: lo que es Reglamento nunca resuelve a la Ley. Las mismas
+ * locuciones están en CONECTORES_RLMUN (clo-guards.ts) y en RE_FUENTE_POR_INSTRUMENTO (instrument-identity.ts).
  */
-const CONECTOR_RLMUN = String.raw`reglamento\s+(?:general\s+)?(?:de|a|para|sobre)\s+(?:la\s+)?(?:nueva\s+)?`;
+const CONECTOR_RLMUN = String.raw`reglamento\s+(?:general\s+)?(?:de|a|para|sobre|conforme\s+a|con\s+arreglo\s+a|(?:en|de)\s+(?:aplicaci[oó]n|ejecuci[oó]n|desarrollo)\s+de)\s+(?:la\s+)?(?:nueva\s+)?`;
+/**
+ * Calificativo que, tras «Ley General de la Administración Pública», nombra otra ley («… Pública Financiera», «… Federal», «… Municipal»):
+ * no es el D.146-86. Hallazgo BAJO del #177 (2026-11-27).
+ */
+const SOLO_LGAP = String.raw`(?!\s+(?:financiera|federal|estatal|paraestatal|municipal|provincial|regional|departamental|local|comunal|descentralizada|centralizada|auton[oó]mica)${FIN_PALABRA})`;
 
 const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_PROCESAL_PENAL', /\bcpp\b|c[oó]digo\s+procesal\s+penal\b/i],
@@ -235,7 +242,7 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['LEY_MUNICIPALIDADES', new RegExp(String.raw`(?<!${CONECTOR_RLMUN})ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
   // OLA 14 (D8, 2026-11-26): la Ley General de la Administración Pública (D.146-86). Su nombre no comparte palabras clave con la Ley de
   // Procedimiento Administrativo, y la «Ley para Optimizar la Administración Pública» (D.266-2013), que la reforma, no lleva «General».
-  ['LEY_GENERAL_ADMINISTRACION_PUBLICA', new RegExp(String.raw`ley\s+general\s+de\s+(?:la\s+)?administraci[oó]n\s+p[uú]blica\b${NO_EXTRANJERA}`, 'i')],
+  ['LEY_GENERAL_ADMINISTRACION_PUBLICA', new RegExp(String.raw`ley\s+general\s+de\s+(?:la\s+)?administraci[oó]n\s+p[uú]blica\b${SOLO_LGAP}${NO_EXTRANJERA}`, 'i')],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
