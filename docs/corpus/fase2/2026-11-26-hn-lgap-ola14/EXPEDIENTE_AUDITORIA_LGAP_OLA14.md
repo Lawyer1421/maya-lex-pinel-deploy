@@ -1,6 +1,6 @@
 # Expediente de auditoría · OLA 14 · lote 1 · `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA`
 
-**Estado:** PENDIENTE DE FIRMA
+**Estado:** D1–D8 FIRMADAS
 **Instrumento:** Ley General de la Administración Pública (Decreto No. 146-86, 27-oct-1986; La Gaceta No. 25,088 del 29-nov-1986) · lote `OLA14_LGAP_2014_01`
 **Fecha del paquete:** 2026-11-26 · **Generador:** `scripts/olas/ola14-lgap.ts` + `scripts/olas/cedij.ts` + `scripts/olas/paquete-ola.ts` · **Cotejo OCR:** `scripts/olas/ocr-lgap.ts`
 **Staging:** `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) · **Producción:** `thgrhueckkjdutjvcufp`
@@ -135,16 +135,18 @@
 
 | # | Decisión propuesta | Decisión del CLO |
 |---|---|---|
-| D1 | Fuente PRIMARY: edición CEDIJ 2009/2012 con sus notas, más el D.266-2013 tomado de La Gaceta 33,336. La Gaceta 25,088 es testigo del texto original, con las reservas 5.1 y 5.6 | ☐ |
-| D2 | Aceptar la extracción (edición y D.266-2013 por columnas), el corte del articulado y las correcciones de maquetación de §1 | ☐ |
-| D3 | Aceptar las 17 correcciones dirigidas de §4 a la lectura oficial de La Gaceta 25,088, y firmar el texto consolidado de 131 artículos (huella en §7) | ☐ |
-| D4 | Vigencia: 105 `true` (`TRUE_PRESUNTA`) y 26 derogados (§3), con las reservas 5.4 y 5.6 | ☐ |
-| D5 | Clasificación de §3: 94 PRIMARY; 11 CONTEXT vigentes por reforma no verificada (§5.2 y §5.3); art. 4-A sin fila (§5.5); art. 98 PRIMARY con el texto del D.266-2013 | ☐ |
-| D6 | Constancias por fila (`constancias.csv`, 82): notas de la edición, D.266-2013 y revisión pendiente del CLO | ☐ |
-| D7 | Sin legacy que ocultar (§2) | ☐ |
-| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar un PR de código posterior a la carga (P3) que registre `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre, para que sus filas PRIMARY sean citables | ☐ |
+| D1 | Fuente PRIMARY: edición CEDIJ 2009/2012 con sus notas, más el D.266-2013 tomado de La Gaceta 33,336. La Gaceta 25,088 es testigo del texto original, con las reservas 5.1 y 5.6 | ☑ **Aprobada** por el CLO (2026-11-26): la edición CEDIJ es el texto base, cotejado contra el OCR de La Gaceta 25,088 (1986) como testigo oficial |
+| D2 | Aceptar la extracción (edición y D.266-2013 por columnas), el corte del articulado y las correcciones de maquetación de §1 | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D3 | Aceptar las 17 correcciones dirigidas de §4 a la lectura oficial de La Gaceta 25,088, y firmar el texto consolidado de 131 artículos (huella en §7) | ☑ **Aprobada** por el CLO (2026-11-26): las 17 lecturas oficiales de La Gaceta 25,088 (§4), conservando literalmente la publicación original en el art. 74 («serán publicadas») |
+| D4 | Vigencia: 105 `true` (`TRUE_PRESUNTA`) y 26 derogados (§3), con las reservas 5.4 y 5.6 | ☑ **Aprobada** por el CLO (2026-11-26): los arts. 88–97 se clasifican como derogados (no citables) ante la discrepancia editorial, aplicando el principio de fallar cerrado (reserva 5.4); vigencia `TRUE_PRESUNTA`, con constancia expresa de reserva sobre eventuales reformas posteriores a 2014 pendientes de verificación exhaustiva (reserva 5.6) |
+| D5 | Clasificación de §3: 94 PRIMARY; 11 CONTEXT vigentes por reforma no verificada (§5.2 y §5.3); art. 4-A sin fila (§5.5); art. 98 PRIMARY con el texto del D.266-2013 | ☑ **Aprobada** por el CLO (2026-11-26): los arts. 30, 31, 33–36, 63, 69, 81, 84 y 86 se mantienen en CONTEXT (no citables como fundamento) hasta contar con el texto oficial de sus reformas en La Gaceta; no se crea fila sintética para el art. 4-A, con el mismo criterio aplicado en RLMUN. Total: 131 filas |
+| D6 | Constancias por fila (`constancias.csv`, 82): notas de la edición, D.266-2013 y revisión pendiente del CLO | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D7 | Sin legacy que ocultar (§2) | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar un PR de código posterior a la carga (P3) que registre `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre, para que sus filas PRIMARY sean citables | ☑ **Aprobada** por el CLO (2026-11-26): autoriza la promoción a V4 (staging) y V5 (producción) de las huellas de §7, y el PR posterior a la carga en producción (P3) que registra la LGAP en el código de la aplicación, junto con los ajustes menores del detector anotados en el cierre del PR #175 |
 
-Firma: ______________________ (CLO / Director Maya Lex) · Fecha: __________
+*Confirmación expresa (2026-11-26).* El CLO aprobó la auditoría de staging (§9) y confirmó expresamente las siete decisiones que requerían su atención: D1 (fuente base), D3 (17 correcciones oficiales), D5 (11 artículos en CONTEXT y art. 4-A sin fila), D4 con las reservas 5.4 y 5.6, y D8 (autorización dual). D2, D6 y D7 quedan aprobadas con la firma D1–D8.
+
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** (CLO / Director Maya Lex) · Fecha: **2026-11-26** · *Registrada por Claude Code por orden expresa del CLO, tras aprobar la auditoría de staging (§9).*
 
 ## 7. Paquete SQL y huellas (lo que autoriza D8)
 
@@ -192,3 +194,78 @@ pwsh -File out\ola14-lgap\ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3
 ```
 
 S1–S3 no requieren firma: dejan las filas ocultas. Después de S3, Claude Code verifica staging en solo lectura antes de S4; después de P3, verifica producción en solo lectura. Con D8 firmada, el registro de identidad de la LGAP en la aplicación va en su propio PR.
+
+## 9. Auditoría de staging (pasos S1–S3)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 1 -HastaPaso 3` desde `main` (`f8e6661`). Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Huellas SHA-256 en disco de S1–S4, P0–P3, R y `rows.jsonl` | §7 | 10 de 10 idénticas | ✔ |
+| Filas del lote `OLA14_LGAP_2014_01` | 131 | 131 (131 `id` y 131 `num_articulo_norm` distintos); ninguna 4-A (§5.5) | ✔ |
+| Ocultas (`revision_pendiente = true`) | 131 | 131; ninguna otra fila oculta en staging | ✔ |
+| `es_norma_vigente` | `NULL` hasta V4 | 131 `NULL` | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote (md5 de las líneas `id\|hash_contenido`, ordenadas en C) frente a `rows.jsonl` | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica | ✔ |
+| Embeddings | 131 de 384D | 131 de 384D; las sumas de control de la 1.ª y la 384.ª componente (7.8883 y 7.4502) coinciden con S2 | ✔ |
+| Identidad | única | `LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS` / `codigo` / «Ley General de la Administración Pública de Honduras (Decreto No. 146-86)» | ✔ |
+| Clasificación propuesta | 94 PRIMARY, 11 CONTEXT vigentes, 26 CONTEXT derogados | idéntica; sin `estado_v` ni `rol` todavía (los asigna S4) | ✔ |
+| Reformas del D.266-2013 | 28 textos sustituidos, con la huella del texto de la edición | arts. 2, 3, 4, 5, 6, 12, 13, 14, 15, 20, 22, 26, 27, 28, 29, 45, 50, 53, 85, 98, 99, 100, 101, 102, 113, 117, 124-C y 124-D, cada uno con `texto_edicion_sha256`. El art. 2 empieza «La Administración Pública es Centralizada y Descentralizada.»; el art. 29 tiene 34 párrafos; ninguna fila conserva las comillas exteriores de La Gaceta | ✔ |
+| Art. 98 (derogado y vuelto a crear) | historia completa | constancias `DEROGACION_TOTAL` (D.218-96) y `ADICION` (D.266-2013); texto «El Poder Ejecutivo puede intervenir…» | ✔ |
+| Derogados | 26, con su decreto | 20 de la edición (D.218-96, D.85-91, D.83-2004) y 6 del Artículo 10 del D.266-2013 (15-A, 82, 104, 105, 124-A, 124-B), cada uno con `derogado_por` | ✔ |
+| Constancias | 82 | 82; las 11 `REVISION_PENDIENTE_CLO` son exactamente las de los arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 | ✔ |
+| Corrección dirigida por el cotejo con La Gaceta 25,088 (§4) | 17 | las 17 lecturas oficiales están en las filas y ninguna de las 17 lecturas de la edición queda en ellas | ✔ |
+| Separación de la LPA y de los demás lotes | 0 textos comunes | 0 textos sustantivos comunes. Las únicas huellas compartidas son 13 filas cuyo contenido es solo «Derogado.» (arts. 38, 68, 75, 79, 87, 89–94, 96 y 97), iguales al art. 31-B de la Ley de Municipalidades. La LPA (`OLA13_LPA_2014_01`) sigue con sus 156 filas visibles en V4 | ✔ |
+| Las RPC no exponen el lote oculto | 0 | `buscar_biblioteca_v3` y `resolver_articulo_exacto` (md5 `4392a97a…` / `37735385…`): 0 filas de la LGAP | ✔ |
+
+Contexto de staging: 1,085 filas en total = 954 visibles + 131 ocultas, que son exactamente las de este lote.
+
+**Precondición de S4:** se cumple (131 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
+
+## 10. Verificación de staging tras S4 (V4)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 4 -HastaPaso 4` con el expediente firmado. Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Filas del lote | 131, sin 4-A | 131 (131 `num_articulo_norm` distintos); ninguna 4-A (D5) | ✔ |
+| Visibles en V4 | 131 | 131, todas con `metadata.estado_v = 'V4'`; 0 con `clasificacion_propuesta` | ✔ |
+| PRIMARY vigentes (`es_norma_vigente = true`, sin `rol`) | 94 | 94 | ✔ |
+| CONTEXT vigentes | 11 | 11: arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 (D5) | ✔ |
+| CONTEXT derogados (`es_norma_vigente = false`) | 26 | 26; ninguna fila con vigencia `NULL` ni derogada sin `rol` CONTEXT | ✔ |
+| `metadata.vigencia` | `TRUE_PRESUNTA` / `DEROGADO` | 105 `TRUE_PRESUNTA` (vigentes) y 26 `DEROGADO`, la misma convención que la Ley de Municipalidades | ✔ |
+| `motivo_rol` / `adjudicacion` | los de §3 | 8 motivos, que cuadran con §3 (64 + 25 + 5 PRIMARY; 8 + 1 + 11 + 6 derogados; 11 CONTEXT por reforma no verificada); `adjudicacion` única: «EXPEDIENTE_AUDITORIA_LGAP_OLA14.md (D1–D8)» | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica a §9 y a `rows.jsonl` (S4 no altera texto ni identidad) | ✔ |
+| Embeddings | 131 de 384D, sumas 7.8883 / 7.4502 | iguales a §9 | ✔ |
+| Separación de la LPA y de los demás lotes | intacta | 0 textos sustantivos comunes (solo filas «Derogado.»); la LPA sigue con 156 filas visibles en V4. Staging: 1,085 filas, todas visibles | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('LEY_GENERAL_ADMINISTRACION_PUBLICA', …)` | arts. 29 y 124-D → 1; art. 4-A → 0 | 1, 1 y 0; `LEY_PROCEDIMIENTO_ADMINISTRATIVO` art. 29 sigue devolviendo su propia fila | ✔ |
+| `buscar_biblioteca_v3` (`mayalex_normativos`, HN, solo vigentes) con el embedding del art. 5 | el propio artículo primero | art. 5 de la LGAP con similitud 1.000; el art. 82, derogado, no aparece entre los vigentes | ✔ |
+
+**Precondición de producción:** se cumple. Producción (solo lectura, 2026-11-26) sigue en 92,163 filas, 12,931 visibles y 7,959 V5, sin filas ni respaldo de la LGAP, y con las mismas RPC. Las huellas de P0–P3 en disco coinciden con §7.
+
+## 11. Cierre en producción (pasos P0–P3)
+
+**Lectura de verificación (2026-11-26, solo lectura, producción `thgrhueckkjdutjvcufp`), después de que el CLO corriera `ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3`. Resultado: conforme. `OLA14_LGAP_2014_01` queda cerrada en V5.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Estado previo (antes de P0) | 92,163 filas / 12,931 visibles / 7,959 V5; ni filas ni respaldo de la LGAP (§10) | idéntico | ✔ |
+| Totales de producción | 92,294 / 13,062 / 8,090 V5 | 92,294 filas / 13,062 visibles / 8,090 V5 (+131 en cada cifra) | ✔ |
+| Filas del lote | 131, sin 4-A | 131 (131 `num_articulo_norm` distintos); ninguna 4-A | ✔ |
+| Visibles en V5 | 131 | 131 | ✔ |
+| PRIMARY vigentes | 94 | 94 | ✔ |
+| CONTEXT vigentes | 11 | 11: arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 | ✔ |
+| CONTEXT derogados | 26 | 26, con `vigencia = DEROGADO`; ninguna fila con vigencia `NULL`, derogada sin `rol` CONTEXT ni con `clasificacion_propuesta` | ✔ |
+| Identidad / `adjudicacion` | únicas | `LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS`; «EXPEDIENTE_AUDITORIA_LGAP_OLA14.md (D1–D8)» | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica a staging y a `rows.jsonl` | ✔ |
+| Embeddings | 131 de 384D, sumas 7.8883 / 7.4502 | iguales a staging | ✔ |
+| Respaldo de P0 | creado vacío, con RLS y sin privilegios públicos | `biblioteca_vectores_ola14_lgap_2014_01_backup`: 0 filas, RLS activo, 0 privilegios para `anon`/`authenticated` | ✔ |
+| Separación de la LPA y de los demás lotes | intacta | LPA (`OLA13_LPA_2014_01`): 156 filas, 156 visibles en V5. 0 textos sustantivos comunes con otros lotes: las únicas huellas compartidas son las marcas «Derogado» y «Derogado.», iguales a las de los derogados de los Códigos Civil, de Familia y del Trabajo y de la Ley de Municipalidades | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('LEY_GENERAL_ADMINISTRACION_PUBLICA', …)` | art. 29 → 1; art. 4-A → 0 | 1 y 0; `LEY_PROCEDIMIENTO_ADMINISTRATIVO` art. 29 sigue devolviendo su propia fila | ✔ |
+| `buscar_biblioteca_v3` (`mayalex_normativos`, HN, solo vigentes) con el embedding del art. 5 | el propio artículo primero | art. 5 de la LGAP con similitud 1.000; el art. 82, derogado, no aparece entre los vigentes | ✔ |
+
+**Pendiente autorizado por D8:** el PR de código que registra `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre. Hasta entonces, la aplicación trata las filas de la LGAP como CONTEXT (`SIN_INSTRUMENT_ID`), lo que falla cerrado. El mismo PR debe agregar el lote a `verificar-firmadas.ts`.
