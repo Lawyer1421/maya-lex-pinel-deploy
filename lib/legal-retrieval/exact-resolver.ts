@@ -165,15 +165,29 @@ export function detectarMateriaSemanticaAmpliada(query: string): string | null {
 // la coincidencia por error.
 /** Fin de palabra que reconoce letras con tilde (sin la bandera `u`, `\b` no ve la «á» de «Panamá» como letra). */
 const FIN_PALABRA = String.raw`(?![a-zà-ÿ0-9])`;
-/** Ley homónima de otro país: «… de El Salvador», «… de la República de Guatemala», «… panameña». Solo la usan los patrones de las leyes V5. */
-const NO_EXTRANJERA = String.raw`(?!\s+(?:(?:de|del)\s+(?:la\s+rep[uú]blica\s+de\s+)?(?:el\s+salvador|guatemala|costa\s+rica|nicaragua|panam[aá]|belice|m[eé]xico|espa[nñ]a|colombia|chile|per[uú]|argentina|ecuador|venezuela|bolivia|paraguay|uruguay|rep[uú]blica\s+dominicana)${FIN_PALABRA}|(?:salvadore[nñ][ao]|guatemaltec[ao]|costarricense|nicarag[uü]ense|paname[nñ][ao]|mexican[ao]|espa[nñ]ola?|colombian[ao]|chilen[ao])${FIN_PALABRA}))`;
+/** Países distintos de Honduras que una consulta puede nombrar tras una ley homónima. */
+const PAISES = String.raw`(?:el\s+salvador|guatemala|costa\s+rica|nicaragua|panam[aá]|belice|m[eé]xico|espa[nñ]a|colombia|chile|per[uú]|argentina|ecuador|venezuela|bolivia|paraguay|uruguay|rep[uú]blica\s+dominicana|estados\s+unidos)`;
+/**
+ * Ley homónima de otro país: «… de El Salvador», «… de la República de Guatemala», «… en Costa Rica» (D8 de la OLA 14, hallazgo BAJO del
+ * #175), «… panameña». Solo la usan los patrones de las leyes V5.
+ */
+const NO_EXTRANJERA = String.raw`(?!\s+(?:(?:de|del|en)\s+(?:la\s+rep[uú]blica\s+de\s+)?${PAISES}${FIN_PALABRA}|(?:salvadore[nñ][ao]|guatemaltec[ao]|costarricense|nicarag[uü]ense|paname[nñ][ao]|mexican[ao]|espa[nñ]ola?|colombian[ao]|chilen[ao]|argentin[ao])${FIN_PALABRA}))`;
 
 /**
- * «Ley de Propiedad» (D.82-2004) solo cuando no la sigue (a) un calificativo temático de otra ley («Intelectual», «Industrial», «Horizontal»,
- * «Rural», «Vehicular», «Literaria», «Agraria», «Comunal»…) ni (b) un «de/del X» que no sea Honduras, la República (de Honduras) o una cifra
- * («Ley de Propiedad del Reino de España», «… de la Tierra», «… de Vehículos»). Hallazgo BAJO del #173 (2026-11-26).
+ * «Ley de Propiedad» (D.82-2004) solo cuando no la sigue:
+ *  (a) un calificativo temático de otra ley («Intelectual», «Industrial», «Horizontal», «Rural», «Vehicular», «Literaria», «Agraria»,
+ *      «Comunal», «Mueble», «Estatal»…);
+ *  (b) un «de/del X» que no sea Honduras, la República (de Honduras), una cifra o una referencia interna («Ley de Propiedad del artículo
+ *      10» sigue siendo la Ley): «Ley de Propiedad del Reino de España», «… de la Tierra», «… de Vehículos» son otros instrumentos.
+ * La ley de otro país («… en Costa Rica») la excluye NO_EXTRANJERA. Hallazgos BAJO del #173 y del #175 (2026-11-26).
  */
-const SOLO_LEY_PROPIEDAD = String.raw`(?!\s+(?:intelectual|industrial|horizontal|rural|urbana|vehicular|literaria|art[ií]stica|agraria|comunal|inmobiliaria|minera|privada|p[uú]blica|social|colectiva|cooperativa|ind[ií]gena|forestal|ejidal|ra[ií]z)${FIN_PALABRA})(?!\s+(?:de|del)\s+(?!(?:honduras|la\s+rep[uú]blica(?:\s+de\s+honduras)?)${FIN_PALABRA}|\d))`;
+const SOLO_LEY_PROPIEDAD = String.raw`(?!\s+(?:intelectual|industrial|horizontal|rural|urbana|vehicular|literaria|art[ií]stica|agraria|comunal|inmobiliaria|minera|privada|p[uú]blica|social|colectiva|cooperativa|ind[ií]gena|forestal|ejidal|ra[ií]z|mueble|muebles|inmueble|inmuebles|estatal|municipal|nacional)${FIN_PALABRA})(?!\s+(?:de|del)\s+(?!(?:honduras|la\s+rep[uú]blica(?:\s+de\s+honduras)?|(?:su\s+|el\s+|los\s+)?art(?:[ií]culos?|s?\.)|\d)${FIN_PALABRA}|\d))`;
+/**
+ * Conector entre «Reglamento (General)» y «Ley de Municipalidades»: «de», «a», «para» o «sobre», con artículo opcional y «nueva» opcional
+ * («Reglamento para la Ley…», «Reglamento sobre la Ley…», «Reglamento de la nueva Ley…»). El detector del Reglamento y la exclusión de la
+ * Ley usan la misma forma: lo que es Reglamento nunca resuelve a la Ley.
+ */
+const CONECTOR_RLMUN = String.raw`reglamento\s+(?:general\s+)?(?:de|a|para|sobre)\s+(?:la\s+)?(?:nueva\s+)?`;
 
 const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_PROCESAL_PENAL', /\bcpp\b|c[oó]digo\s+procesal\s+penal\b/i],
@@ -217,8 +231,11 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(String.raw`ley\s+de\s+procedimientos?\s+administrativos?\b${NO_EXTRANJERA}`, 'i')],
   // Artículo opcional y «a la» (2026-11-26, hallazgo BAJO del #173): «Reglamento de Ley de Municipalidades» y «Reglamento a la Ley…» son el
   // Reglamento, nunca la Ley; la exclusión de la Ley usa exactamente la misma forma.
-  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(String.raw`reglamento\s+(?:general\s+)?(?:de|a)\s+(?:la\s+)?ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
-  ['LEY_MUNICIPALIDADES', new RegExp(String.raw`(?<!reglamento\s+(?:general\s+)?(?:de|a)\s+(?:la\s+)?)ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(String.raw`${CONECTOR_RLMUN}ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
+  ['LEY_MUNICIPALIDADES', new RegExp(String.raw`(?<!${CONECTOR_RLMUN})ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
+  // OLA 14 (D8, 2026-11-26): la Ley General de la Administración Pública (D.146-86). Su nombre no comparte palabras clave con la Ley de
+  // Procedimiento Administrativo, y la «Ley para Optimizar la Administración Pública» (D.266-2013), que la reforma, no lleva «General».
+  ['LEY_GENERAL_ADMINISTRACION_PUBLICA', new RegExp(String.raw`ley\s+general\s+de\s+(?:la\s+)?administraci[oó]n\s+p[uú]blica\b${NO_EXTRANJERA}`, 'i')],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
@@ -398,6 +415,7 @@ const INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL: ReadonlySet<InstrumentoNormalizado> =
   'LEY_PROCEDIMIENTO_ADMINISTRATIVO',
   'REGLAMENTO_LEY_MUNICIPALIDADES',
   'LEY_MUNICIPALIDADES',
+  'LEY_GENERAL_ADMINISTRACION_PUBLICA',
 ]);
 
 /**

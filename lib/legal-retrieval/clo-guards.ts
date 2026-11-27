@@ -43,7 +43,7 @@ export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([
   'REGLAMENTO_NOTARIADO', 'CODIGO_TRIBUTARIO', 'LEY_JUSTICIA_CONSTITUCIONAL', 'CONSTITUCION', 'CODIGO_COMERCIO', 'CODIGO_NINEZ', 'LEY_ESPECIAL_ADOPCIONES',
   'DECRETO_77_2006', 'DECRETO_284_2013', 'DECRETO_35_2013',
   'LEY_ORGANIZACION_TRIBUNALES', 'LEY_PROPIEDAD', 'LEY_LAVADO_ACTIVOS', 'LEY_PROCEDIMIENTO_ADMINISTRATIVO', 'LEY_MUNICIPALIDADES',
-  'REGLAMENTO_LEY_MUNICIPALIDADES',
+  'REGLAMENTO_LEY_MUNICIPALIDADES', 'LEY_GENERAL_ADMINISTRACION_PUBLICA',
 ] as const);
 
 export const esInstrumentId = (v: unknown): v is InstrumentId => typeof v === 'string' && (INSTRUMENT_IDS as readonly string[]).includes(v);
@@ -241,8 +241,10 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['LEY_PROPIEDAD', new RegExp(`^ley\\s+de\\s+(?:la\\s+)?propiedad${CIERRE}`)],
   ['LEY_LAVADO_ACTIVOS', new RegExp(`^ley\\s+especial\\s+contra\\s+el\\s+lavado\\s+de\\s+activos${CIERRE}`)],
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(`^ley\\s+de\\s+procedimientos?\\s+administrativos?${CIERRE}`)],
-  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?(?:de|a)\\s+(?:la\\s+)?ley\\s+de\\s+municipalidades${CIERRE}`)],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?(?:de|a|para|sobre)\\s+(?:la\\s+)?(?:nueva\\s+)?ley\\s+de\\s+municipalidades${CIERRE}`)],
   ['LEY_MUNICIPALIDADES', new RegExp(`^ley\\s+de\\s+municipalidades${CIERRE}`)],
+  // OLA 14 (D8 del expediente OLA14_LGAP, firmado el 2026-11-26): fuente «Ley General de la Administración Pública de Honduras (Decreto No. 146-86)».
+  ['LEY_GENERAL_ADMINISTRACION_PUBLICA', new RegExp(`^ley\\s+general\\s+de\\s+(?:la\\s+)?administracion\\s+publica${CIERRE}`)],
 ];
 
 /** metadata.norm_id con valores EXACTOS conocidos (sin patrones). Cualquier otro valor no identifica nada. */
@@ -641,10 +643,10 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   LEY_LAVADO_ACTIVOS: ['ley especial contra el lavado de activos', 'ley contra el lavado de activos'],
   LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['ley de procedimiento administrativo', 'ley de procedimientos administrativos'],
   LEY_MUNICIPALIDADES: ['ley de municipalidades'],
-  REGLAMENTO_LEY_MUNICIPALIDADES: [
-    'reglamento general de la ley de municipalidades', 'reglamento de la ley de municipalidades', 'reglamento general de ley de municipalidades',
-    'reglamento de ley de municipalidades', 'reglamento general a la ley de municipalidades', 'reglamento a la ley de municipalidades',
-  ],
+  // Todas las formas del conector del detector (CONECTOR_RLMUN en exact-resolver.ts): «(general) de/a/para/sobre (la) (nueva) Ley…».
+  REGLAMENTO_LEY_MUNICIPALIDADES: ['general ', ''].flatMap((g) => ['de', 'a', 'para', 'sobre'].flatMap((c) => ['la ', ''].flatMap((a) =>
+    ['nueva ', ''].map((n) => `reglamento ${g}${c} ${a}${n}ley de municipalidades`)))),
+  LEY_GENERAL_ADMINISTRACION_PUBLICA: ['ley general de la administracion publica', 'ley general de administracion publica'],
 });
 const escapar = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /** Instrumentos cuyos alias contienen los de otro (clave): esas menciones se descartan antes de buscar la clave. Solo para pares nuevos. */

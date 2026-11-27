@@ -17,6 +17,7 @@ const FUENTES_V5: Array<[InstrumentId, string, string]> = [
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', 'OLA13_LPA_2014_01', 'Ley de Procedimiento Administrativo de Honduras (Decreto No. 152-87)'],
   ['LEY_MUNICIPALIDADES', 'OLA13_LMUN_2009_01', 'Ley de Municipalidades de Honduras (Decreto No. 134-90)'],
   ['REGLAMENTO_LEY_MUNICIPALIDADES', 'OLA13_RLMUN_1993_01', 'Reglamento General de la Ley de Municipalidades de Honduras (Acuerdo No. 018-93)'],
+  ['LEY_GENERAL_ADMINISTRACION_PUBLICA', 'OLA14_LGAP_2014_01', 'Ley General de la Administración Pública de Honduras (Decreto No. 146-86)'],
 ];
 const FUENTE_RLMUN = FUENTES_V5[6][2];
 
@@ -53,9 +54,12 @@ describe('identidad CLO de las leyes V5 de las olas 12 y 13', () => {
       'Comentario a la Ley de Municipalidades',
       'Ley de Municipalidades de El Salvador comentada',
       'Ley Especial contra el Lavado de Activos y Financiamiento del Terrorismo de Panamá',
-      'Ley General de la Administración Pública',
+      // Desde la D8 de la OLA 14 la LGAP tiene identidad; su homónima de Costa Rica y la ley que la reforma no.
+      'Ley General de la Administración Pública de Costa Rica (Ley 6227)',
+      'Ley para Optimizar la Administración Pública, Mejorar los Servicios a la Ciudadanía y Fortalecimiento de la Transparencia en el Gobierno',
     ];
     for (const f of nulos) expect(instrumentIdDeFragmento({ fuente: f }), f).toBeNull();
+    expect(instrumentIdDeFragmento({ fuente: 'Ley General de la Administración Pública' })).toBe('LEY_GENERAL_ADMINISTRACION_PUBLICA');
     expect(instrumentIdDeFragmento({ fuente: 'LEY DE PROCEDIMIENTOS ADMINISTRATIVO HONDURAS' })).toBeNull();
     expect(instrumentIdDeFragmento({ fuente: 'Ley de Procedimientos Administrativos' })).toBe('LEY_PROCEDIMIENTO_ADMINISTRATIVO');
   });

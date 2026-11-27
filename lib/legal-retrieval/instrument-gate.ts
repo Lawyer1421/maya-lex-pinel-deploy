@@ -114,6 +114,7 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
   LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['152-87'],  // Ley de Procedimiento Administrativo (Decreto No. 152-87)
   LEY_MUNICIPALIDADES: ['134-90'],               // Ley de Municipalidades de Honduras (Decreto No. 134-90)
   REGLAMENTO_LEY_MUNICIPALIDADES: ['018-93'],    // Reglamento General de la Ley de Municipalidades (Acuerdo No. 018-93)
+  LEY_GENERAL_ADMINISTRACION_PUBLICA: ['146-86'], // Ley General de la Administración Pública (Decreto No. 146-86)
 };
 
 /**
