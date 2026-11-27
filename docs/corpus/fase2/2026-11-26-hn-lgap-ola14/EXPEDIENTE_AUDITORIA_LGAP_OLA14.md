@@ -1,6 +1,6 @@
 # Expediente de auditoría · OLA 14 · lote 1 · `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA`
 
-**Estado:** PENDIENTE DE FIRMA
+**Estado:** D1–D8 FIRMADAS
 **Instrumento:** Ley General de la Administración Pública (Decreto No. 146-86, 27-oct-1986; La Gaceta No. 25,088 del 29-nov-1986) · lote `OLA14_LGAP_2014_01`
 **Fecha del paquete:** 2026-11-26 · **Generador:** `scripts/olas/ola14-lgap.ts` + `scripts/olas/cedij.ts` + `scripts/olas/paquete-ola.ts` · **Cotejo OCR:** `scripts/olas/ocr-lgap.ts`
 **Staging:** `mayalexhn-staging` (`aicakncgtuiiuomflkqj`) · **Producción:** `thgrhueckkjdutjvcufp`
@@ -135,16 +135,18 @@
 
 | # | Decisión propuesta | Decisión del CLO |
 |---|---|---|
-| D1 | Fuente PRIMARY: edición CEDIJ 2009/2012 con sus notas, más el D.266-2013 tomado de La Gaceta 33,336. La Gaceta 25,088 es testigo del texto original, con las reservas 5.1 y 5.6 | ☐ |
-| D2 | Aceptar la extracción (edición y D.266-2013 por columnas), el corte del articulado y las correcciones de maquetación de §1 | ☐ |
-| D3 | Aceptar las 17 correcciones dirigidas de §4 a la lectura oficial de La Gaceta 25,088, y firmar el texto consolidado de 131 artículos (huella en §7) | ☐ |
-| D4 | Vigencia: 105 `true` (`TRUE_PRESUNTA`) y 26 derogados (§3), con las reservas 5.4 y 5.6 | ☐ |
-| D5 | Clasificación de §3: 94 PRIMARY; 11 CONTEXT vigentes por reforma no verificada (§5.2 y §5.3); art. 4-A sin fila (§5.5); art. 98 PRIMARY con el texto del D.266-2013 | ☐ |
-| D6 | Constancias por fila (`constancias.csv`, 82): notas de la edición, D.266-2013 y revisión pendiente del CLO | ☐ |
-| D7 | Sin legacy que ocultar (§2) | ☐ |
-| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar un PR de código posterior a la carga (P3) que registre `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre, para que sus filas PRIMARY sean citables | ☐ |
+| D1 | Fuente PRIMARY: edición CEDIJ 2009/2012 con sus notas, más el D.266-2013 tomado de La Gaceta 33,336. La Gaceta 25,088 es testigo del texto original, con las reservas 5.1 y 5.6 | ☑ **Aprobada** por el CLO (2026-11-26): la edición CEDIJ es el texto base, cotejado contra el OCR de La Gaceta 25,088 (1986) como testigo oficial |
+| D2 | Aceptar la extracción (edición y D.266-2013 por columnas), el corte del articulado y las correcciones de maquetación de §1 | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D3 | Aceptar las 17 correcciones dirigidas de §4 a la lectura oficial de La Gaceta 25,088, y firmar el texto consolidado de 131 artículos (huella en §7) | ☑ **Aprobada** por el CLO (2026-11-26): las 17 lecturas oficiales de La Gaceta 25,088 (§4), conservando literalmente la publicación original en el art. 74 («serán publicadas») |
+| D4 | Vigencia: 105 `true` (`TRUE_PRESUNTA`) y 26 derogados (§3), con las reservas 5.4 y 5.6 | ☑ **Aprobada** por el CLO (2026-11-26): los arts. 88–97 se clasifican como derogados (no citables) ante la discrepancia editorial, aplicando el principio de fallar cerrado (reserva 5.4); vigencia `TRUE_PRESUNTA`, con constancia expresa de reserva sobre eventuales reformas posteriores a 2014 pendientes de verificación exhaustiva (reserva 5.6) |
+| D5 | Clasificación de §3: 94 PRIMARY; 11 CONTEXT vigentes por reforma no verificada (§5.2 y §5.3); art. 4-A sin fila (§5.5); art. 98 PRIMARY con el texto del D.266-2013 | ☑ **Aprobada** por el CLO (2026-11-26): los arts. 30, 31, 33–36, 63, 69, 81, 84 y 86 se mantienen en CONTEXT (no citables como fundamento) hasta contar con el texto oficial de sus reformas en La Gaceta; no se crea fila sintética para el art. 4-A, con el mismo criterio aplicado en RLMUN. Total: 131 filas |
+| D6 | Constancias por fila (`constancias.csv`, 82): notas de la edición, D.266-2013 y revisión pendiente del CLO | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D7 | Sin legacy que ocultar (§2) | ☑ **Aprobada** por el CLO (2026-11-26), con la firma D1–D8 |
+| D8 | Autorizar V4 en staging y V5 en producción, exactamente para los SQL y huellas de §7. Además, autorizar un PR de código posterior a la carga (P3) que registre `LEY_GENERAL_ADMINISTRACION_PUBLICA` (Decreto 146-86) en el catálogo de identidad, el guardián CLO y el buscador por nombre, para que sus filas PRIMARY sean citables | ☑ **Aprobada** por el CLO (2026-11-26): autoriza la promoción a V4 (staging) y V5 (producción) de las huellas de §7, y el PR posterior a la carga en producción (P3) que registra la LGAP en el código de la aplicación, junto con los ajustes menores del detector anotados en el cierre del PR #175 |
 
-Firma: ______________________ (CLO / Director Maya Lex) · Fecha: __________
+*Confirmación expresa (2026-11-26).* El CLO aprobó la auditoría de staging (§9) y confirmó expresamente las siete decisiones que requerían su atención: D1 (fuente base), D3 (17 correcciones oficiales), D5 (11 artículos en CONTEXT y art. 4-A sin fila), D4 con las reservas 5.4 y 5.6, y D8 (autorización dual). D2, D6 y D7 quedan aprobadas con la firma D1–D8.
+
+Firma: **Abg. y Not. Fredy Omar Pinel Flores** (CLO / Director Maya Lex) · Fecha: **2026-11-26** · *Registrada por Claude Code por orden expresa del CLO, tras aprobar la auditoría de staging (§9).*
 
 ## 7. Paquete SQL y huellas (lo que autoriza D8)
 
