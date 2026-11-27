@@ -1,0 +1,3 @@
+# La huella SHA-256 firmada exige LF: sin esto, core.autocrlf=true convertiría el SQL a CRLF al hacer checkout.
+*.sql text eol=lf
+*.json text eol=lf

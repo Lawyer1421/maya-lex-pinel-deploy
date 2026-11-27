@@ -1,0 +1,45 @@
+{
+  "ola": "CORRECCION_C2",
+  "ingest_batch": "LP_ART28_CONTEXT_D182_2009",
+  "descripcion": "Ley de Propiedad art. 28 (OLA12_LP_2007_01): PRIMARY → CONTEXT vigente con constancia del art. 83 del D.182-2009",
+  "pliego": "docs/corpus/fase2/2026-11-27-correccion-c2-lp-art28/DICTAMEN_CORRECCION_C2_LP_ART28.md",
+  "firma": "C2 FIRMADA",
+  "refs": {
+    "staging": "aicakncgtuiiuomflkqj",
+    "prod": "thgrhueckkjdutjvcufp"
+  },
+  "archivos": [
+    {
+      "ruta": "01_ensayo_staging.sql",
+      "bytes": 28952,
+      "sha256": "4656bd6a8a3a6fa8866021163df23f0177854a93cc3f55c0f69c74a77950cc0b",
+      "destino": "staging",
+      "orden": 1,
+      "requiereFirma": false
+    },
+    {
+      "ruta": "01_respaldo_prod.sql",
+      "bytes": 4127,
+      "sha256": "b56f83266364d29b3aec3a83f14f242180187fe6e1478e853ca561ee94d7587b",
+      "destino": "prod",
+      "orden": 1,
+      "requiereFirma": true
+    },
+    {
+      "ruta": "02_reclasificar_prod.sql",
+      "bytes": 4341,
+      "sha256": "5104337e1d120672722f3366b38b5c777aeee1bcd965ec66366c8afbb3f11d63",
+      "destino": "prod",
+      "orden": 2,
+      "requiereFirma": true
+    },
+    {
+      "ruta": "99_reversion_prod.sql",
+      "bytes": 3355,
+      "sha256": "7a7c4b8f6996dbbfa1a45fec830a72bc8d3b15f14a37e3d19d96997fdbfbc981",
+      "destino": "prod",
+      "orden": 99,
+      "requiereFirma": true
+    }
+  ]
+}
