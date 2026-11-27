@@ -51,6 +51,12 @@ function etiquetaInstrumento(instrumento: CanonicalLegalReference['instrumento']
     CODIGO_NINEZ: 'Código de la Niñez y de la Adolescencia',
     DECRETO_284_2013: 'Decreto 284-2013',
     DECRETO_35_2013: 'Decreto 35-2013',
+    LEY_ORGANIZACION_TRIBUNALES: 'Ley de Organización y Atribuciones de los Tribunales',
+    LEY_PROPIEDAD: 'Ley de Propiedad',
+    LEY_LAVADO_ACTIVOS: 'Ley Especial contra el Lavado de Activos',
+    LEY_PROCEDIMIENTO_ADMINISTRATIVO: 'Ley de Procedimiento Administrativo',
+    REGLAMENTO_LEY_MUNICIPALIDADES: 'Reglamento General de la Ley de Municipalidades',
+    LEY_MUNICIPALIDADES: 'Ley de Municipalidades',
   };
   return etiquetas[instrumento];
 }

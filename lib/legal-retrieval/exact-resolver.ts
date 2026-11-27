@@ -163,6 +163,11 @@ export function detectarMateriaSemanticaAmpliada(query: string): string | null {
 // "Reglamento del Código del Notariado" contiene "Código del Notariado" como
 // subcadena, así que si CODIGO_NOTARIADO se evaluara primero se quedaría con
 // la coincidencia por error.
+/** Fin de palabra que reconoce letras con tilde (sin la bandera `u`, `\b` no ve la «á» de «Panamá» como letra). */
+const FIN_PALABRA = String.raw`(?![a-zà-ÿ0-9])`;
+/** Ley homónima de otro país: «… de El Salvador», «… de la República de Guatemala», «… panameña». Solo la usan los patrones de las leyes V5. */
+const NO_EXTRANJERA = String.raw`(?!\s+(?:(?:de|del)\s+(?:la\s+rep[uú]blica\s+de\s+)?(?:el\s+salvador|guatemala|costa\s+rica|nicaragua|panam[aá]|belice|m[eé]xico|espa[nñ]a|colombia|chile|per[uú]|argentina|ecuador|venezuela|bolivia|paraguay|uruguay|rep[uú]blica\s+dominicana)${FIN_PALABRA}|(?:salvadore[nñ][ao]|guatemaltec[ao]|costarricense|nicarag[uü]ense|paname[nñ][ao]|mexican[ao]|espa[nñ]ola?|colombian[ao]|chilen[ao])${FIN_PALABRA}))`;
+
 const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   ['CODIGO_PROCESAL_PENAL', /\bcpp\b|c[oó]digo\s+procesal\s+penal\b/i],
   ['CODIGO_PROCESAL_CIVIL', /\bcpc\b|c[oó]digo\s+procesal\s+civil\b/i],
@@ -194,6 +199,17 @@ const RE_INSTRUMENTO: Array<[InstrumentoNormalizado, RegExp]> = [
   // "dispone", "prevé", "vigente", "en su", "y", o un número. Lista positiva: lo
   // no listado no se identifica como instrumento.
   ['CONSTITUCION', /constituci[oó]n\b(?=\s*(?:$|[?¿!¡.,;:)]|de\s+la\s+rep[uú]blica\b|de\s+honduras\b|pol[ií]tica\b|nacional\b|sobre\b|que\b|establece\b|dispone\b|prev[eé]\b|vigente\b|en\s+su\b|y\b|\d))/i],
+  // Leyes de las olas V5 (2026-11-26): solo por su nombre completo, nunca por siglas ni por tema. NO_EXTRANJERA deja sin identidad la ley
+  // homónima de otro país («Ley de Municipalidades de El Salvador»): el gate la trata como referencia específica sin resolver (fail-close).
+  // El Reglamento va antes que la Ley y, además, la Ley excluye la subcadena precedida de «reglamento (general) de la».
+  ['LEY_ORGANIZACION_TRIBUNALES', new RegExp(String.raw`ley\s+de\s+organizaci[oó]n\s+y\s+atribuciones\s+de\s+los\s+tribunales\b${NO_EXTRANJERA}`, 'i')],
+  // «Ley de Propiedad Intelectual / Industrial / Horizontal» son otros instrumentos.
+  ['LEY_PROPIEDAD', new RegExp(String.raw`ley\s+de\s+(?:la\s+)?propiedad\b(?!\s+(?:intelectual|industrial|horizontal)\b)${NO_EXTRANJERA}`, 'i')],
+  // Con o sin «Especial». La ley anterior («Ley contra el Delito de Lavado de Activos», D.45-2002) no coincide.
+  ['LEY_LAVADO_ACTIVOS', new RegExp(String.raw`ley\s+(?:especial\s+)?contra\s+el\s+lavado\s+de\s+activos\b${NO_EXTRANJERA}`, 'i')],
+  ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(String.raw`ley\s+de\s+procedimientos?\s+administrativos?\b${NO_EXTRANJERA}`, 'i')],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(String.raw`reglamento\s+(?:general\s+)?de\s+la\s+ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
+  ['LEY_MUNICIPALIDADES', new RegExp(String.raw`(?<!reglamento\s+(?:general\s+)?de\s+la\s+)ley\s+de\s+municipalidades\b${NO_EXTRANJERA}`, 'i')],
 ];
 
 /** Detecta el instrumento normativo específico que el usuario mencionó explícitamente, o null si no lo hizo. */
@@ -365,6 +381,14 @@ const INSTRUMENTOS_SIN_ENCABEZADO_TEXTUAL: ReadonlySet<InstrumentoNormalizado> =
   'CODIGO_PROCESAL_CIVIL',
   'CODIGO_TRIBUTARIO',
   'LEY_JUSTICIA_CONSTITUCIONAL',
+  // Olas V5 (2026-11-26): el `contenido` de sus filas no lleva «Artículo N.» (encabezado retirado al empaquetar) y `num_articulo` es el
+  // número normalizado de cada artículo (verificado en solo lectura: 0 filas con encabezado y num_articulo = num_articulo_norm en todas).
+  'LEY_ORGANIZACION_TRIBUNALES',
+  'LEY_PROPIEDAD',
+  'LEY_LAVADO_ACTIVOS',
+  'LEY_PROCEDIMIENTO_ADMINISTRATIVO',
+  'REGLAMENTO_LEY_MUNICIPALIDADES',
+  'LEY_MUNICIPALIDADES',
 ]);
 
 /**

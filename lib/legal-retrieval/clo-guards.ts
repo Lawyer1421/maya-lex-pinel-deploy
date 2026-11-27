@@ -32,16 +32,10 @@ export type RolEvidencia = 'PRIMARY' | 'CONTEXT';
 export type TipoFuenteClo = 'NORMA' | 'JURISPRUDENCIA' | 'DOCTRINA' | 'PRACTICA_NOTARIAL' | 'DOCUMENTAL';
 
 /**
- * Leyes de las olas V5 firmadas (OLA 12 y OLA 13) que el Exact Resolver todavía no modela. Sin identidad, sus filas V5 caían en
- * SIN_INSTRUMENT_ID y nunca podían ser PRIMARY (hallazgo MEDIO del PR #170, 2026-11-26). `REGLAMENTO_LEY_MUNICIPALIDADES` (OLA13_RLMUN) es
- * citable desde la firma de su expediente D1–D8 y su carga en producción (D8, 2026-11-26); su identidad sigue separada de la Ley.
+ * Identificadores de instrumento: los del catálogo único (instrument-identity.ts, que desde 2026-11-26 incluye las leyes V5 de las olas 12–13:
+ * LOAT, LP, LA, LPA, LMUN y RLMUN) y dos instrumentos del corpus que el resolver no modela.
  */
-export type InstrumentoOlaV5 =
-  | 'LEY_ORGANIZACION_TRIBUNALES' | 'LEY_PROPIEDAD' | 'LEY_LAVADO_ACTIVOS'
-  | 'LEY_PROCEDIMIENTO_ADMINISTRATIVO' | 'LEY_MUNICIPALIDADES' | 'REGLAMENTO_LEY_MUNICIPALIDADES';
-
-/** Identificadores de instrumento: los del Exact Resolver, dos instrumentos del corpus que el resolver no modela y las leyes V5 de las olas 12–13. */
-export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 'DECRETO_77_2006' | InstrumentoOlaV5;
+export type InstrumentId = InstrumentoNormalizado | 'LEY_ESPECIAL_ADOPCIONES' | 'DECRETO_77_2006';
 
 /** Lista cerrada de instrument_id válidos. Cualquier otro valor ('', 'UNKNOWN', 'null', texto libre) no identifica nada. */
 export const INSTRUMENT_IDS: readonly InstrumentId[] = Object.freeze([

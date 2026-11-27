@@ -43,9 +43,9 @@ const CORPUS_GENERICO: { consulta: string; pertinente: Fila }[] = [
 // Clasificación pura: 2, 3, 4
 // ─────────────────────────────────────────────────────────────────────────────
 
+// «Ley de Propiedad» y «Ley de Procedimiento Administrativo» salieron de esta lista el 2026-11-26: ya tienen identidad en el catálogo único
+// (leyes V5, bloque (a) de la Fase II) y se resuelven; ver el bloque «2 bis». «Ley de Propiedad Intelectual» sigue sin identidad.
 const TITULOS_PARTICULARES = [
-  'Ley de Propiedad',
-  'Ley de Procedimiento Administrativo',
   'Ley de Propiedad Intelectual',
   'Ley del Contrato de Seguro',
   'Ley Marco de Telecomunicaciones',
@@ -59,6 +59,15 @@ describe('2 — títulos particulares no resueltos → SPECIFIC_UNRESOLVED', () 
     const i = clasificarIntencionInstrumental(`Según la ${titulo}, ¿qué procede?`);
     expect(i.estado).toBe('SPECIFIC_UNRESOLVED');
     expect(i.identidades).toEqual([]);
+  });
+});
+
+describe('2 bis — leyes V5 con identidad en el catálogo → SPECIFIC_RESOLVED', () => {
+  it.each([
+    ['Ley de Propiedad', 'LEY_PROPIEDAD'],
+    ['Ley de Procedimiento Administrativo', 'LEY_PROCEDIMIENTO_ADMINISTRATIVO'],
+  ])('%s', (titulo, id) => {
+    expect(clasificarIntencionInstrumental(`Según la ${titulo}, ¿qué procede?`)).toMatchObject({ estado: 'SPECIFIC_RESOLVED', identidades: [id] });
   });
 });
 
