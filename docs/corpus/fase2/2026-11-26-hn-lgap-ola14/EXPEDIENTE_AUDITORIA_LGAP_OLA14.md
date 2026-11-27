@@ -221,3 +221,26 @@ S1–S3 no requieren firma: dejan las filas ocultas. Después de S3, Claude Code
 Contexto de staging: 1,085 filas en total = 954 visibles + 131 ocultas, que son exactamente las de este lote.
 
 **Precondición de S4:** se cumple (131 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
+
+## 10. Verificación de staging tras S4 (V4)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 4 -HastaPaso 4` con el expediente firmado. Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Filas del lote | 131, sin 4-A | 131 (131 `num_articulo_norm` distintos); ninguna 4-A (D5) | ✔ |
+| Visibles en V4 | 131 | 131, todas con `metadata.estado_v = 'V4'`; 0 con `clasificacion_propuesta` | ✔ |
+| PRIMARY vigentes (`es_norma_vigente = true`, sin `rol`) | 94 | 94 | ✔ |
+| CONTEXT vigentes | 11 | 11: arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 (D5) | ✔ |
+| CONTEXT derogados (`es_norma_vigente = false`) | 26 | 26; ninguna fila con vigencia `NULL` ni derogada sin `rol` CONTEXT | ✔ |
+| `metadata.vigencia` | `TRUE_PRESUNTA` / `DEROGADO` | 105 `TRUE_PRESUNTA` (vigentes) y 26 `DEROGADO`, la misma convención que la Ley de Municipalidades | ✔ |
+| `motivo_rol` / `adjudicacion` | los de §3 | 8 motivos, que cuadran con §3 (64 + 25 + 5 PRIMARY; 8 + 1 + 11 + 6 derogados; 11 CONTEXT por reforma no verificada); `adjudicacion` única: «EXPEDIENTE_AUDITORIA_LGAP_OLA14.md (D1–D8)» | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica a §9 y a `rows.jsonl` (S4 no altera texto ni identidad) | ✔ |
+| Embeddings | 131 de 384D, sumas 7.8883 / 7.4502 | iguales a §9 | ✔ |
+| Separación de la LPA y de los demás lotes | intacta | 0 textos sustantivos comunes (solo filas «Derogado.»); la LPA sigue con 156 filas visibles en V4. Staging: 1,085 filas, todas visibles | ✔ |
+| RPC (md5 de `prosrc`) | `4392a97a…` / `37735385…` | sin cambios | ✔ |
+| `resolver_articulo_exacto('LEY_GENERAL_ADMINISTRACION_PUBLICA', …)` | arts. 29 y 124-D → 1; art. 4-A → 0 | 1, 1 y 0; `LEY_PROCEDIMIENTO_ADMINISTRATIVO` art. 29 sigue devolviendo su propia fila | ✔ |
+| `buscar_biblioteca_v3` (`mayalex_normativos`, HN, solo vigentes) con el embedding del art. 5 | el propio artículo primero | art. 5 de la LGAP con similitud 1.000; el art. 82, derogado, no aparece entre los vigentes | ✔ |
+
+**Precondición de producción:** se cumple. Producción (solo lectura, 2026-11-26) sigue en 92,163 filas, 12,931 visibles y 7,959 V5, sin filas ni respaldo de la LGAP, y con las mismas RPC. Las huellas de P0–P3 en disco coinciden con §7.
