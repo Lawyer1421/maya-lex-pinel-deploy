@@ -57,6 +57,7 @@ function etiquetaInstrumento(instrumento: CanonicalLegalReference['instrumento']
     LEY_PROCEDIMIENTO_ADMINISTRATIVO: 'Ley de Procedimiento Administrativo',
     REGLAMENTO_LEY_MUNICIPALIDADES: 'Reglamento General de la Ley de Municipalidades',
     LEY_MUNICIPALIDADES: 'Ley de Municipalidades',
+    LEY_GENERAL_ADMINISTRACION_PUBLICA: 'Ley General de la Administración Pública',
   };
   return etiquetas[instrumento];
 }

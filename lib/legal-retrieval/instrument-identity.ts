@@ -26,7 +26,9 @@ export type InstrumentoNormalizado =
   | 'LEY_LAVADO_ACTIVOS'
   | 'LEY_PROCEDIMIENTO_ADMINISTRATIVO'
   | 'REGLAMENTO_LEY_MUNICIPALIDADES'
-  | 'LEY_MUNICIPALIDADES';
+  | 'LEY_MUNICIPALIDADES'
+  // OLA 14 (D8 del expediente OLA14_LGAP, firmado el 2026-11-26).
+  | 'LEY_GENERAL_ADMINISTRACION_PUBLICA';
 
 /**
  * Cierre de los nombres de las leyes V5 en la `fuente` real: nada más que «de Honduras» opcional y luego «(Decreto…)», una coma o el final.
@@ -86,8 +88,10 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   LEY_PROPIEDAD: fuenteV5(String.raw`ley\s+de\s+(?:la\s+)?propiedad`),
   LEY_LAVADO_ACTIVOS: fuenteV5(String.raw`ley\s+especial\s+contra\s+el\s+lavado\s+de\s+activos`),
   LEY_PROCEDIMIENTO_ADMINISTRATIVO: fuenteV5(String.raw`ley\s+de\s+procedimientos?\s+administrativos?`),
-  REGLAMENTO_LEY_MUNICIPALIDADES: fuenteV5(String.raw`reglamento\s+(?:general\s+)?(?:de|a)\s+(?:la\s+)?ley\s+de\s+municipalidades`),
+  REGLAMENTO_LEY_MUNICIPALIDADES: fuenteV5(String.raw`reglamento\s+(?:general\s+)?(?:de|a|para|sobre)\s+(?:la\s+)?(?:nueva\s+)?ley\s+de\s+municipalidades`),
   LEY_MUNICIPALIDADES: fuenteV5(String.raw`ley\s+de\s+municipalidades`),
+  // «Ley General de la Administración Pública de Honduras (Decreto No. 146-86)»; la «Ley para Optimizar la Administración Pública» no coincide.
+  LEY_GENERAL_ADMINISTRACION_PUBLICA: fuenteV5(String.raw`ley\s+general\s+de\s+(?:la\s+)?administraci[oó]n\s+p[uú]blica`),
 };
 
 /**
