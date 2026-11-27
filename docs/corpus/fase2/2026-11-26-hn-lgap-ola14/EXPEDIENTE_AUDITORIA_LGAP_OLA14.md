@@ -192,3 +192,30 @@ pwsh -File out\ola14-lgap\ejecutar_prod.ps1 -DesdePaso 0 -HastaPaso 3
 ```
 
 S1–S3 no requieren firma: dejan las filas ocultas. Después de S3, Claude Code verifica staging en solo lectura antes de S4; después de P3, verifica producción en solo lectura. Con D8 firmada, el registro de identidad de la LGAP en la aplicación va en su propio PR.
+
+## 9. Auditoría de staging (pasos S1–S3)
+
+**Lectura de verificación (2026-11-26, solo lectura, staging `aicakncgtuiiuomflkqj`), después de que el CLO corriera `ejecutar_staging.ps1 -DesdePaso 1 -HastaPaso 3` desde `main` (`f8e6661`). Resultado: conforme.**
+
+| Control | Esperado | Observado | |
+|---|---|---|---|
+| Huellas SHA-256 en disco de S1–S4, P0–P3, R y `rows.jsonl` | §7 | 10 de 10 idénticas | ✔ |
+| Filas del lote `OLA14_LGAP_2014_01` | 131 | 131 (131 `id` y 131 `num_articulo_norm` distintos); ninguna 4-A (§5.5) | ✔ |
+| Ocultas (`revision_pendiente = true`) | 131 | 131; ninguna otra fila oculta en staging | ✔ |
+| `es_norma_vigente` | `NULL` hasta V4 | 131 `NULL` | ✔ |
+| `sha256(contenido) = hash_contenido = metadata.article_sha256` | 131 | 131 | ✔ |
+| Huella del lote (md5 de las líneas `id\|hash_contenido`, ordenadas en C) frente a `rows.jsonl` | `4dfd32742b0f00da76c67e71cb1a86fa` | idéntica | ✔ |
+| Embeddings | 131 de 384D | 131 de 384D; las sumas de control de la 1.ª y la 384.ª componente (7.8883 y 7.4502) coinciden con S2 | ✔ |
+| Identidad | única | `LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN:LEY_GENERAL_ADMINISTRACION_PUBLICA` / `HN` / `mayalex_normativos` / `10_LEYES_REGLAMENTOS` / `codigo` / «Ley General de la Administración Pública de Honduras (Decreto No. 146-86)» | ✔ |
+| Clasificación propuesta | 94 PRIMARY, 11 CONTEXT vigentes, 26 CONTEXT derogados | idéntica; sin `estado_v` ni `rol` todavía (los asigna S4) | ✔ |
+| Reformas del D.266-2013 | 28 textos sustituidos, con la huella del texto de la edición | arts. 2, 3, 4, 5, 6, 12, 13, 14, 15, 20, 22, 26, 27, 28, 29, 45, 50, 53, 85, 98, 99, 100, 101, 102, 113, 117, 124-C y 124-D, cada uno con `texto_edicion_sha256`. El art. 2 empieza «La Administración Pública es Centralizada y Descentralizada.»; el art. 29 tiene 34 párrafos; ninguna fila conserva las comillas exteriores de La Gaceta | ✔ |
+| Art. 98 (derogado y vuelto a crear) | historia completa | constancias `DEROGACION_TOTAL` (D.218-96) y `ADICION` (D.266-2013); texto «El Poder Ejecutivo puede intervenir…» | ✔ |
+| Derogados | 26, con su decreto | 20 de la edición (D.218-96, D.85-91, D.83-2004) y 6 del Artículo 10 del D.266-2013 (15-A, 82, 104, 105, 124-A, 124-B), cada uno con `derogado_por` | ✔ |
+| Constancias | 82 | 82; las 11 `REVISION_PENDIENTE_CLO` son exactamente las de los arts. 30, 31, 33, 34, 35, 36, 63, 69, 81, 84 y 86 | ✔ |
+| Corrección dirigida por el cotejo con La Gaceta 25,088 (§4) | 17 | las 17 lecturas oficiales están en las filas y ninguna de las 17 lecturas de la edición queda en ellas | ✔ |
+| Separación de la LPA y de los demás lotes | 0 textos comunes | 0 textos sustantivos comunes. Las únicas huellas compartidas son 13 filas cuyo contenido es solo «Derogado.» (arts. 38, 68, 75, 79, 87, 89–94, 96 y 97), iguales al art. 31-B de la Ley de Municipalidades. La LPA (`OLA13_LPA_2014_01`) sigue con sus 156 filas visibles en V4 | ✔ |
+| Las RPC no exponen el lote oculto | 0 | `buscar_biblioteca_v3` y `resolver_articulo_exacto` (md5 `4392a97a…` / `37735385…`): 0 filas de la LGAP | ✔ |
+
+Contexto de staging: 1,085 filas en total = 954 visibles + 131 ocultas, que son exactamente las de este lote.
+
+**Precondición de S4:** se cumple (131 filas ocultas, vigencia `NULL`, con embedding y huella correcta). El lote queda apto para la firma D1–D8 y el paso S4.
