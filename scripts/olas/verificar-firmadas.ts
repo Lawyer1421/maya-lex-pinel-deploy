@@ -17,10 +17,11 @@ import { INSTRUMENTOS as L12 } from './ola12-leyes';
 import { PARAMS as P12LA } from './ola12-lavado';
 import { PARAMS as P13LPA } from './ola13-lpa';
 import { PARAMS as P13LMUN } from './ola13-lmun';
+import { PARAMS as P13RLMUN } from './ola13-rlmun';
 
 const FIRMADAS: Array<[string, ParamsCedij, string]> = [['OLA3', P3, 'out/ola3-con'], ['OLA6', P6, 'out/ola6-cpc'], ['OLA7', P7, 'out/ola7-ct'], ['OLA9', P9, 'out/ola9-ctrib'], ['OLA10', P10, 'out/ola10-not'], ['OLA11', P11, 'out/ola11-adop'],
   ['OLA12 LJC', L12.ljc, 'out/ola12-ljc'], ['OLA12 LOAT', L12.loat, 'out/ola12-loat'], ['OLA12 LP', L12.lp, 'out/ola12-lp'], ['OLA12 LA', P12LA, 'out/ola12-la'],
-  ['OLA13 LPA', P13LPA, 'out/ola13-lpa'], ['OLA13 LMUN', P13LMUN, 'out/ola13-lmun']];
+  ['OLA13 LPA', P13LPA, 'out/ola13-lpa'], ['OLA13 LMUN', P13LMUN, 'out/ola13-lmun'], ['OLA13 RLMUN', P13RLMUN, 'out/ola13-rlmun']];
 let fallos = 0;
 for (const [nombre, p, dir] of FIRMADAS) {
   const nuevas = new Map(construirCedij(p).articulos.map((a) => [a.fila.num_articulo, JSON.stringify(a.fila)]));
