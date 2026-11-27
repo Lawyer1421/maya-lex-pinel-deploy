@@ -107,6 +107,13 @@ export const IDENTIFICADORES_DOCUMENTALES: Partial<Record<InstrumentoNormalizado
   CODIGO_TRIBUTARIO: ['170-2016'],        // Codigo Tributario (Decreto 170-2016 - ...)
   CODIGO_COMERCIO: ['73-1950'],           // Codigo de Comercio (Decreto No. 73-1950, ...)
   CONSTITUCION: ['131-1982'],             // Constitucion de la Republica (Decreto 131-1982 - ...)
+  // Olas V5 (fuentes de producción, 2026-11-26).
+  LEY_ORGANIZACION_TRIBUNALES: ['76-1906'],      // Ley de Organización y Atribuciones de los Tribunales (Decreto No. 76 de 1906)
+  LEY_PROPIEDAD: ['82-2004'],                    // Ley de Propiedad de Honduras (Decreto No. 82-2004)
+  LEY_LAVADO_ACTIVOS: ['144-2014'],              // Ley Especial contra el Lavado de Activos (Decreto No. 144-2014)
+  LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['152-87'],  // Ley de Procedimiento Administrativo (Decreto No. 152-87)
+  LEY_MUNICIPALIDADES: ['134-90'],               // Ley de Municipalidades de Honduras (Decreto No. 134-90)
+  REGLAMENTO_LEY_MUNICIPALIDADES: ['018-93'],    // Reglamento General de la Ley de Municipalidades (Acuerdo No. 018-93)
 };
 
 /**

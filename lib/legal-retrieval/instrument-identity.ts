@@ -19,7 +19,21 @@ export type InstrumentoNormalizado =
   | 'CODIGO_COMERCIO'
   | 'CODIGO_NINEZ'
   | 'DECRETO_284_2013'
-  | 'DECRETO_35_2013';
+  | 'DECRETO_35_2013'
+  // Leyes de las olas V5 firmadas (OLA 12 y OLA 13, 2026-11-25/26). Identidad canónica `HN:<id>` (instrument-ref.ts).
+  | 'LEY_ORGANIZACION_TRIBUNALES'
+  | 'LEY_PROPIEDAD'
+  | 'LEY_LAVADO_ACTIVOS'
+  | 'LEY_PROCEDIMIENTO_ADMINISTRATIVO'
+  | 'REGLAMENTO_LEY_MUNICIPALIDADES'
+  | 'LEY_MUNICIPALIDADES';
+
+/**
+ * Cierre de los nombres de las leyes V5 en la `fuente` real: nada más que «de Honduras» opcional y luego «(Decreto…)», una coma o el final.
+ * Así «Ley de Propiedad Intelectual», «Ley de Municipalidades de El Salvador» o «Comentario a la Ley…» no confirman la identidad.
+ */
+const CIERRE_FUENTE_V5 = String.raw`(?:\s+de\s+honduras)?(?=\s*\(|\s*,|\s*$)`;
+const fuenteV5 = (nombre: string): RegExp => new RegExp(String.raw`^\s*${nombre}${CIERRE_FUENTE_V5}`, 'i');
 
 // Patrón que debe encontrarse en `fuente` (o metadata.documento_origen) de
 // una fila real de la DB para confirmar que pertenece a ese instrumento.
@@ -65,6 +79,15 @@ export const RE_FUENTE_POR_INSTRUMENTO: Record<InstrumentoNormalizado, RegExp> =
   // de la ingesta no nombra ningún código («Decreto 35-2013, reformas integrales en Familia y Niñez (La Gaceta 33,222)»), así que no la captura
   // ningún patrón anterior; una fila del Código de Familia que cite «reformado por el Decreto 35-2013» conserva su identidad.
   DECRETO_35_2013: /^\s*decreto\s+(?:legislativo\s+)?(?:n(?:o|º|°|[uú]mero)\.?\s*)?35\s*[-–]\s*2013\b/i,
+  // Olas V5 (2026-11-26). Anclados al inicio y cerrados (CIERRE_FUENTE_V5): son exactamente las fuentes de producción, p. ej.
+  // «Ley de Propiedad de Honduras (Decreto No. 82-2004)». El Reglamento se declara antes que la Ley: su fuente («Reglamento General de la
+  // Ley de Municipalidades…») contiene el nombre de la Ley, aunque el ancla ya impide la colisión.
+  LEY_ORGANIZACION_TRIBUNALES: fuenteV5(String.raw`ley\s+de\s+organizaci[oó]n\s+y\s+atribuciones\s+de\s+los\s+tribunales`),
+  LEY_PROPIEDAD: fuenteV5(String.raw`ley\s+de\s+(?:la\s+)?propiedad`),
+  LEY_LAVADO_ACTIVOS: fuenteV5(String.raw`ley\s+especial\s+contra\s+el\s+lavado\s+de\s+activos`),
+  LEY_PROCEDIMIENTO_ADMINISTRATIVO: fuenteV5(String.raw`ley\s+de\s+procedimientos?\s+administrativos?`),
+  REGLAMENTO_LEY_MUNICIPALIDADES: fuenteV5(String.raw`reglamento\s+(?:general\s+)?de\s+la\s+ley\s+de\s+municipalidades`),
+  LEY_MUNICIPALIDADES: fuenteV5(String.raw`ley\s+de\s+municipalidades`),
 };
 
 /**

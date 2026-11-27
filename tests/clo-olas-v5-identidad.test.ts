@@ -7,6 +7,7 @@ import {
   clasificarFragmentoClo, INSTRUMENT_IDS, INSTRUMENTOS_SOLO_CONTEXT, instrumentIdDeFragmento, textoNombraInstrumento,
   type InstrumentId,
 } from '@/lib/legal-retrieval/clo-guards';
+import { parsearInstrumentRef } from '@/lib/legal-retrieval/instrument-ref';
 
 const FUENTES_V5: Array<[InstrumentId, string, string]> = [
   ['LEY_JUSTICIA_CONSTITUCIONAL', 'OLA12_LJC_2007_01', 'Ley sobre Justicia Constitucional de Honduras (Decreto No. 244-2003)'],
@@ -83,15 +84,21 @@ describe('OLA13_RLMUN: desbloqueado por D8 (D1–D8 firmadas y cargado en produc
     expect(c).toMatchObject({ instrumentId: 'REGLAMENTO_LEY_MUNICIPALIDADES', rol: 'PRIMARY', bloqueos: [] });
   });
 
-  it.each(FUENTES_V5.filter(([id]) => id !== 'LEY_JUSTICIA_CONSTITUCIONAL'))(
-    'HUECO CONOCIDO (%s): con metadata.norm_id «HN:…» sigue CONTEXT hasta que instrument-identity la registre (PR del resolver)',
+  it.each(FUENTES_V5)(
+    'hueco cerrado (%s): con metadata.norm_id «HN:…», como la entrega la búsqueda exacta, sale PRIMARY',
     (id, _lote, fuente) => {
-      // La búsqueda exacta (lib/rag/search.ts) sí lee metadata.norm_id; parsearInstrumentRef rechaza estos instrumentos (INSTRUMENTO_DESCONOCIDO)
-      // y el guardián país falla cerrado. Hoy no es alcanzable: el resolver de consultas aún no reconoce estas leyes por su nombre.
+      // Antes del registro en instrument-identity.ts, parsearInstrumentRef rechazaba estos ids (INSTRUMENTO_DESCONOCIDO) y el guardián país
+      // degradaba la fila a CONTEXT (IDENTIDAD_PAIS_INCONSISTENTE). La búsqueda exacta (lib/rag/search.ts) sí lee metadata.norm_id.
+      expect(parsearInstrumentRef(`HN:${id}`)).toMatchObject({ ok: true, pais: 'HN', instrumento: id });
       const c = clasificarFragmentoClo(fila(fuente, { metadata: { norm_id: `HN:${id}` } }));
-      expect(c).toMatchObject({ instrumentId: id, rol: 'CONTEXT', bloqueos: ['IDENTIDAD_PAIS_INCONSISTENTE'] });
+      expect(c).toMatchObject({ instrumentId: id, rol: 'PRIMARY', bloqueos: [] });
     },
   );
+
+  it.each(FUENTES_V5)('%s: el guardián país sigue fallando cerrado ante un norm_id de otro país', (id, _lote, fuente) => {
+    const c = clasificarFragmentoClo(fila(fuente, { metadata: { norm_id: `SV:${id}` } }));
+    expect(c).toMatchObject({ rol: 'CONTEXT', bloqueos: ['IDENTIDAD_PAIS_INCONSISTENTE'] });
+  });
 
   it('los demás bloqueos de instrumento siguen intactos (Reglamento del Notariado y D.77-2006)', () => {
     expect(INSTRUMENTOS_SOLO_CONTEXT).toEqual({ REGLAMENTO_NOTARIADO: 'INSTRUMENTO_SIN_PLIEGO_CLO', DECRETO_77_2006: 'INSTRUMENTO_TEXTO_NO_COTEJADO' });
