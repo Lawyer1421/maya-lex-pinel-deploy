@@ -211,6 +211,12 @@ export function normalizarNumeroArticulo(n: string | number | null | undefined):
 // fuente y debe terminar ahí, o seguir "de Honduras", «(» o «,». Así «Escritura de constitución de sociedad» o «Código Civil de España» no
 // identifican un instrumento hondureño. Orden: lo más específico primero.
 const CIERRE = '(?:\\s+de\\s+honduras)?(?=\\s*\\(|,|\\s*$)';
+/**
+ * Conectores «Reglamento (general) <conector> (la) (nueva) Ley de Municipalidades», en texto normalizado. Las mismas formas que CONECTOR_RLMUN
+ * del detector (exact-resolver.ts), incluidas las locuciones preposicionales del hallazgo BAJO del #177.
+ */
+const CONECTORES_RLMUN: readonly string[] = ['de', 'a', 'para', 'sobre', 'conforme a', 'con arreglo a',
+  ...['en', 'de'].flatMap((p) => ['aplicacion', 'ejecucion', 'desarrollo'].map((s) => `${p} ${s} de`))];
 const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['DECRETO_77_2006', /^decreto\s+(?:no\.?\s*)?77-2006\b/],
   // Piloto de adjudicación (2026-11-15): la fuente debe EMPEZAR por el decreto; un comentario o una fila del Código de Comercio que lo cite no.
@@ -241,7 +247,7 @@ const FUENTES_CANONICAS: ReadonlyArray<readonly [InstrumentId, RegExp]> = [
   ['LEY_PROPIEDAD', new RegExp(`^ley\\s+de\\s+(?:la\\s+)?propiedad${CIERRE}`)],
   ['LEY_LAVADO_ACTIVOS', new RegExp(`^ley\\s+especial\\s+contra\\s+el\\s+lavado\\s+de\\s+activos${CIERRE}`)],
   ['LEY_PROCEDIMIENTO_ADMINISTRATIVO', new RegExp(`^ley\\s+de\\s+procedimientos?\\s+administrativos?${CIERRE}`)],
-  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?(?:de|a|para|sobre)\\s+(?:la\\s+)?(?:nueva\\s+)?ley\\s+de\\s+municipalidades${CIERRE}`)],
+  ['REGLAMENTO_LEY_MUNICIPALIDADES', new RegExp(`^reglamento\\s+(?:general\\s+)?(?:${CONECTORES_RLMUN.map((c) => c.replace(/ /g, '\\s+')).join('|')})\\s+(?:la\\s+)?(?:nueva\\s+)?ley\\s+de\\s+municipalidades${CIERRE}`)],
   ['LEY_MUNICIPALIDADES', new RegExp(`^ley\\s+de\\s+municipalidades${CIERRE}`)],
   // OLA 14 (D8 del expediente OLA14_LGAP, firmado el 2026-11-26): fuente «Ley General de la Administración Pública de Honduras (Decreto No. 146-86)».
   ['LEY_GENERAL_ADMINISTRACION_PUBLICA', new RegExp(`^ley\\s+general\\s+de\\s+(?:la\\s+)?administracion\\s+publica${CIERRE}`)],
@@ -643,8 +649,8 @@ const ALIAS_INSTRUMENTO: Readonly<Record<InstrumentId, readonly string[]>> = Obj
   LEY_LAVADO_ACTIVOS: ['ley especial contra el lavado de activos', 'ley contra el lavado de activos'],
   LEY_PROCEDIMIENTO_ADMINISTRATIVO: ['ley de procedimiento administrativo', 'ley de procedimientos administrativos'],
   LEY_MUNICIPALIDADES: ['ley de municipalidades'],
-  // Todas las formas del conector del detector (CONECTOR_RLMUN en exact-resolver.ts): «(general) de/a/para/sobre (la) (nueva) Ley…».
-  REGLAMENTO_LEY_MUNICIPALIDADES: ['general ', ''].flatMap((g) => ['de', 'a', 'para', 'sobre'].flatMap((c) => ['la ', ''].flatMap((a) =>
+  // Todas las formas del conector del detector (CONECTOR_RLMUN en exact-resolver.ts): «(general) <conector> (la) (nueva) Ley…».
+  REGLAMENTO_LEY_MUNICIPALIDADES: ['general ', ''].flatMap((g) => CONECTORES_RLMUN.flatMap((c) => ['la ', ''].flatMap((a) =>
     ['nueva ', ''].map((n) => `reglamento ${g}${c} ${a}${n}ley de municipalidades`)))),
   LEY_GENERAL_ADMINISTRACION_PUBLICA: ['ley general de la administracion publica', 'ley general de administracion publica'],
 });
