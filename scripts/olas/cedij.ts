@@ -198,6 +198,12 @@ export interface ParamsCedij {
   noImpresos?: Readonly<Record<string, string>>;
   /** Descripción de la fuente en el motivo PRIMARY (por omisión «edición consolidada <edición> con reformas integradas»). */
   motivoPrimary?: string;
+  /**
+   * Artículos que la edición trae derogados en su totalidad y que una reforma posterior vuelve a crear con texto nuevo en el mismo número
+   * (p. ej. el art. 98 de la LGAP: derogado por el D.218-96 y adicionado de nuevo por el D.266-2013). Su nota de derogación conserva el
+   * tipo DEROGACION_TOTAL (historia del número) en lugar de leerse como derogación parcial del texto nuevo.
+   */
+  recreados?: readonly string[];
 }
 
 export interface ArticuloCedij { fila: FilaOla; constancias: Constancia[]; correcciones: string[]; ubicacion: string[]; derogadoConTexto: boolean }
@@ -383,7 +389,7 @@ export function construirCedij(p: ParamsCedij): { articulos: ArticuloCedij[]; no
     const derogTotalPropia = constancias.find((c) => c.tipo === 'DEROGACION_TOTAL' && (articuloDeNota(c.texto) === a.numero || (notasPorNombre.get(a.numero) ?? []).includes(c.nota!)));
     let clasificacion: Clasificacion;
     // Nota de derogación que no nombra el artículo y cae en uno con texto: deroga un inciso o numeral (p. ej. «11) Derogado.4»).
-    if (!soloDerogado && !derogTotalPropia) for (const c of constancias) if (c.tipo === 'DEROGACION_TOTAL' && articuloDeNota(c.texto) === null) c.tipo = 'DEROGACION_PARCIAL';
+    if (!soloDerogado && !derogTotalPropia && !p.recreados?.includes(a.numero)) for (const c of constancias) if (c.tipo === 'DEROGACION_TOTAL' && articuloDeNota(c.texto) === null) c.tipo = 'DEROGACION_PARCIAL';
     if (soloDerogado || derogTotalPropia) {
       const c = derogTotalPropia ?? constancias.find((x) => /DEROGACION_(TOTAL|DE_TITULO)/.test(x.tipo));
       const dec = c ? decretoDerogatorio(c.texto) : null;
