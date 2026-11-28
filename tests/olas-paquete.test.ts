@@ -100,6 +100,24 @@ describe('paquete de ola · generador, ejecutor y .ps1', () => {
     expect(sql03).toContain("metadata = coalesce(b.metadata, '{}'::jsonb) || jsonb_build_object('sustituido_por_lote', 'OLAT_01'");
     expect(sql03).toMatch(/legacy marcadas para la reversión: % \(esperadas 7\)/);
   });
+  it('fila histórica sin num_articulo_norm: solo como CONTEXT derogado, con postcondiciones propias (OLA 15, art. 47 de 2010)', () => {
+    const hist: FilaOla = { ...fila('2', 'DEROGADO'), id: 'OLAT_01:CODIGO_PROCESAL_PENAL:1-TEXTO-2010', num_articulo: '1', num_articulo_norm: null };
+    expect(() => validarFilas(CFG, [fila('1'), { ...hist, clasificacion: { vigencia: 'VIGENTE', rol: 'CONTEXT', motivo: '' } }])).toThrow(/sin num_articulo_norm/);
+    expect(() => validarFilas(CFG, [fila('1'), { ...hist, num_articulo_norm: null, clasificacion: { vigencia: 'VIGENTE', rol: null, motivo: '' } }])).toThrow(/sin num_articulo_norm/);
+    const dirH = mkdtempSync(join(tmpdir(), 'ola-hist-'));
+    const filasH = [fila('1'), hist];
+    escribirPaquete({ cfg: CFG, filas: filasH, embeddings: new Map(filasH.map((f, i) => [f.id, vec(i + 2)])), salida: dirH });
+    const st03 = readFileSync(join(dirH, 'staging/03_verificacion_staging.sql'), 'utf8');
+    expect(st03).toContain("num_articulo_norm distintos: % (esperados 1)");
+    expect(st03).toContain("filas históricas sin num_articulo_norm: % (esperadas 1)");
+    for (const ruta of ['staging/04_visibilidad_v4_staging.sql', 'prod/03_activacion_v5_prod.sql']) {
+      expect(readFileSync(join(dirH, ruta), 'utf8')).toContain("num_articulo_norm IS NULL AND (es_norma_vigente IS DISTINCT FROM false OR metadata->>'rol' IS DISTINCT FROM 'CONTEXT')");
+    }
+    // Sin filas históricas, el SQL no cambia respecto de los paquetes ya firmados.
+    for (const ruta of ['staging/03_verificacion_staging.sql', 'staging/04_visibilidad_v4_staging.sql', 'prod/03_activacion_v5_prod.sql']) {
+      expect(readFileSync(join(dir, ruta), 'utf8')).not.toMatch(/históricas|sin num_articulo_norm/);
+    }
+  });
   it('el ejecutor exige el ref correcto en la URL', () => {
     expect(() => planificar({ manifiesto, dirManifiesto: dir, raiz: dir, destino: 'prod', ref: REF_PROD, url: urlProd.replace(REF_PROD, REF_STAGING), desde: 0, hasta: 98 })).toThrow(/no apunta|otro destino/);
     expect(() => planificar({ manifiesto, dirManifiesto: dir, raiz: dir, destino: 'prod', ref: REF_STAGING, url: urlProd, desde: 0, hasta: 98 })).toThrow(/no es el de prod/);
