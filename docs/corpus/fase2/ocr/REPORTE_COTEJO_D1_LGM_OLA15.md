@@ -252,6 +252,8 @@ Al construir el paquete de la OLA 15, el adaptador debe:
 
 ## 6. D4: vigencia y reformas posteriores a 2010
 
+> **Superado (2026-11-27).** Lo que sigue refleja el barrido inicial y es **incorrecto** en cuanto a las reformas: el art. 10 del **Decreto No. 50-2016** (La Gaceta 34,076, 4-jul-2016) sustituye el art. 47. La D4 vigente está en `docs/corpus/fase2/2026-11-27-hn-lgm-ola15/EXPEDIENTE_D1_D4_LGM_OLA15.md` (§5).
+
 Situación al 2026-11-27:
 
 **Entrada en vigencia.** El art. 86 cotejado dice: «La presente Ley entrará en vigencia seis (6) meses después de su publicación en el Diario Oficial “La Gaceta”» (unánime). Con la publicación del 28-ene-2010, la vigencia empieza el **28-jul-2010**. Hay que corregir la fecha del 28-ene-2010 que da la revista judicial costarricense, que es la de publicación.
