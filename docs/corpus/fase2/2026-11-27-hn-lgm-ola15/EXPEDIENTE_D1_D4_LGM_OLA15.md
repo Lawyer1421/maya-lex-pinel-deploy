@@ -1,10 +1,10 @@
 # Expediente D1–D4 y matriz de clasificación · OLA 15 · `HN:LEY_GARANTIAS_MOBILIARIAS`
 
-**Estado D1:** PENDIENTE DE FIRMA
-**Estado D2:** PENDIENTE DE FIRMA
-**Estado D3:** PENDIENTE DE FIRMA
-**Estado D4:** PENDIENTE DE FIRMA
-**Estado matriz:** PENDIENTE DE FIRMA
+**Estado D1:** FIRMADA (2026-11-28, Abg. y Not. Fredy Omar Pinel Flores, CLO)
+**Estado D2:** FIRMADA (2026-11-28, Abg. y Not. Fredy Omar Pinel Flores, CLO)
+**Estado D3:** FIRMADA (2026-11-28, Abg. y Not. Fredy Omar Pinel Flores, CLO)
+**Estado D4:** FIRMADA (2026-11-28, Abg. y Not. Fredy Omar Pinel Flores, CLO) · con la reserva R2 (barrido complementario en el CEDIJ y el Congreso Nacional)
+**Estado matriz:** FIRMADA (2026-11-28, Abg. y Not. Fredy Omar Pinel Flores, CLO) · con la reserva R2 (barrido complementario en el CEDIJ y el Congreso Nacional)
 
 **Instrumento:** Ley de Garantías Mobiliarias, Decreto No. 182-2009.
 - Aprobada por el Congreso Nacional el 24-ago-2009 y sancionada el 22-sep-2009.
@@ -210,13 +210,24 @@ En el cierre del PR #182 y en el §6 del reporte D1 se dijo que no se había enc
 
 | # | Decisión propuesta | Decisión del CLO |
 |---|---|---|
-| D1 | Texto base de 2010: `LGM_OLA15_articulado_cotejado.txt` (`84effbdb…`), aprobado el 2026-11-27, **con la fe de erratas de 4 signos** de §2 (arts. 17, 26, 52 y 56) | ☐ |
-| D2 | Corte determinista de los 22 bloques de encabezados (§3), con el texto verificado de `encabezados_cortados.csv`, incluidos los arts. 79 («CAPÍTULO II») y 84 (sin «\|») | ☐ |
-| D3 | Texto del art. 47 reformado por el art. 10 del D.50-2016 (§4), testigo único con la reserva R1 | ☐ |
-| D4 | Vigencia de §5.2. Constancia expresa de la reforma del D.50-2016, corrección de la contradicción del PR #182 (§5.1) y reserva R2 sobre el barrido en el CEDIJ y el Congreso Nacional | ☐ |
-| Matriz | 87 filas (§6): 86 PRIMARY vigentes; art. 47 de 2010 como CONTEXT derogado con `num_articulo_norm` NULL; art. 83 PRIMARY con nota; reservas R3–R6 | ☐ |
+| D1 | Texto base de 2010: `LGM_OLA15_articulado_cotejado.txt` (`84effbdb…`), aprobado el 2026-11-27, **con la fe de erratas de 4 signos** de §2 (arts. 17, 26, 52 y 56) | ☑ **Aprobada** por el CLO (2026-11-28): fe de erratas de los 4 signos verificados en la imagen, aplicada en la matriz (`15bece35…`); el archivo base aprobado (`84effbdb…`) queda intacto |
+| D2 | Corte determinista de los 22 bloques de encabezados (§3), con el texto verificado de `encabezados_cortados.csv`, incluidos los arts. 79 («CAPÍTULO II») y 84 (sin «\|») | ☑ **Aprobada** por el CLO (2026-11-28), con la firma D1–D4 |
+| D3 | Texto del art. 47 reformado por el art. 10 del D.50-2016 (§4), testigo único con la reserva R1 | ☑ **Aprobada** por el CLO (2026-11-28): texto vigente del art. 47 según el art. 10 (Capítulo IV) del D.50-2016 (`art47_D50-2016.txt`, `c71439bc…`) |
+| D4 | Vigencia de §5.2. Constancia expresa de la reforma del D.50-2016, corrección de la contradicción del PR #182 (§5.1) y reserva R2 sobre el barrido en el CEDIJ y el Congreso Nacional | ☑ **Aprobada** por el CLO (2026-11-28), **con la reserva expresa R2**: barrido complementario en el CEDIJ y el Congreso Nacional pendiente; si aparece otra reforma, se reabre la D4 antes de cualquier carga |
+| Matriz | 87 filas (§6): 86 PRIMARY vigentes; art. 47 de 2010 como CONTEXT derogado con `num_articulo_norm` NULL; art. 83 PRIMARY con nota; reservas R3–R6 | ☑ **Aprobada** por el CLO (2026-11-28): (a) el art. 47 de 2010 queda como fila histórica no vigente (`es_norma_vigente = false`) con número normalizado vacío, de modo que las consultas al «art. 47» resuelven solo al texto vigente del D.50-2016; (b) los artículos transitorios se mantienen vigentes conforme a la matriz (`15bece35…`) |
 
-Firma: ______________________ · Abg. y Not. Fredy Omar Pinel Flores, CLO / Director Maya Lex · Fecha: __________
+*Alcance de la decisión sobre transitorios.* El CLO la expresó como «arts. 84–86». En la matriz firmada (`15bece35…`) **todos** los artículos son PRIMARY vigentes, salvo el art. 47 de 2010. La aprobación de mantenerlos «conforme a lo asentado en la matriz» cubre, por tanto, los transitorios de la reserva R4 (arts. 79–82 y 85) y los arts. 84–86.
+
+*Confirmación expresa (2026-11-28).* El CLO aprobó expresamente:
+- la fe de erratas de la D1 (arts. 17, 26, 52 y 56);
+- la fila histórica no vigente del art. 47 de 2010, con número normalizado vacío;
+- el mantenimiento de los artículos transitorios como vigentes.
+
+D2, D3 y D4 quedan aprobadas con la firma, con la reserva R2 en la D4.
+
+Firma: **aprobado** · **Abg. y Not. Fredy Omar Pinel Flores**, CLO / Director Maya Lex · Fecha: **2026-11-28** · *Registrada por Claude Code por orden expresa del CLO. Las huellas citadas (texto base `84effbdb…`, matriz `15bece35…`, art. 47 reformado `c71439bc…`) se verificaron antes de registrar la firma; ninguna cambió.*
+
+> **Alcance.** Esta firma decide el texto, la vigencia y la clasificación. **No autoriza escrituras.** El paquete V4/V5 y su autorización (D5–D8) requieren el pliego completo con sus propias huellas.
 
 ## 9. Reproducir
 
