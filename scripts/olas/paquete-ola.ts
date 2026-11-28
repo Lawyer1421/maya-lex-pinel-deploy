@@ -68,7 +68,26 @@ export function validarFilas(cfg: ConfigOla, filas: readonly FilaOla[]): void {
     if (sha256(f.contenido) !== f.hash_contenido) throw new Error(`fila ${f.id}: hash_contenido no es sha256(contenido)`);
     if (/\r/.test(f.contenido)) throw new Error(`fila ${f.id}: contenido con CR (se exige LF)`);
     if (f.clasificacion.vigencia === 'DEROGADO' && f.clasificacion.rol !== 'CONTEXT') throw new Error(`fila ${f.id}: un derogado nunca es PRIMARY`);
+    // Fila sin número normalizado (versión histórica de un artículo, p. ej. el art. 47 de 2010 de la LGM): ningún resolvedor por número la
+    // alcanza, así que solo se admite como antecedente derogado; una fila vigente sin número quedaría huérfana.
+    if (f.num_articulo_norm === null && !(f.clasificacion.vigencia === 'DEROGADO' && f.clasificacion.rol === 'CONTEXT')) throw new Error(`fila ${f.id}: sin num_articulo_norm solo se admite como CONTEXT derogado`);
   }
+}
+
+/** Filas sin número normalizado (versiones históricas). Con 0, el SQL generado es byte a byte el de los paquetes firmados anteriores. */
+const sinNorma = (filas: readonly FilaOla[]) => filas.filter((f) => f.num_articulo_norm === null).length;
+
+/** Postcondiciones de las filas históricas sin número normalizado: solo existen si el lote las trae. */
+function sqlSinNorma(cfg: ConfigOla, filas: readonly FilaOla[]): string[] {
+  const nulos = sinNorma(filas);
+  if (nulos === 0) return [];
+  const b = lit(cfg.ingestBatch);
+  return [
+    `  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = ${b} AND num_articulo_norm IS NULL;`,
+    `  IF n <> ${nulos} THEN RAISE EXCEPTION 'postcondición filas históricas sin num_articulo_norm = % (esperado ${nulos})', n; END IF;`,
+    `  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = ${b} AND num_articulo_norm IS NULL AND (es_norma_vigente IS DISTINCT FROM false OR metadata->>'rol' IS DISTINCT FROM 'CONTEXT');`,
+    `  IF n <> 0 THEN RAISE EXCEPTION 'postcondición: % filas sin num_articulo_norm no son CONTEXT derogadas', n; END IF;`,
+  ];
 }
 
 export interface Conteos { total: number; primary: number; contextVigente: number; contextDerogado: number; contextPendiente: number }
@@ -204,7 +223,11 @@ export function escribirPaquete(p: { cfg: ConfigOla; filas: FilaOla[]; embedding
     'DO $do$ DECLARE n int; BEGIN',
     ...chequeoIdentidad(cfg, c.total, ' AND embedding IS NOT NULL', 'verificación staging'),
     `  SELECT count(DISTINCT num_articulo_norm) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = ${b};`,
-    `  IF n <> ${c.total} THEN RAISE EXCEPTION 'num_articulo_norm distintos: % (esperados ${c.total})', n; END IF;`,
+    `  IF n <> ${c.total - sinNorma(filas)} THEN RAISE EXCEPTION 'num_articulo_norm distintos: % (esperados ${c.total - sinNorma(filas)})', n; END IF;`,
+    ...(sinNorma(filas) ? [
+      `  SELECT count(*) INTO n FROM public.biblioteca_vectores WHERE ingest_batch = ${b} AND num_articulo_norm IS NULL;`,
+      `  IF n <> ${sinNorma(filas)} THEN RAISE EXCEPTION 'filas históricas sin num_articulo_norm: % (esperadas ${sinNorma(filas)})', n; END IF;`,
+    ] : []),
     'END $do$;', sqlConsultaFinal(cfg), '',
   ].join('\n'));
   add('staging/04_visibilidad_v4_staging.sql', 'staging', 4, true, [
@@ -213,6 +236,7 @@ export function escribirPaquete(p: { cfg: ConfigOla; filas: FilaOla[]; embedding
     ...chequeoIdentidad(cfg, c.total, ' AND revision_pendiente = true AND es_norma_vigente IS NULL AND embedding IS NOT NULL', 'precondición V4'),
     ...sqlClasificar(cfg, filas, 'V4', ''),
     ...sqlPostcondiciones(cfg, c, 'V4'),
+    ...sqlSinNorma(cfg, filas),
     'END $do$;', 'COMMIT;', sqlConsultaFinal(cfg), '',
   ].join('\n'));
 
@@ -261,6 +285,7 @@ export function escribirPaquete(p: { cfg: ConfigOla; filas: FilaOla[]; embedding
     `  IF n <> ${c.total} THEN RAISE EXCEPTION 'filas extra en el lote: % (esperadas ${c.total})', n; END IF;`,
     ...sqlClasificar(cfg, filas, 'V5', extraV5),
     ...sqlPostcondiciones(cfg, c, 'V5'),
+    ...sqlSinNorma(cfg, filas),
     ...(legacy ? [
       `  UPDATE public.biblioteca_vectores b SET revision_pendiente = true,`,
       // coalesce: hay legacy con metadata NULL (Constitución, Tributario) y NULL || jsonb da NULL, lo que borraba la marca que usa la reversión 99.
