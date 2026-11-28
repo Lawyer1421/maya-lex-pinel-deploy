@@ -136,3 +136,37 @@ select metadata->>'rol' rol, encode(sha256(convert_to(metadata::text,'UTF8')),'h
 from public.biblioteca_vectores where id = 'OLA12_LP_2007_01:LEY_PROPIEDAD:28';
 -- Esperado: CONTEXT · d804aedc… · 321e9fe4… · true · false · 142 · 6 · true
 ```
+
+## 8. Constancia de ejecución
+
+**Ejecución (la hizo el CLO, 2026-11-27)** desde la rama `fix/ola12-lp-art28-context` (firma en `a25d773`):
+1. `ejecutar_staging.ps1` en staging (`aicakncgtuiiuomflkqj`): ensayo completo, terminado en ROLLBACK limpio. Staging queda igual.
+2. `ejecutar_prod.ps1` en producción (`thgrhueckkjdutjvcufp`): pasos 01 (respaldo) y 02 (reclasificación). CONTEXT del lote pasa de 5 a 6.
+
+La reversión 99 no se ejecutó y sigue sin autorizar.
+
+**Comprobación posterior de solo lectura** en producción (2026-11-27, `begin transaction read only`, la corrió Claude Code por el conector de Supabase):
+
+| Comprobación | Esperado | Obtenido |
+|---|---|---|
+| `metadata->>'rol'` | CONTEXT | CONTEXT ✔ |
+| SHA-256 de `metadata::text` | `d804aedc…` | `d804aedc682f22134fc0dc391893572e917ffa43178a7d37f1c07f7c1841d534` ✔ |
+| SHA-256 de `contenido` | `321e9fe4…` (sin cambio) | `321e9fe4b86adc6eb6fae55daac7d925b6f1aceb50aa0055bfffa1a6ec20e90b` ✔ |
+| `es_norma_vigente` / `revision_pendiente` | true / false | true / false ✔ |
+| Filas del lote `OLA12_LP_2007_01` | 142 | 142 ✔ |
+| Filas CONTEXT del lote | 6 | 6 ✔ |
+| Constancia | `ADICION`, decreto `182-2009` | `ADICION`, `["182-2009"]` ✔ |
+| `correcciones_clo` | C2 · 2026-11-27 · `rol_anterior` PRIMARY | igual ✔ |
+
+**Respaldo `public.biblioteca_vectores_c2_lp_art28_backup`:**
+
+| Comprobación | Esperado | Obtenido |
+|---|---|---|
+| Filas | 1 | 1 ✔ |
+| RLS (`relrowsecurity`) | true | true ✔ |
+| Políticas | ninguna (nadie lee vía API) | 0 ✔ |
+| Permisos de `anon` / `authenticated` | ninguno | ninguno; `has_table_privilege(…, 'SELECT')` = false para ambos ✔ |
+| SHA-256 de `metadata::text` del respaldo | `c1cb8cdc…` (la metadata anterior) | `c1cb8cdc5bf4630593a8ac953f96c8c2888fc0eb2ca3446548bd9a5fe9918c22` ✔ |
+| `embedding::text` del respaldo frente a la fila viva | igual (no se tocó el vector) | igual ✔ |
+
+**Estado final:** C2 EJECUTADA Y VERIFICADA. El art. 28 de la Ley de Propiedad figura como CONTEXT vigente, con la constancia de la reforma por adición del art. 83 del D.182-2009. Su texto se integrará cuando el texto cotejado de la OLA 15 esté disponible.
